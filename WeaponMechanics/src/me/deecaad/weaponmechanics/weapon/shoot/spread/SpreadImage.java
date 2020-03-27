@@ -148,7 +148,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
         int FOVHeight = configurationSection.getInt(path + ".Field_Of_View_Height", 90);
         
         File dataFolder = WeaponMechanics.getPlugin().getDataFolder();
-        File sprites = new File(dataFolder, "sprites");
+        File sprites = new File(dataFolder, "spread_patterns");
 
         Sprite sprite = new Sprite(new File(sprites, imageName));
         SpreadImage image = new SpreadImage(sprite, FOVWidth, FOVHeight);
