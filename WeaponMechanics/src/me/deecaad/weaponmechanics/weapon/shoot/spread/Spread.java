@@ -99,6 +99,8 @@ public class Spread implements Serializer<Spread> {
             return null;
         }
 
+        baseSpread *= 0.1;
+
         ModifySpreadWhen modifySpreadWhen = new ModifySpreadWhen().serialize(file, configurationSection, path + ".Modify_Spread_When");
         ChangingSpread changingSpread = new ChangingSpread().serialize(file, configurationSection, path + ".Changing_Spread");
         return new Spread(baseSpread, modifySpreadWhen, changingSpread);

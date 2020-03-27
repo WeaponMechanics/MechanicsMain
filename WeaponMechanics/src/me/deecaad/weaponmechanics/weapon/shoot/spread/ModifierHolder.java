@@ -17,7 +17,7 @@ public class ModifierHolder {
             // -> 100% would then mean that no changes are made
             this.spread = spread * 0.01 + 1.0;
         } else {
-            spread *= 0.1;
+            this.spread = spread * 0.1;
         }
     }
 
