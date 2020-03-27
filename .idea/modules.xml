@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/MechanicsMain.iml" filepath="$PROJECT_DIR$/MechanicsMain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeaponMechanics/WeaponMechanics.iml" filepath="$PROJECT_DIR$/WeaponMechanics/WeaponMechanics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeaponMechanicsPlus/WeaponMechanicsPlus.iml" filepath="$PROJECT_DIR$/WeaponMechanicsPlus/WeaponMechanicsPlus.iml" />
+    </modules>
+  </component>
+</project>

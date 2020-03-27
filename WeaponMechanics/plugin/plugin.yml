@@ -1,0 +1,15 @@
+name: 'WeaponMechanics'
+author: 'DeeCaaD'
+version: '1.00'
+description: 'The new era of weapons in Minecraft!'
+main: 'me.deecaad.weaponmechanics.WeaponMechanics'
+api-version: '1.15'
+softdepend:
+  - PlaceholderAPI
+  - WorldGuard
+  - WorldEdit
+
+permissions:
+  weaponmechanics.admin:
+    description: 'Permission to admin related funtions of WeaponMechanics, default false'
+    default: 'op'

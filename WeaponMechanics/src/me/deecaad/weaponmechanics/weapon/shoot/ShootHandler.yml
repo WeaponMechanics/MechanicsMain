@@ -1,0 +1,5 @@
+Shoot:
+  Trigger: <trigger serializer>
+  # All general stuff
+  Spread: <spread serializer>
+  Projectile: <projectile serializer>

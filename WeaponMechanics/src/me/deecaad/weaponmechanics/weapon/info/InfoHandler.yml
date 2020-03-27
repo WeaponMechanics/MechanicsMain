@@ -1,0 +1,10 @@
+Info:
+  Weapon_Item: <item serializer>
+  Dual_Wield: <dual wield serializer>
+  Weapon_Converter_Check: <weapon converter serializer>
+  Cancel:
+    Block_Interactions: <true/false>
+    Item_Interactions: <true/false>
+    Drop_Item: <true/false>
+    Swap_Hands: <true/false>
+    Arm_Swing_Animation: <true/false>

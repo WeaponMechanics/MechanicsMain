@@ -1,0 +1,8 @@
+# me.deecaad.weaponmechanics.general.PlaySound
+Sound:
+  Bukkit_Sounds:
+  - <bukkit sound>-<volume>-<pitch>-<delay>,<etc.>
+  - <etc.>
+  Custom_Sounds:
+  - <custom sound>-<volume>-<pitch>-<delay>,<etc.>
+  - <etc.>

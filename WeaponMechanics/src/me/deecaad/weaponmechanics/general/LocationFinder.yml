@@ -1,0 +1,6 @@
+# me.deecaad.weaponmechanics.general.LocationFinder
+Location_Finder:
+  Use_Eye_location: <true/false>
+  X: <sideways>
+  Y: <upwards>
+  Z: <forwards>

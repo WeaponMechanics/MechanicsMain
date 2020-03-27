@@ -1,0 +1,19 @@
+# me.deecaad.weaponmechanics.general.ItemSerializer
+Item:
+  Type: <Material>:<Data>
+  Name: <name>
+  Lore:
+  - <Lore line>
+  - <etc.>
+  Durability: <durability>
+  Unbreakable: <true/false>
+  Custom_Model_Data: <custom model data number>
+  Hide_Flags: <true/false>
+  Enchantments:
+  - <Enchantment>-<Level>
+  Skull:
+    Owning_Player: <UUID of player or name of player>
+  Potion:
+    Color: <ColorType>
+  Attributes:
+  - <Attribute>-<Amount>

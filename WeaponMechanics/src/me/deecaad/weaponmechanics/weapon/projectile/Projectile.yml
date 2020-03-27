@@ -1,0 +1,44 @@
+# me.deecaad.weaponmechanics.weapon.projectile.Projectile
+Projectile: <path to another Projectile key>
+  Settings:
+    Type: <ProjectileType>
+    Width: <projectile width>
+    Height: <projectile height>
+    Projectile_Item_Or_Block:
+      Type: <Material>:<Data>
+      Durability: <durability>
+      Unbreakable: <true/false>
+      Custom_Model_Data: <custom model data number>
+      Skull:
+        Owning_Player: <UUID of player or name of player>
+      Potion:
+        Color: <ColorType>
+  Projectile_Motion:
+    Gravity: <gravity multiplier>
+    Minimum:
+      Speed: <minimum speed of projectile>
+      Remove_Projectile: <true/false>
+    Maximum:
+      Speed: <maximum speed of projectile>
+      Remove_Projectile: <true/false>
+    Decrease_Motion:
+      Base: <multiplier>
+      In_Water: <multiplier>
+      When_Raining_Or_Snowing: <multiplier>
+  Through:
+    Blocks:
+      Default_Speed_Modifier: <multiplier>
+      Default_Damage_Modifier: <amount>
+      Maximum_Pass_Throughs: <maximum block pass throughs>
+      Whitelist: <true/false>
+      List:
+        - <Material>:<data>-<speed multiplier>-<damage modifier>
+        - <etc.>
+    Entities:
+      Default_Speed_Modifier: <multiplier>
+      Default_Damage_Modifier: <amount>
+      Maximum_Pass_Throughs: <maximum entity pass throughs>
+      Whitelist: <true/false>
+      List:
+        - <EntityType>-<speed multiplier>-<damage modifier>
+        - <etc.>

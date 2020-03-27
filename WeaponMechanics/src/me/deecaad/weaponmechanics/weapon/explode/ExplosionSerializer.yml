@@ -1,0 +1,12 @@
+Explosion:
+  Explosion_Type: <Sphere/Cube/Parabola/Minecraft>
+  Scatter_Chance: 0.15
+  Explosion_Type_Data:
+    # Fetch required values based on explosion type or simply don't do anything with these if not needed
+    # Give default values for everything if not defined here
+    Yield: <Double>
+    Radius: <Double>
+    Angle: <Double>
+    Depth: <Double>
+    Width: <Double>
+    Height: <Double>

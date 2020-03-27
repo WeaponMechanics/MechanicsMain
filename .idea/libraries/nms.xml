@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="nms">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/lib/nms" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/lib/nms" recursive="false" />
+  </library>
+</component>
