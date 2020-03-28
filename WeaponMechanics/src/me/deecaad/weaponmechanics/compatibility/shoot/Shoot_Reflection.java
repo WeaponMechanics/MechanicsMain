@@ -11,10 +11,12 @@ public class Shoot_Reflection implements IShootCompatibility {
 
     private Method entityGetHandle;
     private Field entityWidth;
+    private Field entityHeight;
 
     public Shoot_Reflection() {
         this.entityGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftEntity"), "getHandle");
         this.entityWidth = ReflectionUtil.getField(ReflectionUtil.getNMSClass("Entity"), "width");
+        this.entityHeight = ReflectionUtil.getField(ReflectionUtil.getNMSClass("Entity"), "length");
     }
 
     @Override
@@ -24,5 +26,14 @@ public class Shoot_Reflection implements IShootCompatibility {
         }
         Object nmsEntity = ReflectionUtil.invokeMethod(entityGetHandle, entity);
         return (float) ReflectionUtil.invokeField(entityWidth, nmsEntity);
+    }
+
+    @Override
+    public double getHeight(Entity entity) {
+        if (CompatibilityAPI.getVersion() >= 1.12) {
+            return entity.getHeight();
+        }
+        Object nmsEntity = ReflectionUtil.invokeMethod(entityGetHandle, entity);
+        return (float) ReflectionUtil.invokeField(entityHeight, nmsEntity);
     }
 }

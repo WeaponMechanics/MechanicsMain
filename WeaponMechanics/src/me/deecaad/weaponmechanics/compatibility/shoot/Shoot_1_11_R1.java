@@ -9,4 +9,9 @@ public class Shoot_1_11_R1 implements IShootCompatibility {
     public double getWidth(Entity entity) {
         return ((CraftEntity) entity).getHandle().width;
     }
+
+    @Override
+    public double getHeight(Entity entity) {
+        return ((CraftEntity) entity).getHandle().length;
+    }
 }

@@ -4,7 +4,9 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -83,6 +85,10 @@ public class Projectile_Reflection implements IProjectileCompatibility {
     private Field maxXField;
     private Field maxYField;
     private Field maxZField;
+
+    // For getting default width and height
+
+    private Method getAsBukkitEntity;
 
     // REFLECTION END
 
@@ -176,6 +182,10 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         maxXField = ReflectionUtil.getField(axisAlignedBBClazz, "d");
         maxYField = ReflectionUtil.getField(axisAlignedBBClazz, "e");
         maxZField = ReflectionUtil.getField(axisAlignedBBClazz, "f");
+
+        // For getting default width and height
+
+        getAsBukkitEntity = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("Entity"), "getBukkitEntity");
     }
 
     @Override
@@ -328,6 +338,16 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         Object destroy = ReflectionUtil.newInstance(entityDestroyPacket, new int[]{ customProjectile.projectileDisguiseId });
 
         sendUpdatePackets(customProjectile, 22500, destroy);
+    }
+
+    @Override
+    public double[] getDefaultWidthAndHeight(EntityType entityType) {
+        World world = Bukkit.getWorlds().get(0);
+        Location location = new Location(world, 1, 100, 1);
+        Object nmsEntity = ReflectionUtil.invokeMethod(createEntity, world, location, entityType.getEntityClass());
+        org.bukkit.entity.Entity entity = (org.bukkit.entity.Entity) ReflectionUtil.invokeMethod(this.getAsBukkitEntity, nmsEntity);
+        IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
+        return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
     }
 
     @Override

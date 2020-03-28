@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
@@ -133,9 +134,29 @@ public class Projectile implements Serializer<Projectile> {
             }
         }
 
+        float width = (float) configurationSection.getDouble(path + ".Settings.Width");
+        float height = (float) configurationSection.getDouble(path + ".Settings.Height");
+
         // Gives default values in case these are missing
-        float width = (float) configurationSection.getDouble(path + ".Settings.Width", 0.25F);
-        float height = (float) configurationSection.getDouble(path + ".Settings.Height", 0.25F);
+        if (width < 0.0 || height < 0.0) {
+            DebugUtil.log(LogLevel.ERROR,
+                    "Found an invalid height or width in configurations!",
+                    "Located at file " + file + " in " + path + ".Settings (" + type.toUpperCase() + ") in configurations",
+                    "Please make sure that they aren't 0 or less.");
+            return null;
+        }
+
+        if (width == 0 || height == 0) {
+            if (projectileType != null) {
+                double[] defaultSize = CompatibilityAPI.getCompatibility().getProjectileCompatibility().getDefaultWidthAndHeight(projectileType);
+                if (width <= 0) width = (float) defaultSize[0];
+                if (height <= 0) height = (float) defaultSize[1];
+            } else {
+                // Give default values of 0.25 if projectile disguise isn't used
+                if (width <= 0) width = 0.25f;
+                if (height <= 0) height = 0.25f;
+            }
+        }
 
         ProjectileMotion projectileMotion = new ProjectileMotion().serialize(file, configurationSection, path + ".Projectile_Motion");
         Through through = new Through().serialize(file, configurationSection, path + ".Through");

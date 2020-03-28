@@ -40,6 +40,15 @@ public interface IProjectileCompatibility {
     void destroyDisguise(CustomProjectile customProjectile);
 
     /**
+     * Get DEFAULT entity width and height.
+     * This will return double array where 0 is width and 1 is height.
+     *
+     * @param entityType the entity type which width and height to get
+     * @return the default width[0] and height[1] of entity type
+     */
+    double[] getDefaultWidthAndHeight(EntityType entityType);
+
+    /**
      * If entity is invulnerable this will always return null.
      * Otherwise this will always have non null value.
      *

@@ -1,14 +1,20 @@
 package me.deecaad.weaponmechanics.compatibility.projectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import net.minecraft.server.v1_9_R1.BlockPosition;
 import net.minecraft.server.v1_9_R1.IBlockData;
 import net.minecraft.server.v1_9_R1.WorldServer;
 import net.minecraft.server.v1_9_R1.AxisAlignedBB;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_9_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 
 public class Projectile_1_9_R1 implements IProjectileCompatibility {
@@ -26,6 +32,15 @@ public class Projectile_1_9_R1 implements IProjectileCompatibility {
     @Override
     public void destroyDisguise(CustomProjectile customProjectile) {
 
+    }
+
+    @Override
+    public double[] getDefaultWidthAndHeight(EntityType entityType) {
+        World world = Bukkit.getWorlds().get(0);
+        Location location = new Location(world, 1, 100, 1);
+        org.bukkit.entity.Entity entity = ((CraftWorld) world).createEntity(location, entityType.getEntityClass()).getBukkitEntity();
+        IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
+        return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
     }
 
     @Override

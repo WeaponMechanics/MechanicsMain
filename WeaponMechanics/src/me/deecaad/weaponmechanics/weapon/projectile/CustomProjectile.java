@@ -31,11 +31,8 @@ public class CustomProjectile {
     public Vector lastLocation;
     public Vector location;
     public Vector motion;
-
     private Location lastKnownAirLocation;
-
     private Collisions collisions;
-
     private HitBox projectileBox;
 
     // Only required if there is projectile disguise

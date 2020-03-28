@@ -17,4 +17,12 @@ public interface IShootCompatibility {
         // -> nmsEntity.width
         return entity.getWidth();
     }
+
+    default double getHeight(Entity entity) {
+        // 1.12 ->
+        // -> entity.getHeight
+        // <- 1.11
+        // -> nmsEntity.height
+        return entity.getHeight();
+    }
 }
