@@ -73,7 +73,7 @@ public class ExplosionCommand extends SubCommand {
     private class SphereExplosionCommand extends SubCommand {
         
         SphereExplosionCommand() {
-            super("wm test explosion", "sphere", "Spherical explosion", INTEGERS);
+            super("wm test explosion", "sphere", "Spherical explosion", "<3,5,16,32>");
         }
         
         @Override
@@ -110,7 +110,7 @@ public class ExplosionCommand extends SubCommand {
     private class ParabolaExplosionCommand extends SubCommand {
         
         ParabolaExplosionCommand() {
-            super("wm test explosion", "parabola", "Parabolic Explosion Test", INTEGERS + " " + INTEGERS);
+            super("wm test explosion", "parabola", "Parabolic Explosion Test", "<0.1,0.25,0.5,1,2> <-1,-5,-10,-25>");
         }
     
         @Override
