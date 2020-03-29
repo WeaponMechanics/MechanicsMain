@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
+import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -21,7 +23,9 @@ import java.util.stream.Collectors;
  * m is the angle. Under 1 makes the explosion wider. Over 1 makes the explosion thinner
  */
 public class ParabolicExplosion implements Explosion {
-    
+
+    private static final Configuration config = WeaponMechanics.getBasicConfigurations();
+
     private double depth;   // This is assumed to be negative
     private double angle;
     
@@ -62,11 +66,16 @@ public class ParabolicExplosion implements Explosion {
         // sqrt(-depth / angle) = x
         double intercept = Math.sqrt(-depth / angle);
 
+        double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.25);
+        double noiseChance = config.getDouble("Explosions.Spherical.Noise_Chance", 0.25);
+
         for (double x = -intercept; x < intercept; x++) {
             for (double y = depth; y < -depth; y++) {
                 for (double z = -intercept; z < intercept; z++) {
                     if (test(x, y, z)) {
-                        if (isNearEdge(x, y, z, 1.5) && Math.random() < 0.20) {
+
+                        // Checking chance first for resource usage
+                        if (Math.random() < noiseChance && isNearEdge(x, y, z, noiseDistance)) {
                             DebugUtil.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
                             continue; // outer noise checker
                         }

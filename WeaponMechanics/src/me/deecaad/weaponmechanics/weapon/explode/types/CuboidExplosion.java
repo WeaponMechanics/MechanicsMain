@@ -1,7 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.utils.DebugUtil;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
@@ -16,7 +21,11 @@ import java.util.stream.Collectors;
  * height are specified.
  */
 public class CuboidExplosion implements Explosion {
-    
+
+    private static final Configuration config = WeaponMechanics.getBasicConfigurations();
+
+    // These are set to be half the actual
+    // values, kind of like radius
     private double width;
     private double height;
     
@@ -51,17 +60,30 @@ public class CuboidExplosion implements Explosion {
     @Override
     public Set<Block> getBlocks(@Nonnull Location origin) {
         Set<Block> temp = new HashSet<>();
-        
-        Location pos1 = origin.clone().add(-width, -height, -width);
-        Location pos2 = origin.clone().add(+width, +height, +width);
-    
-        // Loops through a cuboid region between pos1 and pos2
-        // effectively looping through every single block inside
-        // of a square
-        for (int x = pos1.getBlockX(); x < pos2.getBlockX(); x++) {
-            for (int y = pos1.getBlockY(); y < pos2.getBlockY(); y++) {
-                for (int z = pos1.getBlockZ(); z < pos2.getBlockZ(); z++) {
-                    temp.add(new Location(origin.getWorld(), x, y, z).getBlock());
+
+        double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.25);
+        double noiseChance = config.getDouble("Explosions.Spherical.Noise_Chance", 0.25);
+
+        World world = origin.getWorld();
+        if (world == null) {
+            DebugUtil.log(LogLevel.WARN, "Cuboid explosion's origin was null? Origin:", origin.toString());
+            return temp;
+        }
+        int blockX = origin.getBlockX();
+        int blockY = origin.getBlockY();
+        int blockZ = origin.getBlockZ();
+
+        for (int x = (int) -width; x < width; x++) {
+            for (int y = (int) -height; y < height; y++) {
+                for (int z = (int) -width; z < width; z++) {
+
+                    // Noise checker
+                    if (Math.random() < noiseChance && isNearEdge(x, y, z, noiseDistance)) {
+                        DebugUtil.log(LogLevel.DEBUG, "Skipping block(" + x + ", " + y + ", " + z + ") due to noise.");
+                        continue; // outer noise checker
+                    }
+
+                    temp.add(world.getBlockAt(x + blockX, y + blockY, z + blockZ));
                 }
             }
         }
@@ -104,5 +126,15 @@ public class CuboidExplosion implements Explosion {
                 })
                 .collect(Collectors.toSet());
                 
+    }
+
+    public boolean isNearEdge(double x, double y, double z, double distance) {
+        x = width - Math.abs(x);
+        y = height - Math.abs(y);
+        z = width - Math.abs(z);
+
+        return  x < distance ||
+                y < distance ||
+                z < distance;
     }
 }

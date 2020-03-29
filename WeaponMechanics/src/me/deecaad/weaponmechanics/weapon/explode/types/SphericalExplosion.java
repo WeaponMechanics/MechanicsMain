@@ -1,5 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.utils.DebugUtil;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -11,7 +15,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SphericalExplosion implements Explosion {
-    
+
+    private static final Configuration config = WeaponMechanics.getBasicConfigurations();
+
     private double radius;
     
     public SphericalExplosion(double radius) {
@@ -25,7 +31,10 @@ public class SphericalExplosion implements Explosion {
         
         Location pos1 = origin.clone().add(-radius, -radius, -radius);
         Location pos2 = origin.clone().add(+radius, +radius, +radius);
-        
+
+        double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.0);
+        double noiseChance = config.getDouble("Explosions.Spherical.Noise_Chance", 0.10);
+
         // Loops through a cuboid region between pos1 and pos2
         // effectively looping through every single block inside
         // of a square
@@ -37,7 +46,15 @@ public class SphericalExplosion implements Explosion {
                     // If the distance between the current iteration
                     // and the origin is less than the radius of the
                     // sphere. This "reshapes" the cube into a sphere
-                    if (loc.distance(origin) <= radius) {
+                    double distance = loc.distance(origin);
+                    if (distance <= radius) {
+
+                        boolean isNearEdge = radius - distance < noiseDistance;
+                        if (isNearEdge && Math.random() < noiseChance) {
+                            DebugUtil.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
+                            continue; // outer noise checker
+                        }
+
                         temp.add(loc.getBlock());
                     }
                 }
