@@ -1,18 +1,16 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
 import me.deecaad.weaponmechanics.general.ColorType;
-import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;

@@ -1,13 +1,13 @@
 package me.deecaad.weaponmechanics.general;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Deserializer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.utils.AttributeType;
-import me.deecaad.weaponmechanics.utils.StringUtils;
+import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import org.bukkit.Bukkit;

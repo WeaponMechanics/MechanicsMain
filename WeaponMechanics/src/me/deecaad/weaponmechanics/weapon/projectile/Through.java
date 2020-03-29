@@ -1,11 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
-import me.deecaad.weaponmechanics.utils.StringUtils;
+import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;

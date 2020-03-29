@@ -1,13 +1,13 @@
 package me.deecaad.weaponmechanics.general;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.SoundHelper;
-import me.deecaad.weaponmechanics.utils.StringUtils;
+import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;

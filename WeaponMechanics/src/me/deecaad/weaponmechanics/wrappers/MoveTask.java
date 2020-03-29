@@ -1,16 +1,12 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
-import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
-import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
+import me.deecaad.compatibility.projectile.HitBox;
+import me.deecaad.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

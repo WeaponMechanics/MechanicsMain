@@ -1,10 +1,11 @@
 package me.deecaad.weaponmechanics.listeners;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -99,6 +100,9 @@ public class PlayerListeners implements Listener {
             // 1.8
             mainStack = player.getEquipment().getItemInHand();
         }
+
+        Bukkit.broadcastMessage("asd");
+
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, true);
 
         // Only get off hand things is server is 1.9 or newer

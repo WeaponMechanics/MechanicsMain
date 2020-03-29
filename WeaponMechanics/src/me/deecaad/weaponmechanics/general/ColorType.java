@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.weaponmechanics.utils.StringUtils;
+import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Color;
 
 public enum ColorType {

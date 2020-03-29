@@ -1,11 +1,10 @@
 package me.deecaad.weaponmechanics;
 
-import me.deecaad.weaponmechanics.utils.StringUtils;
+import me.deecaad.core.utils.StringUtils;
 import org.bukkit.entity.EntityType;
 
 import java.awt.*;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class Tools {
     

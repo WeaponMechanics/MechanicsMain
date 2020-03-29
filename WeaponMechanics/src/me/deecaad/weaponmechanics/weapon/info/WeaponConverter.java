@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.ConfigurationSection;

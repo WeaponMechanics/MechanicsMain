@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.general.ColorType;
-import me.deecaad.weaponmechanics.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtils;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;

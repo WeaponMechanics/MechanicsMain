@@ -1,11 +1,10 @@
 package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.weaponmechanics.utils.StringUtils;
+import me.deecaad.core.utils.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GetCommand extends SubCommand {

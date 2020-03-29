@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.weaponmechanics.utils.NumberUtils;
-import me.deecaad.weaponmechanics.weapon.shoot.spread.ModifierHolder;
+import me.deecaad.core.utils.NumberUtils;
 
 public class SpreadChange {
 

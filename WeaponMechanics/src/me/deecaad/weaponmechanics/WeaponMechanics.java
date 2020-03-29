@@ -2,17 +2,17 @@ package me.deecaad.weaponmechanics;
 
 import me.deecaad.core.CoreInitializer;
 import me.deecaad.core.commands.MainCommand;
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
-import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
+import me.deecaad.compatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.listeners.*;
 import me.deecaad.weaponmechanics.packetlisteners.*;
-import me.deecaad.weaponmechanics.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -42,6 +42,11 @@ public class WeaponMechanics extends JavaPlugin {
     private MainCommand mainCommand;
     private static UpdateChecker updateChecker;
     private static WeaponHandler weaponHandler;
+
+    @Override
+    public void onLoad() {
+        DebugUtil.logger = getLogger();
+    }
 
     @Override
     public void onEnable() {

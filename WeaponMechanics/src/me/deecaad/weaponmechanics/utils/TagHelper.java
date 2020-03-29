@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.utils;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;

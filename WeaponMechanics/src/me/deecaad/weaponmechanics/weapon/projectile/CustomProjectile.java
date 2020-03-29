@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
+import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.projectile.HitBox;
+import me.deecaad.compatibility.projectile.IProjectileCompatibility;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;

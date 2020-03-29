@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/MechanicsCompatibility/MechanicsCompatibility.iml" filepath="$PROJECT_DIR$/MechanicsCompatibility/MechanicsCompatibility.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MechanicsCore/MechanicsCore.iml" filepath="$PROJECT_DIR$/MechanicsCore/MechanicsCore.iml" />
       <module fileurl="file://$PROJECT_DIR$/MechanicsMain.iml" filepath="$PROJECT_DIR$/MechanicsMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/WeaponMechanics/WeaponMechanics.iml" filepath="$PROJECT_DIR$/WeaponMechanics/WeaponMechanics.iml" />
       <module fileurl="file://$PROJECT_DIR$/WeaponMechanicsPlus/WeaponMechanicsPlus.iml" filepath="$PROJECT_DIR$/WeaponMechanicsPlus/WeaponMechanicsPlus.iml" />

@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.weaponmechanics.commands.testcommands.TestCommand;
-import me.deecaad.weaponmechanics.utils.StringUtils;
+import me.deecaad.core.utils.StringUtils;
 
 public class WeaponMechanicsMainCommand extends MainCommand {
 
