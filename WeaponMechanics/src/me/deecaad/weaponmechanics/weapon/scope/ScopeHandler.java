@@ -1,10 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.scope.IScopeCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;

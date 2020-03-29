@@ -1,6 +1,5 @@
 package me.deecaad.compatibility;
 
-import io.netty.channel.Channel;
 import me.deecaad.compatibility.nbt.INBTCompatibility;
 import me.deecaad.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.compatibility.scope.IScopeCompatibility;

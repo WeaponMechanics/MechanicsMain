@@ -5,7 +5,6 @@ import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.ZoomData;
 
 public class OutAbilitiesListener extends PacketHandler {
 

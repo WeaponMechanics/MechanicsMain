@@ -1,9 +1,9 @@
 package me.deecaad.core.packetlistener;
 
-import java.lang.reflect.Field;
-
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.entity.Player;
+
+import java.lang.reflect.Field;
 
 public class Packet {
 

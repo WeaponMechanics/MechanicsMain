@@ -4,8 +4,6 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.projectile.HitBox;
 import me.deecaad.compatibility.projectile.IProjectileCompatibility;
 import org.bukkit.*;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;

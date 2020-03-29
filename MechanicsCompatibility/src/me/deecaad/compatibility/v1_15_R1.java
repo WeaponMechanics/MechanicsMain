@@ -1,8 +1,5 @@
 package me.deecaad.compatibility;
 
-import io.netty.channel.Channel;
-import me.deecaad.core.utils.DebugUtil;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.compatibility.nbt.INBTCompatibility;
 import me.deecaad.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.compatibility.projectile.Projectile_1_15_R1;
@@ -10,6 +7,8 @@ import me.deecaad.compatibility.scope.IScopeCompatibility;
 import me.deecaad.compatibility.scope.Scope_1_15_R1;
 import me.deecaad.compatibility.shoot.IShootCompatibility;
 import me.deecaad.compatibility.shoot.Shoot_1_15_R1;
+import me.deecaad.core.utils.DebugUtil;
+import me.deecaad.core.utils.LogLevel;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.Packet;
 import net.minecraft.server.v1_15_R1.PlayerConnection;

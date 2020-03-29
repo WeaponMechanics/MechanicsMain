@@ -4,7 +4,6 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -53,9 +52,7 @@ public class Trigger implements Serializer<Trigger> {
         if (denyWhenWalking() && entityWrapper.isWalking()) return false;
         if (denyWhenSwimming() && entityWrapper.isSwimming()) return false;
         if (denyWhenInMidair() && entityWrapper.isInMidair()) return false;
-        if (denyWhenGliding() && entityWrapper.isGliding()) return false;
-
-        return true;
+        return !denyWhenGliding() || !entityWrapper.isGliding();
     }
 
     /**

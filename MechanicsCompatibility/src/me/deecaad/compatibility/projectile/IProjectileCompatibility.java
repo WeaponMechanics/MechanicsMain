@@ -1,7 +1,7 @@
 package me.deecaad.compatibility.projectile;
 
-import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import org.bukkit.Location;
 import org.bukkit.block.Block;

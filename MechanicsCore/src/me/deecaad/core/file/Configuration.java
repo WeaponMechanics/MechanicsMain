@@ -7,8 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 public interface Configuration {

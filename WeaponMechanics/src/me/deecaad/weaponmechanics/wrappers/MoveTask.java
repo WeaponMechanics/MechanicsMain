@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.compatibility.projectile.HitBox;
 import me.deecaad.compatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

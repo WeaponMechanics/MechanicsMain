@@ -1,7 +1,5 @@
 package me.deecaad.compatibility;
 
-import io.netty.channel.Channel;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.compatibility.nbt.INBTCompatibility;
 import me.deecaad.compatibility.nbt.NBT_Reflection;
 import me.deecaad.compatibility.projectile.IProjectileCompatibility;
@@ -10,6 +8,7 @@ import me.deecaad.compatibility.scope.IScopeCompatibility;
 import me.deecaad.compatibility.scope.Scope_Reflection;
 import me.deecaad.compatibility.shoot.IShootCompatibility;
 import me.deecaad.compatibility.shoot.Shoot_Reflection;
+import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -30,8 +29,6 @@ public class ReflectionCompatibility implements ICompatibility {
     private Method playerGetHandle;
     private Field playerConnection;
     private Field playerPing;
-    private Field networkManager;
-    private Field channelField;
 
     private Method worldGetHandle;
     private Method getEntityById;
@@ -43,8 +40,6 @@ public class ReflectionCompatibility implements ICompatibility {
         this.playerGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftPlayer"), "getHandle");
         this.playerConnection = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityPlayer"), "playerConnection");
         this.playerPing = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityPlayer"), "ping");
-        this.networkManager = ReflectionUtil.getField(ReflectionUtil.getNMSClass("PlayerConnection"), "networkManager");
-        this.channelField = ReflectionUtil.getField(ReflectionUtil.getNMSClass("NetworkManager"), "channel");
         this.worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
         this.getEntityById = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("World"), CompatibilityAPI.getVersion() < 1.09 ? "a" : "getEntity", int.class);
         this.getAsBukkitEntity = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("Entity"), "getBukkitEntity");

@@ -3,9 +3,6 @@ package me.deecaad.weaponmechanics.weapon.scope;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 
-import java.util.ArrayList;
-import java.util.List;;
-
 public class ScopeLevel {
 
     private static float[] scopeLevels = getScopeLevels();

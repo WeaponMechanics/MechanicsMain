@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
-
 import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
