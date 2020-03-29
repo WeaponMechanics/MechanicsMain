@@ -35,6 +35,6 @@ public class ShootHandler {
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (trigger == null) return false;
 
-        return false;
+        return true;
     }
 }
