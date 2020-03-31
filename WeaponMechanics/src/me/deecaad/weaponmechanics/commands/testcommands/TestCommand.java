@@ -12,6 +12,7 @@ public class TestCommand extends SubCommand {
         
         commands.register(new HitboxCommand());
         commands.register(new ExplosionCommand());
+        commands.register(new WorldGuardCommand());
     }
 
     @Override

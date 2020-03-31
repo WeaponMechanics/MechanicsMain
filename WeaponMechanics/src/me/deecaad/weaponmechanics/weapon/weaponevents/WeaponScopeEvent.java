@@ -24,7 +24,7 @@ public class WeaponScopeEvent extends WeaponCancellableEvent {
 
     /**
      * If this is 0 it most likely means that entity is zooming out.
-     * Make sure to check scoep type
+     * Make sure to check scope type
      *
      * @return the NEW zoom amount (1-32)
      */
