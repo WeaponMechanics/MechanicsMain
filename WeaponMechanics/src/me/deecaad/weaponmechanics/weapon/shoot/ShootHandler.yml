@@ -1,5 +1,13 @@
 Shoot:
   Trigger: <trigger serializer>
+  Projectile_Speed: <speed>
+  Projectiles_Per_Shot: <amount>
+  Selective_Fire: <true/false>
+  Delay_Between_Shots: <ticks>
+  Fully_Automatic_Shots_Per_Second: <amount>
+  Burst:
+    Shots_Per_Burst: <amount>
+    Ticks_Between_Each_Shot: <ticks>
   # All general stuff
   Spread: <spread serializer>
   Projectile: <projectile serializer>

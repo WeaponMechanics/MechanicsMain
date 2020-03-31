@@ -33,9 +33,10 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
      *
      * @param entityWrapper the entity wrapper used to check circumstances
      * @param tempSpread the spread
+     * @param updateSpreadChange whether or not to allow updating current spread change
      * @return the modifier holder with updated horizontal and vertical values
      */
-    public double applyChanges(IEntityWrapper entityWrapper, double tempSpread) {
+    public double applyChanges(IEntityWrapper entityWrapper, double tempSpread, boolean updateSpreadChange) {
         SpreadChange spreadChange = entityWrapper.getSpreadChange();
 
         // Reset if required
@@ -48,8 +49,12 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         // Add the current spread before doing modifications to it
         tempSpread += spreadChange.getCurrentSpreadChange();
 
-        // Modify current spread if bounds didn't reset it
-        if (!didReset) spreadChange.setSpreadChange(increaseChangeWhen.applyChanges(entityWrapper, spreadChange.getCurrentSpreadChange()));
+        // Modify current changing spread only if its allowed
+        // AND
+        // If bounds didn't reset it
+        if (updateSpreadChange && !didReset) {
+            spreadChange.setSpreadChange(increaseChangeWhen.applyChanges(entityWrapper, spreadChange.getCurrentSpreadChange()));
+        }
 
         // Update spread change time
         spreadChange.updateResetTime();

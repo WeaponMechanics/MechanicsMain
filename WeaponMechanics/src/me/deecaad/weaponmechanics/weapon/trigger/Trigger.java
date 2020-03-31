@@ -5,6 +5,7 @@ import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.EquipmentSlot;
 
 import java.io.File;
 import java.util.HashSet;
@@ -31,12 +32,12 @@ public class Trigger implements Serializer<Trigger> {
      * Checks if trigger is valid
      *
      * @param triggerType the trigger type
-     * @param mainHand whether or not mainhand was used
+     * @param slot the slot used
      * @param entityWrapper the entity's wrapper from whom to check
      * @return true if trigger is valid
      */
-    public boolean check(TriggerType triggerType, boolean mainHand, IEntityWrapper entityWrapper) {
-        if (mainHand
+    public boolean check(TriggerType triggerType, EquipmentSlot slot, IEntityWrapper entityWrapper) {
+        if (slot == EquipmentSlot.HAND
                 // Main and off hand are both optional, but only either one is necessary
                 // Thats why this has null checks also
                 // Null should mean that check is NOT valid
@@ -45,7 +46,7 @@ public class Trigger implements Serializer<Trigger> {
             // Not the same trigger type
             return false;
         }
-        if (denyWhenReloading() && entityWrapper.isReloading()) return false;
+        if (denyWhenReloading() && entityWrapper.isReloading(slot)) return false;
         if (denyWhenZooming() && entityWrapper.isZooming()) return false;
         if (denyWhenSneaking() && entityWrapper.isSneaking()) return false;
         if (denyWhenStanding() && entityWrapper.isStanding()) return false;

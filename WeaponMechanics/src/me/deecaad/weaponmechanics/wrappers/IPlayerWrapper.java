@@ -50,22 +50,4 @@ public interface IPlayerWrapper extends IEntityWrapper {
      * This should only be updated on PlayerInteractEvent.
      */
     void rightClicked();
-
-    /**
-     * This is only accurate for swords(1.8) and shields(1.9 and above).
-     *
-     * Otherwise the right click detection is determined by time between last right click
-     * and time when this method is called.
-     *
-     * Right click event is only called every 195-215 millis
-     * so this isn't fully accurate. Basically that means that right click
-     * detection is about 4 ticks accurate.
-     *
-     * This also takes player's ping in account. If ping is more than 215 then
-     * millis passed check is done with (player ping + 15). Otherwise millis
-     * passed check is done with 215 millis.
-     *
-     * @return true if player may be right clicking
-     */
-    boolean isRightClicking();
 }

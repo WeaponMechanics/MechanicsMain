@@ -25,6 +25,6 @@ public class WeaponItemSerializer extends ItemSerializer {
         if (weaponStack == null) return null;
         String weaponTitle = path.split("\\.")[0];
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
-        return TagHelper.setCustomTag(weaponStack, CustomTag.WEAPON_ITEM, weaponTitle);
+        return TagHelper.setCustomTag(weaponStack, CustomTag.WEAPON_TITLE, weaponTitle);
     }
 }

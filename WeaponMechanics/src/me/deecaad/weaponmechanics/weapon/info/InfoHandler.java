@@ -58,7 +58,7 @@ public class InfoHandler {
     @Nullable
     public String getWeaponTitle(ItemStack weaponStack, boolean autoConvert) {
         if (weaponStack.getType() == Material.AIR) return null;
-        String weaponTitle = TagHelper.getCustomTag(weaponStack, CustomTag.WEAPON_ITEM);
+        String weaponTitle = TagHelper.getCustomTag(weaponStack, CustomTag.WEAPON_TITLE);
 
         // If its already weapon item stack
         if (weaponTitle != null) return weaponTitle;
@@ -128,8 +128,9 @@ public class InfoHandler {
             }
         }
 
-        if (mainDualWield == null && offDualWield == null) {
-            // Either dual wield option wasn't used
+        if (mainWeaponTitle != null && offWeaponTitle != null
+                && mainDualWield == null && offDualWield == null) {
+            // Dual wield option wasn't used and both hands had weapons
             // -> disable dual wielding by default
             return false;
         }

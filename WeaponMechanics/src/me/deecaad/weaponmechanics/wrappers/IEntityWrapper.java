@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.weaponmechanics.general.ColorType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -84,11 +85,6 @@ public interface IEntityWrapper {
     boolean isSprinting();
 
     /**
-     * @return true if entity is reloading
-     */
-    boolean isReloading();
-
-    /**
      * @return true if entity is swimming
      */
     boolean isSwimming();
@@ -97,6 +93,46 @@ public interface IEntityWrapper {
      * @return true if entity is gliding
      */
     boolean isGliding();
+
+    /**
+     * Used to check whether or not entity is currently reloading with specific hand
+     *
+     * @param slot the hand to check
+     * @return true if entity is reloading
+     */
+    boolean isReloading(EquipmentSlot slot);
+
+    /**
+     * This is only accurate for swords(1.8) and shields(1.9 and above).
+     *
+     * Otherwise the right click detection is determined by time between last right click
+     * and time when this method is called.
+     *
+     * Right click event is only called every 195-215 millis
+     * so this isn't fully accurate. Basically that means that right click
+     * detection is about 4 ticks accurate.
+     *
+     * This also takes player's ping in account. If ping is more than 215 then
+     * millis passed check is done with (player ping + 15). Otherwise millis
+     * passed check is done with 215 millis.
+     *
+     * @return true if player may be right clicking
+     */
+    boolean isRightClicking();
+
+    /**
+     * @param slot the hand to set
+     * @param usingFullAuto whether or not using full auto
+     */
+    void setUsingFullAuto(EquipmentSlot slot, boolean usingFullAuto);
+
+    /**
+     * Used to check whether or not entity is using full auto CURRENTLY
+     *
+     * @param slot the hand to check
+     * @return true if entity is using full auto currently
+     */
+    boolean isUsingFullAuto(EquipmentSlot slot);
     
     /**
      *

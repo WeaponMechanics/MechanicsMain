@@ -3,17 +3,11 @@ package me.deecaad.weaponmechanics;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.entity.EntityType;
 
-import java.awt.*;
 import java.util.Arrays;
 
 public class Tools {
     
     public static void main(String[] args) {
-        System.out.println();
-        //entityHitBox();
-        splitTest();
-        
-        Color color = new Color(0x353833);
     }
     
     public static void entityHitBox() {

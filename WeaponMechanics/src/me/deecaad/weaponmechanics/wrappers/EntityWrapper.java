@@ -10,6 +10,7 @@ import me.deecaad.weaponmechanics.general.ColorType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -27,6 +28,10 @@ public class EntityWrapper implements IEntityWrapper {
     private boolean standing;
     private boolean walking;
     private boolean inMidair;
+
+    private boolean mainUsingFullAuto;
+    private boolean offUsingFullAuto;
+
     private ZoomData zoomData;
     private SpreadChange spreadChange;
 
@@ -116,12 +121,6 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     @Override
-    public boolean isReloading() {
-        // todo
-        return false;
-    }
-
-    @Override
     public boolean isSwimming() {
         return CompatibilityAPI.getVersion() >= 1.13 && entity.isSwimming();
     }
@@ -129,6 +128,33 @@ public class EntityWrapper implements IEntityWrapper {
     @Override
     public boolean isGliding() {
         return CompatibilityAPI.getVersion() >= 1.09 && entity.isGliding();
+    }
+
+    @Override
+    public boolean isReloading(EquipmentSlot slot) {
+        // todo
+        return false;
+    }
+
+    @Override
+    public boolean isRightClicking() {
+        // Always false for other entities than players
+        // PlayerWrapper actually checks these
+        return false;
+    }
+
+    @Override
+    public void setUsingFullAuto(EquipmentSlot equipmentSlot, boolean usingFullAuto) {
+        if (equipmentSlot == EquipmentSlot.HAND) {
+            mainUsingFullAuto = usingFullAuto;
+            return;
+        }
+        offUsingFullAuto = usingFullAuto;
+    }
+
+    @Override
+    public boolean isUsingFullAuto(EquipmentSlot equipmentSlot) {
+        return equipmentSlot == EquipmentSlot.HAND ? mainUsingFullAuto : offUsingFullAuto;
     }
 
     @Nullable

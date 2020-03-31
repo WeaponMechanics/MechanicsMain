@@ -70,10 +70,12 @@ public class WeaponHandler {
         // Only do dual wield check if server is 1.9 or newer
         if (useOffHand && !infoHandler.allowDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
 
-        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType);
+        boolean dualWield = mainWeapon != null && offWeapon != null;
+
+        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield);
 
         // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType);
+        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
     }
 
     /**
@@ -89,17 +91,18 @@ public class WeaponHandler {
      * @param weaponStack the weapon stack involved
      * @param slot the weapon slot used
      * @param triggerType the trigger which caused this
+     * @param dualWield whether or not this was dual wield
      */
-    public void tryUses(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType) {
+    public void tryUses(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
 
         // Try shooting
-        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType)) return;
+        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) return;
 
         // Shooting wasn't valid, try reloading
-        if (reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType)) return;
+        if (reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) return;
 
         // Reloading wasn't valid, try scoping
-        scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType);
+        scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
     }
 
     /**

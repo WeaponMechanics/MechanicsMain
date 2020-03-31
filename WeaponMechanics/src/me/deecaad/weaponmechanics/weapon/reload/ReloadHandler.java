@@ -24,7 +24,7 @@ public class ReloadHandler {
      * @param triggerType the trigger type trying to activate reload
      * @return true if was able to reload
      */
-    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType) {
+    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
 
         return false;
     }
