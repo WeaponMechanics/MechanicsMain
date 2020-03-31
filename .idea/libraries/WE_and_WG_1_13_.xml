@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="WE and WG 1.13+">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/we and wg/worldedit-bukkit-7.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/we and wg/worldguard-bukkit-7.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

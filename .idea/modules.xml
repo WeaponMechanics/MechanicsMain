@@ -7,6 +7,8 @@
       <module fileurl="file://$PROJECT_DIR$/MechanicsMain.iml" filepath="$PROJECT_DIR$/MechanicsMain.iml" />
       <module fileurl="file://$PROJECT_DIR$/WeaponMechanics/WeaponMechanics.iml" filepath="$PROJECT_DIR$/WeaponMechanics/WeaponMechanics.iml" />
       <module fileurl="file://$PROJECT_DIR$/WeaponMechanicsPlus/WeaponMechanicsPlus.iml" filepath="$PROJECT_DIR$/WeaponMechanicsPlus/WeaponMechanicsPlus.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MechanicsCompatibility/WorldGuardV6/WorldGuardV6.iml" filepath="$PROJECT_DIR$/MechanicsCompatibility/WorldGuardV6/WorldGuardV6.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MechanicsCompatibility/WorldGuardV7/WorldGuardV7.iml" filepath="$PROJECT_DIR$/MechanicsCompatibility/WorldGuardV7/WorldGuardV7.iml" />
     </modules>
   </component>
 </project>
