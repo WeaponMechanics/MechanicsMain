@@ -11,9 +11,11 @@ public class PlayerJumpEvent extends WeaponMechanicsEvent {
      * Called when player jumps.
      *
      * @param player the player used in event
+     * @param doubleJump whether or not this was double jump
      */
     public PlayerJumpEvent(Player player, boolean doubleJump) {
         this.player = player;
+        this.doubleJump = doubleJump;
     }
 
     /**

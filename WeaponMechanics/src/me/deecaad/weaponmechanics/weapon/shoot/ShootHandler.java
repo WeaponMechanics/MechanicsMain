@@ -188,7 +188,7 @@ public class ShootHandler {
                 return entityWrapper.isSprinting();
             case RIGHT_CLICK:
                 return entityWrapper.isRightClicking();
-            case START_SWIM_MODE:
+            case START_SWIM:
                 return entityWrapper.isSwimming();
             case START_GLIDE:
                 return entityWrapper.isGliding();

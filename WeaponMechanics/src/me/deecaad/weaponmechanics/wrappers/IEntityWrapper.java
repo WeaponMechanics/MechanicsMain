@@ -33,6 +33,8 @@ public interface IEntityWrapper {
     boolean isStanding();
 
     /**
+     * Automatically sets walking to false and calls events
+     *
      * @param standing whether or not to stand
      */
     void setStanding(boolean standing);
@@ -43,19 +45,35 @@ public interface IEntityWrapper {
     boolean isWalking();
 
     /**
+     * Automatically sets standing to false and calls events
+     *
      * @param walking whether or not to walk
      */
     void setWalking(boolean walking);
 
     /**
+     * Automatically calls event
+     *
      * @return true if entity is in midair
      */
     boolean isInMidair();
 
     /**
+     * Automatically calls event
+     *
      * @param inMidair whether or not to be in midair
      */
     void setInMidair(boolean inMidair);
+
+    /**
+     * @return true if entity is swimming
+     */
+    boolean isSwimming();
+
+    /**
+     * @param swimming whether or not to swim
+     */
+    void setSwimming(boolean swimming);
 
     /**
      * @return true if entity is zooming
@@ -83,11 +101,6 @@ public interface IEntityWrapper {
      * @return true if entity is sprinting
      */
     boolean isSprinting();
-
-    /**
-     * @return true if entity is swimming
-     */
-    boolean isSwimming();
 
     /**
      * @return true if entity is gliding

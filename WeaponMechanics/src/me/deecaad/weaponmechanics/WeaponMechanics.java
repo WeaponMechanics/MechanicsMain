@@ -93,9 +93,6 @@ public class WeaponMechanics extends JavaPlugin {
         if (CompatibilityAPI.getVersion() >= 1.09) {
             Bukkit.getServer().getPluginManager().registerEvents(new PlayerListenersAbove_1_9(weaponHandler), this);
             Bukkit.getServer().getPluginManager().registerEvents(new EntityListenersAbove_1_9(weaponHandler), this);
-            if (CompatibilityAPI.getVersion() >= 1.13) {
-                Bukkit.getServer().getPluginManager().registerEvents(new EntityListenersAbove_1_13(weaponHandler), this);
-            }
         }
 
         // Start custom projectile runnable

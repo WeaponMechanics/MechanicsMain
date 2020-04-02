@@ -5,6 +5,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
+import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
 import me.deecaad.weaponmechanics.general.ColorType;
 import org.bukkit.Bukkit;
@@ -28,6 +29,7 @@ public class EntityWrapper implements IEntityWrapper {
     private boolean standing;
     private boolean walking;
     private boolean inMidair;
+    private boolean swimming;
 
     private boolean mainUsingFullAuto;
     private boolean offUsingFullAuto;
@@ -67,6 +69,7 @@ public class EntityWrapper implements IEntityWrapper {
     public void setStanding(boolean standing) {
         if (this.standing == standing) return;
         this.standing = standing;
+        setWalking(false);
         Bukkit.getPluginManager().callEvent(new EntityToggleStandEvent(entity, standing));
     }
 
@@ -79,6 +82,7 @@ public class EntityWrapper implements IEntityWrapper {
     public void setWalking(boolean walking) {
         if (this.walking == walking) return;
         this.walking = walking;
+        setStanding(false);
         Bukkit.getPluginManager().callEvent(new EntityToggleWalkEvent(entity, walking));
     }
     
@@ -92,6 +96,18 @@ public class EntityWrapper implements IEntityWrapper {
         if (this.inMidair == inMidair) return;
         this.inMidair = inMidair;
         Bukkit.getPluginManager().callEvent(new EntityToggleInMidairEvent(entity, inMidair));
+    }
+
+    @Override
+    public boolean isSwimming() {
+        return swimming;
+    }
+
+    @Override
+    public void setSwimming(boolean swimming) {
+        if (this.swimming == swimming) return;
+        this.swimming = swimming;
+        Bukkit.getPluginManager().callEvent(new EntityToggleSwimEvent(entity, swimming));
     }
 
     @Override
@@ -121,11 +137,6 @@ public class EntityWrapper implements IEntityWrapper {
         // Always false for other entities than players
         // PlayerWrapper actually checks these
         return false;
-    }
-
-    @Override
-    public boolean isSwimming() {
-        return CompatibilityAPI.getVersion() >= 1.13 && entity.isSwimming();
     }
 
     @Override

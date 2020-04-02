@@ -45,22 +45,35 @@ public class MoveTask extends BukkitRunnable {
         Location from = this.from;
         Location to = entity.getLocation();
 
-        boolean disableStandOrWalkCheck = WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
-
         this.from = to;
-        if (isSameLocationNonRotation(from, to)) {
-            ++this.sameMatches;
-        } else {
-            this.sameMatches = 0;
+
+        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim")) {
+            if (isSwimming(entity)) {
+                entityWrapper.setSwimming(true);
+
+                // Return because swimming
+                // -> Can't be walking, standing, in mid air or jumping at same time
+                return;
+            } else {
+                entityWrapper.setSwimming(false);
+            }
         }
 
-        if (this.sameMatches > 3) {
-            if (!disableStandOrWalkCheck) {
-                entityWrapper.setStanding(true);
+        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking")) {
+            if (isSameLocationNonRotation(from, to)) {
+                ++this.sameMatches;
+            } else {
+                this.sameMatches = 0;
             }
-            return;
-        } else if (!disableStandOrWalkCheck) {
-            entityWrapper.setWalking(true);
+            if (this.sameMatches > 3) {
+                entityWrapper.setStanding(true);
+
+                // Return because standing
+                // -> Can't be in mid air or jumping at same time
+                return;
+            } else {
+                entityWrapper.setWalking(true);
+            }
         }
 
         boolean inMidairCheck = isInMidair(entity);
@@ -74,10 +87,8 @@ public class MoveTask extends BukkitRunnable {
 
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair")) {
             if (inMidairCheck) {
-                if (!entityWrapper.isInMidair()) {
-                    entityWrapper.setInMidair(true);
-                }
-            } else if (entityWrapper.isInMidair()) {
+                entityWrapper.setInMidair(true);
+            } else {
                 entityWrapper.setInMidair(false);
             }
         }
@@ -133,8 +144,45 @@ public class MoveTask extends BukkitRunnable {
         Block current = livingEntity.getLocation().getBlock();
         Block below = current.getRelative(BlockFace.DOWN);
 
+        // Check for liquid as hit boxes are considered null if block is liquid
+        if (current.isLiquid() || below.isLiquid()) return false;
+
         HitBox belowHitBox = projectileCompatibility.getHitBox(below);
         HitBox currentHitBox = projectileCompatibility.getHitBox(current);
         return belowHitBox == null && currentHitBox == null;
+    }
+
+    /**
+     * Basically checks if entity is swimming.
+     * 1x1 holes of water or 1 block deep water places aren't considered as swimming.
+     */
+    private boolean isSwimming(LivingEntity livingEntity) {
+        if (livingEntity.isInsideVehicle()) return false;
+
+        // Entity must be swimming as swim mode is on
+        if (CompatibilityAPI.getVersion() >= 1.13 && livingEntity.isSwimming()) return true;
+
+        Block current = livingEntity.getLocation().getBlock();
+        if (!current.isLiquid()) return false;
+
+        Block up = current.getRelative(BlockFace.UP);
+        Block down = current.getRelative(BlockFace.DOWN);
+
+        // Check if either block below or above current block is also liquid
+        // -> No 1 block deep water
+        if (up.isLiquid() || down.isLiquid()) {
+
+            Block northBlock = current.getRelative(BlockFace.NORTH);
+            Block southBlock = current.getRelative(BlockFace.SOUTH);
+            Block westBlock = current.getRelative(BlockFace.WEST);
+            Block eastBlock = current.getRelative(BlockFace.EAST);
+
+            // Check that at least one relative of current block is also water
+            // This denies 1x1 holes
+            if (northBlock.isLiquid() || southBlock.isLiquid() || westBlock.isLiquid() || eastBlock.isLiquid()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

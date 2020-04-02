@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.listeners;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
+import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -40,5 +41,11 @@ public class EntityListeners implements Listener {
     public void toggleStand(EntityToggleStandEvent e) {
         // Whether this is used its checked already in MoveTask class
         weaponHandler.useTrigger(e.getLivingEntity(), e.isStanding() ? TriggerType.START_STAND : TriggerType.END_STAND, false);
+    }
+
+    @EventHandler
+    public void toggleSwim(EntityToggleSwimEvent e) {
+        // Whether this is used its checked already in MoveTask class
+        weaponHandler.useTrigger(e.getLivingEntity(), e.isSwimming() ? TriggerType.START_SWIM : TriggerType.END_SWIM, false);
     }
 }
