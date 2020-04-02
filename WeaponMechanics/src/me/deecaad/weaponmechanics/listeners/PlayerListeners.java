@@ -48,7 +48,15 @@ public class PlayerListeners implements Listener {
     public void toggleSneak(PlayerToggleSneakEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak")) return;
 
-        weaponHandler.useTrigger(e.getPlayer(), e.isSneaking() ? TriggerType.START_SNEAK : TriggerType.END_SNEAK, false);
+        Player player = e.getPlayer();
+        boolean isSneaking = e.isSneaking();
+
+        if (isSneaking && getPlayerWrapper(player).didDoubleSneak()) {
+            weaponHandler.useTrigger(player, TriggerType.DOUBLE_SNEAK, false);
+            // DOUBLE_SNEAK and START_SNEAK can be called nearly at same time
+        }
+
+        weaponHandler.useTrigger(player, isSneaking ? TriggerType.START_SNEAK : TriggerType.END_SNEAK, false);
     }
 
     @EventHandler (ignoreCancelled = true)

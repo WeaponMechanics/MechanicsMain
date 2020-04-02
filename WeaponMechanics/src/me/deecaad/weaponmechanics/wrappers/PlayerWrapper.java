@@ -16,6 +16,7 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     private boolean denyNextSetSlotPacket;
     private boolean inventoryOpen;
     private long lastRightClick;
+    private long lastStartSneak;
 
     public PlayerWrapper(Player player) {
         super(player);
@@ -52,6 +53,24 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     @Override
     public void rightClicked() {
         lastRightClick = System.currentTimeMillis();
+    }
+
+    @Override
+    public boolean didDoubleSneak() {
+
+        if (lastStartSneak == 0) {
+            lastStartSneak = System.currentTimeMillis();
+
+            // There hasn't yet been last sneak -> false
+            return false;
+        }
+
+        boolean passedTooMuch = NumberUtils.hasMillisPassed(lastStartSneak, 500);
+
+        // Reset the timer to 0 meaning again that there hasn't been any last sneak
+        lastStartSneak = 0;
+
+        return !passedTooMuch;
     }
 
     @Override

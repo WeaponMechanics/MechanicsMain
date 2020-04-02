@@ -50,4 +50,11 @@ public interface IPlayerWrapper extends IEntityWrapper {
      * This should only be updated on PlayerInteractEvent.
      */
     void rightClicked();
+
+    /**
+     * Double sneak: if player STARTS sneaking two times within 500 millis.
+     *
+     * @return whether or not sneak was double sneak
+     */
+    boolean didDoubleSneak();
 }

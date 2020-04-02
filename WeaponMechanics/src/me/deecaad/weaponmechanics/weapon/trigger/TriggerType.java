@@ -4,6 +4,7 @@ public enum TriggerType {
 
     START_SNEAK,
     END_SNEAK,
+    DOUBLE_SNEAK,
 
     START_SPRINT,
     END_SPRINT,

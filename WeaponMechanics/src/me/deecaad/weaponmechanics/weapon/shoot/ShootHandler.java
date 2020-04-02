@@ -79,8 +79,7 @@ public class ShootHandler {
 
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (trigger == null) return false;
-
-        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed") * 0.1;
+        
         int projectilesPerShot = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
 
         boolean selectiveFire = config.getBool(weaponTitle + ".Shoot.Selective_Fire");
