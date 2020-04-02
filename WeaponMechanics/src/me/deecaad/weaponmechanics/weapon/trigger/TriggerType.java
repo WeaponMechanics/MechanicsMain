@@ -15,6 +15,7 @@ public enum TriggerType {
     DROP_ITEM,
 
     JUMP,
+    DOUBLE_JUMP,
 
     START_SWIM_MODE,
     END_SWIM_MODE,

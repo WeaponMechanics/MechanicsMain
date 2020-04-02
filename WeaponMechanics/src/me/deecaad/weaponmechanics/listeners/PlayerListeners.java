@@ -5,6 +5,8 @@ import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -64,13 +66,26 @@ public class PlayerListeners implements Listener {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint")) return;
 
         weaponHandler.useTrigger(e.getPlayer(), e.isSprinting() ? TriggerType.START_SPRINT : TriggerType.END_SPRINT, false);
-
     }
 
     @EventHandler
     public void jump(PlayerJumpEvent e) {
         // Whether this is used its checked already in MoveTask class
-        weaponHandler.useTrigger(e.getPlayer(), TriggerType.JUMP, false);
+        weaponHandler.useTrigger(e.getPlayer(), e.isDoubleJump() ? TriggerType.DOUBLE_JUMP : TriggerType.JUMP, false);
+    }
+
+    @EventHandler (ignoreCancelled = true)
+    public void toggleFlight(PlayerToggleFlightEvent e) {
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) return;
+
+        Player player = e.getPlayer();
+        GameMode gameMode = player.getGameMode();
+        if (gameMode == GameMode.SURVIVAL || gameMode == GameMode.ADVENTURE) {
+            e.setCancelled(true);
+            player.setFlying(false);
+            player.setAllowFlight(false);
+            Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(player, true));
+        }
     }
 
     @EventHandler

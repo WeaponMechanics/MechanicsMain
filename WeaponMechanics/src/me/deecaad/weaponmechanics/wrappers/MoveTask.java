@@ -6,6 +6,7 @@ import me.deecaad.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Statistic;
 import org.bukkit.block.Block;
@@ -20,6 +21,7 @@ public class MoveTask extends BukkitRunnable {
     private Location from;
     private int sameMatches;
     private int jumps;
+    private int groundTicks;
 
     public MoveTask(IEntityWrapper entityWrapper) {
         this.entityWrapper = entityWrapper;
@@ -62,6 +64,14 @@ public class MoveTask extends BukkitRunnable {
         }
 
         boolean inMidairCheck = isInMidair(entity);
+
+        // Needed for double jump
+        if (inMidairCheck) {
+            groundTicks = 0;
+        } else {
+            ++groundTicks;
+        }
+
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair")) {
             if (inMidairCheck) {
                 if (!entityWrapper.isInMidair()) {
@@ -71,19 +81,34 @@ public class MoveTask extends BukkitRunnable {
                 entityWrapper.setInMidair(false);
             }
         }
+
+        if (!(entity instanceof Player)) {
+            return;
+        }
+        Player player = (Player) entity;
+
         if (this.jumps != -1) {
             if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump")) {
-                Player p = (Player) entity;
-                if (from.getY() < to.getY() && !p.getLocation().getBlock().isLiquid()) {
-                    int currentJumps = p.getStatistic(Statistic.JUMP);
+                if (from.getY() < to.getY() && !player.getLocation().getBlock().isLiquid()) {
+                    int currentJumps = player.getStatistic(Statistic.JUMP);
                     int jumpsLast = this.jumps;
                     if (currentJumps != jumpsLast) {
                         this.jumps = currentJumps;
                         double yChange = to.getY() - from.getY();
                         if ((yChange < 0.035 || yChange > 0.037) && (yChange < 0.116 || yChange > 0.118)) {
-                            Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(p));
+                            Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(player, false));
                         }
                     }
+                }
+            }
+        }
+
+        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) {
+            if (!player.getAllowFlight() && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
+
+                // Only give double jump ability if been on ground for at least 20 ticks
+                if (this.groundTicks > 20) {
+                    player.setAllowFlight(true);
                 }
             }
         }

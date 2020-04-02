@@ -39,7 +39,10 @@ public class EntityWrapper implements IEntityWrapper {
         this.entity = livingEntity;
 
         Configuration config = WeaponMechanics.getBasicConfigurations();
-        if (!config.getBool("Disabled_Trigger_Checks.In_Midair") || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking") || !config.getBool("Disabled_Trigger_Checks.Jump")) {
+        if (!config.getBool("Disabled_Trigger_Checks.In_Midair")
+                || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
+                || !config.getBool("Disabled_Trigger_Checks.Jump")
+                || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
             this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVETASKINTERVAL).getTaskId();
         }
         thermalScopeData = new HashMap<>();
