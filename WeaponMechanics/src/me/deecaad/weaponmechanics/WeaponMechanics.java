@@ -26,11 +26,14 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WeaponMechanics extends JavaPlugin {
@@ -42,6 +45,8 @@ public class WeaponMechanics extends JavaPlugin {
     private MainCommand mainCommand;
     private static UpdateChecker updateChecker;
     private static WeaponHandler weaponHandler;
+
+    private static List<Serializer<?>> tempSerializers;
 
     @Override
     public void onLoad() {
@@ -75,9 +80,6 @@ public class WeaponMechanics extends JavaPlugin {
         // Initializer core functions
         new CoreInitializer().init(this);
 
-        // Fill configuration mappings (except config.yml)
-        configurations = new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile())).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
-
         // Register packet listeners
         PacketListenerAPI.addPacketHandler(this, new OutSetSlotListener()); // reduce/remove weapons from going up and down
         PacketListenerAPI.addPacketHandler(this, new OutUpdateAttributesListener()); // used with scopes
@@ -86,14 +88,6 @@ public class WeaponMechanics extends JavaPlugin {
         PacketListenerAPI.addPacketHandler(this, new OutRemoveEntityEffectListener()); // used with scopes
 
         weaponHandler = new WeaponHandler();
-
-        // Register events
-        Bukkit.getServer().getPluginManager().registerEvents(new PlayerListeners(weaponHandler), this);
-        Bukkit.getServer().getPluginManager().registerEvents(new EntityListeners(weaponHandler), this);
-        if (CompatibilityAPI.getVersion() >= 1.09) {
-            Bukkit.getServer().getPluginManager().registerEvents(new PlayerListenersAbove_1_9(weaponHandler), this);
-            Bukkit.getServer().getPluginManager().registerEvents(new EntityListenersAbove_1_9(weaponHandler), this);
-        }
 
         // Start custom projectile runnable
         new CustomProjectilesRunnable().init(this, basicConfiguration.getBool("Async_Tasks.Projectile_Updates"));
@@ -125,6 +119,28 @@ public class WeaponMechanics extends JavaPlugin {
             // Add PlayerWrapper in onEnable in case server is reloaded for example
             getPlayerWrapper(player);
         }
+
+        tempSerializers = new JarSerializers().getAllSerializersInsideJar(WeaponMechanics.this, getFile());
+
+        // This is done like this to allow other plugins to add their own serializers
+        // before WeaponMechanics starts filling those configuration mappings.
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                // Fill configuration mappings (except config.yml)
+                configurations = new FileReader(tempSerializers).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
+                tempSerializers = null;
+
+                // Register events
+                // Registering events after serialization is completed to prevent any errors from happening
+                Bukkit.getServer().getPluginManager().registerEvents(new PlayerListeners(weaponHandler), WeaponMechanics.this);
+                Bukkit.getServer().getPluginManager().registerEvents(new EntityListeners(weaponHandler), WeaponMechanics.this);
+                if (CompatibilityAPI.getVersion() >= 1.09) {
+                    Bukkit.getServer().getPluginManager().registerEvents(new PlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                    Bukkit.getServer().getPluginManager().registerEvents(new EntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                }
+            }
+        }.runTask(this);
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
@@ -167,6 +183,8 @@ public class WeaponMechanics extends JavaPlugin {
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
         configurations = null;
+
+        // todo: add on reload event to allow other plugins register their serializers on reload?
         configurations = new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile())).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
@@ -270,7 +288,6 @@ public class WeaponMechanics extends JavaPlugin {
         return basicConfiguration;
     }
 
-
     /**
      * Returns WeaponMechanics's update checker
      *
@@ -302,5 +319,32 @@ public class WeaponMechanics extends JavaPlugin {
     public static void setWeaponHandler(WeaponHandler weaponHandler) {
         if (weaponHandler == null) throw new NullPointerException("Someone tried to set null weapon handler...");
         WeaponMechanics.weaponHandler = weaponHandler;
+    }
+
+    /**
+     * Registers given serializers. Make sure to use this method in onEnable or onLoad!
+     *
+     * @param serializers the serializers to add
+     */
+    public static void addSerializers(List<Serializer<?>> serializers) {
+        if (configurations != null) {
+            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable or onLoad");
+        }
+        serializers.forEach(WeaponMechanics::addSerializer);
+    }
+
+    /**
+     * Registers given serializer. Make sure to use this method in onEnable or onLoad!
+     *
+     * @param serializer the serializer to add
+     */
+    public static void addSerializer(Serializer<?> serializer) {
+        if (configurations != null) {
+            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable or onLoad");
+        }
+        if (tempSerializers == null) {
+            tempSerializers = new ArrayList<>();
+        }
+        tempSerializers.add(serializer);
     }
 }

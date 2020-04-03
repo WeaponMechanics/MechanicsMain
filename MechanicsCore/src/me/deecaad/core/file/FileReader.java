@@ -16,11 +16,7 @@ public class FileReader {
     public FileReader(List<Serializer<?>> serializers) {
         this.serializers = new HashMap<>();
         pathToSerializers = new ArrayList<>();
-        if (serializers != null && serializers.size() > 0) {
-            for (Serializer<?> serializer : serializers) {
-                addSerializer(serializer);
-            }
-        }
+        addSerializers(serializers);
     }
 
     /**
