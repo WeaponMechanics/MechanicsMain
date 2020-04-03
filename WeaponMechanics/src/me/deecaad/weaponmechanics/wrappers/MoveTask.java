@@ -51,13 +51,14 @@ public class MoveTask extends BukkitRunnable {
             if (isSwimming(entity)) {
                 entityWrapper.setSwimming(true);
 
-                // Return because swimming
-                // -> Can't be walking, standing, in mid air or jumping at same time
+                // -> Can't be walking, standing, in mid air at same time
                 return;
             } else {
                 entityWrapper.setSwimming(false);
             }
         }
+
+        boolean inMidairCheck = isInMidair(entity);
 
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking")) {
             if (isSameLocationNonRotation(from, to)) {
@@ -68,15 +69,15 @@ public class MoveTask extends BukkitRunnable {
             if (this.sameMatches > 3) {
                 entityWrapper.setStanding(true);
 
-                // Return because standing
-                // -> Can't be in mid air or jumping at same time
+                // -> Can't be walking, swimming, in mid air at same time
+                // Swimming is already returned above if it was true
                 return;
-            } else {
+            } else if (!inMidairCheck) {
+
+                // Only walking if not in mid air
                 entityWrapper.setWalking(true);
             }
         }
-
-        boolean inMidairCheck = isInMidair(entity);
 
         // Needed for double jump
         if (inMidairCheck) {
@@ -154,7 +155,6 @@ public class MoveTask extends BukkitRunnable {
 
     /**
      * Basically checks if entity is swimming.
-     * 1x1 holes of water or 1 block deep water places aren't considered as swimming.
      */
     private boolean isSwimming(LivingEntity livingEntity) {
         if (livingEntity.isInsideVehicle()) return false;
@@ -163,26 +163,8 @@ public class MoveTask extends BukkitRunnable {
         if (CompatibilityAPI.getVersion() >= 1.13 && livingEntity.isSwimming()) return true;
 
         Block current = livingEntity.getLocation().getBlock();
-        if (!current.isLiquid()) return false;
 
-        Block up = current.getRelative(BlockFace.UP);
-        Block down = current.getRelative(BlockFace.DOWN);
-
-        // Check if either block below or above current block is also liquid
-        // -> No 1 block deep water
-        if (up.isLiquid() || down.isLiquid()) {
-
-            Block northBlock = current.getRelative(BlockFace.NORTH);
-            Block southBlock = current.getRelative(BlockFace.SOUTH);
-            Block westBlock = current.getRelative(BlockFace.WEST);
-            Block eastBlock = current.getRelative(BlockFace.EAST);
-
-            // Check that at least one relative of current block is also water
-            // This denies 1x1 holes
-            if (northBlock.isLiquid() || southBlock.isLiquid() || westBlock.isLiquid() || eastBlock.isLiquid()) {
-                return true;
-            }
-        }
-        return false;
+        // Current could be stairs, slab or block like that so also check if block above it is liquid
+        return current.isLiquid() || current.getRelative(BlockFace.UP).isLiquid();
     }
 }

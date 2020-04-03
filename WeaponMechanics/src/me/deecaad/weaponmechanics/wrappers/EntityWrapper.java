@@ -69,7 +69,13 @@ public class EntityWrapper implements IEntityWrapper {
     public void setStanding(boolean standing) {
         if (this.standing == standing) return;
         this.standing = standing;
-        setWalking(false);
+
+        if (standing) {
+            // -> Can't be walking, swimming, in mid air at same time
+            setWalking(false);
+            setSwimming(false);
+            setInMidair(false);
+        }
         Bukkit.getPluginManager().callEvent(new EntityToggleStandEvent(entity, standing));
     }
 
@@ -82,7 +88,13 @@ public class EntityWrapper implements IEntityWrapper {
     public void setWalking(boolean walking) {
         if (this.walking == walking) return;
         this.walking = walking;
-        setStanding(false);
+
+        if (walking) {
+            // -> Can't be standing, swimming, in mid air at same time
+            setStanding(false);
+            setSwimming(false);
+            setInMidair(false);
+        }
         Bukkit.getPluginManager().callEvent(new EntityToggleWalkEvent(entity, walking));
     }
     
@@ -95,6 +107,13 @@ public class EntityWrapper implements IEntityWrapper {
     public void setInMidair(boolean inMidair) {
         if (this.inMidair == inMidair) return;
         this.inMidair = inMidair;
+
+        if (inMidair) {
+            // -> Can't be walking, swimming, standing at same time
+            setWalking(false);
+            setSwimming(false);
+            setStanding(false);
+        }
         Bukkit.getPluginManager().callEvent(new EntityToggleInMidairEvent(entity, inMidair));
     }
 
@@ -107,6 +126,13 @@ public class EntityWrapper implements IEntityWrapper {
     public void setSwimming(boolean swimming) {
         if (this.swimming == swimming) return;
         this.swimming = swimming;
+
+        if (swimming) {
+            // -> Can't be walking, standing, in mid air at same time
+            setWalking(false);
+            setStanding(false);
+            setInMidair(false);
+        }
         Bukkit.getPluginManager().callEvent(new EntityToggleSwimEvent(entity, swimming));
     }
 
