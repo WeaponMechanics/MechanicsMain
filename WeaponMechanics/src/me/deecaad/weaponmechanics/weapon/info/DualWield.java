@@ -66,7 +66,7 @@ public class DualWield implements Serializer<DualWield> {
             for (String type : new String[]{ ".Shoot", ".Reload", ".Scope" }) {
                 Trigger trigger = config.getObject(weaponTitle + type + ".Trigger", Trigger.class);
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
-                    deniedMessage.send(false, player, null, weaponTitle, null);
+                    deniedMessage.send(false, player, null, weaponTitle);
                     break;
                 }
             }

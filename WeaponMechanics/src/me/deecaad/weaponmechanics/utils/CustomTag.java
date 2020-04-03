@@ -9,6 +9,7 @@ public enum CustomTag {
      * Tags mainly used when creating or identifying item stack
      */
     WEAPON_TITLE("weapon-title"),
+    AMMO_LEFT("ammo-left"),
     SELECTIVE_FIRE("selective-fire");
 
     private String id;

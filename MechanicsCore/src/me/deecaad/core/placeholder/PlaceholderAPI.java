@@ -7,8 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,15 +42,15 @@ public class PlaceholderAPI {
 
     /**
      * Applies all possible placeholders. Includes Clip's PlaceholderAPI support.
+     * Also colorizes string.
      *
      * @param to the string where to apply placeholders
-     * @param tempPlaceholders temporary placeholders
      * @param player the player involved in event or null
-     * @param itemStack the itemstack involved in event or null
+     * @param itemStack the item stack involved in event or null
      * @param weaponTitle the weapon title involved in this request, can be null
      * @return the string with applied placeholders
      */
-    public static String applyPlaceholders(String to, @Nullable Map<String, PlaceholderHandler> tempPlaceholders, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
+    public static String applyPlaceholders(String to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
         if (to == null) {
             return null;
         }
@@ -61,14 +60,6 @@ public class PlaceholderAPI {
                 String currentPlaceholder = matcher.group(1);
                 PlaceholderHandler placeholderHandler = placeholderHandlers.get("%" + currentPlaceholder.toLowerCase() + "%");
                 if (placeholderHandler == null) {
-
-                    if (tempPlaceholders != null) {
-                        placeholderHandler = tempPlaceholders.get("%" + currentPlaceholder.toLowerCase() + "%");
-                        if (placeholderHandler == null) {
-                            continue;
-                        }
-                    }
-
                     continue;
                 }
                 String request = null;
@@ -88,6 +79,55 @@ public class PlaceholderAPI {
             to = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, to);
         } catch (ClassNotFoundException e) {/**/}
         return ChatColor.translateAlternateColorCodes('&', to);
+    }
+
+    /**
+     * Creates new list based on given collection.
+     *
+     * @see PlaceholderAPI#applyPlaceholders(String, Player, ItemStack, String)
+     */
+    public static List<String> applyPlaceholders(Collection<String> to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
+        Iterator<String> iterator = to.iterator();
+
+        List<String> tempList = new ArrayList<>();
+        while (iterator.hasNext()) {
+            tempList.add(applyPlaceholders(iterator.next(), player, itemStack, weaponTitle));
+        }
+        return tempList;
+    }
+
+    /**
+     * Applies only given placeholder to string. Doesn't do anything else.
+     *
+     * @param to the string where to apply placeholders
+     * @param placeholder the placeholder key (e.g. victim)
+     * @param value the string to replace victim with
+     * @return the string with applied placeholder
+     */
+    public static String applyTempPlaceholder(String to, String placeholder, String value) {
+        Matcher matcher = PLACEHOLDERS.matcher(to);
+        while (matcher.find()) {
+            String currentPlaceholder = matcher.group(1);
+            if (currentPlaceholder.equalsIgnoreCase(placeholder)) {
+                to = to.replace("%" + currentPlaceholder + "%", value);
+            }
+        }
+        return to;
+    }
+
+    /**
+     * Creates new list based on given collection.
+     *
+     * @see PlaceholderAPI#applyTempPlaceholder(String, String, String)
+     */
+    public static List<String> applyTempPlaceholder(Collection<String> to, String placeholder, String value) {
+        Iterator<String> iterator = to.iterator();
+
+        List<String> tempList = new ArrayList<>();
+        while (iterator.hasNext()) {
+            tempList.add(applyTempPlaceholder(iterator.next(), placeholder, value));
+        }
+        return tempList;
     }
 
     /**
