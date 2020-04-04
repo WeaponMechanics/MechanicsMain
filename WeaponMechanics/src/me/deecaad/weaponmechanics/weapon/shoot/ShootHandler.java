@@ -1,18 +1,19 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.utils.CustomTag;
+import me.deecaad.weaponmechanics.utils.TagHelper;
+import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
@@ -75,53 +76,51 @@ public class ShootHandler {
         if (entityWrapper.isUsingFullAuto(slot)) return false;
 
         Configuration config = getConfigurations();
-        boolean mainHand = slot == EquipmentSlot.HAND;
+
+        // Convert to millis
+        int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots") * 50;
+        if (delayBetweenShots != 0 && entityWrapper.hasDelayBetweenShots(slot, delayBetweenShots)) return false;
 
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
-        if (trigger == null) return false;
-        
-        int projectilesPerShot = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
+        if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
-        boolean selectiveFire = config.getBool(weaponTitle + ".Shoot.Selective_Fire");
-        int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
+        // todo: check and do ammo things
 
+        boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
+        if (usesSelectiveFire) {
+            String selectiveFire = TagHelper.getCustomTag(weaponStack, CustomTag.SELECTIVE_FIRE);
+            switch (selectiveFire) {
+                case ("burst"):
+                    return burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                case ("auto"):
+                    return fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+                default:
+                    return singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+            }
+        }
+
+        // First try full auto, then burst then single fire
+        return fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
+                || burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield)
+                || singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+    }
+
+    private boolean singleShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
+        // todo: check and do ammo things
+
+        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, slot == EquipmentSlot.HAND), true);
         return true;
     }
 
-    private void shootOneProjectile(IEntityWrapper entityWrapper, String weaponTitle, Location shootLocation, boolean updateSpreadChange) {
+    private boolean burstShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
         Configuration config = getConfigurations();
-        Projectile projectile = config.getObject(weaponTitle + ".Shoot.Projectile", Projectile.class);
-        if (projectile == null) {
-            DebugUtil.log(LogLevel.ERROR,
-                    "Tried to shoot with weapon, but projectile was null?",
-                    "Located at " + weaponTitle + ".Shoot.Projectile in configurations");
-        }
-        Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
-        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed") * 0.1;
-
-        LivingEntity livingEntity = entityWrapper.getEntity();
-        Vector motion = spread != null
-                ? spread.getNormalizedSpreadDirection(entityWrapper, updateSpreadChange).multiply(projectileSpeed)
-                : livingEntity.getLocation().getDirection().multiply(projectileSpeed);
-
-        projectile.shoot(livingEntity, shootLocation, motion);
-    }
-
-    private void shootProjectiles(IEntityWrapper entityWrapper, String weaponTitle, Location shootLocation, int amount, boolean allProjectilesUpdateSpreadChange) {
-        for (int i = 0; i < amount; ++i) {
-            if (i == 0) {
-                // Only make the first projectile modify spread change if its used
-                shootOneProjectile(entityWrapper, weaponTitle, shootLocation, true);
-            } else {
-                shootOneProjectile(entityWrapper, weaponTitle, shootLocation, allProjectilesUpdateSpreadChange);
-            }
-        }
-    }
-
-    private void shootBurst(IEntityWrapper entityWrapper, String weaponTitle, boolean dualWield, boolean mainhand) {
-        Configuration config = getConfigurations();
+        boolean mainhand = slot == EquipmentSlot.HAND;
         int shotsPerBurst = config.getInt(weaponTitle + ".Shoot.Burst.Shots_Per_Burst");
         int ticksBetweenEachShot = config.getInt(weaponTitle + ".Shoot.Burst.Ticks_Between_Each_Shot");
+
+        // Not used
+        if (shotsPerBurst == 0 || ticksBetweenEachShot == 0) return false;
+
         new BukkitRunnable() {
             int i = 0;
 
@@ -129,21 +128,27 @@ public class ShootHandler {
             public void run() {
                 if (i == 0) {
                     // Only make the first projectile of burst modify spread change if its used
-                    shootOneProjectile(entityWrapper, weaponTitle, getShootLocation(entityWrapper, dualWield, mainhand), true);
+                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), true);
                 } else {
-                    shootOneProjectile(entityWrapper, weaponTitle, getShootLocation(entityWrapper, dualWield, mainhand), false);
+                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), false);
                 }
+
+                // todo: check and do ammo things
 
                 if (++i >= shotsPerBurst) {
                     cancel();
                 }
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, ticksBetweenEachShot);
+        return true;
     }
 
-    private void shootFullAuto(IEntityWrapper entityWrapper, String weaponTitle, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    private boolean fullAutoShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
         int fullyAutomaticShotsPerSecond = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second");
+
+        // Not used
+        if (fullyAutomaticShotsPerSecond == 0) return false;
 
         int baseAmountPerTick = fullyAutomaticShotsPerSecond / 20;
         int extra = fullyAutomaticShotsPerSecond % 20;
@@ -154,7 +159,10 @@ public class ShootHandler {
             int tick = 0;
             public void run() {
 
-                if (!entityWrapper.isUsingFullAuto(slot) || !keepFullAutoOn(entityWrapper, triggerType)) {
+                if (!entityWrapper.isUsingFullAuto(slot)) {
+                    cancel();
+                    return;
+                } else if (!keepFullAutoOn(entityWrapper, triggerType)) {
                     entityWrapper.setUsingFullAuto(slot, false);
                     cancel();
                     return;
@@ -167,10 +175,14 @@ public class ShootHandler {
                     shootAmount = baseAmountPerTick;
                 }
 
+                // todo: check and do ammo things based on shootAmount (per tick)
+
                 if (shootAmount == 1) {
-                    shootOneProjectile(entityWrapper, weaponTitle, getShootLocation(entityWrapper, dualWield, mainhand), true);
+                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), true);
                 } else if (shootAmount > 1) { // Don't try to shoot in this tick if shoot amount is 0
-                    shootProjectiles(entityWrapper, weaponTitle, getShootLocation(entityWrapper, dualWield, mainhand), shootAmount, true);
+                    for (int i = 0; i < shootAmount; ++i) {
+                        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), true);
+                    }
                 }
 
                 if (++tick >= 20) {
@@ -178,8 +190,12 @@ public class ShootHandler {
                 }
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
+        return true;
     }
 
+    /**
+     * Checks whether to keep full auto on with given trigger
+     */
     private boolean keepFullAutoOn(IEntityWrapper entityWrapper, TriggerType triggerType) {
         switch (triggerType) {
             case START_SNEAK:
@@ -203,6 +219,39 @@ public class ShootHandler {
         }
     }
 
+    /**
+     * Shoots using weapon.
+     * Does not use ammo nor check for it.
+     */
+    private void shoot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean updateSpreadChange) {
+        Configuration config = getConfigurations();
+        Projectile projectile = config.getObject(weaponTitle + ".Shoot.Projectile", Projectile.class);
+        if (projectile == null) {
+            DebugUtil.log(LogLevel.ERROR,
+                    "Tried to shoot with weapon, but projectile configuration was missing or it was invalid?",
+                    "Located at " + weaponTitle + ".Shoot.Projectile in configurations");
+        }
+        Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
+        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed") * 0.1;
+        LivingEntity livingEntity = entityWrapper.getEntity();
+
+        UsageHelper.useGeneral(weaponTitle + ".Shoot", livingEntity, weaponStack, weaponTitle);
+
+        for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot", 1); ++i) {
+
+            // i == 0
+            // -> Only allow spread changing on first shot
+            Vector motion = spread != null
+                    ? spread.getNormalizedSpreadDirection(entityWrapper, i == 0 && updateSpreadChange).multiply(projectileSpeed)
+                    : livingEntity.getLocation().getDirection().multiply(projectileSpeed);
+
+            projectile.shoot(livingEntity, shootLocation, motion);
+        }
+    }
+
+    /**
+     * Get the shoot location based on dual wield and main hand
+     */
     private Location getShootLocation(IEntityWrapper entityWrapper, boolean dualWield, boolean mainhand) {
         LivingEntity livingEntity = entityWrapper.getEntity();
 

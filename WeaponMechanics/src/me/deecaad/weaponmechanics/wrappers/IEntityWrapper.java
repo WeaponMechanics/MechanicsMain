@@ -134,18 +134,32 @@ public interface IEntityWrapper {
     boolean isRightClicking();
 
     /**
-     * @param slot the hand to set
+     * @param equipmentSlot the hand to set
      * @param usingFullAuto whether or not using full auto
      */
-    void setUsingFullAuto(EquipmentSlot slot, boolean usingFullAuto);
+    void setUsingFullAuto(EquipmentSlot equipmentSlot, boolean usingFullAuto);
 
     /**
      * Used to check whether or not entity is using full auto CURRENTLY
      *
-     * @param slot the hand to check
+     * @param equipmentSlot the hand to check
      * @return true if entity is using full auto currently
      */
-    boolean isUsingFullAuto(EquipmentSlot slot);
+    boolean isUsingFullAuto(EquipmentSlot equipmentSlot);
+
+    /**
+     * Sets delay for given hand at current time millis
+     *
+     * @param equipmentSlot the hand to set
+     */
+    void setDelayBetweenShots(EquipmentSlot equipmentSlot);
+
+    /**
+     * @param equipmentSlot the hand to check
+     * @param delayInMillis the delay required to be passed
+     * @return true if delay is over
+     */
+    boolean hasDelayBetweenShots(EquipmentSlot equipmentSlot, long delayInMillis);
     
     /**
      *

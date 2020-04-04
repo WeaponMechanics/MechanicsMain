@@ -2,7 +2,9 @@ Shoot:
   Trigger: <trigger serializer>
   Projectile_Speed: <speed>
   Projectiles_Per_Shot: <amount>
-  Selective_Fire: <true/false>
+  Selective_Fire:
+    Trigger: <trigger serializer>
+    # All general stuff
   Delay_Between_Shots: <ticks>
   Fully_Automatic_Shots_Per_Second: <amount>
   Burst:

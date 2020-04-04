@@ -40,7 +40,7 @@ public class OutSetSlotListener extends PacketHandler {
             }
         }
 
-        // Last lets verify that the item stack is actually weapon
+        // Last lets verify that the nms item stack is actually weapon
         if (CompatibilityAPI.getCompatibility().getNBTCompatibility().getCustomTagFromNMSStack(packet.getFieldValue("c"), CustomTag.WEAPON_TITLE.getId()) == null) {
             return;
         }

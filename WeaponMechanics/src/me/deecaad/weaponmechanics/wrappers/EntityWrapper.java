@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
@@ -33,6 +34,9 @@ public class EntityWrapper implements IEntityWrapper {
 
     private boolean mainUsingFullAuto;
     private boolean offUsingFullAuto;
+
+    private long mainDelayBetweenShots;
+    private long offDelayBetweenShots;
 
     private ZoomData zoomData;
     private SpreadChange spreadChange;
@@ -195,6 +199,20 @@ public class EntityWrapper implements IEntityWrapper {
     @Override
     public boolean isUsingFullAuto(EquipmentSlot equipmentSlot) {
         return equipmentSlot == EquipmentSlot.HAND ? mainUsingFullAuto : offUsingFullAuto;
+    }
+
+    @Override
+    public void setDelayBetweenShots(EquipmentSlot equipmentSlot) {
+        if (equipmentSlot == EquipmentSlot.HAND) {
+            mainDelayBetweenShots = System.currentTimeMillis();
+            return;
+        }
+        offDelayBetweenShots = System.currentTimeMillis();
+    }
+
+    @Override
+    public boolean hasDelayBetweenShots(EquipmentSlot equipmentSlot, long delayInMillis) {
+        return equipmentSlot == EquipmentSlot.HAND ? NumberUtils.hasMillisPassed(mainDelayBetweenShots, delayInMillis) : NumberUtils.hasMillisPassed(offDelayBetweenShots, delayInMillis);
     }
 
     @Nullable
