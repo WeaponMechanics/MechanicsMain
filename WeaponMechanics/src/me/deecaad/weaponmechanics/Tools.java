@@ -37,4 +37,5 @@ public class Tools {
         String[] split = StringUtils.splitCapitalLetters(in);
         System.out.println(Arrays.toString(split));
     }
+
 }

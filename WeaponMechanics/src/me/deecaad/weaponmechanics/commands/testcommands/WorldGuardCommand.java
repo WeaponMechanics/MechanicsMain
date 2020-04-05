@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.StringUtils;
-import me.deecaad.core.utils.WorldGuardUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -18,7 +17,7 @@ public class WorldGuardCommand extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            boolean isAllowed = WorldGuardUtils.testFlag(((Player) sender).getLocation(), (Player) sender, WorldGuardUtils.test);
+            boolean isAllowed = true; // todo
             sender.sendMessage(StringUtils.color("&7isAllowed: &6" + isAllowed));
         }
     }
