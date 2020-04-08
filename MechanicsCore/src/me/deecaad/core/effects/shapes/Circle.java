@@ -1,53 +1,52 @@
-package me.deecaad.weaponmechanics.particles;
+package me.deecaad.core.effects.shapes;
 
-import org.bukkit.Location;
+import me.deecaad.core.utils.NumberUtils;
 import org.bukkit.util.Vector;
 
+import java.util.Iterator;
+
 /**
- * Probably better to make a complicated inheritance to easily support a lot of particles. Later
+ * TODO shape interface extends Iterator/Iterable of type vector
  */
-public class Circle {
+public class Circle implements Iterator<Vector> {
     
     private Point[] points;
-    private int nextPoint;
+    protected int nextPoint;
     private Vector b;
     private Vector c;
     
     public Circle() {
-        this(16, 1, 1, 0, 0);
+        this(16, 1);
     }
-    
-    public Circle(int points) {
-        this(points, 1, 1, 0, 0);
-    }
-    
-    public Circle(int points, double amplitude, double frequency) {
-        this(points, amplitude, frequency, 0, 0);
-    }
-    
+
     /**
-     * Constructs a circle with high customization. It is easiest
-     * to understand each parameter with an understanding of the
-     * graphs of sin and cos.
+     * Constructs a circle with the given number of points and
+     * the given amplitude (which is basically radius)
      *
      * @param points The number of points to track on a circle
      * @param amplitude How big of a circle to draw
-     * @param frequency How often to repeat the circle
-     * @param axis y offset
-     * @param phaseShift x offset
      */
-    public Circle(int points, double amplitude, double frequency, double axis, double phaseShift) {
+    public Circle(int points, double amplitude) {
         this.points = new Point[points];
-        double period = (2 * Math.PI) / frequency;
+        double period = (2 * Math.PI);
         
         for (int i = 0; i < points; i++) {
             double radian = period / points * i;
-            double cos = amplitude * Math.cos(frequency * (radian - phaseShift)) + axis;
-            double sin = amplitude * Math.sin(frequency * (radian - phaseShift)) + axis;
+            double cos = amplitude * Math.cos(radian);
+            double sin = amplitude * Math.sin(radian);
             this.points[i] = new Point(sin, cos);
         }
     }
-    
+
+    /**
+     * Returns the number of points on this <code>Circle</code>
+     *
+     * @return Number of points
+     */
+    public int getPoints() {
+        return points.length;
+    }
+
     /**
      * Sets the axis with yaw and pitch instead of
      * with a Vector. (Basically just creates the
@@ -78,33 +77,42 @@ public class Circle {
      */
     public void setAxis(Vector dir) {
         Vector a = dir.normalize();
-        b = new Vector(a.getY(), -a.getX(), 0).normalize();
-        c = a.crossProduct(b);
+
+        // This double checks to make sure we do not
+        // produce a vector of length 0, which causes
+        // issues with NaN during normalization.
+        b = new Vector(0, 0, 0);
+        while (NumberUtils.equals(b.length(), 0.0)) {
+            Vector vector = Vector.getRandom();
+            b = a.clone().crossProduct(vector);
+        }
+        c = a.clone().crossProduct(b.normalize());
+
+        //DebugUtils.assertTrue(a.dot(b) == 0, "A is not perpendicular to B");
+        //DebugUtils.assertTrue(b.dot(c) == 0, "B is not perpendicular to C");
+        //DebugUtils.assertTrue(a.dot(c) == 0, "A is not perpendicular to C");
     }
-    
-    /**
-     * Gets the next point on the circle, and adds
-     * that to the given Location. This allows the circle
-     * to be drawn in relation to a location, which can change.
-     * This makes it easier to draw spirals.
-     *
-     * If the given location does not change, this will just draw
-     * a circle around the location.
-     *
-     * @param loc Location to draw at
-     */
-    public void getNext(Location loc) {
-        Point current = points[nextPoint];
-        
+
+    public void reset() {
+        nextPoint = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return nextPoint + 1 < points.length;
+    }
+
+    @Override
+    public Vector next() {
+        Point current = points[nextPoint++];
+
         double x = current.cos * b.getX() + current.sin * c.getX();
         double y = current.cos * b.getY() + current.sin * c.getY();
         double z = current.cos * b.getZ() + current.sin * c.getZ();
-        
-        nextPoint = (nextPoint + 1) % points.length;
-        
-        loc.add(x, y, z);
+
+        return new Vector(x, y, z);
     }
-    
+
     private static class Point {
         
         private double sin;
