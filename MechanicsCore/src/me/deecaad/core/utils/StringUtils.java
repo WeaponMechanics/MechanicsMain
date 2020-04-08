@@ -6,6 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This utility class contains methods wrapping
+ * around the idea of a <code>String</code>.
+ *
+ * Also contains formatting methods to change
+ * the format of a <code>String</code>
+ */
 public class StringUtils {
     
     /**
@@ -100,5 +107,66 @@ public class StringUtils {
      */
     public static List<String> getList(String...strings) {
         return Arrays.stream(strings).map(StringUtils::color).collect(Collectors.toList());
+    }
+
+    /**
+     * Gets the Minecraft <code>NamespacedKey</code> format
+     * from the given camel case format. See below examples.
+     *
+     * <blockquote><pre>{@code
+     *      camelToKey("iAmBob") // "i_am_bob"
+     *      camelToKey("silkTouch") // "silk_touch"
+     *      camelToKey("hey") // "hey"
+     * }</pre></blockquote>
+     *
+     * @param camel The camelcase to reformat
+     * @return The reformatted case
+     */
+    public static String camelToKey(String camel) {
+        return String.join("_", camel.split("(?=[A-Z])")).toLowerCase();
+    }
+
+    /**
+     * Gets constant format from the given
+     * camel case format. See below examples.
+     *
+     * <blockquote><pre>{@code
+     *      camelToConst("iAmBob") // "I_AM_BOB"
+     *      camelToConst("silkTouch") // "SILK_TOUCH"
+     *      camelToConst("hey") // "HEY"
+     * }</pre></blockquote>
+     *
+     * @param camel The camelcase to reformat
+     * @return The reformatted case
+     */
+    public static String camelToConst(String camel) {
+        return String.join("_", camel.split("(?=[A-Z])")).toUpperCase();
+    }
+
+    /**
+     * Translated a minecraft <code>NamespacedKey</code> formatted
+     * <code>String</code> <i>OR</i> a java constant formatted
+     * <code>String</code> into a more user readable format. See
+     * below examples.
+     *
+     * <blockquote><pre>{@code
+     *      keyToRead("SILK_TOUCH") // "Silk Touch"
+     *      keyToRead("JAR_OF_DIRT") // "Jar Of Dirt"
+     *      keyToRead("GOLDEN_SWORD") // "Golden Sword"
+     * }</pre></blockquote>
+     *
+     * @param key The key to reformat
+     * @return The user readable format
+     */
+    public static String keyToRead(String key) {
+        String[] split = key.toLowerCase().split("_");
+
+        StringBuilder builder = new StringBuilder();
+        for (String s: split) {
+            builder.append(s.substring(0, 1).toUpperCase());
+            builder.append(s.substring(1));
+            builder.append(" ");
+        }
+        return builder.substring(0, builder.length() - 1);
     }
 }
