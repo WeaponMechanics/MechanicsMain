@@ -35,6 +35,7 @@ Disabled_Trigger_Checks:
   In_Midair: false
   Standing_And_Walking: false
   Jump: false
+  Double_Jump: false
   Swim: false
   Glide: false
   Sneak: false

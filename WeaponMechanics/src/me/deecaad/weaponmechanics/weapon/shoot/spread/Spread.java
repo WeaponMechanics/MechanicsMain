@@ -32,7 +32,14 @@ public class Spread implements Serializer<Spread> {
         this.changingSpread = changingSpread;
     }
 
-    public Vector getNormalizedSpreadDirection(IEntityWrapper entityWrapper) {
+    /**
+     * Returns normalized spread direction
+     *
+     * @param entityWrapper the entity involved
+     * @param updateSpreadChange whether or not to allow updating current spread change
+     * @return the normalized spread direction
+     */
+    public Vector getNormalizedSpreadDirection(IEntityWrapper entityWrapper, boolean updateSpreadChange) {
         Location location = entityWrapper.getEntity().getLocation();
         double yaw = location.getYaw(), pitch = location.getPitch();
         if (spreadImage != null) {
@@ -43,12 +50,12 @@ public class Spread implements Serializer<Spread> {
         double spread = baseSpread;
 
         if (modifySpreadWhen != null) spread = modifySpreadWhen.applyChanges(entityWrapper, spread);
-        if (changingSpread != null) spread = changingSpread.applyChanges(entityWrapper, spread);
+        if (changingSpread != null) spread = changingSpread.applyChanges(entityWrapper, spread, updateSpreadChange);
 
         return getNormalizedSpreadDirection(yaw, pitch, spread);
     }
 
-    public Vector getNormalizedSpreadImageDirection(double yaw, double pitch, double x, double y) {
+    private Vector getNormalizedSpreadImageDirection(double yaw, double pitch, double x, double y) {
 
         // todo
 
@@ -63,7 +70,7 @@ public class Spread implements Serializer<Spread> {
      * @param spread the spread
      * @return the randomized direction based on given params as normalized vector
      */
-    public Vector getNormalizedSpreadDirection(double yaw, double pitch, double spread) {
+    private Vector getNormalizedSpreadDirection(double yaw, double pitch, double spread) {
 
         // Create random numbers for horizontal and vertical spread
         double randomX = NumberUtils.random(-spread, spread),

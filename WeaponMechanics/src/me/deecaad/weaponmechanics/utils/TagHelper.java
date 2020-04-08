@@ -16,8 +16,7 @@ public class TagHelper {
     /**
      * Don't let anyone instantiate this class
      */
-    private TagHelper() {
-    }
+    private TagHelper() { }
 
     /**
      * @param itemStack the item stack from which to get tag

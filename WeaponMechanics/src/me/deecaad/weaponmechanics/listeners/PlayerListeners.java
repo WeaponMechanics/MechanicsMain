@@ -3,10 +3,11 @@ package me.deecaad.weaponmechanics.listeners;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -50,7 +51,15 @@ public class PlayerListeners implements Listener {
     public void toggleSneak(PlayerToggleSneakEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak")) return;
 
-        weaponHandler.useTrigger(e.getPlayer(), e.isSneaking() ? TriggerType.START_SNEAK : TriggerType.END_SNEAK, false);
+        Player player = e.getPlayer();
+        boolean isSneaking = e.isSneaking();
+
+        if (isSneaking && getPlayerWrapper(player).didDoubleSneak()) {
+            weaponHandler.useTrigger(player, TriggerType.DOUBLE_SNEAK, false);
+            // DOUBLE_SNEAK and START_SNEAK can be called nearly at same time
+        }
+
+        weaponHandler.useTrigger(player, isSneaking ? TriggerType.START_SNEAK : TriggerType.END_SNEAK, false);
     }
 
     @EventHandler (ignoreCancelled = true)
@@ -58,13 +67,26 @@ public class PlayerListeners implements Listener {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint")) return;
 
         weaponHandler.useTrigger(e.getPlayer(), e.isSprinting() ? TriggerType.START_SPRINT : TriggerType.END_SPRINT, false);
-
     }
 
     @EventHandler
     public void jump(PlayerJumpEvent e) {
         // Whether this is used its checked already in MoveTask class
-        weaponHandler.useTrigger(e.getPlayer(), TriggerType.JUMP, false);
+        weaponHandler.useTrigger(e.getPlayer(), e.isDoubleJump() ? TriggerType.DOUBLE_JUMP : TriggerType.JUMP, false);
+    }
+
+    @EventHandler (ignoreCancelled = true)
+    public void toggleFlight(PlayerToggleFlightEvent e) {
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) return;
+
+        Player player = e.getPlayer();
+        GameMode gameMode = player.getGameMode();
+        if (gameMode == GameMode.SURVIVAL || gameMode == GameMode.ADVENTURE) {
+            e.setCancelled(true);
+            player.setFlying(false);
+            player.setAllowFlight(false);
+            Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(player, true));
+        }
     }
 
     @EventHandler
@@ -73,35 +95,41 @@ public class PlayerListeners implements Listener {
 
         // I don't think ignoreCancelled = true works in this event properly
         if (action == Action.PHYSICAL || e.useItemInHand() == Event.Result.DENY) return;
-
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
-
         Player player = e.getPlayer();
+
+        // TEST
+        Recoil recoil = new Recoil();
+        recoil.rotateCamera(player);
+        // TEST
+
+        // Basically this just cancel double call to player interact event
+        if (useOffHand) {
+            EquipmentSlot hand = e.getHand();
+
+            // Only if main hand is air (off hand can be whatever
+            if (player.getEquipment().getItemInMainHand().getType().isAir()) {
+
+                // Check if the action was right click block AND hand used was main hand
+                // -> Cancel
+                if (action == Action.RIGHT_CLICK_BLOCK && hand == EquipmentSlot.HAND) {
+                    return;
+                }
+                // This basically means that hand is now OFF_HAND, but it does't let HAND calls pass
+
+            } else if (hand == EquipmentSlot.OFF_HAND) {
+                // If main hand had item, then we can always just cancel OFF_HAND call since HAND is guaranteed to be used
+                return;
+            }
+        }
 
         boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
         if (rightClick) getPlayerWrapper(player).rightClicked();
-        boolean isBlockInteraction = action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK;
 
-        ItemStack mainStack;
-        if (useOffHand) {
-            mainStack = player.getEquipment().getItemInMainHand();
-
-            // getHand() can't be null because Action.PHYSICAL is already denied above
-            if (e.getHand() == EquipmentSlot.OFF_HAND && mainStack.getType() != Material.AIR) {
-                // Basically this just cancels double calls to player interact event
-                // -> This event is called once for both hands so this simply checks if
-                // off hand is used and if main hand item wasn't air.
-                // --> Meaning that it main stack was something else than AIR this event would have been already called once
-                return;
-            }
-        } else {
-            // 1.8
-            mainStack = player.getEquipment().getItemInHand();
-        }
-
-        Bukkit.broadcastMessage("asd");
+        // 1.8 support...
+        ItemStack mainStack = useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand();
 
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, true);
 
@@ -115,6 +143,7 @@ public class PlayerListeners implements Listener {
 
         if (mainWeapon == null && offWeapon == null) return;
 
+        boolean isBlockInteraction = action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK;
         if (isBlockInteraction && (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Block_Interactions", true)
                 || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Block_Interactions", true))) {
             e.setUseInteractedBlock(Event.Result.DENY);
@@ -127,23 +156,25 @@ public class PlayerListeners implements Listener {
 
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
 
+        boolean dualWield = mainWeapon != null && offWeapon != null;
+
         if (rightClick) {
             // Only do dual wield check if server is 1.9 or newer
             if (useOffHand && !weaponHandler.getInfoHandler().allowDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
 
-            if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK);
+            if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield);
 
             // Off weapon is automatically null at this point if server is using 1.8
-            if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK);
+            if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield);
             return;
         }
         // Only do dual wield check if server is 1.9 or newer
         if (useOffHand && !weaponHandler.getInfoHandler().allowDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
 
-        if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK);
+        if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield);
 
         // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK);
+        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield);
     }
 
     /**
@@ -212,10 +243,12 @@ public class PlayerListeners implements Listener {
         // Only do dual wield check if server is 1.9 or newer
         if (useOffHand && !weaponHandler.getInfoHandler().allowDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
 
-        if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.DROP_ITEM);
+        boolean dualWield = mainWeapon != null && offWeapon != null;
+
+        if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield);
 
         // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM);
+        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
 
     }
 

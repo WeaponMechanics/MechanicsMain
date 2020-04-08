@@ -39,9 +39,8 @@ public class ScopeHandler {
      * @param triggerType the trigger type trying to activate scope
      * @return true if the scope used successfully to zoom in, our or stack
      */
-    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType) {
+    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
-        boolean mainHand = slot == EquipmentSlot.HAND;
 
         Trigger trigger = config.getObject(weaponTitle + ".Scope.Trigger", Trigger.class);
         if (trigger == null) return false;
@@ -53,12 +52,12 @@ public class ScopeHandler {
 
             Trigger offTrigger = config.getObject(weaponTitle + ".Scope.Zoom_Off.Trigger", Trigger.class);
             // If off trigger is valid -> zoom out even if stacking has't reached maximum stacks
-            if (offTrigger != null && offTrigger.check(triggerType, mainHand, entityWrapper)) {
+            if (offTrigger != null && offTrigger.check(triggerType, slot, entityWrapper)) {
                 return zoomOut(weaponStack, weaponTitle, entityWrapper);
             }
 
             // If trigger is valid zoom in or out depending on situation
-            if (trigger.check(triggerType, mainHand, entityWrapper)) {
+            if (trigger.check(triggerType, slot, entityWrapper)) {
 
                 int maximumStacks = config.getInt(weaponTitle + ".Scope.Zoom_Stacking.Maximum_Stacks");
                 if (maximumStacks <= 0) { // meaning that zoom stacking is not used
@@ -72,7 +71,7 @@ public class ScopeHandler {
                 // Should turn off (because zoom stacks have reached maximum stacks)
                 return zoomOut(weaponStack, weaponTitle, entityWrapper);
             }
-        } else if (trigger.check(triggerType, mainHand, entityWrapper)) {
+        } else if (trigger.check(triggerType, slot, entityWrapper)) {
             // Try zooming in since entity is not zooming
             return zoomIn(weaponStack, weaponTitle, entityWrapper);
         }
@@ -100,7 +99,7 @@ public class ScopeHandler {
 
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
-                UsageHelper.useGeneral(weaponTitle + ".Scope.Zoom_Stacking", entity, weaponStack, weaponTitle, null);
+                UsageHelper.useGeneral(weaponTitle + ".Scope.Zoom_Stacking", entity, weaponStack, weaponTitle);
 
                 return true;
             } else {
@@ -123,7 +122,7 @@ public class ScopeHandler {
         }
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
-        UsageHelper.useGeneral(weaponTitle + ".Scope", entity, weaponStack, weaponTitle, null);
+        UsageHelper.useGeneral(weaponTitle + ".Scope", entity, weaponStack, weaponTitle);
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
 
         return true;
@@ -132,7 +131,7 @@ public class ScopeHandler {
     /**
      * @return true if successfully zoomed out
      */
-    private boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper) {
+    public boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper) {
         ZoomData zoomData = entityWrapper.getZoomData();
         if (!zoomData.isZooming()) return false;
         LivingEntity entity = entityWrapper.getEntity();
@@ -146,7 +145,7 @@ public class ScopeHandler {
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
-        UsageHelper.useGeneral(weaponTitle + ".Scope.Zoom_Off", entity, weaponStack, weaponTitle, null);
+        UsageHelper.useGeneral(weaponTitle + ".Scope.Zoom_Off", entity, weaponStack, weaponTitle);
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
 
         return true;

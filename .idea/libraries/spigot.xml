@@ -3,7 +3,9 @@
     <CLASSES>
       <root url="file://$PROJECT_DIR$/lib/spigot" />
     </CLASSES>
-    <JAVADOC />
+    <JAVADOC>
+      <root url="https://hub.spigotmc.org/javadocs/spigot/" />
+    </JAVADOC>
     <SOURCES>
       <root url="file://$PROJECT_DIR$/lib/spigot" />
     </SOURCES>

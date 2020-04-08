@@ -6,6 +6,7 @@ import me.deecaad.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Statistic;
 import org.bukkit.block.Block;
@@ -20,6 +21,7 @@ public class MoveTask extends BukkitRunnable {
     private Location from;
     private int sameMatches;
     private int jumps;
+    private int groundTicks;
 
     public MoveTask(IEntityWrapper entityWrapper) {
         this.entityWrapper = entityWrapper;
@@ -43,47 +45,82 @@ public class MoveTask extends BukkitRunnable {
         Location from = this.from;
         Location to = entity.getLocation();
 
-        boolean disableStandOrWalkCheck = WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
-
         this.from = to;
-        if (isSameLocationNonRotation(from, to)) {
-            ++this.sameMatches;
-        } else {
-            this.sameMatches = 0;
-        }
 
-        if (this.sameMatches > 3) {
-            if (!disableStandOrWalkCheck) {
-                entityWrapper.setStanding(true);
+        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim")) {
+            if (isSwimming(entity)) {
+                entityWrapper.setSwimming(true);
+
+                // -> Can't be walking, standing, in mid air at same time
+                return;
+            } else {
+                entityWrapper.setSwimming(false);
             }
-            return;
-        } else if (!disableStandOrWalkCheck) {
-            entityWrapper.setWalking(true);
         }
 
         boolean inMidairCheck = isInMidair(entity);
+
+        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking")) {
+            if (isSameLocationNonRotation(from, to)) {
+                ++this.sameMatches;
+            } else {
+                this.sameMatches = 0;
+            }
+            if (this.sameMatches > 3) {
+                entityWrapper.setStanding(true);
+
+                // -> Can't be walking, swimming, in mid air at same time
+                // Swimming is already returned above if it was true
+                return;
+            } else if (!inMidairCheck) {
+
+                // Only walking if not in mid air
+                entityWrapper.setWalking(true);
+            }
+        }
+
+        // Needed for double jump
+        if (inMidairCheck) {
+            groundTicks = 0;
+        } else {
+            ++groundTicks;
+        }
+
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair")) {
             if (inMidairCheck) {
-                if (!entityWrapper.isInMidair()) {
-                    entityWrapper.setInMidair(true);
-                }
-            } else if (entityWrapper.isInMidair()) {
+                entityWrapper.setInMidair(true);
+            } else {
                 entityWrapper.setInMidair(false);
             }
         }
+
+        if (!(entity instanceof Player)) {
+            return;
+        }
+        Player player = (Player) entity;
+
         if (this.jumps != -1) {
             if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump")) {
-                Player p = (Player) entity;
-                if (from.getY() < to.getY() && !p.getLocation().getBlock().isLiquid()) {
-                    int currentJumps = p.getStatistic(Statistic.JUMP);
+                if (from.getY() < to.getY() && !player.getLocation().getBlock().isLiquid()) {
+                    int currentJumps = player.getStatistic(Statistic.JUMP);
                     int jumpsLast = this.jumps;
                     if (currentJumps != jumpsLast) {
                         this.jumps = currentJumps;
                         double yChange = to.getY() - from.getY();
                         if ((yChange < 0.035 || yChange > 0.037) && (yChange < 0.116 || yChange > 0.118)) {
-                            Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(p));
+                            Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(player, false));
                         }
                     }
+                }
+            }
+        }
+
+        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) {
+            if (!player.getAllowFlight() && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
+
+                // Only give double jump ability if been on ground for at least 20 ticks
+                if (this.groundTicks > 20) {
+                    player.setAllowFlight(true);
                 }
             }
         }
@@ -108,8 +145,26 @@ public class MoveTask extends BukkitRunnable {
         Block current = livingEntity.getLocation().getBlock();
         Block below = current.getRelative(BlockFace.DOWN);
 
+        // Check for liquid as hit boxes are considered null if block is liquid
+        if (current.isLiquid() || below.isLiquid()) return false;
+
         HitBox belowHitBox = projectileCompatibility.getHitBox(below);
         HitBox currentHitBox = projectileCompatibility.getHitBox(current);
         return belowHitBox == null && currentHitBox == null;
+    }
+
+    /**
+     * Basically checks if entity is swimming.
+     */
+    private boolean isSwimming(LivingEntity livingEntity) {
+        if (livingEntity.isInsideVehicle()) return false;
+
+        // Entity must be swimming as swim mode is on
+        if (CompatibilityAPI.getVersion() >= 1.13 && livingEntity.isSwimming()) return true;
+
+        Block current = livingEntity.getLocation().getBlock();
+
+        // Current could be stairs, slab or block like that so also check if block above it is liquid
+        return current.isLiquid() || current.getRelative(BlockFace.UP).isLiquid();
     }
 }

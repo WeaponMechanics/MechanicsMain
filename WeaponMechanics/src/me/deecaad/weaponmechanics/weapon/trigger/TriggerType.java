@@ -4,6 +4,7 @@ public enum TriggerType {
 
     START_SNEAK,
     END_SNEAK,
+    DOUBLE_SNEAK,
 
     START_SPRINT,
     END_SPRINT,
@@ -14,9 +15,10 @@ public enum TriggerType {
     DROP_ITEM,
 
     JUMP,
+    DOUBLE_JUMP,
 
-    START_SWIM_MODE,
-    END_SWIM_MODE,
+    START_SWIM,
+    END_SWIM,
 
     START_GLIDE,
     END_GLIDE,

@@ -32,9 +32,8 @@ public class UsageHelper {
      * @param livingEntity uses everything in this general holder to specific living entity and its location
      * @param weaponStack if required for PlaceholderAPI checking
      * @param weaponTitle if required for PlaceholderAPI checking
-     * @param tempPlaceholders temporary placeholders
      */
-    public static void useGeneral(String path, LivingEntity livingEntity, @Nullable ItemStack weaponStack, @Nullable String weaponTitle, @Nullable Map<String, PlaceholderHandler> tempPlaceholders) {
+    public static void useGeneral(String path, LivingEntity livingEntity, @Nullable ItemStack weaponStack, @Nullable String weaponTitle) {
         Configuration config = getConfigurations();
 
         PlaySound sound = config.getObject(path + ".Sound", PlaySound.class);
@@ -48,7 +47,7 @@ public class UsageHelper {
 
         if (livingEntity.getType() == EntityType.PLAYER) {
             SendMessage message = config.getObject(path + ".Message", SendMessage.class);
-            if (message != null) message.send(false, (Player) livingEntity, weaponStack, weaponTitle, tempPlaceholders);
+            if (message != null) message.send(false, (Player) livingEntity, weaponStack, weaponTitle);
         }
 
         AddPotionEffect potionEffect = config.getObject(path + ".Potion_Effect", AddPotionEffect.class);

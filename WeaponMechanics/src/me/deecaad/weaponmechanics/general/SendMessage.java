@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.general;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -16,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.util.Map;
 
 public class SendMessage implements Serializer<SendMessage> {
 
@@ -41,7 +39,8 @@ public class SendMessage implements Serializer<SendMessage> {
         }
     }
 
-    public SendMessage(String chat, String actionBar, String title, String subtitle) {
+    public SendMessage(boolean perWorld, String chat, String actionBar, String title, String subtitle) {
+        this.perWorld = perWorld;
         this.chat = chat;
         this.actionBar = actionBar;
         this.title = title;
@@ -56,14 +55,13 @@ public class SendMessage implements Serializer<SendMessage> {
      * @param player the receiving player
      * @param weaponStack if required for PlaceholderAPI checking
      * @param weaponTitle if required for PlaceholderAPI checking
-     * @param tempPlaceholders temporary placeholders
      */
-    public void send(boolean forAll, Player player, @Nullable ItemStack weaponStack, @Nullable String weaponTitle, @Nullable Map<String, PlaceholderHandler> tempPlaceholders) {
+    public void send(boolean forAll, Player player, @Nullable ItemStack weaponStack, @Nullable String weaponTitle) {
 
-        String chat = PlaceholderAPI.applyPlaceholders(this.chat, tempPlaceholders, player, weaponStack, weaponTitle);
-        String actionBar = PlaceholderAPI.applyPlaceholders(this.actionBar, tempPlaceholders, player, weaponStack, weaponTitle);
-        String title = PlaceholderAPI.applyPlaceholders(this.title, tempPlaceholders, player, weaponStack, weaponTitle);
-        String subtitle = PlaceholderAPI.applyPlaceholders(this.subtitle, tempPlaceholders, player, weaponStack, weaponTitle);
+        String chat = PlaceholderAPI.applyPlaceholders(this.chat, player, weaponStack, weaponTitle);
+        String actionBar = PlaceholderAPI.applyPlaceholders(this.actionBar, player, weaponStack, weaponTitle);
+        String title = PlaceholderAPI.applyPlaceholders(this.title, player, weaponStack, weaponTitle);
+        String subtitle = PlaceholderAPI.applyPlaceholders(this.subtitle, player, weaponStack, weaponTitle);
 
         if (forAll) {
             if (this.perWorld) {
@@ -127,6 +125,7 @@ public class SendMessage implements Serializer<SendMessage> {
         actionBar = ChatColor.translateAlternateColorCodes('&', actionBar);
         title = ChatColor.translateAlternateColorCodes('&', title);
         subtitle = ChatColor.translateAlternateColorCodes('&', subtitle);
-        return new SendMessage(chat, actionBar, title, subtitle);
+        boolean perWorld = configurationSection.getBoolean(path + ".Per_World");
+        return new SendMessage(perWorld, chat, actionBar, title, subtitle);
     }
 }
