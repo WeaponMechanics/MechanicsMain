@@ -8,25 +8,17 @@ import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
-import me.deecaad.weaponmechanics.general.ColorType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EntityWrapper implements IEntityWrapper {
 
     private static final int MOVETASKINTERVAL = 0;
 
     private final LivingEntity entity;
-    private int moveTask;
-    
-    public Map<Player, ColorType> thermalScopeData;
 
+    private int moveTask;
     private boolean standing;
     private boolean walking;
     private boolean inMidair;
@@ -51,7 +43,6 @@ public class EntityWrapper implements IEntityWrapper {
                 || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
             this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVETASKINTERVAL).getTaskId();
         }
-        thermalScopeData = new HashMap<>();
     }
 
     @Override
@@ -214,12 +205,4 @@ public class EntityWrapper implements IEntityWrapper {
     public boolean hasDelayBetweenShots(EquipmentSlot equipmentSlot, long delayInMillis) {
         return equipmentSlot == EquipmentSlot.HAND ? NumberUtils.hasMillisPassed(mainDelayBetweenShots, delayInMillis) : NumberUtils.hasMillisPassed(offDelayBetweenShots, delayInMillis);
     }
-
-    @Nullable
-    @Override
-    public ColorType getThermalColor(@Nullable Player player) {
-        return thermalScopeData.get(player);
-    }
-    
-    
 }

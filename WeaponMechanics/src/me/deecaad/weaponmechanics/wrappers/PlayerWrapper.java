@@ -2,27 +2,21 @@ package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.weaponmechanics.general.ColorType;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import org.bukkit.entity.Player;
-
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
 
-    public Map<Player, ColorType> thermalScopeData;
     private final Player player;
     private boolean denyNextSetSlotPacket;
     private boolean inventoryOpen;
     private long lastRightClick;
     private long lastStartSneak;
+    private RecoilTask recoilTask;
 
     public PlayerWrapper(Player player) {
         super(player);
-
         this.player = player;
-        thermalScopeData = new HashMap<>();
     }
 
     @Override
@@ -74,6 +68,16 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     }
 
     @Override
+    public RecoilTask getRecoilTask() {
+        return recoilTask;
+    }
+
+    @Override
+    public void setRecoilTask(RecoilTask recoilTask) {
+        this.recoilTask = recoilTask;
+    }
+
+    @Override
     public boolean isRightClicking() {
 
         // This already means that player is right clicking.
@@ -97,11 +101,5 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     @Override
     public boolean isSprinting() {
         return player.isSprinting();
-    }
-
-    @Nullable
-    @Override
-    public ColorType getThermalColor(@Nullable Player player) {
-        return thermalScopeData.get(player);
     }
 }

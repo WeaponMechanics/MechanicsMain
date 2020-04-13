@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nullable;
 
 /**
  * This class wraps an Player. Contains
@@ -57,4 +60,17 @@ public interface IPlayerWrapper extends IEntityWrapper {
      * @return whether or not sneak was double sneak
      */
     boolean didDoubleSneak();
+
+    /**
+     * @return the recoil task if its being used currently
+     */
+    @Nullable
+    RecoilTask getRecoilTask();
+
+    /**
+     * Sets new recoil task for player
+     *
+     * @param recoilTask the new recoil task
+     */
+    void setRecoilTask(RecoilTask recoilTask);
 }

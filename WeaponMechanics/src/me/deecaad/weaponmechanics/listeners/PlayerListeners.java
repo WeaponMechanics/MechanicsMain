@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.listeners;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Bukkit;
@@ -99,11 +98,6 @@ public class PlayerListeners implements Listener {
 
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
         Player player = e.getPlayer();
-
-        // TEST
-        Recoil recoil = new Recoil();
-        recoil.rotateCamera(player);
-        // TEST
 
         // Basically this just cancel double call to player interact event
         if (useOffHand) {

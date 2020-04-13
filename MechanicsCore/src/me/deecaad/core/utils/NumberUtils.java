@@ -84,7 +84,7 @@ public class NumberUtils {
      * @param max maximum size of the number
      * @return random double between min and max
      */
-    public static double random(double min, double max) {
+    public static double  random(double min, double max) {
         if (min == max) return min;
         return ThreadLocalRandom.current().nextDouble(min, max);
     }

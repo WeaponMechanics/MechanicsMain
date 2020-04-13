@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import java.lang.reflect.Field;
 import java.util.List;
 
+// todo: move to WMP
 public class OutEntityMetadataListener extends PacketHandler {
     
     public OutEntityMetadataListener() {
@@ -39,7 +40,7 @@ public class OutEntityMetadataListener extends PacketHandler {
             // Get the color the entity should be glowing (Or null if it should not be glowing)
             Entity entity = CompatibilityAPI.getCompatibility().getEntityById(packet.getPlayer().getWorld(), id);
             IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper((LivingEntity) entity);
-            ColorType color = (wrapper != null) ? wrapper.getThermalColor(packet.getPlayer()) : null;
+            ColorType color = ColorType.WHITE;//(wrapper != null) ? wrapper.getThermalColor(packet.getPlayer()) : null;
             
             // Sets the glowing flag
             byte previousValue = (byte) itemObject;
