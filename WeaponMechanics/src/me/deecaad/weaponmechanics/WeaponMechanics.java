@@ -144,7 +144,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
-        DebugUtil.log(LogLevel.DEBUG, "Enabled WeaponMechanics in " + seconds + "s");
+        DebugUtil.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
     }
 
     @Override
@@ -182,14 +182,24 @@ public class WeaponMechanics extends JavaPlugin {
                     "Could not locate config.yml inside?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
-        configurations = null;
 
+
+        if (configurations == null) {
+            DebugUtil.log(LogLevel.ERROR, "Configurations cannot be null when reloading!");
+            return;
+        }
+        configurations.clear();
+
+        // We don't want to set the Configuration to a new Configuration
+        // because that will mess up references in classes that store
+        // this Configuration. Clearing it, then adding the config back
+        // into it solves that issue
         // todo: add on reload event to allow other plugins register their serializers on reload?
-        configurations = new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile())).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
+        configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile())).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml"));
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
-        DebugUtil.log(LogLevel.DEBUG, "Reloaded WeaponMechanics in " + seconds + "s");
+        DebugUtil.log(LogLevel.INFO, "Reloaded WeaponMechanics in " + seconds + "s");
     }
     
     public MainCommand getMainCommand() {
