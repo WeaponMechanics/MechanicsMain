@@ -76,19 +76,19 @@ public class Projectile_Reflection implements IProjectileCompatibility {
 
     // For bounding boxes
 
-    private Method entityHandle;
-    private Method entityBoundingBox;
+    private static Method entityHandle;
+    private static Method entityBoundingBox;
 
-    private Field minXField;
-    private Field minYField;
-    private Field minZField;
-    private Field maxXField;
-    private Field maxYField;
-    private Field maxZField;
+    private static Field minXField;
+    private static Field minYField;
+    private static Field minZField;
+    private static Field maxXField;
+    private static Field maxYField;
+    private static Field maxZField;
 
     // For getting default width and height
 
-    private Method getAsBukkitEntity;
+    private static Method getAsBukkitEntity;
 
     // REFLECTION END
 
@@ -189,22 +189,20 @@ public class Projectile_Reflection implements IProjectileCompatibility {
     }
 
     @Override
-    public void spawnDisguise(CustomProjectile customProjectile) {
+    public void spawnDisguise(CustomProjectile customProjectile, Vector location, Vector motion) {
         double version = CompatibilityAPI.getVersion();
 
         // Calculate yaw and pitch before spawning
-        calculateYawAndPitch(customProjectile);
+        customProjectile.calculateYawAndPitch();
 
         EntityType projectileDisguise = customProjectile.projectile.getProjectileDisguise();
         Object spawn;
         Object metadata = null;
         Object headRotation;
 
-        World world = customProjectile.world;
-        Vector motion = customProjectile.motion;
-        Vector location = customProjectile.location;
-        float yaw = customProjectile.yaw;
-        float pitch = customProjectile.pitch;
+        World world = customProjectile.getWorld();
+        float yaw = customProjectile.getProjectileDisguiseYaw();
+        float pitch = customProjectile.getProjectileDisguisePitch();
 
         switch (projectileDisguise) {
             case FALLING_BLOCK:
@@ -213,7 +211,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
                 Object nmsIBlockData = ReflectionUtil.invokeMethod(getIBlockData, nmsBlock);
                 Object nmsEntityFallingBlock = ReflectionUtil.newInstance(entityFallingBlock, worldServer, location.getX(), location.getY(), location.getZ(), nmsIBlockData);
 
-                customProjectile.projectileDisguiseId = (int) ReflectionUtil.invokeMethod(getId, nmsEntityFallingBlock);
+                customProjectile.setProjectileDisguiseId((int) ReflectionUtil.invokeMethod(getId, nmsEntityFallingBlock));
 
                 if (version < 1.14) {
                     spawn = ReflectionUtil.newInstance(spawnEntityPacket, nmsEntityFallingBlock, getNMSEntityId(version, nmsEntityFallingBlock), ReflectionUtil.invokeMethod(getCombinedId, null, nmsIBlockData));
@@ -222,14 +220,14 @@ public class Projectile_Reflection implements IProjectileCompatibility {
                 }
                 headRotation = ReflectionUtil.newInstance(headRotationPacket, nmsEntityFallingBlock, convertYawToByte(customProjectile, yaw));
 
-                customProjectile.nmsEntity = nmsEntityFallingBlock;
+                customProjectile.projectileDisguiseNMSEntity = nmsEntityFallingBlock;
                 break;
             case DROPPED_ITEM:
                 worldServer = ReflectionUtil.invokeMethod(worldGetHandle, world);
                 Object nmsStack = ReflectionUtil.invokeMethod(asNMSCopy, null, customProjectile.projectile.getProjectileStack());
                 Object nmsEntityItem = ReflectionUtil.newInstance(entityItem, worldServer, location.getX(), location.getY(), location.getZ(), nmsStack);
 
-                customProjectile.projectileDisguiseId = (int) ReflectionUtil.invokeMethod(getId, nmsEntityItem);
+                customProjectile.setProjectileDisguiseId((int) ReflectionUtil.invokeMethod(getId, nmsEntityItem));
 
                 if (version < 1.14) {
                     spawn = ReflectionUtil.newInstance(spawnEntityPacket, nmsEntityItem, getNMSEntityId(version, nmsEntityItem), 1);
@@ -237,15 +235,15 @@ public class Projectile_Reflection implements IProjectileCompatibility {
                     spawn = ReflectionUtil.newInstance(spawnEntityPacket, nmsEntityItem, 1);
                 }
 
-                metadata = ReflectionUtil.newInstance(entityMetadataPacket, customProjectile.projectileDisguiseId, ReflectionUtil.invokeMethod(getDataWatcher, nmsEntityItem), false);
+                metadata = ReflectionUtil.newInstance(entityMetadataPacket, customProjectile.getProjectileDisguiseId(), ReflectionUtil.invokeMethod(getDataWatcher, nmsEntityItem), false);
                 headRotation = ReflectionUtil.newInstance(headRotationPacket, nmsEntityItem, convertYawToByte(customProjectile, yaw));
 
-                customProjectile.nmsEntity = nmsEntityItem;
+                customProjectile.projectileDisguiseNMSEntity = nmsEntityItem;
                 break;
             default:
                 Object nmsEntity = ReflectionUtil.invokeMethod(createEntity, world, location.toLocation(world, yaw, pitch), projectileDisguise.getEntityClass());
 
-                customProjectile.projectileDisguiseId = (int) ReflectionUtil.invokeMethod(getId, nmsEntity);
+                customProjectile.setProjectileDisguiseId((int) ReflectionUtil.invokeMethod(getId, nmsEntity));
 
                 if (projectileDisguise.isAlive()) {
                     spawn = ReflectionUtil.newInstance(spawnEntityLivingPacket, nmsEntity);
@@ -258,7 +256,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
                 }
                 headRotation = ReflectionUtil.newInstance(headRotationPacket, nmsEntity, convertYawToByte(customProjectile, yaw));
 
-                customProjectile.nmsEntity = nmsEntity;
+                customProjectile.projectileDisguiseNMSEntity = nmsEntity;
                 break;
         }
 
@@ -267,24 +265,19 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         } else {
             sendUpdatePackets(customProjectile, 22500, spawn, metadata, headRotation);
         }
-
-        float length = (float) motion.length();
-        updateDisguise(customProjectile, length);
+        updateDisguise(customProjectile, location, motion, location, motion.length());
     }
 
     @Override
-    public void updateDisguise(CustomProjectile customProjectile, float length) {
+    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length) {
         double version = CompatibilityAPI.getVersion();
 
         // Calculate yaw and pitch before doing updates
-        calculateYawAndPitch(customProjectile);
+        customProjectile.calculateYawAndPitch();
 
-        int projectileDisguiseId = customProjectile.projectileDisguiseId;
-        Vector motion = customProjectile.motion;
-        Vector location = customProjectile.location;
-        Vector lastLocation = customProjectile.lastLocation;
-        float yaw = customProjectile.yaw;
-        float pitch = customProjectile.pitch;
+        int projectileDisguiseId = customProjectile.getProjectileDisguiseId();
+        float yaw = customProjectile.getProjectileDisguiseYaw();
+        float pitch = customProjectile.getProjectileDisguisePitch();
 
         Object velocity;
         if (version < 1.14) {
@@ -335,7 +328,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
 
     @Override
     public void destroyDisguise(CustomProjectile customProjectile) {
-        Object destroy = ReflectionUtil.newInstance(entityDestroyPacket, new int[]{ customProjectile.projectileDisguiseId });
+        Object destroy = ReflectionUtil.newInstance(entityDestroyPacket, new int[]{ customProjectile.getProjectileDisguiseId() });
 
         sendUpdatePackets(customProjectile, 22500, destroy);
     }
@@ -345,7 +338,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         World world = Bukkit.getWorlds().get(0);
         Location location = new Location(world, 1, 100, 1);
         Object nmsEntity = ReflectionUtil.invokeMethod(createEntity, world, location, entityType.getEntityClass());
-        org.bukkit.entity.Entity entity = (org.bukkit.entity.Entity) ReflectionUtil.invokeMethod(this.getAsBukkitEntity, nmsEntity);
+        org.bukkit.entity.Entity entity = (org.bukkit.entity.Entity) ReflectionUtil.invokeMethod(getAsBukkitEntity, nmsEntity);
         IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
         return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
     }

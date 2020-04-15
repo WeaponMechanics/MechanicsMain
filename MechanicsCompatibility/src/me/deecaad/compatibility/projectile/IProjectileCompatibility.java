@@ -10,6 +10,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
+import org.bukkit.util.Vector;
 
 public interface IProjectileCompatibility {
 
@@ -18,17 +19,22 @@ public interface IProjectileCompatibility {
      * This is only ran if disguises are used.
      *
      * @param customProjectile the projectile used to fetch all required data
+     * @param location the location vector of projectile
+     * @param motion the motion vector projectile
      */
-    void spawnDisguise(CustomProjectile customProjectile);
+    void spawnDisguise(CustomProjectile customProjectile, Vector location, Vector motion);
 
     /**
      * Updates projectile velocity and location for all players within 90 blocks.
      * This is only ran if disguises are used.
      *
      * @param customProjectile the projectile used to fetch all required data
+     * @param location the location vector of projectile
+     * @param motion the motion vector projectile
+     * @param lastLocation the last location vector of projectile
      * @param length the motion length
      */
-    void updateDisguise(CustomProjectile customProjectile, float length);
+    void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length);
 
     /**
      * Destroys disguise from all players within 150 blocks.
@@ -93,9 +99,10 @@ public interface IProjectileCompatibility {
      */
     default void sendUpdatePackets(CustomProjectile customProjectile, int distance, Object... packets) {
         ICompatibility compatibility = CompatibilityAPI.getCompatibility();
-        double x = customProjectile.location.getX();
-        double z = customProjectile.location.getZ();
-        for (Player player : customProjectile.world.getPlayers()) {
+        Vector location = customProjectile.getLocation();
+        double x = location.getX();
+        double z = location.getZ();
+        for (Player player : customProjectile.getWorld().getPlayers()) {
             Location playerLocation = player.getLocation();
 
             // 22500 = around 150 blocks
@@ -103,27 +110,6 @@ public interface IProjectileCompatibility {
                 compatibility.sendPackets(player, packets);
             }
         }
-    }
-
-    /**
-     * Calculates new yaw and pitch based on the projectile motion.
-     *
-     * @param customProjectile the projectile used to fetch all required data
-     */
-    default void calculateYawAndPitch(CustomProjectile customProjectile) {
-        double x = customProjectile.motion.getX();
-        double z = customProjectile.motion.getZ();
-
-        double PIx2 = 6.283185307179;
-        customProjectile.yaw = (float) Math.toDegrees((Math.atan2(-x, z) + PIx2) % PIx2);
-        customProjectile.yaw %= 360.0F;
-        if (customProjectile.yaw >= 180.0F) {
-            customProjectile.yaw -= 360.0F;
-        } else if (customProjectile.yaw < -180.0F) {
-            customProjectile.yaw += 360.0F;
-        }
-
-        customProjectile.pitch = (float) Math.toDegrees(Math.atan(-customProjectile.motion.getY() / Math.sqrt(NumberConversions.square(x) + NumberConversions.square(z))));
     }
 
     /**

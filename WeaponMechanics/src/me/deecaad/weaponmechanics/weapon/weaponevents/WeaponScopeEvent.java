@@ -4,9 +4,9 @@ import org.bukkit.entity.LivingEntity;
 
 public class WeaponScopeEvent extends WeaponCancellableEvent {
 
-    private ScopeType scopeType;
+    private final ScopeType scopeType;
     private int zoomAmount;
-    private int zoomStack;
+    private final int zoomStack;
     
     public WeaponScopeEvent(String weaponTitle, LivingEntity livingEntity, ScopeType scopeType, int zoomAmount, int zoomStack) {
         super(weaponTitle, livingEntity);
