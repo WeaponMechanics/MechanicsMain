@@ -62,7 +62,7 @@ public class CustomProjectile implements ICustomProjectile {
         this.motion = motion;
         this.tags = new HashMap<>();
 
-        projectileBox = new HitBox(this.location, projectile.getProjectileWidth(), projectile.getProjectileLength());
+        projectileBox = new HitBox(this.location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
 
         // These can't be static as comparators has to be used for last known air location of this custom projectile
         blockComparator = (o1, o2) -> (int) (o1.getBlock().getLocation().distanceSquared(lastKnownAirLocation) - o2.getBlock().getLocation().distanceSquared(lastKnownAirLocation));
@@ -290,14 +290,14 @@ public class CustomProjectile implements ICustomProjectile {
 
         // Pre calculate the motion to add for location on each iteration
         // First normalize motion and then multiply
-        Vector addMotion = motion.clone().divide(new Vector(length, length, length)).multiply(projectile.getProjectileLength() * 2);
+        Vector addMotion = motion.clone().divide(new Vector(length, length, length)).multiply(projectile.getProjectileHeight() * 2);
 
         // Old motion without modified speed modifier
         Vector oldMotion = motion.clone();
 
-        projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileLength());
+        projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
 
-        for (double i = 0.0; i <= length; i += projectile.getProjectileLength()) {
+        for (double i = 0.0; i <= length; i += projectile.getProjectileHeight()) {
             Collisions iteration = getCollisions(projectileBox);
 
             if (iteration == null) {

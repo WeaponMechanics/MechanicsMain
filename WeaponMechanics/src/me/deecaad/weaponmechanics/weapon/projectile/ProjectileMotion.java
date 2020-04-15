@@ -21,10 +21,7 @@ public class ProjectileMotion implements Serializer<ProjectileMotion> {
     /**
      * Empty constructor to be used as serializer.
      */
-    public ProjectileMotion() {
-
-        // Testing values
-    }
+    public ProjectileMotion() { }
 
     public ProjectileMotion(double gravity, double minimumSpeed, boolean removeAtMinimumSpeed, double maximumSpeed, boolean removeAtMaximumSpeed, double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing) {
         this.minimumSpeed = minimumSpeed;
@@ -102,10 +99,13 @@ public class ProjectileMotion implements Serializer<ProjectileMotion> {
     @Override
     public ProjectileMotion serialize(File file, ConfigurationSection configurationSection, String path) {
         double gravity = configurationSection.getDouble(path + ".Gravity", 0.05);
+
+        // -1 so that CustomProjectile#tick() can understand that minimum or maximum speed isn't used
         double minimumSpeed = configurationSection.getDouble(path + ".Minimum.Speed", -10.0) * 0.1;
         boolean removeAtMinimumSpeed = configurationSection.getBoolean(path + ".Minimum.Remove_Projectile", false);
         double maximumSpeed = configurationSection.getDouble(path + ".Maximum.Speed", -10.0) * 0.1;
         boolean removeAtMaximumSpeed = configurationSection.getBoolean(path + ".Maximum.Remove_Projectile", false);
+
         double decrease = configurationSection.getDouble(path + ".Decrease_Motion.Base", 0.99);
         double decreaseInWater = configurationSection.getDouble(path + ".Decrease_Motion.In_Water", 0.96);
         double decreaseWhenRainingOrSnowing = configurationSection.getDouble(path + ".Decrease_Motion.When_Raining_Or_Snowing", 0.98);

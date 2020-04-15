@@ -13,23 +13,28 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 
 public class Projectile implements Serializer<Projectile> {
 
     private EntityType projectileDisguise;
     private float projectileWidth; // xz
-    private float projectileLength; // y
+    private float projectileHeight; // y
     private ItemStack projectileStack;
     private Through through;
     private ProjectileMotion projectileMotion;
 
-    public Projectile(EntityType projectileDisguise, float projectileWidth, float projectileLength, ItemStack projectileStack, Through through, ProjectileMotion projectileMotion) {
+    public Projectile(@Nonnull ProjectileMotion projectileMotion, @Nullable EntityType projectileDisguise, float projectileWidth, float projectileHeight, @Nullable ItemStack projectileStack, @Nullable Through through) {
         this.projectileDisguise = projectileDisguise;
+        if (projectileWidth <= 0) throw new IllegalArgumentException("Projectile width can't be 0 or less");
+        if (projectileHeight <= 0) throw new IllegalArgumentException("Projectile height can't be 0 or less");
         this.projectileWidth = projectileWidth;
-        this.projectileLength = projectileLength;
+        this.projectileHeight = projectileHeight;
         this.projectileStack = projectileStack;
         this.through = through;
+        if (projectileMotion == null) throw new IllegalArgumentException("Projectile motion can't be null!");
         this.projectileMotion = projectileMotion;
     }
 
@@ -67,13 +72,13 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     /**
-     * Projectile's length from center to upwards/downwards.
+     * Projectile's height from center to upwards/downwards.
      * Better known as Y.
      *
-     * @return the projectile length
+     * @return the projectile height
      */
-    public float getProjectileLength() {
-        return projectileLength;
+    public float getProjectileHeight() {
+        return projectileHeight;
     }
 
     /**
@@ -160,6 +165,6 @@ public class Projectile implements Serializer<Projectile> {
 
         ProjectileMotion projectileMotion = new ProjectileMotion().serialize(file, configurationSection, path + ".Projectile_Motion");
         Through through = new Through().serialize(file, configurationSection, path + ".Through");
-        return new Projectile(projectileType, width, height, projectileItem, through, projectileMotion);
+        return new Projectile(projectileMotion, projectileType, width, height, projectileItem, through);
     }
 }

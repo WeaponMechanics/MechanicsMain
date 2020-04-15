@@ -53,25 +53,13 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
 
         while (projectilesIterator.hasNext()) {
             try {
-
-                long nano = System.nanoTime();
-
                 if (projectilesIterator.next().tick()) {
                     projectilesIterator.remove();
                 }
-
-                sum += (System.nanoTime() - nano) * 0.000001;
-                ++iterations;
-
             } catch (Exception e) {
                 projectilesIterator.remove();
                 DebugUtil.log(LogLevel.WARN, "Caught exception during ticking custom projectiles!", e);
             }
         }
-
-        System.out.println("Took " + (sum / iterations) + "ms on average to process projectile tick");
     }
-
-    private static int iterations = 0;
-    private static double sum = 0;
 }
