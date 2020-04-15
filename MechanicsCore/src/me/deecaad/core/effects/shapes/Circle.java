@@ -5,13 +5,9 @@ import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 
-/**
- * TODO shape interface extends Iterator/Iterable of type vector
- */
-public class Circle implements Iterator<Vector> {
+public class Circle implements Shape {
     
     private Point[] points;
-    protected int nextPoint;
     private Vector b;
     private Vector c;
     
@@ -46,22 +42,6 @@ public class Circle implements Iterator<Vector> {
     public int getPoints() {
         return points.length;
     }
-
-    /**
-     * Sets the axis with yaw and pitch instead of
-     * with a Vector. (Basically just creates the
-     * Vector for you)
-     *
-     * @param yaw Horizontal direction
-     * @param pitch Vertical direction
-     */
-    public void setAxis(double yaw, double pitch) {
-        double x = Math.sin(pitch) * Math.cos(yaw);
-        double y = Math.sin(pitch) * Math.sin(yaw);
-        double z = Math.cos(pitch);
-        
-        setAxis(new Vector(x, y, z));
-    }
     
     /**
      * Sets the axis to draw the circle on. Vectors
@@ -75,8 +55,9 @@ public class Circle implements Iterator<Vector> {
      *
      * @param dir Vector to draw circle around
      */
+    @Override
     public void setAxis(Vector dir) {
-        Vector a = dir.normalize();
+        Vector a = dir.clone().normalize();
 
         // This double checks to make sure we do not
         // produce a vector of length 0, which causes
@@ -88,29 +69,15 @@ public class Circle implements Iterator<Vector> {
         }
         c = a.clone().crossProduct(b.normalize());
 
+        // This is a resource consuming debug message, not really needed
         //DebugUtils.assertTrue(a.dot(b) == 0, "A is not perpendicular to B");
         //DebugUtils.assertTrue(b.dot(c) == 0, "B is not perpendicular to C");
         //DebugUtils.assertTrue(a.dot(c) == 0, "A is not perpendicular to C");
     }
 
-    public void reset() {
-        nextPoint = 0;
-    }
-
     @Override
-    public boolean hasNext() {
-        return nextPoint + 1 < points.length;
-    }
-
-    @Override
-    public Vector next() {
-        Point current = points[nextPoint++];
-
-        double x = current.cos * b.getX() + current.sin * c.getX();
-        double y = current.cos * b.getY() + current.sin * c.getY();
-        double z = current.cos * b.getZ() + current.sin * c.getZ();
-
-        return new Vector(x, y, z);
+    public Iterator<Vector> iterator() {
+        return new CircleIterator(points, b, c);
     }
 
     private static class Point {
@@ -121,6 +88,36 @@ public class Circle implements Iterator<Vector> {
         private Point(double sin, double cos) {
             this.sin = sin;
             this.cos = cos;
+        }
+    }
+
+    private static class CircleIterator implements Iterator<Vector> {
+
+        private int index;
+        private Point[] points;
+        private Vector b;
+        private Vector c;
+
+        private CircleIterator(Point[] points, Vector b, Vector c) {
+            this.points = points;
+            this.b = b;
+            this.c = c;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index + 1 < points.length;
+        }
+
+        @Override
+        public Vector next() {
+            Point current = points[index++];
+
+            double x = current.cos * b.getX() + current.sin * c.getX();
+            double y = current.cos * b.getY() + current.sin * c.getY();
+            double z = current.cos * b.getZ() + current.sin * c.getZ();
+
+            return new Vector(x, y, z);
         }
     }
 }

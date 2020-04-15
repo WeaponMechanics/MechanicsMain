@@ -32,13 +32,13 @@ import java.util.stream.Collectors;
  */
 public class SeparatedConfig implements Configuration {
     
-    private final Set<Map<String, ?>>      maps;
-    private final Map<String, Number>       numbers;
-    private final Map<String, Boolean>      booleans;
-    private final Map<String, String>       strings;
-    private final Map<String, ItemStack>    items;
+    private final List<Map<String, ?>>     maps;
+    private final Map<String, Number>      numbers;
+    private final Map<String, Boolean>     booleans;
+    private final Map<String, String>      strings;
+    private final Map<String, ItemStack>   items;
     private final Map<String, Set<String>> lists;
-    private final Map<String, Object>       objects;
+    private final Map<String, Object>      objects;
     
     /**
      * Initializes all maps and adds them
@@ -49,7 +49,7 @@ public class SeparatedConfig implements Configuration {
      * into before changing.
      */
     public SeparatedConfig() {
-        maps = new HashSet<>();
+        maps = new ArrayList<>();
         maps.add(numbers = new HashMap<>());
         maps.add(booleans = new HashMap<>());
         maps.add(strings = new HashMap<>());
