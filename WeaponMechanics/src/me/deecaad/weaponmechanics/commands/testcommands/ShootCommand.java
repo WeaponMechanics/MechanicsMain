@@ -39,7 +39,7 @@ public class ShootCommand extends SubCommand {
     public List<String> handleCustomTag(String[] args, String current) {
         Bukkit.broadcastMessage("" + current);
         switch (current) {
-            case "<entity-type>":
+            case "<entity-type>": // Starts with doesn't work in these
                 return entityTypesToList();
             default:
                 return super.handleCustomTag(args, current);
