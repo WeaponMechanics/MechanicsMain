@@ -16,14 +16,12 @@ import org.bukkit.util.Vector;
 public class Projectile_1_15_R1 implements IProjectileCompatibility {
 
     @Override
-    public void spawnDisguise(CustomProjectile customProjectile) {
-        calculateYawAndPitch(customProjectile);
+    public void spawnDisguise(CustomProjectile customProjectile, Vector location, Vector motion) {
+        customProjectile.calculateYawAndPitch();
 
-        World world = customProjectile.world;
-        Vector motion = customProjectile.motion;
-        Vector location = customProjectile.location;
-        float yaw = customProjectile.yaw;
-        float pitch = customProjectile.pitch;
+        World world = customProjectile.getWorld();
+        float yaw = customProjectile.getProjectileDisguiseYaw();
+        float pitch = customProjectile.getProjectileDisguisePitch();
 
         EntityType projectileDisguise = customProjectile.projectile.getProjectileDisguise();
         switch (projectileDisguise) {
@@ -32,30 +30,30 @@ public class Projectile_1_15_R1 implements IProjectileCompatibility {
                 IBlockData nmsIBlockData = nmsBlock.getBlockData();
 
                 EntityFallingBlock nmsEntityFallingBlock = new EntityFallingBlock(((CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsIBlockData);
-                customProjectile.projectileDisguiseId = nmsEntityFallingBlock.getId();
+                customProjectile.setProjectileDisguiseId(nmsEntityFallingBlock.getId());
 
                 PacketPlayOutSpawnEntity spawn = new PacketPlayOutSpawnEntity(nmsEntityFallingBlock, Block.getCombinedId(nmsIBlockData));
                 PacketPlayOutEntityHeadRotation headRotation = new PacketPlayOutEntityHeadRotation(nmsEntityFallingBlock, convertYawToByte(customProjectile, yaw));
 
                 sendUpdatePackets(customProjectile, 22500, spawn, headRotation);
-                customProjectile.nmsEntity = nmsEntityFallingBlock;
+                customProjectile.projectileDisguiseNMSEntity = nmsEntityFallingBlock;
                 break;
             case DROPPED_ITEM:
                 ItemStack nmsStack = CraftItemStack.asNMSCopy(customProjectile.projectile.getProjectileStack());
 
                 EntityItem nmsEntityItem = new EntityItem(((CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsStack);
-                customProjectile.projectileDisguiseId = nmsEntityItem.getId();
+                customProjectile.setProjectileDisguiseId(nmsEntityItem.getId());
 
                 spawn = new PacketPlayOutSpawnEntity(nmsEntityItem, 1);
-                PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(customProjectile.projectileDisguiseId, nmsEntityItem.getDataWatcher(), false);
+                PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(customProjectile.getProjectileDisguiseId(), nmsEntityItem.getDataWatcher(), false);
                 headRotation = new PacketPlayOutEntityHeadRotation(nmsEntityItem, convertYawToByte(customProjectile, yaw));
 
                 sendUpdatePackets(customProjectile, 22500, spawn, metadata, headRotation);
-                customProjectile.nmsEntity = nmsEntityItem;
+                customProjectile.projectileDisguiseNMSEntity = nmsEntityItem;
                 break;
             default:
                 Entity nmsEntity = ((CraftWorld) world).createEntity(location.toLocation(world, yaw, pitch), projectileDisguise.getEntityClass());
-                customProjectile.projectileDisguiseId = nmsEntity.getId();
+                customProjectile.setProjectileDisguiseId(nmsEntity.getId());
 
                 headRotation = new PacketPlayOutEntityHeadRotation(nmsEntity, convertYawToByte(customProjectile, yaw));
                 if (projectileDisguise.isAlive()) {
@@ -65,27 +63,26 @@ public class Projectile_1_15_R1 implements IProjectileCompatibility {
                     spawn = new PacketPlayOutSpawnEntity(nmsEntity, 1);
                     sendUpdatePackets(customProjectile, 22500, spawn, headRotation);
                 }
-                customProjectile.nmsEntity = nmsEntity;
+                customProjectile.projectileDisguiseNMSEntity = nmsEntity;
                 break;
         }
-
-        float length = (float) motion.length();
-        updateDisguise(customProjectile, length);
+        updateDisguise(customProjectile, location, motion, location, motion.length());
     }
 
     @Override
-    public void updateDisguise(CustomProjectile customProjectile, float length) {
-        int projectileDisguiseId = customProjectile.projectileDisguiseId;
-        Vector motion = customProjectile.motion;
-        Vector location = customProjectile.location;
-        Vector lastLocation = customProjectile.lastLocation;
-        float yaw = customProjectile.yaw;
-        float pitch = customProjectile.pitch;
+    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length) {
+
+        // Calculate yaw and pitch before doing updates
+        customProjectile.calculateYawAndPitch();
+
+        int projectileDisguiseId = customProjectile.getProjectileDisguiseId();
+        float yaw = customProjectile.getProjectileDisguiseYaw();
+        float pitch = customProjectile.getProjectileDisguisePitch();
 
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
 
         if (length > 8) {
-            Entity nmsEntity = (Entity) customProjectile.nmsEntity;
+            Entity nmsEntity = (Entity) customProjectile.projectileDisguiseNMSEntity;
 
             nmsEntity.setPositionRaw(location.getX(), location.getY(), location.getZ());
             nmsEntity.yaw = yaw;
@@ -106,7 +103,7 @@ public class Projectile_1_15_R1 implements IProjectileCompatibility {
 
     @Override
     public void destroyDisguise(CustomProjectile customProjectile) {
-        sendUpdatePackets(customProjectile, 22500, new PacketPlayOutEntityDestroy(customProjectile.projectileDisguiseId));
+        sendUpdatePackets(customProjectile, 22500, new PacketPlayOutEntityDestroy(customProjectile.getProjectileDisguiseId()));
     }
 
     @Override

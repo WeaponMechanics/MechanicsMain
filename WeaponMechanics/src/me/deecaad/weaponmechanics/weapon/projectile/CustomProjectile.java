@@ -3,45 +3,51 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.projectile.HitBox;
 import me.deecaad.compatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.events.ProjectileMoveEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
-public class CustomProjectile {
+public class CustomProjectile implements ICustomProjectile {
 
     // Projectile can be maximum of 600 ticks alive (30 seconds)
     private static final int maximumAliveTicks = 600;
 
     // Just to identify CustomProjectile
     private static int ids = 1;
-    private int id;
+    private final int id;
 
-    // This custom projectile gives general information like through settings, motions settings etc.
+    // This projectile object gives general information like through settings, motions settings etc.
     public Projectile projectile;
 
     private int aliveTicks;
-    private LivingEntity shooter;
-    public World world;
-    public Vector lastLocation;
-    public Vector location;
-    public Vector motion;
+    private final LivingEntity shooter;
+    private final World world;
+    private Vector lastLocation;
+    private Vector location;
+    private Vector motion;
     private Location lastKnownAirLocation;
     private Collisions collisions;
-    private HitBox projectileBox;
+    private final HitBox projectileBox;
+    private boolean dead;
+    private final Map<String, String> tags;
 
     // Only required if there is projectile disguise
-    public Object nmsEntity;
-    public int projectileDisguiseId; // used to make it easier to use reflection NMS
-    public float yaw; // used to make it easier to use reflection NMS
-    public float pitch; // used to make it easier to use reflection NMS
+    @Nullable
+    public Object projectileDisguiseNMSEntity;
+    private int projectileDisguiseId; // used to make it easier to use reflection NMS
+    private float projectileDisguiseYaw; // used to make it easier to use reflection NMS
+    private float projectileDisguisePitch; // used to make it easier to use reflection NMS
 
     // Some pre calculated / initialized stuff
-    private Comparator<CollisionData> blockComparator;
-    private Comparator<CollisionData> entityComparator;
+    private final Comparator<CollisionData> blockComparator;
+    private final Comparator<CollisionData> entityComparator;
 
     public CustomProjectile(Projectile projectile, LivingEntity shooter, Location location, Vector motion) {
         this.id = ++ids;
@@ -54,6 +60,7 @@ public class CustomProjectile {
         this.lastKnownAirLocation = location.clone();
         this.lastLocation = this.location.clone();
         this.motion = motion;
+        this.tags = new HashMap<>();
 
         projectileBox = new HitBox(this.location, projectile.getProjectileWidth(), projectile.getProjectileLength());
 
@@ -67,18 +74,98 @@ public class CustomProjectile {
         }
 
         if (projectile.getProjectileDisguise() != null) {
-            CompatibilityAPI.getCompatibility().getProjectileCompatibility().spawnDisguise(this);
+            CompatibilityAPI.getCompatibility().getProjectileCompatibility().spawnDisguise(this, this.location, this.motion);
         }
     }
 
-    /**
-     * This is only unique ID for WM custom projectile objects.
-     * NOT FOR MC ENTITY IDs, use projectileDisguiseId for that (if disguises are used)
-     *
-     * @return the id of this custom projectile
-     */
+    @Override
+    public LivingEntity getShooter() {
+        return this.shooter;
+    }
+
+    @Override
     public int getId() {
-        return id;
+        return this.id;
+    }
+
+    @Override
+    public World getWorld() {
+        return this.world;
+    }
+
+    @Override
+    public Vector getLastLocation() {
+        return this.lastLocation.clone();
+    }
+
+    @Override
+    public Vector getLocation() {
+        return this.location.clone();
+    }
+
+    @Override
+    public void setLocation(Vector location) {
+        if (location == null) throw new IllegalArgumentException("Location can't be null");
+        this.location = location;
+    }
+
+    @Override
+    public Vector getMotion() {
+        return this.motion.clone();
+    }
+
+    @Override
+    public void setMotion(Vector motion) {
+        if (motion == null) throw new IllegalArgumentException("Motion can't be null");
+        this.motion = motion;
+    }
+
+    @Override
+    public String getTag(String key) {
+        return this.tags.get(key);
+    }
+
+    @Override
+    public void setTag(String key, String value) {
+        if (key == null) throw new IllegalArgumentException("Key can't be null");
+        if (value == null) throw new IllegalArgumentException("Value can't be null");
+
+        this.tags.put(key, value);
+    }
+
+    @Override
+    public boolean isDead() {
+        return dead;
+    }
+
+    @Override
+    public void remove() {
+        this.dead = true;
+    }
+
+    @Override
+    public boolean hasProjectileDisguise() {
+        return projectileDisguiseId != 0;
+    }
+
+    @Override
+    public void updateDisguiseLocationAndMotion() {
+        if (projectileDisguiseId != 0) CompatibilityAPI.getCompatibility().getProjectileCompatibility().updateDisguise(this, this.location, this.motion, this.lastLocation, this.motion.length());
+    }
+
+    @Override
+    public int getProjectileDisguiseId() {
+        return projectileDisguiseId;
+    }
+
+    @Override
+    public float getProjectileDisguiseYaw() {
+        return projectileDisguiseYaw;
+    }
+
+    @Override
+    public float getProjectileDisguisePitch() {
+        return projectileDisguisePitch;
     }
 
     /**
@@ -86,6 +173,8 @@ public class CustomProjectile {
      * @return true if projectile hit was cancelled
      */
     private boolean handleBlockHit(CollisionData collisionData) {
+
+        // todo
 
         return false;
     }
@@ -97,7 +186,7 @@ public class CustomProjectile {
      */
     private boolean handleEntityHit(CollisionData collisionData, Vector normalizedDirection) {
 
-        Bukkit.broadcastMessage("" + collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection));
+        // todo
 
         return false;
     }
@@ -109,6 +198,10 @@ public class CustomProjectile {
      * @return true if projectile should be removed from projectile runnable
      */
     public boolean tick() {
+        if (this.dead) {
+            return true;
+        }
+
         ProjectileMotion projectileMotion = projectile.getProjectileMotion();
         IProjectileCompatibility projectileCompatibility = CompatibilityAPI.getCompatibility().getProjectileCompatibility();
 
@@ -117,7 +210,7 @@ public class CustomProjectile {
             return true;
         }
 
-        float length = (float) motion.length();
+        double length = motion.length();
 
         double minimumSpeed = projectileMotion.getMinimumSpeed();
         double maximumSpeed = projectileMotion.getMaximumSpeed();
@@ -134,7 +227,7 @@ public class CustomProjectile {
             motion.multiply(projectileMotion.getMinimumSpeed());
 
             // Recalculate the length
-            length = (float) motion.length();
+            length = motion.length();
         } else if (maximumSpeed != -1.0 && length > maximumSpeed) {
             if (projectileMotion.isRemoveAtMaximumSpeed()) {
                 if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
@@ -147,10 +240,10 @@ public class CustomProjectile {
             motion.multiply(projectileMotion.getMaximumSpeed());
 
             // Recalculate the length
-            length = (float) motion.length();
+            length = motion.length();
         }
 
-        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, length);
+        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation, length);
 
         lastLocation = location.clone();
 
@@ -160,12 +253,13 @@ public class CustomProjectile {
         }
 
         Block blockAtLocation = world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        if (blockAtLocation.getType().isAir()) {
+
+        if (blockAtLocation.isEmpty()) {
             lastKnownAirLocation = location.clone().toLocation(world);
         }
 
         double decrease = projectileMotion.getDecrease();
-        if (blockAtLocation.getType() == Material.WATER) {
+        if (blockAtLocation.isLiquid()) {
             decrease = projectileMotion.getDecreaseInWater();
         } else if (world.isThundering() || world.hasStorm()) {
             decrease = projectileMotion.getDecreaseWhenRainingOrSnowing();
@@ -175,6 +269,8 @@ public class CustomProjectile {
         if (projectileMotion.getGravity() != 0.0) {
             motion.setY(motion.getY() - projectileMotion.getGravity());
         }
+
+        Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
 
         ++aliveTicks;
         return false;
@@ -190,7 +286,7 @@ public class CustomProjectile {
      * @param length the motion length
      * @return true if projectile should die
      */
-    private boolean handleCollisions(float length) {
+    private boolean handleCollisions(double length) {
 
         // Pre calculate the motion to add for location on each iteration
         // First normalize motion and then multiply
@@ -275,7 +371,7 @@ public class CustomProjectile {
      * @param entityCollisions the list of all collisions to handle
      * @return true if projectile should die
      */
-    private boolean handleEntityHits(float length, SortedSet<CollisionData> entityCollisions) {
+    private boolean handleEntityHits(double length, SortedSet<CollisionData> entityCollisions) {
         if (entityCollisions.isEmpty()) {
             return false;
         }
@@ -390,6 +486,38 @@ public class CustomProjectile {
         }
 
         return new Collisions(blockCollisions, entityCollisions);
+    }
+
+    /**
+     * Set the projectile disguise id.
+     * This id is used when sending entity moving etc. packets.
+     *
+     * @param nmsEntityId the projectile disguise's id
+     */
+    public void setProjectileDisguiseId(int nmsEntityId) {
+        if (projectileDisguiseId != 0) throw new IllegalArgumentException("You can't set new projectile disguise id after its set!");
+        projectileDisguiseId = nmsEntityId;
+    }
+
+    /**
+     * Calculates new yaw and pitch based on the projectile motion.
+     */
+    public void calculateYawAndPitch() {
+        if (projectileDisguiseId != 0) return;
+
+        double x = motion.getX();
+        double z = motion.getZ();
+
+        double PIx2 = 6.283185307179;
+        projectileDisguiseYaw = (float) Math.toDegrees((Math.atan2(-x, z) + PIx2) % PIx2);
+        projectileDisguiseYaw %= 360.0F;
+        if (projectileDisguiseYaw >= 180.0F) {
+            projectileDisguiseYaw -= 360.0F;
+        } else if (projectileDisguiseYaw < -180.0F) {
+            projectileDisguiseYaw += 360.0F;
+        }
+
+        projectileDisguisePitch = (float) Math.toDegrees(Math.atan(-motion.getY() / Math.sqrt(NumberConversions.square(x) + NumberConversions.square(z))));
     }
 
     @Override

@@ -20,12 +20,12 @@ import org.bukkit.util.Vector;
 public class Projectile_1_9_R1 implements IProjectileCompatibility {
 
     @Override
-    public void spawnDisguise(CustomProjectile customProjectile) {
+    public void spawnDisguise(CustomProjectile customProjectile, Vector location, Vector motion) {
 
     }
 
     @Override
-    public void updateDisguise(CustomProjectile customProjectile, float length) {
+    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length) {
 
     }
 
