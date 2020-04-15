@@ -87,8 +87,7 @@ public class WeaponMechanicsAPI {
             throw new IllegalArgumentException("Weapon cannot be null!");
         }
 
-        // TODO Rename WEAPON_ITEM to WEAPON_TITLE
-        return TagHelper.getCustomTag(weapon, CustomTag.WEAPON_ITEM);
+        return TagHelper.getCustomTag(weapon, CustomTag.WEAPON_TITLE);
     }
 
     /**

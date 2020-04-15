@@ -1,90 +1,58 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_15_R1.PlayerConnection;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
 
 public class Recoil {
 
-    public void rotateCamera(Player player) {
-        Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> teleportFlags = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.Z,
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.X_ROT,
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.Y_ROT));
+    public static final long MILLIS_BETWEEN_ROTATIONS = 5;
+    private static final Timer TIMER = new Timer();
 
-        PlayerConnection playerConnection = ((CraftPlayer) player).getHandle().playerConnection;
+    private long rotationTime;
+    private List<Float> yaws;
+    private List<Float> pitches;
+    private long recoverTime;
 
-        long millisBetweenRotations = 5;
+    public Recoil(long rotationTime, List<Float> yaws, List<Float> pitches, long recoverTime) {
+        this.rotationTime = rotationTime;
+        this.yaws = yaws;
+        this.pitches = pitches;
+        this.recoverTime = recoverTime;
+    }
 
-        long rotationTime = 100;
-        float rotateYaw = 15;
-        float rotatePitch = 10 * -1;
+    public void start(Player player) {
+        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+        RecoilTask recoilTask = playerWrapper.getRecoilTask();
+        if (recoilTask == null) {
+            // Normally shoot, recoil, recover
+            recoilTask = new RecoilTask(playerWrapper, this);
+            playerWrapper.setRecoilTask(recoilTask);
+            TIMER.scheduleAtFixedRate(recoilTask, 0, MILLIS_BETWEEN_ROTATIONS);
+            return;
+        }
+        // Shoot during recoil
+        //  -> continue from current recoil with new one (cancel last recoil)
+        // Shoot during recover
+        //  -> continue from current recover spot with new recoil (cancel last recover)
+        recoilTask.setRecoil(this);
+    }
 
-        int timerRotations = (int) (rotationTime / millisBetweenRotations);
-        float timerRotateYawPerIteration = rotateYaw / timerRotations;
-        float timerRotatePitchPerIteration = rotatePitch / timerRotations;
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            int i = 0;
+    public long getRotationTime() {
+        return rotationTime;
+    }
 
-            @Override
-            public void run() {
+    public List<Float> getYaws() {
+        return yaws;
+    }
 
-                if (i == 0) {
-                    Bukkit.broadcastMessage("Starting millis rotation...");
-                }
+    public List<Float> getPitches() {
+        return pitches;
+    }
 
-                playerConnection.sendPacket(new PacketPlayOutPosition(0, 0, 0, timerRotateYawPerIteration, timerRotatePitchPerIteration, teleportFlags, 0));
-
-                if (++i >= timerRotations) {
-                    cancel();
-
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            Bukkit.broadcastMessage("Reset rotation...");
-                            playerConnection.sendPacket(new PacketPlayOutPosition(0, 0, 0, rotateYaw * -1, rotatePitch * -1, teleportFlags, 0));
-                        }
-                    }.runTaskLater(WeaponMechanics.getPlugin(), 20);
-                }
-            }
-        }, 0, millisBetweenRotations);
-
-
-
-        int rotations = (int) (rotationTime / 50);
-        float rotateYawPerIteration = rotateYaw / rotations;
-        float rotatePitchPerIteration = rotatePitch / rotations;
-        new BukkitRunnable() {
-
-            int i = 0;
-
-            @Override
-            public void run() {
-                if (i == 0) {
-                    Bukkit.broadcastMessage("Starting tick rotation...");
-                }
-
-                playerConnection.sendPacket(new PacketPlayOutPosition(0, 0, 0, rotateYawPerIteration, rotatePitchPerIteration, teleportFlags, 0));
-
-                if (++i >= rotations) {
-                    cancel();
-
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            Bukkit.broadcastMessage("Reset rotation...");
-                            playerConnection.sendPacket(new PacketPlayOutPosition(0, 0, 0, rotateYaw * -1, rotatePitch * -1, teleportFlags, 0));
-                        }
-                    }.runTaskLater(WeaponMechanics.getPlugin(), 20);
-                }
-            }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 60, 0);
+    public long getRecoverTime() {
+        return recoverTime;
     }
 }

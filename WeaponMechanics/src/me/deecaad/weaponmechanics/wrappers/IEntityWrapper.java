@@ -1,12 +1,9 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.weaponmechanics.general.ColorType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This class wraps an Entity. Contains
@@ -160,12 +157,4 @@ public interface IEntityWrapper {
      * @return true if delay is over
      */
     boolean hasDelayBetweenShots(EquipmentSlot equipmentSlot, long delayInMillis);
-    
-    /**
-     *
-     * @param player The player who is scoping
-     * @return The color this entity should be glowing
-     */
-    @Nullable
-    ColorType getThermalColor(@Nullable Player player);
 }

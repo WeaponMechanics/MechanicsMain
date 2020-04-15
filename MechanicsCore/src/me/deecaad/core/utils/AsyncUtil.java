@@ -8,8 +8,7 @@ public class AsyncUtil {
     /**
      * Don't let anyone instantiate this class
      */
-    private AsyncUtil() {
-    }
+    private AsyncUtil() { }
     
     /**
      * Runs task asynchronously.

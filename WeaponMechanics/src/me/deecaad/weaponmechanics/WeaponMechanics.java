@@ -328,7 +328,7 @@ public class WeaponMechanics extends JavaPlugin {
      */
     public static void addSerializers(List<Serializer<?>> serializers) {
         if (configurations != null) {
-            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable or onLoad");
+            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable");
         }
         serializers.forEach(WeaponMechanics::addSerializer);
     }
@@ -340,7 +340,7 @@ public class WeaponMechanics extends JavaPlugin {
      */
     public static void addSerializer(Serializer<?> serializer) {
         if (configurations != null) {
-            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable or onLoad");
+            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable");
         }
         if (tempSerializers == null) {
             tempSerializers = new ArrayList<>();
