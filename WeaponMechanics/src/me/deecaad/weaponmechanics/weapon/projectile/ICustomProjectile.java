@@ -20,7 +20,7 @@ public interface ICustomProjectile {
      *
      * @return the unique id of this custom projectile
      */
-    int getId();
+    int getUniqueId();
 
     /**
      * @return the world where this custom projectile is in
@@ -50,6 +50,11 @@ public interface ICustomProjectile {
      * @return the clone of current motion
      */
     Vector getMotion();
+
+    /**
+     * @return the current motion's length
+     */
+    double getMotionLength();
 
     /**
      * This is used to set new motion for projectile.

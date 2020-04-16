@@ -37,7 +37,12 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
      */
     public SpawnParticle() {
         if (CompatibilityAPI.getVersion() < 1.09) {
-            setupSendParticles();
+            if (sendParticles == null) {
+                sendParticles = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("WorldServer"), "sendParticles", ReflectionUtil.getNMSClass("EntityPlayer"), ReflectionUtil.getNMSClass("EnumParticle"), boolean.class, double.class, double.class, double.class, int.class, double.class, double.class, double.class, double.class, Array.newInstance(int.class, 0).getClass());
+            }
+            if (worldGetHandle == null) {
+                worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
+            }
         }
     }
 
@@ -66,18 +71,6 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
             double x = location.getX(), y = location.getY(), z = location.getZ();
             Object worldServer = ReflectionUtil.invokeMethod(worldGetHandle, location.getWorld());
             ReflectionUtil.invokeMethod(sendParticles, worldServer, null, particleData.particle, true, x, y, z, particleData.particleAmount, offset.getX(), offset.getY(), offset.getZ(), particleData.particleSpeed, particleData.data);
-        }
-    }
-
-    /**
-     * Fills the required channel methods, fields and constructors.
-     */
-    private void setupSendParticles() {
-        if (sendParticles == null) {
-            sendParticles = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("WorldServer"), "sendParticles", ReflectionUtil.getNMSClass("EntityPlayer"), ReflectionUtil.getNMSClass("EnumParticle"), boolean.class, double.class, double.class, double.class, int.class, double.class, double.class, double.class, double.class, Array.newInstance(int.class, 0).getClass());
-        }
-        if (worldGetHandle == null) {
-            worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
         }
     }
 

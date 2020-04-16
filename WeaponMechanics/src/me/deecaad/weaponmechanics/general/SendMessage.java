@@ -35,7 +35,12 @@ public class SendMessage implements Serializer<SendMessage> {
      */
     public SendMessage() {
         if (CompatibilityAPI.getVersion() < 1.09) {
-            setupSendActionBar();
+            if (packetPlayOutChatConstructor == null) {
+                packetPlayOutChatConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("PacketPlayOutChat"), ReflectionUtil.getNMSClass("IChatBaseComponent"), byte.class);
+            }
+            if (chatComponentTextConstructor == null) {
+                chatComponentTextConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("ChatComponentText"), String.class);
+            }
         }
     }
 
@@ -92,18 +97,6 @@ public class SendMessage implements Serializer<SendMessage> {
             } else {
                 player.sendTitle(title, subtitle, -1, -1, -1);
             }
-        }
-    }
-
-    /**
-     * Fills the required channel methods, fields and constructors.
-     */
-    private void setupSendActionBar() {
-        if (packetPlayOutChatConstructor == null) {
-            packetPlayOutChatConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("PacketPlayOutChat"), ReflectionUtil.getNMSClass("IChatBaseComponent"), byte.class);
-        }
-        if (chatComponentTextConstructor == null) {
-            chatComponentTextConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("ChatComponentText"), String.class);
         }
     }
 

@@ -56,6 +56,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
                 if (projectilesIterator.next().tick()) {
                     projectilesIterator.remove();
                 }
+
             } catch (Exception e) {
                 projectilesIterator.remove();
                 DebugUtil.log(LogLevel.WARN, "Caught exception during ticking custom projectiles!", e);
