@@ -19,6 +19,8 @@ public class CustomProjectile implements ICustomProjectile {
     // Projectile can be maximum of 600 ticks alive (30 seconds)
     private static final int maximumAliveTicks = 600;
 
+    private static IProjectileCompatibility projectileCompatibility = CompatibilityAPI.getCompatibility().getProjectileCompatibility();
+
     // Just to identify CustomProjectile
     private static int ids = 1;
     private final int id;
@@ -32,15 +34,19 @@ public class CustomProjectile implements ICustomProjectile {
     private Vector lastLocation;
     private Vector location;
     private Vector motion;
+    private double motionLength;
     private Location lastKnownAirLocation;
     private Collisions collisions;
     private final HitBox projectileBox;
     private boolean dead;
     private final Map<String, String> tags;
 
-    // Only required if there is projectile disguise
+    /**
+     * NMS entity if used as disguise, null otherwise.
+     */
     @Nullable
     public Object projectileDisguiseNMSEntity;
+
     private int projectileDisguiseId; // used to make it easier to use reflection NMS
     private float projectileDisguiseYaw; // used to make it easier to use reflection NMS
     private float projectileDisguisePitch; // used to make it easier to use reflection NMS
@@ -74,6 +80,7 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         if (projectile.getProjectileDisguise() != null) {
+            motionLength = motion.length();
             CompatibilityAPI.getCompatibility().getProjectileCompatibility().spawnDisguise(this, this.location, this.motion);
         }
     }
@@ -84,7 +91,7 @@ public class CustomProjectile implements ICustomProjectile {
     }
 
     @Override
-    public int getId() {
+    public int getUniqueId() {
         return this.id;
     }
 
@@ -115,9 +122,15 @@ public class CustomProjectile implements ICustomProjectile {
     }
 
     @Override
+    public double getMotionLength() {
+        return motionLength;
+    }
+
+    @Override
     public void setMotion(Vector motion) {
         if (motion == null) throw new IllegalArgumentException("Motion can't be null");
         this.motion = motion;
+        this.motionLength = motion.length();
     }
 
     @Override
@@ -141,6 +154,7 @@ public class CustomProjectile implements ICustomProjectile {
     @Override
     public void remove() {
         this.dead = true;
+        if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
     }
 
     @Override
@@ -150,7 +164,7 @@ public class CustomProjectile implements ICustomProjectile {
 
     @Override
     public void updateDisguiseLocationAndMotion() {
-        if (projectileDisguiseId != 0) CompatibilityAPI.getCompatibility().getProjectileCompatibility().updateDisguise(this, this.location, this.motion, this.lastLocation, this.motion.length());
+        if (projectileDisguiseId != 0) CompatibilityAPI.getCompatibility().getProjectileCompatibility().updateDisguise(this, this.location, this.motion, this.lastLocation);
     }
 
     @Override
@@ -188,6 +202,8 @@ public class CustomProjectile implements ICustomProjectile {
 
         // todo
 
+        Bukkit.broadcastMessage("" + collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection));
+
         return false;
     }
 
@@ -199,56 +215,57 @@ public class CustomProjectile implements ICustomProjectile {
      */
     public boolean tick() {
         if (this.dead) {
+            // No need for remove() call as this can only be true if its already been called at least once
+            // This check is here just if some other plugin removes this projectile
             return true;
         }
 
         ProjectileMotion projectileMotion = projectile.getProjectileMotion();
-        IProjectileCompatibility projectileCompatibility = CompatibilityAPI.getCompatibility().getProjectileCompatibility();
 
         if (location.getY() < -32 || location.getY() > 288 || aliveTicks > maximumAliveTicks) {
-            if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
+            remove();
             return true;
         }
 
-        double length = motion.length();
+        motionLength = motion.length();
 
         double minimumSpeed = projectileMotion.getMinimumSpeed();
         double maximumSpeed = projectileMotion.getMaximumSpeed();
-        if (minimumSpeed != -1.0 && length < minimumSpeed) {
+        if (minimumSpeed != -1.0 && motionLength < minimumSpeed) {
             if (projectileMotion.isRemoveAtMinimumSpeed()) {
-                if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
+                remove();
                 return true;
             }
 
             // normalize first
-            motion.divide(new Vector(length, length, length));
+            motion.divide(new Vector(motionLength, motionLength, motionLength));
 
             // then multiply with wanted speed
             motion.multiply(projectileMotion.getMinimumSpeed());
 
             // Recalculate the length
-            length = motion.length();
-        } else if (maximumSpeed != -1.0 && length > maximumSpeed) {
+            motionLength = motion.length();
+        } else if (maximumSpeed != -1.0 && motionLength > maximumSpeed) {
             if (projectileMotion.isRemoveAtMaximumSpeed()) {
-                if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
+                remove();
                 return true;
             }
             // normalize first
-            motion.divide(new Vector(length, length, length));
+            motion.divide(new Vector(motionLength, motionLength, motionLength));
 
             // then multiply with wanted speed
             motion.multiply(projectileMotion.getMaximumSpeed());
 
             // Recalculate the length
-            length = motion.length();
+            motionLength = motion.length();
         }
 
-        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation, length);
+        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
 
         lastLocation = location.clone();
 
-        if (handleCollisions(length)) {
-            if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
+        if (handleCollisions()) {
+            remove();
             return true;
         }
 
@@ -283,21 +300,20 @@ public class CustomProjectile implements ICustomProjectile {
      * allow one block or entity. If they allow, then there may be many blocks or entities in one ray trace.
      * This method can't use more blocks or entities than getThroughSettings() settings allow (Maximum_Pass_Throughs).
      *
-     * @param length the motion length
      * @return true if projectile should die
      */
-    private boolean handleCollisions(double length) {
+    private boolean handleCollisions() {
 
         // Pre calculate the motion to add for location on each iteration
         // First normalize motion and then multiply
-        Vector addMotion = motion.clone().divide(new Vector(length, length, length)).multiply(projectile.getProjectileHeight() * 2);
+        Vector addMotion = motion.clone().divide(new Vector(motionLength, motionLength, motionLength)).multiply(projectile.getProjectileHeight() * 2);
 
         // Old motion without modified speed modifier
         Vector oldMotion = motion.clone();
 
         projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
 
-        for (double i = 0.0; i <= length; i += projectile.getProjectileHeight()) {
+        for (double i = 0.0; i <= motionLength; i += projectile.getProjectileHeight()) {
             Collisions iteration = getCollisions(projectileBox);
 
             if (iteration == null) {
@@ -305,7 +321,7 @@ public class CustomProjectile implements ICustomProjectile {
                 continue;
             }
 
-            if (handleEntityHits(length, iteration.getEntityCollisions())) {
+            if (handleEntityHits(iteration.getEntityCollisions())) {
                 // Projectile should die
                 return true;
             }
@@ -367,11 +383,10 @@ public class CustomProjectile implements ICustomProjectile {
     }
 
     /**
-     * @param length the motion length (used to get normalized direction)
      * @param entityCollisions the list of all collisions to handle
      * @return true if projectile should die
      */
-    private boolean handleEntityHits(double length, SortedSet<CollisionData> entityCollisions) {
+    private boolean handleEntityHits(SortedSet<CollisionData> entityCollisions) {
         if (entityCollisions.isEmpty()) {
             return false;
         }
@@ -385,13 +400,13 @@ public class CustomProjectile implements ICustomProjectile {
         if (entityThru == null) {
             // If this is true, that most likely means that entity hit was cancelled
             // That is why add ! to destroy projectile it would have returned false
-            return !handleEntityHit(entityCollisions.first(), motion.clone().divide(new Vector(length, length, length)));
+            return !handleEntityHit(entityCollisions.first(), motion.clone().divide(new Vector(motionLength, motionLength, motionLength)));
         }
 
         int maxEntitiesLeft = entityThru.getMaximumPassThroughs() - collisions.getEntityCollisions().size();
         for (CollisionData entity : entityCollisions) {
 
-            if (handleEntityHit(entity, motion.clone().divide(new Vector(length, length, length)))) {
+            if (handleEntityHit(entity, motion.clone().divide(new Vector(motionLength, motionLength, motionLength)))) {
                 // Returned true and that most likely means that entity hit was cancelled, skipping...
                 continue;
             }

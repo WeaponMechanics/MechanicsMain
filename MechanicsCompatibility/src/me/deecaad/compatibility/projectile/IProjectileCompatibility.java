@@ -32,9 +32,8 @@ public interface IProjectileCompatibility {
      * @param location the location vector of projectile
      * @param motion the motion vector projectile
      * @param lastLocation the last location vector of projectile
-     * @param length the motion length
      */
-    void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length);
+    void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation);
 
     /**
      * Destroys disguise from all players within 150 blocks.

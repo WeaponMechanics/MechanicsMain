@@ -25,7 +25,7 @@ public class Projectile_1_8_R3 implements IProjectileCompatibility {
     }
 
     @Override
-    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length) {
+    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation) {
 
     }
 

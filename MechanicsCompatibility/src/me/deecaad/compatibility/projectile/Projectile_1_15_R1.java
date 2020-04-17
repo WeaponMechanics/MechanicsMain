@@ -66,11 +66,11 @@ public class Projectile_1_15_R1 implements IProjectileCompatibility {
                 customProjectile.projectileDisguiseNMSEntity = nmsEntity;
                 break;
         }
-        updateDisguise(customProjectile, location, motion, location, motion.length());
+        updateDisguise(customProjectile, location, motion, location);
     }
 
     @Override
-    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length) {
+    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation) {
 
         // Calculate yaw and pitch before doing updates
         customProjectile.calculateYawAndPitch();
@@ -81,7 +81,7 @@ public class Projectile_1_15_R1 implements IProjectileCompatibility {
 
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
 
-        if (length > 8) {
+        if (customProjectile.getMotionLength() > 8) {
             Entity nmsEntity = (Entity) customProjectile.projectileDisguiseNMSEntity;
 
             nmsEntity.setPositionRaw(location.getX(), location.getY(), location.getZ());

@@ -14,13 +14,13 @@ import java.util.Set;
 
 public class Shoot_Reflection implements IShootCompatibility {
 
-    private Method entityGetHandle;
-    private Field entityWidth;
-    private Field entityHeight;
+    private static Method entityGetHandle;
+    private static Field entityWidth;
+    private static Field entityHeight;
 
-    private Set<?> RELATIVE_FLAGS;
-    private Set<?> ABSOLUTE_FLAGS;
-    private Constructor<?> packetPlayOutPositionConstructor;
+    private static Set<?> RELATIVE_FLAGS;
+    private static Set<?> ABSOLUTE_FLAGS;
+    private static Constructor<?> packetPlayOutPositionConstructor;
 
     public Shoot_Reflection() {
         entityGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftEntity"), "getHandle");

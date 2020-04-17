@@ -265,11 +265,11 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         } else {
             sendUpdatePackets(customProjectile, 22500, spawn, metadata, headRotation);
         }
-        updateDisguise(customProjectile, location, motion, location, motion.length());
+        updateDisguise(customProjectile, location, motion, location);
     }
 
     @Override
-    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation, double length) {
+    public void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation) {
         double version = CompatibilityAPI.getVersion();
 
         // Calculate yaw and pitch before doing updates
@@ -289,7 +289,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         Object move;
         if (version < 1.09) {
             // https://wiki.vg/Data_types#Fixed-point_numbers
-            if (length > 4) {
+            if (customProjectile.getMotionLength() > 4) {
                 int x = floor(location.getX() * 32);
                 int y = floor(location.getY() * 32);
                 int z = floor(location.getZ() * 32);
@@ -302,7 +302,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
 
                 move = ReflectionUtil.newInstance(entityMoveLookPacket, projectileDisguiseId, x, y, z, convertYawToByte(customProjectile, yaw), convertPitchToByte(customProjectile, pitch), false);
             }
-        } else if (length > 8) { // 1.9 -> newer
+        } else if (customProjectile.getMotionLength() > 8) { // 1.9 -> newer
             move = ReflectionUtil.newInstance(entityTeleportPacket);
             ReflectionUtil.setField(entityTeleportId, move, projectileDisguiseId);
             ReflectionUtil.setField(entityTeleportX, move, location.getX());

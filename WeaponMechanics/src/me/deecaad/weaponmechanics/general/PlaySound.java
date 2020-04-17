@@ -35,7 +35,12 @@ public class PlaySound implements Serializer<PlaySound> {
      */
     public PlaySound() {
         if (CompatibilityAPI.getVersion() < 1.09) {
-            setupMakeSound();
+            if (worldGetHandle == null) {
+                worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
+            }
+            if (makeSoundMethod == null) {
+                makeSoundMethod = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("World"), "makeSound", double.class, double.class, double.class, String.class, float.class, float.class);
+            }
         }
     }
 
@@ -126,18 +131,6 @@ public class PlaySound implements Serializer<PlaySound> {
                 Object worldServer = ReflectionUtil.invokeMethod(worldGetHandle, location.getWorld());
                 ReflectionUtil.invokeMethod(makeSoundMethod, worldServer, location.getX(), location.getY(), location.getZ(), sound.customSound, sound.volume, sound.pitch);
             }
-        }
-    }
-
-    /**
-     * Fills the required channel methods, fields and constructors.
-     */
-    private void setupMakeSound() {
-        if (worldGetHandle == null) {
-            worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
-        }
-        if (makeSoundMethod == null) {
-            makeSoundMethod = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("World"), "makeSound", double.class, double.class, double.class, String.class, float.class, float.class);
         }
     }
 
