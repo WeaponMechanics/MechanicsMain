@@ -56,11 +56,6 @@ public abstract class MainCommand extends BukkitCommand {
             return true;
         }
 
-        // Making this a bit smarter, ignores case error
-        for (int i = 0; i < args.length; i++) {
-            args[i] = args[i].toLowerCase();
-        }
-
         // If this stays as false, send help message
         boolean isSuccessful = false;
 
@@ -84,11 +79,6 @@ public abstract class MainCommand extends BukkitCommand {
     public List<String> tabComplete(@Nonnull CommandSender sender, @Nonnull String alias, @Nonnull String[] args) throws IllegalArgumentException {
         if (!sender.hasPermission(permission)) {
             return new ArrayList<>();
-        }
-
-        // Making this a bit smarter, ignores case error
-        for (int i = 0; i < args.length; i++) {
-            args[i] = args[i].toLowerCase();
         }
 
         List<String> temp;
