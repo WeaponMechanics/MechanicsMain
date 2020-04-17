@@ -8,26 +8,24 @@ public class Spiral implements Shape {
 
     private Circle circle;
     private Vector step;
-    private int loops;
     private int totalPoints;
 
-    public Spiral(int points, double amplitude, Vector around, int loops) {
-        this(new Circle(points, amplitude), around, loops);
+    public Spiral(int points, double amplitude, double offset, Vector around, int loops) {
+        this(new Circle(points, amplitude, offset), around, loops);
     }
 
     public Spiral(Circle circle, Vector around, int loops) {
         this.circle = circle;
-        this.loops = loops;
         this.totalPoints = loops * circle.getPoints();
 
-        setAxis(around);
+        if (around != null) setAxis(around);
     }
 
     @Override
     public void setAxis(Vector dir) {
         circle.setAxis(dir);
 
-        step = dir.multiply(1.0 / (totalPoints));
+        step = dir.clone().multiply(1.0 / (totalPoints));
     }
 
     @Override
@@ -57,6 +55,7 @@ public class Spiral implements Shape {
 
         @Override
         public Vector next() {
+
             // Remember that a spiral can loop multiple times,
             // or, in other words, draw multiple circles
             if (!circleIterator.hasNext()) {

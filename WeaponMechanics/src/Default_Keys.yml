@@ -1,0 +1,213 @@
+Weapon: # TODO Replace all "random" types with more basic types (Like <String>, <Integer>, <Double>, etc)
+
+  ########################################################
+  # INFO SECTION
+  ########################################################
+  Info: # INFO SERIALIZER
+    Weapon_Item: # ITEM SERIALIZER
+      Type: <Material>:<Data>
+      Name: <name>
+      Lore:
+        - <Lore line>
+        - <etc.>
+      Durability: <durability>
+      Unbreakable: <true/false>
+      Custom_Model_Data: <custom model data number>
+      Hide_Flags: <true/false>
+      Enchantments:
+        - <Enchantment>-<Level>
+      Skull:
+        Owning_Player: <UUID of player or name of player>
+      Potion:
+        Color: <ColorType>
+      Attributes:
+        - <Attribute>-<Amount>
+    Dual_Wield: # DUAL WIELD SERIALIZER
+      Whitelist: <true/false>
+      Weapons:
+        - <weapon title>
+        - <etc.>
+      Denied_Message: # MESSAGE SERIALIZER
+        Per_World: <true/false>
+        Chat: <message>
+        Action_Bar: <message>
+        Title: <message>
+        Subtitle: <message>
+    Weapon_Converter_Check: # WEAPON CONVERTER CHECK SERIALIZER
+      Type: <true/false>
+      Name: <true/false>
+      Lore: <true/false>
+      Enchants: <true/false>
+    Cancel:
+      Block_Interactions: <true/false>
+      Item_Interactions: <true/false>
+      Drop_Item: <true/false>
+      Swap_Hands: <true/false>
+      Arm_Swing_Animation: <true/false>
+
+  ########################################################
+  # SHOOT SECTION
+  ########################################################
+  Shoot:
+    Trigger: # TRIGGER SERIALIZER
+      Main_Hand: <TriggerType>
+      Off_Hand: <TriggerType>
+      Deny_When:
+        Reloading: <true/false>
+        Zooming: <true/false>
+        Sneaking: <true/false>
+        Standing: <true/false>
+        Walking: <true/false>
+        Swimming: <true/false>
+        In_Midair: <true/false>
+        Gliding: <true/false>
+    Projectile_Speed: <speed>
+    Projectiles_Per_Shot: <amount>
+    Selective_Fire:
+      Trigger: # TRIGGER SERIALIZER
+        Main_Hand: <TriggerType>
+        Off_Hand: <TriggerType>
+        Deny_When:
+          Reloading: <true/false>
+          Zooming: <true/false>
+          Sneaking: <true/false>
+          Standing: <true/false>
+          Walking: <true/false>
+          Swimming: <true/false>
+          In_Midair: <true/false>
+          Gliding: <true/false>
+      # All general stuff
+    Delay_Between_Shots: <ticks>
+    Fully_Automatic_Shots_Per_Second: <amount>
+    Burst:
+      Shots_Per_Burst: <amount>
+      Ticks_Between_Each_Shot: <ticks>
+    # All general stuff
+    Spread: # SPREAD SERIALIZER
+      Spread_Image: # SPREAD IMAGE SERIALIZER
+        Name: <path>
+        Field_Of_View_Width: <degrees> # 90 by default
+        Field_Of_View_Height: <degrees> # 90 by default
+      Base_Spread: <base spread>
+      Modify_Spread_When: # MODIFY SPREAD WHEN SERIALIZER
+        Zooming: <amount> or <amount>%
+        Sneaking: <amount> or <amount>%
+        Standing: <amount> or <amount>%
+        Walking: <amount> or <amount>%
+        Swimming: <amount> or <amount>%
+        In_Midair: <amount> or <amount>%
+        Gliding: <amount> or <amount>%
+      Changing_Spread: # CHANGING SPREAD SERIALIZER
+        Reset_After_Millis: <reset time>
+        Starting_Amount: <amount>
+        Increase_Change_When:
+          Always: <amount> or <amount>%
+          Zooming: <amount> or <amount>%
+          Sneaking: <amount> or <amount>%
+          Standing: <amount> or <amount>%
+          Walking: <amount> or <amount>%
+          Swimming: <amount> or <amount>%
+          In_Midair: <amount> or <amount>%
+          Gliding: <amount> or <amount>%
+        Bounds:
+          Reset_After_Reaching_Bound: <true/false>
+          Minimum_Spread: <minimum spread>
+          Maximum_Spread: <maximum spread>
+    Projectile: <path to another Projectile key> # PROJECTILE SERIALIZER
+      Settings:
+        Type: <ProjectileType>
+        Width: <projectile width>
+        Height: <projectile height>
+        Projectile_Item_Or_Block: # Should this just use item serializer?
+          Type: <Material>:<Data>
+          Durability: <durability>
+          Unbreakable: <true/false>
+          Custom_Model_Data: <custom model data number>
+          Skull:
+            Owning_Player: <UUID of player or name of player>
+          Potion:
+            Color: <ColorType>
+      Projectile_Motion:
+        Gravity: <gravity multiplier>
+        Minimum:
+          Speed: <minimum speed of projectile>
+          Remove_Projectile: <true/false>
+        Maximum:
+          Speed: <maximum speed of projectile>
+          Remove_Projectile: <true/false>
+        Decrease_Motion:
+          Base: <multiplier>
+          In_Water: <multiplier>
+          When_Raining_Or_Snowing: <multiplier>
+      Through:
+        Blocks:
+          Default_Speed_Modifier: <multiplier>
+          Default_Damage_Modifier: <amount>
+          Maximum_Pass_Throughs: <maximum block pass throughs>
+          Whitelist: <true/false>
+          List:
+            - <Material>:<data>-<speed multiplier>-<damage modifier>
+            - <etc.>
+        Entities:
+          Default_Speed_Modifier: <multiplier>
+          Default_Damage_Modifier: <amount>
+          Maximum_Pass_Throughs: <maximum entity pass throughs>
+          Whitelist: <true/false>
+          List:
+            - <EntityType>-<speed multiplier>-<damage modifier>
+            - <etc.>
+
+  ########################################################
+  # SHOOT SECTION
+  ########################################################
+  Scope: # SCOPE SERIALIZER
+    Trigger: # TRIGGER SERIALIZER
+      Main_Hand: <TriggerType>
+      Off_Hand: <TriggerType>
+      Deny_When:
+        Reloading: <true/false>
+        Zooming: <true/false>
+        Sneaking: <true/false>
+        Standing: <true/false>
+        Walking: <true/false>
+        Swimming: <true/false>
+        In_Midair: <true/false>
+        Gliding: <true/false>
+    Night_Vision: <true/false>
+    Zoom_Amount: <1-32>
+    # All general stuff
+    Zoom_Off:
+      Trigger: # TRIGGER SERIALIZER
+        Main_Hand: <TriggerType>
+        Off_Hand: <TriggerType>
+        Deny_When:
+          Reloading: <true/false>
+          Zooming: <true/false>
+          Sneaking: <true/false>
+          Standing: <true/false>
+          Walking: <true/false>
+          Swimming: <true/false>
+          In_Midair: <true/false>
+          Gliding: <true/false>
+      # All general stuff
+    Zoom_Stacking:
+      Maximum_Stacks: <maximum zoom stack amount>
+      Increase_Zoom_Per_Stack: <amount>
+      # All general stuff
+
+  ########################################################
+  # EXPLOSION SECTION
+  ########################################################
+  Explosion: # EXPLOSION SERIALIZER
+    Explosion_Type: <Sphere/Cube/Parabola/Minecraft>
+    Scatter_Chance: 0.15
+    Explosion_Type_Data:
+      # Fetch required values based on explosion type or simply don't do anything with these if not needed
+      # Give default values for everything if not defined here
+      Yield: <Double>
+      Radius: <Double>
+      Angle: <Double>
+      Depth: <Double>
+      Width: <Double>
+      Height: <Double>
+

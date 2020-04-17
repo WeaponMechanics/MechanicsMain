@@ -1,5 +1,6 @@
-package me.deecaad.core.effects.particles;
+package me.deecaad.core.effects.types;
 
+import me.deecaad.core.effects.ShapedEffect;
 import me.deecaad.core.effects.data.EffectData;
 import me.deecaad.core.effects.shapes.Shape;
 import org.bukkit.Bukkit;
@@ -11,7 +12,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ShapedParticleEffect extends ParticleEffect {
+public class ShapedParticleEffect extends ParticleEffect implements ShapedEffect {
 
     private Shape shape;
     private int interval;
@@ -35,8 +36,13 @@ public class ShapedParticleEffect extends ParticleEffect {
         int counter = 0;
         for (Vector vector: shape) {
             Bukkit.getScheduler().runTaskLater(source, () -> {
-                super.spawnOnce(source, world, x + vector.getX(), y + vector.getZ(), z + vector.getY(), data);
+                super.spawnOnce(source, world, x + vector.getX(), y + vector.getY(), z + vector.getZ(), data);
             }, counter++ * interval);
         }
+    }
+
+    @Override
+    public void setAxis(Vector vector) {
+        shape.setAxis(vector);
     }
 }

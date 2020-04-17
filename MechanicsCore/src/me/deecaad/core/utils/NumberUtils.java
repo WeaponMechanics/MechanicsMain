@@ -170,7 +170,7 @@ public class NumberUtils {
      * @return If they are equal
      */
     public static boolean equals(double a, double b) {
-        return Math.abs(a - b) < 1e-8;
+        return Math.abs(a - b) < 1e-10;
     }
 
     /**

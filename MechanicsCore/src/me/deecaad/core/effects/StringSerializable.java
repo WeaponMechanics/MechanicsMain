@@ -9,20 +9,7 @@ import java.util.Map;
  */
 public interface StringSerializable<T> {
 
-    T serialize(Map<String, SerializerData<?>> args);
+    T serialize(Map<String, Object> args);
 
-    Map<String, SerializerData<?>> getDefaults();
-
-    class SerializerData<V> {
-
-        private V data;
-
-        public SerializerData(V data) {
-            this.data = data;
-        }
-
-        public V getData() {
-            return data;
-        }
-    }
+    Map<String, Object> getDefaults();
 }

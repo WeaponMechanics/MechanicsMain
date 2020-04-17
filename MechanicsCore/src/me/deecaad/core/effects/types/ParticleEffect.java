@@ -1,7 +1,8 @@
-package me.deecaad.core.effects.particles;
+package me.deecaad.core.effects.types;
 
 import me.deecaad.core.effects.AbstractEffect;
 import me.deecaad.core.effects.data.EffectData;
+import me.deecaad.weaponmechanics.particles.SpawnParticle;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -42,23 +43,23 @@ public class ParticleEffect extends AbstractEffect {
 
     @Override
     public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable EffectData data) {
-        world.spawnParticle(particle, x, y, z, amount, horizontal, vertical, horizontal, speed, particleData);
+        world.spawnParticle(particle, x, y, z, amount, horizontal, vertical, horizontal, speed, particleData, true);
     }
 
     @Override
-    public AbstractEffect serialize(Map<String, SerializerData<?>> args) {
-        Particle particle = Particle.valueOf((String) args.get("particle").getData());
+    public AbstractEffect serialize(Map<String, Object> args) {
+        Particle particle = Particle.valueOf((String) args.get("particle"));
 
         return null;
     }
 
     @Override
-    public Map<String, SerializerData<?>> getDefaults() {
-        final Map<String, SerializerData<?>> defaults = new HashMap<>();
+    public Map<String, Object> getDefaults() {
+        final Map<String, Object> defaults = new HashMap<>();
 
-        defaults.put("particle", new SerializerData<>(Particle.VILLAGER_HAPPY.name()));
-        defaults.put("hspread", new SerializerData<>(1.0));
-        defaults.put("vspread", new SerializerData<>(1.0));
+        defaults.put("particle", Particle.VILLAGER_HAPPY.name());
+        defaults.put("hspread", 1.0);
+        defaults.put("vspread", 1.0);
 
         return defaults;
     }

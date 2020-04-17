@@ -1,6 +1,9 @@
 package me.deecaad.core.effects;
 
-public abstract class AbstractEffect implements Effect, StringSerializable<AbstractEffect> {
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class AbstractEffect implements Effect, StringSerializable<Effect> {
 
     private int repeatAmount;
     private int repeatInterval;
@@ -38,5 +41,22 @@ public abstract class AbstractEffect implements Effect, StringSerializable<Abstr
     @Override
     public void setRepeatInterval(int repeatInterval) {
         this.repeatInterval = repeatInterval;
+    }
+
+    @Override
+    public AbstractEffect serialize(Map<String, Object> args) {
+        delay = (Integer) args.get("delay");
+        repeatAmount = (Integer) args.get("repeat");
+        repeatInterval = (Integer) args.get("repeatInterval");
+        return this;
+    }
+
+    @Override
+    public Map<String, Object> getDefaults() {
+        Map<String, Object> temp = new HashMap<>();
+        temp.put("delay", 0);
+        temp.put("repeat", 1);
+        temp.put("repeatInterval", 20);
+        return temp;
     }
 }

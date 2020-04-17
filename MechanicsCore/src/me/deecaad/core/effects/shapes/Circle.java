@@ -1,19 +1,17 @@
 package me.deecaad.core.effects.shapes;
 
+import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 
 public class Circle implements Shape {
-    
+
     private Point[] points;
     private Vector b;
     private Vector c;
-    
-    public Circle() {
-        this(16, 1);
-    }
 
     /**
      * Constructs a circle with the given number of points and
@@ -23,11 +21,23 @@ public class Circle implements Shape {
      * @param amplitude How big of a circle to draw
      */
     public Circle(int points, double amplitude) {
+        this(points, amplitude, 0);
+    }
+
+    /**
+     * Constructs a circle with the given number of points and
+     * the given amplitude (which is basically radius)
+     *
+     * @param points The number of points to track on a circle
+     * @param amplitude How big of a circle to draw
+     * @param startAngle The angle, in radians, to start at
+     */
+    public Circle(int points, double amplitude, double startAngle) {
         this.points = new Point[points];
-        double period = (2 * Math.PI);
-        
+        double period = VectorUtils.PI_2;
+
         for (int i = 0; i < points; i++) {
-            double radian = period / points * i;
+            double radian = VectorUtils.normalizeRadians(period / points * i + startAngle);
             double cos = amplitude * Math.cos(radian);
             double sin = amplitude * Math.sin(radian);
             this.points[i] = new Point(sin, cos);
@@ -62,17 +72,22 @@ public class Circle implements Shape {
         // This double checks to make sure we do not
         // produce a vector of length 0, which causes
         // issues with NaN during normalization.
-        b = new Vector(0, 0, 0);
-        while (NumberUtils.equals(b.length(), 0.0)) {
-            Vector vector = Vector.getRandom();
-            b = a.clone().crossProduct(vector);
-        }
-        c = a.clone().crossProduct(b.normalize());
+        //b = new Vector(0, 0, 0);
+        //while (NumberUtils.equals(b.length(), 0.0)) {
+        //    Vector vector = Vector.getRandom();
+        //    b = a.clone().crossProduct(vector);
+        //}
+        b = VectorUtils.getPerpendicular(a).normalize();
+        c = a.clone().crossProduct(b).normalize();
+
+        double dot1 = a.dot(b);
+        double dot2 = b.dot(c);
+        double dot3 = a.dot(c);
 
         // This is a resource consuming debug message, not really needed
-        //DebugUtils.assertTrue(a.dot(b) == 0, "A is not perpendicular to B");
-        //DebugUtils.assertTrue(b.dot(c) == 0, "B is not perpendicular to C");
-        //DebugUtils.assertTrue(a.dot(c) == 0, "A is not perpendicular to C");
+        DebugUtil.assertTrue(NumberUtils.equals(dot1, 0.0), "A is not perpendicular to B");
+        DebugUtil.assertTrue(NumberUtils.equals(dot2, 0.0), "B is not perpendicular to C");
+        DebugUtil.assertTrue(NumberUtils.equals(dot3, 0.0), "A is not perpendicular to C");
     }
 
     @Override

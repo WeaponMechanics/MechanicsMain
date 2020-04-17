@@ -1,4 +1,4 @@
-package me.deecaad.core.effects.items;
+package me.deecaad.core.effects.types;
 
 import me.deecaad.core.effects.AbstractEffect;
 import me.deecaad.core.effects.data.EffectData;
@@ -58,12 +58,12 @@ public class ItemEffect extends AbstractEffect {
     }
 
     @Override
-    public AbstractEffect serialize(Map<String, SerializerData<?>> args) {
+    public AbstractEffect serialize(Map<String, Object> args) {
         return null;
     }
 
     @Override
-    public Map<String, SerializerData<?>> getDefaults() {
+    public Map<String, Object> getDefaults() {
         return null;
     }
 }
