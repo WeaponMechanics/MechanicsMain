@@ -17,4 +17,13 @@ public interface Shape extends Iterable<Vector> {
      * @param vector The vector to draw around
      */
     void setAxis(Vector vector);
+
+    /**
+     * Should get whether or not the vector type for
+     * this shape should be "guessed"
+     * @see me.deecaad.core.utils.VectorUtils
+     *
+     * @return true if vector should be guessed
+     */
+    boolean isGuessVector();
 }

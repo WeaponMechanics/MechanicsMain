@@ -1,7 +1,6 @@
 package me.deecaad.core.effects.types;
 
 import me.deecaad.core.effects.AbstractEffect;
-import me.deecaad.core.effects.data.EffectData;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,7 +35,7 @@ public class ItemEffect extends AbstractEffect {
     }
 
     @Override
-    public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable EffectData data) {
+    public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
         EntityItem drop = new EntityItem(((CraftWorld)world).getHandle(), x, y, z, CraftItemStack.asNMSCopy(toDrop));
 
         PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(drop);

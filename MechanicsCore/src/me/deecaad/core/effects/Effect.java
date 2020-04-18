@@ -1,6 +1,5 @@
 package me.deecaad.core.effects;
 
-import me.deecaad.core.effects.data.EffectData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -51,7 +50,7 @@ public interface Effect extends Repeatable, Delayable {
      * @param loc Location to spawn the effect
      * @param data Data to give to the handler
      */
-    default void spawn(@Nonnull Plugin source, @Nonnull Location loc, @Nullable EffectData data) {
+    default void spawn(@Nonnull Plugin source, @Nonnull Location loc, @Nullable Object data) {
         if (loc.getWorld() == null) throw new IllegalArgumentException("World cannot be null");
 
         spawn(source, loc.getWorld(), loc.getX(), loc.getY(), loc.getZ(), data);
@@ -72,7 +71,7 @@ public interface Effect extends Repeatable, Delayable {
      * @param z Z coordinate
      * @param data Data to give to the handler
      */
-    default void spawn(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable EffectData data) {
+    default void spawn(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
         Bukkit.getScheduler().runTaskLater(source, () -> {
             for (int i = 0; i < getRepeatAmount(); i++) {
                 Bukkit.getScheduler().runTaskLater(source, () -> {
@@ -94,5 +93,5 @@ public interface Effect extends Repeatable, Delayable {
      * @param z Z coordinate
      * @param data Data to give to the handler
      */
-    void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable EffectData data);
+    void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data);
 }
