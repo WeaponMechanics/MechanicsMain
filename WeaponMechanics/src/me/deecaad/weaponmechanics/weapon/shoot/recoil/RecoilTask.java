@@ -29,9 +29,6 @@ public class RecoilTask extends TimerTask {
     private long recoverTime;
     private final float recoverToYaw;
     private final float recoverToPitch;
-    private float maximumYawChange;
-    private float maximumPitchChange;
-
     private float shouldBeLastYaw;
 
     public RecoilTask(IPlayerWrapper playerWrapper, Recoil recoil) {
@@ -54,13 +51,7 @@ public class RecoilTask extends TimerTask {
 
         if (isRotating) {
             Location location = playerWrapper.getPlayer().getLocation();
-            float pitch = location.getPitch();
-
-            // todo: add randomness for bounds
-            //boolean hasMaximumPitchChange = Math.abs(calculatePitchDifference(pitch)) > maximumPitchChange || pitch < -80;
-            //boolean hasMaximumYawChange = Math.abs(calculateYawDifference(location.getYaw())) > maximumYawChange;
-            //shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), hasMaximumYawChange ? 0 : yawPerIteration, hasMaximumPitchChange ? 0 : pitchPerIteration, false);
-            shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitchPerIteration, false);
+            shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, location.getPitch() < -80 ? 0 : pitchPerIteration, false);
         } else if (counter >= waitRotations) {
             // Let recovering happen normally without checking any maximum pitch changes
             shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitchPerIteration, false);
@@ -124,8 +115,6 @@ public class RecoilTask extends TimerTask {
             }
 
             recoverTime = tempRecoil.getRecoverTime();
-            maximumYawChange = tempRecoil.getMaximumYawChange();
-            maximumPitchChange = tempRecoil.getMaximumPitchChange();
 
             // Calculate where last yaw spot should be
             shouldBeLastYaw = shouldBeLastYaw == 0 ? playerWrapper.getPlayer().getLocation().getYaw() + rotateYaw : shouldBeLastYaw + rotateYaw;
