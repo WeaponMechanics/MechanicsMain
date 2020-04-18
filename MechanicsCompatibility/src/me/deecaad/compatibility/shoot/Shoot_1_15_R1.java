@@ -10,13 +10,13 @@ import java.util.Set;
 
 public class Shoot_1_15_R1 implements IShootCompatibility {
 
-    private Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
+    private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Z,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.X_ROT,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y_ROT));
 
-    private Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
+    private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Z));
 

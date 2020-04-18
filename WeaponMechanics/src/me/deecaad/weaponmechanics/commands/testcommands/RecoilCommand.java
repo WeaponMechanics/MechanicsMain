@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -13,7 +14,7 @@ import java.util.List;
 public class RecoilCommand extends SubCommand {
 
     public RecoilCommand() {
-        super("wm test", "recoil", "Tries recoil with given values", "<rotation-time>, <recover-time>, <yaws>, <pitches>, <fire-rate>, <shoot-time>");
+        super("wm test", "recoil", "Tries recoil with given values", "<rotation-time> <recover-time> <yaws> <pitches> <fire-rate> <shoot-time> <maximum-yaw-change> <maximum-pitch-change>");
     }
 
     @Override
@@ -39,15 +40,20 @@ public class RecoilCommand extends SubCommand {
         }
 
         int shootTime = Integer.parseInt(args[5]);
+        float maximumYawChange = Float.parseFloat(args[6]);
+        float maximumPitchChange = Float.parseFloat(args[7]);
 
-        Recoil recoil = new Recoil(rotationTime, yaws, pitches, recoverTime);
+        Recoil recoil = new Recoil(rotationTime, yaws, pitches, recoverTime, maximumYawChange, maximumPitchChange);
+        IPlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
         new BukkitRunnable() {
             int ticks = 0;
 
             @Override
             public void run() {
 
-                recoil.start((Player) sender);
+                if (playerWrapper.isRightClicking()) {
+                    recoil.start((Player) sender);
+                }
 
                 ticks += fireRate;
                 if (ticks > shootTime) {

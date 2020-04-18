@@ -1,5 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
+import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.shoot.IShootCompatibility;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.entity.Player;
 
@@ -10,21 +13,33 @@ public class Recoil {
 
     public static final long MILLIS_BETWEEN_ROTATIONS = 5;
     private static final Timer TIMER = new Timer();
+    private static final IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
 
-    private long rotationTime;
-    private List<Float> yaws;
-    private List<Float> pitches;
-    private long recoverTime;
+    private final long rotationTime;
+    private final List<Float> yaws;
+    private final List<Float> pitches;
+    private final long recoverTime;
+    private final float maximumYawChange;
+    private final float maximumPitchChange;
 
-    public Recoil(long rotationTime, List<Float> yaws, List<Float> pitches, long recoverTime) {
+    public Recoil(long rotationTime, List<Float> yaws, List<Float> pitches, long recoverTime, float maximumYawChange, float maximumPitchChange) {
         this.rotationTime = rotationTime;
         this.yaws = yaws;
         this.pitches = pitches;
         this.recoverTime = recoverTime;
+        this.maximumYawChange = maximumYawChange;
+        this.maximumPitchChange = maximumPitchChange;
     }
 
     public void start(Player player) {
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+        if (rotationTime == 0 && recoverTime == 0) {
+            // No need for task as rotation time and recover time are 0
+            float rotateYaw = yaws.get(NumberUtils.random(yaws.size()));
+            float rotatePitch = pitches.get(NumberUtils.random(pitches.size()));
+            shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), rotateYaw, rotatePitch, false);
+            return;
+        }
         RecoilTask recoilTask = playerWrapper.getRecoilTask();
         if (recoilTask == null) {
             // Normally shoot, recoil, recover
@@ -54,5 +69,13 @@ public class Recoil {
 
     public long getRecoverTime() {
         return recoverTime;
+    }
+
+    public float getMaximumYawChange() {
+        return maximumYawChange;
+    }
+
+    public float getMaximumPitchChange() {
+        return maximumPitchChange;
     }
 }

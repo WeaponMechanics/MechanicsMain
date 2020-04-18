@@ -88,9 +88,9 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
         if (ping > 215) {
             // Ping was more than 215 so lets take player's ping in account
             // when checking if it is still right clicking
-            return NumberUtils.hasMillisPassed(lastRightClick, ping + 15);
+            return !NumberUtils.hasMillisPassed(lastRightClick, ping + 15);
         }
-        return NumberUtils.hasMillisPassed(lastRightClick, 215);
+        return !NumberUtils.hasMillisPassed(lastRightClick, 215);
     }
 
     @Override
