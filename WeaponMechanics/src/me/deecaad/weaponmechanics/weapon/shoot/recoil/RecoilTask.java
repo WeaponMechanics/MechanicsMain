@@ -78,13 +78,18 @@ public class RecoilTask extends TimerTask {
 
             // Rotation finished, start recovering
 
-            // Wait for 150 millis before
+            // Wait for 55 millis before starting recovery
             waitRotations = (int) (55 / Recoil.MILLIS_BETWEEN_ROTATIONS) - 1;
 
             rotations = (int) (recoverTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
 
             Location location = playerWrapper.getPlayer().getLocation();
-            yawPerIteration = calculateYawDifference(location.getYaw()) / rotations;
+            float yaw = location.getYaw();
+
+            // If user input changed yaw more than 45 deg
+            // -> don't recover yaw
+            yawPerIteration = calculateYawUserInput(yaw) > 45 ? 0 : calculateYawDifference(yaw) / rotations;
+
             pitchPerIteration = calculatePitchDifference(location.getPitch()) / rotations * -1;
 
             // Last add that wait time for rotations
@@ -132,16 +137,13 @@ public class RecoilTask extends TimerTask {
         }
     }
 
-    private float calculateYawDifference(float currentYaw) {
+    private float calculateYawUserInput(float currentYaw) {
         float userInputYawCheck = Math.abs(currentYaw - shouldBeLastYaw);
         userInputYawCheck -= (userInputYawCheck > 180 ? 360 : 0);
+        return userInputYawCheck;
+    }
 
-        // If user input changed more than 45 deg
-        // -> don't recover yaw
-        if (userInputYawCheck > 45) {
-            return 0;
-        }
-
+    private float calculateYawDifference(float currentYaw) {
         // Recover normally as user input didn't change yaw too much
         float yawDifference = Math.abs(currentYaw - recoverToYaw);
         yawDifference -= (yawDifference > 180 ? 360 : 0);
