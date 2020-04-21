@@ -9,9 +9,11 @@ import java.util.Iterator;
 
 public class Circle implements Shape {
 
-    private Point[] points;
+    private final Point[] points;
     private Vector b;
     private Vector c;
+    private final double offset;
+    private final double amplitude;
 
     /**
      * Constructs a circle with the given number of points and
@@ -42,6 +44,9 @@ public class Circle implements Shape {
             double sin = amplitude * Math.sin(radian);
             this.points[i] = new Point(sin, cos);
         }
+
+        this.offset = startAngle;
+        this.amplitude = amplitude;
     }
 
     /**
@@ -52,7 +57,26 @@ public class Circle implements Shape {
     public int getPoints() {
         return points.length;
     }
-    
+
+    /**
+     * Returns the starting angle (or offset)
+     *
+     * @return The angle this circle started at
+     */
+    public double getOffset() {
+        return offset;
+    }
+
+    /**
+     * Gets the amplitude used to create this
+     * circle's points
+     *
+     * @return This circle's amplitude
+     */
+    public double getAmplitude() {
+        return amplitude;
+    }
+
     /**
      * Sets the axis to draw the circle on. Vectors
      * The circle is formed on the plane formed by
@@ -84,7 +108,7 @@ public class Circle implements Shape {
         double dot2 = b.dot(c);
         double dot3 = a.dot(c);
 
-        // This is a resource consuming debug message, not really needed
+        // TODO check the debugging level BEFORE doing these calculations
         DebugUtil.assertTrue(NumberUtils.equals(dot1, 0.0), "A is not perpendicular to B");
         DebugUtil.assertTrue(NumberUtils.equals(dot2, 0.0), "B is not perpendicular to C");
         DebugUtil.assertTrue(NumberUtils.equals(dot3, 0.0), "A is not perpendicular to C");

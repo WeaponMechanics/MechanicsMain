@@ -240,4 +240,10 @@ public class NumberUtils {
         bigDecimal = bigDecimal.stripTrailingZeros();
         return Double.parseDouble(bigDecimal.toPlainString());
     }
+
+    public static double strip(double a, int sigFigs) {
+        if (sigFigs < 0) throw new IllegalArgumentException("Significant figures must be positive");
+
+        return Math.round(a * sigFigs) / 1.0 / sigFigs;
+    }
 }

@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_15_R1.block.CraftBlock;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
@@ -46,7 +47,7 @@ public class DefaultExplosion implements Explosion {
                             double d2 = ((float) j / 15.0F * 2.0F - 1.0F);
                             double length = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
 
-                            // Normalize
+                            // (Kindof) normalize
                             d0 /= length;
                             d1 /= length;
                             d2 /= length;
@@ -58,10 +59,14 @@ public class DefaultExplosion implements Explosion {
 
                             float f = yield * (0.7F + NumberUtils.random().nextFloat() * 0.6F);
 
+                            while(f > 0.0f) {
+
+                                f -= 0.22500001F;
+                            }
+
                             for (float var21 = 0.3F; f > 0.0F; f -= 0.22500001F) {
                                 Block block = world.getBlockAt((int)x, (int)y, (int)z);
                                 Material type = block.getType();
-                                BlockData data = block.getBlockData();
 
                                 String name = type.name();
                                 boolean isFluid = name.equals("WATER")

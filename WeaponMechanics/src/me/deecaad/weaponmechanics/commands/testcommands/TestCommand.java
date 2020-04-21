@@ -15,6 +15,7 @@ public class TestCommand extends SubCommand {
         commands.register(new WorldGuardCommand());
         commands.register(new RecoilCommand());
         commands.register(new ShootCommand());
+        commands.register(new ShapeCommand());
     }
 
     @Override
