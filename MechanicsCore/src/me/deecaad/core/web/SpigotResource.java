@@ -1,186 +1,111 @@
 package me.deecaad.core.web;
 
 import org.bukkit.plugin.Plugin;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
+import javax.annotation.Nonnull;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 
 public class SpigotResource {
 
-    private String resourceName;
-    private String resourceCurrentVersion;
-    private String resourceID;
-    private String resourceLatestVersionURL;
-    private String resourceUpdatesURL;
-    private String latestUpdateVersion;
-    private String latestUpdateTitle;
-    private List<String> latestUpdateDescription;
+    private final Plugin plugin;
+    private URL latestURL;
 
-    public SpigotResource(Plugin plugin, String resourceID) {
-        this.resourceName = plugin.getDescription().getName();
-        this.resourceCurrentVersion = plugin.getDescription().getVersion();
-        this.resourceID = resourceID;
-        this.resourceLatestVersionURL = "http://api.spiget.org/v2/resources/" + resourceID + "/versions/latest";
-        this.resourceUpdatesURL = "http://api.spiget.org/v2/resources/" + resourceID + "/updates";
+    private String remoteVersion;
+
+    public SpigotResource(Plugin plugin, String resourceId) {
+        this.plugin = plugin;
+        try {
+            this.latestURL = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + resourceId);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
-     * Updates version, title and description based on resource ID.
-     * Remember to run this asynchronously.
-     * This also assumes that you want to fetch new version, title and description.
-     *
+     * Updates latest version based on resource ID.
      */
     public void update() {
-        update(true, true);
-    }
-
-    /**
-     * Updates version, title and description based on resource ID.
-     * Remember to run this asynchronously.
-     *
-     * @param fetchTitle true if title should be fetched
-     * @param fetchDescription true if description should be fetched
-     */
-    public void update(boolean fetchTitle, boolean fetchDescription) {
-        updateVersion();
-        updateDescription(fetchTitle, fetchDescription);
-    }
-
-    /**
-     * Updates version based on resource ID.
-     * Remember to run this asynchronously.
-     */
-    public void updateVersion() {
         try {
-            URL url = new URL(this.resourceLatestVersionURL);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.addRequestProperty("User-Agent", this.resourceName);
-            InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(inputStreamReader);
-            this.latestUpdateVersion = (String) jsonObject.get("name");
+            HttpURLConnection connection = (HttpURLConnection) this.latestURL.openConnection();
+            connection.setRequestMethod("GET");
+            connection.addRequestProperty("User-Agent", plugin.getDescription().getName());
+            remoteVersion = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
         } catch (IOException e) {
-            this.latestUpdateVersion = "Unknown";
             if (e.toString().contains("Server returned HTTP response code: 400")) {
                 return;
             }
             e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-            this.latestUpdateVersion = "Unknown";
         }
     }
 
     /**
-     * Updates title and description based on resource ID.
-     * Remember to run this asynchronously.
-     *
-     * @param fetchTitle true if title should be fetched
-     * @param fetchDescription true if description should be fetched
+     * @return the local version
      */
-    public void updateDescription(boolean fetchTitle, boolean fetchDescription) {
-        if (this.latestUpdateVersion.equals("Unknown") || (!fetchTitle && !fetchDescription)) {
-            return;
-        }
-        try {
-            URL url = new URL(this.resourceUpdatesURL);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.addRequestProperty("User-Agent", this.resourceName);
-            InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-            JSONArray jsonArray = (JSONArray) new JSONParser().parse(inputStreamReader);
-            JSONObject jsonObject = (JSONObject) jsonArray.get(jsonArray.size() - 1);
-            if (fetchTitle) {
-                this.latestUpdateTitle = jsonObject.get("title").toString();
-            }
-            if (fetchDescription) {
-                byte[] decodedDescriptionByte = Base64.getDecoder().decode(jsonObject.get("description").toString());
-                String decodedDescription = new String(decodedDescriptionByte, StandardCharsets.UTF_8);
-                String[] splittedDecodedDescription = decodedDescription.split("\n");
-                List<String> descriptionList = new ArrayList<>();
-                for (String decodeHtml : splittedDecodedDescription) {
-                    String string = decodeHtml.replaceAll("(<.*?>)\\1*", " ");
-                    if (!string.contains("Code (Text):") && !string.trim().isEmpty()) {
-                        descriptionList.add(string);
-                    }
-                }
-                if (descriptionList.isEmpty()) {
-                    return;
-                }
-                this.latestUpdateDescription = descriptionList;
-            }
-
-        } catch (IOException e) {
-            this.latestUpdateTitle = "Unknown";
-            if (e.toString().contains("Server returned HTTP response code: 400")) {
-                return;
-            }
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-            this.latestUpdateTitle = "Unknown";
-        }
+    @Nonnull
+    public String getLocalVersion() {
+        return plugin.getDescription().getVersion();
     }
 
     /**
-     * @return the resource name
+     * @return the remote version
      */
-    public String getResourceName() {
-        return this.resourceName;
-    }
-
-    /**
-     * @return the current (local) version of resource
-     */
-    public String getResourceCurrentVersion() {
-        return this.resourceCurrentVersion;
-    }
-
-    /**
-     * @return the given resource id
-     */
-    public String getID() {
-        return this.resourceID;
-    }
-
-    /**
-     * Version has to be manually updated using update methods given in this class.
-     *
-     * @return the version of latest update
-     */
-    public String getLatestUpdateVersion() {
-        if (this.latestUpdateVersion == null) {
+    @Nonnull
+    public String getRemoveVersion() {
+        if (remoteVersion == null) {
             return "Unknown";
         }
-        return this.latestUpdateVersion;
+        return remoteVersion;
     }
 
     /**
-     * Title has to be manually updated using update methods given in this class.
-     *
-     * @return the title of latest update
+     * @return the plugin object used in this spigot resource
      */
-    public String getLatestUpdateTitle() {
-        if (this.latestUpdateTitle == null) {
-            return "Unknown";
-        }
-        return this.latestUpdateTitle;
+    public Plugin getPlugin() {
+        return plugin;
     }
 
     /**
-     * Description has to be manually updated using update methods given in this class.
-     *
-     * @return the description of latest update
+     * @return the amount of major versions server is currently behind
      */
-    public List<String> getLatestUpdateDescription() {
-        return this.latestUpdateDescription;
+    public int getMajorVersionsBehind() {
+        return getVersionsBehind(0);
+    }
+
+    /**
+     * @return the amount of minor versions server is currently behind
+     */
+    public int getMinorVersionsBehind() {
+        return getVersionsBehind(1);
+    }
+
+    /**
+     * @return the amount of patch versions server is currently behind
+     */
+    public int getPatchVersionsBehind() {
+        return getVersionsBehind(2);
+    }
+
+    /**
+     * Simple method to check how many versions server is behind based on index.
+     * 0 = major, 1 = minor, 2 = patch
+     */
+    private int getVersionsBehind(int index) {
+        if (remoteVersion == null) return 0;
+
+        // Splits first with whitespaces just in case if version is something like "1.33.753 BETA"
+        int local = Integer.parseInt(plugin.getDescription().getVersion().split(" ")[0].split("\\.")[index]);
+        int remote = Integer.parseInt(remoteVersion.split(" ")[0].split("\\.")[index]);
+
+        int behind = remote - local;
+
+        // IntelliJ suggested using Math.max(), does the trick though.
+        // This check because otherwise behind could be negative
+        // when we do tests locally before publishing new version.
+        return Math.max(0, behind);
     }
 }

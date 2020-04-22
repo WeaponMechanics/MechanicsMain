@@ -10,6 +10,7 @@ import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.*;
 import me.deecaad.weaponmechanics.packetlisteners.*;
@@ -42,9 +43,9 @@ public class WeaponMechanics extends JavaPlugin {
     private static Map<LivingEntity, IEntityWrapper> entityWrappers;
     private static Configuration configurations;
     private static Configuration basicConfiguration;
-    private MainCommand mainCommand;
-    private static UpdateChecker updateChecker;
+    private static MainCommand mainCommand;
     private static WeaponHandler weaponHandler;
+    private static UpdateChecker updateChecker;
 
     private static List<Serializer<?>> tempSerializers;
 
@@ -105,11 +106,13 @@ public class WeaponMechanics extends JavaPlugin {
             try {
                 Integer.parseInt("%%__RESOURCE__%%");
 
-                int requiredVersionsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind", 1);
-                updateChecker = new UpdateChecker(plugin, "%%__RESOURCE__%%", requiredVersionsBehind);
-                updateChecker.startCheckForUpdatesTask(this);
+                int majorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Major", 1);
+                int minorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Minor", 3);
+                int patchesBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Patch", 1);
+                SpigotResource spigotResource = new SpigotResource(this, "%%__RESOURCE__%%");
+                updateChecker = new UpdateChecker(spigotResource, majorsBehind, minorsBehind, patchesBehind);
             } catch (NumberFormatException e) {
-                // %%__RESOURCE__%% is converted to resource ID on download
+                // %%__RESOURCE__%% is converted to resource ID on download (only in premium resources)
                 // Here is just extra check that its been converted
                 // -> If its not converted its localhost test version most likely
             }
@@ -154,8 +157,8 @@ public class WeaponMechanics extends JavaPlugin {
             removeEntityWrapper(entity);
         }
         new CoreInitializer().onDisable();
-        updateChecker = null;
         weaponHandler = null;
+        updateChecker = null;
         entityWrappers = null;
         configurations = null;
         basicConfiguration = null;
@@ -201,8 +204,11 @@ public class WeaponMechanics extends JavaPlugin {
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
         DebugUtil.log(LogLevel.INFO, "Reloaded WeaponMechanics in " + seconds + "s");
     }
-    
-    public MainCommand getMainCommand() {
+
+    /**
+     * @return the main command instance of WeaponMechanics
+     */
+    public static MainCommand getMainCommand() {
         return mainCommand;
     }
 
@@ -303,6 +309,7 @@ public class WeaponMechanics extends JavaPlugin {
      *
      * @return the update checker or null if not used
      */
+    @Nullable
     public static UpdateChecker getUpdateChecker() {
         return updateChecker;
     }

@@ -1,34 +1,21 @@
-# This file should have it's own instance of Configuration to avoid
-# Issues involving duplicate keys
-
-# the debug level dictates what is printed to console
+# The debug level dictates what is printed to console
 #   0: No printing
-#   1: Errors/Info (Suggested)
-#   2: Warnings
+#   1: Errors/Info
+#   2: Warnings (Suggested)
 #   3: Debug
-Debug_Level: 1
-
-# This number represents the chance that a point on an
-# image can be picked. Larger numbers decrease the chance
-# of any single point to be picked. Smaller numbers increase
-# the chance of points at the top left of the image to be selected
-#
-# Higher numbers will be more "accurate", but will take more time to calculate
-# Lower numbers will be more "skewed", but it will take less time to calculate
-Spread_Image_Point_Checker_Chance: 1024
-
-# This number represents the maximum number of times the program will loop
-# to find points on the spread from image module.
-#
-# Lower numbers may lower the number of projectiles your weapons can shoot
-# Higher numbers will cost more resources
-Spread_Image_Max_Loops: 5
+Debug_Level: 2
 
 Update_Checker:
   # Whether or not to get update notifications
   Enable: true
   # Required amount of versions behind to receive update notifications
-  Required_Versions_Behind: 1
+  Required_Versions_Behind:
+    # Major = really big update, for example recode of plugin
+    Major: 1
+    # Minor = contains new feature(s)
+    Minor: 3
+    # Patch = bug fixes
+    Patch: 1
 
 # Here you can disable certain trigger checks you know you wont be using
 Disabled_Trigger_Checks:
@@ -51,7 +38,6 @@ Disabled_Trigger_Checks:
 Async_Tasks:
   Packet_Listening: false # Has to do with anything involving packet listeners
   Projectile_Updates: false # Has to do with ticking projectiles
-  Trails: false # Has to do with calculations for trails
 
 # The global damaging system
 #

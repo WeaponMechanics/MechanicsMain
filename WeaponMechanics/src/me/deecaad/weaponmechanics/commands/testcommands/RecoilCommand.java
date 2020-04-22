@@ -14,7 +14,7 @@ import java.util.List;
 public class RecoilCommand extends SubCommand {
 
     public RecoilCommand() {
-        super("wm test", "recoil", "Tries recoil with given values", "<rotation-time> <recover-time> <yaws> <pitches> <fire-rate> <shoot-time> <maximum-yaw-change> <maximum-pitch-change>");
+        super("wm test", "recoil", "Tries recoil with given values", "<rotation-time> <recover-time> <yaws> <pitches> <fire-rate> <shoot-time>");
     }
 
     @Override
@@ -40,10 +40,8 @@ public class RecoilCommand extends SubCommand {
         }
 
         int shootTime = Integer.parseInt(args[5]);
-        float maximumYawChange = Float.parseFloat(args[6]);
-        float maximumPitchChange = Float.parseFloat(args[7]);
 
-        Recoil recoil = new Recoil(rotationTime, yaws, pitches, recoverTime, maximumYawChange, maximumPitchChange);
+        Recoil recoil = new Recoil(rotationTime, yaws, pitches, recoverTime);
         IPlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
         new BukkitRunnable() {
             int ticks = 0;
