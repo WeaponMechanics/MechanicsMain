@@ -2,7 +2,9 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
 import org.bukkit.Material;
@@ -31,6 +33,7 @@ public class ExplosionCommand extends SubCommand {
         commands.register(new SphereExplosionCommand());
         commands.register(new CubeExplosionCommand());
         commands.register(new ParabolaExplosionCommand());
+        commands.register(new DefaultExplosionCommand());
     }
     
     @Override
@@ -122,6 +125,24 @@ public class ExplosionCommand extends SubCommand {
             player.sendMessage("§6Causing a §7parabola§6 shaped explosion with an angle of §7" + angle + "§6 and a depth of §7" + depth);
     
             ParabolicExplosion explosion = new ParabolicExplosion(depth, angle);
+            explode(explosion.getBlocks(player.getLocation()));
+        }
+    }
+
+    private class DefaultExplosionCommand extends SubCommand {
+
+        DefaultExplosionCommand() {
+            super("wm test explosion", "default", "Parabolic Explosion Test", "<3,5,10>");
+        }
+
+        @Override
+        public void execute(CommandSender sender, String[] args) {
+            Player player = (Player) sender;
+
+            double yield = args.length > 0 ? Double.parseDouble(args[0]) : 5;
+            player.sendMessage("§6Causing a §7Minecraft§6 shaped explosion with an yield of §7" + yield);
+
+            Explosion explosion = new DefaultExplosion(yield);
             explode(explosion.getBlocks(player.getLocation()));
         }
     }

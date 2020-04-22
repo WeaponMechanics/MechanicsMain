@@ -21,6 +21,8 @@ public class NumberUtils {
     // Used to display the amount of time passed
     private static final TreeMap<Integer, String> time;
 
+    private static ThreadLocalRandom random = ThreadLocalRandom.current();
+
     static {
         numerals = new TreeMap<>();
         numerals.put(1000, "M");
@@ -52,6 +54,10 @@ public class NumberUtils {
     private NumberUtils() {
     }
 
+    public static ThreadLocalRandom random() {
+        return random;
+    }
+
     /**
      * Threadsafe method to generate
      * a random integer [0, length).
@@ -62,7 +68,7 @@ public class NumberUtils {
      * @return The random number
      */
     public static int random(int length) {
-        return ThreadLocalRandom.current().nextInt(length);
+        return random.nextInt(length);
     }
     
     /**
@@ -75,7 +81,7 @@ public class NumberUtils {
      */
     public static int random(int min, int max) {
         if (min == max) return min;
-        return ThreadLocalRandom.current().nextInt(min, max + 1);
+        return random.nextInt(min, max + 1);
     }
     
     /**
@@ -86,9 +92,9 @@ public class NumberUtils {
      * @param max maximum size of the number
      * @return random double between min and max
      */
-    public static double  random(double min, double max) {
+    public static double random(double min, double max) {
         if (min == max) return min;
-        return ThreadLocalRandom.current().nextDouble(min, max);
+        return random.nextDouble(min, max);
     }
 
     /**

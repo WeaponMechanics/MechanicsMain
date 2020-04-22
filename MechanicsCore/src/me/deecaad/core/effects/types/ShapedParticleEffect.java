@@ -1,7 +1,6 @@
 package me.deecaad.core.effects.types;
 
 import me.deecaad.core.effects.ShapedEffect;
-import me.deecaad.core.effects.data.EffectData;
 import me.deecaad.core.effects.shapes.Shape;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
@@ -32,8 +31,13 @@ public class ShapedParticleEffect extends ParticleEffect implements ShapedEffect
     }
 
     @Override
-    public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable EffectData data) {
+    public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
         int counter = 0;
+
+        if (data instanceof Vector) {
+            shape.setAxis((Vector) data);
+        }
+
         for (Vector vector: shape) {
             Bukkit.getScheduler().runTaskLater(source, () -> {
                 super.spawnOnce(source, world, x + vector.getX(), y + vector.getY(), z + vector.getZ(), data);

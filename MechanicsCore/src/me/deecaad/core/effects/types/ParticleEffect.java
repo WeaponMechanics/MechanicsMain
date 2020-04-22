@@ -1,8 +1,6 @@
 package me.deecaad.core.effects.types;
 
 import me.deecaad.core.effects.AbstractEffect;
-import me.deecaad.core.effects.data.EffectData;
-import me.deecaad.weaponmechanics.particles.SpawnParticle;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -42,7 +40,7 @@ public class ParticleEffect extends AbstractEffect {
     }
 
     @Override
-    public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable EffectData data) {
+    public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
         world.spawnParticle(particle, x, y, z, amount, horizontal, vertical, horizontal, speed, particleData, true);
     }
 
