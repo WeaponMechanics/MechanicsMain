@@ -16,6 +16,7 @@ import me.deecaad.weaponmechanics.listeners.*;
 import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
@@ -92,6 +93,9 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Start custom projectile runnable
         new CustomProjectilesRunnable().init(this, basicConfiguration.getBool("Async_Tasks.Projectile_Updates"));
+
+        // Set millis between recoil rotations
+        Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 5);
 
         // Lets just use command map for all commands.
         // This allows registering new commands from configurations during runtime

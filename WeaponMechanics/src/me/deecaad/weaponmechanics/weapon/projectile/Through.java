@@ -62,9 +62,8 @@ public class Through implements Serializer<Through> {
 
     public ThroughData tryThroughData(File file, ConfigurationSection configurationSection, String path, boolean blocks) {
         List<?> list = configurationSection.getList(path + ".List");
-        if (list == null) {
-            return null;
-        }
+        if (list == null || list.isEmpty()) return null;
+
         Map<String, ExtraThroughData> map = new HashMap<>();
         for (Object data : list) {
             String[] split = StringUtils.split(data.toString());

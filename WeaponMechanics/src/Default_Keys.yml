@@ -98,7 +98,7 @@ Weapon: # TODO Replace all "random" types with more basic types (Like <String>, 
         In_Midair: <amount> or <amount>%
         Gliding: <amount> or <amount>%
       Changing_Spread: # CHANGING SPREAD SERIALIZER
-        Reset_After_Millis: <reset time>
+        Reset_After: <ticks>
         Starting_Amount: <amount>
         Increase_Change_When:
           Always: <amount> or <amount>%

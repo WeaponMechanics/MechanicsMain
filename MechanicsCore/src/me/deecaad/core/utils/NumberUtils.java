@@ -21,7 +21,7 @@ public class NumberUtils {
     // Used to display the amount of time passed
     private static final TreeMap<Integer, String> time;
 
-    private static ThreadLocalRandom random = ThreadLocalRandom.current();
+    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     static {
         numerals = new TreeMap<>();
