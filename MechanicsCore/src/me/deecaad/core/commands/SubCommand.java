@@ -5,6 +5,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public abstract class SubCommand {
     protected static final String SUB_COMMANDS = "<subcommand>";
 
     protected SubCommands commands;
-    protected String prefix;
+    private String prefix;
     private String label;
     private String desc;
     private String[] usage;
@@ -33,6 +34,21 @@ public abstract class SubCommand {
         this.label = label;
         this.desc = desc;
         this.usage = StringUtils.splitAfterWord(usage);
+
+
+        if (getClass().isAnnotationPresent(CommandPermission.class)) {
+
+            // Create the bukkit permission from the command permission
+            CommandPermission perm = getClass().getAnnotation(CommandPermission.class);
+            String str = perm.permission();
+            Permission permission = new Permission(str);
+
+            // Setup the parent "*" stuff
+            permission.addParent(str.substring(0, str.lastIndexOf(".")) + ".*", true);
+
+            // Register the permission
+            Bukkit.getPluginManager().addPermission(permission);
+        }
     }
 
     public String getLabel() {

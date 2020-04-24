@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
@@ -11,6 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
+@CommandPermission(permission = "weaponmechanics.commands.test.recoil")
 public class RecoilCommand extends SubCommand {
 
     public RecoilCommand() {

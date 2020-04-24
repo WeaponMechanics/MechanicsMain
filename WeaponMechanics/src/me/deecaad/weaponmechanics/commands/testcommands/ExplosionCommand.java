@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -25,6 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @see TestCommand
  */
+@CommandPermission(permission = "weaponmechanics.commands.test.explosion")
 public class ExplosionCommand extends SubCommand {
     
     public ExplosionCommand() {
@@ -72,7 +74,8 @@ public class ExplosionCommand extends SubCommand {
             }.runTaskLater(WeaponMechanics.getPlugin(), (int) (200 + ThreadLocalRandom.current().nextDouble(20)));
         }
     }
-    
+
+    @CommandPermission(permission = "weaponmechanics.commands.test.explosion.sphere")
     private class SphereExplosionCommand extends SubCommand {
         
         SphereExplosionCommand() {
@@ -90,7 +93,8 @@ public class ExplosionCommand extends SubCommand {
             explode(explosion.getBlocks(player.getLocation()));
         }
     }
-    
+
+    @CommandPermission(permission = "weaponmechanics.commands.test.explosion.cube")
     private class CubeExplosionCommand extends SubCommand {
         
         CubeExplosionCommand() {
@@ -109,7 +113,8 @@ public class ExplosionCommand extends SubCommand {
             explode(explosion.getBlocks(player.getLocation()));
         }
     }
-    
+
+    @CommandPermission(permission = "weaponmechanics.commands.test.explosion.parabola")
     private class ParabolaExplosionCommand extends SubCommand {
         
         ParabolaExplosionCommand() {
@@ -129,6 +134,7 @@ public class ExplosionCommand extends SubCommand {
         }
     }
 
+    @CommandPermission(permission = "weaponmechanics.commands.test.explosion.default")
     private class DefaultExplosionCommand extends SubCommand {
 
         DefaultExplosionCommand() {

@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.effects.Effect;
 import me.deecaad.core.effects.shapes.Circle;
@@ -20,6 +21,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 
+@CommandPermission(permission = "weaponmechanics.commands.test.shape")
 public class ShapeCommand extends SubCommand {
 
     public ShapeCommand() {
@@ -57,6 +59,7 @@ public class ShapeCommand extends SubCommand {
         }
     }
 
+    @CommandPermission(permission = "weaponmechanics.commands.test.shape.sphere")
     private class SphereCommand extends SubCommand {
 
         public SphereCommand() {
@@ -72,6 +75,7 @@ public class ShapeCommand extends SubCommand {
         }
     }
 
+    @CommandPermission(permission = "weaponmechanics.commands.test.shape.dna")
     private class DnaCommand extends SubCommand {
 
         public DnaCommand() { // /wm test shape dna <length> <points> <amplitude> <rungs> <loops>

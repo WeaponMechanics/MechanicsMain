@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
@@ -19,6 +20,7 @@ import org.bukkit.util.BoundingBox;
 
 import java.util.Collection;
 
+@CommandPermission(permission = "weaponmechanics.commands.test.hitbox")
 public class HitboxCommand extends SubCommand {
 
     HitboxCommand() {

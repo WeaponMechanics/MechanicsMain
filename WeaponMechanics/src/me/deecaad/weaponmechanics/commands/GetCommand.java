@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.command.CommandSender;
@@ -7,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+@CommandPermission(permission = "weaponmechanics.commands.get")
 public class GetCommand extends SubCommand {
     
     public GetCommand() {
