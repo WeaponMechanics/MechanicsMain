@@ -3,10 +3,18 @@
 
 # the debug level dictates what is printed to console
 #   0: No printing
-#   1: Errors/Info (Suggested)
-#   2: Warnings
-#   3: Debug
+#   1: Errors/Info
+#   2: Warnings (Suggested)
+#   3: Debug (Only should use when developer asks you to)
 Debug_Level: 1
+
+# How should we store data from players? (Like weapon kill counts)
+#   YAML: Everything is stored in .yml files
+#   JSON: Everything is stored in .json files
+#   MySQL: Everything is stored in a sql database
+#   SQLite: Everything is stored in a lite sql database
+#   None: Nothing is stored (Minor performance boost on startup and on save, only use if you don't need data from players)
+File_Storage_Type: JSON
 
 # This number represents the chance that a point on an
 # image can be picked. Larger numbers decrease the chance
@@ -51,7 +59,7 @@ Disabled_Trigger_Checks:
 Async_Tasks:
   Packet_Listening: false # Has to do with anything involving packet listeners
   Projectile_Updates: false # Has to do with ticking projectiles
-  Trails: false # Has to do with calculations for trails
+  Effects: false # Has to do with calculations for trails
 
 # The global damaging system
 #
@@ -120,15 +128,6 @@ Damage:
 # Noise distance is the distance from the edge of the explosion to
 # to place blocks
 Explosions:
-  Damage:
-    Over_Distance:
-
-      # Whether or not to remove damage
-      Enabled: true
-
-      # The lowest amount of damage an explosion can do.
-      # 0.5 means half the explosion's normal damage
-      Min_Rate: 0.5
   Cuboid:
     Noise_Chance: 0.20
     Noise_Distance: 1.0

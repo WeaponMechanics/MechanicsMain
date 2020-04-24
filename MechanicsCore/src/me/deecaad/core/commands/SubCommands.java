@@ -2,6 +2,7 @@ package me.deecaad.core.commands;
 
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.command.CommandSender;
+import sun.misc.MessageUtils;
 
 import java.util.*;
 
@@ -111,8 +112,11 @@ public class SubCommands {
         SubCommand command = commands.get(key);
         if (command == null) {
             return false;
+        } else if (command.hasPermission(sender)) {
+            command.execute(sender, args);
+        } else {
+            sender.sendMessage(StringUtils.color("&cInvalid permissions."));
         }
-        command.execute(sender, args);
         return true;
     }
 

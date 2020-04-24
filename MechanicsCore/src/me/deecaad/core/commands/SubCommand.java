@@ -140,7 +140,32 @@ public abstract class SubCommand {
         return StringUtils.getList(tag);
     }
 
+    /**
+     * Determines whether or not the given
+     * <code>CommandSender</code> has the
+     * permission (Defined by the CommandPermission
+     * annotation) to use this <code>SubCommand</code>
+     *
+     * @param sender Who to test for permissions
+     * @return true if sender has permission
+     */
+    public boolean hasPermission(CommandSender sender) {
 
+        // Class has no permission, so the sender has permission
+        if (!getClass().isAnnotationPresent(CommandPermission.class)) {
+            return true;
+        }
+
+        CommandPermission permission = getClass().getAnnotation(CommandPermission.class);
+        return sender.hasPermission(permission.permission());
+    }
+
+    /**
+     * What should be done when this command is executed
+     *
+     * @param sender Who executed the command
+     * @param args The arguments input by the user
+     */
     public abstract void execute(CommandSender sender, String[] args);
 
     @Override
