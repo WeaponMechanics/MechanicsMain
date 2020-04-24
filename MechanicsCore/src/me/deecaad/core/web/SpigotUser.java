@@ -1,5 +1,7 @@
 package me.deecaad.core.web;
 
+import me.deecaad.core.utils.AsyncUtil;
+import me.deecaad.core.utils.IAsync;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -8,33 +10,40 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SpigotUser {
 
-    private String userID;
-    private String userURL;
+    private final Plugin plugin;
+    private URL userURL;
+
     private String username;
 
-    public SpigotUser(String userID) {
-        this.userID = userID;
-        this.userURL = "https://api.spiget.org/v2/authors/" + userID;
+    public SpigotUser(Plugin plugin, String userID) {
+        this.plugin = plugin;
+        try {
+            this.userURL = new URL("https://api.spiget.org/v2/authors/" + userID);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        AsyncUtil.runAsync(plugin, () -> {
+            update();
+            return null;
+        });
     }
 
     /**
      * Updates username based on user ID.
-     * Remember to run this asynchronously.
-     *
-     * @param plugin the plugin instance
      */
-    public void update(Plugin plugin) {
+    private void update() {
         try {
-            URL url = new URL(SpigotUser.this.userURL);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) this.userURL.openConnection();
+            connection.setRequestMethod("GET");
             connection.addRequestProperty("User-Agent", plugin.getDescription().getName());
             InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(inputStreamReader);
-            SpigotUser.this.username = (String) jsonObject.get("name");
+            this.username = (String) jsonObject.get("name");
         } catch (IOException e) {
             if (e.toString().contains("Server returned HTTP response code: 400")) {
                 return;
@@ -43,13 +52,6 @@ public class SpigotUser {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * @return the given user id
-     */
-    public String getID() {
-        return this.userID;
     }
 
     /**
@@ -62,14 +64,5 @@ public class SpigotUser {
             return "Unknown";
         }
         return this.username;
-    }
-
-    /**
-     * Username has to be manually updated using update(Plugin plugin) method in this class.
-     *
-     * @return the full user name based on id including used id
-     */
-    public String getFullUsername() {
-        return getUsername() + " (" + this.userID + ")";
     }
 }

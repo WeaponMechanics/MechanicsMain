@@ -1,5 +1,7 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.weaponmechanics.WeaponMechanics;
+
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -21,6 +23,9 @@ public class DebugUtil {
      * @param msg The messages
      */
     public static void log(LogLevel level, String...msg) {
+        if (!level.shouldPrint(WeaponMechanics.getBasicConfigurations().getInt("Debug_Level", 2))) {
+            return;
+        }
         Arrays.stream(msg).forEach(string -> logger.log(level.getParallel(), string));
     }
     
@@ -33,6 +38,9 @@ public class DebugUtil {
      * @param error Error
      */
     public static void log(LogLevel level, String msg, Throwable error) {
+        if (!level.shouldPrint(WeaponMechanics.getBasicConfigurations().getInt("Debug_Level", 2))) {
+            return;
+        }
         logger.log(level.getParallel(), msg, error);
     }
     

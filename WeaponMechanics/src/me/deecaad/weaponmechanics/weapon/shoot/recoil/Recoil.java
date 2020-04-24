@@ -19,16 +19,12 @@ public class Recoil {
     private final List<Float> yaws;
     private final List<Float> pitches;
     private final long recoverTime;
-    private final float maximumYawChange;
-    private final float maximumPitchChange;
 
-    public Recoil(long rotationTime, List<Float> yaws, List<Float> pitches, long recoverTime, float maximumYawChange, float maximumPitchChange) {
+    public Recoil(long rotationTime, List<Float> yaws, List<Float> pitches, long recoverTime) {
         this.rotationTime = rotationTime;
         this.yaws = yaws;
         this.pitches = pitches;
         this.recoverTime = recoverTime;
-        this.maximumYawChange = maximumYawChange;
-        this.maximumPitchChange = maximumPitchChange;
     }
 
     public void start(Player player) {
@@ -69,13 +65,5 @@ public class Recoil {
 
     public long getRecoverTime() {
         return recoverTime;
-    }
-
-    public float getMaximumYawChange() {
-        return maximumYawChange;
-    }
-
-    public float getMaximumPitchChange() {
-        return maximumPitchChange;
     }
 }

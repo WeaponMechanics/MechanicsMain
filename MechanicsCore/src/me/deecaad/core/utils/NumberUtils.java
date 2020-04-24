@@ -13,6 +13,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class NumberUtils {
 
+    public static final long HOUR_IN_TICKS = 72000;
+
     // Generally used for enchantments in lore
     private static final TreeMap<Integer, String> numerals;
 
