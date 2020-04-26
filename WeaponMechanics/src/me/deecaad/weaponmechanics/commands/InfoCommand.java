@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -8,6 +9,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.util.List;
 
+@CommandPermission(permission = "weaponmechanics.commands.info")
 public class InfoCommand extends SubCommand {
     
     public InfoCommand() {

@@ -16,12 +16,6 @@ public class ShapedParticleEffect extends ParticleEffect implements ShapedEffect
     private Shape shape;
     private int interval;
 
-    /**
-     * Empty constructor for serializers
-     */
-    public ShapedParticleEffect() {
-    }
-
     public ShapedParticleEffect(Particle particle, int amount, double horizontal, double vertical, double speed,
                                 @Nullable Object particleData, @Nonnull Shape shape, int interval) {
         super(particle, amount, horizontal, vertical, speed, particleData);

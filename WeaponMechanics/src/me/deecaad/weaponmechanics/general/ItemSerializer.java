@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Deserializer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
@@ -26,7 +25,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class ItemSerializer implements Serializer<ItemStack>, Deserializer<ItemStack> {
+public class ItemSerializer implements Serializer<ItemStack> {
 
     /**
      * Reflection support for versions before 1.11 when setting unbreakable tag
@@ -202,51 +201,6 @@ public class ItemSerializer implements Serializer<ItemStack>, Deserializer<ItemS
             }
         }
         return itemStack;
-    }
-    
-    @Override
-    public Map<String, Object> deserialize(String key, ItemStack item) {
-        Map<String, Object> temp = new HashMap<>();
-        
-        ItemMeta meta = item.getItemMeta();
-        String type = item.getType().name();
-        if (CompatibilityAPI.getVersion() < 1.13) {
-            type += ":" + item.getData().getData();
-        }
-        int durability;
-        if (CompatibilityAPI.getVersion() >= 1.132) {
-            durability = ((Damageable) meta).getDamage();
-        } else {
-            durability = item.getDurability();
-        }
-        String skullData = null;
-        if (meta instanceof SkullMeta) {
-            SkullMeta skull = (SkullMeta) meta;
-            if (CompatibilityAPI.getVersion() >= 1.12) {
-                skullData = skull.getOwningPlayer().getUniqueId().toString();
-            } else {
-                skullData = skull.getOwner();
-            }
-        }
-        if (meta instanceof PotionMeta) {
-            PotionMeta potion = (PotionMeta) meta;
-            //potion.getColor()
-        }
-        List<String> enchants = new ArrayList<>();
-        item.getEnchantments().forEach((enchant, lvl) -> enchants.add(enchant.getKey().getKey() + "~" + lvl));
-        
-        temp.put(key + ".Item_Type", "WEAPON_ITEM or ATTACHMENT_ITEM");
-        temp.put(key + ".Type", type);
-        temp.put(key + ".Name", meta.getDisplayName());
-        temp.put(key + ".Lore", meta.getLore());
-        temp.put(key + ".Durability", durability);
-        temp.put(key + ".Custom_Model_Data", (CompatibilityAPI.getVersion() >= 1.14 && meta.hasCustomModelData()) ? meta.getCustomModelData() : 0);
-        temp.put(key + ".Hide_Flags", !meta.getItemFlags().isEmpty());
-        temp.put(key + ".Enchantments", enchants.toArray());
-        temp.put(key + ".Skull.Owning_Player", skullData);
-        //temp.put(key + ".Potion.Color")
-        //todo support rgb colors
-        return temp;
     }
 
     /**

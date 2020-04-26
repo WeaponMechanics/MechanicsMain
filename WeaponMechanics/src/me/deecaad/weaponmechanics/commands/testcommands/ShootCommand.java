@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.effects.Effect;
 import me.deecaad.core.effects.types.ShapedParticleEffect;
@@ -23,6 +24,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
+@CommandPermission(permission = "weaponmechanics.commands.test.shoot")
 public class ShootCommand extends SubCommand implements Listener {
 
     public ShootCommand() {

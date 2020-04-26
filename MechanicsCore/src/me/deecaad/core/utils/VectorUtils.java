@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+
 import static org.bukkit.block.BlockFace.*;
 import static org.bukkit.block.BlockFace.NORTH_NORTH_WEST;
 
@@ -12,6 +14,7 @@ public class VectorUtils {
     // All horizontal block faces
     private static final BlockFace[] AXIS = new BlockFace[]{NORTH, NORTH_NORTH_EAST, NORTH_EAST, EAST_NORTH_EAST, EAST, EAST_SOUTH_EAST, SOUTH_EAST, SOUTH_SOUTH_EAST, SOUTH, SOUTH_SOUTH_WEST, SOUTH_WEST, WEST_SOUTH_WEST, WEST, WEST_NORTH_WEST, NORTH_WEST, NORTH_NORTH_WEST};
     public static final double PI_2 = Math.PI * 2;
+    public static final double GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
     /**
      * Don't let anyone instantiate this class
@@ -19,10 +22,28 @@ public class VectorUtils {
     private VectorUtils() {
     }
 
+    /**
+     * Gets a random <code>Vector</code> with
+     * a length of 1
+     *
+     * @return Randomized vector
+     */
     public static Vector random() {
-        return new Vector(Math.random(), Math.random(), Math.random());
+        double x = Math.random();
+        double y = Math.random();
+        double z = Math.random();
+        double length = x + y + z;
+
+        return new Vector(x / length, y / length, z / length);
     }
 
+    /**
+     * Set's the length of a given vector
+     *
+     * @param vector The vector to set the length of
+     * @param length The length to set
+     * @return The resulting vector
+     */
     public static Vector setLength(Vector vector, double length) {
         double m = length / vector.length();
         return vector.multiply(m);
@@ -52,10 +73,25 @@ public class VectorUtils {
         return (radians %= PI_2) >= 0 ? radians : radians + PI_2;
     }
 
+    /**
+     * Shorthand for getting the horizontal face from yaw
+     *
+     * @param loc The location to pull the yaw from
+     * @return The BlockFace associated with the given yaw
+     */
     public static BlockFace getHorizontalFace(Location loc) {
         return getHorizontalFace(loc.getYaw());
     }
 
+    /**
+     * Gets the <code>BlockFace</code> value of an angle. So
+     * if given yaw is facing <code>BlockFace.NORTH</code>, then
+     * this will give you that blockface.
+     *
+     * @param yaw The yaw to get the direction from
+     * @return The BlockFace associated with the given yaw
+     */
+    @Nonnull
     public static BlockFace getHorizontalFace(float yaw) {
         double angle = normalize(yaw);
 
@@ -63,21 +99,27 @@ public class VectorUtils {
         try {
             return AXIS[index];
         } catch (ArrayIndexOutOfBoundsException ex) {
-            DebugUtil.log(LogLevel.ERROR, "angle(" + angle + ") got index " + index + " (" + VectorUtils.class.getName() + ")");
-            throw new IllegalArgumentException("Index should be in bounds");
+
+            // This should never happen. Since the angle is normalized at
+            // the beginning of the function, this simply cannot happen.
+            // That being said, I make mistakes, so might as well keep this
+            DebugUtil.log(LogLevel.ERROR, "angle(" + angle + ") got index " + index, ex);
+            return null;
         }
     }
 
     /**
-     * Effectively gets a vector parallel to the given
-     * vector.
+     * Effectively gets a vector perpendicular to the
+     * given vector.
      *
      * Examples:
-     * (0, 10, 0) -> ()
-     * (10, 0, 0) -> ()
+     * (0, 10, 0) -> (0, -0, 10)
+     * (10, 0, 10) -> (0, -10, 0)
      *
-     * @param vector
-     * @return
+     * @throws IllegalArgumentException If the given vector's length is 0
+     *
+     * @param vector The vector to use to get a perpendicular
+     * @return The perpendicular method
      */
     public static Vector getPerpendicular(Vector vector) {
         double x = vector.getX();
@@ -94,26 +136,4 @@ public class VectorUtils {
             return new Vector(0, -z, y);
         }
     }
-
-    //public static Vector getPerpendicular(Vector vector) {
-    //    double x = vector.getX();
-    //    double y = vector.getY();
-    //    double z = vector.getZ();
-    //    double scale = Math.abs(x) + Math.abs(y) + Math.abs(z);
-    //
-    //    // There is nothing parallel to to a Vector with
-    //    // a length of 0
-    //    if (scale == 0.0) {
-    //        return new Vector(0, 0, 0);
-    //    }
-    //
-    //    x /= scale;
-    //    y /= scale;
-    //    z /= scale;
-    //
-    //    if (Math.abs(x) > Math.abs(y)) {
-    //        return new Vector(z, 0 )
-    //    }
-    //
-    //}
 }

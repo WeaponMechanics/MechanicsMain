@@ -1,6 +1,5 @@
 package me.deecaad.core.effects.shapes;
 
-import me.deecaad.core.effects.StringSerializable;
 import org.bukkit.util.Vector;
 
 /**

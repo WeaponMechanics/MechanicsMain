@@ -1,10 +1,12 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 
+@CommandPermission(permission = "weaponmechanics.commands.test")
 public class TestCommand extends SubCommand {
 
     public TestCommand() {
@@ -12,9 +14,9 @@ public class TestCommand extends SubCommand {
         
         commands.register(new HitboxCommand());
         commands.register(new ExplosionCommand());
-        commands.register(new WorldGuardCommand());
         commands.register(new RecoilCommand());
         commands.register(new ShootCommand());
+        commands.register(new ShapeCommand());
     }
 
     @Override

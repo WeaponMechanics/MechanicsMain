@@ -19,15 +19,9 @@ public class ParticleEffect extends AbstractEffect {
     protected double speed;
     protected Object particleData;
 
-    public ParticleEffect() {
-    }
-
-    public ParticleEffect(Particle particle, int amount, double horizontal, double vertical, double speed) {
+    public ParticleEffect(Particle particle) {
         this.particle = particle;
-        this.amount = amount;
-        this.horizontal = horizontal;
-        this.vertical = vertical;
-        this.speed = speed;
+        this.amount = 1;
     }
 
     public ParticleEffect(Particle particle, int amount, double horizontal, double vertical, double speed, @Nullable Object particleData) {

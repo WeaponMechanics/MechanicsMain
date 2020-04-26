@@ -6,9 +6,9 @@ import java.util.Iterator;
 
 public class Spiral implements Shape {
 
-    private Circle circle;
+    private final Circle circle;
     private Vector step;
-    private int totalPoints;
+    private final int totalPoints;
 
     public Spiral(int points, double amplitude, double offset, Vector around, int loops) {
         this(new Circle(points, amplitude, offset), around, loops);
@@ -19,6 +19,23 @@ public class Spiral implements Shape {
         this.totalPoints = loops * circle.getPoints();
 
         if (around != null) setAxis(around);
+    }
+
+    /**
+     * Gets the circle that made this spiral
+     *
+     * @return This spiral's circle
+     */
+    public Circle getCircle() {
+        return circle;
+    }
+
+    public Vector getStep() {
+        return step.clone();
+    }
+
+    public int getTotalPoints() {
+        return totalPoints;
     }
 
     @Override
