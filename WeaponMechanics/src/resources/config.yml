@@ -1,9 +1,17 @@
-# The debug level dictates what is printed to console
+# the debug level dictates what is printed to console
 #   0: No printing
 #   1: Errors/Info
 #   2: Warnings (Suggested)
-#   3: Debug
+#   3: Debug (Only should use when developer asks you to)
 Debug_Level: 2
+
+# How should we store data from players? (Like weapon kill counts)
+#   YAML: Everything is stored in .yml files
+#   JSON: Everything is stored in .json files
+#   MySQL: Everything is stored in a sql database
+#   SQLite: Everything is stored in a lite sql database
+#   None: Nothing is stored (Minor performance boost on startup and on save, only use if you don't need data from players)
+File_Storage_Type: JSON
 
 Update_Checker:
   # Whether or not to get update notifications
@@ -38,6 +46,16 @@ Disabled_Trigger_Checks:
 Async_Tasks:
   Packet_Listening: false # Has to do with anything involving packet listeners
   Projectile_Updates: false # Has to do with ticking projectiles
+
+# Here you can change how smooth the weapon recoil is.
+# Lower values mean more smooth recoil, but more packets sent for players.
+# By default Minecraft would only allow this to be 50, but in WeaponMechanics it can be lower.
+# It is recommended to use values which are divisible by 5. For example 5, 10, 50.
+#
+# Minecraft base ticking: 50
+# 5x as many as Minecraft base: 10
+# 10x as many as Minecraft base: 5
+Recoil_Millis_Between_Rotations: 5
 
 # The global damaging system
 #
@@ -106,15 +124,27 @@ Damage:
 # Noise distance is the distance from the edge of the explosion to
 # to place blocks
 Explosions:
+  Damage:
+    Over_Distance:
+
+      # Whether or not to remove damage
+      Enabled: true
+
+      # The lowest amount of damage an explosion can do.
+      # 0.5 means half the explosion's normal damage
+      Min_Rate: 0.5
   Cuboid:
     Noise_Chance: 0.20
     Noise_Distance: 1.0
+    No_Block_Damage_In_Liquid: true
   Parabolic:
     Noise_Chance: 0.25
     Noise_Distance: 1.25
+    No_Block_Damage_In_Liquid: true
   Spherical:
     Noise_Chance: 0.10
     Noise_Distance: 1.0
+    No_Block_Damage_In_Liquid: true
 
 # Here you can modify entity hitboxes if you feel like it or some entity is missing.
 # These aren't exactly meant to be changed, but if you feel like some entity's hitbox isn't quite right you can modify it yourself.

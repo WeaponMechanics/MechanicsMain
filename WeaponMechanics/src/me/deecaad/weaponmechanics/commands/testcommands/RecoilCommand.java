@@ -16,7 +16,7 @@ import java.util.List;
 public class RecoilCommand extends SubCommand {
 
     public RecoilCommand() {
-        super("wm test", "recoil", "Tries recoil with given values", "<rotation-time> <recover-time> <yaws> <pitches> <fire-rate> <shoot-time>");
+        super("wm test", "recoil", "Tries recoil with given values", "<push-time> <recover-time> <yaws> <pitches> <fire-rate> <shoot-time>");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class RecoilCommand extends SubCommand {
 
         int shootTime = Integer.parseInt(args[5]);
 
-        Recoil recoil = new Recoil(rotationTime, yaws, pitches, recoverTime);
+        Recoil recoil = new Recoil(rotationTime, recoverTime, yaws, pitches, null);
         IPlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
         new BukkitRunnable() {
             int ticks = 0;

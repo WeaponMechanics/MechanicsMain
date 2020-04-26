@@ -20,6 +20,11 @@ public class RecoilTask extends TimerTask {
      */
     private boolean isRotating;
 
+    /**
+     * Gets the index where recoil is currently in the recoil pattern
+     */
+    private int currentIndexAtRecoilPattern;
+
     private int counter;
     private Recoil tempRecoil;
     private int rotations;
@@ -47,7 +52,9 @@ public class RecoilTask extends TimerTask {
 
     @Override
     public void run() {
-        handleNewRecoil();
+
+        // If this returns true, that means task is terminated
+        if (handleNewRecoil()) return;
 
         if (isRotating) {
             Location location = playerWrapper.getPlayer().getLocation();
@@ -69,8 +76,8 @@ public class RecoilTask extends TimerTask {
 
             // Rotation finished, start recovering
 
-            // Wait for 55 millis before starting recovery
-            waitRotations = (int) (55 / Recoil.MILLIS_BETWEEN_ROTATIONS) - 1;
+            // Wait for 60 millis before starting recovery
+            waitRotations = (int) (60 / Recoil.MILLIS_BETWEEN_ROTATIONS) - 1;
 
             rotations = (int) (recoverTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
 
@@ -92,38 +99,94 @@ public class RecoilTask extends TimerTask {
     }
 
     /**
-     * Simply handles new recoil if set
+     * Simply handles new recoil if there is one
+     *
+     * @return true ONLY if task is terminated
      */
-    private void handleNewRecoil() {
-        if (tempRecoil != null) {
-            List<Float> yaws = tempRecoil.getYaws();
-            List<Float> pitches = tempRecoil.getPitches();
-            float rotateYaw = yaws.get(NumberUtils.random(yaws.size()));
-            float rotatePitch = pitches.get(NumberUtils.random(pitches.size()));
+    private boolean handleNewRecoil() {
+        if (tempRecoil == null) return false;
 
-            long rotationTime = tempRecoil.getRotationTime();
+        float rotateYaw = 0;
+        float rotatePitch = 0;
 
-            if (rotationTime == 0) {
-                // Meaning rotation should be instant
-                rotations = 1;
-                yawPerIteration = rotateYaw;
-                pitchPerIteration = rotatePitch;
-            } else {
-                rotations = (int) (tempRecoil.getRotationTime() / Recoil.MILLIS_BETWEEN_ROTATIONS);
-                yawPerIteration = rotateYaw / rotations;
-                pitchPerIteration = rotatePitch / rotations;
+        RecoilPattern pattern = tempRecoil.getRecoilPattern();
+        if (pattern != null) {
+            RecoilPattern.ExtraRecoilPatternData nextData = getNext(pattern);
+            if (nextData != null) {
+                rotateYaw = nextData.getHorizontalRecoil();
+                rotatePitch = nextData.getVerticalRecoil();
             }
-
-            recoverTime = tempRecoil.getRecoverTime();
-
-            // Calculate where last yaw spot should be
-            shouldBeLastYaw = shouldBeLastYaw == 0 ? playerWrapper.getPlayer().getLocation().getYaw() + rotateYaw : shouldBeLastYaw + rotateYaw;
-
-            tempRecoil = null;
-            counter = 0;
-            isRotating = true;
-            waitRotations = 0;
         }
+
+        List<Float> horizontal = tempRecoil.getRandomHorizontal();
+        if (rotateYaw == 0 && horizontal != null) {
+            rotateYaw = horizontal.get(NumberUtils.random(horizontal.size()));
+        }
+        List<Float> vertical = tempRecoil.getRandomVertical();
+        if (rotatePitch == 0 && vertical != null) {
+            rotatePitch = vertical.get(NumberUtils.random(vertical.size()));
+        }
+
+        if (rotateYaw == 0 && rotatePitch == 0) {
+            // Neither one wasn't used?
+            // Terminate this task...
+            playerWrapper.setRecoilTask(null);
+            cancel();
+            return true;
+        }
+
+        long pushTime = tempRecoil.getPushTime();
+
+        if (pushTime == 0) {
+            // Meaning rotation should be instant
+            rotations = 1;
+            yawPerIteration = rotateYaw;
+            pitchPerIteration = rotatePitch;
+        } else {
+            rotations = (int) (pushTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
+            yawPerIteration = rotateYaw / rotations;
+            pitchPerIteration = rotatePitch / rotations;
+        }
+
+        recoverTime = tempRecoil.getRecoverTime();
+
+        // Calculate where last yaw spot should be
+        shouldBeLastYaw = shouldBeLastYaw == 0 ? playerWrapper.getPlayer().getLocation().getYaw() + rotateYaw : shouldBeLastYaw + rotateYaw;
+
+        tempRecoil = null;
+        counter = 0;
+        isRotating = true;
+        waitRotations = 0;
+        return false;
+    }
+
+    private RecoilPattern.ExtraRecoilPatternData getNext(RecoilPattern pattern) {
+        List<RecoilPattern.ExtraRecoilPatternData> list = pattern.getRecoilPatternList();
+
+        if (currentIndexAtRecoilPattern >= list.size()) {
+            // Basically means that this recoil pattern has reached its end
+            // AND its not using repeat pattern
+            return null;
+        }
+
+        RecoilPattern.ExtraRecoilPatternData nextData = null;
+        while (nextData == null) {
+            nextData = list.get(currentIndexAtRecoilPattern);
+
+            if (nextData.shouldSkip()) nextData = null;
+
+            ++currentIndexAtRecoilPattern;
+
+            if (currentIndexAtRecoilPattern >= list.size()) {
+
+                // Non-repeating pattern -> break
+                if (!pattern.isRepeatPattern()) break;
+
+                // Repeating pattern, start again at 0
+                currentIndexAtRecoilPattern = 0;
+            }
+        }
+        return nextData;
     }
 
     private float calculateYawUserInput(float currentYaw) {
