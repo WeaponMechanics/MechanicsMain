@@ -60,17 +60,4 @@ public interface IPlayerWrapper extends IEntityWrapper {
      * @return whether or not sneak was double sneak
      */
     boolean didDoubleSneak();
-
-    /**
-     * @return the recoil task if its being used currently
-     */
-    @Nullable
-    RecoilTask getRecoilTask();
-
-    /**
-     * Sets new recoil task for player
-     *
-     * @param recoilTask the new recoil task
-     */
-    void setRecoilTask(RecoilTask recoilTask);
 }

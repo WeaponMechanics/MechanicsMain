@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.shoot.IShootCompatibility;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Location;
 
@@ -13,6 +14,7 @@ public class RecoilTask extends TimerTask {
 
     private static final IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
     private final IPlayerWrapper playerWrapper;
+    private final HandData handData;
 
     /**
      * True = rotating
@@ -36,8 +38,9 @@ public class RecoilTask extends TimerTask {
     private final float recoverToPitch;
     private float shouldBeLastYaw;
 
-    public RecoilTask(IPlayerWrapper playerWrapper, Recoil recoil) {
+    public RecoilTask(IPlayerWrapper playerWrapper, HandData handData, Recoil recoil) {
         this.playerWrapper = playerWrapper;
+        this.handData = handData;
 
         Location location = playerWrapper.getPlayer().getLocation();
         recoverToYaw = location.getYaw();
@@ -69,7 +72,7 @@ public class RecoilTask extends TimerTask {
                 // Recovery finished
                 // OR
                 // Recovery is not used
-                playerWrapper.setRecoilTask(null);
+                handData.setRecoilTask(null);
                 cancel();
                 return;
             }
@@ -130,7 +133,7 @@ public class RecoilTask extends TimerTask {
         if (rotateYaw == 0 && rotatePitch == 0) {
             // Neither one wasn't used?
             // Terminate this task...
-            playerWrapper.setRecoilTask(null);
+            handData.setRecoilTask(null);
             cancel();
             return true;
         }

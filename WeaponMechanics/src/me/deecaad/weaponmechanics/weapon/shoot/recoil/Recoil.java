@@ -6,6 +6,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -39,7 +40,7 @@ public class Recoil implements Serializer<Recoil> {
         this.recoilPattern = recoilPattern;
     }
 
-    public void start(Player player) {
+    public void start(Player player, boolean mainHand) {
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
         if (pushTime == 0 && recoverTime == 0) {
             // No need for task as rotation time and recover time are 0
@@ -48,11 +49,13 @@ public class Recoil implements Serializer<Recoil> {
             shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), rotateYaw, rotatePitch, false);
             return;
         }
-        RecoilTask recoilTask = playerWrapper.getRecoilTask();
+        HandData handData = mainHand ? playerWrapper.getMainHandData() : playerWrapper.getOffHandData();
+        RecoilTask recoilTask = handData.getRecoilTask();
+
         if (recoilTask == null) {
             // Normally shoot, recoil, recover
-            recoilTask = new RecoilTask(playerWrapper, this);
-            playerWrapper.setRecoilTask(recoilTask);
+            recoilTask = new RecoilTask(playerWrapper, handData, this);
+            handData.setRecoilTask(recoilTask);
             TIMER.scheduleAtFixedRate(recoilTask, 0, MILLIS_BETWEEN_ROTATIONS);
             return;
         }

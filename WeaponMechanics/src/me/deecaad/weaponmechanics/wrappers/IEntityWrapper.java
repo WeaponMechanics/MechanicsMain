@@ -84,12 +84,6 @@ public interface IEntityWrapper {
     ZoomData getZoomData();
 
     /**
-     * @return the spread change
-     */
-    @Nonnull
-    SpreadChange getSpreadChange();
-
-    /**
      * @return true if entity is sneaking
      */
     boolean isSneaking();
@@ -131,30 +125,18 @@ public interface IEntityWrapper {
     boolean isRightClicking();
 
     /**
-     * @param equipmentSlot the hand to set
-     * @param usingFullAuto whether or not using full auto
-     */
-    void setUsingFullAuto(EquipmentSlot equipmentSlot, boolean usingFullAuto);
-
-    /**
-     * Used to check whether or not entity is using full auto CURRENTLY
+     * This holds all data about main hand. Things like is using full auto, last shot time, etc.
      *
-     * @param equipmentSlot the hand to check
-     * @return true if entity is using full auto currently
+     * @return the main hand data
      */
-    boolean isUsingFullAuto(EquipmentSlot equipmentSlot);
+    @Nonnull
+    HandData getMainHandData();
 
     /**
-     * Sets delay for given hand at current time millis
+     * This holds all data about off hand. Things like is using full auto, last shot time, etc.
      *
-     * @param equipmentSlot the hand to set
+     * @return the off hand data
      */
-    void setDelayBetweenShots(EquipmentSlot equipmentSlot);
-
-    /**
-     * @param equipmentSlot the hand to check
-     * @param delayInMillis the delay required to be passed
-     * @return true if delay is over
-     */
-    boolean hasDelayBetweenShots(EquipmentSlot equipmentSlot, long delayInMillis);
+    @Nonnull
+    HandData getOffHandData();
 }
