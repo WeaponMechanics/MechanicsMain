@@ -12,6 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
 
+import javax.annotation.Nonnull;
+
 public class EntityWrapper implements IEntityWrapper {
 
     private static final int MOVETASKINTERVAL = 0;
@@ -23,15 +25,9 @@ public class EntityWrapper implements IEntityWrapper {
     private boolean walking;
     private boolean inMidair;
     private boolean swimming;
-
-    private boolean mainUsingFullAuto;
-    private boolean offUsingFullAuto;
-
-    private long mainDelayBetweenShots;
-    private long offDelayBetweenShots;
-
     private ZoomData zoomData;
-    private SpreadChange spreadChange;
+    private HandData mainHandData;
+    private HandData offHandData;
 
     public EntityWrapper(LivingEntity livingEntity) {
         this.entity = livingEntity;
@@ -142,11 +138,6 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     @Override
-    public SpreadChange getSpreadChange() {
-        return spreadChange == null ? spreadChange = new SpreadChange() : spreadChange;
-    }
-
-    @Override
     public boolean isSneaking() {
         // Always false for other entities than players
         // PlayerWrapper actually checks these
@@ -179,30 +170,12 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     @Override
-    public void setUsingFullAuto(EquipmentSlot equipmentSlot, boolean usingFullAuto) {
-        if (equipmentSlot == EquipmentSlot.HAND) {
-            mainUsingFullAuto = usingFullAuto;
-            return;
-        }
-        offUsingFullAuto = usingFullAuto;
+    public HandData getMainHandData() {
+        return mainHandData == null ? mainHandData = new HandData() : mainHandData;
     }
 
     @Override
-    public boolean isUsingFullAuto(EquipmentSlot equipmentSlot) {
-        return equipmentSlot == EquipmentSlot.HAND ? mainUsingFullAuto : offUsingFullAuto;
-    }
-
-    @Override
-    public void setDelayBetweenShots(EquipmentSlot equipmentSlot) {
-        if (equipmentSlot == EquipmentSlot.HAND) {
-            mainDelayBetweenShots = System.currentTimeMillis();
-            return;
-        }
-        offDelayBetweenShots = System.currentTimeMillis();
-    }
-
-    @Override
-    public boolean hasDelayBetweenShots(EquipmentSlot equipmentSlot, long delayInMillis) {
-        return equipmentSlot == EquipmentSlot.HAND ? NumberUtils.hasMillisPassed(mainDelayBetweenShots, delayInMillis) : NumberUtils.hasMillisPassed(offDelayBetweenShots, delayInMillis);
+    public HandData getOffHandData() {
+        return offHandData == null ? offHandData = new HandData() : offHandData;
     }
 }

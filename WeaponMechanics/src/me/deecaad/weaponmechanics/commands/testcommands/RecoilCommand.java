@@ -52,7 +52,7 @@ public class RecoilCommand extends SubCommand {
             public void run() {
 
                 if (playerWrapper.isRightClicking()) {
-                    recoil.start((Player) sender);
+                    recoil.start((Player) sender, true);
                 }
 
                 ticks += fireRate;

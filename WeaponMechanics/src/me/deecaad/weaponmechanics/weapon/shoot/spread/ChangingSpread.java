@@ -1,15 +1,16 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.SpreadChange;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 
 public class ChangingSpread implements Serializer<ChangingSpread> {
 
-    private long resetAfterMillis;
     private double startingAmount;
     private ModifySpreadWhen increaseChangeWhen;
     private Bounds bounds;
@@ -19,8 +20,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
      */
     public ChangingSpread() { }
 
-    public ChangingSpread(long resetAfterMillis, double startingAmount, ModifySpreadWhen increaseChangeWhen, Bounds bounds) {
-        this.resetAfterMillis = resetAfterMillis;
+    public ChangingSpread(double startingAmount, ModifySpreadWhen increaseChangeWhen, Bounds bounds) {
         this.startingAmount = startingAmount;
         this.increaseChangeWhen = increaseChangeWhen;
         this.bounds = bounds;
@@ -28,36 +28,34 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
 
     /**
      * Applies all changes based on this changing spread.
-     * After changes are applied, also entity wrapper's {@link IEntityWrapper#getSpreadChange()} is modified
+     * After changes are applied, also entity wrapper's {@link HandData#getSpreadChange()} is modified
      * based on circumstances. This basically means that changes are always made for NEXT shot, not current.
      *
      * @param entityWrapper the entity wrapper used to check circumstances
      * @param tempSpread the spread
+     * @param mainHand whether or not main hand was used
      * @param updateSpreadChange whether or not to allow updating current spread change
      * @return the modifier holder with updated horizontal and vertical values
      */
-    public double applyChanges(IEntityWrapper entityWrapper, double tempSpread, boolean updateSpreadChange) {
-        SpreadChange spreadChange = entityWrapper.getSpreadChange();
+    public double applyChanges(IEntityWrapper entityWrapper, double tempSpread, boolean mainHand, boolean updateSpreadChange) {
+        HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Reset if required
-        if (spreadChange.shouldReset(resetAfterMillis)) spreadChange.setSpreadChange(startingAmount);
+        if (handData.shouldReset()) handData.setSpreadChange(startingAmount);
 
         // Check bounds of spread change
         boolean didReset = false;
-        if (bounds != null) didReset = bounds.checkBounds(spreadChange, startingAmount);
+        if (bounds != null) didReset = bounds.checkBounds(handData, startingAmount);
 
         // Add the current spread before doing modifications to it
-        tempSpread += spreadChange.getCurrentSpreadChange();
+        tempSpread += handData.getSpreadChange();
 
         // Modify current changing spread only if its allowed
         // AND
         // If bounds didn't reset it
         if (updateSpreadChange && !didReset) {
-            spreadChange.setSpreadChange(increaseChangeWhen.applyChanges(entityWrapper, spreadChange.getCurrentSpreadChange()));
+            handData.setSpreadChange(increaseChangeWhen.applyChanges(entityWrapper, handData.getSpreadChange()));
         }
-
-        // Update spread change time
-        spreadChange.updateResetTime();
 
         return tempSpread;
     }
@@ -72,10 +70,9 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         ModifySpreadWhen increaseChangeWhen = new ModifySpreadWhen().serialize(file, configurationSection, path + ".Increase_Change_When");
         if (increaseChangeWhen == null) return null;
 
-        long resetAfterMillis = (long) (configurationSection.getDouble(path + ".Reset_After", 30) * 50);
         double startingAmount = configurationSection.getDouble(path + ".Starting_Amount") * 0.1;
         Bounds bounds = getBounds(configurationSection, path + ".Bounds");
-        return new ChangingSpread(resetAfterMillis, startingAmount, increaseChangeWhen, bounds);
+        return new ChangingSpread(startingAmount, increaseChangeWhen, bounds);
     }
 
     private Bounds getBounds(ConfigurationSection configurationSection, String path) {
@@ -118,21 +115,21 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
          *
          * @return whether or not the spread change was reset
          */
-        public boolean checkBounds(SpreadChange spreadChange, double startingAmount) {
-            double currentSpreadChange = spreadChange.getCurrentSpreadChange();
+        public boolean checkBounds(HandData handData, double startingAmount) {
+            double currentSpreadChange = handData.getSpreadChange();
             if (min != 0.0 && currentSpreadChange < min) {
                 if (resetAfterReachingBound) {
-                    spreadChange.setSpreadChange(startingAmount);
+                    handData.setSpreadChange(startingAmount);
                     return true;
                 }
-                spreadChange.setSpreadChange(min);
+                handData.setSpreadChange(min);
                 return false;
             } else if (max != 0.0 && currentSpreadChange > max) {
                 if (resetAfterReachingBound) {
-                    spreadChange.setSpreadChange(startingAmount);
+                    handData.setSpreadChange(startingAmount);
                     return true;
                 }
-                spreadChange.setSpreadChange(max);
+                handData.setSpreadChange(max);
                 return false;
             }
             return false;

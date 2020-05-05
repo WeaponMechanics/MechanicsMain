@@ -68,9 +68,12 @@ public class WeaponMechanics extends JavaPlugin {
         // Fill config.yml mappings
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml != null && configyml.exists()) {
-            basicConfiguration = new FileReader(null).fillOneFile(configyml);
+            List<IValidator> validators = new ArrayList<>();
+            validators.add(new HitBox());
 
-            new HitBox().validateHitBoxConfigurations(basicConfiguration);
+            FileReader basicConfigurationReader = new FileReader(null, validators);
+            OrderedConfig filledMap = basicConfigurationReader.fillOneFile(configyml);
+            basicConfiguration = basicConfigurationReader.usePathToSerializersAndValidators(filledMap);
         } else {
             // Just creates empty map to prevent other issues
             basicConfiguration = new OrderedConfig();
@@ -135,7 +138,7 @@ public class WeaponMechanics extends JavaPlugin {
             @Override
             public void run() {
                 // Fill configuration mappings (except config.yml)
-                configurations = new FileReader(tempSerializers).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
+                configurations = new FileReader(tempSerializers, null).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
                 tempSerializers = null;
 
                 // Register events
@@ -179,9 +182,7 @@ public class WeaponMechanics extends JavaPlugin {
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml != null && configyml.exists()) {
             basicConfiguration = null;
-            basicConfiguration = new FileReader(null).fillOneFile(configyml);
-
-            new HitBox().validateHitBoxConfigurations(basicConfiguration);
+            basicConfiguration = new FileReader(null, null).fillOneFile(configyml);
         } else {
             // Just creates empty map to prevent other issues
             basicConfiguration = new OrderedConfig();
@@ -202,7 +203,7 @@ public class WeaponMechanics extends JavaPlugin {
         // this Configuration. Clearing it, then adding the config back
         // into it solves that issue
         // todo: add on reload event to allow other plugins register their serializers on reload?
-        configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile())).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml"));
+        configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile()), null).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml"));
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);

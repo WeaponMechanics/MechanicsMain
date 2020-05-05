@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import org.bukkit.entity.Player;
 
 public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
@@ -12,7 +11,6 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     private boolean inventoryOpen;
     private long lastRightClick;
     private long lastStartSneak;
-    private RecoilTask recoilTask;
 
     public PlayerWrapper(Player player) {
         super(player);
@@ -65,16 +63,6 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
         lastStartSneak = 0;
 
         return !passedTooMuch;
-    }
-
-    @Override
-    public RecoilTask getRecoilTask() {
-        return recoilTask;
-    }
-
-    @Override
-    public void setRecoilTask(RecoilTask recoilTask) {
-        this.recoilTask = recoilTask;
     }
 
     @Override

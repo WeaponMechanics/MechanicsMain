@@ -36,10 +36,11 @@ public class Spread implements Serializer<Spread> {
      * Returns normalized spread direction
      *
      * @param entityWrapper the entity involved
+     * @param mainHand whether or not main hand was used
      * @param updateSpreadChange whether or not to allow updating current spread change
      * @return the normalized spread direction
      */
-    public Vector getNormalizedSpreadDirection(IEntityWrapper entityWrapper, boolean updateSpreadChange) {
+    public Vector getNormalizedSpreadDirection(IEntityWrapper entityWrapper, boolean mainHand, boolean updateSpreadChange) {
         Location location = entityWrapper.getEntity().getLocation();
         double yaw = location.getYaw(), pitch = location.getPitch();
         if (spreadImage != null) {
@@ -50,7 +51,7 @@ public class Spread implements Serializer<Spread> {
         double spread = baseSpread;
 
         if (modifySpreadWhen != null) spread = modifySpreadWhen.applyChanges(entityWrapper, spread);
-        if (changingSpread != null) spread = changingSpread.applyChanges(entityWrapper, spread, updateSpreadChange);
+        if (changingSpread != null) spread = changingSpread.applyChanges(entityWrapper, spread, mainHand, updateSpreadChange);
 
         return getNormalizedSpreadDirection(yaw, pitch, spread);
     }

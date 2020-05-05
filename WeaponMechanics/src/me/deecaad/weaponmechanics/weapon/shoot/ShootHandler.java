@@ -4,6 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
@@ -13,6 +14,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -26,6 +28,11 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 public class ShootHandler {
 
     private WeaponHandler weaponHandler;
+
+    /**
+     * Hardcoded reset millis time for things like recoil reset, spread reset, etc.
+     */
+    public static long RESET_MILLIS = 1000;
 
     /**
      * Hardcoded full auto values
@@ -71,15 +78,16 @@ public class ShootHandler {
      * @return true if was able to shoot
      */
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+        HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Don't even try if slot is already being used for full auto
-        if (entityWrapper.isUsingFullAuto(slot)) return false;
+        if (handData.isUsingFullAuto()) return false;
 
         Configuration config = getConfigurations();
 
         // Convert to millis
         int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots") * 50;
-        if (delayBetweenShots != 0 && entityWrapper.hasDelayBetweenShots(slot, delayBetweenShots)) return false;
+        if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
 
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
@@ -108,7 +116,8 @@ public class ShootHandler {
     private boolean singleShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
         // todo: check and do ammo things
 
-        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, slot == EquipmentSlot.HAND), true);
+        boolean mainHand = slot == EquipmentSlot.HAND;
+        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainHand), mainHand, true);
         return true;
     }
 
@@ -128,9 +137,9 @@ public class ShootHandler {
             public void run() {
                 if (i == 0) {
                     // Only make the first projectile of burst modify spread change if its used
-                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), true);
+                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);
                 } else {
-                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), false);
+                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, false);
                 }
 
                 // todo: check and do ammo things
@@ -153,17 +162,18 @@ public class ShootHandler {
         int baseAmountPerTick = fullyAutomaticShotsPerSecond / 20;
         int extra = fullyAutomaticShotsPerSecond % 20;
         boolean mainhand = slot == EquipmentSlot.HAND;
+        HandData handData = mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
-        entityWrapper.setUsingFullAuto(slot, true);
+        handData.setUsingFullAuto(true);
         new BukkitRunnable() {
             int tick = 0;
             public void run() {
 
-                if (!entityWrapper.isUsingFullAuto(slot)) {
+                if (!handData.isUsingFullAuto()) {
                     cancel();
                     return;
                 } else if (!keepFullAutoOn(entityWrapper, triggerType)) {
-                    entityWrapper.setUsingFullAuto(slot, false);
+                    handData.setUsingFullAuto(false);
                     cancel();
                     return;
                 }
@@ -178,10 +188,10 @@ public class ShootHandler {
                 // todo: check and do ammo things based on shootAmount (per tick)
 
                 if (shootAmount == 1) {
-                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), true);
+                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);
                 } else if (shootAmount > 1) { // Don't try to shoot in this tick if shoot amount is 0
                     for (int i = 0; i < shootAmount; ++i) {
-                        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), true);
+                        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);
                     }
                 }
 
@@ -223,7 +233,7 @@ public class ShootHandler {
      * Shoots using weapon.
      * Does not use ammo nor check for it.
      */
-    private void shoot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean updateSpreadChange) {
+    private void shoot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange) {
         Configuration config = getConfigurations();
         Projectile projectile = config.getObject(weaponTitle + ".Shoot.Projectile", Projectile.class);
         if (projectile == null) {
@@ -242,7 +252,7 @@ public class ShootHandler {
             // i == 0
             // -> Only allow spread changing on first shot
             Vector motion = spread != null
-                    ? spread.getNormalizedSpreadDirection(entityWrapper, i == 0 && updateSpreadChange).multiply(projectileSpeed)
+                    ? spread.getNormalizedSpreadDirection(entityWrapper, mainHand, i == 0 && updateSpreadChange).multiply(projectileSpeed)
                     : livingEntity.getLocation().getDirection().multiply(projectileSpeed);
 
             projectile.shoot(livingEntity, shootLocation, motion);

@@ -1,16 +1,20 @@
 package me.deecaad.compatibility.projectile;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-public class HitBox {
+import java.io.File;
+
+public class HitBox implements IValidator {
 
     /**
      * Simple final modifier for front hit adjusting.
@@ -299,40 +303,40 @@ public class HitBox {
                 '}';
     }
 
-    /**
-     * Validates that configuration has all hit boxes configured.
-     * If not defined, warn is printed in console
-     *
-     * @param basicConfiguration the config.yml configuration instance
-     */
-    public void validateHitBoxConfigurations(Configuration basicConfiguration) {
+    @Override
+    public String getKeyword() {
+        return "Entity_Hitboxes";
+    }
+
+    @Override
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
         for (EntityType entityType : EntityType.values()) {
             if (!entityType.isAlive()) continue;
 
-            double head = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.HEAD.name(), -1);
-            double body = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), -1);
-            double legs = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.LEGS.name(), -1);
-            double feet = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.FEET.name(), -1);
+            double head = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.HEAD.name(), -1);
+            double body = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), -1);
+            double legs = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.LEGS.name(), -1);
+            double feet = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.FEET.name(), -1);
 
             if (head == -1 || body == -1 || legs == -1 || feet == -1) {
                 DebugUtil.log(LogLevel.WARN, "Entity type " + entityType.name() + " is missing some of its damage point values, please add it",
                         "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
                         "Its missing one of these: HEAD, BODY, LEGS or FEET");
 
-                putDefaults(basicConfiguration, entityType);
+                putDefaults(configuration, entityType);
                 continue;
             }
 
-            boolean horizontalEntity = basicConfiguration.getBool("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
+            boolean horizontalEntity = configuration.getBool("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
             if (horizontalEntity && head != 0.0) {
                 DebugUtil.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box had horizontal entity true and HEAD was not 0.0",
                         "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
                         "When using horizontal entity true HEAD should be set to 0.0!");
 
                 // Set default value to BODY
-                basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), 1.0);
+                configuration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), 1.0);
 
-                putDefaults(basicConfiguration, entityType);
+                putDefaults(configuration, entityType);
                 continue;
             }
 
@@ -342,7 +346,7 @@ public class HitBox {
                         "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
                         "Now the total sum was " + sumOf + ", please make it 1.0.");
 
-                putDefaults(basicConfiguration, entityType);
+                putDefaults(configuration, entityType);
             }
         }
     }
