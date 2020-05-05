@@ -5,7 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
-import java.util.Set;
+import java.util.List;
 
 /**
  * This interface outlines an explosion. Classes that
@@ -30,7 +30,7 @@ public interface Explosion {
      * @return The effected blocks
      */
     @Nonnull
-    Set<Block> getBlocks(@Nonnull Location origin);
+    List<Block> getBlocks(@Nonnull Location origin);
     
     /**
      * This method should return a list of entities that
@@ -46,5 +46,5 @@ public interface Explosion {
      * @return The effected players
      */
     @Nonnull
-    Set<LivingEntity> getEntities(@Nonnull Location origin);
+    List<LivingEntity> getEntities(@Nonnull Location origin);
 }

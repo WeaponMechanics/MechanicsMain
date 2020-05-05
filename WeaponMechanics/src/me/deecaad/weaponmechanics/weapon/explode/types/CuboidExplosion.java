@@ -11,7 +11,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,8 +60,8 @@ public class CuboidExplosion implements Explosion {
      */
     @Nonnull
     @Override
-    public Set<Block> getBlocks(@Nonnull Location origin) {
-        Set<Block> temp = new HashSet<>();
+    public List<Block> getBlocks(@Nonnull Location origin) {
+        List<Block> temp = new ArrayList<>();
 
         double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.25);
         double noiseChance = config.getDouble("Explosions.Spherical.Noise_Chance", 0.25);
@@ -108,7 +110,7 @@ public class CuboidExplosion implements Explosion {
      */
     @Nonnull
     @Override
-    public Set<LivingEntity> getEntities(@Nonnull Location origin) {
+    public List<LivingEntity> getEntities(@Nonnull Location origin) {
         double xMin = origin.getX() - width,  xMax = origin.getX() + width;
         double yMin = origin.getY() - height, yMax = origin.getY() + height;
         double zMin = origin.getZ() - width,  zMax = origin.getZ() + width;
@@ -124,7 +126,7 @@ public class CuboidExplosion implements Explosion {
                             y >= yMin && y <= yMax &&
                             z >= zMin && z <= zMax;
                 })
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
                 
     }
 

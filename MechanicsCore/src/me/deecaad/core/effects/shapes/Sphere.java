@@ -38,11 +38,6 @@ public class Sphere implements Shape {
     }
 
     @Override
-    public boolean isGuessVector() {
-        return false;
-    }
-
-    @Override
     public Iterator<Vector> iterator() {
         return points.iterator();
     }

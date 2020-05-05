@@ -36,6 +36,8 @@ public class ItemEffect extends AbstractEffect {
 
     @Override
     public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
+
+        // todo Reflection/Compatibility api
         EntityItem drop = new EntityItem(((CraftWorld)world).getHandle(), x, y, z, CraftItemStack.asNMSCopy(toDrop));
 
         PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(drop);
@@ -54,15 +56,5 @@ public class ItemEffect extends AbstractEffect {
 
             Bukkit.getScheduler().runTaskLater(source, () -> connection.sendPacket(destroyPacket), ticksAlive);
         }
-    }
-
-    @Override
-    public AbstractEffect serialize(Map<String, Object> args) {
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> getDefaults() {
-        return null;
     }
 }

@@ -4,6 +4,7 @@ import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.effects.Effect;
 import me.deecaad.core.effects.shapes.Circle;
+import me.deecaad.core.effects.shapes.Lightning;
 import me.deecaad.core.effects.shapes.Shape;
 import me.deecaad.core.effects.shapes.Sphere;
 import me.deecaad.core.effects.shapes.Spiral;
@@ -29,6 +30,7 @@ public class ShapeCommand extends SubCommand {
 
         commands.register(new SphereCommand());
         commands.register(new DnaCommand());
+        commands.register(new LightningCommand());
     }
 
     @Override
@@ -62,7 +64,7 @@ public class ShapeCommand extends SubCommand {
     @CommandPermission(permission = "weaponmechanics.commands.test.shape.sphere")
     private class SphereCommand extends SubCommand {
 
-        public SphereCommand() {
+        SphereCommand() {
             super("wm test shape", "sphere", "Draw a sphere", INTEGERS + " " + INTEGERS);
         }
 
@@ -78,7 +80,7 @@ public class ShapeCommand extends SubCommand {
     @CommandPermission(permission = "weaponmechanics.commands.test.shape.dna")
     private class DnaCommand extends SubCommand {
 
-        public DnaCommand() { // /wm test shape dna <length> <points> <amplitude> <rungs> <loops>
+        DnaCommand() { // /wm test shape dna <length> <points> <amplitude> <rungs> <loops>
             super("wm test shape", "dna", "Draw a DNA double helix", "<length> <points> <radius> <rungs> <loops>");
         }
 
@@ -98,6 +100,30 @@ public class ShapeCommand extends SubCommand {
             Spiral spiral = new Spiral(circle, vector, loops);
             Effect effect = new DnaParticleEffect(spiral, rungs, Particle.FLAME);
             draw(player.getLocation(), effect);
+        }
+    }
+
+    @CommandPermission(permission = "weaponmechanics.commands.test.shape.lightning")
+    private class LightningCommand extends SubCommand {
+
+        LightningCommand() {
+            super("wm test shape", "lightning", "Draw a bolt of lightning", "<length> <mindepth> <maxdepth> <minpoints> <maxpoints> <branches>");
+        }
+
+        @Override
+        public void execute(CommandSender sender, String[] args) {
+
+            double length = args.length > 0 ? Double.parseDouble(args[0]) : 10;
+            int minDepth = args.length > 1 ? Integer.parseInt(args[1]) : 3;
+            int maxDepth = args.length > 2 ? Integer.parseInt(args[2]) : 5;
+            int minPoints = args.length > 3 ? Integer.parseInt(args[3]) : 10;
+            int maxPoints = args.length > 4 ? Integer.parseInt(args[4]) : 10;
+            int branches = args.length > 5 ? Integer.parseInt(args[5]) : 3;
+
+            Lightning shape = new Lightning();
+            shape.setAxis(VectorUtils.setLength(((Player) sender).getLocation().getDirection(), length));
+            Effect effect = new ShapedParticleEffect(Particle.FLAME, 1, 0, 0, 0, null, shape, 0);
+            draw(((Player) sender).getLocation(), effect);
         }
     }
 }

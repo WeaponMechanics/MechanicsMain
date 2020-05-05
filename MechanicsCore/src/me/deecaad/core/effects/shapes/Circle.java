@@ -115,11 +115,6 @@ public class Circle implements Shape {
     }
 
     @Override
-    public boolean isGuessVector() {
-        return false;
-    }
-
-    @Override
     public Iterator<Vector> iterator() {
         return new CircleIterator(points, b, c);
     }

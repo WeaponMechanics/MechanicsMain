@@ -1,16 +1,20 @@
 package me.deecaad.core.effects;
 
+import org.bukkit.util.Vector;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractEffect implements Effect, StringSerializable<Effect> {
+public abstract class AbstractEffect implements Effect {
 
     private int repeatAmount;
     private int repeatInterval;
     private int delay;
+    private Vector offset;
 
     public AbstractEffect() {
         repeatAmount = 1;
+        offset = new Vector();
     }
 
     @Override
@@ -44,19 +48,12 @@ public abstract class AbstractEffect implements Effect, StringSerializable<Effec
     }
 
     @Override
-    public AbstractEffect serialize(Map<String, Object> args) {
-        delay = (Integer) args.get("delay");
-        repeatAmount = (Integer) args.get("repeat");
-        repeatInterval = (Integer) args.get("repeatInterval");
-        return this;
+    public Vector getOffset() {
+        return offset;
     }
 
     @Override
-    public Map<String, Object> getDefaults() {
-        Map<String, Object> temp = new HashMap<>();
-        temp.put("delay", 0);
-        temp.put("repeat", 1);
-        temp.put("repeatInterval", 20);
-        return temp;
+    public void setOffset(Vector offset) {
+        this.offset = offset;
     }
 }

@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,7 +14,7 @@ import javax.annotation.Nullable;
  * effect. Visual effects should be displayed to
  * all users within the effect's viewable distance.
  */
-public interface Effect extends Repeatable, Delayable {
+public interface Effect extends Repeatable, Delayable, Offsetable {
 
     double VIEW_DISTANCE = 25.0;
 
@@ -75,7 +76,8 @@ public interface Effect extends Repeatable, Delayable {
         Bukkit.getScheduler().runTaskLater(source, () -> {
             for (int i = 0; i < getRepeatAmount(); i++) {
                 Bukkit.getScheduler().runTaskLater(source, () -> {
-                    spawnOnce(source, world, x, y, z, data);
+                    Vector offset = getOffset();
+                    spawnOnce(source, world, x + offset.getX(), y + offset.getY(), z + offset.getZ(), data);
                 }, i * getRepeatInterval());
             }
         }, getDelay());

@@ -46,11 +46,6 @@ public class Spiral implements Shape {
     }
 
     @Override
-    public boolean isGuessVector() {
-        return false;
-    }
-
-    @Override
     public Iterator<Vector> iterator() {
         return new SpiralIterator(circle, step, totalPoints);
     }

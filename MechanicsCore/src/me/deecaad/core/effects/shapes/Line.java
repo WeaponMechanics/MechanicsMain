@@ -1,19 +1,33 @@
 package me.deecaad.core.effects.shapes;
 
+import me.deecaad.core.effects.Offsetable;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 
-public class Line implements Shape {
+public class Line implements Shape, Offsetable {
 
     private Vector vector;
-    private int points; // Number of points to draw
+    private Vector offset;
+    private int points;
 
     public Line(int points) {
+        if (points < 2) throw new IllegalArgumentException("Must have at least 2 points on a line");
+
         this.points = points;
         this.vector = new Vector();
+        this.offset = new Vector();
     }
 
+    @Override
+    public Vector getOffset() {
+        return offset;
+    }
+
+    @Override
+    public void setOffset(Vector offset) {
+        this.offset = offset;
+    }
 
     @Override
     public void setAxis(Vector vector) {
@@ -21,13 +35,8 @@ public class Line implements Shape {
     }
 
     @Override
-    public boolean isGuessVector() {
-        return false;
-    }
-
-    @Override
     public Iterator<Vector> iterator() {
-        return new LineIterator(vector, points);
+        return new LineIterator(vector, offset, points);
     }
 
     public static Line between(Vector a, Vector b, int points) {
@@ -42,10 +51,12 @@ public class Line implements Shape {
 
         private int index;
         private Vector vector;
+        private Vector offset;
         private int points;
 
-        private LineIterator(Vector vector, int points) {
-            this.vector = vector.clone().multiply(1.0 / points);
+        private LineIterator(Vector vector, Vector offset, int points) {
+            this.vector = vector.clone().multiply(1.0 / (points - 1));
+            this.offset = offset;
             this.points = points;
         }
 
@@ -56,7 +67,7 @@ public class Line implements Shape {
 
         @Override
         public Vector next() {
-            return vector.clone().multiply(index++);
+            return vector.clone().multiply(index++).add(offset);
         }
     }
 }
