@@ -270,54 +270,6 @@ public class HitBox implements IValidator {
                 '}';
     }
 
-    /**
-     * Validates that configuration has all hit boxes configured.
-     * If not defined, warn is printed in console
-     *
-     * @param basicConfiguration the config.yml configuration instance
-     */
-    public void validateHitBoxConfigurations(Configuration basicConfiguration) {
-        for (EntityType entityType : EntityType.values()) {
-            if (!entityType.isAlive()) continue;
-
-            double head = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.HEAD.name(), -1);
-            double body = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), -1);
-            double legs = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.LEGS.name(), -1);
-            double feet = basicConfiguration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.FEET.name(), -1);
-
-            if (head == -1 || body == -1 || legs == -1 || feet == -1) {
-                DebugUtil.log(LogLevel.WARN, "Entity type " + entityType.name() + " is missing some of its damage point values, please add it",
-                        "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
-                        "Its missing one of these: HEAD, BODY, LEGS or FEET");
-
-                putDefaults(basicConfiguration, entityType);
-                continue;
-            }
-
-            boolean horizontalEntity = basicConfiguration.getBool("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
-            if (horizontalEntity && head != 0.0) {
-                DebugUtil.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box had horizontal entity true and HEAD was not 0.0",
-                        "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
-                        "When using horizontal entity true HEAD should be set to 0.0!");
-
-                // Set default value to BODY
-                basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), 1.0);
-
-                putDefaults(basicConfiguration, entityType);
-                continue;
-            }
-
-            double sumOf = head + body + legs + feet;
-            if (Math.abs(sumOf - 1.0) > 1e-5) { // If the numbers are not super close together (floating point issues)
-                DebugUtil.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box values sum doesn't match 1.0",
-                        "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
-                        "Now the total sum was " + sumOf + ", please make it 1.0.");
-
-                putDefaults(basicConfiguration, entityType);
-            }
-        }
-    }
-
     @Override
     public String getKeyword() {
         return "Entity_Hitboxes";

@@ -74,8 +74,6 @@ public class WeaponMechanics extends JavaPlugin {
             FileReader basicConfigurationReader = new FileReader(null, validators);
             OrderedConfig filledMap = basicConfigurationReader.fillOneFile(configyml);
             basicConfiguration = basicConfigurationReader.usePathToSerializersAndValidators(filledMap);
-
-            new HitBox().validateHitBoxConfigurations(basicConfiguration);
         } else {
             // Just creates empty map to prevent other issues
             basicConfiguration = new OrderedConfig();
@@ -185,8 +183,6 @@ public class WeaponMechanics extends JavaPlugin {
         if (configyml != null && configyml.exists()) {
             basicConfiguration = null;
             basicConfiguration = new FileReader(null, null).fillOneFile(configyml);
-
-            new HitBox().validateHitBoxConfigurations(basicConfiguration);
         } else {
             // Just creates empty map to prevent other issues
             basicConfiguration = new OrderedConfig();
