@@ -35,6 +35,39 @@ public class HitBox {
     }
 
     /**
+     * Gets the Height of this <code>HitBox</code>,
+     * or the change in y between the lower and upper
+     * point.
+     *
+     * @return The (positive) height of the box
+     */
+    public double getHeight() {
+        return max.getY() - min.getY();
+    }
+
+    /**
+     * Gets the Width of this <code>HitBox</code>,
+     * or the change in x between the lower and upper
+     * point.
+     *
+     * @return The (positive) width of the box
+     */
+    public double getWidth() {
+        return max.getX() - min.getX();
+    }
+
+    /**
+     * Gets the Depth of this <code>HitBox</code>,
+     * or the change in z between the lower and upper
+     * point.
+     *
+     * @return The (positive) depth of the box
+     */
+    public double getDepth() {
+        return max.getZ() - min.getZ();
+    }
+
+    /**
      * Updates this hit box minimum and maximum values to match new location
      *
      * @param center the center of hit box

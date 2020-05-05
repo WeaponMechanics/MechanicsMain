@@ -3,6 +3,7 @@ package me.deecaad.core.utils;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -70,7 +71,29 @@ public class NumberUtils {
     public static int random(int length) {
         return random.nextInt(length);
     }
-    
+
+    /**
+     * Get a random element in the given array
+     *
+     * @param arr The array to pull from
+     * @param <T> The type of the array
+     * @return Random element from the array
+     */
+    public static <T> T random(T[] arr) {
+        return arr[random(arr.length)];
+    }
+
+    /**
+     * Gets a random element from the given list
+     *
+     * @param list The list to pull from
+     * @param <T> The type of the array
+     * @return Random element from the list
+     */
+    public static <T> T random(List<T> list) {
+        return list.get(random(list.size()));
+    }
+
     /**
      * Threadsafe method to generate
      * a random integer [min, max]
@@ -181,6 +204,19 @@ public class NumberUtils {
         return Math.abs(a - b) < 1e-10;
     }
 
+
+    /**
+     * https://www.google.com/search?q=lerp+function&rlz=1C1CHBF_enUS861US861&oq=lerp+function&aqs=chrome.0.0l8.4489j0j7&sourceid=chrome&ie=UTF-8
+     *
+     * @param a double
+     * @param b double
+     * @param f double
+     * @return double
+     */
+    public static double lerp(double a, double b, double f) {
+        return a  + f * (b - a);
+    }
+
     /**
      * Recursive function that translates an
      * <code>int</code> number to a <code>String
@@ -241,11 +277,5 @@ public class NumberUtils {
         bigDecimal = bigDecimal.add(new BigDecimal(intValue));
         bigDecimal = bigDecimal.stripTrailingZeros();
         return Double.parseDouble(bigDecimal.toPlainString());
-    }
-
-    public static double strip(double a, int sigFigs) {
-        if (sigFigs < 0) throw new IllegalArgumentException("Significant figures must be positive");
-
-        return Math.round(a * sigFigs) / 1.0 / sigFigs;
     }
 }
