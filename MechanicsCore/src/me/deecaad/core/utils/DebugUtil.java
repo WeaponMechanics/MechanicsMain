@@ -5,6 +5,15 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+/**
+ * Do not use this class! Start changing all old debugging stuff to the
+ * new debugger class. Each plugin ideally should have access to a separate debugger
+ *
+ * This is a part of the process of making this core more usable for many plugins, not
+ * just WeaponMechanics
+ * @see Debugger
+ */
+@Deprecated
 public class DebugUtil {
     
     // public in case anybody wants to mess with the logger
@@ -23,9 +32,9 @@ public class DebugUtil {
      * @param msg The messages
      */
     public static void log(LogLevel level, String...msg) {
-        if (!level.shouldPrint(WeaponMechanics.getBasicConfigurations().getInt("Debug_Level", 2))) {
-            return;
-        }
+        //if (!10) {
+        //    return;
+        //}
         Arrays.stream(msg).forEach(string -> logger.log(level.getParallel(), string));
     }
     

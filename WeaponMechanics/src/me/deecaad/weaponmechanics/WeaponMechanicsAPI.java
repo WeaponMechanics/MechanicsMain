@@ -4,12 +4,6 @@ import me.deecaad.core.commands.MainCommand;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
-import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.Location;
-import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.Validate;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
 
@@ -127,7 +121,7 @@ public class WeaponMechanicsAPI {
             throw new IllegalStateException(BEFORE_INIT);
         }
 
-        return plugin.getMainCommand();
+        return WeaponMechanics.getMainCommand();
     }
 
     /**

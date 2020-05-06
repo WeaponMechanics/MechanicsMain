@@ -94,22 +94,22 @@ public class OrderedConfig extends LinkedHashMap<String, Object> implements Conf
     
     @Override
     public int getInt(@Nonnull String key) {
-        return (int) ((double) getOrDefault(key, 0));
+        return ((Number) getOrDefault(key, 0)).intValue();
     }
     
     @Override
     public int getInt(String key, int def) {
-        return (int) ((double) getOrDefault(key, 0));
+        return ((Number) getOrDefault(key, def)).intValue();
     }
     
     @Override
     public double getDouble(@Nonnull String key) {
-        return (double) getOrDefault(key, 0.0);
+        return ((Number) getOrDefault(key, 0.0)).intValue();
     }
     
     @Override
     public double getDouble(String key, double def) {
-        return (double) getOrDefault(key, def);
+        return ((Number) getOrDefault(key, def)).intValue();
     }
     
     @Override
