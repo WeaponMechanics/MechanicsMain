@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
@@ -16,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * This explosion defines a rectangular prism shaped
@@ -68,7 +69,7 @@ public class CuboidExplosion implements ExplosionShape {
 
         World world = origin.getWorld();
         if (world == null) {
-            DebugUtil.log(LogLevel.WARN, "Cuboid explosion's origin was null? Origin:", origin.toString());
+            debug.log(LogLevel.WARN, "Cuboid explosion's origin was null? Origin:", origin.toString());
             return temp;
         }
         int blockX = origin.getBlockX();
@@ -81,7 +82,7 @@ public class CuboidExplosion implements ExplosionShape {
 
                     // Noise checker
                     if (Math.random() < noiseChance && isNearEdge(x, y, z, noiseDistance)) {
-                        DebugUtil.log(LogLevel.DEBUG, "Skipping block(" + x + ", " + y + ", " + z + ") due to noise.");
+                        debug.log(LogLevel.DEBUG, "Skipping block(" + x + ", " + y + ", " + z + ") due to noise.");
                         continue; // outer noise checker
                     }
 

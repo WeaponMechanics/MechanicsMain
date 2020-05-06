@@ -4,7 +4,6 @@ import me.deecaad.core.effects.ShapedEffect;
 import me.deecaad.core.effects.shapes.Circle;
 import me.deecaad.core.effects.shapes.Line;
 import me.deecaad.core.effects.shapes.Spiral;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -17,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class DnaParticleEffect extends ParticleEffect implements ShapedEffect {
 
@@ -38,7 +39,7 @@ public class DnaParticleEffect extends ParticleEffect implements ShapedEffect {
         // Get how often to create a particle effect
         int rungSeparation = points / rungs;
         if (rungSeparation == 0) {
-            DebugUtil.log(LogLevel.ERROR, "Invalid spiral for DNA creation");
+            debug.log(LogLevel.ERROR, "Invalid spiral for DNA creation");
         }
 
         vectors = new ArrayList<>();
@@ -48,7 +49,7 @@ public class DnaParticleEffect extends ParticleEffect implements ShapedEffect {
         linePoints = new HashMap<>();
         for (int i = 0; i < a.getTotalPoints(); i++) {
             if (!aIterator.hasNext() || !bIterator.hasNext()) {
-                DebugUtil.log(LogLevel.ERROR, "Failed to create DNA effect");
+                debug.log(LogLevel.ERROR, "Failed to create DNA effect");
             }
 
             // Get the next points and add them to

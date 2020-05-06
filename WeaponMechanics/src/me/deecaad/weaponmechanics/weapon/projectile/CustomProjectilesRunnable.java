@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -9,6 +8,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * Class to handle all projectiles ticking
@@ -26,7 +27,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
     public void init(Plugin plugin, boolean async) {
 
         if (projectiles != null) {
-            DebugUtil.log(LogLevel.ERROR, plugin.getName() + " tried to initialize custom projectiles runnable.",
+            debug.log(LogLevel.ERROR, plugin.getName() + " tried to initialize custom projectiles runnable.",
                     "Can not initialize multiple times...");
             return;
         }
@@ -59,7 +60,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
 
             } catch (Exception e) {
                 projectilesIterator.remove();
-                DebugUtil.log(LogLevel.WARN, "Caught exception during ticking custom projectiles!", e);
+                debug.log(LogLevel.WARN, "Caught exception during ticking custom projectiles!", e);
             }
         }
     }

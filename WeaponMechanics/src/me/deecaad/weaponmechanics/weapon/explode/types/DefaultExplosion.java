@@ -2,12 +2,10 @@ package me.deecaad.weaponmechanics.weapon.explode.types;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.projectile.HitBox;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
-import net.minecraft.server.v1_15_R1.Explosion;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 /**
  * This explosion uses the minecraft explosion system,
  * instead of using a shape.
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
  */
 public class DefaultExplosion implements ExplosionShape {
 
-    private static final int GRID_SIZE = 16;
+    private static final int GRID_SIZE = 8; // 16 minecraft default
     private static final int BOUND = GRID_SIZE - 1;
     private static final double DECAY_RATE = 0.3;
     private static final double ABSORB_RATE = 0.3;
@@ -129,7 +128,7 @@ public class DefaultExplosion implements ExplosionShape {
         double z = origin.getZ();
 
         if (world == null) {
-            DebugUtil.log(LogLevel.ERROR, "Explosion in null world? Location: " + origin, "Please report error to devs");
+            debug.log(LogLevel.ERROR, "Explosion in null world? Location: " + origin, "Please report error to devs");
             return temp;
         }
 
@@ -153,7 +152,7 @@ public class DefaultExplosion implements ExplosionShape {
             double impactRate = entityLocation.distance(vector) / damageRadius;
 
             if (impactRate > 1.0D) {
-                DebugUtil.log(LogLevel.WARN, "Somehow an entity was damaged outside of the explosion's radius",
+                debug.log(LogLevel.WARN, "Somehow an entity was damaged outside of the explosion's radius",
                         "is the server lagging?");
                 continue;
             }

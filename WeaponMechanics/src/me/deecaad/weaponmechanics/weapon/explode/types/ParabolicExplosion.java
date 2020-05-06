@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -17,12 +16,11 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * Uses parabolas to calculate the area of explosions, where
@@ -86,7 +84,7 @@ public class ParabolicExplosion implements ExplosionShape {
 
                         // Checking chance first for resource usage
                         if (Math.random() < noiseChance && isNearEdge(x, y, z, noiseDistance)) {
-                            DebugUtil.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
+                            debug.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
                             continue; // outer noise checker
                         }
 

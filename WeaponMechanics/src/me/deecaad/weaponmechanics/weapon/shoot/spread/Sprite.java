@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.utils.ArrayUtils;
 
@@ -10,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * This class serves to get a 2 dimensional array of
@@ -41,7 +42,7 @@ public class Sprite {
                     .map(str -> str.substring(0, str.length() - ".png".length()))
                     .collect(Collectors.joining("\", \"")) + "\"";
             
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Failed to load image " + file.getName() + " at " + file.getPath(),
                     "You may have put in an incorrect image name",
                     "Valid names: " + files);

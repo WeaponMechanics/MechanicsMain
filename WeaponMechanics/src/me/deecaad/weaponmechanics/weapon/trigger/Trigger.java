@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.trigger;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
@@ -10,6 +9,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Trigger implements Serializer<Trigger> {
 
@@ -144,7 +145,7 @@ public class Trigger implements Serializer<Trigger> {
             try {
                 mainTrigger = TriggerType.valueOf(main);
             } catch (IllegalArgumentException e) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid trigger type in configurations!",
                         "Located at file " + file + " in " + path + ".Main_Hand" + " (" + main + ") in configurations");
                 return null;
@@ -156,7 +157,7 @@ public class Trigger implements Serializer<Trigger> {
             try {
                 offTrigger = TriggerType.valueOf(off);
             } catch (IllegalArgumentException e) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid trigger type in configurations!",
                         "Located at file " + file + " in " + path + ".Off_Hand" + " (" + off + ") in configurations");
                 return null;
@@ -169,7 +170,7 @@ public class Trigger implements Serializer<Trigger> {
 
                 if (!denyName.equals("Reloading") && !denyName.equals("Zooming") && !denyName.equals("Sneaking") && !denyName.equals("Standing")
                         && !denyName.equals("Walking") && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found and invalid deny when value in configurations!",
                             "Located at file " + file + " in " + path + ".Deny_When." + denyWhen + " (" + denyWhen + ") in configurations",
                             "Valid ones are: Reloading, Zooming, Sneaking, Standing, Walking, Swimming, In_Midair and Gliding");

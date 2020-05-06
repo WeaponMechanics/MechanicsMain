@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.particles;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.general.ColorType;
@@ -21,6 +20,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class SpawnParticle implements Serializer<SpawnParticle> {
 
@@ -99,6 +100,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
         return new SpawnParticle(particleDatas);
     }
 
+    @SuppressWarnings("unchecked")
     private ParticleData tryParticleData(File file, ConfigurationSection configurationSection, String path) {
         String stringParticle = configurationSection.getString(path + ".Particle");
         if (stringParticle == null) {
@@ -113,7 +115,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
                 particle = org.bukkit.Particle.valueOf(stringParticle);
             }
         } catch (IllegalArgumentException e) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid particle in configurations!",
                     "Located at file " + file + " in " + path + ".Particle (" + stringParticle + ") in configurations");
             return null;
@@ -123,7 +125,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
         if (stringColor != null) {
             stringColor = stringColor.toUpperCase();
             if (!isColorable(stringParticle)) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid configuration!",
                         "Located at file " + file + " in " + path + " in configurations",
                         "You can't use color with particle " + stringParticle);
@@ -131,7 +133,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
             } else {
                 color = ColorType.fromString(stringColor);
                 if (color == null) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid color in configurations!",
                             "Located at file " + file + " in " + path + ".Extra_Data.Color (" + stringColor + ") in configurations");
                     return null;
@@ -141,7 +143,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
         double particleSpeed = configurationSection.getDouble(path + ".Particle_Speed", -1);
         if (color != null && particleSpeed != -1) {
             if (CompatibilityAPI.getVersion() < 1.13 || (CompatibilityAPI.getVersion() >= 1.13 && !stringParticle.equals("REDSTONE"))) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid configuration!",
                         "Located at file " + file + " in " + path + " in configurations",
                         "You can only use particle speed and color at same time when using REDSTONE in 1.13 and above versions");
@@ -172,7 +174,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
             if (typeString != null) {
                 typeString = typeString.toUpperCase();
                 if (!hasType(stringParticle)) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid configuration!",
                             "Located at file " + file + " in " + path + " in configurations",
                             "You can't use type with particle " + stringParticle,
@@ -183,7 +185,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
                 try {
                     type = MaterialHelper.fromStringToItemStack(typeString);
                 } catch (IllegalArgumentException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid material in configurations!",
                             "Located at file " + file + " in " + path + ".Extra_Data.Type (" + typeString + ") in configurations");
                     return null;
@@ -206,7 +208,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
             }
         }
         if (extraData == null && (hasType(stringParticle) || (CompatibilityAPI.getVersion() >= 1.13 && stringParticle.equals("REDSTONE")))) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid configuration!",
                     "Located at file " + file + " in " + path + " in configurations",
                     "Particle " + stringParticle + " requires more data",

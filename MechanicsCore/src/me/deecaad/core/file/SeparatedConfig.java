@@ -1,6 +1,5 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Material;
@@ -16,6 +15,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * This class separates "common" reference
@@ -66,7 +67,7 @@ public class SeparatedConfig implements Configuration {
             // This assumes that the map was in order
             new LinkedHashSet<>(map.keySet()).forEach(key -> {
                 if (containsKey(key)) {
-                    DebugUtil.log(LogLevel.ERROR, "Duplicate key \"" + key + "\"");
+                    debug.log(LogLevel.ERROR, "Duplicate key \"" + key + "\"");
                     map.remove(key);
                 }
             });
@@ -85,7 +86,7 @@ public class SeparatedConfig implements Configuration {
             keys = keys.stream()
                     .filter(key -> {
                         if (containsKey(key)) {
-                            DebugUtil.log(LogLevel.ERROR, "Duplicate key \"" + key + "\" found in " + file.getName());
+                            debug.log(LogLevel.ERROR, "Duplicate key \"" + key + "\" found in " + file.getName());
                             return false;
                         } else return true;
                     })
@@ -258,7 +259,7 @@ public class SeparatedConfig implements Configuration {
         try {
             configuration.save(file);
         } catch (IOException ex) {
-            DebugUtil.log(LogLevel.ERROR, "Could not save file \"" + file.getName() + "\"", ex);
+            debug.log(LogLevel.ERROR, "Could not save file \"" + file.getName() + "\"", ex);
         }
     }
 }

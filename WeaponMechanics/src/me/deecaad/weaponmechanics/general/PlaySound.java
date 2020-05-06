@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
@@ -19,6 +18,8 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class PlaySound implements Serializer<PlaySound> {
 
@@ -163,7 +164,7 @@ public class PlaySound implements Serializer<PlaySound> {
             for (String oneSound : splitDots) {
                 String[] splitted = StringUtils.split(oneSound);
                 if (splitted.length < 4) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid sound format in configurations!",
                             "Located at file " + file + " in " + path + "." + listName + " (" + oneSound + ") in configurations",
                             "Correct format is <sound>-<volume>-<pitch>-<delay>");
@@ -177,7 +178,7 @@ public class PlaySound implements Serializer<PlaySound> {
                     pitch = Float.parseFloat(splitted[2]);
                     delay = Integer.parseInt(splitted[3]);
                 } catch (NumberFormatException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid sound format in configurations!",
                             "Located at file " + file + " in " + path + "." + listName + " (" + oneSound + ") in configurations",
                             "Correct format is <sound>-<volume>-<pitch>-<delay>");
@@ -188,7 +189,7 @@ public class PlaySound implements Serializer<PlaySound> {
                     try {
                         bukkitSound = SoundHelper.fromStringToSound(splitted[0].toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        DebugUtil.log(LogLevel.ERROR,
+                        debug.log(LogLevel.ERROR,
                                 "Found an invalid sound in configurations!",
                                 "Located at file " + file + " in " + path + "." + listName + " (" + splitted[0].toUpperCase() + ") in configurations");
                         continue;

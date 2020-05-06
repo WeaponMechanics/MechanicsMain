@@ -6,7 +6,7 @@ import me.deecaad.core.CoreInitializer;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
-import me.deecaad.core.utils.DebugUtil;
+import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -26,6 +26,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class WeaponMechanics extends JavaPlugin {
 
@@ -50,9 +52,11 @@ public class WeaponMechanics extends JavaPlugin {
 
     private static List<Serializer<?>> tempSerializers;
 
+    // public so people can import a static variable
+    public static Debugger debug;
+
     @Override
     public void onLoad() {
-        DebugUtil.logger = getLogger();
     }
 
     @Override
@@ -61,6 +65,11 @@ public class WeaponMechanics extends JavaPlugin {
 
         plugin = this;
         entityWrappers = new HashMap<>();
+
+        // Setup the debugger
+        Logger logger = getLogger();
+        int level = getConfig().getInt("Debug_Level", 2);
+        debug = new Debugger(logger, level);
 
         // Create files
         new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml", ".png");
@@ -77,7 +86,7 @@ public class WeaponMechanics extends JavaPlugin {
         } else {
             // Just creates empty map to prevent other issues
             basicConfiguration = new OrderedConfig();
-            DebugUtil.log(LogLevel.WARN,
+            debug.log(LogLevel.WARN,
                     "Could not locate config.yml?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
@@ -154,11 +163,14 @@ public class WeaponMechanics extends JavaPlugin {
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
-        DebugUtil.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
+        debug.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
     }
 
     @Override
     public void onDisable() {
+        getServer().getScheduler().cancelTasks(this);
+        HandlerList.unregisterAll(this);
+
         // Remove EntityWrappers just in case something odd happens
         for (LivingEntity entity : entityWrappers.keySet()) {
             removeEntityWrapper(entity);
@@ -175,6 +187,10 @@ public class WeaponMechanics extends JavaPlugin {
     public void onReload() {
         long millisCurrent = System.currentTimeMillis();
 
+        // Update debugger level
+        int level = getConfig().getInt("Debug_Level", 2);
+        debug.setLevel(level);
+
         // Create files
         new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml", ".png");
     
@@ -186,14 +202,14 @@ public class WeaponMechanics extends JavaPlugin {
         } else {
             // Just creates empty map to prevent other issues
             basicConfiguration = new OrderedConfig();
-            DebugUtil.log(LogLevel.WARN,
+            debug.log(LogLevel.WARN,
                     "Could not locate config.yml inside?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
 
 
         if (configurations == null) {
-            DebugUtil.log(LogLevel.ERROR, "Configurations cannot be null when reloading!");
+            debug.log(LogLevel.ERROR, "Configurations cannot be null when reloading!");
             return;
         }
         configurations.clear();
@@ -207,7 +223,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
-        DebugUtil.log(LogLevel.INFO, "Reloaded WeaponMechanics in " + seconds + "s");
+        debug.log(LogLevel.INFO, "Reloaded WeaponMechanics in " + seconds + "s");
     }
 
     /**

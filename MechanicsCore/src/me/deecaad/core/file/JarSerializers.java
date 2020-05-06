@@ -1,6 +1,5 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.plugin.Plugin;
 
@@ -11,6 +10,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class JarSerializers extends FileCopier {
 
@@ -34,7 +35,7 @@ public class JarSerializers extends FileCopier {
             try {
                 serializerClass = Class.forName("me.deecaad.core.file.Serializer");
             } catch (ClassNotFoundException e) {
-                DebugUtil.log(LogLevel.WARN,
+                debug.log(LogLevel.WARN,
                         "Could not find me.deecaad.core.file.Serializer class???",
                         e);
                 return null;
@@ -72,21 +73,21 @@ public class JarSerializers extends FileCopier {
                 try {
                     nameConstructor = nameClass.getConstructor();
                 } catch (NoSuchMethodException | SecurityException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an class implementing serializer class which didn't have empty constructor!",
                             "Please add empty constructor for class " + nameWithoutSuffix);
                     continue;
                 }
                 Serializer<?> nameSerializer = (Serializer<?>) nameConstructor.newInstance();
                 if (nameSerializer == null || nameSerializer.getKeyword() == null) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Could not create serializer instance for class " + nameWithoutSuffix + ".",
                             "Or it didn't have keyword defined?");
                     continue;
                 }
 
                 if (keywords.contains(nameSerializer.getKeyword())) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an duplicate keyword " + nameSerializer.getKeyword() + " from serializers.",
                             "Please change it from class " + nameWithoutSuffix + " or from the other one which had same keyword");
                     continue;

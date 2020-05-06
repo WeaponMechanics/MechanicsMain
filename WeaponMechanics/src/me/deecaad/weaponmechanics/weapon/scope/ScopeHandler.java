@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.scope;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.scope.IScopeCompatibility;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -20,6 +19,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ScopeHandler {
 
@@ -103,7 +104,7 @@ public class ScopeHandler {
 
                 return true;
             } else {
-                DebugUtil.log(LogLevel.WARN, "For some reason zoom in was called on entity when it shouldn't have.",
+                debug.log(LogLevel.WARN, "For some reason zoom in was called on entity when it shouldn't have.",
                         "Entity was already zooming so it should have stacked zoom, but not zoom stacking wasn't used at all?",
                         "Ignoring this call, but this shouldn't even happen...",
                         "Are you sure you have defined both Maximum_Stacks and Increase_Zoom_Per_Stack for weapon " + weaponTitle + "?");

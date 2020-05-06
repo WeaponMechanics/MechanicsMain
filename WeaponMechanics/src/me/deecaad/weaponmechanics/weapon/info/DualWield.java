@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.general.SendMessage;
@@ -16,6 +15,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class DualWield implements Serializer<DualWield> {
 
@@ -87,7 +88,7 @@ public class DualWield implements Serializer<DualWield> {
             // Saves weapons in lower case
             weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle.toString().toLowerCase()));
         } catch (ClassCastException e) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid value in configurations!",
                     "Located at file " + file + " in " + path + ".Weapons (" + weaponsList + ") in configurations",
                     "Tried to get get weapon title from " + weaponsList + ", but some of its values wasn't string?");

@@ -2,11 +2,9 @@ package me.deecaad.core.effects;
 
 import me.deecaad.core.effects.shapes.Shape;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
-import javax.annotation.RegEx;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class EffectSerializer implements Serializer<List<Effect>> {
 
@@ -70,7 +70,7 @@ public class EffectSerializer implements Serializer<List<Effect>> {
                 String[] keyAndArg = argument.split("[=:]");
                 String key = keyAndArg[0];
                 if (!defaults.containsKey(key)) {
-                    DebugUtil.log(LogLevel.ERROR, "Unknown variable \"" + key + "\"", error);
+                    debug.log(LogLevel.ERROR, "Unknown variable \"" + key + "\"", error);
                     continue;
                 }
                 String value = keyAndArg[1];
@@ -113,7 +113,7 @@ public class EffectSerializer implements Serializer<List<Effect>> {
                 String[] keyAndArg = argument.split("[=:]");
                 String key = keyAndArg[0];
                 if (!defaults.containsKey(key)) {
-                    DebugUtil.log(LogLevel.ERROR, "Unknown variable \"" + key + "\"");
+                    debug.log(LogLevel.ERROR, "Unknown variable \"" + key + "\"");
                     continue;
                 }
                 String arg = keyAndArg[1];

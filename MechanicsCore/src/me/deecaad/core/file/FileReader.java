@@ -1,6 +1,5 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -9,6 +8,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class FileReader {
 
@@ -48,7 +49,7 @@ public class FileReader {
      */
     public void addSerializer(Serializer<?> serializer) {
         if (this.serializers.containsKey(serializer.getKeyword().toLowerCase())) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Can't add serializer with keyword of " + serializer.getKeyword() + " because some other serializer already has same keyword.");
             return;
         }
@@ -77,7 +78,7 @@ public class FileReader {
      */
     public void addValidator(IValidator validator) {
         if (this.validators.containsKey(validator.getKeyword().toLowerCase())) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Can't add validator with keyword of " + validator.getKeyword() + " because some other validator already has same keyword.");
             return;
         }
@@ -166,7 +167,7 @@ public class FileReader {
                     try {
                         valid = serializer.serialize(file, configuration, key);
                     } catch (Exception e) {
-                        DebugUtil.log(LogLevel.WARN, "Caught exception from serializer " + serializer.getKeyword() + "!", e);
+                        debug.log(LogLevel.WARN, "Caught exception from serializer " + serializer.getKeyword() + "!", e);
                         continue;
                     }
                     if (valid != null) {

@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.shoot;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -24,6 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ShootHandler {
 
@@ -60,7 +60,7 @@ public class ShootHandler {
             {1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 17
             {1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 18
             {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 19
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1} // 20
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}  // 20
     };
 
     public ShootHandler(WeaponHandler weaponHandler) {
@@ -237,7 +237,7 @@ public class ShootHandler {
         Configuration config = getConfigurations();
         Projectile projectile = config.getObject(weaponTitle + ".Shoot.Projectile", Projectile.class);
         if (projectile == null) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Tried to shoot with weapon, but projectile configuration was missing or it was invalid?",
                     "Located at " + weaponTitle + ".Shoot.Projectile in configurations");
         }

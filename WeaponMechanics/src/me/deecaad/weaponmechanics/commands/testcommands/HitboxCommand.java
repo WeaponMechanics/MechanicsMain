@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.DamagePoint;
@@ -19,6 +18,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 
 import java.util.Collection;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 @CommandPermission(permission = "weaponmechanics.commands.test.hitbox")
 public class HitboxCommand extends SubCommand {
@@ -55,14 +56,14 @@ public class HitboxCommand extends SubCommand {
                     double feet = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.FEET.name(), -1);
 
                     if (head == -1 || body == -1 || legs == -1 || feet == -1) {
-                        DebugUtil.log(LogLevel.ERROR, "Entity type " + type.name() + " is missing some of its damage point values, please add it",
+                        debug.log(LogLevel.ERROR, "Entity type " + type.name() + " is missing some of its damage point values, please add it",
                                 "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
                                 "Its missing one of these: HEAD, BODY, LEGS or FEET");
                         continue;
                     }
                     double sumOf = head + body + legs + feet;
                     if (Math.abs(sumOf - 1.0) > 1e-5) { // If the numbers are not super close together (floating point issues)
-                        DebugUtil.log(LogLevel.ERROR, "Entity type " + type.name() + " hit box values sum doesn't match 1.0",
+                        debug.log(LogLevel.ERROR, "Entity type " + type.name() + " hit box values sum doesn't match 1.0",
                                 "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
                                 "Now the total sum was " + sumOf + ", please make it 1.0.");
                         continue;

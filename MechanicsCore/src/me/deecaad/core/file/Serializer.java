@@ -1,10 +1,11 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public interface Serializer<T> {
 
@@ -41,7 +42,7 @@ public interface Serializer<T> {
         Object obj = filledMap.get(pathTo);
         if (obj == null || !this.getClass().isInstance(obj.getClass())) {
             String[] splittedWhereToStore = pathWhereToStore.split("\\.");
-            DebugUtil.log(LogLevel.ERROR, "Tried to use path to, but didn't find correct object.",
+            debug.log(LogLevel.ERROR, "Tried to use path to, but didn't find correct object.",
                     "1) Make sure that you wrote path to correctly (" + pathTo + ")",
                     "2) Make sure that the object at path to actually exists.",
                     "3) Make sure that the object at path to doesn't also use path to as this may cause conflicts.",

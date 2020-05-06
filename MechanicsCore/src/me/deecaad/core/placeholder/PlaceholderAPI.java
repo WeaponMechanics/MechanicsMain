@@ -1,6 +1,5 @@
 package me.deecaad.core.placeholder;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -10,6 +9,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class PlaceholderAPI {
 
@@ -23,14 +24,14 @@ public class PlaceholderAPI {
      */
     public static void addPlaceholderHandler(PlaceholderHandler placeholderHandler) {
         if (placeholderHandlers.get(placeholderHandler.getPlaceholderName()) != null) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Tried to add placeholder handler with same name twice (" + placeholderHandler.getPlaceholderName() + ").",
                     "Ignoring this new placeholder...");
             return;
         }
         Matcher matcher = PLACEHOLDERS.matcher(placeholderHandler.getPlaceholderName());
         if (!matcher.find()) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Tried to add placeholder handler which format wasn't valid (" + placeholderHandler.getPlaceholderName() + ").",
                     "Correct format:",
                     "- has placeholder between % chars. (example %my-placeholder%)",
@@ -66,7 +67,7 @@ public class PlaceholderAPI {
                 try {
                     request = placeholderHandler.onRequest(player, itemStack, weaponTitle);
                 } catch (Exception e) {
-                    DebugUtil.log(LogLevel.WARN, "Placeholder using keyword %" + placeholderHandler.getPlaceholderName() + "% caused this exception!", e);
+                    debug.log(LogLevel.WARN, "Placeholder using keyword %" + placeholderHandler.getPlaceholderName() + "% caused this exception!", e);
                 }
                 if (request == null) {
                     continue;

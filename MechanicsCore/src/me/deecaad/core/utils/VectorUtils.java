@@ -9,6 +9,8 @@ import javax.annotation.Nonnull;
 import static org.bukkit.block.BlockFace.*;
 import static org.bukkit.block.BlockFace.NORTH_NORTH_WEST;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+
 public class VectorUtils {
 
     // All horizontal block faces
@@ -102,7 +104,7 @@ public class VectorUtils {
             // This should never happen. Since the angle is normalized at
             // the beginning of the function, this simply cannot happen.
             // That being said, I make mistakes, so might as well keep this
-            DebugUtil.log(LogLevel.ERROR, "angle(" + angle + ") got index " + index, ex);
+            debug.log(LogLevel.ERROR, "angle(" + angle + ") got index " + index, ex);
             return null;
         }
     }

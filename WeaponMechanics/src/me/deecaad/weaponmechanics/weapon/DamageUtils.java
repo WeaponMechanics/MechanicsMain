@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon;
 import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -23,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class DamageUtils {
     
@@ -118,7 +119,7 @@ public class DamageUtils {
             victim.setHealth(victim.getHealth() - damageAmount);
         }
     
-        DebugUtil.log(LogLevel.DEBUG, victim + " damaged by " + cause + " for " + damageAmount + " damage.");
+        debug.log(LogLevel.DEBUG, victim + " damaged by " + cause + " for " + damageAmount + " damage.");
         
         return damageAmount;
     }

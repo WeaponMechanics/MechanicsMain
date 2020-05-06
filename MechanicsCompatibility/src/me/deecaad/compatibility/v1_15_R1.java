@@ -7,7 +7,6 @@ import me.deecaad.compatibility.scope.IScopeCompatibility;
 import me.deecaad.compatibility.scope.Scope_1_15_R1;
 import me.deecaad.compatibility.shoot.IShootCompatibility;
 import me.deecaad.compatibility.shoot.Shoot_1_15_R1;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.Packet;
@@ -19,6 +18,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class v1_15_R1 implements ICompatibility {
 
@@ -56,7 +57,7 @@ public class v1_15_R1 implements ICompatibility {
 
     @Override
     public INBTCompatibility getNBTCompatibility() {
-        DebugUtil.log(LogLevel.WARN, "NBT compatibility interface should not be used in this server version.",
+        debug.log(LogLevel.WARN, "NBT compatibility interface should not be used in this server version.",
                 "Only version 1.13 R1 and versions before that should access this method.");
         return null;
     }

@@ -1,7 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ScopeLevel {
 
@@ -65,7 +66,7 @@ public class ScopeLevel {
      */
     public static float getScope(int level) {
         if (level < 1 || level > 32) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Tried to get scope level of " + level + ", but only levels between 1 and 32 are allowed.");
             return 0;
         }

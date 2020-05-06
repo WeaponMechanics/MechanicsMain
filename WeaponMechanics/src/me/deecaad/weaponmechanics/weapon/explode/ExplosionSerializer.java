@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
@@ -10,6 +9,8 @@ import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * This class serves to serialize different types
@@ -35,7 +36,7 @@ public class ExplosionSerializer implements Serializer<ExplosionShape> {
         try {
             type = ExplosionType.valueOf(typeName);
         } catch (IllegalArgumentException ex) {
-            DebugUtil.log(LogLevel.ERROR, "The explosion type \"" + typeName + "\" is invalid.",
+            debug.log(LogLevel.ERROR, "The explosion type \"" + typeName + "\" is invalid.",
                     "Look at the wiki for valid explosion types.",
                     "Found in file " + file + " at path " + path);
             return null;
@@ -52,13 +53,16 @@ public class ExplosionSerializer implements Serializer<ExplosionShape> {
         double height = section.getDouble("Explosion_Type_Data.Height", 3.0);
         double width  = section.getDouble("Explosion_Type_Data.Width",  3.0);
         double radius = section.getDouble("Explosion_Type_Data.Radius", 3.0);
+
+        // todo change depth to be positive... makes more sense that way
+        if (depth < 0) depth *= -1;
         
-        DebugUtil.assertTrue(yield > 0, "Explosion Yield should be a positive number!", found);
-        DebugUtil.assertTrue(angle > 0, "Explosion Angle should be a positive number!", found);
-        DebugUtil.assertTrue(depth < 0, "Explosion depth should be a negative number!", found);
-        DebugUtil.assertTrue(height > 0, "Explosion Height should be a positive number!", found);
-        DebugUtil.assertTrue(width > 0, "Explosion Width should be a positive number!", found);
-        DebugUtil.assertTrue(radius > 0, "Explosion Radius should be a positive number!", found);
+        debug.validate(yield > 0, "Explosion Yield should be a positive number!", found);
+        debug.validate(angle > 0, "Explosion Angle should be a positive number!", found);
+        debug.validate(depth < 0, "Explosion depth should be a negative number!", found);
+        debug.validate(height > 0, "Explosion Height should be a positive number!", found);
+        debug.validate(width > 0, "Explosion Width should be a positive number!", found);
+        debug.validate(radius > 0, "Explosion Radius should be a positive number!", found);
         
         // I could just compare Strings here instead of
         // making an enum for the different explosion
@@ -83,29 +87,28 @@ public class ExplosionSerializer implements Serializer<ExplosionShape> {
     
         /**
          * Represents a parabolic explosion
-         * @see me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion
+         * @see ParabolicExplosion
          */
         PARABOLA,
     
         /**
          * Represents a spherical explosion
-         * @see me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion
+         * @see SphericalExplosion
          */
         SPHERE,
     
         /**
          * Represents a cuboid explosion
-         * @see me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion
+         * @see CuboidExplosion
          */
         CUBE,
     
         /**
          * Represents a default minecraft generated explosion
+         * @see DefaultExplosion
          */
         DEFAULT
     }
-
-
 }
 
 

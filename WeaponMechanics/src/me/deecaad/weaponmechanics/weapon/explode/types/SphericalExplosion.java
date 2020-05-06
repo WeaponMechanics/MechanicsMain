@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
@@ -12,11 +11,10 @@ import org.bukkit.entity.LivingEntity;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class SphericalExplosion implements ExplosionShape {
 
@@ -55,7 +53,7 @@ public class SphericalExplosion implements ExplosionShape {
 
                         boolean isNearEdge = radius - distance < noiseDistance;
                         if (isNearEdge && Math.random() < noiseChance) {
-                            DebugUtil.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
+                            debug.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
                             continue; // outer noise checker
                         }
 

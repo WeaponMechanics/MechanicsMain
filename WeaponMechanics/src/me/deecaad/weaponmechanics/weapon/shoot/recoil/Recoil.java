@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.shoot.IShootCompatibility;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -13,7 +12,9 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.*;
+
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Recoil implements Serializer<Recoil> {
 
@@ -116,14 +117,14 @@ public class Recoil implements Serializer<Recoil> {
             try {
                 floatList.add(Float.parseFloat(value.toString()));
             } catch (NumberFormatException e) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid value in configurations!",
                         "Located at file " + file + " in " + path + " (" + value.toString() + ") in configurations",
                         "Tried to get get float from " + value.toString() + ", but it wasn't float?");
             }
         }
         if (floatList.isEmpty()) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "For some reason any value in list wasn't valid!",
                     "Located at file " + file + " in " + path + " in configurations");
             return null;

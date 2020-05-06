@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.general.ItemSerializer;
 import org.bukkit.Location;
@@ -16,6 +15,8 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Projectile implements Serializer<Projectile> {
 
@@ -124,14 +125,14 @@ public class Projectile implements Serializer<Projectile> {
             try {
                 projectileType = EntityType.valueOf(type.toUpperCase());
             } catch (IllegalArgumentException e) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid projectile type in configurations!",
                         "Located at file " + file + " in " + path + ".Settings.Type (" + type.toUpperCase() + ") in configurations");
                 return null;
             }
             projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");
             if ((projectileType == EntityType.DROPPED_ITEM || projectileType == EntityType.FALLING_BLOCK) && (projectileItem == null || projectileItem.getType() == Material.AIR)) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "When using " + projectileType + " you need to define valid projectile item or block.",
                         "Now there wasn't any valid item or block at path " + path + ".Projectile_Item_Or_Block",
                         "Located at file " + file + " in " + path + ".Projectile_Item_Or_Block in configurations");
@@ -144,7 +145,7 @@ public class Projectile implements Serializer<Projectile> {
 
         // Gives default values in case these are missing
         if (width < 0.0 || height < 0.0) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid height or width in configurations!",
                     "Located at file " + file + " in " + path + ".Settings (" + type.toUpperCase() + ") in configurations",
                     "Please make sure that they aren't 0 or less.");

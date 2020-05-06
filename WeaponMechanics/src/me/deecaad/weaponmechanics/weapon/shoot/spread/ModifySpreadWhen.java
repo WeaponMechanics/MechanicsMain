@@ -1,12 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
 
@@ -99,7 +100,7 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
         try {
             return new ModifierHolder(Double.parseDouble(value.split("%")[0]), value.endsWith("%"));
         } catch (NumberFormatException e) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid number in configurations!",
                     "Located at file " + file + " in " + path + " (" + value + ") in configurations",
                     "Make sure they're numbers e.g. 1.76, 5.21, 8, 23");

@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
@@ -19,6 +18,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class PacketListenerAPI implements Listener {
 
@@ -60,7 +61,7 @@ public class PacketListenerAPI implements Listener {
             packetHandlerHolder = packetHandlerHolders.get(pluginAdding.getDescription().getName());
         }
         if (packetHandlerHolder.getPacketHandler(packetHandler.getPacketName()) != null) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Plugin " + pluginAdding.getDescription().getName() + " tried to add packet handler with same name twice (" + packetHandler.getPacketName() + ").");
             return;
         }
@@ -150,7 +151,7 @@ public class PacketListenerAPI implements Listener {
             try {
                 packetHandler.onPacket(packet);
             } catch (Exception e) {
-                DebugUtil.log(LogLevel.WARN,
+                debug.log(LogLevel.WARN,
                         "Catched exception from plugin " + packetHandlerHolder.getKey() + "'s packet listener " + packetHandler.getPacketName() + ".",
                         e);
             }

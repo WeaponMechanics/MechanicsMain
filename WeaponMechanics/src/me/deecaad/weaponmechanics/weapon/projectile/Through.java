@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
@@ -15,6 +14,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Through implements Serializer<Through> {
 
@@ -73,7 +74,7 @@ public class Through implements Serializer<Through> {
                 try {
                     speedModifier = Double.parseDouble(split[1]);
                 } catch (NumberFormatException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid value in configurations!",
                             "Located at file " + file + " in " + path + ".List (" + data.toString() + ") in configurations",
                             "Tried to get get double from " + split[1] + ", but it wasn't double?");
@@ -86,7 +87,7 @@ public class Through implements Serializer<Through> {
                 try {
                     damageModifier = Double.parseDouble(split[2]);
                 } catch (NumberFormatException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid value in configurations!",
                             "Located at file " + file + " in " + path + ".List (" + data.toString() + ") in configurations",
                             "Tried to get get double from " + split[2] + ", but it wasn't double?");
@@ -106,7 +107,7 @@ public class Through implements Serializer<Through> {
                 try {
                     itemStack = MaterialHelper.fromStringToItemStack(split[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid material in configurations!",
                             "Located at file " + file + " in " + path + ".List (" + data.toString() + ") in configurations");
                     continue;
@@ -121,7 +122,7 @@ public class Through implements Serializer<Through> {
                 try {
                     entity = EntityType.valueOf(split[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid entity type in configurations!",
                             "Located at file " + file + " in " + path + ".List (" + data.toString() + ") in configurations");
                     continue;
@@ -130,7 +131,7 @@ public class Through implements Serializer<Through> {
             }
         }
         if (map.isEmpty()) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "For some reason any value in list wasn't valid!",
                     "Located at file " + file + " in " + path + ".List in configurations");
             return null;

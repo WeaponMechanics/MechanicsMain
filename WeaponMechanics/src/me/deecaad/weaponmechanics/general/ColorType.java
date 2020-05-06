@@ -1,9 +1,10 @@
 package me.deecaad.weaponmechanics.general;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Color;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public enum ColorType {
 
@@ -61,7 +62,7 @@ public enum ColorType {
      */
     public static Color fromRGBString(String[] splittedColor) {
         if (splittedColor.length < 3) {
-            DebugUtil.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it wasn't in correct format.",
+            debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it wasn't in correct format.",
                     "Correct format is red-green-blue");
             return null;
         }
@@ -71,7 +72,7 @@ public enum ColorType {
             int blue = Integer.parseInt(splittedColor[2]);
             return Color.fromRGB(red, green, blue);
         } catch (NumberFormatException e) {
-            DebugUtil.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it didn't contain integers.");
+            debug.log(LogLevel.ERROR, "Tried to get RGB color out of " + splittedColor + ", but it didn't contain integers.");
             return null;
         }
     }

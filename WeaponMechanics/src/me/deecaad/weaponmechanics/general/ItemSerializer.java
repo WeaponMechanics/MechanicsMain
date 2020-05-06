@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
@@ -16,7 +15,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -24,6 +22,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ItemSerializer implements Serializer<ItemStack> {
 
@@ -53,7 +53,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         try {
             itemStack = MaterialHelper.fromStringToItemStack(type);
         } catch (IllegalArgumentException e) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid material in configurations!",
                     "Located at file " + file + " in " + path + ".Type (" + type + ") in configurations");
             return null;
@@ -101,7 +101,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     enchant = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(splitted[0]));
                 }
                 if (enchant == null) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid enchantment in configurations!",
                             "Located at file " + file + " in " + path + ".Enchantments (" + splitted[0] + ") in configurations");
                     continue;
@@ -116,7 +116,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             for (Object attributeData : attributes) {
                 String[] splitted = StringUtils.split(attributeData.toString());
                 if (splitted.length < 2) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid configuration format!",
                             "Located at file " + file + " in " + path + ".Attributes (" + attributeData.toString() + ") in configurations",
                             "Correct format has at least Attribute and Value defined (Attribute-Value).");
@@ -126,7 +126,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 try {
                     attribute = AttributeType.valueOf(splitted[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid attribute type in configurations!",
                             "Located at file " + file + " in " + path + ".Attributes (" + splitted[0].toUpperCase() + ") in configurations");
                     continue;
@@ -135,7 +135,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 try {
                     amount = Double.parseDouble(splitted[1]);
                 } catch (NumberFormatException e) {
-                    DebugUtil.log(LogLevel.ERROR,
+                    debug.log(LogLevel.ERROR,
                             "Found an invalid attribute amount in configurations!",
                             "Located at file " + file + " in " + path + ".Attributes (" + splitted[1] + ") in configurations");
                     continue;
@@ -167,7 +167,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
                 itemStack.setItemMeta(skullMeta);
             } catch (ClassCastException e) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid cast in configurations!",
                         "Located at file " + file + " in " + path + ".Skull.Owning_Player in configurations",
                         "Tried to modify skull when the item wasn't skull (" + type + ")");
@@ -182,7 +182,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
                     Color color = ColorType.fromString(colorString);
                     if (color == null) {
-                        DebugUtil.log(LogLevel.ERROR,
+                        debug.log(LogLevel.ERROR,
                                 "Found an invalid color type in configurations!",
                                 "Located at file " + file + " in " + path + ".Potion.Color (" + colorString + ") in configurations");
                         return null;
@@ -193,7 +193,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     itemStack.setItemMeta(potionMeta);
                 }
             } catch (ClassCastException e) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid cast in configurations!",
                         "Located at file " + file + " in " + path + ".Potion.Color in configurations",
                         "Tried to modify potion when the item wasn't potion (" + type + ")");

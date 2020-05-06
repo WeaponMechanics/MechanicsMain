@@ -1,6 +1,5 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -18,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * This class is Map of Strings and Objects that
@@ -221,7 +222,7 @@ public class OrderedConfig extends LinkedHashMap<String, Object> implements Conf
         try {
             configuration.save(file);
         } catch (IOException ex) {
-            DebugUtil.log(LogLevel.ERROR, "Could not save file \"" + file.getName() + "\"", ex);
+            debug.log(LogLevel.ERROR, "Could not save file \"" + file.getName() + "\"", ex);
         }
     }
 }

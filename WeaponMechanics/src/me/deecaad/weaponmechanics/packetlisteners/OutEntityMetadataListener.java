@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.packetlisteners;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -15,6 +14,8 @@ import org.bukkit.entity.LivingEntity;
 
 import java.lang.reflect.Field;
 import java.util.List;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 // todo: move to WMP
 public class OutEntityMetadataListener extends PacketHandler {
@@ -51,7 +52,7 @@ public class OutEntityMetadataListener extends PacketHandler {
             ReflectionUtil.setField(packet.getField("b", 0), packet, metaData);
 
         } catch (Exception ex) {
-            DebugUtil.log(LogLevel.ERROR, "Error handling ThermalScope. Please report", ex);
+            debug.log(LogLevel.ERROR, "Error handling ThermalScope. If you see this, please report to dev", ex);
         }
     }
 }

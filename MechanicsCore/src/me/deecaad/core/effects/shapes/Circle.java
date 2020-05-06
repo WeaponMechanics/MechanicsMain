@@ -1,11 +1,13 @@
 package me.deecaad.core.effects.shapes;
 
-import me.deecaad.core.utils.DebugUtil;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Circle implements Shape {
 
@@ -93,25 +95,21 @@ public class Circle implements Shape {
     public void setAxis(Vector dir) {
         Vector a = dir.clone().normalize();
 
-        // This double checks to make sure we do not
-        // produce a vector of length 0, which causes
-        // issues with NaN during normalization.
-        //b = new Vector(0, 0, 0);
-        //while (NumberUtils.equals(b.length(), 0.0)) {
-        //    Vector vector = Vector.getRandom();
-        //    b = a.clone().crossProduct(vector);
-        //}
+        // Getting 2 perpendicular Vectors
         b = VectorUtils.getPerpendicular(a).normalize();
         c = a.clone().crossProduct(b).normalize();
 
-        double dot1 = a.dot(b);
-        double dot2 = b.dot(c);
-        double dot3 = a.dot(c);
+        // I do this check to avoid wasting resource to get the
+        // dot product of these vectors.
+        if (debug.canLog(LogLevel.DEBUG)) {
+            double dot1 = a.dot(b);
+            double dot2 = b.dot(c);
+            double dot3 = a.dot(c);
 
-        // TODO check the debugging level BEFORE doing these calculations
-        DebugUtil.assertTrue(NumberUtils.equals(dot1, 0.0), "A is not perpendicular to B");
-        DebugUtil.assertTrue(NumberUtils.equals(dot2, 0.0), "B is not perpendicular to C");
-        DebugUtil.assertTrue(NumberUtils.equals(dot3, 0.0), "A is not perpendicular to C");
+            debug.validate(NumberUtils.equals(dot1, 0.0), "A is not perpendicular to B");
+            debug.validate(NumberUtils.equals(dot2, 0.0), "B is not perpendicular to C");
+            debug.validate(NumberUtils.equals(dot3, 0.0), "A is not perpendicular to C");
+        }
     }
 
     @Override

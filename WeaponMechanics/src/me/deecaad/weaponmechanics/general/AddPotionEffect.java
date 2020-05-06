@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -12,6 +11,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class AddPotionEffect implements Serializer<AddPotionEffect> {
 
@@ -52,7 +53,7 @@ public class AddPotionEffect implements Serializer<AddPotionEffect> {
         for (String stringPotionEffect : stringPotionEffects) {
             String[] splittedPotionEffect = StringUtils.split(stringPotionEffect);
             if (splittedPotionEffect.length < 3) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid potion effect format in configurations!",
                         "Located at file " + file + " in " + path + ".Potion_Effects (" + stringPotionEffect + ") in configurations",
                         "Correct format is <PotionEffectType>-<duration in ticks>-<amplifier>");
@@ -60,7 +61,7 @@ public class AddPotionEffect implements Serializer<AddPotionEffect> {
             }
             PotionEffectType potionEffectType = PotionEffectType.getByName(splittedPotionEffect[0]);
             if (potionEffectType == null) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid potion effect type in configurations!",
                         "Located at file " + file + " in " + path + ".Potion_Effects (" + stringPotionEffect + ") in configurations");
                 continue;
@@ -75,7 +76,7 @@ public class AddPotionEffect implements Serializer<AddPotionEffect> {
                 // Now when defining potion effect amplifier 1 actually means potion effect level 1 (and not 2 level)
                 amplifier = Integer.parseInt(splittedPotionEffect[2]) - 1;
             } catch (NumberFormatException e) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid potion effect duration or amplifier in configurations!",
                         "Located at file " + file + " in " + path + ".Potion_Effects (" + stringPotionEffect + ") in configurations",
                         "Make sure they're integers e.g. 1, 5, 8, 23");

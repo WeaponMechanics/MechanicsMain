@@ -2,7 +2,6 @@ package me.deecaad.compatibility.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.shoot.IShootCompatibility;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
@@ -21,6 +20,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Projectile_Reflection implements IProjectileCompatibility {
 
@@ -404,7 +405,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         } else if (version == 1.132) {
             return net.minecraft.server.v1_13_R2.IRegistry.ENTITY_TYPE.a(((net.minecraft.server.v1_13_R2.Entity) nmsEntity).P());
         } else {
-            DebugUtil.log(LogLevel.ERROR, "Tried to get NMS entity id in version newer than 1.13 R2...?",
+            debug.log(LogLevel.ERROR, "Tried to get NMS entity id in version newer than 1.13 R2...?",
                     "It is not required for PacketPlayOutSpawnEntity since constructor changed in 1.14 R1.");
             return 1;
         }

@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.ArrayUtils;
@@ -13,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
  * This class serves to get random
@@ -128,7 +129,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
 
         // Avoid an error. Image name is a required field
         if (imageName == null) {
-            DebugUtil.log(LogLevel.ERROR, "Name is a required field! Make sure to specify a valid name.");
+            debug.log(LogLevel.ERROR, "Name is a required field! Make sure to specify a valid name.");
             return null;
         }
 
@@ -153,7 +154,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
         Sprite sprite = new Sprite(new File(sprites, imageName));
         SpreadImage image = new SpreadImage(sprite, FOVWidth, FOVHeight);
 
-        DebugUtil.assertTrue(!image.points.isEmpty(), "The spread image with the name \"" + imageName + "\" has no points!",
+        debug.validate(!image.points.isEmpty(), "The spread image with the name \"" + imageName + "\" has no points!",
                 "Found in file " + file + " at path " + path);
 
         // Helps avoid having multiple if statements, easier to look at this way
@@ -165,7 +166,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
             // Since (Most of the time) the player has
             // already been told about the failure, this
             // doesn't need to be specific
-            DebugUtil.log(LogLevel.ERROR, "Failed to serialize spread image!");
+            debug.log(LogLevel.ERROR, "Failed to serialize spread image!");
             return null;
         }
 

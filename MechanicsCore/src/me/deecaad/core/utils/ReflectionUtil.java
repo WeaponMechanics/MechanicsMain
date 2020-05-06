@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+
 public class ReflectionUtil {
 
     private static String versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
@@ -28,7 +30,7 @@ public class ReflectionUtil {
         try {
             return Class.forName("net.minecraft.server." + versionString + "." + className);
         } catch (ClassNotFoundException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue getting NMS class!", e);
+            debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
             return null;
         }
     }
@@ -43,7 +45,7 @@ public class ReflectionUtil {
         try {
             return Class.forName("org.bukkit.craftbukkit." + versionString + "." + className);
         } catch (ClassNotFoundException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue getting CB class!", e);
+            debug.log(LogLevel.ERROR, "Issue getting CB class!", e);
             return null;
         }
     }
@@ -55,13 +57,13 @@ public class ReflectionUtil {
      */
     public static Constructor<?> getConstructor(@Nonnull Class<?> classObject, Class<?>... parameters) {
         if (classObject == null) {
-            DebugUtil.log(LogLevel.WARN, "classObject is null in getConstructor()");
+            debug.log(LogLevel.WARN, "classObject is null in getConstructor()");
             return null;
         }
         try {
             return classObject.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue getting constructor!", e);
+            debug.log(LogLevel.ERROR, "Issue getting constructor!", e);
             return null;
         }
     }
@@ -75,13 +77,13 @@ public class ReflectionUtil {
      */
     public static Object newInstance(@Nonnull Constructor<?> constructor, Object... parameters) {
         if (constructor == null) {
-            DebugUtil.log(LogLevel.WARN, "constructor is null in newInstance()!");
+            debug.log(LogLevel.WARN, "constructor is null in newInstance()!");
             return null;
         }
         try {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue creating new instance!", e);
+            debug.log(LogLevel.ERROR, "Issue creating new instance!", e);
             return null;
         }
     }
@@ -93,7 +95,7 @@ public class ReflectionUtil {
      */
     public static Field getField(@Nonnull Class<?> classObject, @Nonnull String fieldName) {
         if (classObject == null || fieldName == null) {
-            DebugUtil.log(LogLevel.WARN, "classObject or fieldName is null in getField()");
+            debug.log(LogLevel.WARN, "classObject or fieldName is null in getField()");
             return null;
         }
         try {
@@ -103,7 +105,7 @@ public class ReflectionUtil {
             }
             return field;
         } catch (NoSuchFieldException | SecurityException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue getting field!", e);
+            debug.log(LogLevel.ERROR, "Issue getting field!", e);
             return null;
         }
     }
@@ -115,13 +117,13 @@ public class ReflectionUtil {
      */
     public static Object invokeField(@Nonnull Field field, @Nonnull Object instance) {
         if (field == null || instance == null) {
-            DebugUtil.log(LogLevel.WARN, "field or instance is null in invokeField()");
+            debug.log(LogLevel.WARN, "field or instance is null in invokeField()");
             return null;
         }
         try {
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue invoking field!", e);
+            debug.log(LogLevel.ERROR, "Issue invoking field!", e);
             return null;
         }
     }
@@ -133,12 +135,12 @@ public class ReflectionUtil {
      */
     public static void setField(@Nonnull Field field, Object instance, Object value) {
         if (field == null || instance == null) {
-            DebugUtil.log(LogLevel.WARN, "field or instance is null in setField()");
+            debug.log(LogLevel.WARN, "field or instance is null in setField()");
         }
         try {
             field.set(instance, value);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue setting field!", e);
+            debug.log(LogLevel.ERROR, "Issue setting field!", e);
         }
     }
 
@@ -150,7 +152,7 @@ public class ReflectionUtil {
      */
     public static Method getMethod(@Nonnull Class<?> classObject, @Nonnull String methodName, Class<?>... parameters) {
         if (classObject == null || methodName == null) {
-            DebugUtil.log(LogLevel.WARN, "classObject or methodName is null in getMethod()");
+            debug.log(LogLevel.WARN, "classObject or methodName is null in getMethod()");
             return null;
         }
         try {
@@ -160,7 +162,7 @@ public class ReflectionUtil {
             }
             return method;
         } catch (NoSuchMethodException | SecurityException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue getting method!", e);
+            debug.log(LogLevel.ERROR, "Issue getting method!", e);
             return null;
         }
     }
@@ -173,13 +175,13 @@ public class ReflectionUtil {
      */
     public static Object invokeMethod(@Nonnull Method method, Object instance, Object... parameters) {
         if (method == null) {
-            DebugUtil.log(LogLevel.WARN, "method is null in invokeField()");
+            debug.log(LogLevel.WARN, "method is null in invokeField()");
             return null;
         }
         try {
             return method.invoke(instance, parameters);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            DebugUtil.log(LogLevel.ERROR, "Issue invoking method!", e);
+            debug.log(LogLevel.ERROR, "Issue invoking method!", e);
             return null;
         }
     }

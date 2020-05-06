@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Color;
@@ -17,6 +16,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class SpawnFirework implements Serializer<SpawnFirework> {
 
@@ -97,7 +98,7 @@ public class SpawnFirework implements Serializer<SpawnFirework> {
         try {
             fireworkType = FireworkEffect.Type.valueOf(stringFireworkType);
         } catch (IllegalArgumentException e) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid firework type in configurations!",
                     "Located at file " + file + " in " + path + ".Type (" + stringFireworkType + ") in configurations");
             return null;
@@ -105,7 +106,7 @@ public class SpawnFirework implements Serializer<SpawnFirework> {
 
         List<Color> mainColors = convertColorList(file, configurationSection, path + ".Colors");
         if (mainColors == null) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid firework colors list in configurations!",
                     "Located at file " + file + " in " + path + ".Colors in configurations",
                     "It either didn't exist or it wasn't properly configured");
@@ -124,7 +125,7 @@ public class SpawnFirework implements Serializer<SpawnFirework> {
         LocationFinder locationFinder = new LocationFinder().serialize(file, configurationSection, path + ".Location_Finder");
         int flightPower = configurationSection.getInt(path + ".Flight_Power", 0);
         if (flightPower < 0 || flightPower > 5) {
-            DebugUtil.log(LogLevel.ERROR,
+            debug.log(LogLevel.ERROR,
                     "Found an invalid firework flight power in configurations!",
                     "Located at file " + file + " in " + path + ".Flight_Power (" + flightPower + ") in configurations",
                     "It has to be between 0 and 5!");
@@ -146,7 +147,7 @@ public class SpawnFirework implements Serializer<SpawnFirework> {
             stringColor = stringColor.toUpperCase();
             Color color = ColorType.fromString(stringColor);
             if (color == null) {
-                DebugUtil.log(LogLevel.ERROR,
+                debug.log(LogLevel.ERROR,
                         "Found an invalid color type in configurations!",
                         "Located at file " + file + " in " + path + " (" + stringColor + ") in configurations");
                 return null;
