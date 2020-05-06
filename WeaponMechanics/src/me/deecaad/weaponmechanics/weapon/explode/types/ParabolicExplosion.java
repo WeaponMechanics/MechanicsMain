@@ -3,16 +3,26 @@ package me.deecaad.weaponmechanics.weapon.explode.types;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Uses parabolas to calculate the area of explosions, where
@@ -22,7 +32,7 @@ import java.util.stream.Collectors;
  * yOffset is the depth. Negative values ONLY are allowed.
  * m is the angle. Under 1 makes the explosion wider. Over 1 makes the explosion thinner
  */
-public class ParabolicExplosion implements Explosion {
+public class ParabolicExplosion implements ExplosionShape {
 
     private static final Configuration config = WeaponMechanics.getBasicConfigurations();
 
@@ -54,8 +64,8 @@ public class ParabolicExplosion implements Explosion {
     
     @Nonnull
     @Override
-    public Set<Block> getBlocks(@Nonnull Location origin) {
-        Set<Block> temp = new HashSet<>();
+    public List<Block> getBlocks(@Nonnull Location origin) {
+        List<Block> temp = new ArrayList<>();
 
         // Solve for x
         // y = angle * x^2 + depth
@@ -90,12 +100,46 @@ public class ParabolicExplosion implements Explosion {
     
     @Nonnull
     @Override
-    public Set<LivingEntity> getEntities(@Nonnull Location origin) {
-        return origin.getWorld().getEntities().stream()
-                .filter(entity -> entity instanceof LivingEntity)
+    public Map<LivingEntity, Double> getEntities(@Nonnull Location origin) {
+        List<LivingEntity> entities = origin.getWorld().getEntities().stream()
+                .filter(LivingEntity.class::isInstance)
                 .filter(entity -> test(origin, entity.getLocation()))
-                .map(entity -> (LivingEntity) entity)
-                .collect(Collectors.toSet());
+                .map(LivingEntity.class::cast)
+                .collect(Collectors.toList());
+
+        if (entities.isEmpty()) return new HashMap<>();
+
+        Map<LivingEntity, Double> temp = new HashMap<>(entities.size());
+        World world = origin.getWorld();
+
+
+        for (LivingEntity entity : entities) {
+            Vector vector = origin.toVector().subtract(entity.getLocation().toVector());
+
+            int traces = 0;
+            int successfulTraces = 0;
+
+            for (int i = 0; i < 8; i++) {
+                double x = NumberUtils.random(-.75, .75);
+                double y = NumberUtils.random(-.75, .75);
+                double z = NumberUtils.random(-.75, .75);
+                Vector noise = new Vector(x, y, z);
+                vector.add(noise);
+                RayTraceResult trace = world.rayTraceBlocks(origin, vector, vector.length(), FluidCollisionMode.NEVER);
+                vector.subtract(noise);
+
+                // If the trace found no blocks
+                if (trace.getHitBlock() == null) {
+                    successfulTraces++;
+                }
+
+                traces++;
+            }
+
+            temp.put(entity, ((double) successfulTraces) / traces);
+        }
+
+        return temp;
     }
 
     /**

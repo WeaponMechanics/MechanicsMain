@@ -4,17 +4,21 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SphericalExplosion implements Explosion {
+public class SphericalExplosion implements ExplosionShape {
 
     private static final Configuration config = WeaponMechanics.getBasicConfigurations();
 
@@ -26,8 +30,8 @@ public class SphericalExplosion implements Explosion {
     
     @Nonnull
     @Override
-    public Set<Block> getBlocks(@Nonnull Location origin) {
-        Set<Block> temp = new HashSet<>();
+    public List<Block> getBlocks(@Nonnull Location origin) {
+        List<Block> temp = new ArrayList<>();
         
         Location pos1 = origin.clone().add(-radius, -radius, -radius);
         Location pos2 = origin.clone().add(+radius, +radius, +radius);
@@ -65,10 +69,18 @@ public class SphericalExplosion implements Explosion {
     
     @Nonnull
     @Override
-    public Set<LivingEntity> getEntities(@Nonnull Location origin) {
-        return origin.getWorld().getLivingEntities()
-                .stream()
-                .filter(entity -> entity.getLocation().distance(origin) <= radius)
-                .collect(Collectors.toSet());
+    public Map<LivingEntity, Double> getEntities(@Nonnull Location origin) {
+        Map<LivingEntity, Double> temp = new HashMap<>();
+
+        for (LivingEntity entity: origin.getWorld().getLivingEntities()) {
+            double distance = entity.getLocation().distance(origin);
+
+            if (distance > radius) continue;
+
+            temp.put(entity, distance / radius);
+        }
+
+        return temp;
+
     }
 }

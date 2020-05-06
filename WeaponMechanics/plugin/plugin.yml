@@ -1,6 +1,7 @@
 name: 'WeaponMechanics'
 author: 'DeeCaaD'
 version: '1.0.0'
+api-version: '1.13' # DO NOT SET HIGHER OR LOWER THAN THIS
 description: 'The new era of weapons in Minecraft!'
 main: 'me.deecaad.weaponmechanics.WeaponMechanics'
 softdepend:

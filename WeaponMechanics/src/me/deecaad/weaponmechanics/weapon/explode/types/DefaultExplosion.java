@@ -6,29 +6,25 @@ import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import net.minecraft.server.v1_15_R1.AxisAlignedBB;
-import net.minecraft.server.v1_15_R1.EnchantmentProtection;
-import net.minecraft.server.v1_15_R1.EntityFallingBlock;
-import net.minecraft.server.v1_15_R1.EntityHuman;
-import net.minecraft.server.v1_15_R1.EntityLiving;
-import net.minecraft.server.v1_15_R1.EntityTNTPrimed;
-import net.minecraft.server.v1_15_R1.MathHelper;
-import net.minecraft.server.v1_15_R1.RayTrace;
-import net.minecraft.server.v1_15_R1.Vec3D;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
+import net.minecraft.server.v1_15_R1.Explosion;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_15_R1.event.CraftEventFactory;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This explosion uses the minecraft explosion system,
@@ -36,7 +32,7 @@ import java.util.List;
  *
  * https://minecraft.gamepedia.com/Explosion
  */
-public class DefaultExplosion implements Explosion {
+public class DefaultExplosion implements ExplosionShape {
 
     private static final int GRID_SIZE = 16;
     private static final int BOUND = GRID_SIZE - 1;
@@ -54,9 +50,6 @@ public class DefaultExplosion implements Explosion {
     public List<Block> getBlocks(@Nonnull Location origin) {
         if (yield >= 0.1F) {
             World world = origin.getWorld();
-            int x = (int) origin.getX();
-            int y = (int) origin.getY();
-            int z = (int) origin.getZ();
 
             List<Block> set = new ArrayList<>();
 
@@ -70,9 +63,9 @@ public class DefaultExplosion implements Explosion {
                         if (k == 0 || k == BOUND || i == 0 || i == BOUND || j == 0 || j == BOUND) {
 
                             // d representing change, so change in x, change in y, etc
-                            double dx = ((double) k / BOUND * 2 - 1);
-                            double dy = ((double) i / BOUND * 2 - 1);
-                            double dz = ((double) j / BOUND * 2 - 1);
+                            double dx = ((double) k) / BOUND * 2 - 1;
+                            double dy = ((double) i) / BOUND * 2 - 1;
+                            double dz = ((double) j) / BOUND * 2 - 1;
                             double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
                             // normalize
@@ -80,20 +73,20 @@ public class DefaultExplosion implements Explosion {
                             dy /= length;
                             dz /= length;
 
+                            double x = origin.getX();
+                            double y = origin.getY();
+                            double z = origin.getZ();
+
                             // Slightly randomized intensity, based on the yield of the explosion
                             float intensity = yield * (0.7F + NumberUtils.random().nextFloat() * 0.6F);
 
                             while(intensity > 0.0f) {
-                                Block block = world.getBlockAt(x, y, z);
+                                Block block = world.getBlockAt((int) x, (int) y, (int) z);
                                 Material type = block.getType();
-
                                 boolean isAir = MaterialHelper.isAir(type);
 
-                                if (isAir) {
+                                if (!isAir) {
                                     float resistance = MaterialHelper.getBlastResistance(type);
-                                    //if (this.source != null) {
-                                    //    f2 = this.source.a(this, this.world, blockposition, iblockdata, fluid, f2);
-                                    //}
 
                                     intensity -= (resistance + 0.3F) * ABSORB_RATE;
                                 }
@@ -120,10 +113,16 @@ public class DefaultExplosion implements Explosion {
     
     @Nonnull
     @Override
-    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+    public Map<LivingEntity, Double> getEntities(@Nonnull Location origin) {
+
+        // Map to store all the calculated entities in
+        Map<LivingEntity, Double> temp = new HashMap<>();
+
+        // How far away from the explosion to damage players
         double damageRadius = yield * 2.0F;
         double damageRadiusOuter = damageRadius + 1;
 
+        // Gets data on the location of the explosion
         World world = origin.getWorld();
         double x = origin.getX();
         double y = origin.getY();
@@ -131,14 +130,21 @@ public class DefaultExplosion implements Explosion {
 
         if (world == null) {
             DebugUtil.log(LogLevel.ERROR, "Explosion in null world? Location: " + origin, "Please report error to devs");
-            return new ArrayList<>();
+            return temp;
         }
 
         // Get all entities within the damageable radius
-        Collection<Entity> entities = world.getNearbyEntities(origin, damageRadiusOuter, damageRadiusOuter, damageRadiusOuter);
+        // Only can damage LivingEntities
+        Collection<LivingEntity> entities = world
+                .getNearbyEntities(origin, damageRadiusOuter, damageRadiusOuter, damageRadiusOuter)
+                .stream()
+                .filter(LivingEntity.class::isInstance)
+                .map(LivingEntity.class::cast)
+                .collect(Collectors.toList());
+
         Vector vector = new Vector(x, y, z);
 
-        for (Entity entity: entities) {
+        for (LivingEntity entity : entities) {
             Vector entityLocation = entity.getLocation().toVector();
 
             // Gets the "rate" or percentage of how far the entity
@@ -161,49 +167,23 @@ public class DefaultExplosion implements Explosion {
             // Normalize
             betweenEntityAndExplosion.multiply(1 / distance);
 
-            double exposure = getExposure(vector, entity);
+            double exposure = 1 /*getExposure(vector, entity)*/;
+            double impact = (1 - impactRate) * exposure;
+
+            temp.put(entity, impact);
         }
 
-        for(int l1 = 0; l1 < list.size(); ++l1) {
-            Entity entity = (Entity)list.get(l1);
-            if (!entity.ca()) {
-                double d7 = (double)(MathHelper.sqrt(entity.c(vec3d)) / f3);
-                if (d7 <= 1.0D) {
-                    double d8 = entity.locX() - this.posX;
-                    double d9 = entity.getHeadY() - this.posY;
-                    double d10 = entity.locZ() - this.posZ;
-                    double d11 = (double)MathHelper.sqrt(d8 * d8 + d9 * d9 + d10 * d10);
-                    if (d11 != 0.0D) {
-                        d8 /= d11;
-                        d9 /= d11;
-                        d10 /= d11;
-                        double d12 = (double)a(vec3d, entity);
-                        double d13 = (1.0D - d7) * d12;
-                        CraftEventFactory.entityDamage = this.source;
-                        entity.forceExplosionKnockback = false;
-                        boolean wasDamaged = entity.damageEntity(this.b(), (float)((int)((d13 * d13 + d13) / 2.0D * 7.0D * (double)f3 + 1.0D)));
-                        CraftEventFactory.entityDamage = null;
-                        if (wasDamaged || entity instanceof EntityTNTPrimed || entity instanceof EntityFallingBlock || entity.forceExplosionKnockback) {
-                            double d14 = d13;
-                            if (entity instanceof EntityLiving) {
-                                d14 = EnchantmentProtection.a((EntityLiving)entity, d13);
-                            }
-
-                            entity.setMot(entity.getMot().add(d8 * d14, d9 * d14, d10 * d14));
-                            if (entity instanceof EntityHuman) {
-                                EntityHuman entityhuman = (EntityHuman)entity;
-                                if (!entityhuman.isSpectator() && (!entityhuman.isCreative() || !entityhuman.abilities.isFlying)) {
-                                    this.l.put(entityhuman, new Vec3D(d8 * d13, d9 * d13, d10 * d13));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        return temp;
     }
 
-    public static double getExposure(Vector vec3d, Entity entity) {
+    /**
+     * Gets a double [0, 1] representing how exposed the entity is to the explosion
+     *
+     * @param vec3d Vector between explosion and entity
+     * @param entity The entity exposed to the explosion
+     * @return The level of exposure of the entity to the epxlosion
+     */
+    private static double getExposure(Vector vec3d, Entity entity) {
         HitBox box = CompatibilityAPI.getCompatibility().getProjectileCompatibility().getHitBox(entity);
 
         // Get the dimensions of the bounding box
@@ -219,47 +199,42 @@ public class DefaultExplosion implements Explosion {
         // Outside of the grid
         if (gridX < 0 || gridY < 0 || gridZ < 0) return 0;
 
-        // todo name
         double d3 = (1.0D - Math.floor(1.0D / gridX) * gridX) / 2.0D;
         double d4 = (1.0D - Math.floor(1.0D / gridZ) * gridZ) / 2.0D;
 
-        int i = 0;
-        int j = 0;
+        // Setup variables for the loop
+        World world = entity.getWorld();
+        Location loc = entity.getLocation();
+        FluidCollisionMode mode = FluidCollisionMode.NEVER;
 
+        int successfulTraces = 0;
+        int totalTraces = 0;
+
+        // For each grid on the bounding box
         for (double x = 0; x <= 1; x += gridX) {
             for (double y = 0; y <= 1; y += gridY) {
                 for (double z = 0; z <= 1; z += gridZ) {
                     double a = NumberUtils.lerp(x, box.min.getX(), box.max.getX());
                     double b = NumberUtils.lerp(y, box.min.getY(), box.max.getY());
                     double c = NumberUtils.lerp(z, box.min.getZ(), box.max.getZ());
-                }
-            }
-        }
 
+                    // Calculates a path from the origin of the explosion
+                    // (0, 0, 0) to the current grid on the entity's bounding
+                    // box. The Vector is then ray traced to check for obstructions
+                    Vector vector = new Vector(a + d3, b, c + d4).subtract(vec3d);
+                    RayTraceResult trace = world.rayTraceBlocks(loc, vector, vector.length(), mode);
 
-        if (d0 >= 0.0D && d1 >= 0.0D && d2 >= 0.0D) {
-            int i = 0;
-            int j = 0;
-
-            for(float f = 0.0F; f <= 1.0F; f = (float)((double)f + d0)) {
-                for(float f1 = 0.0F; f1 <= 1.0F; f1 = (float)((double)f1 + d1)) {
-                    for(float f2 = 0.0F; f2 <= 1.0F; f2 = (float)((double)f2 + d2)) {
-                        double d5 = MathHelper.d((double)f, axisalignedbb.minX, axisalignedbb.maxX);
-                        double d6 = MathHelper.d((double)f1, axisalignedbb.minY, axisalignedbb.maxY);
-                        double d7 = MathHelper.d((double)f2, axisalignedbb.minZ, axisalignedbb.maxZ);
-                        Vec3D vec3d1 = new Vec3D(d5 + d3, d6, d7 + d4);
-                        if (entity.world.rayTrace(new RayTrace(vec3d1, vec3d, BlockCollisionOption.OUTLINE, FluidCollisionOption.NONE, entity)).getType() == EnumMovingObjectType.MISS) {
-                            ++i;
-                        }
-
-                        ++j;
+                    // If the trace found no blocks
+                    if (trace.getHitBlock() == null) {
+                        successfulTraces++;
                     }
+
+                    totalTraces++;
                 }
             }
-
-            return (float)i / (float)j;
-        } else {
-            return 0.0F;
         }
+
+        // The percentage of successful traces
+        return ((double) successfulTraces) / totalTraces;
     }
 }

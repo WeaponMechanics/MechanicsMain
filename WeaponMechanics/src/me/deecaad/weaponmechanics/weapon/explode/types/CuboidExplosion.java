@@ -4,7 +4,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -12,9 +12,9 @@ import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * explosion, where a valid (non-negative) width and
  * height are specified.
  */
-public class CuboidExplosion implements Explosion {
+public class CuboidExplosion implements ExplosionShape {
 
     private static final Configuration config = WeaponMechanics.getBasicConfigurations();
 
@@ -110,12 +110,12 @@ public class CuboidExplosion implements Explosion {
      */
     @Nonnull
     @Override
-    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+    public Map<LivingEntity, Double> getEntities(@Nonnull Location origin) {
         double xMin = origin.getX() - width,  xMax = origin.getX() + width;
         double yMin = origin.getY() - height, yMax = origin.getY() + height;
         double zMin = origin.getZ() - width,  zMax = origin.getZ() + width;
         
-        return origin.getWorld().getLivingEntities()
+        List<LivingEntity> entities = origin.getWorld().getLivingEntities()
                 .stream()
                 .filter(entity -> {
                     double x = entity.getLocation().getX();
@@ -127,7 +127,19 @@ public class CuboidExplosion implements Explosion {
                             z >= zMin && z <= zMax;
                 })
                 .collect(Collectors.toList());
-                
+
+        if (entities.isEmpty()) return new HashMap<>();
+
+        // This is imprecise, but super lightweight compared to using
+        // trig to find the proper max distance for every entity
+        double maxDistance = Math.sqrt(width * width + height * height);
+
+        Map<LivingEntity, Double> temp = new HashMap<>(entities.size());
+        for (LivingEntity entity : entities) {
+            double distance = origin.distance(entity.getLocation());
+            temp.put(entity, distance / maxDistance);
+        }
+        return temp;
     }
 
     public boolean isNearEdge(double x, double y, double z, double distance) {

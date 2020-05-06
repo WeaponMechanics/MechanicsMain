@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import com.google.common.collect.Sets;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.DebugUtil;
 import me.deecaad.core.utils.LogLevel;
@@ -8,13 +7,9 @@ import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.Fluid;
-import net.minecraft.server.v1_15_R1.IBlockData;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
-import java.util.Set;
 
 /**
  * This class serves to serialize different types
@@ -22,7 +17,7 @@ import java.util.Set;
  * <code>ExplosionType</code>. If the type of
  * explosion is invalid, the user is notified.
  */
-public class ExplosionSerializer implements Serializer<Explosion> {
+public class ExplosionSerializer implements Serializer<ExplosionShape> {
     
     @Override
     public String getKeyword() {
@@ -30,7 +25,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
     }
     
     @Override
-    public Explosion serialize(File file, ConfigurationSection configurationSection, String path) {
+    public ExplosionShape serialize(File file, ConfigurationSection configurationSection, String path) {
         ConfigurationSection section = configurationSection.getConfigurationSection(path);
         
         // Gets the explosion type from config, warns the user
