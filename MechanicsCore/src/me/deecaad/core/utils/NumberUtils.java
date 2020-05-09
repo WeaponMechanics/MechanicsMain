@@ -214,7 +214,7 @@ public class NumberUtils {
      * @return double
      */
     public static double lerp(double a, double b, double f) {
-        return a  + f * (b - a);
+        return a + f * (b - a);
     }
 
     /**

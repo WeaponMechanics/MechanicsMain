@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class v1_15_R1 implements ICompatibility {
 

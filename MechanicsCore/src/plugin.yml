@@ -1,0 +1,5 @@
+main: me.deecaad.core.MechanicsCore
+version: '1.0.0'
+api-version: '1.13'
+name: MechanicsCore
+description: Useful tools for plugins to use

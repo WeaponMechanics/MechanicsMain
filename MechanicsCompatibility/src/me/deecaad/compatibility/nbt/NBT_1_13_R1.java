@@ -1,7 +1,7 @@
 package me.deecaad.compatibility.nbt;
 
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.AttributeType;
+import me.deecaad.core.utils.AttributeType;
 import net.minecraft.server.v1_13_R1.NBTBase;
 import net.minecraft.server.v1_13_R1.NBTTagCompound;
 import net.minecraft.server.v1_13_R1.NBTTagList;

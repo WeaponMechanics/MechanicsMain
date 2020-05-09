@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.utils;
+package me.deecaad.core.utils;
 
 import java.util.UUID;
 

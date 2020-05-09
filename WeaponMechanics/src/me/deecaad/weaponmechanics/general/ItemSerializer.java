@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
-import me.deecaad.weaponmechanics.utils.AttributeType;
+import me.deecaad.core.utils.AttributeType;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import org.bukkit.Bukkit;

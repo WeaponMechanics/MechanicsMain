@@ -3,7 +3,7 @@ package me.deecaad.compatibility.nbt;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.AttributeType;
+import me.deecaad.core.utils.AttributeType;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Constructor;

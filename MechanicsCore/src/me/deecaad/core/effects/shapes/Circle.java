@@ -7,7 +7,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class Circle implements Shape {
 
