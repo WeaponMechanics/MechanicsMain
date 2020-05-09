@@ -25,6 +25,15 @@ public class TagUtils {
     private TagUtils() {
     }
 
+    /**
+     * Gets the <code>Integer</code> stored in the given
+     * NBT tag, "tag" held by the given item. If the item
+     * does not have the tag, this method will return null
+     *
+     * @param item The item storing the tag
+     * @param tag The tag to pull the Integer from
+     * @return The value or null
+     */
     @Nullable
     public static Integer getInteger(@Nonnull ItemStack item, @Nonnull String tag) {
 
@@ -54,12 +63,23 @@ public class TagUtils {
             String str = CompatibilityAPI.getCompatibility().getNBTCompatibility().getCustomTag(item, tag);
 
             // Since NBT compatibility can only get/set
-            // Strings from tags, we hve to parse the
-            // String to an Integer.
+            // Strings from tags, we have to parse the
+            // String to an Integer. This means that performance
+            // will be better on versions 1.13r2 and higher
             return (str == null) ? null : Integer.valueOf(str);
         }
     }
 
+    /**
+     * Sets the <code>Integer</code> value of the given NBT tag
+     * "tag" held by the given <code>ItemStack</code>. This method
+     * returns the ItemStack with the NBT tag
+     *
+     * @param item The item to set the tag for
+     * @param tag Which tag to set
+     * @param value The value to set for the tag
+     * @return The updated ItemStack with the set value for the tag
+     */
     public static ItemStack setInteger(ItemStack item, @Nonnull String tag, Integer value) {
 
         ItemMeta meta = item.getItemMeta();
