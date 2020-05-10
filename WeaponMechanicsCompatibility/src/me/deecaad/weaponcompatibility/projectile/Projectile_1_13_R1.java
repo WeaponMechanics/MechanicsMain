@@ -1,7 +1,7 @@
-package me.deecaad.compatibility.projectile;
+package me.deecaad.weaponcompatibility.projectile;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.shoot.IShootCompatibility;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import net.minecraft.server.v1_13_R1.AxisAlignedBB;
 import net.minecraft.server.v1_13_R1.BlockPosition;
@@ -39,7 +39,7 @@ public class Projectile_1_13_R1 implements IProjectileCompatibility {
         World world = Bukkit.getWorlds().get(0);
         Location location = new Location(world, 1, 100, 1);
         org.bukkit.entity.Entity entity = ((CraftWorld) world).createEntity(location, entityType.getEntityClass()).getBukkitEntity();
-        IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
+        IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
         return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
     }
 

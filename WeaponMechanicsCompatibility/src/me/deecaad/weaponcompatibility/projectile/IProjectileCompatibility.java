@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.projectile;
+package me.deecaad.weaponcompatibility.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;

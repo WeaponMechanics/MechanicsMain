@@ -1,9 +1,9 @@
 package me.deecaad.compatibility.nbt;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.AttributeType;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Constructor;
@@ -85,7 +85,7 @@ public class NBT_Reflection implements INBTCompatibility {
         if (bukkitTagCompound == null) return null; // Compound is missing
 
         // Make the key match NamespacedKey type
-        String key = WeaponMechanics.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
+        String key = MechanicsCore.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
 
         // Check that key exists and return its value or null otherwise
         return ((boolean) ReflectionUtil.invokeMethod(nbtTagCompoundHasKey, bukkitTagCompound, key)) ? ((String) ReflectionUtil.invokeMethod(nbtTagCompoundGetString, bukkitTagCompound, key)) : null;
@@ -114,7 +114,7 @@ public class NBT_Reflection implements INBTCompatibility {
         }
 
         // Make the key match NamespacedKey type
-        String key = WeaponMechanics.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
+        String key = MechanicsCore.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
 
         // Set the value for compound
         ReflectionUtil.invokeMethod(nbtTagCompoundSetString, bukkitTagCompound, key, value);

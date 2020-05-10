@@ -9,7 +9,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class FileCopier {
 
@@ -72,8 +72,8 @@ public class FileCopier {
                     String[] splitPath = newFilePath.split("/");
                     parentFile = new File(newFilePath.replace("/" + splitPath[splitPath.length - 1], ""));
                 }
-                boolean failed = parentFile.mkdirs() || newFile.createNewFile();
-                debug.validate(!failed, "Failed to make directory at either: ", parentFile.toString(), newFile.toString());
+                parentFile.mkdirs();
+                newFile.createNewFile();
 
                 copy(plugin.getResource(entryName), newFile);
             }

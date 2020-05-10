@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 /**
  * This class separates "common" reference

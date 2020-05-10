@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import static org.bukkit.block.BlockFace.*;
 import static org.bukkit.block.BlockFace.NORTH_NORTH_WEST;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class VectorUtils {
 

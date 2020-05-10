@@ -1,9 +1,6 @@
 package me.deecaad.compatibility;
 
 import me.deecaad.compatibility.nbt.INBTCompatibility;
-import me.deecaad.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.compatibility.scope.IScopeCompatibility;
-import me.deecaad.compatibility.shoot.IShootCompatibility;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -48,12 +45,6 @@ public interface ICompatibility {
     void sendPackets(Player player, Object... packets);
 
     /**
-     * @return the scope compatibility
-     */
-    @Nonnull
-    IScopeCompatibility getScopeCompatibility();
-
-    /**
      * This will return null ONLY if server versions is 1.13 R2 or above.
      * This is like this because API was added for item NBT tags also in 1.13 R2.
      *
@@ -61,16 +52,4 @@ public interface ICompatibility {
      */
     @Nonnull
     INBTCompatibility getNBTCompatibility();
-
-    /**
-     * @return the projectile compatibility
-     */
-    @Nonnull
-    IProjectileCompatibility getProjectileCompatibility();
-
-    /**
-     * @return the shoot compatibility
-     */
-    @Nonnull
-    IShootCompatibility getShootCompatibility();
 }

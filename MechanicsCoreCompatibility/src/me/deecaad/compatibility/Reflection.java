@@ -2,12 +2,6 @@ package me.deecaad.compatibility;
 
 import me.deecaad.compatibility.nbt.INBTCompatibility;
 import me.deecaad.compatibility.nbt.NBT_Reflection;
-import me.deecaad.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.compatibility.projectile.Projectile_Reflection;
-import me.deecaad.compatibility.scope.IScopeCompatibility;
-import me.deecaad.compatibility.scope.Scope_Reflection;
-import me.deecaad.compatibility.shoot.IShootCompatibility;
-import me.deecaad.compatibility.shoot.Shoot_Reflection;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -19,24 +13,21 @@ import java.lang.reflect.Method;
 /**
  * Reflection compatibility added as backup plan if fully supported NMS version isn't found
  */
-public class ReflectionCompatibility implements ICompatibility {
+public class Reflection implements ICompatibility {
 
-    private IScopeCompatibility scopeCompatibility;
     private INBTCompatibility nbtCompatibility;
-    private IProjectileCompatibility projectileCompatibility;
-    private IShootCompatibility shootCompatibility;
 
-    private Method playerGetHandle;
-    private Field playerConnection;
-    private Field playerPing;
+    private final Method playerGetHandle;
+    private final Field playerConnection;
+    private final Field playerPing;
 
-    private Method worldGetHandle;
-    private Method getEntityById;
-    private Method getAsBukkitEntity;
+    private final Method worldGetHandle;
+    private final Method getEntityById;
+    private final Method getAsBukkitEntity;
 
-    private Method sendPacketMethod;
+    private final Method sendPacketMethod;
 
-    public ReflectionCompatibility() {
+    public Reflection() {
         this.playerGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftPlayer"), "getHandle");
         this.playerConnection = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityPlayer"), "playerConnection");
         this.playerPing = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityPlayer"), "ping");
@@ -75,22 +66,7 @@ public class ReflectionCompatibility implements ICompatibility {
     }
 
     @Override
-    public IScopeCompatibility getScopeCompatibility() {
-        return scopeCompatibility == null ? scopeCompatibility = new Scope_Reflection() : scopeCompatibility;
-    }
-
-    @Override
     public INBTCompatibility getNBTCompatibility() {
         return nbtCompatibility == null ? nbtCompatibility = new NBT_Reflection() : nbtCompatibility;
-    }
-
-    @Override
-    public IProjectileCompatibility getProjectileCompatibility() {
-        return projectileCompatibility == null ? projectileCompatibility = new Projectile_Reflection() : projectileCompatibility;
-    }
-
-    @Override
-    public IShootCompatibility getShootCompatibility() {
-        return shootCompatibility == null ? shootCompatibility = new Shoot_Reflection() : shootCompatibility;
     }
 }

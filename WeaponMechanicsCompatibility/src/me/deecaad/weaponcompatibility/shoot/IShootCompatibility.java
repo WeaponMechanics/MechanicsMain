@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.shoot;
+package me.deecaad.weaponcompatibility.shoot;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;

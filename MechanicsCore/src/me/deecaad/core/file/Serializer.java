@@ -5,7 +5,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public interface Serializer<T> {
 

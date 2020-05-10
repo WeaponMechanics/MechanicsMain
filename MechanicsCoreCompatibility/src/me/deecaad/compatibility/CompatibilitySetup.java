@@ -3,6 +3,8 @@ package me.deecaad.compatibility;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 
+import javax.annotation.Nullable;
+
 public class CompatibilitySetup {
 
     /**
@@ -25,16 +27,31 @@ public class CompatibilitySetup {
     }
 
     /**
-     * @return the compatible version as ICompatibility
+     * @param interfaceClazz the compatibility interface type
+     * @param directory the directory in code where compatibility should exist
+     * @return the compatible version from given directory
      */
-    public ICompatibility getCompatibleVersion() {
+    @Nullable
+    public <T> T getCompatibleVersion(Class<T> interfaceClazz, String directory) {
         String version = getVersionAsString();
         try {
-            Class<?> compatibilityClass = Class.forName("me.deecaad.compatibility." + version);
-            ICompatibility compatibility = (ICompatibility) ReflectionUtil.newInstance(ReflectionUtil.getConstructor(compatibilityClass));
-            return compatibility != null ? compatibility : new ReflectionCompatibility();
+            Class<?> compatibilityClass = Class.forName(directory + "." + version);
+            Object compatibility = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(compatibilityClass));
+            return compatibility != null ? interfaceClazz.cast(compatibility) : getReflectionVersion(directory, interfaceClazz);
+        } catch (ClassNotFoundException | ClassCastException e) {
+            // Do nothing
+        }
+        return getReflectionVersion(directory, interfaceClazz);
+    }
+
+    private <T> T getReflectionVersion(String directory, Class<T> interfaceClazz) {
+        try {
+            Class<?> reflectionCompatibilityClass = Class.forName(directory + ".Reflection");
+            Object reflectionCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(reflectionCompatibilityClass));
+            if (reflectionCompatibility == null) return null;
+            return interfaceClazz.cast(reflectionCompatibility);
         } catch (ClassNotFoundException e) {
-            return new ReflectionCompatibility();
+            return null;
         }
     }
 }

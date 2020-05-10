@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class FileReader {
 

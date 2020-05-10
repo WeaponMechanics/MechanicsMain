@@ -1,7 +1,6 @@
 package me.deecaad.core.web;
 
 import me.deecaad.core.utils.AsyncUtil;
-import me.deecaad.core.utils.IAsync;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

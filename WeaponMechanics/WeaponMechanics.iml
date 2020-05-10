@@ -10,7 +10,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="spigot" level="project" />
     <orderEntry type="library" name="other depencies" level="project" />
+    <orderEntry type="module" module-name="WeaponMechanicsCompatibility" />
     <orderEntry type="module" module-name="MechanicsCore" />
-    <orderEntry type="module" module-name="MechanicsCompatibility" />
+    <orderEntry type="module" module-name="MechanicsCoreCompatibility" />
   </component>
 </module>

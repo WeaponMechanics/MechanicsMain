@@ -1,7 +1,8 @@
-package me.deecaad.compatibility.projectile;
+package me.deecaad.weaponcompatibility.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.shoot.IShootCompatibility;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
@@ -340,7 +341,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         Location location = new Location(world, 1, 100, 1);
         Object nmsEntity = ReflectionUtil.invokeMethod(createEntity, world, location, entityType.getEntityClass());
         org.bukkit.entity.Entity entity = (org.bukkit.entity.Entity) ReflectionUtil.invokeMethod(getAsBukkitEntity, nmsEntity);
-        IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
+        IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
         return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
     }
 

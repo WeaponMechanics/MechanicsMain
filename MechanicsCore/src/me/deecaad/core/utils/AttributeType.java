@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.utils;
+package me.deecaad.core.utils;
 
 import java.util.UUID;
 
@@ -13,9 +13,9 @@ public enum AttributeType {
     GENERIC_ATTACK_SPEED(new UUID(2872, 894650), new UUID(2869, 894653), "generic.attackSpeed"),
     GENERIC_KNOCKBACK_RESISTANCE(new UUID(2872, 894649), new UUID(2868, 894653), "generic.knockbackResistance");
 
-    private UUID mainUUID;
-    private UUID offUUID;
-    private String minecraftName;
+    private final UUID mainUUID;
+    private final UUID offUUID;
+    private final String minecraftName;
 
     AttributeType(UUID mainUUID, UUID offUUID, String minecraftName) {
         this.mainUUID = mainUUID;

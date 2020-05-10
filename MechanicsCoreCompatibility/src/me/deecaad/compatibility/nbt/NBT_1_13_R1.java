@@ -1,7 +1,7 @@
 package me.deecaad.compatibility.nbt;
 
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.AttributeType;
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.utils.AttributeType;
 import net.minecraft.server.v1_13_R1.NBTBase;
 import net.minecraft.server.v1_13_R1.NBTTagCompound;
 import net.minecraft.server.v1_13_R1.NBTTagList;
@@ -27,7 +27,7 @@ public class NBT_1_13_R1 implements INBTCompatibility {
         NBTTagCompound bukkitTagCompound = itemTag.getCompound("PublicBukkitValues");
         if (bukkitTagCompound == null) return null;
 
-        String key = WeaponMechanics.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
+        String key = MechanicsCore.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
 
         return bukkitTagCompound.hasKey(key) ? bukkitTagCompound.getString(key) : null;
     }
@@ -48,7 +48,7 @@ public class NBT_1_13_R1 implements INBTCompatibility {
             itemTag.set("PublicBukkitValues", bukkitTagCompound);
         }
 
-        String key = WeaponMechanics.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
+        String key = MechanicsCore.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
 
         bukkitTagCompound.setString(key, value);
 

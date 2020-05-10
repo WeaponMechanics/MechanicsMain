@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.shoot;
+package me.deecaad.weaponcompatibility.shoot;
 
 import net.minecraft.server.v1_11_R1.PacketPlayOutPosition;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftEntity;

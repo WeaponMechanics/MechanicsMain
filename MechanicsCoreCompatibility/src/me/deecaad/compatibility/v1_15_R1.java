@@ -1,12 +1,6 @@
 package me.deecaad.compatibility;
 
 import me.deecaad.compatibility.nbt.INBTCompatibility;
-import me.deecaad.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.compatibility.projectile.Projectile_1_15_R1;
-import me.deecaad.compatibility.scope.IScopeCompatibility;
-import me.deecaad.compatibility.scope.Scope_1_15_R1;
-import me.deecaad.compatibility.shoot.IShootCompatibility;
-import me.deecaad.compatibility.shoot.Shoot_1_15_R1;
 import me.deecaad.core.utils.LogLevel;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.Packet;
@@ -17,15 +11,9 @@ import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class v1_15_R1 implements ICompatibility {
-
-    private IScopeCompatibility scopeCompatibility;
-    private IProjectileCompatibility projectileCompatibility;
-    private IShootCompatibility shootCompatibility;
 
     @Override
     public boolean isNotFullySupported() {
@@ -51,26 +39,10 @@ public class v1_15_R1 implements ICompatibility {
     }
 
     @Override
-    public IScopeCompatibility getScopeCompatibility() {
-        return scopeCompatibility == null ? scopeCompatibility = new Scope_1_15_R1() : scopeCompatibility;
-    }
-
-    @Override
     public INBTCompatibility getNBTCompatibility() {
         debug.log(LogLevel.WARN, "NBT compatibility interface should not be used in this server version.",
                 "Only version 1.13 R1 and versions before that should access this method.");
         return null;
-    }
-
-    @Override
-    public IProjectileCompatibility getProjectileCompatibility() {
-        return projectileCompatibility == null ? projectileCompatibility = new Projectile_1_15_R1() : projectileCompatibility;
-    }
-
-    @Nonnull
-    @Override
-    public IShootCompatibility getShootCompatibility() {
-        return shootCompatibility == null ? shootCompatibility = new Shoot_1_15_R1() : shootCompatibility;
     }
 
     public EntityPlayer getEntityPlayer(Player player) {

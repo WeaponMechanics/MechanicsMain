@@ -8,17 +8,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class ReflectionUtil {
 
-    private static String versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+    private static final String versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
     
     /**
      * Don't let anyone instantiate this class
      */
-    private ReflectionUtil() {
-    }
+    private ReflectionUtil() { }
     
     /**
      * Tries to find class from net.minecraft.server.SERVERVERSION.className

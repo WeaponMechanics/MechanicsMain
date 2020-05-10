@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.shoot.IShootCompatibility;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
@@ -12,7 +12,7 @@ import java.util.TimerTask;
 
 public class RecoilTask extends TimerTask {
 
-    private static final IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
+    private static final IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
     private final IPlayerWrapper playerWrapper;
     private final HandData handData;
 

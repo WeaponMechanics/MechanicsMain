@@ -31,16 +31,8 @@ public class CompatibilityAPI {
      */
     public static ICompatibility getCompatibility() {
         if (compatibility == null) {
-            compatibility = new CompatibilitySetup().getCompatibleVersion();
+            compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.compatibility");
         }
         return compatibility;
-    }
-
-    /**
-     * This should be called when reloading or shutting down server!
-     */
-    public static void onDisable() {
-        version = 0.0;
-        compatibility = null;
     }
 }

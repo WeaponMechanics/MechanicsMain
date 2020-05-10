@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.general.ItemSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -154,7 +154,7 @@ public class Projectile implements Serializer<Projectile> {
 
         if (width == 0 || height == 0) {
             if (projectileType != null) {
-                double[] defaultSize = CompatibilityAPI.getCompatibility().getProjectileCompatibility().getDefaultWidthAndHeight(projectileType);
+                double[] defaultSize = WeaponCompatibilityAPI.getProjectileCompatibility().getDefaultWidthAndHeight(projectileType);
                 if (width <= 0) width = (float) defaultSize[0];
                 if (height <= 0) height = (float) defaultSize[1];
             } else {

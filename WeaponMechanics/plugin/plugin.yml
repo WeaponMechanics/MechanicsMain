@@ -6,8 +6,6 @@ description: 'The new era of weapons in Minecraft!'
 main: 'me.deecaad.weaponmechanics.WeaponMechanics'
 softdepend:
 - PlaceholderAPI
-- WorldGuard
-- WorldEdit
 
 permissions:
   weaponmechanics.admin:

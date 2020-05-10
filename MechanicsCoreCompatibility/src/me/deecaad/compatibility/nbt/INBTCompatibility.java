@@ -1,6 +1,6 @@
 package me.deecaad.compatibility.nbt;
 
-import me.deecaad.weaponmechanics.utils.AttributeType;
+import me.deecaad.core.utils.AttributeType;
 import org.bukkit.inventory.ItemStack;
 
 public interface INBTCompatibility {

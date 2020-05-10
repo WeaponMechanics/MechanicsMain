@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.scope;
+package me.deecaad.weaponcompatibility.scope;
 
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;

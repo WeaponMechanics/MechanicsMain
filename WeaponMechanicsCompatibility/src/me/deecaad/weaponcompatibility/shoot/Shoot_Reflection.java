@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.shoot;
+package me.deecaad.weaponcompatibility.shoot;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
