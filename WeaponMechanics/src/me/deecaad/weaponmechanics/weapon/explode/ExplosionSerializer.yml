@@ -1,6 +1,24 @@
 Explosion:
+  Detonation:
+    Delay: <Ticks> # The time after the trigger that the explosion occurs
+    Impact_When:
+      Shot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
+      Entities: <Boolean> # When the projectile hits an entity
+      Solid_Block: <Boolean> # When the projectile hits a non-fluid, non-air block
+  Damage:
+    Enabled: <Boolean> # False to not calculate damage to players.
+    Amount: <Double>
+    Enable_Owner_Immunity: <Boolean>
+    Potion_Effects: # Potion effect serializer
+  Blocks:
+    Enabled: <Boolean> # False to not calculate broken blocks
+    Regenerate_After_Ticks: <Ticks> # Negative number to not generate
+    Noise_In_Ticks: <Ticks> # A random number to add so not all blocks regenerate at once.
+    Drop_Items: <Boolean> # Whether or not the broken blocks will drop items
+    Blacklist: <Boolean>
+    Block_List:
+      - <Material>:<Data>~<Shots_To_Break>
   Explosion_Type: <Sphere/Cube/Parabola/Minecraft>
-  Scatter_Chance: 0.15
   Explosion_Type_Data:
     # Fetch required values based on explosion type or simply don't do anything with these if not needed
     # Give default values for everything if not defined here
@@ -10,3 +28,10 @@ Explosion:
     Depth: <Double>
     Width: <Double>
     Height: <Double>
+  Sounds:
+    Shooter: # Great hitmarker
+      - blablabla
+    Victim: # Great for ringing ears
+      - blablabla
+    Explosion: # Adds to the tnt sound
+      - TNT_EXPLODE_WHATEVER~1~1

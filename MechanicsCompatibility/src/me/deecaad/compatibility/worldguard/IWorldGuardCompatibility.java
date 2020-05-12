@@ -12,4 +12,6 @@ public interface IWorldGuardCompatibility {
 
     // todo: add docs
     void registerFlags(String... flags);
+
+    boolean isInstalled();
 }

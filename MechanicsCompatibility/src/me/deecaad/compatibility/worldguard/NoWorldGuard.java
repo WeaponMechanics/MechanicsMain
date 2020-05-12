@@ -17,4 +17,9 @@ public class NoWorldGuard implements IWorldGuardCompatibility {
     public void registerFlags(String... flags) {
         // Do nothing...
     }
+
+    @Override
+    public boolean isInstalled() {
+        return false;
+    }
 }
