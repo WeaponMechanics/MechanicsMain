@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.scope.IScopeCompatibility;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.utils.UsageHelper;
@@ -24,6 +24,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ScopeHandler {
 
+    private static final IScopeCompatibility scopeCompatibility = WeaponCompatibilityAPI.getScopeCompatibility();
     private WeaponHandler weaponHandler;
 
     public ScopeHandler(WeaponHandler weaponHandler) {
@@ -171,7 +172,6 @@ public class ScopeHandler {
 
         int lastZoomAmount = zoomData.getZoomAmount();
         zoomData.setZoomAmount(newZoomAmount);
-        IScopeCompatibility scopeCompatibility = CompatibilityAPI.getCompatibility().getScopeCompatibility();
         if (lastZoomAmount < 13 && newZoomAmount > 12 || lastZoomAmount > 12 && newZoomAmount < 13) {
             // If last zoom was with attributes AND new one should be with abilities
             // -> Update both
@@ -204,7 +204,6 @@ public class ScopeHandler {
         }
         Player player = (Player) entityWrapper.getEntity();
 
-        IScopeCompatibility scopeCompatibility = CompatibilityAPI.getCompatibility().getScopeCompatibility();
         if (!zoomData.hasZoomNightVision()) { // night vision is not on
             zoomData.setZoomNightVision(true);
             scopeCompatibility.addNightVision(player);

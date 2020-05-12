@@ -1,7 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.projectile.HitBox;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
@@ -183,7 +184,7 @@ public class DefaultExplosion implements ExplosionShape {
      * @return The level of exposure of the entity to the epxlosion
      */
     private static double getExposure(Vector vec3d, Entity entity) {
-        HitBox box = CompatibilityAPI.getCompatibility().getProjectileCompatibility().getHitBox(entity);
+        HitBox box = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(entity);
 
         // Get the dimensions of the bounding box
         double width = box.getWidth();

@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.projectile.HitBox;
-import me.deecaad.compatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.projectile.HitBox;
+import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.events.ProjectileMoveEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -19,7 +19,7 @@ public class CustomProjectile implements ICustomProjectile {
     // Projectile can be maximum of 600 ticks alive (30 seconds)
     private static final int maximumAliveTicks = 600;
 
-    private static IProjectileCompatibility projectileCompatibility = CompatibilityAPI.getCompatibility().getProjectileCompatibility();
+    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
 
     // Just to identify CustomProjectile
     private static int ids = 1;
@@ -81,7 +81,7 @@ public class CustomProjectile implements ICustomProjectile {
 
         if (projectile.getProjectileDisguise() != null) {
             motionLength = motion.length();
-            CompatibilityAPI.getCompatibility().getProjectileCompatibility().spawnDisguise(this, this.location, this.motion);
+            projectileCompatibility.spawnDisguise(this, this.location, this.motion);
         }
     }
 
@@ -164,7 +164,7 @@ public class CustomProjectile implements ICustomProjectile {
 
     @Override
     public void updateDisguiseLocationAndMotion() {
-        if (projectileDisguiseId != 0) CompatibilityAPI.getCompatibility().getProjectileCompatibility().updateDisguise(this, this.location, this.motion, this.lastLocation);
+        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
     }
 
     @Override
@@ -453,7 +453,7 @@ public class CustomProjectile implements ICustomProjectile {
                     Block block = world.getBlockAt(x, y, z);
                     chunks.add(block.getChunk());
 
-                    HitBox blockBox = CompatibilityAPI.getCompatibility().getProjectileCompatibility().getHitBox(block);
+                    HitBox blockBox = projectileCompatibility.getHitBox(block);
                     if (blockBox == null) continue; // Null means most likely that block is passable, liquid or air
 
                     Vector hitLocation = projectileBox.collisionPoint(blockBox);
@@ -478,7 +478,7 @@ public class CustomProjectile implements ICustomProjectile {
                 if (!(entity instanceof LivingEntity) || entity.getEntityId() == shooter.getEntityId()) {
                     continue;
                 }
-                HitBox entityBox = CompatibilityAPI.getCompatibility().getProjectileCompatibility().getHitBox(entity);
+                HitBox entityBox = projectileCompatibility.getHitBox(entity);
                 if (entityBox == null) continue; // entity is invulnerable
 
                 Vector hitLocation = projectileBox.collisionPoint(entityBox);

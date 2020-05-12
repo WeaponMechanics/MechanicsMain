@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
@@ -135,12 +135,8 @@ public class ShootHandler {
 
             @Override
             public void run() {
-                if (i == 0) {
-                    // Only make the first projectile of burst modify spread change if its used
-                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);
-                } else {
-                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, false);
-                }
+                // Only make the first projectile of burst modify spread change if its used
+                shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, i == 0);
 
                 // todo: check and do ammo things
 
@@ -267,7 +263,7 @@ public class ShootHandler {
 
         if (!dualWield) return livingEntity.getEyeLocation();
 
-        double dividedWidth = CompatibilityAPI.getCompatibility().getShootCompatibility().getWidth(livingEntity) / 2.0;
+        double dividedWidth = WeaponCompatibilityAPI.getShootCompatibility().getWidth(livingEntity) / 2.0;
         double distance = mainhand ? 2.0 : 0.0;
 
         Location eyeLocation = livingEntity.getEyeLocation();

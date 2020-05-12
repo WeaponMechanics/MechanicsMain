@@ -1,8 +1,7 @@
 package me.deecaad.weaponmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.projectile.HitBox;
-import me.deecaad.core.CoreInitializer;
+import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
@@ -91,9 +90,6 @@ public class WeaponMechanics extends JavaPlugin {
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
 
-        // Initializer core functions
-        new CoreInitializer().init(this);
-
         // Register packet listeners
         PacketListenerAPI.addPacketHandler(this, new OutSetSlotListener()); // reduce/remove weapons from going up and down
         PacketListenerAPI.addPacketHandler(this, new OutUpdateAttributesListener()); // used with scopes
@@ -175,7 +171,6 @@ public class WeaponMechanics extends JavaPlugin {
         for (LivingEntity entity : entityWrappers.keySet()) {
             removeEntityWrapper(entity);
         }
-        new CoreInitializer().onDisable();
         weaponHandler = null;
         updateChecker = null;
         entityWrappers = null;

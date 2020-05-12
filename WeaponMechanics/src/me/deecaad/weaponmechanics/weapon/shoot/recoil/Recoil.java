@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.shoot.IShootCompatibility;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
@@ -20,7 +20,7 @@ public class Recoil implements Serializer<Recoil> {
 
     public static long MILLIS_BETWEEN_ROTATIONS = 5;
     private static final Timer TIMER = new Timer();
-    private static final IShootCompatibility shootCompatibility = CompatibilityAPI.getCompatibility().getShootCompatibility();
+    private static final IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
 
     private long pushTime;
     private long recoverTime;

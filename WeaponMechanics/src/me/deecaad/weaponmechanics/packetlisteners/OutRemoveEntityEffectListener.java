@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 
@@ -22,7 +22,7 @@ public class OutRemoveEntityEffectListener extends PacketHandler {
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
 
         if (!entityWrapper.getZoomData().hasZoomNightVision()) return;
-        if (!CompatibilityAPI.getCompatibility().getScopeCompatibility().isRemoveNightVisionPacket(packet)) return;
+        if (!WeaponCompatibilityAPI.getScopeCompatibility().isRemoveNightVisionPacket(packet)) return;
 
         packet.setCancelled(true);
     }
