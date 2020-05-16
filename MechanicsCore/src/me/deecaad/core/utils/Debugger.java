@@ -48,6 +48,46 @@ public class Debugger {
     }
 
     /**
+     * Shorthand to log at debugging level
+     *
+     * @see LogLevel#DEBUG
+     * @param msg Messages to log
+     */
+    public void debug(String...msg) {
+        if (canLog(LogLevel.DEBUG)) log(LogLevel.DEBUG, msg);
+    }
+
+    /**
+     * Shorthand to log at debugging level
+     *
+     * @see LogLevel#INFO
+     * @param msg Messages to log
+     */
+    public void info(String...msg) {
+        if (canLog(LogLevel.INFO)) log(LogLevel.INFO, msg);
+    }
+
+    /**
+     * Shorthand to log at debugging level
+     *
+     * @see LogLevel#WARN
+     * @param msg Messages to log
+     */
+    public void warn(String...msg) {
+        if (canLog(LogLevel.WARN)) log(LogLevel.WARN, msg);
+    }
+
+    /**
+     * Shorthand to log at debugging level
+     *
+     * @see LogLevel#ERROR
+     * @param msg Messages to log
+     */
+    public void error(String...msg) {
+        if (canLog(LogLevel.ERROR)) log(LogLevel.ERROR, msg);
+    }
+
+    /**
      * Logs all given messaged at the given
      * <code>LogLevel</code>. Each message is
      * logged on a new line.
@@ -61,6 +101,19 @@ public class Debugger {
         for (String str : msg) {
             logger.log(level.getParallel(), str);
         }
+    }
+
+    /**
+     * Logs an error. Useful for debugging and not showing
+     * users error messages
+     *
+     * @param level The level to log at
+     * @param error Error
+     */
+    public void log(LogLevel level, Throwable error) {
+        if (!canLog(level)) return;
+
+        logger.log(level.getParallel(), "", error);
     }
 
     /**

@@ -1,13 +1,13 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -94,22 +94,21 @@ public class FileReader {
      * @param ignoreFiles ignored files which name starts with any given string
      * @return the map with all configurations
      */
-    public Configuration fillAllFiles(File directory, String... ignoreFiles) {
+    public Configuration fillAllFiles(File directory, @Nullable String... ignoreFiles) {
+        if (directory == null || directory.listFiles() == null) {
+            throw new IllegalArgumentException("The given file MUST be a directory!");
+        }
+
+        // A set to determine if a file should be ignored
+        Set<String> fileBlacklist = ignoreFiles == null ? new HashSet<>() : Arrays.stream(ignoreFiles).collect(Collectors.toSet());
+
+        // Dummy map to fill
         Configuration filledMap = new LinkedConfig();
+
         for (File directoryFile : directory.listFiles()) {
+
             String name = directoryFile.getName();
-            if (ignoreFiles != null && ignoreFiles.length > 0) {
-                boolean one = false;
-                for (String ignore : ignoreFiles) {
-                    if (name.startsWith(ignore)) {
-                        one = true;
-                        break;
-                    }
-                }
-                if (one) {
-                    continue;
-                }
-            }
+            if (fileBlacklist.contains(name)) continue;
 
             try {
                 if (name.endsWith(".yml")) {
@@ -131,7 +130,7 @@ public class FileReader {
                         "Duplicates Found: " + Arrays.toString(ex.getKeys()),
                         "Found in file: " + name);
 
-                debug.log(LogLevel.WARN, "Duplicate Key Exception: ", ex);
+                debug.log(LogLevel.DEBUG, "Duplicate Key Exception: ", ex);
             }
         }
 
@@ -149,10 +148,19 @@ public class FileReader {
      */
     public Configuration fillOneFile(File file) {
         Configuration filledMap = new LinkedConfig();
+
+        // This is used with the serializer's pathTo functionality.
+        // If a serializer is found, it's path is saved here. Any
+        // variable within a serializer is then "skipped"
         String startsWithDeny = null;
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
             if (startsWithDeny != null) {
+
+                // We may still want to add this key to the map. It may make
+                // it easier for developers if they don't want to deal with
+                // our serializers or they want to make specific variables
+                // inside of serializers -- It may save a headache
                 if (key.startsWith(startsWithDeny)) {
                     continue;
                 }
@@ -160,12 +168,15 @@ public class FileReader {
             }
             String[] keySplit = key.split("\\.");
             if (keySplit.length > 0) {
+
+                // Get the last "key name" of the key
                 String lastKey = keySplit[keySplit.length - 1].toLowerCase();
                 IValidator validator = this.validators.get(lastKey);
                 if (validator != null) {
                     validatorDatas.add(new ValidatorData(validator, file, configuration, key));
                 }
 
+                // Check if this key is a serializer and handle pathTo
                 Serializer<?> serializer = this.serializers.get(lastKey);
                 if (serializer != null) {
                     String pathTo = serializer.useLater(configuration, key);

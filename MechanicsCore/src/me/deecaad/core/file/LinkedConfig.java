@@ -97,6 +97,8 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
                     .map(Object::toString)
                     .map(StringUtils::color)
                     .collect(Collectors.toList());
+        } else if (value instanceof String) {
+            value = StringUtils.color(value.toString());
         }
 
         // There is no need to cast to specific data types

@@ -109,7 +109,7 @@ public class SeparatedConfig implements Configuration {
         } else if (value instanceof Boolean) {
             return booleans.put(key, (Boolean) value);
         } else if (value instanceof String) {
-            return strings.put(key, value.toString());
+            return strings.put(key, StringUtils.color(value.toString()));
         } else if (value instanceof List<?>) {
             List<String> list = ((List<?>) value).stream()
                     .map(Object::toString)
