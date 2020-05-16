@@ -24,4 +24,9 @@ public class WorldGuardV6 implements IWorldGuardCompatibility {
     public void registerFlags(String... flags) {
 
     }
+
+    @Override
+    public boolean isInstalled() {
+        return false;
+    }
 }
