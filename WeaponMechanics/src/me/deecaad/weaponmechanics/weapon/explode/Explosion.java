@@ -1,5 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.explode;
--
+
 import me.deecaad.core.effects.types.ParticleEffect;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;

@@ -94,8 +94,8 @@ public class FileReader {
      * @param ignoreFiles ignored files which name starts with any given string
      * @return the map with all configurations
      */
-    public OrderedConfig fillAllFiles(File directory, String... ignoreFiles) {
-        OrderedConfig filledMap = new OrderedConfig();
+    public Configuration fillAllFiles(File directory, String... ignoreFiles) {
+        Configuration filledMap = new LinkedConfig();
         for (File directoryFile : directory.listFiles()) {
             String name = directoryFile.getName();
             if (ignoreFiles != null && ignoreFiles.length > 0) {
@@ -110,22 +110,33 @@ public class FileReader {
                     continue;
                 }
             }
-            if (name.endsWith(".yml")) {
-                OrderedConfig newFilledMap = fillOneFile(directoryFile);
-                if (newFilledMap == null || newFilledMap.isEmpty()) {
-                    continue;
+
+            try {
+                if (name.endsWith(".yml")) {
+                    Configuration newFilledMap = fillOneFile(directoryFile);
+
+                    // This occurs when the yml file is empty
+                    if (newFilledMap == null) {
+                        continue;
+                    }
+
+                    filledMap.add(newFilledMap);
+                } else if (directoryFile.isDirectory()) {
+                    filledMap.add(fillAllFiles(directoryFile));
                 }
-                filledMap.add(newFilledMap, true);
-            } else if (directoryFile.isDirectory()) {
-                filledMap.add(fillAllFiles(directoryFile), true);
+            } catch (DuplicateKeyException ex) {
+                debug.log(LogLevel.ERROR, "Found duplicate keys in configuration!",
+                        "This occurs when you have 2 lines in configuration with the same name",
+                        "This is a huge error and WILL 100% cause issues in your guns.",
+                        "Duplicates Found: " + Arrays.toString(ex.getKeys()),
+                        "Found in file: " + name);
+
+                debug.log(LogLevel.WARN, "Duplicate Key Exception: ", ex);
             }
         }
 
         usePathToSerializersAndValidators(filledMap);
 
-        if (filledMap.isEmpty()) {
-            return new OrderedConfig();
-        }
         return filledMap;
     }
 
@@ -136,8 +147,8 @@ public class FileReader {
      * @param file the file to read
      * @return the map with file's configurations
      */
-    public OrderedConfig fillOneFile(File file) {
-        OrderedConfig filledMap = new OrderedConfig();
+    public Configuration fillOneFile(File file) {
+        Configuration filledMap = new LinkedConfig();
         String startsWithDeny = null;
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
@@ -172,23 +183,15 @@ public class FileReader {
                     }
                     if (valid != null) {
                         startsWithDeny = key;
-                        filledMap.put(key, valid);
+                        filledMap.set(key, valid);
                         continue;
                     }
                 }
             }
             Object object = configuration.get(key);
-            if (object instanceof Boolean || object.toString().equalsIgnoreCase("true") || object.toString().equalsIgnoreCase("false")) {
-                filledMap.put(key, Boolean.valueOf(object.toString()));
-            } else if (object instanceof Number) {
-                filledMap.put(key, ((Number) object).doubleValue());
-            } else if (object instanceof List<?>) {
-                filledMap.put(key, convertListObject(object));
-            } else if (object instanceof String) {
-                filledMap.put(key, colorizeString(object.toString()));
-            }
+            filledMap.set(key, object);
         }
-        if (filledMap.isEmpty()) {
+        if (filledMap.getKeys().isEmpty()) {
             return null;
         }
         return filledMap;
@@ -201,7 +204,7 @@ public class FileReader {
      * @param filledMap the filled mappings
      * @return the map with used path to serializers and validators
      */
-    public OrderedConfig usePathToSerializersAndValidators(OrderedConfig filledMap) {
+    public Configuration usePathToSerializersAndValidators(Configuration filledMap) {
         if (!pathToSerializers.isEmpty()) {
             for (PathToSerializer pathToSerializer : pathToSerializers) {
                 pathToSerializer.getSerializer().tryPathTo(filledMap, pathToSerializer.getPathWhereToStore(), pathToSerializer.getPathTo());
@@ -213,18 +216,6 @@ public class FileReader {
             }
         }
         return filledMap;
-    }
-
-    private Set<String> convertListObject(Object object) {
-        Set<String> list = new LinkedHashSet<>();
-        for (Object obj : (List<?>) object) {
-            list.add(colorizeString(obj.toString()));
-        }
-        return list;
-    }
-
-    private String colorizeString(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
     }
 
     /**

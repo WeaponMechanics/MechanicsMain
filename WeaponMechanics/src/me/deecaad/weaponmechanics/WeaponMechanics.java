@@ -80,11 +80,11 @@ public class WeaponMechanics extends JavaPlugin {
             validators.add(new HitBox());
 
             FileReader basicConfigurationReader = new FileReader(null, validators);
-            OrderedConfig filledMap = basicConfigurationReader.fillOneFile(configyml);
+            Configuration filledMap = basicConfigurationReader.fillOneFile(configyml);
             basicConfiguration = basicConfigurationReader.usePathToSerializersAndValidators(filledMap);
         } else {
             // Just creates empty map to prevent other issues
-            basicConfiguration = new OrderedConfig();
+            basicConfiguration = new LinkedConfig();
             debug.log(LogLevel.WARN,
                     "Could not locate config.yml?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
@@ -196,7 +196,7 @@ public class WeaponMechanics extends JavaPlugin {
             basicConfiguration = new FileReader(null, null).fillOneFile(configyml);
         } else {
             // Just creates empty map to prevent other issues
-            basicConfiguration = new OrderedConfig();
+            basicConfiguration = new LinkedConfig();
             debug.log(LogLevel.WARN,
                     "Could not locate config.yml inside?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
@@ -214,7 +214,14 @@ public class WeaponMechanics extends JavaPlugin {
         // this Configuration. Clearing it, then adding the config back
         // into it solves that issue
         // todo: add on reload event to allow other plugins register their serializers on reload?
-        configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile()), null).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml"));
+        try {
+            configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile()), null).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml"));
+        } catch (DuplicateKeyException ex) {
+            // Since the map is empty before this, this error should
+            // never occur
+
+           debug.log(LogLevel.ERROR, "If you see this, please report to devs!", ex);
+        }
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);

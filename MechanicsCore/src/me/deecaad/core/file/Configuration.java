@@ -1,185 +1,243 @@
 package me.deecaad.core.file;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
 public interface Configuration {
-    
+
     /**
-     * Should add all keys and values from the map into
-     * the configuration.
+     * Adds every key and value from the given <code>ConfigurationSection</code>
+     * to this configuration. If a key is added that already exists in
+     * this <code>Configuration</code>, then a <code>DuplicateKeyException</code>
+     * is thrown.
      *
-     * @param map The map to add
-     * @param isIgnoreDuplicates Whether or not to ignore duplicate keys
+     * @param config The configuration to pull from
+     * @throws DuplicateKeyException If a duplicate key is found
      */
-    void add(Map<String, ?> map, boolean isIgnoreDuplicates);
-    
+    void add(ConfigurationSection config) throws DuplicateKeyException;
+
     /**
-     * Should add all keys and values from the file
-     * into the configuration.
+     * Adds every key and value from the given <code>Configuration</code>
+     * to this configuration. If a key is added that already exists in
+     * this <code>Configuration</code>, then a <code>DuplicateKeyException</code>
+     * is thrown.
      *
-     * @param file The file to add
-     * @param isIgnoreDuplicates Whether or not to ignore duplicate keys
+     * @param config The configuration to pull from
+     * @throws DuplicateKeyException If a duplicate key is found
      */
-    void add(ConfigurationSection file, boolean isIgnoreDuplicates);
-    
+    void add(Configuration config) throws DuplicateKeyException;
+
     /**
-     * Should copy all keys and values from the given
-     * configuration into this configuration.
+     * Sets the value at the given key
      *
-     * @param config The config to add
+     * @param key Location to set
+     * @param value The value to set at the location
+     * @return The value previously at that location, or null
      */
-    void add(Configuration config);
-    
+    @Nullable
+    Object set(String key, Object value);
+
     /**
-     * Sets the given value at the given location
+     * Gets every key present in this <code>Configuration</code>
      *
-     * @param key Location
-     * @param value The value
+     * @return All keys
      */
-    void set(String key, Object value);
-    
+    Set<String> getKeys();
+
     /**
-     * Gets the Integer at the given location
+     * Get the <code>int</code> value stored at
+     * the given key
      *
-     * @param key Location
-     * @return Integer
+     * @param key The location to pull the value from
+     * @return The pulled value
      */
     int getInt(String key);
-    int getInt(String key, int def);
-    
+
     /**
-     * Gets the Double at the given location
+     * Get the <code>int</code> value stored at
+     * the given key. If the key is not present,
+     * the default value is returned.
      *
-     * @param key Location
-     * @return Double
+     * @param key The location to pull the value from
+     * @param def The default value
+     * @return The pulled value
+     */
+    int getInt(String key, int def);
+
+    /**
+     * Get the <code>double</code> value stored at
+     * the given key
+     *
+     * @param key The location to pull the value from
+     * @return The pulled value
      */
     double getDouble(String key);
-    double getDouble(String key, double def);
-    
+
     /**
-     * Gets the Boolean at the given location
+     * Get the <code>Double</code> value stored at
+     * the given key. If the key is not present,
+     * the default value is returned.
      *
-     * @param key Location
-     * @return Boolean
+     * @param key The location to pull the value from
+     * @param def The default value
+     * @return The pulled value
      */
-    boolean getBool(String key);
-    boolean getBool(String key, boolean def);
-    
+    double getDouble(String key, double def);
+
     /**
-     * Gets the String at the given location
+     * Get the <code>String</code> value stored at
+     * the given key
      *
-     * @param key Location
-     * @return String
+     * @param key The location to pull the value from
+     * @return The pulled value
      */
     @Nonnull
     String getString(String key);
+
+    /**
+     * Get the <code>String</code> value stored at
+     * the given key. If the key is not present,
+     * the default value is returned.
+     *
+     * @param key The location to pull the value from
+     * @param def The default value
+     * @return The pulled value
+     */
     String getString(String key, String def);
-    
+
     /**
-     * Returns the ItemStack at the given location
+     * Get the <code>boolean</code> value stored at
+     * the given key
      *
-     * @param key Location
-     * @return ItemStack
+     * @param key The location to pull the value from
+     * @return The pulled value
+     */
+    boolean getBool(String key);
+
+    /**
+     * Get the <code>boolean</code> value stored at
+     * the given key. If the key is not present,
+     * the default value is returned.
+     *
+     * @param key The location to pull the value from
+     * @param def The default value
+     * @return The pulled value
+     */
+    boolean getBool(String key, boolean def);
+
+    /**
+     * Get the <code>List</code> value stored at
+     * the given key
+     *
+     * @param key The location to pull the value from
+     * @return The pulled value
      */
     @Nonnull
-    ItemStack getItem(String key);
-    ItemStack getItem(String key, ItemStack def);
-    
+    List<String> getList(String key);
+
     /**
-     * Returns the Set at the given location
+     * Get the <code>List</code> value stored at
+     * the given key. If the key is not present,
+     * the default value is returned.
      *
-     * @param key Location
-     * @return Set
+     * @param key The location to pull the value from
+     * @param def The default value
+     * @return The pulled value
      */
-    @Nonnull
-    Set<String> getSet(String key);
-    Set<String> getSet(String key, Set<String> def);
-    
+    List<String> getList(String key, List<String> def);
+
     /**
-     * Returns the object at the given location
+     * Get the <code>Object</code> value stored at
+     * the given key. If no object is found null is
+     * returned
      *
-     * @param key Location
-     * @return Object
+     * @param key The location to pull the value from
+     * @return The pulled value
      */
-    @Nonnull
+    @Nullable
     Object getObject(String key);
-    Object getObject(String key, Object def);
-    
+
     /**
-     * Attempts to cast the object at the
-     * given location to the given class type.
+     * Get the <code>Object</code> value stored at
+     * the given key. If the key is not present,
+     * the default value is returned.
      *
-     * @param key Location
-     * @param clazz The class to cast to
-     * @param <T> The class' type to cast to
-     * @return The casted object
+     * @param key The location to pull the value from
+     * @param def The default value
+     * @return The pulled value
+     */
+    Object getObject(String key, Object def);
+
+    /**
+     * Get the <code>Object</code> value of type
+     * <code>T</code> at the given key
+     *
+     * @param key The location to pull the value from
+     * @param clazz The class used to cast to type T
+     * @param <T> The data type of the value
+     * @return The pulled and casted value
      */
     @Nullable
     <T> T getObject(String key, Class<T> clazz);
-    <T> T getObject(String key, T def, Class<T> clazz);
-    
+
     /**
-     * Tests whether or not configuration contains the
-     * given key
+     * Get the <code>Object</code> value of type
+     * <code>T</code> at the given key. If the key
+     * is not present, the default value is returned.
      *
-     * @param key The key to test
-     * @return Whether or not config contains the key
+     * @param key The location to pull the value from
+     * @param def The default value
+     * @param clazz The class used to cast to type T
+     * @param <T> The data type of the value
+     * @return The pulled and casted value
      */
-    boolean containsKey(@Nonnull String key);
-    
+    <T> T getObject(String key, T def, Class<T> clazz);
+
     /**
-     * Removed all keys from the map
+     * Checks to see if the given key is contained within
+     * this <code>Configuration</code>
+     *
+     * @param key The key to check for
+     * @return true if the key is present
+     */
+    boolean containsKey(String key);
+
+    /**
+     * Checks to see if the given key is contained within
+     * this <code>Configuration</code>. If the key is present,
+     * then there is a second check to make sure it is of the
+     * given data type
+     *
+     * @param key The key to check for
+     * @param clazz The data type to check for
+     * @return true if the key is present
+     */
+    boolean containsKey(String key, Class<?> clazz);
+
+    /**
+     * Clears this <code>Configuration</code> by removing
+     * every key and value
      */
     void clear();
-    
+
     /**
-     * Loops through every key, where every key is defined as
-     * any key that contains <code>basePath</code>. The boolean
-     * <code>deep</code> dictates how many memory sections deeper
-     * then basePath the function should check
+     * Loops through every key that starts with
+     * <code>path</code> and checks to see if the
+     * key is "deep" or not
      *
-     * Ex) forEach("Weapon.Shoot", ..., false)
-     *   Weapon:
-     *     Shoot:
-     *       Spread: # Loops
-     *         Horizontal: # Does not
-     *         Vertical: # Does not
-     *       Test: # Loops
-     *       Hey: # Loops
-     *
-     * Ex) forEach("", ..., true)
-     *   Weapon: # Loops
-     *     Shoot: # Loops
-     *       Spread: # Loops
-     *       Test: # Loops
-     *
-     * This overall works very similar to <code>FileConfiguration</code>'s
-     * getKeys(deep).forEach(...)
-     *
-     * todo Compare different ways to loop https://stackoverflow.com/questions/46898/how-do-i-efficiently-iterate-over-each-entry-in-a-java-map?rq=1
-     *
-     * @see FileConfiguration
-     *
-     * @param basePath Where to "start" the loop
-     * @param consumer The action to perform
-     * @param deep Whether or not to check keys past a memory section
+     * @param path The starting path
+     * @param consumer What to do with every key
+     * @param deep true if should go deep
      */
-    void forEach(@Nonnull String basePath, @Nonnull BiConsumer<String, Object> consumer, boolean deep);
-    
-    /**
-     * Attempts to save the configuration
-     * to the given file
-     *
-     * @param file The file to save to
-     */
-    void save(@Nonnull File file);
+    void forEach(String path, BiConsumer<String, Object> consumer, boolean deep);
 }

@@ -43,7 +43,7 @@ public class TagUtils {
         // 1.14 R1 and above PersistentDataContainer
         if (version >= 1.141) {
             PersistentDataContainer keys = meta.getPersistentDataContainer();
-            NamespacedKey key = new NamespacedKey(MechanicsCore.instance, tag);
+            NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), tag);
 
             boolean has = keys.has(key, PersistentDataType.INTEGER);
             return has ? keys.get(key, PersistentDataType.INTEGER) : null;
@@ -51,7 +51,7 @@ public class TagUtils {
 
         // 1.13 R2 CustomItemTagContainer
         else if (version >= 1.132) {
-            NamespacedKey key = new NamespacedKey(MechanicsCore.instance, tag);
+            NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), tag);
             CustomItemTagContainer keys = meta.getCustomTagContainer();
 
             boolean has = keys.hasCustomTag(key, ItemTagType.INTEGER);
@@ -89,7 +89,7 @@ public class TagUtils {
         // 1.14 R1 and above PersistentDataContainer
         if (version >= 1.141) {
 
-            NamespacedKey key = new NamespacedKey(MechanicsCore.instance, tag);
+            NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), tag);
             meta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER, value);
 
             item.setItemMeta(meta);
@@ -99,7 +99,7 @@ public class TagUtils {
         // 1.13 R2 CustomItemTagContainer
         if (version >= 1.132) {
 
-            NamespacedKey key = new NamespacedKey(MechanicsCore.instance, tag);
+            NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), tag);
             meta.getCustomTagContainer().setCustomTag(key, ItemTagType.INTEGER, value);
 
             item.setItemMeta(meta);

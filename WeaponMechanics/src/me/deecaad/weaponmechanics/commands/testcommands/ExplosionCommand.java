@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -65,7 +66,7 @@ public class ExplosionCommand extends SubCommand {
             double radius = args.length > 0 ? Double.parseDouble(args[0]) : 5.0;
             player.sendMessage("§6Causing a §7sphere§6 shaped explosion with a radius of §7" + radius);
 
-            new Explosion(player, new SphericalExplosion(radius)).explode(player.getLocation());
+            new Explosion(new SphericalExplosion(radius), 200, 20, true, new HashMap<>()).explode(player.getLocation());
         }
     }
 
@@ -84,7 +85,7 @@ public class ExplosionCommand extends SubCommand {
             int height = (int)(args.length > 1 ? Double.parseDouble(args[1]) : 5.0);
             player.sendMessage("§6Causing a §7cube§6 shaped explosion with a width of §7" + width + "§6 and a height of §7" + height);
             
-            new Explosion(player, new CuboidExplosion(width, height));
+            new Explosion(new CuboidExplosion(width, height), 200, 20, true, new HashMap<>());
         }
     }
 
@@ -103,7 +104,7 @@ public class ExplosionCommand extends SubCommand {
             double depth = args.length > 1 ? Double.parseDouble(args[1]) : -3.0;
             player.sendMessage("§6Causing a §7parabola§6 shaped explosion with an angle of §7" + angle + "§6 and a depth of §7" + depth);
     
-            new Explosion(player, new ParabolicExplosion(depth, angle)).explode(player.getLocation());
+            new Explosion(new ParabolicExplosion(depth, angle), 200, 20, true, new HashMap<>()).explode(player.getLocation());
         }
     }
 
@@ -121,7 +122,7 @@ public class ExplosionCommand extends SubCommand {
             double yield = args.length > 0 ? Double.parseDouble(args[0]) : 5;
             player.sendMessage("§6Causing a §7Minecraft§6 shaped explosion with an yield of §7" + yield);
 
-            new Explosion(player, new DefaultExplosion(yield)).explode(player.getLocation());
+            new Explosion(new DefaultExplosion(yield), 200, 20, true, new HashMap<>()).explode(player.getLocation());
         }
     }
 }

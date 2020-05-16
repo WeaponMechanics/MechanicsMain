@@ -78,7 +78,7 @@ public class InfoHandler {
         if (weaponsWithConvert.isEmpty()) return null;
 
         for (String weaponWithConvert : weaponsWithConvert) {
-            ItemStack weaponStack = getConfigurations().getItem(weaponWithConvert + ".Info.Weapon_Item");
+            ItemStack weaponStack = getConfigurations().getObject(weaponWithConvert + ".Info.Weapon_Item", ItemStack.class);
             if (weaponStack == null) continue;
             WeaponConverter weaponConverter = getConfigurations().getObject(weaponWithConvert + ".Info.Weapon_Converter_Check", WeaponConverter.class);
             if (weaponConverter.isMatch(weaponStack, possibleWeaponStack)) {

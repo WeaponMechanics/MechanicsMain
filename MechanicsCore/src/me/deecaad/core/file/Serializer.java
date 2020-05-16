@@ -25,10 +25,15 @@ public interface Serializer<T> {
      * @return true if this serializer should be used later
      */
     default String useLater(ConfigurationSection configurationSection, String path) {
+
         // Checks if keyword is actually an string
         // -> If it is, then it means that it is used as path to other location where
         // this serializer's object should actually be held
-        return configurationSection.getString(path);
+        //
+        // We have to check if there is a String at that key because
+        // ConfigurationSections (for some dumb reason) using .toString
+        // instead of type casting
+        return configurationSection.isString(path) ? configurationSection.getString(path) : null;
     }
 
     /**
@@ -38,8 +43,8 @@ public interface Serializer<T> {
      * @param pathWhereToStore the path where the SAME object at filledMap should also be stored (just under different key)
      * @param pathTo the path where to try to find object from filledMap
      */
-    default void tryPathTo(OrderedConfig filledMap, String pathWhereToStore, String pathTo) {
-        Object obj = filledMap.get(pathTo);
+    default void tryPathTo(Configuration filledMap, String pathWhereToStore, String pathTo) {
+        Object obj = filledMap.getObject(pathTo, null);
         if (obj == null || !this.getClass().isInstance(obj.getClass())) {
             String[] splittedWhereToStore = pathWhereToStore.split("\\.");
             debug.log(LogLevel.ERROR, "Tried to use path to, but didn't find correct object.",
@@ -50,7 +55,7 @@ public interface Serializer<T> {
                     "This is located at " + pathWhereToStore + " in configurations.");
             return;
         }
-        filledMap.put(pathWhereToStore, obj);
+        filledMap.set(pathWhereToStore, obj);
     }
 
     /**

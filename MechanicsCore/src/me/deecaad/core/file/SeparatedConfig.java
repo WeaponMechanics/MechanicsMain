@@ -32,99 +32,104 @@ import static me.deecaad.core.MechanicsCore.debug;
  * @since 1.0
  */
 public class SeparatedConfig implements Configuration {
-    
-    private final List<Map<String, ?>>     maps;
-    private final Map<String, Number>      numbers;
-    private final Map<String, Boolean>     booleans;
-    private final Map<String, String>      strings;
-    private final Map<String, ItemStack>   items;
-    private final Map<String, Set<String>> lists;
-    private final Map<String, Object>      objects;
-    
-    /**
-     * Initializes all maps and adds them
-     * into the list of maps.
-     *
-     * May be worth making these LinkedHashMaps,
-     * but the ram usage effect should be looked
-     * into before changing.
-     */
+
+    private List<Map<String, ?>> maps;
+    private Map<String, Number> numbers;
+    private Map<String, Boolean> booleans;
+    private Map<String, String> strings;
+    private Map<String, Object> objects;
+    private Map<String, List<String>> lists;
+
     public SeparatedConfig() {
-        maps = new ArrayList<>();
-        maps.add(numbers = new HashMap<>());
-        maps.add(booleans = new HashMap<>());
-        maps.add(strings = new HashMap<>());
-        maps.add(items = new HashMap<>());
-        maps.add(lists = new HashMap<>());
-        maps.add(objects = new HashMap<>());
+
+        // Initialize the maps
+        numbers = new LinkedHashMap<>();
+        booleans = new LinkedHashMap<>();
+        strings = new LinkedHashMap<>();
+        objects = new LinkedHashMap<>();
+        lists = new LinkedHashMap<>();
+
+        // Add the maps to the list
+        maps = new ArrayList<>(5);
+        maps.add(numbers);
+        maps.add(booleans);
+        maps.add(strings);
+        maps.add(objects);
+        maps.add(lists);
     }
-    
+
     @Override
-    public void add(Map<String, ?> map, boolean isIgnoreDuplicates) {
-        if (map == null) return;
-        
-        if (!isIgnoreDuplicates) {
-            // This assumes that the map was in order
-            new LinkedHashSet<>(map.keySet()).forEach(key -> {
-                if (containsKey(key)) {
-                    debug.log(LogLevel.ERROR, "Duplicate key \"" + key + "\"");
-                    map.remove(key);
-                }
-            });
+    public void add(ConfigurationSection config) throws DuplicateKeyException {
+
+        List<String> duplicates = new ArrayList<>();
+
+        for (String key : config.getKeys(true)) {
+
+            // Check for duplicate keys
+            if (this.containsKey(key)) {
+                duplicates.add(key);
+            }
+
+            Object value = config.get(key);
+            set(key, value);
         }
-        map.forEach(this::set);
-    }
-    
-    @Override
-    public void add(ConfigurationSection file, boolean isIgnoreDuplicates) {
-        if (file == null) return;
-        
-        // Returns a LinkedHashSet (Retaining order)
-        Set<String> keys = file.getKeys(true);
-        
-        if (!isIgnoreDuplicates) {
-            keys = keys.stream()
-                    .filter(key -> {
-                        if (containsKey(key)) {
-                            debug.log(LogLevel.ERROR, "Duplicate key \"" + key + "\" found in " + file.getName());
-                            return false;
-                        } else return true;
-                    })
-                    .collect(Collectors.toSet());
+
+        // Report duplicate keys
+        if (!duplicates.isEmpty()) {
+            throw new DuplicateKeyException(duplicates.toArray(new String[0]));
         }
-        keys.forEach(key -> set(key, file.get(key)));
     }
-    
+
     @Override
-    public void add(Configuration config) {
-        if (config == null) return;
-        
-        // This assumes duplicate keys were already checked for
-        config.forEach("", this::set, true);
+    public void add(Configuration config) throws DuplicateKeyException {
+
+        List<String> duplicates = new ArrayList<>();
+
+        config.forEach("", (key, value) -> {
+
+            // Check for duplicate keys
+            if (this.containsKey(key)) {
+                duplicates.add(key);
+            } else {
+                set(key, value);
+            }
+        }, true);
+
+        // Report duplicate keys
+        if (!duplicates.isEmpty()) {
+            throw new DuplicateKeyException(duplicates.toArray(new String[0]));
+        }
     }
-    
+
+    @Nullable
     @Override
-    public void set(String key, Object value) {
-        if      (value instanceof Number)   numbers.put(key, (Number) value);
-        else if (value instanceof Boolean)  booleans.put(key, (Boolean) value);
-        else if (value instanceof String)   strings.put(key, (String) value);
-        else if (value instanceof ItemStack)items.put(key, (ItemStack) value);
-        else if (value instanceof Set<?>)  lists.put(key, convertSet(value));
-        else                                objects.put(key, value);
+    public Object set(String key, Object value) {
+        if (value instanceof Number) {
+            return numbers.put(key, (Number) value);
+        } else if (value instanceof Boolean) {
+            return booleans.put(key, (Boolean) value);
+        } else if (value instanceof String) {
+            return strings.put(key, value.toString());
+        } else if (value instanceof List<?>) {
+            List<String> list = ((List<?>) value).stream()
+                    .map(Object::toString)
+                    .map(StringUtils::color)
+                    .collect(Collectors.toList());
+
+            return lists.put(key, list);
+        } else {
+            return objects.put(key, value);
+        }
+
     }
-    
-    /**
-     * Converts an object to a list of colored strings
-     *
-     * @param obj The list
-     * @return The converted list
-     */
-    private Set<String> convertSet(Object obj) {
-        return ((Set<?>) obj).stream()
-                .map(object -> StringUtils.color(object.toString()))
-                .collect(Collectors.toSet());
+
+    @Override
+    public Set<String> getKeys() {
+        Set<String> keys = new HashSet<>();
+        maps.forEach(map -> keys.addAll(map.keySet()));
+        return keys;
     }
-    
+
     @Override
     public int getInt(String key) {
         return numbers.getOrDefault(key, 0).intValue();
@@ -165,60 +170,75 @@ public class SeparatedConfig implements Configuration {
     public String getString(String key, String def) {
         return strings.getOrDefault(key, def);
     }
-    
-    @Nonnull
-    @Override
-    public ItemStack getItem(String key) {
-        return items.getOrDefault(key, new ItemStack(Material.AIR));
-    }
-    
-    @Override
-    public ItemStack getItem(String key, ItemStack def) {
-        return items.getOrDefault(key, def);
-    }
-    
-    @Nonnull
-    @Override
-    public Set<String> getSet(String key) {
-        return lists.getOrDefault(key, new HashSet<>());
-    }
-    
-    @Override
-    public Set<String> getSet(String key, Set<String> def) {
-        return lists.getOrDefault(key, def);
-    }
-    
-    @Nonnull
+
+    @Nullable
     @Override
     public Object getObject(String key) {
-        return objects.getOrDefault(key, new Object());
+        return objects.get(key);
     }
-    
+
     @Override
     public Object getObject(String key, Object def) {
         return objects.getOrDefault(key, def);
     }
-    
+
     @Nullable
     @Override
     public <T> T getObject(String key, Class<T> clazz) {
-        if (objects.get(key) != null)
-            return clazz.cast(objects.get(key));
-        return null;
+        Object value = objects.get(key);
+        return value == null ? null : clazz.cast(value);
     }
     
     @Override
     public <T> T getObject(String key, T def, Class<T> clazz) {
-        if (objects.get(key) != null)
-            return clazz.cast(objects.get(key));
-        return def;
+        Object value = objects.get(key);
+        return value == null ? def : clazz.cast(value);
     }
-    
+
+    @Nonnull
+    @Override
+    public List<String> getList(String key) {
+        List<String> value = lists.get(key);
+        if (value == null) {
+            return new ArrayList<>();
+        } else {
+            return value;
+        }
+    }
+
+    @Override
+    public List<String> getList(String key, List<String> def) {
+        List<String> value = lists.get(key);
+        if (value == null) {
+            return def;
+        } else {
+            return value;
+        }
+    }
+
     @Override
     public boolean containsKey(@Nonnull String key) {
         return maps.stream().anyMatch(map -> map.containsKey(key));
     }
-    
+
+    @Override
+    public boolean containsKey(String key, Class<?> clazz) {
+        if (clazz == int.class) clazz = Integer.class;
+        else if (clazz == double.class) clazz = Double.class;
+        else if (clazz == boolean.class) clazz = Boolean.class;
+
+        final Class<?> finalClazz = clazz;
+
+        return maps.stream().anyMatch(map -> {
+            Object value = map.get(key);
+            if (value == null) {
+                return false;
+            } else {
+                return finalClazz.isInstance(value);
+            }
+        });
+    }
+
     @Override
     public void clear() {
         maps.forEach(Map::clear);
@@ -242,15 +262,17 @@ public class SeparatedConfig implements Configuration {
             }
         });
     }
-    
-    @Override
+
     public void save(@Nonnull File file) {
         FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     
         // basic support for changing keys during the program AND
         // allowing the program to change keys.
-        add(configuration, true);
-    
+        try {
+            add(configuration);
+        } catch (DuplicateKeyException ignore) {
+        }
+
         // Deletes all keys from config
         configuration.getKeys(true).forEach(key -> configuration.set(key, null));
     

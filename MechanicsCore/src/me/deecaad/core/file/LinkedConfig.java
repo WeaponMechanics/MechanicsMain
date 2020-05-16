@@ -5,15 +5,14 @@ import me.deecaad.core.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -42,57 +41,74 @@ import static me.deecaad.core.MechanicsCore.debug;
  * @see Configuration
  * @since 1.0
  */
-public class OrderedConfig extends LinkedHashMap<String, Object> implements Configuration {
-    
+public class LinkedConfig extends LinkedHashMap<String, Object> implements Configuration {
+
+
     @Override
-    public void add(Map<String, ?> map, boolean isIgnoreDuplicates) {
-        if (map == null) return;
-        
-        if (!isIgnoreDuplicates) {
-            // This assumes that the map was in order
-            new LinkedHashSet<>(map.keySet()).forEach(key -> {
-                if (containsKey(key)) {
-                    // todo ERROR ERROR - ALERT USER! ah
-                    map.remove(key);
-                }
-            });
+    public void add(ConfigurationSection config) throws DuplicateKeyException {
+
+        List<String> duplicates = new ArrayList<>();
+
+        for (String key : config.getKeys(true)) {
+
+            // Check for duplicate keys
+            if (this.containsKey(key)) {
+                duplicates.add(key);
+            }
+
+            Object value = config.get(key);
+            set(key, value);
         }
-        map.forEach(this::set);
-    }
-    
-    @Override
-    public void add(ConfigurationSection file, boolean isIgnoreDuplicates) {
-        if (file == null) return;
-        
-        // Returns a LinkedHashSet (Retaining order)
-        Set<String> keys = file.getKeys(true);
-        
-        if (!isIgnoreDuplicates) {
-            keys = keys.stream()
-                    .filter(key -> {
-                        if (containsKey(key)) {
-                            // todo ERROR ERROR - ALERT USER! AH
-                            return false;
-                        } else return true;
-                    })
-                    .collect(Collectors.toSet());
+
+        // Report duplicate keys
+        if (!duplicates.isEmpty()) {
+            throw new DuplicateKeyException(duplicates.toArray(new String[0]));
         }
-        keys.forEach(key -> put(key, file.get(key)));
     }
-    
+
     @Override
-    public void add(Configuration config) {
-        if (config == null) return;
-        
-        // This assumes duplicate keys were already checked for
-        config.forEach("", this::set, true);
+    public void add(Configuration config) throws DuplicateKeyException {
+
+        List<String> duplicates = new ArrayList<>();
+
+        config.forEach("", (key, value) -> {
+
+            // Check for duplicate keys
+            if (this.containsKey(key)) {
+                duplicates.add(key);
+            } else {
+                set(key, value);
+            }
+        }, true);
+
+        // Report duplicate keys
+        if (!duplicates.isEmpty()) {
+            throw new DuplicateKeyException(duplicates.toArray(new String[0]));
+        }
     }
-    
+
+    @Nullable
     @Override
-    public void set(String key, Object value) {
-        put(key, value);
+    public Object set(String key, Object value) {
+
+        // Convert lists to colored lists of strings
+        if (value instanceof List<?>) {
+            value = ((List<?>) value).stream()
+                    .map(Object::toString)
+                    .map(StringUtils::color)
+                    .collect(Collectors.toList());
+        }
+
+        // There is no need to cast to specific data types
+        // here because they will be casted back to Objects
+        return super.put(key, value);
     }
-    
+
+    @Override
+    public Set<String> getKeys() {
+        return super.keySet();
+    }
+
     @Override
     public int getInt(@Nonnull String key) {
         return ((Number) getOrDefault(key, 0)).intValue();
@@ -123,11 +139,31 @@ public class OrderedConfig extends LinkedHashMap<String, Object> implements Conf
         return (boolean) getOrDefault(key, def);
     }
 
+    @Nonnull
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> getList(String key) {
+        List<String> value = (List<String>) get(key);
+
+        // Avoid initializing a new Object if
+        // we don't need to
+        if (value == null) {
+            return new ArrayList<>();
+        } else {
+            return value;
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> getList(String key, List<String> def) {
+        return (List<String>) getOrDefault(key, def);
+    }
+
     @Nullable
     @Override
     public String getString(@Nonnull String key) {
-        Object value = get(key);
-        return value != null ? (String) get(key) : null;
+        return (String) getOrDefault(key, "");
     }
     
     @Override
@@ -135,44 +171,24 @@ public class OrderedConfig extends LinkedHashMap<String, Object> implements Conf
         return (String) getOrDefault(key, def);
     }
 
+    /**
+     * This implementation has the issue of returning
+     * any data type, since every generic is an <code>Object</code>
+     *
+     * @param key The location to pull the value from
+     * @return The object at the given key
+     */
     @Nullable
     @Override
-    public ItemStack getItem(@Nonnull String key) {
-        Object value = get(key);
-        return value != null ? ((ItemStack) get(key)).clone() : null;
-    }
-    
-    @Override
-    public ItemStack getItem(String key, ItemStack def) {
-        return ((ItemStack) getOrDefault(key, def)).clone();
-    }
-
-    @Nullable
-    @SuppressWarnings("unchecked")
-    @Override
-    public Set<String> getSet(@Nonnull String key) {
-        Object value = get(key);
-        return value != null ? (Set<String>) get(key) : null;
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Override
-    public Set<String> getSet(String key, Set<String> def) {
-        return (Set<String>) getOrDefault(key, def);
-    }
-
-    @Nullable
-    @Override
-    public Object getObject(@Nonnull String key) {
-        // Here is no casting so it can't try to cast null to some object
+    public Object getObject(String key) {
         return get(key);
     }
-    
+
     @Override
     public Object getObject(String key, Object def) {
         return getOrDefault(key, def);
     }
-    
+
     @Nullable
     @Override
     public <T> T getObject(String key, Class<T> clazz) {
@@ -188,32 +204,44 @@ public class OrderedConfig extends LinkedHashMap<String, Object> implements Conf
     
     @Override
     public boolean containsKey(@Nonnull String key) {
-        return containsKey(key);
+        return super.containsKey(key);
     }
-    
+
+    @Override
+    public boolean containsKey(String key, Class<?> clazz) {
+        Object value = get(key);
+
+        // Check if the value exists
+        if (value == null) return false;
+        else return clazz.isInstance(value);
+    }
+
     @Override
     public void forEach(@Nonnull String basePath, @Nonnull BiConsumer<String, Object> consumer, boolean deep) {
         int memorySections = StringUtils.countChars('.', basePath);
         forEach((key, value) -> {
             if (key.startsWith(basePath)) {
                 int currentMemorySections = StringUtils.countChars('.', basePath);
-                if (deep && currentMemorySections == memorySections + 1) {
+                if (!deep && currentMemorySections == memorySections + 1) {
                     consumer.accept(key, value);
-                } else if (!deep && currentMemorySections > memorySections) {
+                } else if (deep && currentMemorySections > memorySections) {
                     consumer.accept(key, value);
                 }
             }
         });
     }
-    
-    @Override
+
     public void save(@Nonnull File file) {
         FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         
         // basic support for changing keys during the program AND
         // allowing the program to change keys.
-        add(configuration, true);
-        
+        try {
+            add(configuration);
+        } catch (DuplicateKeyException e) {
+            e.printStackTrace();
+        }
+
         // Deletes all keys from config
         configuration.getKeys(true).forEach(key -> configuration.set(key, null));
         
