@@ -192,11 +192,11 @@ public class WeaponMechanics extends JavaPlugin {
         // Fill config.yml mappings
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml != null && configyml.exists()) {
-            basicConfiguration = null;
-            basicConfiguration = new FileReader(null, null).fillOneFile(configyml);
+            //basicConfiguration = null;
+            //basicConfiguration = new FileReader(null, null).fillOneFile(configyml);
         } else {
             // Just creates empty map to prevent other issues
-            basicConfiguration = new LinkedConfig();
+            //basicConfiguration = new LinkedConfig();
             debug.log(LogLevel.WARN,
                     "Could not locate config.yml inside?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");

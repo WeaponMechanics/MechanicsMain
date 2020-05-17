@@ -123,12 +123,12 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     
     @Override
     public double getDouble(@Nonnull String key) {
-        return ((Number) getOrDefault(key, 0.0)).intValue();
+        return ((Number) getOrDefault(key, 0.0)).doubleValue();
     }
     
     @Override
     public double getDouble(String key, double def) {
-        return ((Number) getOrDefault(key, def)).intValue();
+        return ((Number) getOrDefault(key, def)).doubleValue();
     }
     
     @Override

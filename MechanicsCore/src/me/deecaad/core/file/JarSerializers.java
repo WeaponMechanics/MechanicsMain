@@ -91,6 +91,8 @@ public class JarSerializers extends FileCopier {
                             "Found an duplicate keyword " + nameSerializer.getKeyword() + " from serializers.",
                             "Please change it from class " + nameWithoutSuffix + " or from the other one which had same keyword");
                     continue;
+                } else {
+                    keywords.add(nameSerializer.getKeyword());
                 }
 
                 serializers.add(nameSerializer);

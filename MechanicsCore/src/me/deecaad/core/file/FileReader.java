@@ -2,6 +2,7 @@ package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.annotation.Nullable;
@@ -155,9 +156,6 @@ public class FileReader {
         String startsWithDeny = null;
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
-
-            System.out.println(key + ": " + configuration.get(key));
-
             if (startsWithDeny != null) {
 
                 // We may still want to add this key to the map. It may make
@@ -171,43 +169,41 @@ public class FileReader {
             }
             String[] keySplit = key.split("\\.");
             if (keySplit.length > 0) {
+                // Get the last "key name" of the key
+                String lastKey = keySplit[keySplit.length - 1].toLowerCase();
 
-                if (false) {
+                IValidator validator = this.validators.get(lastKey);
+                if (validator != null) {
+                    validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+                }
 
-                    // Get the last "key name" of the key
-                    String lastKey = keySplit[keySplit.length - 1].toLowerCase();
-                    IValidator validator = this.validators.get(lastKey);
-                    if (validator != null) {
-                        validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+                // Check if this key is a serializer and handle pathTo
+                Serializer<?> serializer = this.serializers.get(lastKey);
+                if (serializer != null) {
+                    String pathTo = serializer.useLater(configuration, key);
+                    if (pathTo != null) {
+                        startsWithDeny = key;
+                        pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
+                        continue;
                     }
-
-                    // Check if this key is a serializer and handle pathTo
-                    Serializer<?> serializer = this.serializers.get(lastKey);
-                    if (serializer != null) {
-                        String pathTo = serializer.useLater(configuration, key);
-                        if (pathTo != null) {
-                            startsWithDeny = key;
-                            pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
-                            continue;
-                        }
-                        Object valid;
-                        try {
-                            valid = serializer.serialize(file, configuration, key);
-                        } catch (Exception e) {
-                            debug.log(LogLevel.WARN, "Caught exception from serializer " + serializer.getKeyword() + "!", e);
-                            continue;
-                        }
-                        if (valid != null) {
-                            startsWithDeny = key;
-                            filledMap.set(key, valid);
-                            continue;
-                        }
+                    Object valid;
+                    try {
+                        valid = serializer.serialize(file, configuration, key);
+                    } catch (Exception e) {
+                        debug.log(LogLevel.WARN, "Caught exception from serializer " + serializer.getKeyword() + "!", e);
+                        continue;
                     }
-
+                    if (valid != null) {
+                        startsWithDeny = key;
+                        filledMap.set(key, valid);
+                        continue;
+                    }
                 }
             }
             Object object = configuration.get(key);
-            filledMap.set(key, object);
+            if (!(object instanceof MemorySection)) {
+                filledMap.set(key, object);
+            }
         }
         if (filledMap.getKeys().isEmpty()) {
             return null;
