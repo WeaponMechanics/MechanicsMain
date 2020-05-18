@@ -1,15 +1,16 @@
 Explosion:
   Detonation:
-    Delay: <Ticks> # The time after the trigger that the explosion occurs
+    Delay_After_Impact: <Ticks> # The time after the trigger that the explosion occurs
     Impact_When:
       Shot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
       Entities: <Boolean> # When the projectile hits an entity
-      Solid_Block: <Boolean> # When the projectile hits a non-fluid, non-air block
-  Damage:
-    Enabled: <Boolean> # False to not calculate damage to players.
-    Amount: <Double>
-    Enable_Owner_Immunity: <Boolean>
-    Potion_Effects: # Potion effect serializer
+      Block: <Boolean> # When the projectile hits a non-fluid, non-air block
+      Liquid: <Boolean> # When the projectile hits a fluid block
+#  Damage:
+#    Enabled: <Boolean> # False to not calculate damage to players.
+#    Amount: <Double>
+#    Enable_Owner_Immunity: <Boolean>
+#    Potion_Effects: # Potion effect serializer
   Blocks:
     Enabled: <Boolean> # False to not calculate broken blocks
     Regenerate_After_Ticks: <Ticks> # Negative number to not generate
@@ -17,7 +18,7 @@ Explosion:
     Drop_Items: <Boolean> # Whether or not the broken blocks will drop items
     Blacklist: <Boolean>
     Block_List:
-      - <Material>:<Data>~<Shots_To_Break>
+      - <Material>:<Data>
   Explosion_Type: <Sphere/Cube/Parabola/Minecraft>
   Explosion_Type_Data:
     # Fetch required values based on explosion type or simply don't do anything with these if not needed

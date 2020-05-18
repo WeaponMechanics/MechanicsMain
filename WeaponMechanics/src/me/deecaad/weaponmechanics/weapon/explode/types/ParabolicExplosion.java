@@ -173,4 +173,12 @@ public class ParabolicExplosion implements ExplosionShape {
                 temp3 > -distance ||
                 temp4 < distance;
     }
+
+    @Override
+    public String toString() {
+        return "ParabolicExplosion{" +
+                "depth=" + depth +
+                ", angle=" + angle +
+                '}';
+    }
 }

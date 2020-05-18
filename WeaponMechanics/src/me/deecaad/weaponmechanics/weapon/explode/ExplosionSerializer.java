@@ -9,6 +9,10 @@ import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -18,15 +22,21 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  * <code>ExplosionType</code>. If the type of
  * explosion is invalid, the user is notified.
  */
-public class ExplosionSerializer implements Serializer<ExplosionShape> {
-    
+public class ExplosionSerializer implements Serializer<Explosion> {
+
+    /**
+     * Default constructor for serializer
+     */
+    public ExplosionSerializer() {
+    }
+
     @Override
     public String getKeyword() {
         return "Explosion";
     }
     
     @Override
-    public ExplosionShape serialize(File file, ConfigurationSection configurationSection, String path) {
+    public Explosion serialize(File file, ConfigurationSection configurationSection, String path) {
         ConfigurationSection section = configurationSection.getConfigurationSection(path);
         
         // Gets the explosion type from config, warns the user
@@ -63,24 +73,50 @@ public class ExplosionSerializer implements Serializer<ExplosionShape> {
         debug.validate(height > 0, "Explosion Height should be a positive number!", found);
         debug.validate(width > 0, "Explosion Width should be a positive number!", found);
         debug.validate(radius > 0, "Explosion Radius should be a positive number!", found);
-        
-        // I could just compare Strings here instead of
-        // making an enum for the different explosion
-        // types, but this is more readable
+
+        ExplosionShape shape;
         switch (type) {
             case CUBE:
-                return new CuboidExplosion(width, height);
+                shape = new CuboidExplosion(width, height);
+                break;
             case SPHERE:
-                return new SphericalExplosion(radius);
+                shape = new SphericalExplosion(radius);
+                break;
             case PARABOLA:
-                return new ParabolicExplosion(depth, angle);
+                shape = new ParabolicExplosion(depth, angle);
+                break;
             case DEFAULT:
-                return new DefaultExplosion(yield);
+                shape = new DefaultExplosion(yield);
+                break;
+            default:
+                throw new IllegalArgumentException("Something went wrong...");
         }
-        
-        // This should never occur. If this occurs, it's most likely that
-        // a new explosion type was created, but it was never added to the enums
-        throw new IllegalArgumentException("Explosion needs updating");
+
+        boolean isBreakBlocks = section.getBoolean("Blocks.Enabled", true);
+        int regenerationDelay = section.getInt("Blocks.Regenerate_After_Ticks", 1200);
+        int regenerationNoise = section.getInt("Blocks.Noise_In_Ticks", 10);
+        boolean isBlacklist = section.getBoolean("Blocks.Blacklist", false);
+        Set<String> materials = section.getList("Blocks.Block_List", new ArrayList<>(0))
+                .stream()
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+
+        ConfigurationSection impactWhenSection = section.getConfigurationSection("Detonation.Impact_When");
+        Set<Explosion.ExplosionTrigger> triggers = new HashSet<>(4);
+
+        for (String key : impactWhenSection.getKeys(false)) {
+            try {
+                Explosion.ExplosionTrigger trigger = Explosion.ExplosionTrigger.valueOf(key);
+                boolean value = impactWhenSection.getBoolean(key);
+
+                if (value) triggers.add(trigger);
+            } catch (EnumConstantNotPresentException ex) {
+                debug.log(LogLevel.ERROR, "Unknown trigger type \"" + key + "\"... Did you spell it correctly in config?");
+                debug.log(LogLevel.DEBUG, ex);
+            }
+        }
+
+        return new Explosion(shape, isBreakBlocks, regenerationDelay, regenerationNoise, isBlacklist, materials, triggers);
     }
     
     private enum ExplosionType {

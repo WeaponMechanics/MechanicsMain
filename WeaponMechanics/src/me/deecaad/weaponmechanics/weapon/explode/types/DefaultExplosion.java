@@ -237,4 +237,11 @@ public class DefaultExplosion implements ExplosionShape {
         // The percentage of successful traces
         return ((double) successfulTraces) / totalTraces;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultExplosion{" +
+                "yield=" + yield +
+                '}';
+    }
 }

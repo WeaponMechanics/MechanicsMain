@@ -81,4 +81,11 @@ public class SphericalExplosion implements ExplosionShape {
         return temp;
 
     }
+
+    @Override
+    public String toString() {
+        return "SphericalExplosion{" +
+                "radius=" + radius +
+                '}';
+    }
 }

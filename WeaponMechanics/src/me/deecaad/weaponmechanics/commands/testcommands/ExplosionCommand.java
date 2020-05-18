@@ -9,6 +9,7 @@ import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -17,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -52,8 +54,22 @@ public class ExplosionCommand extends SubCommand {
         sendHelp(sender, args);
     }
 
+    private void explode(ExplosionShape shape, Location loc) {
+        Set<String> materials = new HashSet<>();
+        materials.add("DIAMOND_BLOCK");
+        materials.add("GOLD_BLOCK");
+        materials.add("IRON_BLOCK");
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                new Explosion(shape, true, 200, 20, true, materials, null).explode(loc);
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), 100);
+    }
+
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.sphere")
-    private static class SphereExplosionCommand extends SubCommand {
+    private class SphereExplosionCommand extends SubCommand {
         
         SphereExplosionCommand() {
             super("wm test explosion", "sphere", "Spherical explosion", "<3,5,16,32>");
@@ -66,12 +82,12 @@ public class ExplosionCommand extends SubCommand {
             double radius = args.length > 0 ? Double.parseDouble(args[0]) : 5.0;
             player.sendMessage("§6Causing a §7sphere§6 shaped explosion with a radius of §7" + radius);
 
-            new Explosion(new SphericalExplosion(radius), 200, 20, true, new HashMap<>()).explode(player.getLocation());
+            explode(new SphericalExplosion(radius), player.getLocation());
         }
     }
 
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.cube")
-    private static class CubeExplosionCommand extends SubCommand {
+    private class CubeExplosionCommand extends SubCommand {
         
         CubeExplosionCommand() {
             super("wm test explosion", "cube", "Cubical Explosion Test", INTEGERS + " " + INTEGERS);
@@ -85,12 +101,12 @@ public class ExplosionCommand extends SubCommand {
             int height = (int)(args.length > 1 ? Double.parseDouble(args[1]) : 5.0);
             player.sendMessage("§6Causing a §7cube§6 shaped explosion with a width of §7" + width + "§6 and a height of §7" + height);
             
-            new Explosion(new CuboidExplosion(width, height), 200, 20, true, new HashMap<>());
+            explode(new CuboidExplosion(width, height), player.getLocation());
         }
     }
 
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.parabola")
-    private static class ParabolaExplosionCommand extends SubCommand {
+    private class ParabolaExplosionCommand extends SubCommand {
         
         ParabolaExplosionCommand() {
             super("wm test explosion", "parabola", "Parabolic Explosion Test", "<angle> <depth>");
@@ -103,13 +119,13 @@ public class ExplosionCommand extends SubCommand {
             double angle = args.length > 0 ? Double.parseDouble(args[0]) : 0.5;
             double depth = args.length > 1 ? Double.parseDouble(args[1]) : -3.0;
             player.sendMessage("§6Causing a §7parabola§6 shaped explosion with an angle of §7" + angle + "§6 and a depth of §7" + depth);
-    
-            new Explosion(new ParabolicExplosion(depth, angle), 200, 20, true, new HashMap<>()).explode(player.getLocation());
+
+            explode(new ParabolicExplosion(depth, angle), player.getLocation());
         }
     }
 
     @CommandPermission(permission = "weaponmechanics.commands.test.explosion.default")
-    private static class DefaultExplosionCommand extends SubCommand {
+    private class DefaultExplosionCommand extends SubCommand {
 
         DefaultExplosionCommand() {
             super("wm test explosion", "default", "Parabolic Explosion Test", "<3,5,10>");
@@ -122,7 +138,7 @@ public class ExplosionCommand extends SubCommand {
             double yield = args.length > 0 ? Double.parseDouble(args[0]) : 5;
             player.sendMessage("§6Causing a §7Minecraft§6 shaped explosion with an yield of §7" + yield);
 
-            new Explosion(new DefaultExplosion(yield), 200, 20, true, new HashMap<>()).explode(player.getLocation());
+            explode(new DefaultExplosion(yield), player.getLocation());
         }
     }
 }

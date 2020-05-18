@@ -1,55 +1,76 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.effects.types.ParticleEffect;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
+import me.deecaad.weaponmechanics.weapon.BlockDamageData;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Explosion {
 
-    private static Map<Block, Material> resetMaterialMap = new HashMap<>();
-    private static Material air = Material.valueOf("AIR"); // Times like this that I want XMaterial
-
     private final ExplosionShape shape;
+    private final boolean isBreakBlocks;
     private final int regenerationDelay;
     private final int regenerationNoise;
     private final boolean isBlacklist;
-    private final Map<String, Integer> blockData;
+    private final Set<String> materials;
+    private final Set<ExplosionTrigger> triggers;
 
     public Explosion(@Nonnull ExplosionShape shape,
+                     boolean isBreakBlocks,
                      int regenerationDelay,
                      @Nonnegative int regenerationNoise,
                      boolean isBlacklist,
-                     @Nonnull Map<String, Integer> blockData) {
+                     @Nonnull Set<String> materials,
+                     @Nonnull Set<ExplosionTrigger> triggers) {
 
         this.shape = shape;
+        this.isBreakBlocks = isBreakBlocks;
         this.regenerationDelay = regenerationDelay;
         this.regenerationNoise = regenerationNoise;
         this.isBlacklist = isBlacklist;
-        this.blockData = blockData;
+        this.materials = materials;
+        this.triggers = triggers;
     }
 
-    public boolean isRegenerateBlocks() {
-        return regenerationDelay > 0;
+    public ExplosionShape getShape() {
+        return shape;
+    }
+
+    public int getRegenerationDelay() {
+        return regenerationDelay;
+    }
+
+    public int getRegenerationNoise() {
+        return regenerationNoise;
+    }
+
+    public boolean isBlacklist() {
+        return isBlacklist;
+    }
+
+    public Set<String> getMaterials() {
+        return materials;
+    }
+
+    public Set<ExplosionTrigger> getTriggers() {
+        return triggers;
     }
 
     /**
@@ -58,29 +79,25 @@ public class Explosion {
      * @param origin The center of the explosion
      */
     public void explode(Location origin) {
-        List<Block> blocks = shape.getBlocks(origin);
+        debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
+
+        List<Block> blocks = isBreakBlocks ? shape.getBlocks(origin) : new ArrayList<>();
         Map<LivingEntity, Double> entities = shape.getEntities(origin);
 
         for (Block block: blocks) {
+            String mat = block.getType().name() + (CompatibilityAPI.getVersion() < 1.13 ? ":" + block.getData() : "");
+            if (isBlacklist == materials.contains(mat)) continue;
 
             // The block was already destroyed, we don't want to stack explosions
-            if (resetMaterialMap.containsKey(block)) {
+            if (BlockDamageData.isBroken(block)) {
                 return;
             }
 
             // Break the block, as long as it's not already air
             if (!MaterialHelper.isAir(block.getType())) {
 
-                Material beforeExplosionType = block.getType();
-                block.setType(air, false);
-
-                // Handle block regeneration
-                if (isRegenerateBlocks()) {
-                    resetMaterialMap.put(block, beforeExplosionType);
-
-                    boolean isSuccessful = regenerate(block);
-                    debug.validate(isSuccessful, "Failed to regenerate block " + block + ", is your server lagging? Check /tps");
-                }
+                int regenTime = regenerationDelay + NumberUtils.random(0, regenerationNoise);
+                BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
             }
 
             ParticleEffect effect = new ParticleEffect(Particle.EXPLOSION_LARGE, 2, 0.5, 0.5, 1, null);
@@ -95,37 +112,26 @@ public class Explosion {
         }
     }
 
-    /**
-     * Regenerates the given block, if possible. The block
-     * is regenerated after the delay defined by this
-     * <code>Explosion</code>'s delay and noise.
-     *
-     * @param block Which block to regenerate
-     * @return true if no errors
-     */
-    public boolean regenerate(Block block) {
-        Material type = resetMaterialMap.get(block);
+    public enum ExplosionTrigger {
 
-        if (type == null) return false;
+        /**
+         * When the projectile is shot/thrown
+         */
+        SHOOT,
 
-        int noise = NumberUtils.random(-regenerationNoise, regenerationNoise);
-        int delay = noise + regenerationDelay;
+        /**
+         * When the projectile hits a non-air and non-liquid block
+         */
+        BLOCK,
 
-        if (delay <= 0) {
-            debug.log(LogLevel.ERROR, "A block was attempted to regenerate with a negative delay.",
-                    "Make sure your Regenerate_After_Ticks and Noise_In_Ticks cannot make a negative number!");
+        /**
+         * When the projectile hits an entity
+         */
+        ENTITIES,
 
-            return false;
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                block.setType(type, false);
-            }
-        }.runTaskLater(WeaponMechanics.getPlugin(), delay);
-
-        return true;
+        /**
+         * When the projectile hits a liquid
+         */
+        LIQUID
     }
-
 }

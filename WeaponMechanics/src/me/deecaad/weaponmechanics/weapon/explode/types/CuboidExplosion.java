@@ -152,4 +152,12 @@ public class CuboidExplosion implements ExplosionShape {
                 y < distance ||
                 z < distance;
     }
+
+    @Override
+    public String toString() {
+        return "CuboidExplosion{" +
+                "width=" + width +
+                ", height=" + height +
+                '}';
+    }
 }
