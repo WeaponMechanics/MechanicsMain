@@ -13,12 +13,15 @@ Explosion:
 #    Potion_Effects: # Potion effect serializer
   Blocks:
     Enabled: <Boolean> # False to not calculate broken blocks
-    Regenerate_After_Ticks: <Ticks> # Negative number to not generate
-    Noise_In_Ticks: <Ticks> # A random number to add so not all blocks regenerate at once.
     Drop_Items: <Boolean> # Whether or not the broken blocks will drop items
     Blacklist: <Boolean>
     Block_List:
       - <Material>:<Data>
+    Regeneration:
+      Ticks_Before_Start_Regeneration: <Integer> # Amount of time before blocks can regenerate, in ticks
+      Max_Blocks_Per_Update: <Integer> # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
+      Ticks_Between_Updates: <Integer> # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
+
   Explosion_Type: <Sphere/Cube/Parabola/Minecraft>
   Explosion_Type_Data:
     # Fetch required values based on explosion type or simply don't do anything with these if not needed

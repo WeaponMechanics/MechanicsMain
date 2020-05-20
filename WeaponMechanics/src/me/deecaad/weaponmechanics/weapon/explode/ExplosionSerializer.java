@@ -93,8 +93,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         }
 
         boolean isBreakBlocks = section.getBoolean("Blocks.Enabled", true);
-        int regenerationDelay = section.getInt("Blocks.Regenerate_After_Ticks", 1200);
-        int regenerationNoise = section.getInt("Blocks.Noise_In_Ticks", 10);
+        RegenerationData regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Regeneration");
         boolean isBlacklist = section.getBoolean("Blocks.Blacklist", false);
         Set<String> materials = section.getList("Blocks.Block_List", new ArrayList<>(0))
                 .stream()
@@ -116,7 +115,8 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             }
         }
 
-        return new Explosion(shape, isBreakBlocks, regenerationDelay, regenerationNoise, isBlacklist, materials, triggers);
+
+        return new Explosion(shape, isBreakBlocks, regeneration, isBlacklist, materials, triggers);
     }
     
     private enum ExplosionType {

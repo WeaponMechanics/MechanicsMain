@@ -5,8 +5,9 @@ api-version: '1.13' # DO NOT SET HIGHER OR LOWER THAN THIS
 description: 'The new era of weapons in Minecraft!'
 main: 'me.deecaad.weaponmechanics.WeaponMechanics'
 softdepend:
-- PlaceholderAPI
-
+  - PlaceholderAPI
+depend:
+  - MechanicsCore
 permissions:
   weaponmechanics.admin:
     description: 'Permission to admin related functions of WeaponMechanics, default false'

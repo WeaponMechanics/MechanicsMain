@@ -5,6 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
@@ -63,7 +64,8 @@ public class ExplosionCommand extends SubCommand {
         new BukkitRunnable() {
             @Override
             public void run() {
-                new Explosion(shape, true, 200, 20, true, materials, null).explode(loc);
+                RegenerationData regeneration = new RegenerationData(160, 2, 5);
+                new Explosion(shape, true, regeneration, true, materials, null).explode(loc);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
     }

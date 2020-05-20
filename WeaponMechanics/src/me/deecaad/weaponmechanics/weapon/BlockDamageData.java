@@ -4,13 +4,19 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public final class BlockDamageData implements Listener {
 
@@ -22,7 +28,7 @@ public final class BlockDamageData implements Listener {
 
         // Make sure to add data, if needed
         Map<Block, DamageData> chunkData = BLOCK_DAMAGE_MAP.putIfAbsent(block.getChunk(), new HashMap<>());
-        DamageData blockData = chunkData.putIfAbsent(block, new DamageData(block));
+        DamageData blockData = chunkData.computeIfAbsent(block, DamageData::new);
 
         blockData.damage(amount, maxDurability);
         if (isBreak && blockData.isDestroyed()) {
@@ -33,8 +39,11 @@ public final class BlockDamageData implements Listener {
                     @Override
                     public void run() {
                         blockData.regenerate();
+                        blockData.remove();
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), regenTime);
+            } else {
+                blockData.remove();
             }
         }
     }
@@ -42,8 +51,8 @@ public final class BlockDamageData implements Listener {
     public static boolean isBroken(Block block) {
 
         // Make sure to add data, if needed
-        Map<Block, DamageData> chunkData = BLOCK_DAMAGE_MAP.putIfAbsent(block.getChunk(), new HashMap<>());
-        DamageData blockData = chunkData.putIfAbsent(block, new DamageData(block));
+        Map<Block, DamageData> chunkData = BLOCK_DAMAGE_MAP.computeIfAbsent(block.getChunk(), chunk -> new HashMap<>());
+        DamageData blockData = chunkData.computeIfAbsent(block, DamageData::new);
 
         return blockData.isDestroyed();
     }
@@ -67,41 +76,64 @@ public final class BlockDamageData implements Listener {
         BLOCK_DAMAGE_MAP.remove(chunk);
     }
 
-    // todo on WorldSaveEvent
+    @EventHandler
+    public void onWorldSave(WorldSaveEvent e) {
+        String name = e.getWorld().getName();
 
+        for (Chunk chunk : BLOCK_DAMAGE_MAP.keySet()) {
+
+            // Filter out chunks not from the world being saved
+            if (!chunk.getWorld().getName().equals(name)) continue;
+
+            regenerate(chunk);
+        }
+    }
 
     private static class DamageData {
 
-        private Block block;
-        private Material regenType;
+        private final Block block;
         private double durability;
+
+        // Variables used in regeneration
+        private BlockState state;
 
         public DamageData(Block block) {
             this.block = block;
+            durability = 1.0;
         }
 
-        public Material getType() {
-            return block.getType();
-        }
-
+        /**
+         * Gets the durability of this block
+         *
+         * @return This block's durability
+         */
         public double getDurability() {
             return durability;
         }
 
+        /**
+         * Tells you whether or not the <code>Block</code>
+         * associated with this <code>DamageData</code> has
+         * been destroyed
+         *
+         * @return true if the block is destroyed
+         */
         public boolean isDestroyed() {
 
-            // Trying to account for double math inaccuracies
+            // Trying to fix floating point math inaccuracies
             // by creating my own inaccuracy
-            return durability > 0.99;
+            return durability < 0.0001;
         }
 
         /**
+         * Should damage this block for (damageAmount / maxDamage)
+         * amount of damage
          *
-         * @param amount
-         * @param maxDurability
+         * @param damageAmount The amount of damage, should be lower then maxDamage
+         * @param maxDamage The maximum amount of damage this weapon can deal to a block
          */
-        public void damage(int amount, int maxDurability) {
-            this.durability = ((double) amount) / ((double) maxDurability);
+        public void damage(int damageAmount, int maxDamage) {
+            this.durability -= ((double) damageAmount) / ((double) maxDamage);
 
             // TODO display block crack based on this data's durability
             int blockCrack = (int) (durability * MAX_BLOCK_CRACK);
@@ -111,34 +143,45 @@ public final class BlockDamageData implements Listener {
         }
 
         /**
-         * Destroyed this block and saves
-         * the previous type for later regeneration
+         * Destroys this block
          */
         public void destroy() {
-            regenType = block.getType();
+            state = block.getState();
+
+            // Clear the contents of the inventory, if present
+            // to avoid spawning dropped items
+            if (state instanceof InventoryHolder) {
+                Inventory inv = ((InventoryHolder) state).getInventory();
+                inv.clear();
+            }
+
+            // Set the type to AIR and do not apply physics
             block.setType(AIR, false);
         }
 
         /**
-         * Regenerated the block contained by this data. If
-         * the block has not yet been destroyed, then an
-         * <code>IllegalStateException</code> is thrown
+         * Regenerates this block
          *
-         * @throws IllegalStateException Called before method call to destroy()
+         * @throws IllegalStateException If the block has not been destroyed
          */
         public void regenerate() {
-            if (regenType == null) {
-                throw new IllegalStateException("Attempted to regenerate block before it was destroyed");
+            if (state == null) {
+                throw new IllegalStateException("Call to regenerate() before destroy()");
             }
 
-            block.setType(regenType, false);
-            remove();
+            // Update the state without applying physics
+            // Updating the state will update byte data, material,
+            // state, and data.
+            state.update(true, false);
+
+            // Reset the variables
+            state = null;
+            durability = 1.0;
         }
 
         /**
-         * Removes this data from the map of
-         * data. Useful for saving memory
-         * (and CPU if the map is really big)
+         * Removes this <code>DamageData</code>
+         * from the main map
          */
         public void remove() {
             BLOCK_DAMAGE_MAP.get(block.getChunk()).remove(block);

@@ -13,9 +13,9 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,24 +26,21 @@ public class Explosion {
 
     private final ExplosionShape shape;
     private final boolean isBreakBlocks;
-    private final int regenerationDelay;
-    private final int regenerationNoise;
+    private final RegenerationData regeneration;
     private final boolean isBlacklist;
     private final Set<String> materials;
     private final Set<ExplosionTrigger> triggers;
 
     public Explosion(@Nonnull ExplosionShape shape,
                      boolean isBreakBlocks,
-                     int regenerationDelay,
-                     @Nonnegative int regenerationNoise,
+                     @Nonnull RegenerationData regeneration,
                      boolean isBlacklist,
                      @Nonnull Set<String> materials,
                      @Nonnull Set<ExplosionTrigger> triggers) {
 
         this.shape = shape;
         this.isBreakBlocks = isBreakBlocks;
-        this.regenerationDelay = regenerationDelay;
-        this.regenerationNoise = regenerationNoise;
+        this.regeneration = regeneration;
         this.isBlacklist = isBlacklist;
         this.materials = materials;
         this.triggers = triggers;
@@ -53,12 +50,8 @@ public class Explosion {
         return shape;
     }
 
-    public int getRegenerationDelay() {
-        return regenerationDelay;
-    }
-
-    public int getRegenerationNoise() {
-        return regenerationNoise;
+    public RegenerationData getRegeneration() {
+        return regeneration;
     }
 
     public boolean isBlacklist() {
@@ -84,7 +77,14 @@ public class Explosion {
         List<Block> blocks = isBreakBlocks ? shape.getBlocks(origin) : new ArrayList<>();
         Map<LivingEntity, Double> entities = shape.getEntities(origin);
 
-        for (Block block: blocks) {
+        // Sort blocks to the lower blocks come first
+        // so lower blocks regenerate first
+        blocks.sort(Comparator.comparingInt(Block::getY));
+
+        int bound = blocks.size();
+        for (int i = 0; i < bound; i++) {
+            Block block = blocks.get(i);
+
             String mat = block.getType().name() + (CompatibilityAPI.getVersion() < 1.13 ? ":" + block.getData() : "");
             if (isBlacklist == materials.contains(mat)) continue;
 
@@ -96,7 +96,9 @@ public class Explosion {
             // Break the block, as long as it's not already air
             if (!MaterialHelper.isAir(block.getType())) {
 
-                int regenTime = regenerationDelay + NumberUtils.random(0, regenerationNoise);
+                int regenTime = regeneration.getTicksBeforeStart()
+                        + (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
+
                 BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
             }
 
