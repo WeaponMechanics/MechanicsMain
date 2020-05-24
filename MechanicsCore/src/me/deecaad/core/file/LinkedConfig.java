@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -211,26 +212,28 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Override
     public boolean containsKey(String key, Class<?> clazz) {
-        Object value = get(key);
-
-        // Check if the value exists
-        if (value == null) return false;
-        else return clazz.isInstance(value);
+        return super.containsKey(key) && clazz.isInstance(get(key));
     }
 
     @Override
     public void forEach(@Nonnull String basePath, @Nonnull BiConsumer<String, Object> consumer, boolean deep) {
         int memorySections = StringUtils.countChars('.', basePath);
-        forEach((key, value) -> {
-            if (key.startsWith(basePath)) {
-                int currentMemorySections = StringUtils.countChars('.', basePath);
-                if (!deep && currentMemorySections == memorySections + 1) {
-                    consumer.accept(key, value);
-                } else if (deep && currentMemorySections > memorySections) {
-                    consumer.accept(key, value);
-                }
+        if (basePath.isEmpty()) memorySections--;
+
+        // Avoiding lambda for debugging
+        for (Map.Entry<String, Object> entry : entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (!key.startsWith(basePath)) continue;
+
+            int currentMemorySections = StringUtils.countChars('.', key);
+            if (!deep && currentMemorySections == memorySections + 1) {
+                consumer.accept(key, value);
+            } else if (deep && currentMemorySections > memorySections) {
+                consumer.accept(key, value);
             }
-        });
+        }
     }
 
     public void save(@Nonnull File file) {

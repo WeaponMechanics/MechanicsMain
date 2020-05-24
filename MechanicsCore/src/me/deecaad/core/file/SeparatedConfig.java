@@ -251,16 +251,22 @@ public class SeparatedConfig implements Configuration {
     
     private void forEach(Map<String, ?> map, String basePath, BiConsumer<String, Object> consumer, boolean deep) {
         int memorySections = StringUtils.countChars('.', basePath);
-        map.forEach((key, value) -> {
-            if (key.startsWith(basePath)) {
-                int currentMemorySections = StringUtils.countChars('.', basePath);
-                if (deep && currentMemorySections == memorySections + 1) {
-                    consumer.accept(key, value);
-                } else if (!deep && currentMemorySections > memorySections) {
-                    consumer.accept(key, value);
-                }
+        if (basePath.isEmpty()) memorySections--;
+
+        // Avoiding lambda for debugging
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (!key.startsWith(basePath)) continue;
+
+            int currentMemorySections = StringUtils.countChars('.', key);
+            if (!deep && currentMemorySections == memorySections + 1) {
+                consumer.accept(key, value);
+            } else if (deep && currentMemorySections > memorySections) {
+                consumer.accept(key, value);
             }
-        });
+        }
     }
 
     public void save(@Nonnull File file) {
