@@ -10,5 +10,6 @@
     <orderEntry type="library" name="spigot" level="project" />
     <orderEntry type="library" name="WE and WG 1.8-1.12" level="project" />
     <orderEntry type="module" module-name="MechanicsCoreCompatibility" />
+    <orderEntry type="module" module-name="MechanicsCore" />
   </component>
 </module>
