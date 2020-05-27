@@ -5,6 +5,9 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
+/**
+ * Used when WorldGuard is not installed
+ */
 public class NoWorldGuard implements IWorldGuardCompatibility {
 
     @Override
@@ -14,9 +17,15 @@ public class NoWorldGuard implements IWorldGuardCompatibility {
     }
 
     @Override
-    public void registerFlags(String... flags) {
-        // Do nothing...
+    public Object getValue(Location location, String flagName) {
+        return null;
     }
+
+    @Override
+    public void registerFlag(String flag, FlagType type) {
+        // Do nothing
+    }
+
 
     @Override
     public boolean isInstalled() {
