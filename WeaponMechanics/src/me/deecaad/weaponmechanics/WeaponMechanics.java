@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.*;
 import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionInteractionListener;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -112,6 +113,8 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Register all commands
         simpleCommandMap.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
+
+        Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), this);
 
         // Start update checker task and make the instance
         if (basicConfiguration.getBool("Update_Checker.Enable")) {

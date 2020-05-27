@@ -5,10 +5,8 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.event.EventHandler;
+import org.bukkit.block.Chest;
 import org.bukkit.event.Listener;
-import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -23,6 +21,16 @@ public final class BlockDamageData implements Listener {
     private static final Map<Chunk, Map<Block, DamageData>> BLOCK_DAMAGE_MAP = new HashMap<>(1000);
     private static final int MAX_BLOCK_CRACK = 10;
     private static final Material AIR = Material.valueOf("AIR"); // Maybe we should have XMaterial
+
+    /**
+     * Don't let anyone instantiate this class
+     */
+    private BlockDamageData() {
+    }
+
+    public static Map<Chunk, Map<Block, DamageData>> getBlockDamageMap() {
+        return BLOCK_DAMAGE_MAP;
+    }
 
     public static void damageBlock(Block block, int amount, int maxDurability, boolean isBreak, int regenTime) {
 
@@ -60,32 +68,13 @@ public final class BlockDamageData implements Listener {
     public static void regenerate(Chunk chunk) {
         Map<Block, DamageData> chunkData = BLOCK_DAMAGE_MAP.get(chunk);
 
-        if (chunkData == null) return;
+        if (chunkData == null) {
+            return;
+        }
 
         for (DamageData data : chunkData.values()) {
 
             if (data.isDestroyed()) data.regenerate();
-        }
-    }
-
-    @EventHandler
-    public void onChunkUnload(ChunkUnloadEvent e) {
-
-        Chunk chunk = e.getChunk();
-        regenerate(chunk);
-        BLOCK_DAMAGE_MAP.remove(chunk);
-    }
-
-    @EventHandler
-    public void onWorldSave(WorldSaveEvent e) {
-        String name = e.getWorld().getName();
-
-        for (Chunk chunk : BLOCK_DAMAGE_MAP.keySet()) {
-
-            // Filter out chunks not from the world being saved
-            if (!chunk.getWorld().getName().equals(name)) continue;
-
-            regenerate(chunk);
         }
     }
 
@@ -151,8 +140,13 @@ public final class BlockDamageData implements Listener {
             // Clear the contents of the inventory, if present
             // to avoid spawning dropped items
             if (state instanceof InventoryHolder) {
-                Inventory inv = ((InventoryHolder) state).getInventory();
-                inv.clear();
+                if (state instanceof Chest) {
+                    Inventory inv = ((Chest) state).getBlockInventory();
+                    inv.clear();
+                } else {
+                    Inventory inv = ((InventoryHolder) state).getInventory();
+                    inv.clear();
+                }
             }
 
             // Set the type to AIR and do not apply physics

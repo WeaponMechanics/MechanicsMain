@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.explode;
+package me.deecaad.weaponmechanics.weapon.explode.regeneration;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;

@@ -5,23 +5,19 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
-import me.deecaad.weaponmechanics.weapon.explode.RegenerationData;
+import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Useful commands for testing different explosion
@@ -64,7 +60,7 @@ public class ExplosionCommand extends SubCommand {
         new BukkitRunnable() {
             @Override
             public void run() {
-                RegenerationData regeneration = new RegenerationData(160, 2, 5);
+                RegenerationData regeneration = new RegenerationData(160, 2, 1);
                 new Explosion(shape, true, regeneration, true, materials, null).explode(loc);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);

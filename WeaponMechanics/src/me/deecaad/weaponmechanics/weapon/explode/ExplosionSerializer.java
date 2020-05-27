@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;

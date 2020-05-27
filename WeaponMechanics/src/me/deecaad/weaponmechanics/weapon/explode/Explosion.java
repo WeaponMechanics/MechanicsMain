@@ -1,15 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.effects.types.ParticleEffect;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.StringUtils;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import me.deecaad.weaponmechanics.weapon.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
@@ -81,37 +79,65 @@ public class Explosion {
         // so lower blocks regenerate first
         blocks.sort(Comparator.comparingInt(Block::getY));
 
-        int bound = blocks.size();
-        for (int i = 0; i < bound; i++) {
-            Block block = blocks.get(i);
+        List<Block> transparent = new ArrayList<>();
+        List<Block> air = new ArrayList<>();
+        List<Block> solid = new ArrayList<>();
 
-            String mat = block.getType().name() + (CompatibilityAPI.getVersion() < 1.13 ? ":" + block.getData() : "");
-            if (isBlacklist == materials.contains(mat)) continue;
+        for (Block block : blocks) {
+            Material type = block.getType();
 
-            // The block was already destroyed, we don't want to stack explosions
-            if (BlockDamageData.isBroken(block)) {
-                return;
+            if (MaterialHelper.isAir(type)) {
+                air.add(block);
+            } else if (type.isSolid()) {
+                solid.add(block);
+            } else {
+                transparent.add(block);
             }
-
-            // Break the block, as long as it's not already air
-            if (!MaterialHelper.isAir(block.getType())) {
-
-                int regenTime = regeneration.getTicksBeforeStart()
-                        + (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
-
-                BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
-            }
-
-            ParticleEffect effect = new ParticleEffect(Particle.EXPLOSION_LARGE, 2, 0.5, 0.5, 1, null);
-            effect.spawn(WeaponMechanics.getPlugin(), block.getLocation());
         }
 
+        int timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval();
+        int size = transparent.size();
+        for (int i = 0; i < size; i++) {
+            Block block = transparent.get(i);
+
+            if (isBlacklisted(block) || BlockDamageData.isBroken(block)) {
+                continue;
+            }
+
+            int regenTime = regeneration.getTicksBeforeStart() + timeOffset +
+                    (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
+
+            BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
+        }
+
+        size = blocks.size();
+        for (int i = 0; i < size; i++) {
+            Block block = blocks.get(i);
+
+            if (isBlacklisted(block) || BlockDamageData.isBroken(block)) {
+                continue;
+            }
+
+            int regenTime = regeneration.getTicksBeforeStart() +
+                    (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
+
+            BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
+        }
+
+        // Handle entity damaging
         for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
             LivingEntity entity = entry.getKey();
             double impact = entry.getValue();
 
             entity.sendMessage(StringUtils.color("&cYou suffered " + impact * 100 + "% of the impact"));
         }
+    }
+
+    public boolean isBlacklisted(Block block) {
+        String mat = block.getType().name();
+        return isBlacklist == (materials.contains(mat) || (
+                CompatibilityAPI.getVersion() < 1.13 && isBlacklist == materials.contains(mat + ":" + block.getData())
+        ));
     }
 
     public enum ExplosionTrigger {
