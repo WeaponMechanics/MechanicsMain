@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -66,7 +67,7 @@ public class JarSerializers extends FileCopier {
                         continue;
                     }
                 }
-                if (!serializerClass.isAssignableFrom(nameClass)) {
+                if (!serializerClass.isAssignableFrom(nameClass) || Modifier.isAbstract(nameClass.getModifiers()) || Modifier.isInterface(nameClass.getModifiers())) {
                     continue;
                 }
                 Constructor<?> nameConstructor;
