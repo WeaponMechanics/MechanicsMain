@@ -1,12 +1,15 @@
 package me.deecaad.weaponmechanics.weapon.explode.types;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
+import net.minecraft.server.v1_15_R1.Explosion;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,8 +24,10 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -34,7 +39,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  */
 public class DefaultExplosion implements ExplosionShape {
 
-    private static final int GRID_SIZE = 8; // 16 minecraft default
+    private static final int GRID_SIZE = 16; // 16 minecraft default
     private static final int BOUND = GRID_SIZE - 1;
     private static final double DECAY_RATE = 0.3;
     private static final double ABSORB_RATE = 0.3;
@@ -48,40 +53,47 @@ public class DefaultExplosion implements ExplosionShape {
     @Nonnull
     @Override
     public List<Block> getBlocks(@Nonnull Location origin) {
-        if (yield >= 0.1F) {
-            World world = origin.getWorld();
 
-            List<Block> set = new ArrayList<>();
+        // If the explosion is too small, then no blocks are destroyed
+        if (yield < 0.1F) {
+            return new ArrayList<>(0);
+        }
 
-            // Separates the explosion into a 16 by 16 by 16
-            // grid.
-            for (int k = 0; k < GRID_SIZE; ++k) {
-                for (int i = 0; i < GRID_SIZE; ++i) {
-                    for (int j = 0; j < GRID_SIZE; ++j) {
+        World world = origin.getWorld();
 
-                        // Checking if the the point defined by (k, i, j) is on the grid
-                        if (k == 0 || k == BOUND || i == 0 || i == BOUND || j == 0 || j == BOUND) {
+        Set<Block> set = new HashSet<>();
 
-                            // d representing change, so change in x, change in y, etc
-                            double dx = ((double) k) / BOUND * 2 - 1;
-                            double dy = ((double) i) / BOUND * 2 - 1;
-                            double dz = ((double) j) / BOUND * 2 - 1;
-                            double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        // Separates the explosion into a 16 by 16 by 16
+        // grid.
+        for (int k = 0; k < GRID_SIZE; ++k) {
+            for (int i = 0; i < GRID_SIZE; ++i) {
+                for (int j = 0; j < GRID_SIZE; ++j) {
 
-                            // normalize
-                            dx /= length;
-                            dy /= length;
-                            dz /= length;
+                    // Checking if the the point defined by (k, i, j) is on the grid
+                    if (k == 0 || k == BOUND || i == 0 || i == BOUND || j == 0 || j == BOUND) {
 
-                            double x = origin.getX();
-                            double y = origin.getY();
-                            double z = origin.getZ();
+                        // d representing change, so change in x, change in y, etc
+                        double dx = ((double) k) / BOUND * 2 - 1;
+                        double dy = ((double) i) / BOUND * 2 - 1;
+                        double dz = ((double) j) / BOUND * 2 - 1;
+                        double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-                            // Slightly randomized intensity, based on the yield of the explosion
-                            float intensity = yield * (0.7F + NumberUtils.random().nextFloat() * 0.6F);
+                        // normalize
+                        dx /= length;
+                        dy /= length;
+                        dz /= length;
 
-                            while(intensity > 0.0f) {
-                                Block block = world.getBlockAt((int) x, (int) y, (int) z);
+                        double x = origin.getX();
+                        double y = origin.getY();
+                        double z = origin.getZ();
+
+                        // Slightly randomized intensity, based on the yield of the explosion
+                        float intensity = yield * (0.7F + NumberUtils.random().nextFloat() * 0.6F);
+
+                        while (intensity > 0.0f) {
+                            Block block = world.getBlockAt((int) x, (int) y, (int) z);
+
+                            if (!set.contains(block)) {
                                 Material type = block.getType();
                                 boolean isAir = MaterialHelper.isAir(type);
 
@@ -94,21 +106,20 @@ public class DefaultExplosion implements ExplosionShape {
                                 if (intensity > 0.0F && y < 256 && y >= 0) {
                                     set.add(block);
                                 }
-
-                                x += dx * DECAY_RATE;
-                                y += dy * DECAY_RATE;
-                                z += dz * DECAY_RATE;
-
-                                // Ray decays over longer distance
-                                intensity -= DECAY_RATE * 0.75;
                             }
+
+                            x += dx * DECAY_RATE;
+                            y += dy * DECAY_RATE;
+                            z += dz * DECAY_RATE;
+
+                            // Ray decays over longer distance
+                            intensity -= DECAY_RATE * 0.75;
                         }
                     }
                 }
             }
-            return set;
         }
-        else return new ArrayList<>();
+        return new ArrayList<>(set);
     }
     
     @Nonnull
@@ -149,8 +160,8 @@ public class DefaultExplosion implements ExplosionShape {
 
             // Gets the "rate" or percentage of how far the entity
             // is from the explosion. For example, it the distance
-            // is 8 and explosion radius is 10, the rate will be 4/5
-            double impactRate = entityLocation.distance(vector) / damageRadius;
+            // is 8 and explosion radius is 10, the rate will be 1/5
+            double impactRate = (damageRadius - entityLocation.distance(vector)) / damageRadius;
 
             if (impactRate > 1.0D) {
                 debug.log(LogLevel.WARN, "Somehow an entity was damaged outside of the explosion's radius",
@@ -161,16 +172,17 @@ public class DefaultExplosion implements ExplosionShape {
             Vector betweenEntityAndExplosion = entityLocation.subtract(vector);
             double distance = betweenEntityAndExplosion.length();
 
-            // This should never be false due to double inaccuracy
-            //if (distance != 0.0)
+            // If there is distance between the entity and the explosion
+            if (distance != 0.0) {
 
-            // Normalize
-            betweenEntityAndExplosion.multiply(1 / distance);
+                // Normalize
+                betweenEntityAndExplosion.multiply(1 / distance);
 
-            double exposure = 1 /*getExposure(vector, entity)*/;
-            double impact = (1 - impactRate) * exposure;
+                double exposure = getExposure(vector, entity);
+                double impact = impactRate * exposure;
 
-            temp.put(entity, impact);
+                temp.put(entity, impact);
+            }
         }
 
         return temp;
@@ -204,8 +216,6 @@ public class DefaultExplosion implements ExplosionShape {
 
         // Setup variables for the loop
         World world = entity.getWorld();
-        Location loc = entity.getLocation();
-        FluidCollisionMode mode = FluidCollisionMode.NEVER;
 
         int successfulTraces = 0;
         int totalTraces = 0;
@@ -222,10 +232,10 @@ public class DefaultExplosion implements ExplosionShape {
                     // (0, 0, 0) to the current grid on the entity's bounding
                     // box. The Vector is then ray traced to check for obstructions
                     Vector vector = new Vector(a + d3, b, c + d4).subtract(vec3d);
-                    RayTraceResult trace = world.rayTraceBlocks(loc, vector, vector.length(), mode);
 
-                    // If the trace found no blocks
-                    if (trace.getHitBlock() == null) {
+                    Ray ray = new Ray(vec3d, vector);
+                    TraceResult trace = ray.trace(world, TraceCollision.BLOCK, 0.3); // todo changable in config
+                    if (trace.getBlocks().isEmpty()) {
                         successfulTraces++;
                     }
 

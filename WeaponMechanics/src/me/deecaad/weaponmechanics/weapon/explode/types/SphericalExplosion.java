@@ -75,7 +75,7 @@ public class SphericalExplosion implements ExplosionShape {
 
             if (distance > radius) continue;
 
-            temp.put(entity, distance / radius);
+            temp.put(entity, (radius - distance) / radius);
         }
 
         return temp;

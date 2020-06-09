@@ -210,7 +210,7 @@ public class Through implements Serializer<Through> {
          *
          * @return the default speed modifier
          */
-        public double getDefaulDamageModifier() {
+        public double getDefaultDamageModifier() {
             return this.defaultDamageModifier;
         }
 

@@ -13,10 +13,14 @@ import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -75,13 +79,9 @@ public class Explosion {
         List<Block> blocks = isBreakBlocks ? shape.getBlocks(origin) : new ArrayList<>();
         Map<LivingEntity, Double> entities = shape.getEntities(origin);
 
-        // Sort blocks to the lower blocks come first
-        // so lower blocks regenerate first
-        blocks.sort(Comparator.comparingInt(Block::getY));
-
-        List<Block> transparent = new ArrayList<>();
-        List<Block> air = new ArrayList<>();
-        List<Block> solid = new ArrayList<>();
+        final List<Block> transparent = new ArrayList<>();
+        final List<Block> air = new ArrayList<>();
+        final List<Block> solid = new ArrayList<>();
 
         for (Block block : blocks) {
             Material type = block.getType();
@@ -95,7 +95,7 @@ public class Explosion {
             }
         }
 
-        int timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval();
+        int timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval() + regeneration.getTicksBeforeStart();
         int size = transparent.size();
         for (int i = 0; i < size; i++) {
             Block block = transparent.get(i);
@@ -104,15 +104,15 @@ public class Explosion {
                 continue;
             }
 
-            int regenTime = regeneration.getTicksBeforeStart() + timeOffset +
-                    (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
-
-            BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
+            // This forces all transparent blocks to regenerate at once.
+            // This fixes item sorters breaking and general hopper/redstone stuff
+            BlockDamageData.damageBlock(block, 1, 1, true, timeOffset);
         }
 
-        size = blocks.size();
+        final List<Block> sortedSolid = sort(solid);
+        size = sortedSolid.size();
         for (int i = 0; i < size; i++) {
-            Block block = blocks.get(i);
+            Block block = sortedSolid.get(i);
 
             if (isBlacklisted(block) || BlockDamageData.isBroken(block)) {
                 continue;
@@ -133,11 +133,40 @@ public class Explosion {
         }
     }
 
+    /**
+     * Checks if the given block is a blacklisted block based
+     * on the <code>Configuration</code>. If a block is blacklisted,
+     * then it should not be blown up
+     * @param block
+     * @return
+     */
     public boolean isBlacklisted(Block block) {
         String mat = block.getType().name();
-        return isBlacklist == (materials.contains(mat) || (
-                CompatibilityAPI.getVersion() < 1.13 && isBlacklist == materials.contains(mat + ":" + block.getData())
-        ));
+        final boolean isBlacklist = this.isBlacklist == materials.contains(mat);
+        final boolean isLegacyBlacklist = CompatibilityAPI.getVersion() < 1.13
+                && (this.isBlacklist == materials.contains(mat + ":" + block.getData()));
+
+        return isBlacklist || isLegacyBlacklist;
+    }
+
+    // todo OOB
+    private static List<Block> sort(List<Block> blocks) {
+        TreeMap<Integer, List<Block>> layers = new TreeMap<>();
+
+        for (Block block : blocks) {
+            int y = block.getY();
+
+            List<Block> layer = layers.computeIfAbsent(y, k -> new ArrayList<>());
+
+            layer.add(block);
+        }
+
+        List<List<Block>> sortedLayers = new ArrayList<>(layers.values());
+        sortedLayers.forEach(Collections::shuffle);
+
+        List<Block> sorted = new ArrayList<>();
+        sortedLayers.forEach(sorted::addAll);
+        return sorted;
     }
 
     public enum ExplosionTrigger {

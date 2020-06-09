@@ -3,8 +3,13 @@ package me.deecaad.weaponmechanics.weapon.explode.types;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -110,31 +115,15 @@ public class ParabolicExplosion implements ExplosionShape {
         Map<LivingEntity, Double> temp = new HashMap<>(entities.size());
         World world = origin.getWorld();
 
+        double xOffset = Math.sqrt(-depth / angle);
+        double maxDistance = Math.max(xOffset, -depth);
 
         for (LivingEntity entity : entities) {
             Vector vector = origin.toVector().subtract(entity.getLocation().toVector());
+            double length = vector.length();
 
-            int traces = 0;
-            int successfulTraces = 0;
-
-            for (int i = 0; i < 8; i++) {
-                double x = NumberUtils.random(-.75, .75);
-                double y = NumberUtils.random(-.75, .75);
-                double z = NumberUtils.random(-.75, .75);
-                Vector noise = new Vector(x, y, z);
-                vector.add(noise);
-                RayTraceResult trace = world.rayTraceBlocks(origin, vector, vector.length(), FluidCollisionMode.NEVER);
-                vector.subtract(noise);
-
-                // If the trace found no blocks
-                if (trace.getHitBlock() == null) {
-                    successfulTraces++;
-                }
-
-                traces++;
-            }
-
-            temp.put(entity, ((double) successfulTraces) / traces);
+            double distanceRate = (maxDistance - length) / maxDistance;
+            temp.put(entity, distanceRate);
         }
 
         return temp;

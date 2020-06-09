@@ -138,7 +138,7 @@ public class CuboidExplosion implements ExplosionShape {
         Map<LivingEntity, Double> temp = new HashMap<>(entities.size());
         for (LivingEntity entity : entities) {
             double distance = origin.distance(entity.getLocation());
-            temp.put(entity, distance / maxDistance);
+            temp.put(entity, (maxDistance - distance) / maxDistance);
         }
         return temp;
     }
