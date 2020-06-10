@@ -20,24 +20,34 @@ public class InfoCommand extends SubCommand {
     public void execute(CommandSender sender, String[] args) {
         PluginDescriptionFile desc = WeaponMechanics.getPlugin().getDescription();
         sender.sendMessage("§7➢ §6§lWeapon§7§lMechanics§7, v§o" + desc.getVersion());
-        sender.sendMessage("§7➢  §6Author:§7 DeeCaaD");
-        sender.sendMessage("§7➢  §6Contributors:§7 CJCrafter");
+
+        List<String> authors = desc.getAuthors();
+        if (!authors.isEmpty()) {
+            sender.sendMessage("§7➢  §6Authors:§7 " + convertListToPrettyStringBuilder(authors).toString());
+        }
+
         sender.sendMessage("§7➢  §6Command:§7 /weaponmechanics");
         List<String> softDepencies = desc.getSoftDepend();
         if (!softDepencies.isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < softDepencies.size(); ++i) {
-                // First = SomePlugin
-                // Rest = , SomeOtherPlugin
-                // Basically just does this SomePlugin, SomeOtherPlugin, AnotherPlugin
-                builder.append(i == 0 ? softDepencies.get(i) : ", " + softDepencies.get(i));
-            }
-            sender.sendMessage("§7➢  §6Supported plugins:§7 " + builder.toString());
+            sender.sendMessage("§7➢  §6Supported plugins:§7 " + convertListToPrettyStringBuilder(softDepencies).toString());
         }
         UpdateChecker updateChecker = WeaponMechanics.getUpdateChecker();
         if (updateChecker != null && updateChecker.hasUpdate()) {
             // Message is defined in me.deecaad.weaponmechanics.UpdateChecker
             updateChecker.onUpdateFound(sender, updateChecker.getSpigotResource());
         }
+    }
+
+    /**
+     * First = "SomePlugin"
+     * Rest = ", SomeOtherPlugin"
+     * Basically just does this "SomePlugin, SomeOtherPlugin, AnotherPlugin"
+     */
+    private StringBuilder convertListToPrettyStringBuilder(List<String> list) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < list.size(); ++i) {
+            builder.append(i == 0 ? list.get(i) : ", " + list.get(i));
+        }
+        return builder;
     }
 }
