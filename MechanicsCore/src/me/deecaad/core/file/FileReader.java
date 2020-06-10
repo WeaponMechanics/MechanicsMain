@@ -201,9 +201,7 @@ public class FileReader {
                 }
             }
             Object object = configuration.get(key);
-            if (!(object instanceof MemorySection)) {
-                filledMap.set(key, object);
-            }
+            filledMap.set(key, object);
         }
         if (filledMap.getKeys().isEmpty()) {
             return null;

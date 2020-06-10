@@ -1,0 +1,17 @@
+# me.deecaad.core.effects.serializers.SoundEffectSerializer
+Sounds:
+  - <sound>-<volume>-<pitch>                                # Required arguments
+  - minecraft:<sound>-<volume>-<pitch>-<delay>-<pitchNoise> # Optional arguments
+  - custom:<sound>-<volume>-<pitch>                         # Required arguments for custom sounds
+  - custom:<sound>-<volume>-<pitch>-<delay>-<pitchNoise>    # Optional arguments for custom sounds
+
+  # For single line sounds, separate the sounds with a comma (',')
+  # Valid examples:
+  - <sound>-<volume>-<pitch>,<sound>-<volume>-<pitch>,<sound>-<volume>-<pitch>
+  - <sound>-<volume>-<pitch>, <sound>-<volume>-<pitch>,             <sound>-<volume>-<pitch>
+
+# <sound>: Which sound (Either minecraft sound or resource pack sound) to use
+# <volume>: The volume (Recommended generally [0, 4]) of the sound
+# <pitch>: The pitch of the sound, [0, 2]
+# <delay>: How long before the sound is played (In ticks, 20 ticks = 1 second) (OPTIONAL)
+# <pitchNoise>: Randomness to add to the pitch, generally [0, 0.2] (OPTIONAL)

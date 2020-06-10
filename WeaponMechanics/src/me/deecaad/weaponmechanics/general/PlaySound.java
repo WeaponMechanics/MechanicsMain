@@ -21,6 +21,7 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
+@Deprecated // Marked for removal
 public class PlaySound implements Serializer<PlaySound> {
 
     private List<SoundData> sounds;

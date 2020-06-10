@@ -16,7 +16,7 @@ public abstract class SetSerializer<T> implements Serializer<Set<T>> {
     public SetSerializer() {
     }
 
-    abstract T serialize(@Nonnull String str);
+    public abstract T serialize(@Nonnull String str);
 
     @Override
     public Set<T> serialize(File file, ConfigurationSection config, String path) {
