@@ -14,6 +14,7 @@ public enum LogLevel {
     
     /**
      * Constructs a log level
+     *
      * @param level The integer level. Greater means finer detail
      * @param parallel The logging level for loggers
      */

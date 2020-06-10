@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public abstract class MainCommand extends BukkitCommand {
 
-    private String permission;
+    protected String permission;
     protected SubCommands commands;
 
     protected MainCommand(String name, String permission) {

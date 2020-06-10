@@ -106,7 +106,7 @@ public class NumberUtils {
         if (min == max) return min;
         return random.nextInt(min, max + 1);
     }
-    
+
     /**
      * Threadsafe method to generate
      * a random double [min, max)
@@ -161,7 +161,7 @@ public class NumberUtils {
      * @param max The maximum number the value can be
      * @return Whichever bound [min, max]
      */
-    public static double minMax(float min, float value, float max) {
+    public static float minMax(float min, float value, float max) {
         if (min > value) {
             return min;
         } else if (max < value) {
@@ -214,7 +214,7 @@ public class NumberUtils {
      * @return double
      */
     public static double lerp(double a, double b, double f) {
-        return a + f * (b - a);
+        return b + a * (f - b);
     }
 
     /**
