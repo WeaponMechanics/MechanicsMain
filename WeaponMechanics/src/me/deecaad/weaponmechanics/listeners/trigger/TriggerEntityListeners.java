@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.listeners;
+package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
@@ -11,11 +11,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-public class EntityListeners implements Listener {
+public class TriggerEntityListeners implements Listener {
 
     private WeaponHandler weaponHandler;
 
-    public EntityListeners(WeaponHandler weaponHandler) {
+    public TriggerEntityListeners(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }
 

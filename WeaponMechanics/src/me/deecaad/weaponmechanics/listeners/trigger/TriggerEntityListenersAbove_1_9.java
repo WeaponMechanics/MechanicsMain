@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.listeners;
+package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -9,11 +9,11 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
-public class EntityListenersAbove_1_9 implements Listener {
+public class TriggerEntityListenersAbove_1_9 implements Listener {
 
     private WeaponHandler weaponHandler;
 
-    public EntityListenersAbove_1_9(WeaponHandler weaponHandler) {
+    public TriggerEntityListenersAbove_1_9(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }
 

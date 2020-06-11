@@ -11,11 +11,18 @@ import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
-import me.deecaad.weaponmechanics.listeners.*;
+import me.deecaad.weaponmechanics.listeners.WeaponListeners;
+import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
+import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
+import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
+import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
 import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionInteractionListener;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
+import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
+import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
+import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -145,18 +152,30 @@ public class WeaponMechanics extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
+
+                List<IValidator> validators = new ArrayList<>();
+                validators.add(new ScopeHandler(weaponHandler));
+                validators.add(new ShootHandler(weaponHandler));
+                validators.add(new ReloadHandler(weaponHandler));
+
                 // Fill configuration mappings (except config.yml)
-                configurations = new FileReader(tempSerializers, null).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
+                configurations = new FileReader(tempSerializers, validators).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
                 tempSerializers = null;
 
                 // Register events
                 // Registering events after serialization is completed to prevent any errors from happening
-                Bukkit.getServer().getPluginManager().registerEvents(new PlayerListeners(weaponHandler), WeaponMechanics.this);
-                Bukkit.getServer().getPluginManager().registerEvents(new EntityListeners(weaponHandler), WeaponMechanics.this);
+
+                // TRIGGER EVENTS
+                Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
+                Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
                 if (CompatibilityAPI.getVersion() >= 1.09) {
-                    Bukkit.getServer().getPluginManager().registerEvents(new PlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
-                    Bukkit.getServer().getPluginManager().registerEvents(new EntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
                 }
+
+                // WEAPON EVENTS
+                Bukkit.getServer().getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
+
             }
         }.runTask(this);
 

@@ -1,18 +1,23 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-public class ReloadHandler {
+import java.io.File;
+
+public class ReloadHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
@@ -89,5 +94,15 @@ public class ReloadHandler {
             }
         }
         return true;
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Reload";
+    }
+
+    @Override
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+
     }
 }
