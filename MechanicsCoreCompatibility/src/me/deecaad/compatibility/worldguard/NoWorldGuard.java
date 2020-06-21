@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Used when WorldGuard is not installed
@@ -26,9 +28,13 @@ public class NoWorldGuard implements IWorldGuardCompatibility {
         // Do nothing
     }
 
-
     @Override
     public boolean isInstalled() {
         return false;
+    }
+
+    @Override
+    public Set<String> getRegisteredFlags() {
+        return Collections.emptySet();
     }
 }

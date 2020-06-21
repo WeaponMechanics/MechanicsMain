@@ -68,8 +68,8 @@ public final class BlockDamageData implements Listener {
     public static void regenerate(Chunk chunk) {
         Map<Block, DamageData> chunkData = BLOCK_DAMAGE_MAP.get(chunk);
 
+        // There are no blocks needed to regenerate
         if (chunkData == null) {
-            debug.debug("Tried to regenerate chunk that didn't need to be regenerated. Ignoring.");
             return;
         }
 

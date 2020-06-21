@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
+import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.*;
@@ -57,6 +59,20 @@ public class WeaponMechanics extends JavaPlugin {
 
     @Override
     public void onLoad() {
+
+        // Setup the debugger
+        Logger logger = getLogger();
+        int level = getConfig().getInt("Debug_Level", 2);
+        debug = new Debugger(logger, level);
+
+        // Register all WorldGuard flags
+        IWorldGuardCompatibility guard = WorldGuardAPI.getWorldGuardCompatibility();
+        if (guard.isInstalled()) {
+            debug.log(LogLevel.INFO, "Detected WorldGuard, registering flags");
+            guard.registerFlag("weapon-shoot", IWorldGuardCompatibility.FlagType.STATE_FLAG);
+        } else {
+            debug.log(LogLevel.DEBUG, "No WorldGuard detected0");
+        }
     }
 
     @Override
@@ -66,12 +82,8 @@ public class WeaponMechanics extends JavaPlugin {
         plugin = this;
         entityWrappers = new HashMap<>();
 
-        // Setup the debugger
-        Logger logger = getLogger();
-        int level = getConfig().getInt("Debug_Level", 2);
-        debug = new Debugger(logger, level);
-
         // Create files
+        debug.info("Loading config.yml");
         new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml", ".png");
 
         // Fill config.yml mappings
@@ -92,6 +104,7 @@ public class WeaponMechanics extends JavaPlugin {
         }
 
         // Register packet listeners
+        debug.info("Creating packet listeners");
         PacketListenerAPI.addPacketHandler(this, new OutSetSlotListener()); // reduce/remove weapons from going up and down
         PacketListenerAPI.addPacketHandler(this, new OutUpdateAttributesListener()); // used with scopes
         PacketListenerAPI.addPacketHandler(this, new OutAbilitiesListener()); // used with scopes
@@ -108,6 +121,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Lets just use command map for all commands.
         // This allows registering new commands from configurations during runtime
+        debug.info("Registering commands");
         Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
         SimpleCommandMap simpleCommandMap = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
 
@@ -118,6 +132,8 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Start update checker task and make the instance
         if (basicConfiguration.getBool("Update_Checker.Enable")) {
+
+            debug.info("Checking for updates");
             try {
                 Integer.parseInt("%%__RESOURCE__%%");
 
@@ -138,6 +154,7 @@ public class WeaponMechanics extends JavaPlugin {
             getPlayerWrapper(player);
         }
 
+        debug.info("Serializing config");
         tempSerializers = new JarSerializers().getAllSerializersInsideJar(WeaponMechanics.this, getFile());
 
         // This is done like this to allow other plugins to add their own serializers
@@ -217,6 +234,7 @@ public class WeaponMechanics extends JavaPlugin {
         // this Configuration. Clearing it, then adding the config back
         // into it solves that issue
         // todo: add on reload event to allow other plugins register their serializers on reload?
+        // ^^ Yeah, I could implement a ConfigurationLoadEvent into the core that FileReader::new calls?
         try {
             configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile()), null).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml"));
         } catch (DuplicateKeyException ex) {

@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -109,6 +110,11 @@ public class WorldGuardV7 implements IWorldGuardCompatibility {
         }
 
         flags.put(flagString, flag);
+    }
+
+    @Override
+    public Set<String> getRegisteredFlags() {
+        return flags.keySet();
     }
 
     @Override

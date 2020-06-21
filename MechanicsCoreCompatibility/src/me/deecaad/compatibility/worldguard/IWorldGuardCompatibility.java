@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Set;
 
 public interface IWorldGuardCompatibility {
 
@@ -42,7 +44,14 @@ public interface IWorldGuardCompatibility {
      */
     boolean isInstalled();
 
-    public static enum FlagType {
+    /**
+     * Gets all flags registered by this compatibility, or an empty list
+     *
+     * @return All registered flags
+     */
+    Set<String> getRegisteredFlags();
+
+    enum FlagType {
 
         STATE_FLAG,
         DOUBLE_FLAG,

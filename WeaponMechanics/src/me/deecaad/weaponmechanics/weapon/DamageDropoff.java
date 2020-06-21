@@ -38,7 +38,7 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
 
     @Override
     public String getKeyword() {
-        return null;
+        return "Damage_Dropoff";
     }
 
     @Override
