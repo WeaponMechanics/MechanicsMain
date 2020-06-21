@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
+import me.deecaad.core.file.IValidator;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
 import me.deecaad.core.file.Configuration;
@@ -12,17 +13,19 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import java.io.File;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class ScopeHandler {
+public class ScopeHandler implements IValidator {
 
     private static final IScopeCompatibility scopeCompatibility = WeaponCompatibilityAPI.getScopeCompatibility();
     private WeaponHandler weaponHandler;
@@ -93,7 +96,8 @@ public class ScopeHandler {
             int increaseZoomPerStack = config.getInt(weaponTitle + ".Scope.Zoom_Stacking.Increase_Zoom_Per_Stack");
             if (increaseZoomPerStack != 0) {
                 int zoomStack = zoomData.getZoomStacks() + 1;
-                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, entity, WeaponScopeEvent.ScopeType.STACK, zoomStack * increaseZoomPerStack, zoomStack);
+                int zoomAmount = config.getInt(weaponTitle + ".Scope.Zoom_Amount");
+                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, entity, WeaponScopeEvent.ScopeType.STACK, zoomAmount + (zoomStack * increaseZoomPerStack), zoomStack);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
                 if (weaponScopeEvent.isCancelled()) {
                     return false;
@@ -211,5 +215,38 @@ public class ScopeHandler {
         }
         zoomData.setZoomNightVision(false);
         scopeCompatibility.removeNightVision(player);
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Scope";
+    }
+
+    @Override
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+        Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
+        if (trigger == null) {
+            debug.log(LogLevel.ERROR, "Tried to use scope without defining trigger for it.",
+                    "Located at file " + file + " in " + path + ".Trigger in configurations.",
+                    "Please add it.");
+            return;
+        }
+        int zoomAmount = configuration.getInt(path + ".Zoom_Amount");
+        if (zoomAmount < 1 || zoomAmount > 32) {
+            debug.log(LogLevel.ERROR, "Tried to use scope without defining proper zoom amount for it, or it was missing.",
+                    "Zoom amount has to be between 1 and 32.",
+                    "Located at file " + file + " in " + path + ".Zoom_Amount in configurations.");
+            return;
+        }
+
+        int maximumStacks = configuration.getInt(path + ".Zoom_Stacking.Maximum_Stacks");
+        int increaseZoomPerStack = configuration.getInt(path + ".Zoom_Stacking.Increase_Zoom_Per_Stack");
+        int finalValue = maximumStacks * increaseZoomPerStack + zoomAmount;
+        if (finalValue > 32 || finalValue < 1) {
+            debug.log(LogLevel.ERROR, "Final value of zoom stacking can go above 32 or below 1.",
+                    "Currently potential final value is " + finalValue + ", make sure its between 1 and 32.",
+                    "Located at file " + file + " in " + path + ".Zoom_Stacking in configurations.");
+        }
+
     }
 }

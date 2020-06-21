@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.listeners;
+package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
@@ -20,11 +20,11 @@ import org.bukkit.inventory.ItemStack;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
-public class PlayerListeners implements Listener {
+public class TriggerPlayerListeners implements Listener {
 
     private WeaponHandler weaponHandler;
 
-    public PlayerListeners(WeaponHandler weaponHandler) {
+    public TriggerPlayerListeners(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }
 

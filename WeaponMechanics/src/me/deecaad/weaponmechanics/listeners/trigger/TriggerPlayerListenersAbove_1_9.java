@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.listeners;
+package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -13,11 +13,11 @@ import org.bukkit.inventory.ItemStack;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
-public class PlayerListenersAbove_1_9 implements Listener {
+public class TriggerPlayerListenersAbove_1_9 implements Listener {
 
     private WeaponHandler weaponHandler;
 
-    public PlayerListenersAbove_1_9(WeaponHandler weaponHandler) {
+    public TriggerPlayerListenersAbove_1_9(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }
 

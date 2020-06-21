@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
@@ -16,16 +17,19 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.io.File;
+
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class ShootHandler {
+public class ShootHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
@@ -271,5 +275,15 @@ public class ShootHandler {
         eyeLocation.setX(eyeLocation.getX() + (dividedWidth * Math.cos(yawToRad)));
         eyeLocation.setZ(eyeLocation.getZ() + (dividedWidth * Math.sin(yawToRad)));
         return eyeLocation;
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Shoot";
+    }
+
+    @Override
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+
     }
 }
