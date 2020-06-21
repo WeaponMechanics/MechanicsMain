@@ -8,10 +8,17 @@ public class Debugger {
     // no logical reason to be able to change this
     private final Logger logger;
     private int level;
+    private boolean isPrintTraces;
 
     public Debugger(Logger logger, int level) {
         this.logger = logger;
         this.level = level;
+    }
+
+    public Debugger(Logger logger, int level, boolean isPrintTraces) {
+        this.logger = logger;
+        this.level = level;
+        this.isPrintTraces = isPrintTraces;
     }
 
     public Logger getLogger() {
@@ -100,6 +107,11 @@ public class Debugger {
 
         for (String str : msg) {
             logger.log(level.getParallel(), str);
+        }
+
+        // Used if we want to find the origin of an error
+        if (isPrintTraces && level == LogLevel.ERROR) {
+            log(level, new Throwable());
         }
     }
 

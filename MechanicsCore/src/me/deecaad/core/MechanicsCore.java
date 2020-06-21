@@ -4,7 +4,6 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -21,8 +20,9 @@ public class MechanicsCore extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
         plugin = this;
-        debug = new Debugger(getLogger(), 2);
+        debug = new Debugger(getLogger(), 2, true);
         defaultSerializers = new ArrayList<>();
         new PacketListenerAPI(this);
     }

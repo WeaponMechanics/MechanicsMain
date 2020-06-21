@@ -56,7 +56,7 @@ public class ReflectionUtil {
      */
     public static Constructor<?> getConstructor(@Nonnull Class<?> classObject, Class<?>... parameters) {
         if (classObject == null) {
-            debug.log(LogLevel.WARN, "classObject is null in getConstructor()");
+            debug.log(LogLevel.ERROR, "classObject is null in getConstructor()");
             return null;
         }
         try {
@@ -76,7 +76,7 @@ public class ReflectionUtil {
      */
     public static Object newInstance(@Nonnull Constructor<?> constructor, Object... parameters) {
         if (constructor == null) {
-            debug.log(LogLevel.WARN, "constructor is null in newInstance()!");
+            debug.log(LogLevel.ERROR, "constructor is null in newInstance()!");
             return null;
         }
         try {
@@ -94,7 +94,7 @@ public class ReflectionUtil {
      */
     public static Field getField(@Nonnull Class<?> classObject, @Nonnull String fieldName) {
         if (classObject == null || fieldName == null) {
-            debug.log(LogLevel.WARN, "classObject or fieldName is null in getField()");
+            debug.log(LogLevel.ERROR, "classObject or fieldName is null in getField()");
             return null;
         }
         try {
@@ -116,7 +116,7 @@ public class ReflectionUtil {
      */
     public static Object invokeField(@Nonnull Field field, @Nonnull Object instance) {
         if (field == null || instance == null) {
-            debug.log(LogLevel.WARN, "field or instance is null in invokeField()");
+            debug.log(LogLevel.ERROR, "field or instance is null in invokeField()");
             return null;
         }
         try {
@@ -134,7 +134,7 @@ public class ReflectionUtil {
      */
     public static void setField(@Nonnull Field field, Object instance, Object value) {
         if (field == null || instance == null) {
-            debug.log(LogLevel.WARN, "field or instance is null in setField()");
+            debug.log(LogLevel.ERROR, "field or instance is null in setField()");
         }
         try {
             field.set(instance, value);
@@ -151,7 +151,7 @@ public class ReflectionUtil {
      */
     public static Method getMethod(@Nonnull Class<?> classObject, @Nonnull String methodName, Class<?>... parameters) {
         if (classObject == null || methodName == null) {
-            debug.log(LogLevel.WARN, "classObject or methodName is null in getMethod()");
+            debug.log(LogLevel.ERROR, "classObject or methodName is null in getMethod()");
             return null;
         }
         try {
@@ -174,7 +174,7 @@ public class ReflectionUtil {
      */
     public static Object invokeMethod(@Nonnull Method method, Object instance, Object... parameters) {
         if (method == null) {
-            debug.log(LogLevel.WARN, "method is null in invokeField()");
+            debug.log(LogLevel.ERROR, "method is null in invokeField()");
             return null;
         }
         try {
