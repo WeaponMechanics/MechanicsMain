@@ -1,14 +1,34 @@
 test:
+  Info:
+    Weapon_Item:
+      Type: "GOLDEN_HOE"
+      Name: "&6Test Weapon"
+      Lore:
+        - "&6Y"
+        - "&6y"
+    Weapon_Get_Actions:
+      Firework:
+        1_Firework_Spawn:
+          Flight_Power: 0
+          Firework_Type: "BALL"
+          Colors:
+            - "GOLD"
+            - "GRAY"
+            - "YELLOW"
+    Cancel:
+      Drop_Item: true
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
     Projectile_Speed: 30.0
     Projectiles_Per_Shot: 1
     #Delay_Between_Shots: 20
-    Fully_Automatic_Shots_Per_Second: 10
+    Fully_Automatic_Shots_Per_Second: 60
     #Burst:
     #  Shots_Per_Burst: <amount>
     #  Ticks_Between_Each_Shot: <ticks>
     Projectile:
       Settings:
         Type: "EGG"
+    Spread:
+      Base_Spread: 1.5

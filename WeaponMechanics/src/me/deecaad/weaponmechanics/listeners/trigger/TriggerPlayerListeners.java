@@ -155,7 +155,7 @@ public class TriggerPlayerListeners implements Listener {
 
         if (rightClick) {
             // Only do dual wield check if server is 1.9 or newer
-            if (useOffHand && !weaponHandler.getInfoHandler().allowDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
+            if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
 
             if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield);
 
@@ -164,7 +164,7 @@ public class TriggerPlayerListeners implements Listener {
             return;
         }
         // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && !weaponHandler.getInfoHandler().allowDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
+        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
 
         if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield);
 
@@ -236,7 +236,7 @@ public class TriggerPlayerListeners implements Listener {
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && !weaponHandler.getInfoHandler().allowDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
+        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 

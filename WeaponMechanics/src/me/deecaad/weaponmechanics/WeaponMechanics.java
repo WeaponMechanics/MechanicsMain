@@ -252,7 +252,7 @@ public class WeaponMechanics extends JavaPlugin {
         // todo: add on reload event to allow other plugins register their serializers on reload?
         // ^^ Yeah, I could implement a ConfigurationLoadEvent into the core that FileReader::new calls?
         try {
-            configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile()), null).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml"));
+            configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile()), null).fillAllFiles(getDataFolder(), "config.yml"));
         } catch (DuplicateKeyException ex) {
             // Since the map is empty before this, this error should
             // never occur

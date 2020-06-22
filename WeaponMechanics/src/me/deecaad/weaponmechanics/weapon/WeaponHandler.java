@@ -68,7 +68,7 @@ public class WeaponHandler {
         if (mainWeapon == null && offWeapon == null) return;
 
         // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && !infoHandler.allowDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
+        if (useOffHand && infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 

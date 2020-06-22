@@ -12,7 +12,6 @@ public class WeaponMechanicsMainCommand extends MainCommand {
         setAliases(StringUtils.getList("wea", "weapon", "wm"));
 
         commands.register(new TestCommand());
-        commands.register(new GetCommand());
         commands.register(new GiveCommand());
         commands.register(new InfoCommand());
         commands.register(new ReloadCommand());

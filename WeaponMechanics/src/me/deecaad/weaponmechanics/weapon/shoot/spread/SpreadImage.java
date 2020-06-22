@@ -129,7 +129,6 @@ public class SpreadImage implements Serializer<SpreadImage> {
 
         // Avoid an error. Image name is a required field
         if (imageName == null) {
-            debug.log(LogLevel.ERROR, "Name is a required field! Make sure to specify a valid name.");
             return null;
         }
 

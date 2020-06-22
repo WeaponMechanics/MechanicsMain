@@ -9,41 +9,67 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+
 @CommandPermission(permission = "weaponmechanics.commands.give")
 public class GiveCommand extends SubCommand {
     
     // give <Player> <Weapon> <Amount>
     
     public GiveCommand() {
-        super("wm", "give", "Gives a given number of weapons to a given player", "<player> <weapon> <amount>");
+        super("wm", "give", "Gives a given number of weapons to a given player", "<weapon> <amount> <player>");
     }
     
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (args.length == 0) {
+        if (args.length == 0 || args.length > 3) {
             sender.sendMessage(StringUtils.color(toString()));
             return;
         }
-        Player player = Bukkit.getPlayer(args[0]);
-        if (player == null) {
-            player.sendMessage(StringUtils.color("&cCould not find player \"" + args[0] + "\""));
+
+        String weaponTitle = args[0];
+        if (!getWeaponHandler().getInfoHandler().hasWeapon(weaponTitle)) {
+            sender.sendMessage(StringUtils.color("&cCould not find weapon " + args[0]));
             return;
         }
-        
-        if (args.length < 2 && sender instanceof Player) {
-            // sender opens an inventory to put weapons in player's inv
+
+        int amount = 1;
+        if (args.length > 1) {
+            try {
+                amount = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(StringUtils.color("&cTried to use amount which wasn't number " + args[1]));
+                return;
+            }
+            if (amount < 0 || amount > 64) {
+                sender.sendMessage(StringUtils.color("&cTried to use amount which was less than 1 or more than 64"));
+                return;
+            }
+        }
+
+        Player player;
+        if (args.length > 2) {
+            player = Bukkit.getPlayer(args[2]);
+            if (player == null) {
+                sender.sendMessage(StringUtils.color("&cCould not find player " + args[2]));
+                return;
+            }
+        } else if (sender instanceof Player) {
+            player = (Player) sender;
+        } else {
+            // Not player
+            sender.sendMessage(StringUtils.color("&cYou can't give weapons for console, sorry. :("));
             return;
         }
-        // weapon from args[1]
-        // amount from args[2]
-        return;
+
+        getWeaponHandler().getInfoHandler().giveOrDropWeapon(weaponTitle, player, amount);
     }
 
     @Override
     public List<String> handleCustomTag(String[] args, String current) {
         switch (current) {
             case "<weapon>":
-                return StringUtils.getList("ak-47", "ar-15", "desert_eagle", "Minigun", "Sniper");
+                return getWeaponHandler().getInfoHandler().getSortedWeaponList();
             default:
                 return super.handleCustomTag(args, current);
         }
