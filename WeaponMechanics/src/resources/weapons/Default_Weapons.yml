@@ -9,8 +9,6 @@ test:
     #Burst:
     #  Shots_Per_Burst: <amount>
     #  Ticks_Between_Each_Shot: <ticks>
-    Spread:
-      Base_Spread: 0.05
     Projectile:
       Settings:
         Type: "EGG"

@@ -27,7 +27,8 @@ public class WeaponListeners implements Listener {
         this.weaponHandler = weaponHandler;
     }
 
-    @EventHandler
+    // Removed test use temp
+    //@EventHandler
     public void interact(PlayerInteractEvent e) {
         Action action = e.getAction();
         boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
