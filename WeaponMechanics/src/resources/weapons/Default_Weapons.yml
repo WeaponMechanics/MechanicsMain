@@ -32,3 +32,11 @@ test:
         Type: "EGG"
     Spread:
       Base_Spread: 1.5
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+    Night_Vision: true
+    Zoom_Amount: 8
+    Zoom_Stacking:
+      Maximum_Stacks: 2
+      Increase_Zoom_Per_Stack: 8
