@@ -1,11 +1,9 @@
-package me.deecaad.weaponmechanics.particles;
+package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.general.ColorType;
-import me.deecaad.weaponmechanics.general.LocationFinder;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -88,7 +86,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
         }
         List<ParticleData> particleDatas = new ArrayList<>();
         for (String particleName : particleSection.getKeys(false)) {
-            ParticleData particleData = tryParticleData(file, configurationSection, path + "." + particleName);
+            ParticleData particleData = tryParticleData(file, configurationSection, path + "" + particleName);
             if (particleData == null) {
                 continue;
             }

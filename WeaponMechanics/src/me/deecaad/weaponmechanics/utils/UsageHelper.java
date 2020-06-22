@@ -1,12 +1,11 @@
 package me.deecaad.weaponmechanics.utils;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.general.AddPotionEffect;
 import me.deecaad.weaponmechanics.general.PlaySound;
 import me.deecaad.weaponmechanics.general.SendMessage;
 import me.deecaad.weaponmechanics.general.SpawnFirework;
-import me.deecaad.weaponmechanics.particles.SpawnParticle;
+import me.deecaad.weaponmechanics.general.SpawnParticle;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -14,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 

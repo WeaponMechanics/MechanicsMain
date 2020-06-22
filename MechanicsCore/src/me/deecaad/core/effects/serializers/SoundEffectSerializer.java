@@ -1,6 +1,5 @@
 package me.deecaad.core.effects.serializers;
 
-import me.deecaad.core.effects.Effect;
 import me.deecaad.core.effects.types.CustomSoundEffect;
 import me.deecaad.core.effects.types.MinecraftSoundEffect;
 import me.deecaad.core.effects.types.SoundEffect;
