@@ -1,6 +1,7 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -99,7 +100,16 @@ public class FileReader {
         if (directory == null || directory.listFiles() == null) {
             throw new IllegalArgumentException("The given file MUST be a directory!");
         }
+        Configuration filledMap = fillAllFilesLoop(directory, ignoreFiles);
 
+        // Only run this once
+        // That's why fillAllFilesLoop method is required
+        usePathToSerializersAndValidators(filledMap);
+
+        return filledMap;
+    }
+
+    private Configuration fillAllFilesLoop(File directory, @Nullable String... ignoreFiles) {
         // A set to determine if a file should be ignored
         Set<String> fileBlacklist = ignoreFiles == null ? new HashSet<>() : Arrays.stream(ignoreFiles).collect(Collectors.toSet());
 
@@ -122,7 +132,7 @@ public class FileReader {
 
                     filledMap.add(newFilledMap);
                 } else if (directoryFile.isDirectory()) {
-                    filledMap.add(fillAllFiles(directoryFile));
+                    filledMap.add(fillAllFilesLoop(directoryFile));
                 }
             } catch (DuplicateKeyException ex) {
                 debug.log(LogLevel.ERROR, "Found duplicate keys in configuration!",
@@ -134,9 +144,6 @@ public class FileReader {
                 debug.log(LogLevel.DEBUG, "Duplicate Key Exception: ", ex);
             }
         }
-
-        usePathToSerializersAndValidators(filledMap);
-
         return filledMap;
     }
 
