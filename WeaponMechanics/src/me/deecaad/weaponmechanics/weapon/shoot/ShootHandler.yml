@@ -13,3 +13,4 @@ Shoot:
   # All general stuff
   Spread: <spread serializer>
   Projectile: <projectile serializer>
+  Recoil: <recoil serializer>

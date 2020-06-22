@@ -6,6 +6,7 @@ import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.TimerTask;
@@ -55,6 +56,13 @@ public class RecoilTask extends TimerTask {
 
     @Override
     public void run() {
+
+        Player player = playerWrapper.getPlayer();
+        if (player == null || player.isDead() || !player.isOnline()) {
+            handData.setRecoilTask(null);
+            cancel();
+            return;
+        }
 
         // If this returns true, that means task is terminated
         if (handleNewRecoil()) return;

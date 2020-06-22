@@ -26,10 +26,7 @@ import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
-import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
@@ -176,7 +173,7 @@ public class WeaponMechanics extends JavaPlugin {
                 validators.add(new ReloadHandler(weaponHandler));
 
                 // Fill configuration mappings (except config.yml)
-                configurations = new FileReader(tempSerializers, validators).fillAllFiles(getDataFolder(), "config.yml", "deserializers.yml");
+                configurations = new FileReader(tempSerializers, validators).fillAllFiles(getDataFolder(), "config.yml");
                 tempSerializers = null;
 
                 // Register events
@@ -344,8 +341,13 @@ public class WeaponMechanics extends JavaPlugin {
      */
     public static void removeEntityWrapper(LivingEntity entity) {
         IEntityWrapper oldWrapper = entityWrappers.remove(entity);
-        if (oldWrapper != null && oldWrapper.getMoveTask() != 0) {
-            Bukkit.getScheduler().cancelTask(oldWrapper.getMoveTask());
+        if (oldWrapper != null) {
+            int oldMoveTask = oldWrapper.getMoveTask();
+            if (oldMoveTask != 0) {
+                Bukkit.getScheduler().cancelTask(oldMoveTask);
+            }
+            oldWrapper.getMainHandData().cancelTasks();
+            oldWrapper.getOffHandData().cancelTasks();
         }
     }
 

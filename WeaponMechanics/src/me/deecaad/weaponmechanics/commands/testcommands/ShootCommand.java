@@ -87,7 +87,8 @@ public class ShootCommand extends SubCommand implements Listener {
             new Particle.DustOptions(Color.fromRGB(238, 130, 238), 1f),
     };
 
-    @EventHandler
+    // Only use if needed for testing
+    //@EventHandler
     public void onMove(ProjectileMoveEvent e) {
         ICustomProjectile projectile = e.getCustomProjectile();
         Vector location = projectile.getLastLocation();

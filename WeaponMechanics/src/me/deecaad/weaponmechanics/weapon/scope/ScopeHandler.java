@@ -227,16 +227,13 @@ public class ScopeHandler implements IValidator {
         Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
         if (trigger == null) {
             debug.log(LogLevel.ERROR, "Tried to use scope without defining trigger for it.",
-                    "Located at file " + file + " in " + path + ".Trigger in configurations.",
-                    "Please add it.");
-            return;
+                    "Located at file " + file + " in " + path + ".Trigger in configurations.");
         }
         int zoomAmount = configuration.getInt(path + ".Zoom_Amount");
         if (zoomAmount < 1 || zoomAmount > 32) {
             debug.log(LogLevel.ERROR, "Tried to use scope without defining proper zoom amount for it, or it was missing.",
                     "Zoom amount has to be between 1 and 32.",
                     "Located at file " + file + " in " + path + ".Zoom_Amount in configurations.");
-            return;
         }
 
         int maximumStacks = configuration.getInt(path + ".Zoom_Stacking.Maximum_Stacks");

@@ -37,11 +37,7 @@ public class TriggerPlayerListenersAbove_1_9 implements Listener {
         if (toMainWeapon != null && getConfigurations().getBool(toMainWeapon + ".Info.Cancel.Swap_Hands")
                 || toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands")) {
 
-            // Basically cancels the hand items swap
-            // If I would use e.setCancelled(true), it would cancel everything
-            // and the possible item modifications done below wouldn't work.
-            e.setMainHandItem(toOff);
-            e.setOffHandItem(toMain);
+            e.setCancelled(true);
         }
 
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);

@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class MoveTask extends BukkitRunnable {
 
-    private IEntityWrapper entityWrapper;
+    private final IEntityWrapper entityWrapper;
     private Location from;
     private int sameMatches;
     private int jumps;
@@ -88,11 +88,7 @@ public class MoveTask extends BukkitRunnable {
         }
 
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair")) {
-            if (inMidairCheck) {
-                entityWrapper.setInMidair(true);
-            } else {
-                entityWrapper.setInMidair(false);
-            }
+            entityWrapper.setInMidair(inMidairCheck);
         }
 
         if (!(entity instanceof Player)) {

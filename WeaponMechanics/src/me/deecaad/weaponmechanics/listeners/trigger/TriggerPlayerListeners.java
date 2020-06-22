@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -104,7 +105,7 @@ public class TriggerPlayerListeners implements Listener {
             EquipmentSlot hand = e.getHand();
 
             // Only if main hand is air (off hand can be whatever
-            if (player.getEquipment().getItemInMainHand().getType().isAir()) {
+            if (player.getEquipment().getItemInMainHand().getType() == Material.AIR) {
 
                 // Check if the action was right click block AND hand used was main hand
                 // -> Cancel

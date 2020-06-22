@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
@@ -12,11 +11,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
 
-import javax.annotation.Nonnull;
-
 public class EntityWrapper implements IEntityWrapper {
 
-    private static final int MOVETASKINTERVAL = 0;
+    private static final int MOVE_TASK_INTERVAL = 1;
 
     private final LivingEntity entity;
 
@@ -37,7 +34,7 @@ public class EntityWrapper implements IEntityWrapper {
                 || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
                 || !config.getBool("Disabled_Trigger_Checks.Jump")
                 || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
-            this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVETASKINTERVAL).getTaskId();
+            this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL).getTaskId();
         }
     }
 
