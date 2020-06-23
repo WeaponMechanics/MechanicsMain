@@ -166,7 +166,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     @Nullable
     @Override
     public String getString(@Nonnull String key) {
-        return (String) getOrDefault(key, "");
+        return (String) getOrDefault(key, null);
     }
     
     @Override
