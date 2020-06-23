@@ -1,17 +1,7 @@
 package me.deecaad.weaponmechanics.utils;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.TagUtils;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.tags.ItemTagType;
-import org.bukkit.persistence.PersistentDataType;
 
 public class TagHelper {
 

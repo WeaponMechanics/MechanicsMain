@@ -1,13 +1,20 @@
 package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import net.minecraft.server.v1_15_R1.EntityHuman;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftItem;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftEntityEquipment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -120,8 +127,16 @@ public class TriggerPlayerListeners implements Listener {
             }
         }
 
+        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+
         boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
-        if (rightClick) getPlayerWrapper(player).rightClicked();
+        if (rightClick) {
+            getPlayerWrapper(player).rightClicked();
+        } else if (CompatibilityAPI.getVersion() >= 1.15 && !NumberUtils.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
+            // Fixes bug where item dropping causes player to left click
+            // Basically checks if less than 25 millis has passed since weapon item drop
+            return;
+        }
 
         // 1.8 support...
         ItemStack mainStack = useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand();
@@ -149,8 +164,6 @@ public class TriggerPlayerListeners implements Listener {
             e.setUseItemInHand(Event.Result.DENY);
         }
 
-        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
-
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
         if (rightClick) {
@@ -163,6 +176,7 @@ public class TriggerPlayerListeners implements Listener {
             if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield);
             return;
         }
+
         // Only do dual wield check if server is 1.9 or newer
         if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
 
@@ -228,9 +242,8 @@ public class TriggerPlayerListeners implements Listener {
 
         if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item", true)
                 || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item", true)) {
-            e.setCancelled(true);
 
-            mainStack = useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand();
+            e.setCancelled(true);
         }
 
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
@@ -240,7 +253,10 @@ public class TriggerPlayerListeners implements Listener {
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
-        if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield);
+        if (mainWeapon != null) {
+            playerWrapper.droppedWeapon();
+            weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield);
+        }
 
         // Off weapon is automatically null at this point if server is using 1.8
         if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);

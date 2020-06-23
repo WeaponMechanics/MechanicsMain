@@ -11,6 +11,7 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     private boolean inventoryOpen;
     private long lastRightClick;
     private long lastStartSneak;
+    private long lastWeaponDrop;
 
     public PlayerWrapper(Player player) {
         super(player);
@@ -63,6 +64,16 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
         lastStartSneak = 0;
 
         return !passedTooMuch;
+    }
+
+    @Override
+    public void droppedWeapon() {
+        lastWeaponDrop = System.currentTimeMillis();
+    }
+
+    @Override
+    public long getLastDropWeaponTime() {
+        return lastWeaponDrop;
     }
 
     @Override

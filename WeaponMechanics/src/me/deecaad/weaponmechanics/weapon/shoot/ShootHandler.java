@@ -17,7 +17,6 @@ import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -91,19 +90,31 @@ public class ShootHandler implements IValidator {
         if (handData.isUsingFullAuto() || handData.isUsingBurst()) return false;
 
         Configuration config = getConfigurations();
+        boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
+        boolean isSelectiveFireAuto = false;
+        String selectiveFire = null;
+        if (usesSelectiveFire) {
+            selectiveFire = TagHelper.getStringTag(weaponStack, CustomTag.SELECTIVE_FIRE);
+            if (selectiveFire != null && selectiveFire.equals("auto")) {
+                isSelectiveFireAuto = true;
+            }
+        }
 
-        // Convert to millis
-        int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
-        if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
+        // Only check if selective fire doesn't have auto selected
+        if (!isSelectiveFireAuto) {
+            int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
+            if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
+        }
 
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (!trigger.check(triggerType, slot, entityWrapper)) return false;
 
         // todo: check and do ammo things
 
-        boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
         if (usesSelectiveFire) {
-            String selectiveFire = TagHelper.getCustomTag(weaponStack, CustomTag.SELECTIVE_FIRE);
+            if (selectiveFire == null) {
+                return singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+            }
             switch (selectiveFire) {
                 case ("burst"):
                     return burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);

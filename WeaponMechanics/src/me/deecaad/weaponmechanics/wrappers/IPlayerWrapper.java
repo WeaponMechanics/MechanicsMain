@@ -60,4 +60,14 @@ public interface IPlayerWrapper extends IEntityWrapper {
      * @return whether or not sneak was double sneak
      */
     boolean didDoubleSneak();
+
+    /**
+     * Updates last drop weapon time
+     */
+    void droppedWeapon();
+
+    /**
+     * @return the last time when weapon was dropped in main hand in millis
+     */
+    long getLastDropWeaponTime();
 }

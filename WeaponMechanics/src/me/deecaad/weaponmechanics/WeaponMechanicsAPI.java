@@ -81,7 +81,7 @@ public class WeaponMechanicsAPI {
             throw new IllegalArgumentException("Weapon cannot be null!");
         }
 
-        return TagHelper.getCustomTag(weapon, CustomTag.WEAPON_TITLE);
+        return TagHelper.getStringTag(weapon, CustomTag.WEAPON_TITLE);
     }
 
     /**

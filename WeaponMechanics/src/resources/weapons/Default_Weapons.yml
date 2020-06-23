@@ -22,11 +22,14 @@ test:
       Main_Hand: "RIGHT_CLICK"
     Projectile_Speed: 30.0
     Projectiles_Per_Shot: 1
-    #Delay_Between_Shots: 20
+    Delay_Between_Shots: 20
+    Selective_Fire:
+      Trigger:
+        Main_Hand: "DROP_ITEM"
     Fully_Automatic_Shots_Per_Second: 60
-    #Burst:
-    #  Shots_Per_Burst: <amount>
-    #  Ticks_Between_Each_Shot: <ticks>
+    Burst:
+      Shots_Per_Burst: 3
+      Ticks_Between_Each_Shot: 2
     Projectile:
       Settings:
         Type: "EGG"
@@ -35,7 +38,6 @@ test:
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
-    Night_Vision: true
     Zoom_Amount: 8
     Zoom_Stacking:
       Maximum_Stacks: 2
