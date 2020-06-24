@@ -82,7 +82,9 @@ public class TagUtils {
         }
 
         // 1.13 R1 and lower full NMS
-        return CompatibilityAPI.getCompatibility().getNBTCompatibility().setCustomTag(itemStack, tag, value);
+        ItemStack newItemStack = CompatibilityAPI.getCompatibility().getNBTCompatibility().setCustomTag(itemStack, tag, value);
+        itemStack.setItemMeta(newItemStack.getItemMeta());
+        return itemStack;
     }
 
     /**
@@ -148,7 +150,9 @@ public class TagUtils {
 
         // 1.13 R1 and lower full NMS
         // Lazy implementation for integers
-        return CompatibilityAPI.getCompatibility().getNBTCompatibility().setCustomTag(itemStack, tag, String.valueOf(value));
+        ItemStack newItemStack = CompatibilityAPI.getCompatibility().getNBTCompatibility().setCustomTag(itemStack, tag, String.valueOf(value));
+        itemStack.setItemMeta(newItemStack.getItemMeta());
+        return itemStack;
     }
 
     /**
@@ -182,6 +186,8 @@ public class TagUtils {
         }
 
         // 1.13 R1 and lower full NMS
-        return CompatibilityAPI.getCompatibility().getNBTCompatibility().setAttributeValue(itemStack, attributeType, amount);
+        ItemStack newItemStack = CompatibilityAPI.getCompatibility().getNBTCompatibility().setAttributeValue(itemStack, attributeType, amount);
+        itemStack.setItemMeta(newItemStack.getItemMeta());
+        return itemStack;
     }
 }
