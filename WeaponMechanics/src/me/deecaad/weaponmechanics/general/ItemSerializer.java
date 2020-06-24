@@ -2,10 +2,7 @@ package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtils;
-import me.deecaad.core.utils.AttributeType;
+import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import org.bukkit.Bukkit;
@@ -140,7 +137,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                             "Located at file " + file + " in " + path + ".Attributes (" + splitted[1] + ") in configurations");
                     continue;
                 }
-                itemStack = TagHelper.setAttributeValue(itemStack, attribute, amount);
+                itemStack = TagUtils.setAttributeValue(itemStack, attribute, amount);
             }
         }
 

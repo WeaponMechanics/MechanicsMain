@@ -1,10 +1,14 @@
 package me.deecaad.weaponmechanics.weapon;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.weaponmechanics.utils.CustomTag;
+import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
+import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.entity.EntityType;
@@ -15,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 /**
  * Class to generally handle weapon functions
@@ -84,6 +88,7 @@ public class WeaponHandler {
      * 1) Shoot
      * 2) Reload
      * 3) Scope
+     * 4) Selective fire
      * }</pre>
      *
      * @param entityWrapper the entity which caused trigger
@@ -102,7 +107,52 @@ public class WeaponHandler {
         if (reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) return;
 
         // Reloading wasn't valid, try scoping
-        scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+        if (scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) return;
+
+        // Scoping wasn't valid, try selective fire
+        Configuration config = getConfigurations();
+        Trigger selectiveFireTrigger = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class);
+        if (selectiveFireTrigger != null && selectiveFireTrigger.check(triggerType, slot, entityWrapper)) {
+            boolean hasBurst = config.getInt(weaponTitle + ".Shoot.Burst.Shots_Per_Burst") != 0 && config.getInt(weaponTitle + ".Shoot.Burst.Ticks_Between_Each_Shot") != 0;
+            boolean hasAuto = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second") != 0;
+
+            // Order is basically
+            // 1) Single
+            // 2) Burst
+            // 3) Auto
+
+            String currentSelectiveFire = TagHelper.getStringTag(weaponStack, CustomTag.SELECTIVE_FIRE);
+            if (currentSelectiveFire == null) {
+                if (hasBurst) {
+                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "burst");
+                } else if (hasAuto) {
+                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "auto");
+                }
+            } else {
+                switch (currentSelectiveFire) {
+                    case ("burst"):
+                        if (hasAuto) {
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "auto");
+                        } else {
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "single");
+                        }
+                        break;
+                    case ("auto"):
+                        TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "single");
+                        break;
+                    default:
+                        if (hasBurst) {
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "burst");
+                        } else if (hasAuto) {
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "auto");
+                        }
+                        break;
+                }
+            }
+
+            entityWrapper.getMainHandData().cancelTasks();
+            entityWrapper.getOffHandData().cancelTasks();
+        }
     }
 
     /**

@@ -38,6 +38,9 @@ public class TriggerPlayerListenersAbove_1_9 implements Listener {
                 || toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands")) {
 
             e.setCancelled(true);
+
+            toOff = player.getEquipment().getItemInMainHand();
+            toMain = player.getEquipment().getItemInOffHand();
         }
 
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);

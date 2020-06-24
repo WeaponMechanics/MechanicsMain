@@ -56,7 +56,7 @@ public class ReloadHandler implements IValidator {
      * @return -1 if infinity, otherwise current ammo amount
      */
     public int getAmmoLeft(ItemStack weaponStack) {
-        String ammoLeft = TagHelper.getCustomTag(weaponStack, CustomTag.AMMO_LEFT);
+        String ammoLeft = TagHelper.getStringTag(weaponStack, CustomTag.AMMO_LEFT);
         if (ammoLeft == null) {
             // -1 means infinity
             return -1;
@@ -77,7 +77,7 @@ public class ReloadHandler implements IValidator {
                 return false;
             }
 
-            weaponStack = TagHelper.setCustomTag(weaponStack, CustomTag.AMMO_LEFT, "" + ammoToSet);
+            weaponStack = TagHelper.setStringTag(weaponStack, CustomTag.AMMO_LEFT, "" + ammoToSet);
 
             if (entityWrapper instanceof IPlayerWrapper) {
                 // Deny weapon going up & down constantly while shooting
