@@ -195,9 +195,16 @@ public class TriggerPlayerListeners implements Listener {
         if (e.getAnimationType() != PlayerAnimationType.ARM_SWING) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
-        boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
-
         Player player = e.getPlayer();
+        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+
+        double version = CompatibilityAPI.getVersion();
+        if (version >= 1.15 && !NumberUtils.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        boolean useOffHand = version >= 1.09;
 
         // getItemInMainHand didn't exist in 1.8
         ItemStack mainStack = useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand();
