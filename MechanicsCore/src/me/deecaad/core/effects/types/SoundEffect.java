@@ -1,11 +1,11 @@
 package me.deecaad.core.effects.types;
 
-import me.deecaad.core.effects.AbstractEffect;
+import me.deecaad.core.effects.Effect;
 import me.deecaad.core.utils.NumberUtils;
 
 import javax.annotation.Nonnegative;
 
-public abstract class SoundEffect extends AbstractEffect {
+public abstract class SoundEffect extends Effect {
 
     private static final float MIN_PITCH = 0.0f;
     private static final float MAX_PITCH = 2.0f;

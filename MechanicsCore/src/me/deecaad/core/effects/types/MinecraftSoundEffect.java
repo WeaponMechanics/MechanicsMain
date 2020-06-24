@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
@@ -26,6 +27,15 @@ public final class MinecraftSoundEffect extends SoundEffect {
             world.playSound(new Location(world, x, y, z), sound, SoundCategory.PLAYERS, volume, getRandomPitch());
         } else {
             world.playSound(new Location(world, x, y, z), sound, volume, getRandomPitch());
+        }
+    }
+
+    @Override
+    protected void spawnOnceFor(@Nonnull Plugin source, @Nonnull Player player, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
+        if (CompatibilityAPI.getVersion() >= 1.11) {
+            player.playSound(new Location(world, x, y, z), sound, SoundCategory.PLAYERS, volume, getRandomPitch());
+        } else {
+            player.playSound(new Location(world, x, y, z), sound, volume, getRandomPitch());
         }
     }
 }

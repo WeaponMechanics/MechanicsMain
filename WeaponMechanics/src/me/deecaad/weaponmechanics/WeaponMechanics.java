@@ -193,6 +193,9 @@ public class WeaponMechanics extends JavaPlugin {
             }
         }.runTask(this);
 
+        debug.info("Loading API");
+        new WeaponMechanicsAPI(this);
+
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
         debug.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");

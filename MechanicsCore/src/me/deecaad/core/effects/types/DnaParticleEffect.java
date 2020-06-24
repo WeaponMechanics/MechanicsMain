@@ -1,12 +1,14 @@
 package me.deecaad.core.effects.types;
 
-import me.deecaad.core.effects.ShapedEffect;
+import me.deecaad.core.effects.Shaped;
 import me.deecaad.core.effects.shapes.Circle;
 import me.deecaad.core.effects.shapes.Line;
+import me.deecaad.core.effects.shapes.Shape;
 import me.deecaad.core.effects.shapes.Spiral;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
@@ -19,7 +21,7 @@ import java.util.Map;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class DnaParticleEffect extends ParticleEffect implements ShapedEffect {
+public class DnaParticleEffect extends ParticleEffect {
 
     private Vector axis;
     private ArrayList<Vector> vectors;
@@ -68,9 +70,6 @@ public class DnaParticleEffect extends ParticleEffect implements ShapedEffect {
                 line.forEach(vector -> linePoints.put(vector, _b)); // These have to be inverted because duplicate keys
             }
         }
-
-        // Set the default axis
-        axis = new Vector();
     }
 
     @Override
@@ -93,7 +92,21 @@ public class DnaParticleEffect extends ParticleEffect implements ShapedEffect {
     }
 
     @Override
-    public void setAxis(Vector vector) {
-        this.axis = vector;
+    protected void spawnOnceFor(@Nonnull Plugin source, @Nonnull Player player, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
+        for (Vector vector : vectors) {
+            final double xPos = x + vector.getX() + axis.getX();
+            final double yPos = y + vector.getY() + axis.getY();
+            final double zPos = z + vector.getZ() + axis.getZ();
+
+            super.spawnOnceFor(source, player, world, xPos, yPos, zPos, data);
+        }
+
+        linePoints.forEach((vector, offset) -> {
+            final double xPos = x + offset.getX() + vector.getX() + axis.getX();
+            final double yPos = y + offset.getY() + vector.getY() + axis.getY();
+            final double zPos = z + offset.getZ() + vector.getZ() + axis.getZ();
+
+            super.spawnOnceFor(source, player, world, xPos, yPos, zPos, data);
+        });
     }
 }

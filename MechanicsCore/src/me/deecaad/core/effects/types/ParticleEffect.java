@@ -1,14 +1,15 @@
 package me.deecaad.core.effects.types;
 
-import me.deecaad.core.effects.AbstractEffect;
+import me.deecaad.core.effects.Effect;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ParticleEffect extends AbstractEffect {
+public class ParticleEffect extends Effect {
 
     protected Particle particle;
     protected int amount;
@@ -34,5 +35,10 @@ public class ParticleEffect extends AbstractEffect {
     @Override
     public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
         world.spawnParticle(particle, x, y, z, amount, horizontal, vertical, horizontal, speed, particleData, true);
+    }
+
+    @Override
+    protected void spawnOnceFor(@Nonnull Plugin source, @Nonnull Player player, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
+        player.spawnParticle(particle, x, y, z, amount, horizontal, vertical, horizontal, speed, particleData);
     }
 }
