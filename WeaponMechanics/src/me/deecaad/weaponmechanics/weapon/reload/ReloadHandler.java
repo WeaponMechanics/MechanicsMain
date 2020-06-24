@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -10,8 +9,6 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -33,6 +30,7 @@ public class ReloadHandler implements IValidator {
      * @param weaponStack the weapon stack
      * @param slot the slot used on trigger
      * @param triggerType the trigger type trying to activate reload
+     * @param dualWield whether or not this was dual wield
      * @return true if was able to reload
      */
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
@@ -41,6 +39,10 @@ public class ReloadHandler implements IValidator {
     }
 
     public boolean startReload(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
+        if (slot == EquipmentSlot.HAND && entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+            return false;
+        }
+
         return false;
     }
 
@@ -56,17 +58,16 @@ public class ReloadHandler implements IValidator {
      * @return -1 if infinity, otherwise current ammo amount
      */
     public int getAmmoLeft(ItemStack weaponStack) {
-        String ammoLeft = TagHelper.getStringTag(weaponStack, CustomTag.AMMO_LEFT);
+        Integer ammoLeft = TagHelper.getIntegerTag(weaponStack, CustomTag.AMMO_LEFT);
         if (ammoLeft == null) {
             // -1 means infinity
             return -1;
         }
-        return Integer.parseInt(ammoLeft);
+        return ammoLeft;
     }
 
     private boolean consumeAmmo(IEntityWrapper entityWrapper, ItemStack weaponStack, EquipmentSlot slot) {
-        LivingEntity livingEntity = entityWrapper.getEntity();
-        int ammoLeft = weaponHandler.getReloadHandler().getAmmoLeft(weaponStack);
+        int ammoLeft = getAmmoLeft(weaponStack);
 
         // -1 means infinite ammo
         if (ammoLeft != -1) {
@@ -77,20 +78,11 @@ public class ReloadHandler implements IValidator {
                 return false;
             }
 
-            weaponStack = TagHelper.setStringTag(weaponStack, CustomTag.AMMO_LEFT, "" + ammoToSet);
-
             if (entityWrapper instanceof IPlayerWrapper) {
-                // Deny weapon going up & down constantly while shooting
-                ((IPlayerWrapper) entityWrapper).setDenyNextSetSlotPacket(true);
-            }
-
-            EntityEquipment equipment = livingEntity.getEquipment();
-            if (CompatibilityAPI.getVersion() < 1.09) {
-                equipment.setItemInHand(weaponStack);
-            } else if (slot == EquipmentSlot.HAND) {
-                equipment.setItemInMainHand(weaponStack);
+                // Set the tag silently
+                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet, (IPlayerWrapper) entityWrapper, true);
             } else {
-                equipment.setItemInOffHand(weaponStack);
+                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet);
             }
         }
         return true;

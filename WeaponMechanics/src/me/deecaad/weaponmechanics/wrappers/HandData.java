@@ -1,11 +1,18 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import org.bukkit.Bukkit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HandData {
+
+    private IEntityWrapper entityWrapper;
 
     private int fullAutoTask;
     private int burstTask;
@@ -13,9 +20,16 @@ public class HandData {
     private String lastShotWeaponTitle;
     private double spreadChange;
     private RecoilTask recoilTask;
+    private final List<Integer> reloadTasks = new ArrayList<>();
+    private ZoomData zoomData;
+
+    public HandData(IEntityWrapper entityWrapper) {
+        this.entityWrapper = entityWrapper;
+    }
 
     /**
-     * Cancels full auto and burst tasks and resets them.
+     * Cancels full auto, burst and reload tasks and resets them.
+     * Also cancels zooming, cancel task method name might be a bit misleading now :p
      *
      * Does not cancel recoil task.
      */
@@ -27,6 +41,13 @@ public class HandData {
         if (burstTask != 0) {
             Bukkit.getScheduler().cancelTask(burstTask);
             burstTask = 0;
+        }
+        if (!reloadTasks.isEmpty()) {
+            reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
+            reloadTasks.clear();
+        }
+        if (zoomData.isZooming()) {
+            WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
         }
     }
 
@@ -80,5 +101,17 @@ public class HandData {
 
     public void setRecoilTask(RecoilTask recoilTask) {
         this.recoilTask = recoilTask;
+    }
+
+    public void addReloadTask(int reloadTask) {
+        this.reloadTasks.add(reloadTask);
+    }
+
+    public boolean isReloading() {
+        return !reloadTasks.isEmpty();
+    }
+
+    public ZoomData getZoomData() {
+        return zoomData == null ? zoomData = new ZoomData() : zoomData;
     }
 }

@@ -24,7 +24,7 @@ public class WeaponListeners implements Listener {
     public void itemHeld(PlayerItemHeldEvent e) {
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getPlayer());
         entityWrapper.getMainHandData().cancelTasks();
-        entityWrapper.getOffHandData().cancelTasks();
+        // No need to cancel off hand tasks since this is only called when changing held slot
     }
 
     @EventHandler

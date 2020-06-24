@@ -6,6 +6,7 @@ import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -21,7 +22,10 @@ public class TriggerPlayerListenersAbove_1_9 implements Listener {
         this.weaponHandler = weaponHandler;
     }
 
-    @EventHandler (ignoreCancelled = true)
+    // Event priority LOW to ensure that this is ran before.
+    // Weapon listeners PlayerSwapHandItemsEvent is ran.
+    // Basically lower priority means that it will be one of the first EventHandlers to run.
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.LOW)
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items")) return;
 

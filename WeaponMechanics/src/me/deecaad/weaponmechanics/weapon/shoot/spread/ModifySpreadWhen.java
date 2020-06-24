@@ -47,7 +47,7 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
         if (always != null) {
             tempSpread = always.applyTo(tempSpread);
         }
-        if (entityWrapper.isZooming() && zooming != null) {
+        if ((entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming()) && zooming != null) {
             tempSpread = zooming.applyTo(tempSpread);
         }
         if (entityWrapper.isSneaking() && sneaking != null) {

@@ -110,6 +110,10 @@ public class ShootHandler implements IValidator {
         if (!trigger.check(triggerType, slot, entityWrapper)) return false;
 
         // todo: check and do ammo things
+        if (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack) <= 0) {
+            
+            return false;
+        }
 
         if (usesSelectiveFire) {
             if (selectiveFire == null) {
