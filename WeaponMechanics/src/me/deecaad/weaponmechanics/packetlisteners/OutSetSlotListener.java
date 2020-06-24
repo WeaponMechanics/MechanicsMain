@@ -1,10 +1,8 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 
 public class OutSetSlotListener extends PacketHandler {
@@ -38,11 +36,6 @@ public class OutSetSlotListener extends PacketHandler {
             if (windowId == -2 && slot != 45) { // And if its not off hand slot either)
                 return;
             }
-        }
-
-        // Last lets verify that the nms item stack is actually weapon
-        if (CompatibilityAPI.getCompatibility().getNBTCompatibility().getCustomTagFromNMSStack(packet.getFieldValue("c"), CustomTag.WEAPON_TITLE.getId()) == null) {
-            return;
         }
 
         // Now we can cancel the packet from being sent for player
