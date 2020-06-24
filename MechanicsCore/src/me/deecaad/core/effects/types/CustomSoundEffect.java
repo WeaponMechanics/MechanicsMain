@@ -18,7 +18,7 @@ public class CustomSoundEffect extends SoundEffect {
     private static Method makeSoundMethod;
 
     static {
-        if (CompatibilityAPI.getVersion() <= 1.08) {
+        if (CompatibilityAPI.getVersion() < 1.09) {
             worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
             makeSoundMethod = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("World"), "makeSound", double.class, double.class, double.class, String.class, float.class, float.class);
         }
