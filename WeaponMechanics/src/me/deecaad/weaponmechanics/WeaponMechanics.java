@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.*;
@@ -20,7 +21,7 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
 import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.explode.ExplosionInteractionListener;
+import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListener;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
@@ -132,8 +133,6 @@ public class WeaponMechanics extends JavaPlugin {
         // Register all commands
         simpleCommandMap.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
 
-        Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), this);
-
         // Start update checker task and make the instance
         if (basicConfiguration.getBool("Update_Checker.Enable")) {
 
@@ -160,6 +159,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         debug.info("Serializing config");
         tempSerializers = new JarSerializers().getAllSerializersInsideJar(WeaponMechanics.this, getFile());
+        tempSerializers.addAll(MechanicsCore.getPlugin().getDefaultSerializers());
 
         // This is done like this to allow other plugins to add their own serializers
         // before WeaponMechanics starts filling those configuration mappings.
@@ -189,6 +189,9 @@ public class WeaponMechanics extends JavaPlugin {
 
                 // WEAPON EVENTS
                 Bukkit.getServer().getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
+
+                // EXPLOSION EVENT
+                Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), WeaponMechanics.this);
 
             }
         }.runTask(this);

@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.explode;
+package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.weaponmechanics.weapon.BlockDamageData;
 import org.bukkit.Chunk;

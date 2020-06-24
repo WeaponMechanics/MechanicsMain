@@ -1,5 +1,6 @@
 package me.deecaad.core;
 
+import me.deecaad.core.file.JarSerializers;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
 import me.deecaad.core.placeholder.PlaceholderAPI;
@@ -23,7 +24,7 @@ public class MechanicsCore extends JavaPlugin {
 
         plugin = this;
         debug = new Debugger(getLogger(), 2, true);
-        defaultSerializers = new ArrayList<>();
+        defaultSerializers = new JarSerializers().getAllSerializersInsideJar(this, getFile());
         new PacketListenerAPI(this);
     }
 
@@ -39,5 +40,12 @@ public class MechanicsCore extends JavaPlugin {
      */
     public static MechanicsCore getPlugin() {
         return plugin;
+    }
+
+    /**
+     * @return all serializers within MechanicsCore
+     */
+    public List<Serializer<?>> getDefaultSerializers() {
+        return defaultSerializers;
     }
 }
