@@ -23,9 +23,12 @@ public class Shoot_Reflection implements IShootCompatibility {
     private static Constructor<?> packetPlayOutPositionConstructor;
 
     public Shoot_Reflection() {
-        entityGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftEntity"), "getHandle");
-        entityWidth = ReflectionUtil.getField(ReflectionUtil.getNMSClass("Entity"), "width");
-        entityHeight = ReflectionUtil.getField(ReflectionUtil.getNMSClass("Entity"), "length");
+
+        if (CompatibilityAPI.getVersion() < 1.12) {
+            entityGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftEntity"), "getHandle");
+            entityWidth = ReflectionUtil.getField(ReflectionUtil.getNMSClass("Entity"), "width");
+            entityHeight = ReflectionUtil.getField(ReflectionUtil.getNMSClass("Entity"), "length");
+        }
 
         Enum<?> x = Enum.valueOf((Class<Enum>) ReflectionUtil.getNMSClass("PacketPlayOutPosition$EnumPlayerTeleportFlags"), "X");
         Enum<?> y = Enum.valueOf((Class<Enum>) ReflectionUtil.getNMSClass("PacketPlayOutPosition$EnumPlayerTeleportFlags"), "Y");
