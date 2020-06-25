@@ -47,8 +47,8 @@ public class Trigger implements Serializer<Trigger> {
             // Not the same trigger type
             return false;
         }
-        if (denyWhenReloading() && entityWrapper.isReloading(slot)) return false;
-        if (denyWhenZooming() && entityWrapper.isZooming()) return false;
+        if (denyWhenReloading() && (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading())) return false;
+        if (denyWhenZooming() && (entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming())) return false;
         if (denyWhenSneaking() && entityWrapper.isSneaking()) return false;
         if (denyWhenStanding() && entityWrapper.isStanding()) return false;
         if (denyWhenWalking() && entityWrapper.isWalking()) return false;

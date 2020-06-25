@@ -6,6 +6,7 @@ import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.ZoomData;
 
 public class OutUpdateAttributesListener extends PacketHandler {
 
@@ -23,10 +24,13 @@ public class OutUpdateAttributesListener extends PacketHandler {
 
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
 
-        // Not zooming
-        if (!entityWrapper.isZooming()) return;
+        ZoomData main = entityWrapper.getMainHandData().getZoomData();
+        ZoomData off = entityWrapper.getOffHandData().getZoomData();
 
-        int zoomAmount = entityWrapper.getZoomData().getZoomAmount();
+        // Not zooming
+        if (!main.isZooming() && !off.isZooming()) return;
+
+        int zoomAmount = main.isZooming() ? main.getZoomAmount() : off.getZoomAmount();
 
         // If zoom amount is 13-32, its only for abilities (not for this packet)
         if (zoomAmount > 12) return;

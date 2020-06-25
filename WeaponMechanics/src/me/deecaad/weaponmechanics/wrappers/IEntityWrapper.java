@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.EquipmentSlot;
 
 import javax.annotation.Nonnull;
 
@@ -73,17 +72,6 @@ public interface IEntityWrapper {
     void setSwimming(boolean swimming);
 
     /**
-     * @return true if entity is zooming
-     */
-    boolean isZooming();
-
-    /**
-     * @return the zoom data
-     */
-    @Nonnull
-    ZoomData getZoomData();
-
-    /**
      * @return true if entity is sneaking
      */
     boolean isSneaking();
@@ -97,14 +85,6 @@ public interface IEntityWrapper {
      * @return true if entity is gliding
      */
     boolean isGliding();
-
-    /**
-     * Used to check whether or not entity is currently reloading with specific hand
-     *
-     * @param slot the hand to check
-     * @return true if entity is reloading
-     */
-    boolean isReloading(EquipmentSlot slot);
 
     /**
      * This is only accurate for swords(1.8) and shields(1.9 and above).

@@ -9,7 +9,6 @@ import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.EquipmentSlot;
 
 public class EntityWrapper implements IEntityWrapper {
 
@@ -22,7 +21,6 @@ public class EntityWrapper implements IEntityWrapper {
     private boolean walking;
     private boolean inMidair;
     private boolean swimming;
-    private ZoomData zoomData;
     private HandData mainHandData;
     private HandData offHandData;
 
@@ -125,16 +123,6 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     @Override
-    public boolean isZooming() {
-        return zoomData != null && zoomData.isZooming();
-    }
-
-    @Override
-    public ZoomData getZoomData() {
-        return zoomData == null ? zoomData = new ZoomData() : zoomData;
-    }
-
-    @Override
     public boolean isSneaking() {
         // Always false for other entities than players
         // PlayerWrapper actually checks these
@@ -154,12 +142,6 @@ public class EntityWrapper implements IEntityWrapper {
     }
 
     @Override
-    public boolean isReloading(EquipmentSlot slot) {
-        // todo
-        return false;
-    }
-
-    @Override
     public boolean isRightClicking() {
         // Always false for other entities than players
         // PlayerWrapper actually checks these
@@ -168,11 +150,11 @@ public class EntityWrapper implements IEntityWrapper {
 
     @Override
     public HandData getMainHandData() {
-        return mainHandData == null ? mainHandData = new HandData() : mainHandData;
+        return mainHandData == null ? mainHandData = new HandData(this) : mainHandData;
     }
 
     @Override
     public HandData getOffHandData() {
-        return offHandData == null ? offHandData = new HandData() : offHandData;
+        return offHandData == null ? offHandData = new HandData(this) : offHandData;
     }
 }

@@ -5,6 +5,7 @@ import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
@@ -47,10 +48,22 @@ public class ScopeHandler implements IValidator {
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
 
+        ZoomData zoomData;
+        // Only allow using zoom at one hand at time
+        if (slot == EquipmentSlot.HAND) {
+            if (entityWrapper.getOffHandData().getZoomData().isZooming()) {
+                return false;
+            }
+            zoomData = entityWrapper.getMainHandData().getZoomData();
+        } else {
+            if (entityWrapper.getMainHandData().getZoomData().isZooming()) {
+                return false;
+            }
+            zoomData = entityWrapper.getOffHandData().getZoomData();
+        }
+
         Trigger trigger = config.getObject(weaponTitle + ".Scope.Trigger", Trigger.class);
         if (trigger == null) return false;
-
-        ZoomData zoomData = entityWrapper.getZoomData();
 
         // Check if entity is already zooming
         if (zoomData.isZooming()) {
@@ -58,7 +71,7 @@ public class ScopeHandler implements IValidator {
             Trigger offTrigger = config.getObject(weaponTitle + ".Scope.Zoom_Off.Trigger", Trigger.class);
             // If off trigger is valid -> zoom out even if stacking has't reached maximum stacks
             if (offTrigger != null && offTrigger.check(triggerType, slot, entityWrapper)) {
-                return zoomOut(weaponStack, weaponTitle, entityWrapper);
+                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData);
             }
 
             // If trigger is valid zoom in or out depending on situation
@@ -67,18 +80,18 @@ public class ScopeHandler implements IValidator {
                 int maximumStacks = config.getInt(weaponTitle + ".Scope.Zoom_Stacking.Maximum_Stacks");
                 if (maximumStacks <= 0) { // meaning that zoom stacking is not used
                     // Should turn off
-                    return zoomOut(weaponStack, weaponTitle, entityWrapper);
+                    return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData);
                 }
                 if (zoomData.getZoomStacks() < maximumStacks) { // meaning that zoom stacks have NOT reached maximum stacks
                     // Should not turn off and stack instead
-                    return zoomIn(weaponStack, weaponTitle, entityWrapper); // Zoom in handles stacking on its own
+                    return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData); // Zoom in handles stacking on its own
                 }
                 // Should turn off (because zoom stacks have reached maximum stacks)
-                return zoomOut(weaponStack, weaponTitle, entityWrapper);
+                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData);
             }
         } else if (trigger.check(triggerType, slot, entityWrapper)) {
             // Try zooming in since entity is not zooming
-            return zoomIn(weaponStack, weaponTitle, entityWrapper);
+            return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData);
         }
         return false;
     }
@@ -86,9 +99,8 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed in or stacked
      */
-    private boolean zoomIn(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper) {
+    private boolean zoomIn(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData) {
         Configuration config = getConfigurations();
-        ZoomData zoomData = entityWrapper.getZoomData();
         LivingEntity entity = entityWrapper.getEntity();
 
         if (zoomData.isZooming()) { // zoom stack
@@ -137,8 +149,7 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed out
      */
-    public boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper) {
-        ZoomData zoomData = entityWrapper.getZoomData();
+    private boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData) {
         if (!zoomData.isZooming()) return false;
         LivingEntity entity = entityWrapper.getEntity();
 
@@ -158,7 +169,20 @@ public class ScopeHandler implements IValidator {
     }
 
     /**
-     * Updates the zoom amount of entity
+     * Forces zooming out for entity
+     *
+     * @param entityWrapper the entity wrapper from whom to force zoom out
+     * @param zoomData the zoom data of entity wrappers hand data
+     */
+    public void forceZoomOut(IEntityWrapper entityWrapper, ZoomData zoomData) {
+        ScopeHandler scopeHandler = WeaponMechanics.getWeaponHandler().getScopeHandler();
+        scopeHandler.updateZoom(entityWrapper, zoomData, 0);
+        zoomData.setZoomStacks(0);
+        if (zoomData.hasZoomNightVision()) scopeHandler.useNightVision(entityWrapper, zoomData);
+    }
+
+    /**
+     * Updates the zoom amount of entity.
      */
     private void updateZoom(IEntityWrapper entityWrapper, ZoomData zoomData, int newZoomAmount) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
@@ -201,7 +225,7 @@ public class ScopeHandler implements IValidator {
     /**
      * Toggles night vision on or off whether it was on before
      */
-    private void useNightVision(IEntityWrapper entityWrapper, ZoomData zoomData) {
+    public void useNightVision(IEntityWrapper entityWrapper, ZoomData zoomData) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for night vision
             return;
