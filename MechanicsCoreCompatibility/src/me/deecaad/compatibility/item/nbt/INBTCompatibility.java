@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.nbt;
+package me.deecaad.compatibility.item.nbt;
 
 import me.deecaad.core.utils.AttributeType;
 import org.bukkit.inventory.ItemStack;

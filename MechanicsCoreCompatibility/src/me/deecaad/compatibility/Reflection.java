@@ -1,12 +1,15 @@
 package me.deecaad.compatibility;
 
-import me.deecaad.compatibility.nbt.INBTCompatibility;
-import me.deecaad.compatibility.nbt.NBT_Reflection;
+import me.deecaad.compatibility.entity.EntityCompatibility;
+import me.deecaad.compatibility.item.dropped.DropCompatibility;
+import me.deecaad.compatibility.item.nbt.INBTCompatibility;
+import me.deecaad.compatibility.item.nbt.NBT_Reflection;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -68,5 +71,17 @@ public class Reflection implements ICompatibility {
     @Override
     public INBTCompatibility getNBTCompatibility() {
         return nbtCompatibility == null ? nbtCompatibility = new NBT_Reflection() : nbtCompatibility;
+    }
+
+    @Nonnull
+    @Override
+    public EntityCompatibility getEntityCompatibility() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public DropCompatibility getDropCompatibility() {
+        return null;
     }
 }

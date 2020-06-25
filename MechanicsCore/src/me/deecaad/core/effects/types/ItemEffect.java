@@ -35,7 +35,7 @@ public class ItemEffect extends Effect {
     }
 
     @Override
-    public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
+    protected void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
 
         // todo Reflection/Compatibility api
         EntityItem drop = new EntityItem(((CraftWorld)world).getHandle(), x, y, z, CraftItemStack.asNMSCopy(toDrop));
