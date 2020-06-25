@@ -1,7 +1,9 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.compatibility.CompatibilityAPI;
 import org.bukkit.ChatColor;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +16,10 @@ import java.util.stream.Collectors;
  * the format of a <code>String</code>
  */
 public class StringUtils {
-    
+
+    private static final String VALID_HEX = "0123456789AaBbCcDdEeFf";
+    private static final String CODES = VALID_HEX + "KkLlMmNnOoRrXx";
+
     /**
      * Don't let anyone instantiate this class
      */
@@ -39,7 +44,59 @@ public class StringUtils {
      * @return Colored String
      */
     public static String color(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
+        StringBuilder result = new StringBuilder(string.length());
+
+        char[] chars = string.toCharArray();
+
+        // Gets the current minecraft version. Used for 1.16+ hex codes
+        double ver = CompatibilityAPI.getVersion();
+
+        for (int i = 0; i < chars.length - 1; i++) {
+            char c = chars[i];
+
+            // Check for alternate color code and escape character
+            if (c != '&') {
+                result.append(c);
+                continue;
+            } else if (i != 0 && chars[i - 1] == '/') {
+                result.deleteCharAt(result.length() - chars.length + i - 1);
+                result.append('&');
+                continue;
+            }
+
+            // Check for advanced 1.16+ hex colors
+            if (ver >= 1.16) {
+
+                int bound = i + 7;
+                if (bound <= chars.length) {
+                    StringBuilder hex = new StringBuilder("§x");
+                    boolean isHex = true;   // true until proven false
+
+                    for (int j = i + 1; j < bound; j++) {
+                        if (VALID_HEX.indexOf(chars[j]) != -1) {
+                            hex.append('§').append(chars[j]);
+                        } else {
+                            isHex = false;
+                            break;
+                        }
+                    }
+
+                    if (isHex) {
+                        result.append(hex);
+                        i += 6;
+                        continue;
+                    }
+                }
+            }
+
+            char code = chars[i + 1];
+            if (CODES.indexOf(code) != -1) {
+                result.append('§').append(code);
+                i++;
+            }
+        }
+
+        return result.append(chars[chars.length - 1]).toString();
     }
 
     /**
