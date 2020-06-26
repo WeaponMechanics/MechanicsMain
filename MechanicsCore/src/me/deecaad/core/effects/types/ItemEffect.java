@@ -1,15 +1,12 @@
 package me.deecaad.core.effects.types;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.effects.Effect;
-import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -37,12 +34,12 @@ public class ItemEffect extends Effect {
     @Override
     protected void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
 
-        // todo Reflection/Compatibility api
-        EntityItem drop = new EntityItem(((CraftWorld)world).getHandle(), x, y, z, CraftItemStack.asNMSCopy(toDrop));
+        EntityCompatibility compatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
 
-        PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(drop);
-        PacketPlayOutEntityMetadata metaPacket = new PacketPlayOutEntityMetadata(drop.getId(), drop.getDataWatcher(), true);
-        PacketPlayOutEntityDestroy destroyPacket = new PacketPlayOutEntityDestroy(drop.getId());
+        Object entity = CompatibilityAPI.getCompatibility().getDropCompatibility().toNMSItemEntity(toDrop, world, x, y, z);
+        Object spawn = compatibility.getSpawnPacket(entity);
+        Object metadata = compatibility.getMetadataPacket(entity);
+        Object destroy = compatibility.getDestroyPacket(entity);
 
         List<Player> players = world.getEntitiesByClass(Player.class).stream()
                 .filter(player -> {
@@ -57,25 +54,28 @@ public class ItemEffect extends Effect {
                 .collect(Collectors.toList());
 
         for (Player player : players) {
-            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-            connection.sendPacket(spawnPacket);
-            connection.sendPacket(metaPacket);
 
-            Bukkit.getScheduler().runTaskLater(source, () -> connection.sendPacket(destroyPacket), ticksAlive);
+            CompatibilityAPI.getCompatibility().sendPackets(player, spawn, metadata);
+            Bukkit.getScheduler().runTaskLater(source,
+                    () -> CompatibilityAPI.getCompatibility().sendPackets(player, destroy),
+                    ticksAlive);
         }
     }
 
     @Override
     protected void spawnOnceFor(@Nonnull Plugin source, @Nonnull Player player, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
-        // todo Reflection/Compatibility api
-        EntityItem drop = new EntityItem(((CraftWorld)world).getHandle(), x, y, z, CraftItemStack.asNMSCopy(toDrop));
 
-        PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(drop);
-        PacketPlayOutEntityMetadata metaPacket = new PacketPlayOutEntityMetadata(drop.getId(), drop.getDataWatcher(), true);
-        PacketPlayOutEntityDestroy destroyPacket = new PacketPlayOutEntityDestroy(drop.getId());
+        EntityCompatibility compatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
 
-        CompatibilityAPI.getCompatibility().sendPackets(player, spawnPacket, metaPacket);
+        Object entity = CompatibilityAPI.getCompatibility().getDropCompatibility().toNMSItemEntity(toDrop, world, x, y, z);
+        Object spawn = compatibility.getSpawnPacket(entity);
+        Object metadata = compatibility.getMetadataPacket(entity);
+        Object destroy = compatibility.getDestroyPacket(entity);
 
-        Bukkit.getScheduler().runTaskLater(source, () -> CompatibilityAPI.getCompatibility().sendPackets(player, destroyPacket), ticksAlive);
+        CompatibilityAPI.getCompatibility().sendPackets(player, spawn, metadata);
+
+        Bukkit.getScheduler().runTaskLater(source,
+                () -> CompatibilityAPI.getCompatibility().sendPackets(player, destroy),
+                ticksAlive);
     }
 }
