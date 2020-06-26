@@ -51,7 +51,7 @@ public class StringUtils {
         // Gets the current minecraft version. Used for 1.16+ hex codes
         double ver = CompatibilityAPI.getVersion();
 
-        for (int i = 0; i < chars.length - 1; i++) {
+        for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
 
             // Check for alternate color code and escape character
@@ -59,7 +59,7 @@ public class StringUtils {
                 result.append(c);
                 continue;
             } else if (i != 0 && chars[i - 1] == '/') {
-                result.deleteCharAt(result.length() - chars.length + i - 1);
+                result.deleteCharAt(result.length() - 1);
                 result.append('&');
                 continue;
             }
@@ -89,14 +89,16 @@ public class StringUtils {
                 }
             }
 
-            char code = chars[i + 1];
-            if (CODES.indexOf(code) != -1) {
-                result.append('§').append(code);
-                i++;
+            if (i + 1 != chars.length) {
+                char code = chars[i + 1];
+                if (CODES.indexOf(code) != -1) {
+                    result.append('§').append(code);
+                    i++;
+                }
             }
         }
 
-        return result.append(chars[chars.length - 1]).toString();
+        return result.toString();
     }
 
     /**
