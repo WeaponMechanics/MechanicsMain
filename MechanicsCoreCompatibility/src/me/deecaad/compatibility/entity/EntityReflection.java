@@ -25,7 +25,7 @@ public class EntityReflection implements EntityCompatibility {
 
         spawnPacketConstructor = getConstructor(getNMSClass("PacketPlayOutSpawnEntity"), entityClass);
         metadataPacketConstructor = getConstructor(getNMSClass("PacketPlayOutEntityMetadata"), int.class, dataWatcherClass, boolean.class);
-        destroyPacketConstructor = getConstructor(getNMSClass("PacketPlayOutEntityDestroy"), int.class);
+        destroyPacketConstructor = getConstructor(getNMSClass("PacketPlayOutEntityDestroy"), int[].class);
     }
 
     @Override

@@ -17,10 +17,10 @@ public class DropReflection implements DropCompatibility {
 
     static {
 
-        getHandle = getMethod(getCBClass("World"), "getHandle");
-        asNMSCopy = getMethod(getCBClass("inventory.CraftItemStack"), "asNMSCopy");
+        getHandle = getMethod(getCBClass("CraftWorld"), "getHandle");
+        asNMSCopy = getMethod(getCBClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
 
-        entityItemConstructor = getConstructor(getNMSClass("EntityItem"), getHandle.getReturnType(), double.class, double.class, double.class, asNMSCopy.getReturnType());
+        entityItemConstructor = getConstructor(getNMSClass("EntityItem"), getHandle.getReturnType().getSuperclass(), double.class, double.class, double.class, asNMSCopy.getReturnType());
     }
 
     @Override
