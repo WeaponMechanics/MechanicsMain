@@ -1,5 +1,6 @@
 package me.deecaad.core;
 
+import me.deecaad.core.events.triggers.ArmorEquipTrigger;
 import me.deecaad.core.file.JarSerializers;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
@@ -25,6 +26,9 @@ public class MechanicsCore extends JavaPlugin {
         debug = new Debugger(getLogger(), 2, true);
         defaultSerializers = new JarSerializers().getAllSerializersInsideJar(this, getFile());
         new PacketListenerAPI(this);
+
+        ArmorEquipTrigger armorEquipTrigger = new ArmorEquipTrigger();
+        PacketListenerAPI.addPacketHandler(this, armorEquipTrigger);
     }
 
     @Override
