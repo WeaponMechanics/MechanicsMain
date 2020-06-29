@@ -12,6 +12,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
@@ -19,15 +20,18 @@ import java.util.List;
 
 public abstract class MechanicsPlugin extends JavaPlugin {
 
-    private SimpleCommandMap commands;
+    private static SimpleCommandMap commands;
 
     protected Configuration configuration;
     protected Debugger debug;
     protected MainCommand mainCommand;
 
-    protected MechanicsPlugin() {
+    static {
         Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
         commands = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
+    }
+
+    protected MechanicsPlugin() {
     }
 
     public Configuration getConfiguration() {
@@ -55,7 +59,19 @@ public abstract class MechanicsPlugin extends JavaPlugin {
     }
 
     @Override
-    public abstract void onEnable();
+    public void onLoad() {
+        loadConfig();
+
+        debug = new Debugger(getLogger(), configuration.getInt("Debug_Level"), true);
+
+        registerFlags();
+    }
+
+    @Override
+    public void onEnable() {
+        registerListeners();
+        registerCommands();
+    }
 
     public void onReload() {
         onDisable();
@@ -65,7 +81,10 @@ public abstract class MechanicsPlugin extends JavaPlugin {
     }
 
     @Override
-    public abstract void onDisable();
+    public void onDisable() {
+        HandlerList.unregisterAll(this);
+        getServer().getScheduler().cancelTasks(this);
+    }
 
     public void loadConfig() {
 
@@ -76,14 +95,22 @@ public abstract class MechanicsPlugin extends JavaPlugin {
             configuration.clear();
         }
 
-        new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", "yml");
+        new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml");
         List<Serializer<?>> serializers = new JarSerializers().getAllSerializersInsideJar(this, getFile());
         FileReader reader = new FileReader(serializers, null);
+        configuration = reader.fillAllFiles(getDataFolder());
     }
 
-    public abstract void registerListeners();
+    public void registerListeners() {
+    }
 
-    public void registerCommand(Command command) {
+    public void registerFlags() {
+    }
+
+    public void registerCommands() {
+    }
+
+    public static void registerCommand(Command command) {
         commands.register(command.getLabel(), command);
     }
 }
