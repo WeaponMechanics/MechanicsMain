@@ -46,7 +46,7 @@ public class HandData {
             reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
             reloadTasks.clear();
         }
-        if (zoomData.isZooming()) {
+        if (getZoomData().isZooming()) {
             WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
         }
     }

@@ -175,15 +175,17 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         entityHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftEntity"), "getHandle");
         entityBoundingBox = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("Entity"), "getBoundingBox");
 
-        Class<?> axisAlignedBBClazz = ReflectionUtil.getNMSClass("AxisAlignedBB");
+        if (CompatibilityAPI.getVersion() < 1.132) {
+            Class<?> axisAlignedBBClazz = ReflectionUtil.getNMSClass("AxisAlignedBB");
 
-        minXField = ReflectionUtil.getField(axisAlignedBBClazz, "a");
-        minYField = ReflectionUtil.getField(axisAlignedBBClazz, "b");
-        minZField = ReflectionUtil.getField(axisAlignedBBClazz, "c");
+            minXField = ReflectionUtil.getField(axisAlignedBBClazz, "a");
+            minYField = ReflectionUtil.getField(axisAlignedBBClazz, "b");
+            minZField = ReflectionUtil.getField(axisAlignedBBClazz, "c");
 
-        maxXField = ReflectionUtil.getField(axisAlignedBBClazz, "d");
-        maxYField = ReflectionUtil.getField(axisAlignedBBClazz, "e");
-        maxZField = ReflectionUtil.getField(axisAlignedBBClazz, "f");
+            maxXField = ReflectionUtil.getField(axisAlignedBBClazz, "d");
+            maxYField = ReflectionUtil.getField(axisAlignedBBClazz, "e");
+            maxZField = ReflectionUtil.getField(axisAlignedBBClazz, "f");
+        }
 
         // For getting default width and height
 
