@@ -8,6 +8,7 @@ import java.util.Arrays;
 public class Tools {
     
     public static void main(String[] args) {
+        splitTest();
     }
     
     public static void entityHitBox() {
@@ -27,9 +28,10 @@ public class Tools {
     }
     
     public static void splitTest() {
-        String in = "ThisIsAPluginName";
-        String[] split = StringUtils.splitCapitalLetters(in);
-        System.out.println(Arrays.toString(split));
+        int hex = 0xFF0001;
+        int r = (hex >> 16) & 0xFF;
+        int g = (hex >> 8) & 0xFF;
+        int b = (hex >> 0) & 0xFF;
     }
 
 }

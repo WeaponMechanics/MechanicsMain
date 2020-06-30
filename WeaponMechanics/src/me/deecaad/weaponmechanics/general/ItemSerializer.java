@@ -2,9 +2,9 @@ package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -177,7 +177,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 if (colorString != null) {
                     colorString = colorString.toUpperCase();
 
-                    Color color = ColorType.fromString(colorString);
+                    Color color = ColorSerializer.ColorType.fromString(colorString);
                     if (color == null) {
                         debug.log(LogLevel.ERROR,
                                 "Found an invalid color type in configurations!",

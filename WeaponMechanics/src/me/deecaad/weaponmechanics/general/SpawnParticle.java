@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.utils.MaterialHelper;
@@ -129,7 +130,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
                         "You can't use color with particle " + stringParticle);
                 return null;
             } else {
-                color = ColorType.fromString(stringColor);
+                color = ColorSerializer.ColorType.fromString(stringColor);
                 if (color == null) {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid color in configurations!",
@@ -161,9 +162,9 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
             if (CompatibilityAPI.getVersion() >= 1.13 && stringParticle.equals("REDSTONE")) {
                 extraData = new org.bukkit.Particle.DustOptions(color, (float) 1.0);
             } else {
-                float red = ColorType.getAsParticleColor(color.getRed());
-                float green = ColorType.getAsParticleColor(color.getGreen());
-                float blue = ColorType.getAsParticleColor(color.getBlue());
+                float red = ColorSerializer.ColorType.getAsParticleColor(color.getRed());
+                float green = ColorSerializer.ColorType.getAsParticleColor(color.getGreen());
+                float blue = ColorSerializer.ColorType.getAsParticleColor(color.getBlue());
                 offset = new Vector(red, green, blue);
             }
         }

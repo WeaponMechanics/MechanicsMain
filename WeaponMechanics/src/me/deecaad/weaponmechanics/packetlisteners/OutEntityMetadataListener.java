@@ -1,12 +1,12 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.general.ColorType;
 import me.deecaad.weaponmechanics.wrappers.EntityMeta;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.entity.Entity;
@@ -41,7 +41,7 @@ public class OutEntityMetadataListener extends PacketHandler {
             // Get the color the entity should be glowing (Or null if it should not be glowing)
             Entity entity = CompatibilityAPI.getCompatibility().getEntityById(packet.getPlayer().getWorld(), id);
             IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper((LivingEntity) entity);
-            ColorType color = ColorType.WHITE;//(wrapper != null) ? wrapper.getThermalColor(packet.getPlayer()) : null;
+            ColorSerializer.ColorType color = ColorSerializer.ColorType.WHITE;//(wrapper != null) ? wrapper.getThermalColor(packet.getPlayer()) : null;
             
             // Sets the glowing flag
             byte previousValue = (byte) itemObject;

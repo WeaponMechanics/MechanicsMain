@@ -4,6 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import org.bukkit.ChatColor;
 
 import java.awt.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -166,6 +167,18 @@ public class StringUtils {
      */
     public static List<String> getList(String...strings) {
         return Arrays.stream(strings).map(StringUtils::color).collect(Collectors.toList());
+    }
+
+    /**
+     * Easy way to display where an error occurred in a file
+     * during data serialization
+     *
+     * @param file Which file the error occurred in
+     * @param path The path of configuration where the error occured
+     * @return User readable location of error
+     */
+    public static String foundAt(File file, String path) {
+        return "Error found in directory \"" + file + "\" at path \"" + path + "\"";
     }
 
     /**

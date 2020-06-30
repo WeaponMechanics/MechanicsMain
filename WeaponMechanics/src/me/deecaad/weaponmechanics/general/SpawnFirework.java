@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.general;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Color;
@@ -145,7 +146,7 @@ public class SpawnFirework implements Serializer<SpawnFirework> {
         List<Color> colors = new ArrayList<>();
         for (String stringColor : stringColors) {
             stringColor = stringColor.toUpperCase();
-            Color color = ColorType.fromString(stringColor);
+            Color color = ColorSerializer.ColorType.fromString(stringColor);
             if (color == null) {
                 debug.log(LogLevel.ERROR,
                         "Found an invalid color type in configurations!",
