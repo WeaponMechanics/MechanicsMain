@@ -5,10 +5,10 @@ Sounds:
   - custom:<sound>-<volume>-<pitch>                         # Required arguments for custom sounds
   - custom:<sound>-<volume>-<pitch>-<delay>-<pitchNoise>    # Optional arguments for custom sounds
 
-  # For single line sounds, separate the sounds with a comma (',')
+  # For single line sounds, separate the sounds with a comma (',') with an optional space
   # Valid examples:
   - <sound>-<volume>-<pitch>,<sound>-<volume>-<pitch>,<sound>-<volume>-<pitch>
-  - <sound>-<volume>-<pitch>, <sound>-<volume>-<pitch>,             <sound>-<volume>-<pitch>
+  - <sound>-<volume>-<pitch>, <sound>-<volume>-<pitch>, <sound>-<volume>-<pitch>
 
 # <sound>: Which sound (Either minecraft sound or resource pack sound) to use
 # <volume>: The volume (Recommended generally [0, 4]) of the sound

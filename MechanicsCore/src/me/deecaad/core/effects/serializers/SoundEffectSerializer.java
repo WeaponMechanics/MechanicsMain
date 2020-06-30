@@ -33,7 +33,7 @@ public class SoundEffectSerializer implements Serializer<List<SoundEffect>> {
         String location = "Found in file " + file + " at path " + path;
 
         for (String str: strings) {
-            String[] split = str.split(", *");
+            String[] split = str.split(", ?");
 
             for (String soundData: split) {
 

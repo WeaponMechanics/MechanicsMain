@@ -17,7 +17,6 @@ import javax.annotation.Nullable;
  */
 public abstract class Effect implements Repeatable, Delayable, Offsetable {
 
-    // todo configurable
     public static double VIEW_DISTANCE = 25.0;
 
     private int repeatAmount;
@@ -129,14 +128,11 @@ public abstract class Effect implements Repeatable, Delayable, Offsetable {
      * @param data Data to give to the handler
      */
     public final void spawn(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
-        Bukkit.getScheduler().runTaskLater(source, () -> {
-            for (int i = 0; i < getRepeatAmount(); i++) {
-                Bukkit.getScheduler().runTaskLater(source, () -> {
-                    Vector offset = getOffset();
-                    spawnOnce(source, world, x + offset.getX(), y + offset.getY(), z + offset.getZ(), data);
-                }, i * getRepeatInterval());
-            }
-        }, getDelay());
+        for (int i = 0; i < getRepeatAmount(); i++) {
+            Bukkit.getScheduler().runTaskLater(source,
+                    () -> spawnOnce(source, world, x + offset.getX(), y + offset.getY(), z + offset.getZ(), data),
+                    getDelay() + i * getRepeatInterval());
+        }
     }
 
     /**
@@ -194,14 +190,11 @@ public abstract class Effect implements Repeatable, Delayable, Offsetable {
      * @param data Data to give to the handler
      */
     public final void spawnFor(@Nonnull Plugin source, @Nonnull Player player, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
-        Bukkit.getScheduler().runTaskLater(source, () -> {
-            for (int i = 0; i < getRepeatAmount(); i++) {
-                Bukkit.getScheduler().runTaskLater(source, () -> {
-                    Vector offset = getOffset();
-                    spawnOnceFor(source, player, world, x + offset.getX(), y + offset.getY(), z + offset.getZ(), data);
-                }, i * getRepeatInterval());
-            }
-        }, getDelay());
+        for (int i = 0; i < getRepeatAmount(); i++) {
+            Bukkit.getScheduler().runTaskLater(source,
+                    () -> spawnOnceFor(source, player, world, x + offset.getX(), y + offset.getY(), z + offset.getZ(), data),
+                    delay + i * repeatInterval);
+        }
     }
 
     /**

@@ -1,1 +1,6 @@
-Debug_Level:
+Debug_Level: 2
+Print_Stack_Trace: false
+
+# Sets the distance to how far visual effects can be seen by players, in blocks
+# Set to a negative number to disable view distance
+Effect_View_Distance: 40.0

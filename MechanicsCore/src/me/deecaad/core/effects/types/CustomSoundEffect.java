@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 
-public class CustomSoundEffect extends SoundEffect {
+public final class CustomSoundEffect extends SoundEffect {
 
     private static Method worldGetHandle;
     private static Method makeSoundMethod;
