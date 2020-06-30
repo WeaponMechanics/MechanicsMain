@@ -1,16 +1,14 @@
 # me.deecaad.core.effects.serializers.ParticleEffectSerializer
-Particle:
-  Type: <Particle Enum>
-  Amount: <Integer>
-  Horizontal_Spread: <Double>
-  Vertical_Spread: <Double>
-  Speed: <Double>
-  Shape: <NONE,CIRCLE,LINE,SPHERE,SPIRAL>
-  Shape_Data:
-    Radius: <Double>
-    Points: <Integer>
-    Spiral_Points_Per_Rotation: <Integer> # Should be less than Particle.Shape_Data.Points
-    Interval: <Integer> # Ticks between each point on the shape
-  Extra_Data:
-    Color: <me.deecaad.core.file.serializers.ColorSerializer>
-    Block: <Material Enum>~<Byte>
+Particles:
+  Particle:
+    Type: <Particle Enum>
+    Amount: <Integer>
+    Horizontal_Spread: <Double>
+    Vertical_Spread: <Double>
+    Speed: <Double>
+    Shape: <me.deecaad.core.effects.serializers.ShapeSerializer>
+    Extra_Data:
+      Color: <me.deecaad.core.file.serializers.ColorSerializer>
+      Size: <Float> # CAN ONLY BE USED WITH COLOR!!!!!!!!
+      Block: <Material Enum>~<Byte>
+      Item: <me.deecaad.core.file.serializers.ItemSerializer>

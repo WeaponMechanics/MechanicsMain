@@ -1,10 +1,8 @@
-package me.deecaad.weaponmechanics.general;
+package me.deecaad.core.file.serializers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.*;
-import me.deecaad.weaponmechanics.utils.MaterialHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -20,7 +18,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class ItemSerializer implements Serializer<ItemStack> {
 

@@ -1,16 +1,27 @@
-package me.deecaad.weaponmechanics.utils;
+package me.deecaad.core.utils;
 
-import com.mojang.brigadier.Command;
 import me.deecaad.compatibility.CompatibilityAPI;
-import net.minecraft.server.v1_15_R1.Block;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
+
+import java.lang.reflect.Method;
 
 /**
  * Made this into external class in case we decide to use XMaterial resource so its easier to start using it when we only have to modify this class
  */
 public class MaterialHelper {
-    
+
+    private static final Method getState;
+    private static final Method getBlock;
+    private static final Method getDurability;
+
+    static {
+        getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftBlockData"), "getState");
+        getBlock = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
+        getDurability = ReflectionUtil.getMethod(getBlock.getReturnType(), "getDurability");
+    }
+
     /**
      * Don't let anyone instantiate this class
      */
@@ -36,8 +47,13 @@ public class MaterialHelper {
             if (isFluid(type)) {
                 return 100.0f;
             }
-            //todo implement reflection
-            return 0.0f;
+
+            BlockData data = type.createBlockData();
+
+            Object nmsData = ReflectionUtil.invokeMethod(getState, data);
+            Object nmsBlock = ReflectionUtil.invokeMethod(getBlock, nmsData);
+
+            return (float) ReflectionUtil.invokeMethod(getDurability, nmsBlock);
         } else {
             return type.getBlastResistance();
         }

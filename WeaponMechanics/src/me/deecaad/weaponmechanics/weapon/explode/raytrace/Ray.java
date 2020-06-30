@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
-import me.deecaad.weaponmechanics.utils.MaterialHelper;
+import me.deecaad.core.utils.MaterialHelper;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;

@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.utils.MaterialHelper;
+import me.deecaad.core.utils.MaterialHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
