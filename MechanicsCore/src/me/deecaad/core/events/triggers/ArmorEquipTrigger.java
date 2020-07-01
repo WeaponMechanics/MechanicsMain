@@ -34,7 +34,7 @@ public class ArmorEquipTrigger extends PacketHandler {
         // the "main" thread so we can call the event
         Bukkit.getScheduler().runTask(MechanicsCore.getPlugin(), () -> {
 
-            ItemStack item = wrapper.getPlayer().getEquipment().getItem(slot.asEquipmentSlot());
+            ItemStack item = wrapper.getPlayer().getEquipment().getArmorContents()[3 - slotNum];
             ArmorEquipEvent event = new ArmorEquipEvent(wrapper.getPlayer(), slot, item);
             Bukkit.getPluginManager().callEvent(event);
         });
