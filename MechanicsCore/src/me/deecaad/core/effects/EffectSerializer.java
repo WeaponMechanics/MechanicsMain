@@ -33,7 +33,7 @@ public class EffectSerializer implements Serializer<List<Effect>> {
 
     @Override
     public String getKeyword() {
-        return "Effects";
+        return "TODO";
     }
 
     @Override

@@ -31,10 +31,17 @@ public class Sphere implements Shape {
         }
     }
 
+
+
     @Override
     public void setAxis(Vector vector) {
         // We could set the axis of a sphere,
         // but we really don't need to
+    }
+
+    @Override
+    public Vector getAxis() {
+        return null;
     }
 
     @Override

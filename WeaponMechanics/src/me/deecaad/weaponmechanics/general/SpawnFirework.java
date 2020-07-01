@@ -20,6 +20,9 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
+/**
+ * @deprecated In
+ */
 public class SpawnFirework implements Serializer<SpawnFirework> {
 
     private List<FireworkData> fireworkDatas;

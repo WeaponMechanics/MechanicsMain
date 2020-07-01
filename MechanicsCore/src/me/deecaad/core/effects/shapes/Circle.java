@@ -12,6 +12,7 @@ import static me.deecaad.core.MechanicsCore.debug;
 public class Circle implements Shape {
 
     private final Point[] points;
+    private Vector a;
     private Vector b;
     private Vector c;
     private final double offset;
@@ -93,7 +94,7 @@ public class Circle implements Shape {
      */
     @Override
     public void setAxis(Vector dir) {
-        Vector a = dir.clone().normalize();
+        a = dir.clone().normalize();
 
         // Getting 2 perpendicular Vectors
         b = VectorUtils.getPerpendicular(a).normalize();
@@ -110,6 +111,11 @@ public class Circle implements Shape {
             debug.validate(NumberUtils.equals(dot2, 0.0), "B is not perpendicular to C");
             debug.validate(NumberUtils.equals(dot3, 0.0), "A is not perpendicular to C");
         }
+    }
+
+    @Override
+    public Vector getAxis() {
+        return a.clone();
     }
 
     @Override

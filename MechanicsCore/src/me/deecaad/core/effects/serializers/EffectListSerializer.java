@@ -1,6 +1,7 @@
 package me.deecaad.core.effects.serializers;
 
 import me.deecaad.core.effects.Effect;
+import me.deecaad.core.effects.EffectList;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class EffectListSerializer implements Serializer<List<Effect>> {
+public class EffectListSerializer implements Serializer<EffectList> {
 
     private static final Map<String, Serializer<? extends List<? extends Effect>>> SERIALIZERS = new HashMap<>();
 
@@ -29,7 +30,7 @@ public class EffectListSerializer implements Serializer<List<Effect>> {
     }
 
     @Override
-    public List<Effect> serialize(File file, ConfigurationSection configurationSection, String path) {
+    public EffectList serialize(File file, ConfigurationSection configurationSection, String path) {
 
         List<Effect> temp = new ArrayList<>();
 
@@ -37,8 +38,9 @@ public class EffectListSerializer implements Serializer<List<Effect>> {
         // Effects:
         //   - Sound()
         //   - Particle()
-        if (configurationSection.getStringList(path) != null) {
+        if (!configurationSection.getStringList(path).isEmpty()) {
             // todo
+            debug.warn("That is not yet supported");
         } else {
             ConfigurationSection config = configurationSection.getConfigurationSection(path);
 
@@ -62,7 +64,7 @@ public class EffectListSerializer implements Serializer<List<Effect>> {
             }
         }
 
-        return temp;
+        return new EffectList(temp);
     }
 
     public static void addSerializer(Serializer<? extends List<? extends Effect>> serializer) {
@@ -78,5 +80,6 @@ public class EffectListSerializer implements Serializer<List<Effect>> {
     static {
         addSerializer(new ParticleEffectSerializer());
         addSerializer(new SoundEffectSerializer());
+        addSerializer(new ItemEffectSerializer());
     }
 }

@@ -30,6 +30,11 @@ public class Line implements Shape, Offsetable {
     }
 
     @Override
+    public Vector getAxis() {
+        return vector;
+    }
+
+    @Override
     public void setAxis(Vector vector) {
         this.vector = vector;
     }

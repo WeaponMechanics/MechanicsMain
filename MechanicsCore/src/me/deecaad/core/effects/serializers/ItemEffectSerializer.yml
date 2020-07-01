@@ -1,0 +1,4 @@
+Items:
+  Example:
+    Item: <me.deecaad.core.file.serializers.ItemSerializer>
+    Ticks_Alive: <Integer> # The number of ticks before sending the destroy packet

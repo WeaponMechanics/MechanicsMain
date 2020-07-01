@@ -46,6 +46,11 @@ public class Spiral implements Shape {
     }
 
     @Override
+    public Vector getAxis() {
+        return circle.getAxis();
+    }
+
+    @Override
     public Iterator<Vector> iterator() {
         return new SpiralIterator(circle, step, totalPoints);
     }

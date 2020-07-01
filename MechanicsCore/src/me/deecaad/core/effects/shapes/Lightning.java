@@ -26,6 +26,8 @@ public class Lightning implements Shape {
     public void setAxis(Vector vector) {
         lines.clear();
 
+
+
         // Setup the main lightning bolt map
         Map<Vector, Vector> vectors = new HashMap<>();
         vectors.put(new Vector(), vector);
@@ -44,6 +46,11 @@ public class Lightning implements Shape {
             line.setOffset(offset);
             lines.add(line);
         }
+    }
+
+    @Override
+    public Vector getAxis() {
+        return null;
     }
 
     public Map<Vector, Vector> nextGeneration(Map<Vector, Vector> vectors) {

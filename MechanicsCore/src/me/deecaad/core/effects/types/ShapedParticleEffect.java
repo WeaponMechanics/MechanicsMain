@@ -2,6 +2,7 @@ package me.deecaad.core.effects.types;
 
 import me.deecaad.core.effects.Shaped;
 import me.deecaad.core.effects.shapes.Shape;
+import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -29,8 +30,11 @@ public class ShapedParticleEffect extends ParticleEffect implements Shaped {
     public void spawnOnce(@Nonnull Plugin source, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
         int counter = 0;
 
-        if (data instanceof Vector) {
+        Vector previous = shape.getAxis();
+        if (data instanceof Vector && VectorUtils.isEmpty(previous)) {
             shape.setAxis((Vector) data);
+        } else if (previous == null) {
+            shape.setAxis(VectorUtils.random(1));
         }
 
         for (Vector vector: shape) {
@@ -38,12 +42,19 @@ public class ShapedParticleEffect extends ParticleEffect implements Shaped {
                 super.spawnOnce(source, world, x + vector.getX(), y + vector.getY(), z + vector.getZ(), data);
             }, counter++ * interval);
         }
+
+        if (data instanceof Vector && VectorUtils.isEmpty(previous)) {
+            shape.setAxis(previous);
+        } else if (previous == null) {
+            shape.setAxis(null);
+        }
     }
 
     @Override
     protected void spawnOnceFor(@Nonnull Plugin source, @Nonnull Player player, @Nonnull World world, double x, double y, double z, @Nullable Object data) {
         int counter = 0;
 
+        Vector previous = shape.getAxis();
         if (data instanceof Vector) {
             shape.setAxis((Vector) data);
         }
@@ -52,6 +63,12 @@ public class ShapedParticleEffect extends ParticleEffect implements Shaped {
             Bukkit.getScheduler().runTaskLater(source, () -> {
                 super.spawnOnceFor(source, player, world, x + vector.getX(), y + vector.getY(), z + vector.getZ(), data);
             }, counter++ * interval);
+        }
+
+        if (data instanceof Vector && VectorUtils.isEmpty(previous)) {
+            shape.setAxis(previous);
+        } else if (previous == null) {
+            shape.setAxis(null);
         }
     }
 

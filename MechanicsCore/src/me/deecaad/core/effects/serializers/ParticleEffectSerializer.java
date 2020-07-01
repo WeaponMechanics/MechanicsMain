@@ -117,8 +117,13 @@ public class ParticleEffectSerializer implements Serializer<List<ParticleEffect>
                 data = null;
             }
 
-            Shape shape = new ShapeSerializer().serialize(file, configurationSection, path + "." + key + ".Shape");
-            ParticleEffect effect = new ShapedParticleEffect(particle, amount, hSpread, vSpread, speed, data, shape, interval);
+            ParticleEffect effect;
+            if (config.contains("Shape")) {
+                Shape shape = new ShapeSerializer().serialize(file, configurationSection, path + "." + key + ".Shape");
+                effect = new ShapedParticleEffect(particle, amount, hSpread, vSpread, speed, data, shape, interval);
+            } else {
+                effect = new ParticleEffect(particle, amount, hSpread, vSpread, speed, data);
+            }
             temp.add(effect);
         }
 

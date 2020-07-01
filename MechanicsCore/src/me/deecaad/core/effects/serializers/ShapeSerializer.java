@@ -7,6 +7,7 @@ import me.deecaad.core.effects.shapes.Sphere;
 import me.deecaad.core.effects.shapes.Spiral;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
@@ -55,6 +56,11 @@ public class ShapeSerializer implements Serializer<Shape> {
                             StringUtils.foundAt(file, path));
                     axis = new Vector();
                 }
+        }
+
+        if (config.contains("Axis.Length")) {
+            double length = config.getDouble("Axis.Length");
+            VectorUtils.setLength(axis, length);
         }
 
         switch (config.getString("Type").toUpperCase()) {

@@ -17,7 +17,7 @@ public class MaterialHelper {
     private static final Method getDurability;
 
     static {
-        getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftBlockData"), "getState");
+        getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("block.data.CraftBlockData"), "getState");
         getBlock = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
         getDurability = ReflectionUtil.getMethod(getBlock.getReturnType(), "getDurability");
     }

@@ -137,33 +137,7 @@ public class VectorUtils {
         }
     }
 
-    /**
-     * Gets a vector half the length of the given
-     * "main" Vector
-     *
-     * @param vector Vector to get the midpoint of
-     * @return Midpoint of the vector
-     */
-    public static Vector[] splitMidpoint(Vector vector) {
-        Vector start = vector.clone().multiply(1 / 2.0);
-        Vector stop = vector.clone().subtract(start);
-        return new Vector[]{start, stop};
-    }
-
-    /**
-     * Gets the midpoint of a vector with randomness,
-     * based on how much <code>noise</code> is given
-     *
-     * @param vector Vector to get the midpoint of
-     * @param noise How much randomness to add
-     * @return Midpoint of the vector
-     */
-    public static Vector[] splitMidPoint(Vector vector, double noise) {
-        if (noise < 0) throw new IllegalArgumentException("Noise must be positive!");
-        else if (noise != 0.0) noise = NumberUtils.random(-noise, noise);
-
-        Vector start = vector.clone().multiply(1.0 / (2.0 + noise));
-        Vector stop = vector.clone().subtract(start);
-        return new Vector[]{start, stop};
+    public static boolean isEmpty(Vector vector) {
+        return NumberUtils.equals(vector.getX() + vector.getY() + vector.getZ(), 0.0);
     }
 }

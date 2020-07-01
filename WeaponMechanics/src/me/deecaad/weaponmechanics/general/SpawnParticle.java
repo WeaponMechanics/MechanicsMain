@@ -22,6 +22,12 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
+
+/**
+ * @deprecated Instead use Effects
+ * @see me.deecaad.core.effects.types.ParticleEffect
+ */
+@Deprecated
 public class SpawnParticle implements Serializer<SpawnParticle> {
 
     private List<ParticleData> particlesDatas;

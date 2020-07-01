@@ -18,12 +18,8 @@ public class ReloadCommand extends SubCommand {
     
     @Override
     public void execute(CommandSender sender, String[] args) {
-        WeaponMechanics plugin = WeaponMechanicsAPI.getInstance();
-        if (plugin == null) {
-            debug.log(LogLevel.WARN, "Tried to reload before the plugin loaded the API",
-                    "Please wait before using /wm reload");
-            return;
-        }
+        WeaponMechanics plugin = (WeaponMechanics) WeaponMechanics.getPlugin();
+
         plugin.onReload();
         sender.sendMessage("§aReloaded configuration. Check console for errors.");
     }

@@ -16,4 +16,11 @@ public interface Shape extends Iterable<Vector> {
      * @param vector The vector to draw around
      */
     void setAxis(Vector vector);
+
+    /**
+     * Gets the axis of the shape
+     *
+     * @return The current axis
+     */
+    Vector getAxis();
 }

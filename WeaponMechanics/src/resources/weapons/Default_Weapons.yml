@@ -35,6 +35,32 @@ test:
         Type: "EGG"
     Spread:
       Base_Spread: 1.5
+    Effects:
+      Sounds:
+        - BLOCK_ANVIL_LAND~1.0~1.0~0~0.5
+      Items:
+        Test:
+          Item:
+            Type: "IRON_NUGGET"
+        Test2:
+          Item:
+            Type: "IRON_INGOT"
+      Particles:
+        Particle:
+          Type: REDSTONE
+          Shape:
+            Type: SPIRAL
+            Radius: 1.5
+            Points: 100
+            Spiral_Loops: 2
+            Axis:
+              Direction: UP
+              Length: 10
+          Extra_Data:
+            Color:
+              Type: RGB
+              Data: 0~255~100
+            Size: 2.0
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
