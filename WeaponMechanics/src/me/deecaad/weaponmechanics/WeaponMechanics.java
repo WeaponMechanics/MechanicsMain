@@ -157,44 +157,7 @@ public class WeaponMechanics extends JavaPlugin {
             getPlayerWrapper(player);
         }
 
-        debug.info("Serializing config");
-        tempSerializers = new JarSerializers().getAllSerializersInsideJar(WeaponMechanics.this, getFile());
-        tempSerializers.addAll(MechanicsCore.getPlugin().getDefaultSerializers());
-
-        // This is done like this to allow other plugins to add their own serializers
-        // before WeaponMechanics starts filling those configuration mappings.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-
-                List<IValidator> validators = new ArrayList<>();
-                validators.add(new ScopeHandler(weaponHandler));
-                validators.add(new ShootHandler(weaponHandler));
-                validators.add(new ReloadHandler(weaponHandler));
-
-                // Fill configuration mappings (except config.yml)
-                configurations = new FileReader(tempSerializers, validators).fillAllFiles(getDataFolder(), "config.yml");
-                tempSerializers = null;
-
-                // Register events
-                // Registering events after serialization is completed to prevent any errors from happening
-
-                // TRIGGER EVENTS
-                Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
-                Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
-                if (CompatibilityAPI.getVersion() >= 1.09) {
-                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
-                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
-                }
-
-                // WEAPON EVENTS
-                Bukkit.getServer().getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
-
-                // EXPLOSION EVENT
-                Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), WeaponMechanics.this);
-
-            }
-        }.runTask(this);
+        loadConfig();
 
         debug.info("Loading API");
         new WeaponMechanicsAPI(this);
@@ -244,31 +207,69 @@ public class WeaponMechanics extends JavaPlugin {
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
 
+        loadConfig();
 
-        if (configurations == null) {
-            debug.log(LogLevel.ERROR, "Configurations cannot be null when reloading!");
-            return;
-        }
-        configurations.clear();
-
-        // We don't want to set the Configuration to a new Configuration
-        // because that will mess up references in classes that store
-        // this Configuration. Clearing it, then adding the config back
-        // into it solves that issue
-        // todo: add on reload event to allow other plugins register their serializers on reload?
-        // ^^ Yeah, I could implement a ConfigurationLoadEvent into the core that FileReader::new calls?
-        try {
-            configurations.add(new FileReader(new JarSerializers().getAllSerializersInsideJar(this, getFile()), null).fillAllFiles(getDataFolder(), "config.yml"));
-        } catch (DuplicateKeyException ex) {
-            // Since the map is empty before this, this error should
-            // never occur
-
-           debug.log(LogLevel.ERROR, "If you see this, please report to devs!", ex);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            // Add PlayerWrapper in onEnable in case server is reloaded for example
+            getPlayerWrapper(player);
         }
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
         debug.log(LogLevel.INFO, "Reloaded WeaponMechanics in " + seconds + "s");
+    }
+
+    private void loadConfig() {
+        debug.info("Serializing config");
+
+        if (configurations == null) {
+            configurations = new SeparatedConfig();
+        } else {
+            configurations.clear();
+        }
+
+        tempSerializers = new JarSerializers().getAllSerializersInsideJar(WeaponMechanics.this, getFile());
+        tempSerializers.addAll(MechanicsCore.getPlugin().getDefaultSerializers());
+
+        // This is done like this to allow other plugins to add their own serializers
+        // before WeaponMechanics starts filling those configuration mappings.
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+
+                List<IValidator> validators = new ArrayList<>();
+                validators.add(new ScopeHandler(weaponHandler));
+                validators.add(new ShootHandler(weaponHandler));
+                validators.add(new ReloadHandler(weaponHandler));
+
+                // Fill configuration mappings (except config.yml)
+                Configuration temp = new FileReader(tempSerializers, validators).fillAllFiles(getDataFolder(), "config.yml");
+                try {
+                    configurations.add(temp);
+                } catch (DuplicateKeyException e) {
+                    debug.error("Error loading config: " + e.getMessage());
+                }
+                tempSerializers = null;
+
+                // Register events
+                // Registering events after serialization is completed to prevent any errors from happening
+
+                // TRIGGER EVENTS
+                Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
+                Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
+                if (CompatibilityAPI.getVersion() >= 1.09) {
+                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                }
+
+                // WEAPON EVENTS
+                Bukkit.getServer().getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
+
+                // EXPLOSION EVENT
+                Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), WeaponMechanics.this);
+
+            }
+        }.runTask(this);
     }
 
     /**
