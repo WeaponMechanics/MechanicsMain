@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
@@ -93,6 +94,28 @@ public class ShootHandler implements IValidator {
         // Don't even try if slot is already being used for full auto or burst
         if (handData.isUsingFullAuto() || handData.isUsingBurst()) return false;
 
+        // START RELOAD STUFF
+
+        // Check if other hand is reloading and deny shooting if it is
+        if (slot == EquipmentSlot.HAND) {
+            if (entityWrapper.getOffHandData().isReloading()) {
+                return false;
+            }
+        } else {
+            if (entityWrapper.getMainHandData().isReloading()) {
+                return false;
+            }
+        }
+        ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+
+        // If no ammo left, start reloading
+        if (reloadHandler.getAmmoLeft(weaponStack) == 0) {
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+            return false;
+        }
+
+        // END RELOAD STUFF
+
         Configuration config = getConfigurations();
         boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
         boolean isSelectiveFireAuto = false;
@@ -112,8 +135,6 @@ public class ShootHandler implements IValidator {
 
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (!trigger.check(triggerType, slot, entityWrapper)) return false;
-
-        // todo: check and do ammo things
 
         List<Effect> effects = config.getObject(weaponTitle + ".Shoot.Effects", EffectList.class).getEffects();
         LivingEntity entity = entityWrapper.getEntity();
@@ -140,10 +161,15 @@ public class ShootHandler implements IValidator {
     }
 
     private boolean singleShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
-        // todo: check and do ammo things
-
         boolean mainHand = slot == EquipmentSlot.HAND;
         shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainHand), mainHand, true);
+
+        // START RELOAD STUFF
+
+        weaponHandler.getReloadHandler().consumeAmmo(entityWrapper, weaponStack, slot, 1);
+
+        // END RELOAD STUFF
+
         return true;
     }
 
@@ -167,7 +193,15 @@ public class ShootHandler implements IValidator {
                 // Only make the first projectile of burst modify spread change if its used
                 shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, shots == 0);
 
-                // todo: check and do ammo things
+                // START RELOAD STUFF
+
+                if (!weaponHandler.getReloadHandler().consumeAmmo(entityWrapper, weaponStack, slot, 1)) {
+                    handData.setBurstTask(0);
+                    cancel();
+                    return;
+                }
+
+                // END RELOAD STUFF
 
                 if (++shots >= shotsPerBurst) {
                     handData.setBurstTask(0);
@@ -207,7 +241,25 @@ public class ShootHandler implements IValidator {
                     shootAmount = baseAmountPerTick;
                 }
 
-                // todo: check and do ammo things based on shootAmount (per tick)
+                // START RELOAD STUFF
+
+                ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+                int ammoLeft = reloadHandler.getAmmoLeft(weaponStack);
+                if (ammoLeft != -1) {
+
+                    // Check whether shoot amount of this tick should be changed
+                    if (ammoLeft - shootAmount < 0) {
+                        shootAmount = ammoLeft;
+                    }
+
+                    if (!reloadHandler.consumeAmmo(entityWrapper, weaponStack, slot, shootAmount)) {
+                        handData.setFullAutoTask(0);
+                        cancel();
+                        return;
+                    }
+                }
+
+                // END RELOAD STUFF
 
                 if (shootAmount == 1) {
                     shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);

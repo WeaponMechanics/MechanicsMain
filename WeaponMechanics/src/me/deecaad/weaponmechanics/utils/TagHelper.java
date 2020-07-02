@@ -2,8 +2,9 @@ package me.deecaad.weaponmechanics.utils;
 
 import me.deecaad.core.utils.TagUtils;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nullable;
 
 public class TagHelper {
 
@@ -17,6 +18,7 @@ public class TagHelper {
      * @param tag the tag name
      * @return the value of the tag, if not found null
      */
+    @Nullable
     public static String getStringTag(ItemStack itemStack, CustomTag tag) {
         return TagUtils.getStringTag(itemStack, tag.getId());
     }
@@ -55,6 +57,7 @@ public class TagHelper {
      * @param tag the tag name
      * @return the value of the tag, if not found null
      */
+    @Nullable
     public static Integer getIntegerTag(ItemStack itemStack, CustomTag tag) {
         return TagUtils.getIntegerTag(itemStack, tag.getId());
     }
