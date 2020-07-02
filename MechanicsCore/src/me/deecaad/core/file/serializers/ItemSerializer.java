@@ -11,6 +11,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -192,6 +193,27 @@ public class ItemSerializer implements Serializer<ItemStack> {
                         "Found an invalid cast in configurations!",
                         "Located at file " + file + " in " + path + ".Potion.Color in configurations",
                         "Tried to modify potion when the item wasn't potion (" + type + ")");
+                return null;
+            }
+        }
+        if (configurationSection.contains(path + ".Leather_Color")) {
+            try {
+                Color color = new ColorSerializer().serialize(file, configurationSection, path + ".Leather_Color");
+                if (color == null) {
+                    debug.warn("Error occurred while serializing Color", StringUtils.foundAt(file, path + ".Leather_Color"));
+                    return null;
+                }
+
+                LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
+                if (meta == null) {
+                    debug.error("Somehow itemMeta was null? Is the material type in serializer AIR?", StringUtils.foundAt(file, path + ".Leather_Color"));
+                    return null;
+                }
+
+                meta.setColor(color);
+
+            } catch (ClassCastException e) {
+                debug.error("You cannot use " + itemStack.getType() + " with leather armor color!", StringUtils.foundAt(file, path + ".Leather_Color"));
                 return null;
             }
         }
