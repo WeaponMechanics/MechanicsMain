@@ -3,6 +3,4 @@ Reload:
   Magazine_Size: <amount>
   Bullets_Per_Reload: <amount>
   Reload_Duration: <ticks>
-  # All general stuff
-  Shoot_Out_Off_Ammo:
-    # All general stuff
+  # All general and effect stuff

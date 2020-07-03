@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import org.bukkit.Bukkit;
@@ -29,7 +28,8 @@ public class HandData {
 
     /**
      * Cancels full auto, burst and reload tasks and resets them.
-     * Also cancels zooming, cancel task method name might be a bit misleading now :p
+     * Also cancels zooming.
+     * Cancel task method name might be a bit misleading now :p
      *
      * Does not cancel recoil task.
      */
@@ -109,6 +109,13 @@ public class HandData {
 
     public boolean isReloading() {
         return !reloadTasks.isEmpty();
+    }
+
+    public void stopReloadingTasks() {
+        if (!reloadTasks.isEmpty()) {
+            reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
+            reloadTasks.clear();
+        }
     }
 
     public ZoomData getZoomData() {

@@ -172,10 +172,11 @@ public class Projectile_Reflection implements IProjectileCompatibility {
 
         // For bounding boxes
 
-        entityHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftEntity"), "getHandle");
-        entityBoundingBox = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("Entity"), "getBoundingBox");
-
         if (CompatibilityAPI.getVersion() < 1.132) {
+
+            entityHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftEntity"), "getHandle");
+            entityBoundingBox = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("Entity"), "getBoundingBox");
+
             Class<?> axisAlignedBBClazz = ReflectionUtil.getNMSClass("AxisAlignedBB");
 
             minXField = ReflectionUtil.getField(axisAlignedBBClazz, "a");
