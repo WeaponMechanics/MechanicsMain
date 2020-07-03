@@ -4,7 +4,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.DamagePoint;
+import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
