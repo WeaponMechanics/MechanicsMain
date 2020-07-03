@@ -5,7 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.DamagePoint;
+import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;

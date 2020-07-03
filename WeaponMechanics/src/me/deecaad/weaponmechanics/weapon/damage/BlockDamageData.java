@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon;
+package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;

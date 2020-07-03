@@ -1,4 +1,6 @@
-package me.deecaad.weaponmechanics.weapon;
+package me.deecaad.weaponmechanics.weapon.damage;
+
+import me.deecaad.core.utils.StringUtils;
 
 /**
  * This class highlights different points in
@@ -42,5 +44,15 @@ public enum DamagePoint {
     /**
      * If the damage is hitting feet
      */
-    FEET,
+    FEET;
+
+    private final String readable;
+
+    DamagePoint() {
+        readable = StringUtils.keyToRead(name());
+    }
+
+    public String getReadable() {
+        return readable;
+    }
 }

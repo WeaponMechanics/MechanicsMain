@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon;
+package me.deecaad.weaponmechanics.weapon.damage;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.compatibility.CompatibilityAPI;
@@ -140,8 +140,9 @@ public class DamageUtils {
                 break;
             case LEGS:
                 armor.add(victim.getEquipment().getLeggings());
-                armor.add(victim.getEquipment().getBoots());
                 break;
+            case FEET:
+                armor.add(victim.getEquipment().getBoots());
             default:
                 armor.addAll(Arrays.stream(victim.getEquipment().getArmorContents()).collect(Collectors.toSet()));
                 break;
