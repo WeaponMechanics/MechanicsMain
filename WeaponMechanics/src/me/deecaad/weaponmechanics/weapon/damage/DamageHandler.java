@@ -7,7 +7,7 @@ import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.general.AddPotionEffect;
-import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -22,24 +22,43 @@ public class DamageHandler implements IValidator {
 
     private static final String[] DAMAGE_POINTS = new String[]{"Head", "Body", "Arms", "Legs", "Feet", "Backstab", "Critical_Hit"};
 
-    public boolean tryUse(LivingEntity victim, LivingEntity shooter, String weaponTitle, Projectile projectile, DamagePoint point, boolean isBackstab) {
-        if (!DamageUtils.canHarm(shooter, victim)) {
+    public boolean tryUse(LivingEntity victim, LivingEntity shooter, String weaponTitle, CustomProjectile projectile, DamagePoint point, boolean isBackstab) {
+        Configuration config = WeaponMechanics.getConfigurations();
+
+        boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
+        if (!isFriendlyFire && !DamageUtils.canHarm(shooter, victim)) {
             return false;
         }
 
-        Configuration config = WeaponMechanics.getConfigurations();
-
+        // Base damage amounts
         double damage = config.getDouble(weaponTitle + ".Damage.Base_Damage")
                 + config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
 
-        // todo DamageDropoff
+        // Damage changes based on how far the projectile travelled
+        double distance = projectile.getDistanceTravelled();
+        DamageDropoff dropoff = config.getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
+        if (dropoff != null) {
+            damage += dropoff.getDamage(distance);
+        }
 
+        // Critical Hit chance
         double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance") / 100;
         if (NumberUtils.chance(chance)) {
             damage += config.getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
         }
 
+        // Backstab damage
+        if (isBackstab) {
+            damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
+        }
+
         DamageUtils.apply(shooter, victim, damage, point, isBackstab);
+
+        // Fire ticks
+        int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
+        if (fireTicks > 0) {
+            victim.setFireTicks(fireTicks);
+        }
 
         // Setup variables for effects and potions
         Plugin plugin = WeaponMechanics.getPlugin();
@@ -106,6 +125,10 @@ public class DamageHandler implements IValidator {
             builder.setLength(0);
         }
         return true;
+    }
+
+    public boolean tryUseExplosion() {
+        return false;
     }
 
     @Override

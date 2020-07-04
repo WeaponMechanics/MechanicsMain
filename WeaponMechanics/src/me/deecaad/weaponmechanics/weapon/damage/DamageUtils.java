@@ -4,9 +4,14 @@ import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import net.minecraft.server.v1_16_R1.DamageSource;
 import org.bukkit.Bukkit;
+import org.bukkit.EntityEffect;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -65,62 +70,58 @@ public class DamageUtils {
         }
         AtomicDouble rate = new AtomicDouble(1.0);
         IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
-        
+
         // Apply backstab damage
         if (isBackStab) rate.addAndGet(config.getDouble("Damage.Back"));
-        
+
         // Apply damage per potion effect
         victim.getActivePotionEffects().forEach(potion ->
                 rate.addAndGet(config.getDouble("Damage.Potions." + potion.getType().getName())));
-        
+
         // Apply damage per armor and attachment
         for (ItemStack armorSlot : victim.getEquipment().getArmorContents()) {
- 
+
+            if (armorSlot == null) continue;
+
             // Note that the material for armor is going to be something like
             // Material.DIAMOND_CHESTPLATE, Material.IRON_BOOTS, Material.GOLDEN_LEGGINGS, Material.LEATHER_HELMET;
             // So split[0] is going to be the material of the armor and
             // split[1] is going to be the armor's slot/type
             String[] split = armorSlot.getType().name().split("_");
-            rate.addAndGet(config.getDouble("Damage.Armor." + split[1] + "." + split[0]));
-            
+            if (split.length == 2) {
+                rate.addAndGet(config.getDouble("Damage.Armor." + split[1] + "." + split[0]));
+            }
+
             armorSlot.getEnchantments().forEach((enchant, level) ->
                     rate.addAndGet(config.getDouble("Damage.Armor.Enchantments." + enchant.getKey().getKey())));
         }
-        
+
         // Apply damage based on victim movement
-        if (wrapper.isInMidair())  rate.addAndGet(config.getDouble("Damage.Movement.In_Midair"));
-        if (wrapper.isWalking())   rate.addAndGet(config.getDouble("Damage.Movement.Walking"));
+        if (wrapper.isInMidair()) rate.addAndGet(config.getDouble("Damage.Movement.In_Midair"));
+        if (wrapper.isWalking()) rate.addAndGet(config.getDouble("Damage.Movement.Walking"));
         //if (wrapper.isSwimming())  rate.addAndGet(config.getDouble("Damage.Movement.Swimming"));
         if (wrapper.isSprinting()) rate.addAndGet(config.getDouble("Damage.Movement.Sprinting"));
-        if (wrapper.isSneaking())  rate.addAndGet(config.getDouble("Damage.Movement.Sneaking"));
-        
+        if (wrapper.isSneaking()) rate.addAndGet(config.getDouble("Damage.Movement.Sneaking"));
+
         // Apply damage based on the point that hit the victim
         rate.addAndGet(config.getDouble("Damage.Critical_Points." + point.name()));
-        
+
         // Make sure damage is within ranges
         rate.set(Math.min(rate.get(), config.getDouble("Damage.Maximum_Rate")));
         rate.set(Math.max(rate.get(), config.getDouble("Damage.Minimum_Rate")));
-        
+
         // Apply damage to victim
         double damageAmount = damage * rate.get();
-        
-        if (victim.getHealth() - damageAmount <= 0.0) {
-            
-            // Setting health really low allows us to
-            // avoid armor/resistance/blocking/whatever
-            // so damaging later should be able to kill
-            // the victim. This should kill the victim
-            // every time.
-            victim.setHealth(0.0001);
-            victim.damage(200, cause);
+
+        EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damageAmount);
+        Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
+        if (entityDamageByEntityEvent.isCancelled()) {
+            return 0;
         }
-        else {
-            // Apply damage to player
-            victim.setHealth(victim.getHealth() - damageAmount);
-        }
-    
+
+        victim.setHealth(NumberUtils.minMax(0, victim.getHealth() - damageAmount, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        victim.playEffect(EntityEffect.HURT);
         debug.log(LogLevel.DEBUG, victim + " damaged by " + cause + " for " + damageAmount + " damage.");
-        
         return damageAmount;
     }
     
@@ -168,15 +169,6 @@ public class DamageUtils {
      * @return true only if cause can harm victim
      */
     public static boolean canHarm(LivingEntity cause, LivingEntity victim) {
-        
-        // Call entity damage by entity event to see if other plugins want to cancel this damage
-        EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, 1.0);
-        Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
-        
-        if (entityDamageByEntityEvent.isCancelled()) {
-            // Can not harm because cancelled
-            return false;
-        }
         
         boolean allowDamaging = true;
         

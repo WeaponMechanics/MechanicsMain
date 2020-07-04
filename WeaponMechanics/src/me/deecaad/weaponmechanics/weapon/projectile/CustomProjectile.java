@@ -4,6 +4,8 @@ import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.events.ProjectileMoveEvent;
+import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
+import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -20,6 +22,7 @@ public class CustomProjectile implements ICustomProjectile {
     private static final int maximumAliveTicks = 600;
 
     private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+    private static DamageHandler damageHandler = new DamageHandler();
 
     // Just to identify CustomProjectile
     private static int ids = 1;
@@ -206,9 +209,10 @@ public class CustomProjectile implements ICustomProjectile {
      */
     private boolean handleEntityHit(CollisionData collisionData, Vector normalizedDirection) {
 
-        // todo
+        DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
 
-        Bukkit.broadcastMessage("" + collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection));
+        LivingEntity victim = collisionData.getLivingEntity();
+        boolean isDamaged = damageHandler.tryUse(victim, shooter, "test", this, point, false);
 
         return false;
     }
