@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.listeners;
 
-import me.deecaad.weaponmechanics.weapon.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

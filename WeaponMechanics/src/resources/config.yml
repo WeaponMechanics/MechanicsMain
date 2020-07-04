@@ -74,7 +74,6 @@ Recoil_Millis_Between_Rotations: 5
 Damage:
   Minimum_Rate: 0.3
   Maximum_Rate: 5.0
-  Back: <Double>
   Potions:
     PotionTypeEnum: <Double>
   Armor:
@@ -110,11 +109,6 @@ Damage:
     Swimming: -0.05
     Sprinting: 0.05
     In_Midair: 0.03
-  Critical_Points:
-    HEAD: 0.5
-    BODY: 0.1
-    LEGS: -0.2
-    DEFAULT: 0.0
 
 # Configurations for explosions
 #
@@ -124,15 +118,6 @@ Damage:
 # Noise distance is the distance from the edge of the explosion to
 # to place blocks
 Explosions:
-  Damage:
-    Over_Distance:
-
-      # Whether or not to remove damage
-      Enabled: true
-
-      # The lowest amount of damage an explosion can do.
-      # 0.5 means half the explosion's normal damage
-      Min_Rate: 0.5
   Cuboid:
     Noise_Chance: 0.20
     Noise_Distance: 1.0

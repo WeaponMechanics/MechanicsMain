@@ -1,4 +1,4 @@
-# me.deecaad.weaponmechanics.general.ItemSerializer
+# me.deecaad.core.file.serializer.ItemSerializer
 Item:
   Type: <Material>:<Data>
   Name: <name>
@@ -17,3 +17,4 @@ Item:
     Color: <ColorType>
   Attributes:
   - <Attribute>-<Amount>
+  Leather_Color: <me.deecaad.core.file.serializer.ColorSerializer>

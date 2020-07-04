@@ -4,6 +4,8 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtils;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+
 public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
 
     private final Player player;
@@ -100,5 +102,15 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     @Override
     public boolean isSprinting() {
         return player.isSprinting();
+    }
+
+    @Override
+    public Map<String, Object> getData() {
+        return null;
+    }
+
+    @Override
+    public String getPath() {
+        return player.getUniqueId().toString();
     }
 }

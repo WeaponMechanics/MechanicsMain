@@ -28,10 +28,14 @@ public class Tools {
     }
     
     public static void splitTest() {
-        int hex = 0xFF0001;
-        int r = (hex >> 16) & 0xFF;
-        int g = (hex >> 8) & 0xFF;
-        int b = (hex >> 0) & 0xFF;
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("AK-47.Damage.Head.");
+        int length = builder.length();
+
+        builder.append("Test");
+        builder.setLength(length);
+        builder.append("Test2");
     }
 
 }

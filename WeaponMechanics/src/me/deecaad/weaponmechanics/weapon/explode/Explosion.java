@@ -4,7 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.weaponmechanics.weapon.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,11 +13,9 @@ import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -106,10 +104,15 @@ public class Explosion {
             BlockDamageData.damageBlock(block, 1, 1, true, timeOffset);
         }
 
-        final List<Block> sortedSolid = sort(solid);
-        size = sortedSolid.size();
+        solid.sort((o1, o2) -> {
+            int height = o1.getY() - o2.getY();
+
+            if (height != 0) return height;
+            else return (int) (origin.distanceSquared(o2.getLocation()) - origin.distanceSquared(o1.getLocation()));
+        });
+        size = solid.size();
         for (int i = 0; i < size; i++) {
-            Block block = sortedSolid.get(i);
+            Block block = solid.get(i);
 
             if (isBlacklisted(block) || BlockDamageData.isBroken(block)) {
                 continue;
@@ -134,8 +137,9 @@ public class Explosion {
      * Checks if the given block is a blacklisted block based
      * on the <code>Configuration</code>. If a block is blacklisted,
      * then it should not be blown up
-     * @param block
-     * @return
+     *
+     * @param block Checks if <code>block</code> is blacklsited
+     * @return true if <code>block</code> cannot be blown up
      */
     public boolean isBlacklisted(Block block) {
         String mat = block.getType().name();
@@ -144,26 +148,6 @@ public class Explosion {
                 && (this.isBlacklist == materials.contains(mat + ":" + block.getData()));
 
         return isBlacklist || isLegacyBlacklist;
-    }
-
-    // todo OOB
-    private static List<Block> sort(List<Block> blocks) {
-        TreeMap<Integer, List<Block>> layers = new TreeMap<>();
-
-        for (Block block : blocks) {
-            int y = block.getY();
-
-            List<Block> layer = layers.computeIfAbsent(y, k -> new ArrayList<>());
-
-            layer.add(block);
-        }
-
-        List<List<Block>> sortedLayers = new ArrayList<>(layers.values());
-        sortedLayers.forEach(Collections::shuffle);
-
-        List<Block> sorted = new ArrayList<>();
-        sortedLayers.forEach(sorted::addAll);
-        return sorted;
     }
 
     public enum ExplosionTrigger {
