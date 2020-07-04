@@ -77,10 +77,17 @@ public class ReloadHandler implements IValidator {
         if (ammoLeft >= magazineSize) return false;
 
         int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
+
+        // todo ADD open & close times for reloadDuration above
+
         int bulletsPerReload = config.getInt(weaponTitle + ".Bullets_Per_Reload", -1);
         handData.addReloadTask(new BukkitRunnable() {
             @Override
             public void run() {
+
+                // todo when REVOLVER or LEVER, play open sounds here
+                // -> AND add their tasks to handData reload tasks
+                // -> handData.addReloadTask(open sound task ids)
 
                 // Variable which decides the final ammo amount set to weapon after reload
                 int ammoToSet;
@@ -102,7 +109,19 @@ public class ReloadHandler implements IValidator {
                     TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet);
                 }
 
+                // todo when PUMP, play open and close sounds here
+                // -> AND add their tasks to handData reload tasks
+                // -> handData.addReloadTask(open sound task ids)
+
+                // todo when REVOLVER or LEVER, play close sounds here
+                // -> AND add their tasks to handData reload tasks
+                // -> handData.addReloadTask(open sound task ids)
+
                 handData.stopReloadingTasks();
+
+                // todo after cancelling reload tasks
+                // -> start reloading again if bullets_per_reload is used & weapon isn't full yet
+
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), reloadDuration).getTaskId());
 

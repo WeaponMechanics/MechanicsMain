@@ -94,6 +94,11 @@ public class ShootHandler implements IValidator {
         // Don't even try if slot is already being used for full auto or burst
         if (handData.isUsingFullAuto() || handData.isUsingBurst()) return false;
 
+        Configuration config = getConfigurations();
+
+        Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
+        if (!trigger.check(triggerType, slot, entityWrapper)) return false;
+
         // START RELOAD STUFF
 
         // Check if other hand is reloading and deny shooting if it is
@@ -116,7 +121,6 @@ public class ShootHandler implements IValidator {
 
         // END RELOAD STUFF
 
-        Configuration config = getConfigurations();
         boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
         boolean isSelectiveFireAuto = false;
         String selectiveFire = null;
@@ -133,31 +137,38 @@ public class ShootHandler implements IValidator {
             if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
         }
 
-        Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
-        if (!trigger.check(triggerType, slot, entityWrapper)) return false;
-
         List<Effect> effects = config.getObject(weaponTitle + ".Shoot.Effects", EffectList.class).getEffects();
         LivingEntity entity = entityWrapper.getEntity();
         effects.forEach(effect -> effect.spawn(WeaponMechanics.getPlugin(), entity.getEyeLocation(), entity.getLocation().getDirection()));
 
+
+
+        //
+        // todo I ADDED didShoot IF you need it while making firearms
+        //
+
+        boolean didShoot;
+
         if (usesSelectiveFire) {
             if (selectiveFire == null) {
-                return singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                didShoot = singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
             }
             switch (selectiveFire) {
                 case ("burst"):
-                    return burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    didShoot = burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
                 case ("auto"):
-                    return fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+                    didShoot = fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
                 default:
-                    return singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    didShoot = singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
             }
         }
 
         // First try full auto, then burst then single fire
-        return fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
+        didShoot = fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
                 || burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield)
                 || singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+
+        return didShoot;
     }
 
     private boolean singleShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
@@ -169,6 +180,8 @@ public class ShootHandler implements IValidator {
         weaponHandler.getReloadHandler().consumeAmmo(entityWrapper, weaponStack, slot, 1);
 
         // END RELOAD STUFF
+
+        // todo firearm open & close
 
         return true;
     }
@@ -206,6 +219,9 @@ public class ShootHandler implements IValidator {
                 if (++shots >= shotsPerBurst) {
                     handData.setBurstTask(0);
                     cancel();
+
+                    // todo firearm open & close
+
                 }
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, ticksBetweenEachShot).getTaskId());
@@ -231,6 +247,9 @@ public class ShootHandler implements IValidator {
                 if (!keepFullAutoOn(entityWrapper, triggerType)) {
                     handData.setFullAutoTask(0);
                     cancel();
+
+                    // todo firearm open & close
+
                     return;
                 }
 
