@@ -35,6 +35,7 @@ public class CustomProjectile implements ICustomProjectile {
     private Vector location;
     private Vector motion;
     private double motionLength;
+    private double distanceTravelled;
     private Location lastKnownAirLocation;
     private Collisions collisions;
     private final HitBox projectileBox;
@@ -131,6 +132,11 @@ public class CustomProjectile implements ICustomProjectile {
         if (motion == null) throw new IllegalArgumentException("Motion can't be null");
         this.motion = motion;
         this.motionLength = motion.length();
+    }
+
+    @Override
+    public double getDistanceTravelled() {
+        return this.distanceTravelled;
     }
 
     @Override
@@ -334,6 +340,8 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         location.add(oldMotion);
+        this.distanceTravelled += this.motionLength;
+
         return false;
     }
 

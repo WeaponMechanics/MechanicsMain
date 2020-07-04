@@ -66,6 +66,11 @@ public interface ICustomProjectile {
     void setMotion(@Nonnull Vector motion);
 
     /**
+     * @return the distance projectile has travelled where 1.0 equals 1 block
+     */
+    double getDistanceTravelled();
+
+    /**
      * Used to fetch any temporary data from projectiles
      *
      * @param key the key to fetch
