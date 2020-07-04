@@ -42,7 +42,7 @@ public class ReloadHandler implements IValidator {
      */
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Reload.Trigger", Trigger.class);
-        if (!trigger.check(triggerType, slot, entityWrapper)) return false;
+        if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
         return startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
     }

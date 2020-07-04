@@ -152,14 +152,15 @@ public class ShootHandler implements IValidator {
         if (usesSelectiveFire) {
             if (selectiveFire == null) {
                 didShoot = singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
-            }
-            switch (selectiveFire) {
-                case ("burst"):
-                    didShoot = burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
-                case ("auto"):
-                    didShoot = fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
-                default:
-                    didShoot = singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+            } else {
+                switch (selectiveFire) {
+                    case ("burst"):
+                        didShoot = burstShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    case ("auto"):
+                        didShoot = fullAutoShot(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+                    default:
+                        didShoot = singleShot(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                }
             }
         }
 
