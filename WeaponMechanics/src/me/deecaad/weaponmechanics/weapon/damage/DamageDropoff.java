@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -57,11 +58,11 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
 
             } catch (NumberFormatException ex) {
                 debug.error("Unknown decimal " + ex.getMessage(), StringUtils.foundAt(file, path));
-                return null;
+                debug.log(LogLevel.DEBUG, ex);
             } catch (ArrayIndexOutOfBoundsException ex) {
                 debug.error("You must specify both blocks and damage. For input string: " + str,
                         StringUtils.foundAt(file, path));
-                return null;
+                debug.log(LogLevel.DEBUG, ex);
             }
         }
 
