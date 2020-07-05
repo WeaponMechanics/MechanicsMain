@@ -2,27 +2,15 @@ package me.deecaad.weaponmechanics.weapon.explode.types;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -103,30 +91,18 @@ public class ParabolicExplosion implements ExplosionShape {
     
     @Nonnull
     @Override
-    public Map<LivingEntity, Double> getEntities(@Nonnull Location origin) {
-        List<LivingEntity> entities = origin.getWorld().getEntities().stream()
+    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+        return origin.getWorld().getEntities().stream()
                 .filter(LivingEntity.class::isInstance)
                 .filter(entity -> test(origin, entity.getLocation()))
                 .map(LivingEntity.class::cast)
                 .collect(Collectors.toList());
+    }
 
-        if (entities.isEmpty()) return new HashMap<>();
-
-        Map<LivingEntity, Double> temp = new HashMap<>(entities.size());
-        World world = origin.getWorld();
-
+    @Override
+    public double getMaxDistance() {
         double xOffset = Math.sqrt(-depth / angle);
-        double maxDistance = Math.max(xOffset, -depth);
-
-        for (LivingEntity entity : entities) {
-            Vector vector = origin.toVector().subtract(entity.getLocation().toVector());
-            double length = vector.length();
-
-            double distanceRate = (maxDistance - length) / maxDistance;
-            temp.put(entity, distanceRate);
-        }
-
-        return temp;
+        return Math.max(xOffset, -depth);
     }
 
     /**

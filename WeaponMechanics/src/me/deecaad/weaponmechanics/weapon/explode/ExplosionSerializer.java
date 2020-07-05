@@ -2,15 +2,19 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExposure;
+import me.deecaad.weaponmechanics.weapon.explode.types.DistanceExposure;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,20 +46,28 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         
         // Gets the explosion type from config, warns the user
         // if the type is invalid
-        String typeName = section.getString("Explosion_Type", "DEFAULT").toUpperCase();
-        ExplosionType type;
+        String shapeTypeName = section.getString("Explosion_Shape", "DEFAULT").toUpperCase();
+        ExplosionShapeType shapeType;
         try {
-            type = ExplosionType.valueOf(typeName);
+            shapeType = ExplosionShapeType.valueOf(shapeTypeName);
         } catch (IllegalArgumentException ex) {
-            debug.log(LogLevel.ERROR, "The explosion type \"" + typeName + "\" is invalid.",
-                    "Look at the wiki for valid explosion types.",
-                    "Found in file " + file + " at path " + path);
+            debug.log(LogLevel.ERROR, "The explosion shape \"" + shapeTypeName + "\" is invalid.",
+                    "Valid Shapes: " + Arrays.toString(ExplosionShapeType.values()),
+                    StringUtils.foundAt(file, path));
             return null;
         }
-        
-        // Used to give the user information of where the error may have occurred.
-        String found = "Found in file \"" + file + "\" at path \"" + path + "\"";
-        
+
+        String exposureTypeName = section.getString("Explosion_Exposure", "DEFAULT").toUpperCase();
+        ExplosionExposureType exposureType;
+        try {
+            exposureType = ExplosionExposureType.valueOf(exposureTypeName);
+        } catch (IllegalArgumentException ex) {
+            debug.log(LogLevel.ERROR, "The explosion exposure \"" + exposureTypeName + "\" is invalid.",
+                    "Valid exposures: " + Arrays.toString(ExplosionExposureType.values()),
+                    StringUtils.foundAt(file, path));
+            return null;
+        }
+
         // Get all possibly applicable data for the explosions,
         // and warn users for "odd" values
         double yield  = section.getDouble("Explosion_Type_Data.Yield",  3.0);
@@ -66,8 +78,10 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         double radius = section.getDouble("Explosion_Type_Data.Radius", 3.0);
 
         // todo change depth to be positive... makes more sense that way
-        if (depth < 0) depth *= -1;
-        
+        if (depth > 0) depth *= -1;
+
+        String found = StringUtils.foundAt(file, path);
+
         debug.validate(yield > 0, "Explosion Yield should be a positive number!", found);
         debug.validate(angle > 0, "Explosion Angle should be a positive number!", found);
         debug.validate(depth < 0, "Explosion depth should be a negative number!", found);
@@ -76,7 +90,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         debug.validate(radius > 0, "Explosion Radius should be a positive number!", found);
 
         ExplosionShape shape;
-        switch (type) {
+        switch (shapeType) {
             case CUBE:
                 shape = new CuboidExplosion(width, height);
                 break;
@@ -88,6 +102,17 @@ public class ExplosionSerializer implements Serializer<Explosion> {
                 break;
             case DEFAULT:
                 shape = new DefaultExplosion(yield);
+                break;
+            default:
+                throw new IllegalArgumentException("Something went wrong...");
+        }
+        ExplosionExposure exposure;
+        switch (exposureType) {
+            case DISTANCE:
+                exposure = new DistanceExposure();
+                break;
+            case DEFAULT:
+                exposure = new DefaultExposure();
                 break;
             default:
                 throw new IllegalArgumentException("Something went wrong...");
@@ -117,10 +142,10 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         }
 
 
-        return new Explosion(shape, isBreakBlocks, regeneration, isBlacklist, materials, triggers);
+        return new Explosion(shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers);
     }
     
-    private enum ExplosionType {
+    private enum ExplosionShapeType {
     
         /**
          * Represents a parabolic explosion
@@ -144,6 +169,22 @@ public class ExplosionSerializer implements Serializer<Explosion> {
          * Represents a default minecraft generated explosion
          * @see DefaultExplosion
          */
+        DEFAULT
+    }
+
+    private enum ExplosionExposureType {
+
+        /**
+         * Damage is only based on the distance between the <code>LivingEntity</code>
+         * involved and the origin of the explosion
+         * @see me.deecaad.weaponmechanics.weapon.explode.types.DistanceExposure
+         */
+        DISTANCE,
+
+        /**
+         * Damage uses minecraft's explosion exposure method
+         * @see me.deecaad.weaponmechanics.weapon.explode.types.DefaultExposure
+          */
         DEFAULT
     }
 }

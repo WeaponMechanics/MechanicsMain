@@ -10,9 +10,8 @@ import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -67,19 +66,19 @@ public class SphericalExplosion implements ExplosionShape {
     
     @Nonnull
     @Override
-    public Map<LivingEntity, Double> getEntities(@Nonnull Location origin) {
-        Map<LivingEntity, Double> temp = new HashMap<>();
+    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+        double radiusSquared = radius * radius;
 
-        for (LivingEntity entity: origin.getWorld().getLivingEntities()) {
-            double distance = entity.getLocation().distance(origin);
+        return origin.getWorld().getLivingEntities()
+                .stream()
+                .filter(entity -> entity.getLocation().distanceSquared(origin) < radiusSquared)
+                .collect(Collectors.toList());
 
-            if (distance > radius) continue;
+    }
 
-            temp.put(entity, (radius - distance) / radius);
-        }
-
-        return temp;
-
+    @Override
+    public double getMaxDistance() {
+        return radius;
     }
 
     @Override

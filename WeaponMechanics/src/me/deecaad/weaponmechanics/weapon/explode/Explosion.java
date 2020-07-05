@@ -22,6 +22,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 public class Explosion {
 
     private final ExplosionShape shape;
+    private final ExplosionExposure exposure;
     private final boolean isBreakBlocks;
     private final RegenerationData regeneration;
     private final boolean isBlacklist;
@@ -29,6 +30,7 @@ public class Explosion {
     private final Set<ExplosionTrigger> triggers;
 
     public Explosion(@Nonnull ExplosionShape shape,
+                     @Nonnull ExplosionExposure exposure,
                      boolean isBreakBlocks,
                      @Nonnull RegenerationData regeneration,
                      boolean isBlacklist,
@@ -36,6 +38,7 @@ public class Explosion {
                      @Nonnull Set<ExplosionTrigger> triggers) {
 
         this.shape = shape;
+        this.exposure = exposure;
         this.isBreakBlocks = isBreakBlocks;
         this.regeneration = regeneration;
         this.isBlacklist = isBlacklist;
@@ -72,7 +75,7 @@ public class Explosion {
         debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
 
         List<Block> blocks = isBreakBlocks ? shape.getBlocks(origin) : new ArrayList<>();
-        Map<LivingEntity, Double> entities = shape.getEntities(origin);
+        Map<LivingEntity, Double> entities = exposure.mapExposures(origin, shape);
 
         final List<Block> transparent = new ArrayList<>();
         final List<Block> air = new ArrayList<>();

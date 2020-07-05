@@ -11,9 +11,7 @@ import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -111,12 +109,12 @@ public class CuboidExplosion implements ExplosionShape {
      */
     @Nonnull
     @Override
-    public Map<LivingEntity, Double> getEntities(@Nonnull Location origin) {
+    public List<LivingEntity> getEntities(@Nonnull Location origin) {
         double xMin = origin.getX() - width,  xMax = origin.getX() + width;
         double yMin = origin.getY() - height, yMax = origin.getY() + height;
         double zMin = origin.getZ() - width,  zMax = origin.getZ() + width;
         
-        List<LivingEntity> entities = origin.getWorld().getLivingEntities()
+        return origin.getWorld().getLivingEntities()
                 .stream()
                 .filter(entity -> {
                     double x = entity.getLocation().getX();
@@ -128,19 +126,11 @@ public class CuboidExplosion implements ExplosionShape {
                             z >= zMin && z <= zMax;
                 })
                 .collect(Collectors.toList());
+    }
 
-        if (entities.isEmpty()) return new HashMap<>();
-
-        // This is imprecise, but super lightweight compared to using
-        // trig to find the proper max distance for every entity
-        double maxDistance = Math.sqrt(width * width + height * height);
-
-        Map<LivingEntity, Double> temp = new HashMap<>(entities.size());
-        for (LivingEntity entity : entities) {
-            double distance = origin.distance(entity.getLocation());
-            temp.put(entity, (maxDistance - distance) / maxDistance);
-        }
-        return temp;
+    @Override
+    public double getMaxDistance() {
+        return Math.sqrt(width * width + height * height);
     }
 
     public boolean isNearEdge(double x, double y, double z, double distance) {

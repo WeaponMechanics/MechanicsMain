@@ -29,12 +29,11 @@ public class ExplosionInteractionListener implements Listener {
 
     @EventHandler
     public void onWorldSave(WorldSaveEvent e) {
-        String name = e.getWorld().getName();
 
         for (Chunk chunk : BlockDamageData.getBlockDamageMap().keySet()) {
 
             // Filter out chunks not from the world being saved
-            if (!chunk.getWorld().getName().equals(name)) continue;
+            if (!chunk.getWorld().equals(e.getWorld())) continue;
 
             BlockDamageData.regenerate(chunk);
         }

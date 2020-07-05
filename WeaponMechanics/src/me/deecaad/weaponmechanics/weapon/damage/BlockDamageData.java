@@ -75,7 +75,10 @@ public final class BlockDamageData implements Listener {
 
         for (DamageData data : chunkData.values()) {
 
-            if (data.isDestroyed()) data.regenerate();
+            if (data.isDestroyed()) {
+                data.regenerate();
+                data.remove();
+            }
         }
     }
 
