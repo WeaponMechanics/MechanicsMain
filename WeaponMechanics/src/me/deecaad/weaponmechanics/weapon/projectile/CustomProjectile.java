@@ -1,15 +1,20 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.ProjectileMoveEvent;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
+import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
@@ -197,7 +202,34 @@ public class CustomProjectile implements ICustomProjectile {
      */
     private boolean handleBlockHit(CollisionData collisionData) {
 
-        // todo
+        Configuration config = WeaponMechanics.getConfigurations();
+        String weaponTitle = getTag("weaponTitle");
+
+        if (weaponTitle == null) {
+            return false;
+        }
+
+        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
+
+        Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
+        boolean hasExplosion = explosion != null;
+        boolean explosionTriggered = getTag("explosionDetonation") != null;
+        boolean fluid = MaterialHelper.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
+        boolean solid = collisionData.getBlock().getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
+
+        if (hasExplosion && !explosionTriggered && (fluid || solid)) {
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Vector v = getLocation();
+                    Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
+                    explosion.explode(origin);
+
+                    setTag("explosionDetonation", "true");
+                }
+            }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+        }
 
         return false;
     }
@@ -209,10 +241,32 @@ public class CustomProjectile implements ICustomProjectile {
      */
     private boolean handleEntityHit(CollisionData collisionData, Vector normalizedDirection) {
 
+        Configuration config = WeaponMechanics.getConfigurations();
         DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
+        String weaponTitle = getTag("weaponTitle");
+
+        if (weaponTitle == null) {
+            return false;
+        }
 
         LivingEntity victim = collisionData.getLivingEntity();
-        boolean isDamaged = damageHandler.tryUse(victim, shooter, "test", this, point, false);
+        boolean isDamaged = damageHandler.tryUse(victim, shooter, weaponTitle, this, point, false);
+
+        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
+        boolean explosionTriggered = getTag("explosionDetonation") != null;
+        if (explosion != null && !explosionTriggered && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITIES)) {
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Vector v = getLocation();
+                    Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
+                    explosion.explode(origin);
+
+                    setTag("explosionDetonation", "true");
+                }
+            }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+        }
 
         return false;
     }

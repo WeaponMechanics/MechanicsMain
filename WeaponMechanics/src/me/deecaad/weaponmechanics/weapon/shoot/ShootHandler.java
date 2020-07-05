@@ -13,6 +13,8 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
@@ -136,12 +138,6 @@ public class ShootHandler implements IValidator {
             int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
             if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
         }
-
-        List<Effect> effects = config.getObject(weaponTitle + ".Shoot.Effects", EffectList.class).getEffects();
-        LivingEntity entity = entityWrapper.getEntity();
-        effects.forEach(effect -> effect.spawn(WeaponMechanics.getPlugin(), entity.getEyeLocation(), entity.getLocation().getDirection()));
-
-
 
         //
         // todo I ADDED didShoot IF you need it while making firearms
@@ -334,12 +330,21 @@ public class ShootHandler implements IValidator {
         Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         LivingEntity livingEntity = entityWrapper.getEntity();
+        Location eyeLocation = livingEntity.getEyeLocation();
 
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastShotTime(System.currentTimeMillis());
         handData.setLastShotWeaponTitle(weaponTitle);
 
+        // Handle general stuff and effects
         UsageHelper.useGeneral(weaponTitle + ".Shoot", livingEntity, weaponStack, weaponTitle);
+        EffectList effects = config.getObject(weaponTitle + ".Shoot.Effects", EffectList.class);
+        if (effects != null) {
+            effects.getEffects().forEach(effect -> effect.spawn(WeaponMechanics.getPlugin(), eyeLocation, eyeLocation.getDirection()));
+        }
+
+        // Handle explosions
+        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
 
         for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
 
@@ -353,7 +358,23 @@ public class ShootHandler implements IValidator {
                 recoil.start((Player) entityWrapper.getEntity(), mainHand);
             }
 
-            projectile.shoot(livingEntity, shootLocation, motion);
+            ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion);
+            bullet.setTag("weaponTitle", weaponTitle);
+
+            boolean explosionTriggered = bullet.getTag("explosionDetonation") != null;
+            if (explosion != null && !explosionTriggered && explosion.getTriggers().contains(Explosion.ExplosionTrigger.SHOOT)) {
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Vector v = bullet.getLocation();
+                        Location origin = new Location(shootLocation.getWorld(), v.getX(), v.getY(), v.getZ());
+                        explosion.explode(origin);
+
+                        bullet.setTag("explosionDetonation", "true");
+                    }
+                }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+            }
         }
     }
 

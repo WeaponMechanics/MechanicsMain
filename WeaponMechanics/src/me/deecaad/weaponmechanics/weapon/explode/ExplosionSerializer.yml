@@ -2,7 +2,7 @@ Explosion:
   Detonation:
     Delay_After_Impact: <Ticks> # The time after the trigger that the explosion occurs
     Impact_When:
-      Shot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
+      Shoot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
       Entities: <Boolean> # When the projectile hits an entity
       Block: <Boolean> # When the projectile hits a non-fluid, non-air block
       Liquid: <Boolean> # When the projectile hits a fluid block

@@ -118,31 +118,34 @@ public class ExplosionSerializer implements Serializer<Explosion> {
                 throw new IllegalArgumentException("Something went wrong...");
         }
 
+        // Determine which blocks will be broken and how they will be regenerated
         boolean isBreakBlocks = section.getBoolean("Blocks.Enabled", true);
-        RegenerationData regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Regeneration");
+        RegenerationData regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Blocks.Regeneration");
         boolean isBlacklist = section.getBoolean("Blocks.Blacklist", false);
         Set<String> materials = section.getList("Blocks.Block_List", new ArrayList<>(0))
                 .stream()
                 .map(Object::toString)
                 .collect(Collectors.toSet());
 
+        // Determine when the projectile should explode
         ConfigurationSection impactWhenSection = section.getConfigurationSection("Detonation.Impact_When");
         Set<Explosion.ExplosionTrigger> triggers = new HashSet<>(4);
-
         for (String key : impactWhenSection.getKeys(false)) {
             try {
-                Explosion.ExplosionTrigger trigger = Explosion.ExplosionTrigger.valueOf(key);
+                Explosion.ExplosionTrigger trigger = Explosion.ExplosionTrigger.valueOf(key.toUpperCase());
                 boolean value = impactWhenSection.getBoolean(key);
 
                 if (value) triggers.add(trigger);
-            } catch (EnumConstantNotPresentException ex) {
+            } catch (IllegalArgumentException ex) {
                 debug.log(LogLevel.ERROR, "Unknown trigger type \"" + key + "\"... Did you spell it correctly in config?");
                 debug.log(LogLevel.DEBUG, ex);
             }
         }
 
+        // Time after the trigger the explosion occurs
+        int delay = section.getInt("Detonation.Delay_After_Impact");
 
-        return new Explosion(shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers);
+        return new Explosion(shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay);
     }
     
     private enum ExplosionShapeType {

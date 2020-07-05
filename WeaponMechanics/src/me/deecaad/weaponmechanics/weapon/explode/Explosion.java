@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class Explosion {
     private final boolean isBlacklist;
     private final Set<String> materials;
     private final Set<ExplosionTrigger> triggers;
+    private final int delay;
 
     public Explosion(@Nonnull ExplosionShape shape,
                      @Nonnull ExplosionExposure exposure,
@@ -35,7 +37,8 @@ public class Explosion {
                      @Nonnull RegenerationData regeneration,
                      boolean isBlacklist,
                      @Nonnull Set<String> materials,
-                     @Nonnull Set<ExplosionTrigger> triggers) {
+                     @Nonnull Set<ExplosionTrigger> triggers,
+                     @Nonnegative int delay) {
 
         this.shape = shape;
         this.exposure = exposure;
@@ -44,6 +47,7 @@ public class Explosion {
         this.isBlacklist = isBlacklist;
         this.materials = materials;
         this.triggers = triggers;
+        this.delay = delay;
     }
 
     public ExplosionShape getShape() {
@@ -64,6 +68,18 @@ public class Explosion {
 
     public Set<ExplosionTrigger> getTriggers() {
         return triggers;
+    }
+
+    public ExplosionExposure getExposure() {
+        return exposure;
+    }
+
+    public boolean isBreakBlocks() {
+        return isBreakBlocks;
+    }
+
+    public int getDelay() {
+        return delay;
     }
 
     /**

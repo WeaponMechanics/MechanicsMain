@@ -51,8 +51,10 @@ public class Projectile implements Serializer<Projectile> {
      * @param location the location from where to shoot
      * @param motion the motion of projectile
      */
-    public void shoot(LivingEntity entity, Location location, Vector motion) {
-        CustomProjectilesRunnable.addProjectile(new CustomProjectile(this, entity, location, motion));
+    public ICustomProjectile shoot(LivingEntity entity, Location location, Vector motion) {
+        CustomProjectile projectile = new CustomProjectile(this, entity, location, motion);
+        CustomProjectilesRunnable.addProjectile(projectile);
+        return projectile;
     }
 
     /**
