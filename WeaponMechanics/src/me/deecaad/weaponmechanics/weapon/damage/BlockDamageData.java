@@ -12,7 +12,9 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -71,6 +73,9 @@ public final class BlockDamageData implements Listener {
         // There are no blocks needed to regenerate
         if (chunkData == null) {
             return;
+        } else {
+            // Cloning to avoid concurrent modification
+            chunkData = new HashMap<>(chunkData);
         }
 
         for (DamageData data : chunkData.values()) {
@@ -82,12 +87,19 @@ public final class BlockDamageData implements Listener {
         }
     }
 
+    public static void regenerateAll() {
+
+        // Cloning to avoid concurrent modification
+        Set<Chunk> chunks = new HashSet<>(getBlockDamageMap().keySet());
+        for (Chunk chunk: chunks) {
+            regenerate(chunk);
+        }
+    }
+
     private static class DamageData {
 
         private final Block block;
         private double durability;
-
-        // Variables used in regeneration
         private BlockState state;
 
         public DamageData(Block block) {
@@ -159,12 +171,10 @@ public final class BlockDamageData implements Listener {
 
         /**
          * Regenerates this block
-         *
-         * @throws IllegalStateException If the block has not been destroyed
          */
         public void regenerate() {
             if (state == null) {
-                throw new IllegalStateException("Call to regenerate() before destroy()");
+                return;
             }
 
             // Update the state without applying physics
@@ -182,7 +192,8 @@ public final class BlockDamageData implements Listener {
          * from the main map
          */
         public void remove() {
-            BLOCK_DAMAGE_MAP.get(block.getChunk()).remove(block);
+            Map<Block, DamageData> data = BLOCK_DAMAGE_MAP.get(block.getChunk());
+            if (data != null) data.remove(block);
         }
     }
 }

@@ -211,24 +211,25 @@ public class CustomProjectile implements ICustomProjectile {
 
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
 
-        Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
-        boolean hasExplosion = explosion != null;
-        boolean explosionTriggered = getTag("explosionDetonation") != null;
-        boolean fluid = MaterialHelper.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
-        boolean solid = collisionData.getBlock().getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
+        if (explosion != null) {
+            Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
+            boolean explosionTriggered = getTag("explosionDetonation") != null;
+            boolean fluid = MaterialHelper.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
+            boolean solid = collisionData.getBlock().getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
 
-        if (hasExplosion && !explosionTriggered && (fluid || solid)) {
+            if (!explosionTriggered && (fluid || solid)) {
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Vector v = getLocation();
-                    Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
-                    explosion.explode(origin);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Vector v = getLocation();
+                        Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
+                        explosion.explode(origin);
 
-                    setTag("explosionDetonation", "true");
-                }
-            }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+                        setTag("explosionDetonation", "true");
+                    }
+                }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+            }
         }
 
         return false;

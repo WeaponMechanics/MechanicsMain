@@ -22,6 +22,7 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_
 import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListener;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
@@ -171,6 +172,8 @@ public class WeaponMechanics extends JavaPlugin {
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
+
+        BlockDamageData.regenerateAll();
 
         // Remove EntityWrappers just in case something odd happens
         for (LivingEntity entity : entityWrappers.keySet()) {

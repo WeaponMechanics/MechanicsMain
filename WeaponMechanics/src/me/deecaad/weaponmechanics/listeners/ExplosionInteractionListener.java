@@ -10,6 +10,8 @@ import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 
+import java.util.HashSet;
+
 /**
  * Listens and cancels events that could interfere
  * with block regeneration, or cause damage because
@@ -30,7 +32,8 @@ public class ExplosionInteractionListener implements Listener {
     @EventHandler
     public void onWorldSave(WorldSaveEvent e) {
 
-        for (Chunk chunk : BlockDamageData.getBlockDamageMap().keySet()) {
+        // Cloning to avoid concurrent modification
+        for (Chunk chunk : new HashSet<>(BlockDamageData.getBlockDamageMap().keySet())) {
 
             // Filter out chunks not from the world being saved
             if (!chunk.getWorld().equals(e.getWorld())) continue;
