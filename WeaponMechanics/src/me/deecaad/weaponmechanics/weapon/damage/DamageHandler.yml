@@ -2,6 +2,7 @@ Damage:
   Base_Damage: <amount>
   Fire_Ticks: <ticks>
   Enable_Friendly_Fire: <Boolean>
+  Armor_Damage: <Integer>
   Head:
     Bonus_Damage: <amount>
     Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
@@ -63,6 +64,9 @@ Damage:
     - <blocks>~<damage amount>
   Explosion:
     Damage: <amount>
+    Armor_Damage: <amount>
+    Fire_Ticks: <Integer>
+    Use_Exposure: <Boolean>
     Enable_Owner_Immunity: <Boolean>
     Effects: <me.deecaad.core.effects.serializers.EffectListSerializer>
     Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>

@@ -10,6 +10,7 @@ import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.types.DistanceExposure;
 import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.types.VoidExposure;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -114,6 +115,9 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             case DEFAULT:
                 exposure = new DefaultExposure();
                 break;
+            case NONE:
+                exposure = new VoidExposure();
+                break;
             default:
                 throw new IllegalArgumentException("Something went wrong...");
         }
@@ -145,7 +149,15 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         // Time after the trigger the explosion occurs
         int delay = section.getInt("Detonation.Delay_After_Impact");
 
-        return new Explosion(shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay);
+        String weaponTitle;
+        try {
+            weaponTitle = path.split("\\.")[0];
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            debug.warn("Tried to serialize explosion without weaponTitle! This is probably a mistake!");
+            weaponTitle = null;
+        }
+
+        return new Explosion(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay);
     }
     
     private enum ExplosionShapeType {
@@ -176,6 +188,12 @@ public class ExplosionSerializer implements Serializer<Explosion> {
     }
 
     private enum ExplosionExposureType {
+
+        /**
+         * Entities within the explosion's area of effect always have
+         * 100% exposure, regardless of obstacles and positioning
+         */
+        NONE,
 
         /**
          * Damage is only based on the distance between the <code>LivingEntity</code>

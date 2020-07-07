@@ -52,7 +52,7 @@ public class ExplosionCommand extends SubCommand {
         sendHelp(sender, args);
     }
 
-    private void explode(ExplosionShape shape, Location loc) {
+    private void explode(ExplosionShape shape, Player player, Location loc) {
         Set<String> materials = new HashSet<>();
         materials.add("DIAMOND_BLOCK");
         materials.add("GOLD_BLOCK");
@@ -62,7 +62,7 @@ public class ExplosionCommand extends SubCommand {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
-                new Explosion(shape, new DefaultExposure(), true, regeneration, true, materials, null, 0).explode(loc);
+                new Explosion(null, shape, new DefaultExposure(), true, regeneration, true, materials, null, 0).explode(player, loc);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
     }
@@ -81,7 +81,7 @@ public class ExplosionCommand extends SubCommand {
             double radius = args.length > 0 ? Double.parseDouble(args[0]) : 5.0;
             player.sendMessage("§6Causing a §7sphere§6 shaped explosion with a radius of §7" + radius);
 
-            explode(new SphericalExplosion(radius), player.getLocation());
+            explode(new SphericalExplosion(radius), player, player.getLocation());
         }
     }
 
@@ -100,7 +100,7 @@ public class ExplosionCommand extends SubCommand {
             int height = (int)(args.length > 1 ? Double.parseDouble(args[1]) : 5.0);
             player.sendMessage("§6Causing a §7cube§6 shaped explosion with a width of §7" + width + "§6 and a height of §7" + height);
             
-            explode(new CuboidExplosion(width, height), player.getLocation());
+            explode(new CuboidExplosion(width, height), player, player.getLocation());
         }
     }
 
@@ -119,7 +119,7 @@ public class ExplosionCommand extends SubCommand {
             double depth = args.length > 1 ? Double.parseDouble(args[1]) : -3.0;
             player.sendMessage("§6Causing a §7parabola§6 shaped explosion with an angle of §7" + angle + "§6 and a depth of §7" + depth);
 
-            explode(new ParabolicExplosion(depth, angle), player.getLocation());
+            explode(new ParabolicExplosion(depth, angle), player, player.getLocation());
         }
     }
 
@@ -137,7 +137,7 @@ public class ExplosionCommand extends SubCommand {
             double yield = args.length > 0 ? Double.parseDouble(args[0]) : 5;
             player.sendMessage("§6Causing a §7Minecraft§6 shaped explosion with an yield of §7" + yield);
 
-            explode(new DefaultExplosion(yield), player.getLocation());
+            explode(new DefaultExplosion(yield), player, player.getLocation());
         }
     }
 }

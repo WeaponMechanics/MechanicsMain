@@ -7,6 +7,7 @@ import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.general.AddPotionEffect;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,6 +18,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.Map;
 
 public class DamageHandler implements IValidator {
 
@@ -53,6 +55,7 @@ public class DamageHandler implements IValidator {
         }
 
         DamageUtils.apply(shooter, victim, damage, point, isBackstab);
+        DamageUtils.damageArmor(victim, config.getInt(weaponTitle + ".Damage.Armor_Damage"), point);
 
         // Fire ticks
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
@@ -127,8 +130,32 @@ public class DamageHandler implements IValidator {
         return true;
     }
 
-    public boolean tryUseExplosion() {
-        return false;
+    public void tryUseExplosion(LivingEntity shooter, String weaponTitle, Map<LivingEntity, Double> exposures) {
+        Configuration config = WeaponMechanics.getConfigurations();
+
+        boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
+        boolean isOwnerImmune = config.getBool(weaponTitle + ".Damage.Explosion_Damage.Enable_Owner_Immunity");
+        double baseDamage = config.getDouble(weaponTitle + ".Damage.Explosion_Damage.Damage");
+
+        for (Map.Entry<LivingEntity, Double> entry : exposures.entrySet()) {
+            LivingEntity victim = entry.getKey();
+            double exposure = entry.getValue();
+
+            if (!isFriendlyFire && !DamageUtils.canHarm(shooter, victim)) {
+                continue;
+            } else if (isOwnerImmune && victim.equals(shooter)) {
+                continue;
+            }
+
+            DamageUtils.apply(shooter, victim, baseDamage * exposure, null, false);
+            DamageUtils.damageArmor(victim, config.getInt(weaponTitle + ".Damage.Explosion_Damage.Armor_Damage"));
+
+            // Fire ticks
+            int fireTicks = config.getInt(weaponTitle + ".Damage.Explosion_Damage.Fire_Ticks");
+            if (fireTicks > 0) {
+                victim.setFireTicks(fireTicks);
+            }
+        }
     }
 
     @Override

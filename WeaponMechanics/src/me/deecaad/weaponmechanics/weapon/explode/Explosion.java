@@ -2,9 +2,10 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.MaterialHelper;
+import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,6 +23,9 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Explosion {
 
+    private static DamageHandler damageHandler = new DamageHandler();
+
+    private final String weaponTitle;
     private final ExplosionShape shape;
     private final ExplosionExposure exposure;
     private final boolean isBreakBlocks;
@@ -31,7 +35,8 @@ public class Explosion {
     private final Set<ExplosionTrigger> triggers;
     private final int delay;
 
-    public Explosion(@Nonnull ExplosionShape shape,
+    public Explosion(@Nonnull String weaponTitle,
+                     @Nonnull ExplosionShape shape,
                      @Nonnull ExplosionExposure exposure,
                      boolean isBreakBlocks,
                      @Nonnull RegenerationData regeneration,
@@ -40,6 +45,7 @@ public class Explosion {
                      @Nonnull Set<ExplosionTrigger> triggers,
                      @Nonnegative int delay) {
 
+        this.weaponTitle = weaponTitle;
         this.shape = shape;
         this.exposure = exposure;
         this.isBreakBlocks = isBreakBlocks;
@@ -85,26 +91,24 @@ public class Explosion {
     /**
      * Triggers the explosion at the given location
      *
+     * @param cause Whoever caused the explosion
      * @param origin The center of the explosion
      */
-    public void explode(Location origin) {
+    public void explode(LivingEntity cause, Location origin) {
         debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
 
         List<Block> blocks = isBreakBlocks ? shape.getBlocks(origin) : new ArrayList<>();
         Map<LivingEntity, Double> entities = exposure.mapExposures(origin, shape);
 
         final List<Block> transparent = new ArrayList<>();
-        final List<Block> air = new ArrayList<>();
         final List<Block> solid = new ArrayList<>();
 
         for (Block block : blocks) {
             Material type = block.getType();
 
-            if (MaterialHelper.isAir(type)) {
-                air.add(block);
-            } else if (type.isSolid()) {
+            if (type.isSolid()) {
                 solid.add(block);
-            } else {
+            } else if (!MaterialHelper.isAir(type)) {
                 transparent.add(block);
             }
         }
@@ -143,12 +147,15 @@ public class Explosion {
             BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
         }
 
-        // Handle entity damaging
-        for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
-            LivingEntity entity = entry.getKey();
-            double impact = entry.getValue();
+        if (weaponTitle != null) {
+            damageHandler.tryUseExplosion(cause, weaponTitle, entities);
+        } else {
+            for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
+                LivingEntity entity = entry.getKey();
+                double impact = entry.getValue();
 
-            entity.sendMessage(StringUtils.color("&cYou suffered " + impact * 100 + "% of the impact"));
+                entity.sendMessage(StringUtils.color("&cYou suffered " + impact * 100 + "% of the impact"));
+            }
         }
     }
 

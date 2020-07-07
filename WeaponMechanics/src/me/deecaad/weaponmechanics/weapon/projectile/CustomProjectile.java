@@ -224,7 +224,7 @@ public class CustomProjectile implements ICustomProjectile {
                     public void run() {
                         Vector v = getLocation();
                         Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
-                        explosion.explode(origin);
+                        explosion.explode(shooter, origin);
 
                         setTag("explosionDetonation", "true");
                     }
@@ -262,7 +262,7 @@ public class CustomProjectile implements ICustomProjectile {
                 public void run() {
                     Vector v = getLocation();
                     Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
-                    explosion.explode(origin);
+                    explosion.explode(shooter, origin);
 
                     setTag("explosionDetonation", "true");
                 }

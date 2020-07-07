@@ -369,7 +369,7 @@ public class ShootHandler implements IValidator {
                     public void run() {
                         Vector v = bullet.getLocation();
                         Location origin = new Location(shootLocation.getWorld(), v.getX(), v.getY(), v.getZ());
-                        explosion.explode(origin);
+                        explosion.explode(entityWrapper.getEntity(), origin);
 
                         bullet.setTag("explosionDetonation", "true");
                     }
