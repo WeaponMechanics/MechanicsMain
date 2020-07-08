@@ -62,11 +62,10 @@ Damage:
     Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
   Dropoff:
     - <blocks>~<damage amount>
-  Explosion:
-    Damage: <amount>
+  Explosion_Damage:
+    Damage: <amount> # yield * 7 + 1
     Armor_Damage: <amount>
     Fire_Ticks: <Integer>
-    Use_Exposure: <Boolean>
     Enable_Owner_Immunity: <Boolean>
     Effects: <me.deecaad.core.effects.serializers.EffectListSerializer>
     Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>

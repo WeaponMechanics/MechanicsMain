@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.explode.types;
+package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;

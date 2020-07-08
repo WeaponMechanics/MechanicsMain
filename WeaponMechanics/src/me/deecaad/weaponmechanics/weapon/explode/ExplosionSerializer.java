@@ -4,13 +4,13 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExposure;
-import me.deecaad.weaponmechanics.weapon.explode.types.DistanceExposure;
-import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.types.VoidExposure;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.DistanceExposure;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.VoidExposure;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -157,7 +157,9 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             weaponTitle = null;
         }
 
-        return new Explosion(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay);
+        boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
+
+        return new Explosion(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay, isKnockback);
     }
     
     private enum ExplosionShapeType {
@@ -198,13 +200,13 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         /**
          * Damage is only based on the distance between the <code>LivingEntity</code>
          * involved and the origin of the explosion
-         * @see me.deecaad.weaponmechanics.weapon.explode.types.DistanceExposure
+         * @see DistanceExposure
          */
         DISTANCE,
 
         /**
          * Damage uses minecraft's explosion exposure method
-         * @see me.deecaad.weaponmechanics.weapon.explode.types.DefaultExposure
+         * @see DefaultExposure
           */
         DEFAULT
     }

@@ -4,16 +4,20 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
+import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +38,9 @@ public class Explosion {
     private final Set<String> materials;
     private final Set<ExplosionTrigger> triggers;
     private final int delay;
+    private final boolean isKnockback;
 
-    public Explosion(@Nonnull String weaponTitle,
+    public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
                      @Nonnull ExplosionExposure exposure,
                      boolean isBreakBlocks,
@@ -43,7 +48,8 @@ public class Explosion {
                      boolean isBlacklist,
                      @Nonnull Set<String> materials,
                      @Nonnull Set<ExplosionTrigger> triggers,
-                     @Nonnegative int delay) {
+                     @Nonnegative int delay,
+                     boolean isKnockback) {
 
         this.weaponTitle = weaponTitle;
         this.shape = shape;
@@ -54,6 +60,7 @@ public class Explosion {
         this.materials = materials;
         this.triggers = triggers;
         this.delay = delay;
+        this.isKnockback = isKnockback;
     }
 
     public ExplosionShape getShape() {
@@ -127,12 +134,7 @@ public class Explosion {
             BlockDamageData.damageBlock(block, 1, 1, true, timeOffset);
         }
 
-        solid.sort((o1, o2) -> {
-            int height = o1.getY() - o2.getY();
-
-            if (height != 0) return height;
-            else return (int) (origin.distanceSquared(o2.getLocation()) - origin.distanceSquared(o1.getLocation()));
-        });
+        solid.sort(new LayerDistanceSorter(origin, this));
         size = solid.size();
         for (int i = 0; i < size; i++) {
             Block block = solid.get(i);
@@ -149,7 +151,26 @@ public class Explosion {
 
         if (weaponTitle != null) {
             damageHandler.tryUseExplosion(cause, weaponTitle, entities);
-        } else {
+
+            if (isKnockback) {
+                Vector originVector = origin.toVector();
+                for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
+
+                    LivingEntity entity = entry.getKey();
+                    double exposure = entry.getValue();
+
+                    // Normalized vector between the explosion and entity involved
+                    Vector between = VectorUtils.setLength(entity.getLocation().toVector().subtract(originVector), exposure);
+                    Vector motion = entity.getVelocity().add(between);
+
+                    entity.setVelocity(motion);
+                }
+            }
+        }
+
+        // This occurs during commands
+        // /wm test explosion default 5, for example
+        else {
             for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
                 LivingEntity entity = entry.getKey();
                 double impact = entry.getValue();

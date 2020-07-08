@@ -6,11 +6,11 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.explode.types.CuboidExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.types.DefaultExposure;
-import me.deecaad.weaponmechanics.weapon.explode.types.ParabolicExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.types.SphericalExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -62,7 +62,7 @@ public class ExplosionCommand extends SubCommand {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
-                new Explosion(null, shape, new DefaultExposure(), true, regeneration, true, materials, null, 0).explode(player, loc);
+                new Explosion(null, shape, new DefaultExposure(), true, regeneration, true, materials, null, 0, true).explode(player, loc);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
     }

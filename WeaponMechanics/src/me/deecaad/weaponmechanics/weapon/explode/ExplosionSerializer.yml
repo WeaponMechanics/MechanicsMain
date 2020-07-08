@@ -1,5 +1,5 @@
 Explosion:
-
+  Disable_Vanilla_Knockback: <Boolean>
   Explosion_Shape: <Sphere/Cube/Parabola/Default>
   Explosion_Type_Data:
     # Fetch required values based on explosion type or simply don't do anything with these if not needed
@@ -32,10 +32,3 @@ Explosion:
       Ticks_Before_Start_Regeneration: <Integer> # Amount of time before blocks can regenerate, in ticks
       Max_Blocks_Per_Update: <Integer> # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
       Ticks_Between_Updates: <Integer> # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
-  Sounds:
-    Shooter: # Great hitmarker
-      - blablabla
-    Victim: # Great for ringing ears
-      - blablabla
-    Explosion: # Adds to the tnt sound
-      - TNT_EXPLODE_WHATEVER~1~1

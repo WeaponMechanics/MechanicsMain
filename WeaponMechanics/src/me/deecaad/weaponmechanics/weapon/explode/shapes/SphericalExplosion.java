@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.explode.types;
+package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;

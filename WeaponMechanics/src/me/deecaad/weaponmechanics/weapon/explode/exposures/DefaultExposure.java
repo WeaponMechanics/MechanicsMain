@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.explode.types;
+package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
@@ -58,8 +58,7 @@ public class DefaultExposure implements ExplosionExposure {
             double impactRate = (damageRadius - entityLocation.distance(vector)) / damageRadius;
 
             if (impactRate > 1.0D) {
-                debug.log(LogLevel.WARN, "Somehow an entity was damaged outside of the explosion's radius",
-                        "is the server lagging?");
+                debug.log(LogLevel.DEBUG, "Entity " + entity + " was just outside the blast radius");
                 continue;
             }
 
