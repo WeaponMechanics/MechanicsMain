@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import net.minecraft.server.v1_16_R1.DamageSource;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
+import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.LivingEntity;
@@ -50,6 +51,17 @@ public class DamageUtils {
      * @return The amount of damage applied
      */
     public static double apply(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
+
+        if (victim.isInvulnerable() || victim.isDead()) {
+            return 0.0;
+        } else if (victim instanceof Player) {
+            GameMode gamemode = ((Player) victim).getGameMode();
+
+            if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR) {
+                return 0.0;
+            }
+        }
+
         AtomicDouble rate = new AtomicDouble(1.0);
         IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
 
