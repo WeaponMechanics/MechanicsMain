@@ -1,5 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.effects.Effect;
+import me.deecaad.core.effects.EffectList;
+import me.deecaad.core.effects.serializers.EffectListSerializer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
@@ -17,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -162,7 +166,11 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
 
-        return new Explosion(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay, isKnockback);
+        List<Effect> effects = null;
+        if (section.contains("Effects")) {
+            effects = new EffectListSerializer().serialize(file, configurationSection, path + ".Effects").getEffects();
+        }
+        return new Explosion(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay, isKnockback, effects);
     }
     
     private enum ExplosionShapeType {

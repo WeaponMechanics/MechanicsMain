@@ -19,7 +19,6 @@ Explosion:
       Liquid: <Boolean> # When the projectile hits a fluid block
   Blocks:
     Enabled: <Boolean> # False to not calculate broken blocks
-    Drop_Items: <Boolean> # Whether or not the broken blocks will drop items
     Blacklist: <Boolean>
     Block_List:
       - <Material>:<Data>
@@ -27,3 +26,4 @@ Explosion:
       Ticks_Before_Start_Regeneration: <Integer> # Amount of time before blocks can regenerate, in ticks
       Max_Blocks_Per_Update: <Integer> # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
       Ticks_Between_Updates: <Integer> # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
+  Effects: <EffectListSerializer>

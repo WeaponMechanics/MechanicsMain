@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -60,16 +61,8 @@ public class DefaultExplosion implements ExplosionShape {
                     // Checking if the the point defined by (k, i, j) is on the grid
                     if (k == 0 || k == BOUND || i == 0 || i == BOUND || j == 0 || j == BOUND) {
 
-                        // d representing change, so change in x, change in y, etc
-                        double dx = ((double) k) / BOUND * 2 - 1;
-                        double dy = ((double) i) / BOUND * 2 - 1;
-                        double dz = ((double) j) / BOUND * 2 - 1;
-                        double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-                        // normalize
-                        dx /= length;
-                        dy /= length;
-                        dz /= length;
+                        Vector vector = new Vector(((double) k) / BOUND * 2 - 1, ((double) i) / BOUND * 2 - 1, ((double) j) / BOUND * 2 - 1);
+                        vector.normalize();
 
                         double x = origin.getX();
                         double y = origin.getY();
@@ -81,24 +74,21 @@ public class DefaultExplosion implements ExplosionShape {
                         while (intensity > 0.0f) {
                             Block block = world.getBlockAt((int) x, (int) y, (int) z);
 
-                            if (!set.contains(block)) {
-                                Material type = block.getType();
-                                boolean isAir = MaterialHelper.isAir(type);
+                            Material type = block.getType();
 
-                                if (!isAir) {
-                                    float resistance = MaterialHelper.getBlastResistance(type);
+                            if (!block.isEmpty()) {
+                                float resistance = MaterialHelper.getBlastResistance(type);
 
-                                    intensity -= (resistance + 0.3F) * ABSORB_RATE;
-                                }
-
-                                if (intensity > 0.0F && y < 256 && y >= 0) {
-                                    set.add(block);
-                                }
+                                intensity -= (resistance + 0.3F) * ABSORB_RATE;
                             }
 
-                            x += dx * DECAY_RATE;
-                            y += dy * DECAY_RATE;
-                            z += dz * DECAY_RATE;
+                            if (intensity > 0.0F && y < 256 && y >= 0) {
+                                set.add(block);
+                            }
+
+                            x += vector.getX() * DECAY_RATE;
+                            y += vector.getY() * DECAY_RATE;
+                            z += vector.getZ() * DECAY_RATE;
 
                             // Ray decays over longer distance
                             intensity -= DECAY_RATE * 0.75;

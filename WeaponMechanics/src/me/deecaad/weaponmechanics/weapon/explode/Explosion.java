@@ -1,10 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.effects.Effect;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
@@ -40,6 +42,7 @@ public class Explosion {
     private final Set<ExplosionTrigger> triggers;
     private final int delay;
     private final boolean isKnockback;
+    private final List<Effect> effects;
 
     public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
@@ -52,6 +55,21 @@ public class Explosion {
                      @Nonnegative int delay,
                      boolean isKnockback) {
 
+        this(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay, isKnockback, null);
+    }
+
+    public Explosion(@Nullable String weaponTitle,
+                     @Nonnull ExplosionShape shape,
+                     @Nonnull ExplosionExposure exposure,
+                     boolean isBreakBlocks,
+                     @Nonnull RegenerationData regeneration,
+                     boolean isBlacklist,
+                     @Nonnull Set<String> materials,
+                     @Nonnull Set<ExplosionTrigger> triggers,
+                     @Nonnegative int delay,
+                     boolean isKnockback,
+                     @Nullable List<Effect> effects) {
+
         this.weaponTitle = weaponTitle;
         this.shape = shape;
         this.exposure = exposure;
@@ -62,6 +80,7 @@ public class Explosion {
         this.triggers = triggers;
         this.delay = delay;
         this.isKnockback = isKnockback;
+        this.effects = effects;
     }
 
     public ExplosionShape getShape() {
@@ -185,17 +204,17 @@ public class Explosion {
                     entity.setVelocity(motion);
                 }
             }
-        }
-
-        // This occurs during commands
-        // /wm test explosion default 5, for example
-        else {
+        } else {
             for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
                 LivingEntity entity = entry.getKey();
                 double impact = entry.getValue();
 
                 entity.sendMessage(StringUtils.color("&cYou suffered " + impact * 100 + "% of the impact"));
             }
+        }
+
+        if (effects != null) {
+            effects.forEach(effect -> effect.spawn(WeaponMechanics.getPlugin(), origin));
         }
     }
 

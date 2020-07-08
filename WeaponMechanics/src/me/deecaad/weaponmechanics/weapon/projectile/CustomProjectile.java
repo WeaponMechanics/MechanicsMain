@@ -375,8 +375,9 @@ public class CustomProjectile implements ICustomProjectile {
 
         // Old motion without modified speed modifier
         Vector oldMotion = motion.clone();
-
         projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
+        location.add(oldMotion);
+        this.distanceTravelled += this.motionLength;
 
         for (double i = 0.0; i <= motionLength; i += projectile.getProjectileHeight()) {
             Collisions iteration = getCollisions(projectileBox);
@@ -397,9 +398,6 @@ public class CustomProjectile implements ICustomProjectile {
 
             projectileBox.shift(addMotion);
         }
-
-        location.add(oldMotion);
-        this.distanceTravelled += this.motionLength;
 
         return false;
     }
