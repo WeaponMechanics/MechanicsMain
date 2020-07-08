@@ -7,6 +7,7 @@ import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
+import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import org.bukkit.Location;
@@ -120,7 +121,13 @@ public class Explosion {
             }
         }
 
-        int timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval() + regeneration.getTicksBeforeStart();
+        int timeOffset;
+        if (regeneration == null) {
+            timeOffset = -1;
+        } else {
+            timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval() + regeneration.getTicksBeforeStart();
+        }
+
         int size = transparent.size();
         for (int i = 0; i < size; i++) {
             Block block = transparent.get(i);
@@ -134,7 +141,14 @@ public class Explosion {
             BlockDamageData.damageBlock(block, 1, 1, true, timeOffset);
         }
 
-        solid.sort(new LayerDistanceSorter(origin, this));
+        BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
+        try {
+            solid.sort(sorter);
+        } catch (IllegalArgumentException ex) {
+            debug.error("A plugin modified the explosion block sorter with an illegal sorter!",
+                    "Please report this error to the developers of that plugin", "Sorter: " + sorter);
+            debug.log(LogLevel.ERROR, ex);
+        }
         size = solid.size();
         for (int i = 0; i < size; i++) {
             Block block = solid.get(i);
@@ -143,8 +157,13 @@ public class Explosion {
                 continue;
             }
 
-            int regenTime = regeneration.getTicksBeforeStart() +
-                    (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
+            int regenTime;
+            if (regeneration == null) {
+                regenTime = -1;
+            } else {
+                regenTime = regeneration.getTicksBeforeStart() +
+                        (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
+            }
 
             BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
         }

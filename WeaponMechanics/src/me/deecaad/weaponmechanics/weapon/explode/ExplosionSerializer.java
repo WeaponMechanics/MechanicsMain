@@ -124,7 +124,10 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         // Determine which blocks will be broken and how they will be regenerated
         boolean isBreakBlocks = section.getBoolean("Blocks.Enabled", true);
-        RegenerationData regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Blocks.Regeneration");
+        RegenerationData regeneration = null;
+        if (section.contains("Blocks.Regeneration")) {
+            regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Blocks.Regeneration");
+        }
         boolean isBlacklist = section.getBoolean("Blocks.Blacklist", false);
         Set<String> materials = section.getList("Blocks.Block_List", new ArrayList<>(0))
                 .stream()

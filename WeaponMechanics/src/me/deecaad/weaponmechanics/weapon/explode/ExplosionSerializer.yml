@@ -17,11 +17,6 @@ Explosion:
       Entities: <Boolean> # When the projectile hits an entity
       Block: <Boolean> # When the projectile hits a non-fluid, non-air block
       Liquid: <Boolean> # When the projectile hits a fluid block
-#  Damage:
-#    Enabled: <Boolean> # False to not calculate damage to players.
-#    Amount: <Double>
-#    Enable_Owner_Immunity: <Boolean>
-#    Potion_Effects: # Potion effect serializer
   Blocks:
     Enabled: <Boolean> # False to not calculate broken blocks
     Drop_Items: <Boolean> # Whether or not the broken blocks will drop items
