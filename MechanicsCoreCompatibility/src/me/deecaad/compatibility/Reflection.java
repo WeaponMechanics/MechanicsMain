@@ -1,7 +1,11 @@
 package me.deecaad.compatibility;
 
+import me.deecaad.compatibility.block.BlockCompatibility;
+import me.deecaad.compatibility.block.BlockReflection;
 import me.deecaad.compatibility.entity.EntityCompatibility;
+import me.deecaad.compatibility.entity.EntityReflection;
 import me.deecaad.compatibility.item.dropped.DropCompatibility;
+import me.deecaad.compatibility.item.dropped.DropReflection;
 import me.deecaad.compatibility.item.nbt.INBTCompatibility;
 import me.deecaad.compatibility.item.nbt.NBT_Reflection;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -19,6 +23,9 @@ import java.lang.reflect.Method;
 public class Reflection implements ICompatibility {
 
     private INBTCompatibility nbtCompatibility;
+    private EntityCompatibility entityCompatibility;
+    private DropCompatibility dropCompatibility;
+    private BlockCompatibility blockCompatibility;
 
     private final Method playerGetHandle;
     private final Field playerConnection;
@@ -31,6 +38,11 @@ public class Reflection implements ICompatibility {
     private final Method sendPacketMethod;
 
     public Reflection() {
+        nbtCompatibility = new NBT_Reflection();
+        entityCompatibility = new EntityReflection();
+        dropCompatibility = new DropReflection();
+        blockCompatibility = new BlockReflection();
+
         this.playerGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("entity.CraftPlayer"), "getHandle");
         this.playerConnection = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityPlayer"), "playerConnection");
         this.playerPing = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityPlayer"), "ping");
@@ -70,18 +82,24 @@ public class Reflection implements ICompatibility {
 
     @Override
     public INBTCompatibility getNBTCompatibility() {
-        return nbtCompatibility == null ? nbtCompatibility = new NBT_Reflection() : nbtCompatibility;
+        return nbtCompatibility;
     }
 
     @Nonnull
     @Override
     public EntityCompatibility getEntityCompatibility() {
-        return null;
+        return entityCompatibility;
     }
 
     @Nonnull
     @Override
     public DropCompatibility getDropCompatibility() {
-        return null;
+        return dropCompatibility;
+    }
+
+    @Nonnull
+    @Override
+    public BlockCompatibility getBlockCompatibility() {
+        return blockCompatibility;
     }
 }

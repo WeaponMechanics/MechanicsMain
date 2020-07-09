@@ -1,0 +1,7 @@
+Block_Damage:
+  Break_Blocks: <Boolean> # If this is true, blocks will be broken if they are damaged enough. Otherwise, they will only crack
+  Damage_Per_Hit: <Integer> # The amount of damage to deal to the block. Default: 1
+  Regen_After: <Integer> # How long in ticks to regenerate the broken block. Negative numbers will not regenerate
+  Blacklist: <Boolean> # Determines if the following list is a blacklist. Default: false
+  Block_List:
+    - <Material>:<Data>~<Integer>

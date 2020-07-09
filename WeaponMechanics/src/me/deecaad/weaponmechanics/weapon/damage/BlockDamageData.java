@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
+import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -140,10 +142,12 @@ public final class BlockDamageData implements Listener {
         public void damage(int damageAmount, int maxDamage) {
             this.durability -= ((double) damageAmount) / ((double) maxDamage);
 
-            // TODO display block crack based on this data's durability
-            int blockCrack = (int) (durability * MAX_BLOCK_CRACK);
-            if (blockCrack < MAX_BLOCK_CRACK) {
-                // compatibility
+            int blockCrack = (int) ((1 - durability) * MAX_BLOCK_CRACK);
+            if (blockCrack < MAX_BLOCK_CRACK && durability > 0) {
+                BlockCompatibility compatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();
+                Object packet = compatibility.getCrackPacket(block, blockCrack);
+
+                block.getWorld().getPlayers().forEach(player -> CompatibilityAPI.getCompatibility().sendPackets(player, packet));
             }
         }
 

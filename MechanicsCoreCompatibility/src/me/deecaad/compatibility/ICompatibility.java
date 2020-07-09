@@ -1,5 +1,6 @@
 package me.deecaad.compatibility;
 
+import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.item.dropped.DropCompatibility;
 import me.deecaad.compatibility.item.nbt.INBTCompatibility;
@@ -60,4 +61,7 @@ public interface ICompatibility {
 
     @Nonnull
     DropCompatibility getDropCompatibility();
+
+    @Nonnull
+    BlockCompatibility getBlockCompatibility();
 }

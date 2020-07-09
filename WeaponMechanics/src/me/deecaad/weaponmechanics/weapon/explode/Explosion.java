@@ -83,8 +83,24 @@ public class Explosion {
         this.effects = effects;
     }
 
+    public static DamageHandler getDamageHandler() {
+        return damageHandler;
+    }
+
+    public String getWeaponTitle() {
+        return weaponTitle;
+    }
+
     public ExplosionShape getShape() {
         return shape;
+    }
+
+    public ExplosionExposure getExposure() {
+        return exposure;
+    }
+
+    public boolean isBreakBlocks() {
+        return isBreakBlocks;
     }
 
     public RegenerationData getRegeneration() {
@@ -103,16 +119,16 @@ public class Explosion {
         return triggers;
     }
 
-    public ExplosionExposure getExposure() {
-        return exposure;
-    }
-
-    public boolean isBreakBlocks() {
-        return isBreakBlocks;
-    }
-
     public int getDelay() {
         return delay;
+    }
+
+    public boolean isKnockback() {
+        return isKnockback;
+    }
+
+    public List<Effect> getEffects() {
+        return effects;
     }
 
     /**
