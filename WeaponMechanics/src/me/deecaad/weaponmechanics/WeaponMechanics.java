@@ -4,6 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.weaponcompatibility.IWeaponCompatibility;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.*;
@@ -76,6 +77,12 @@ public class WeaponMechanics extends JavaPlugin {
         if (guard.isInstalled()) {
             debug.log(LogLevel.INFO, "Detected WorldGuard, registering flags");
             guard.registerFlag("weapon-shoot", IWorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-shoot-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-explode", IWorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-explode-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-break-block", IWorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-damage", IWorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-damage-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
         } else {
             debug.log(LogLevel.DEBUG, "No WorldGuard detected0");
         }

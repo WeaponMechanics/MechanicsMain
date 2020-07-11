@@ -86,9 +86,7 @@ public class Ray {
                 Block block = world.getBlockAt(point.getBlockX(), point.getBlockY(), point.getBlockZ());
 
                 // Filter out air blocks
-                if (!MaterialHelper.isAir(block.getType())) {
-
-                    debug.info("Tracing through " + block.getType());
+                if (!block.isEmpty()) {
 
                     // Check to see if the point is inside the block's hitbox
                     HitBox hitBox = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(block);

@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
+import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
+import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.effects.Effect;
 import me.deecaad.core.effects.EffectList;
 import me.deecaad.core.effects.EffectSerializer;
@@ -7,6 +9,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -23,6 +26,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -102,6 +106,25 @@ public class ShootHandler implements IValidator {
         if (!trigger.check(triggerType, slot, entityWrapper)) return false;
 
         // START RELOAD STUFF
+
+        // Handle worldguard flags
+        IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
+        Location loc = entityWrapper.getEntity().getLocation();
+        boolean isCancelled;
+        if (entityWrapper instanceof IPlayerWrapper) {
+            isCancelled = !worldGuard.testFlag(loc, ((IPlayerWrapper) entityWrapper).getPlayer(), "weapon-shoot");
+        } else {
+            isCancelled = !worldGuard.testFlag(loc, null, "weapon-shoot");
+        }
+
+        if (isCancelled) {
+            Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
+            if (obj != null && !obj.toString().isEmpty()) {
+                entityWrapper.getEntity().sendMessage(StringUtils.color(obj.toString()));
+            }
+
+            return false;
+        }
 
         // Check if other hand is reloading and deny shooting if it is
         if (slot == EquipmentSlot.HAND) {
@@ -361,8 +384,25 @@ public class ShootHandler implements IValidator {
             ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion);
             bullet.setTag("weaponTitle", weaponTitle);
 
-            boolean explosionTriggered = bullet.getTag("explosionDetonation") != null;
-            if (explosion != null && !explosionTriggered && explosion.getTriggers().contains(Explosion.ExplosionTrigger.SHOOT)) {
+            // Handle worldguard flags
+            IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
+            Location loc = entityWrapper.getEntity().getLocation();
+            boolean isCancelled;
+            if (entityWrapper instanceof IPlayerWrapper) {
+                isCancelled = !worldGuard.testFlag(loc, ((IPlayerWrapper) entityWrapper).getPlayer(), "weapon-explode");
+            } else {
+                isCancelled = !worldGuard.testFlag(loc, null, "weapon-explode");
+            }
+
+            if (isCancelled) {
+                Object obj = worldGuard.getValue(loc, "weapon-explode-message");
+                if (obj != null && !obj.toString().isEmpty()) {
+                    entityWrapper.getEntity().sendMessage(StringUtils.color(obj.toString()));
+                }
+            }
+
+            boolean canExplode = bullet.getTag("explosionDetonation") == null;
+            if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.SHOOT)) {
 
                 new BukkitRunnable() {
                     @Override

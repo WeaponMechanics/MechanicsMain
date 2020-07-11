@@ -8,7 +8,7 @@
   
 ## Other
   * [Permissions]()
-  * [World Guard Flags]()
+  * [Protections]()
   * [Developer API]()
   * [References]()
   
@@ -39,8 +39,6 @@ QualityArmory, while the developer is still active, was never good enough (didn'
 > **I purchased [CrackShotPlus], do I also get [WeaponMechanicsPlus]?**
 
 Unknown, 2 very different plugins though so probably not
-
-
 
 
 [WeaponMechanics]: Todo

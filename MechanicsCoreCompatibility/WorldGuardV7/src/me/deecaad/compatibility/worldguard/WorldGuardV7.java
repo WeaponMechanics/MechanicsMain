@@ -84,7 +84,7 @@ public class WorldGuardV7 implements IWorldGuardCompatibility {
                 flag = new IntegerFlag(flagString);
                 break;
             case STATE_FLAG:
-                flag = new StateFlag(flagString, false);
+                flag = new StateFlag(flagString, true);
                 break;
             case DOUBLE_FLAG:
                 flag = new DoubleFlag(flagString);
