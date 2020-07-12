@@ -309,7 +309,7 @@ public class CustomProjectile implements ICustomProjectile {
 
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
         boolean canExplode = getTag("explosionDetonation") == null;
-        if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITIES)) {
+        if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
             new BukkitRunnable() {
                 @Override

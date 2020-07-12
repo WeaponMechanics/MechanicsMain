@@ -1,12 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.effects.Effect;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
@@ -35,10 +35,8 @@ public class Explosion {
     private final String weaponTitle;
     private final ExplosionShape shape;
     private final ExplosionExposure exposure;
-    private final boolean isBreakBlocks;
+    private final BlockDamage blockDamage;
     private final RegenerationData regeneration;
-    private final boolean isBlacklist;
-    private final Set<String> materials;
     private final Set<ExplosionTrigger> triggers;
     private final int delay;
     private final boolean isKnockback;
@@ -47,24 +45,20 @@ public class Explosion {
     public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
                      @Nonnull ExplosionExposure exposure,
-                     boolean isBreakBlocks,
-                     @Nonnull RegenerationData regeneration,
-                     boolean isBlacklist,
-                     @Nonnull Set<String> materials,
+                     @Nullable BlockDamage blockDamage,
+                     @Nullable RegenerationData regeneration,
                      @Nonnull Set<ExplosionTrigger> triggers,
                      @Nonnegative int delay,
                      boolean isKnockback) {
 
-        this(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay, isKnockback, null);
+        this(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback, null);
     }
 
     public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
                      @Nonnull ExplosionExposure exposure,
-                     boolean isBreakBlocks,
-                     @Nonnull RegenerationData regeneration,
-                     boolean isBlacklist,
-                     @Nonnull Set<String> materials,
+                     @Nullable BlockDamage blockDamage,
+                     @Nullable RegenerationData regeneration,
                      @Nonnull Set<ExplosionTrigger> triggers,
                      @Nonnegative int delay,
                      boolean isKnockback,
@@ -73,10 +67,8 @@ public class Explosion {
         this.weaponTitle = weaponTitle;
         this.shape = shape;
         this.exposure = exposure;
-        this.isBreakBlocks = isBreakBlocks;
+        this.blockDamage = blockDamage;
         this.regeneration = regeneration;
-        this.isBlacklist = isBlacklist;
-        this.materials = materials;
         this.triggers = triggers;
         this.delay = delay;
         this.isKnockback = isKnockback;
@@ -85,6 +77,10 @@ public class Explosion {
 
     public static DamageHandler getDamageHandler() {
         return damageHandler;
+    }
+
+    public static void setDamageHandler(DamageHandler damageHandler) {
+        Explosion.damageHandler = damageHandler;
     }
 
     public String getWeaponTitle() {
@@ -99,20 +95,12 @@ public class Explosion {
         return exposure;
     }
 
-    public boolean isBreakBlocks() {
-        return isBreakBlocks;
+    public BlockDamage getBlockDamage() {
+        return blockDamage;
     }
 
     public RegenerationData getRegeneration() {
         return regeneration;
-    }
-
-    public boolean isBlacklist() {
-        return isBlacklist;
-    }
-
-    public Set<String> getMaterials() {
-        return materials;
     }
 
     public Set<ExplosionTrigger> getTriggers() {
@@ -140,7 +128,7 @@ public class Explosion {
     public void explode(LivingEntity cause, Location origin) {
         debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
 
-        List<Block> blocks = isBreakBlocks ? shape.getBlocks(origin) : new ArrayList<>();
+        List<Block> blocks = blockDamage == null ? new ArrayList<>() : shape.getBlocks(origin);
         Map<LivingEntity, Double> entities = exposure.mapExposures(origin, shape);
 
         final List<Block> transparent = new ArrayList<>();
@@ -167,13 +155,13 @@ public class Explosion {
         for (int i = 0; i < size; i++) {
             Block block = transparent.get(i);
 
-            if (isBlacklisted(block) || BlockDamageData.isBroken(block)) {
+            if (blockDamage.isBlacklisted(block) || BlockDamageData.isBroken(block)) {
                 continue;
             }
 
             // This forces all transparent blocks to regenerate at once.
             // This fixes item sorters breaking and general hopper/redstone stuff
-            BlockDamageData.damageBlock(block, 1, 1, true, timeOffset);
+            blockDamage.damage(block, timeOffset);
         }
 
         BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
@@ -188,7 +176,7 @@ public class Explosion {
         for (int i = 0; i < size; i++) {
             Block block = solid.get(i);
 
-            if (isBlacklisted(block) || BlockDamageData.isBroken(block)) {
+            if (blockDamage.isBlacklisted(block) || BlockDamageData.isBroken(block)) {
                 continue;
             }
 
@@ -200,7 +188,7 @@ public class Explosion {
                         (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
             }
 
-            BlockDamageData.damageBlock(block, 1, 1, true, regenTime);
+            blockDamage.damage(block, regenTime);
         }
 
         if (weaponTitle != null) {
@@ -234,23 +222,6 @@ public class Explosion {
         }
     }
 
-    /**
-     * Checks if the given block is a blacklisted block based
-     * on the <code>Configuration</code>. If a block is blacklisted,
-     * then it should not be blown up
-     *
-     * @param block Checks if <code>block</code> is blacklsited
-     * @return true if <code>block</code> cannot be blown up
-     */
-    public boolean isBlacklisted(Block block) {
-        String mat = block.getType().name();
-        final boolean isBlacklist = this.isBlacklist == materials.contains(mat);
-        final boolean isLegacyBlacklist = CompatibilityAPI.getVersion() < 1.13
-                && (this.isBlacklist == materials.contains(mat + ":" + block.getData()));
-
-        return isBlacklist || isLegacyBlacklist;
-    }
-
     public enum ExplosionTrigger {
 
         /**
@@ -266,7 +237,7 @@ public class Explosion {
         /**
          * When the projectile hits an entity
          */
-        ENTITIES,
+        ENTITY,
 
         /**
          * When the projectile hits a liquid

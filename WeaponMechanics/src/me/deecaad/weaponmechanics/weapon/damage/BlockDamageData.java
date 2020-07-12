@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.block.BlockCompatibility;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -23,7 +24,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 public final class BlockDamageData implements Listener {
 
     private static final Map<Chunk, Map<Block, DamageData>> BLOCK_DAMAGE_MAP = new HashMap<>(1000);
-    private static final int MAX_BLOCK_CRACK = 10;
+    private static final int MAX_BLOCK_CRACK = 9;
     private static final Material AIR = Material.valueOf("AIR"); // Maybe we should have XMaterial
 
     /**
@@ -43,8 +44,8 @@ public final class BlockDamageData implements Listener {
         DamageData blockData = chunkData.computeIfAbsent(block, DamageData::new);
 
         blockData.damage(amount, maxDurability);
-        if (isBreak && blockData.isDestroyed()) {
-            blockData.destroy();
+        if (blockData.isDestroyed()) {
+            if (isBreak) blockData.destroy();
 
             if (regenTime >= 0) {
                 new BukkitRunnable() {
@@ -143,12 +144,12 @@ public final class BlockDamageData implements Listener {
             this.durability -= ((double) damageAmount) / ((double) maxDamage);
 
             int blockCrack = (int) ((1 - durability) * MAX_BLOCK_CRACK);
-            if (blockCrack < MAX_BLOCK_CRACK && durability > 0) {
-                BlockCompatibility compatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();
-                Object packet = compatibility.getCrackPacket(block, blockCrack);
+            blockCrack = NumberUtils.minMax(1, blockCrack, MAX_BLOCK_CRACK);
 
-                block.getWorld().getPlayers().forEach(player -> CompatibilityAPI.getCompatibility().sendPackets(player, packet));
-            }
+            BlockCompatibility compatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();
+            Object packet = compatibility.getCrackPacket(block, blockCrack);
+
+            block.getWorld().getPlayers().forEach(player -> CompatibilityAPI.getCompatibility().sendPackets(player, packet));
         }
 
         /**
@@ -178,16 +179,14 @@ public final class BlockDamageData implements Listener {
          */
         public void regenerate() {
             if (state == null) {
-                return;
+                // Update the state without applying physics
+                // Updating the state will update byte data, material,
+                // state, and data.
+                state.update(true, false);
+
+                // Reset the variables
+                state = null;
             }
-
-            // Update the state without applying physics
-            // Updating the state will update byte data, material,
-            // state, and data.
-            state.update(true, false);
-
-            // Reset the variables
-            state = null;
             durability = 1.0;
         }
 

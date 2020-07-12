@@ -6,6 +6,7 @@ import me.deecaad.core.effects.serializers.EffectListSerializer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
@@ -127,16 +128,14 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         }
 
         // Determine which blocks will be broken and how they will be regenerated
-        boolean isBreakBlocks = section.getBoolean("Blocks.Enabled", true);
-        RegenerationData regeneration = null;
-        if (section.contains("Blocks.Regeneration")) {
-            regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Blocks.Regeneration");
+        BlockDamage blockDamage = null;
+        if (section.contains("Block_Damage")) {
+            blockDamage = new BlockDamage().serialize(file, configurationSection, path + ".Block_Damage");
         }
-        boolean isBlacklist = section.getBoolean("Blocks.Blacklist", false);
-        Set<String> materials = section.getList("Blocks.Block_List", new ArrayList<>(0))
-                .stream()
-                .map(Object::toString)
-                .collect(Collectors.toSet());
+        RegenerationData regeneration = null;
+        if (section.contains("Regeneration")) {
+            regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Regeneration");
+        }
 
         // Determine when the projectile should explode
         ConfigurationSection impactWhenSection = section.getConfigurationSection("Detonation.Impact_When");
@@ -170,7 +169,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         if (section.contains("Effects")) {
             effects = new EffectListSerializer().serialize(file, configurationSection, path + ".Effects").getEffects();
         }
-        return new Explosion(weaponTitle, shape, exposure, isBreakBlocks, regeneration, isBlacklist, materials, triggers, delay, isKnockback, effects);
+        return new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback, effects);
     }
     
     private enum ExplosionShapeType {

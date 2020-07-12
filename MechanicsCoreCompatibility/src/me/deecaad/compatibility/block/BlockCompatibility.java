@@ -3,7 +3,11 @@ package me.deecaad.compatibility.block;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public interface BlockCompatibility {
+
+    AtomicInteger IDS = new AtomicInteger(0);
 
     /**
      * Sends a Block Break Animation packet to every player

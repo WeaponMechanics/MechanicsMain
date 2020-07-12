@@ -1,14 +1,12 @@
 package me.deecaad.weaponmechanics;
 
-import me.deecaad.core.utils.StringUtils;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-
-import java.util.Arrays;
 
 public class Tools {
     
     public static void main(String[] args) {
-        splitTest();
+        blockDamageData();
     }
     
     public static void entityHitBox() {
@@ -24,6 +22,20 @@ public class Tools {
             System.out.println("    " + "ARMS: true");
             System.out.println("    " + "LEGS: 0.0");
             System.out.println("    " + "FEET: 0.0");
+        }
+    }
+
+    public static void blockDamageData() {
+        System.out.println("        Block_List:");
+        for (Material mat : Material.values()) {
+            if (mat.isLegacy() || !mat.isBlock() || mat.isAir()) continue;
+
+            int durability = (int) (mat.getBlastResistance() + mat.getHardness()) + 1;
+            if (durability > 18) {
+                continue;
+            }
+
+            System.out.println("          - " + mat.name().toLowerCase() + "~" + durability);
         }
     }
     

@@ -1,6 +1,7 @@
 Explosion:
   Disable_Vanilla_Knockback: <Boolean>
   Explosion_Shape: <Sphere/Cube/Parabola/Default>
+  Explosion_Exposure: <Default/Distance/None>
   Explosion_Type_Data:
     # Fetch required values based on explosion type or simply don't do anything with these if not needed
     # Give default values for everything if not defined here
@@ -14,16 +15,12 @@ Explosion:
     Delay_After_Impact: <Ticks> # The time after the trigger that the explosion occurs
     Impact_When:
       Shoot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
-      Entities: <Boolean> # When the projectile hits an entity
+      Entity: <Boolean> # When the projectile hits an entity
       Block: <Boolean> # When the projectile hits a non-fluid, non-air block
       Liquid: <Boolean> # When the projectile hits a fluid block
-  Blocks:
-    Enabled: <Boolean> # False to not calculate broken blocks
-    Blacklist: <Boolean>
-    Block_List:
-      - <Material>:<Data>
-    Regeneration:
-      Ticks_Before_Start_Regeneration: <Integer> # Amount of time before blocks can regenerate, in ticks
-      Max_Blocks_Per_Update: <Integer> # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
-      Ticks_Between_Updates: <Integer> # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
+  Block_Damage: <BlockDamageSerializer>
+  Regeneration:
+    Ticks_Before_Start: <Integer> # Amount of time before blocks can regenerate, in ticks
+    Max_Blocks_Per_Update: <Integer> # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
+    Ticks_Between_Updates: <Integer> # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
   Effects: <EffectListSerializer>

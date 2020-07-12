@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
@@ -17,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,16 +55,13 @@ public class ExplosionCommand extends SubCommand {
     }
 
     private void explode(ExplosionShape shape, Player player, Location loc) {
-        Set<String> materials = new HashSet<>();
-        materials.add("DIAMOND_BLOCK");
-        materials.add("GOLD_BLOCK");
-        materials.add("IRON_BLOCK");
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
-                new Explosion(null, shape, new DefaultExposure(), true, regeneration, true, materials, null, 0, true).explode(player, loc);
+                BlockDamage blockDamage = new BlockDamage(true, 1, 1, true, new HashMap<>(), new HashMap<>());
+                new Explosion(null, shape, new DefaultExposure(), blockDamage, regeneration, null, 0, true).explode(player, loc);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
     }

@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,16 +21,24 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
     private boolean isBreakBlocks;
     private int damage;
-    private int regenTicks;
+    private int defaultBlockDurability;
     private boolean isBlacklist;
     private Map<String, Integer> blockList;
+    private Map<String, Integer> shotsToBreak;
 
-    public BlockDamage(boolean isBreakBlocks, int damage, int regenTicks, boolean isBlacklist, Map<String, Integer> blockList) {
+    /**
+     * Default constructor for serializers
+     */
+    public BlockDamage() {
+    }
+
+    public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, Map<String, Integer> blockList, Map<String, Integer> shotsToBreak) {
         this.isBreakBlocks = isBreakBlocks;
         this.damage = damage;
-        this.regenTicks = regenTicks;
+        this.defaultBlockDurability = defaultBlockDurability;
         this.isBlacklist = isBlacklist;
         this.blockList = blockList;
+        this.shotsToBreak = shotsToBreak;
     }
 
     public boolean isBreakBlocks() {
@@ -46,14 +55,6 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
     public void setDamage(int damage) {
         this.damage = damage;
-    }
-
-    public int getRegenTicks() {
-        return regenTicks;
-    }
-
-    public void setRegenTicks(int regenTicks) {
-        this.regenTicks = regenTicks;
     }
 
     public boolean isBlacklist() {
@@ -88,28 +89,27 @@ public class BlockDamage implements Serializer<BlockDamage> {
             String mat = block.getType().name();
             byte data = block.getData();
 
-            Integer i = blockList.get(mat + ":" + data);
-            if (i == null) {
-                return blockList.getOrDefault(mat, -1);
+            if (isBlacklist) {
+                Integer i = shotsToBreak.get(mat + ":" + data);
+                return i == null ? shotsToBreak.getOrDefault(mat, defaultBlockDurability) : i;
             } else {
-                return i;
+                Integer i = blockList.get(mat + ":" + data);
+                return i == null ? blockList.getOrDefault(mat, defaultBlockDurability) : i;
             }
         } else {
-            return blockList.getOrDefault(block.getType().name(), -1);
+            if (isBlacklist) {
+                return shotsToBreak.getOrDefault(block.getType().name(), defaultBlockDurability);
+            } else {
+                return blockList.getOrDefault(block.getType().name(), defaultBlockDurability);
+            }
         }
     }
 
-    public void damage(Block block) {
-        if (isBlacklisted(block)) {
-            return;
+    public void damage(Block block, int regenTicks) {
+        if (!isBlacklisted(block)) {
+            int max = getMaxDurability(block);
+            BlockDamageData.damageBlock(block, damage, max, isBreakBlocks, regenTicks);
         }
-
-        int max = getMaxDurability(block);
-        if (max == -1) {
-            debug.error("blacklist check failed !!!");
-        }
-
-        BlockDamageData.damageBlock(block, damage, max, isBreakBlocks, regenTicks);
     }
 
     @Override
@@ -123,8 +123,18 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
         boolean isBreakBlocks = config.getBoolean("Break_Blocks", false);
         int damage = config.getInt("Damage_Per_Hit", 1);
-        int regenTicks = config.getInt("Regen_After", 1200); // 1 minute
+        int defaultBlockDurability = config.getInt("Default_Block_Durability", 1);
         boolean isBlacklist = config.getBoolean("Blacklist", false);
+
+        if (damage < 0) {
+            debug.error("Block_Damage Damage MUST be positive. Found: " + damage,
+                    StringUtils.foundAt(file, path));
+            return null;
+        } else if (defaultBlockDurability < 0) {
+            debug.error("Block_Damage Default_Block_Durability MUST be positive. Found: " + defaultBlockDurability,
+                    StringUtils.foundAt(file, path));
+            return null;
+        }
 
         List<String> strings = config.getStringList("Block_List");
         if (!isBlacklist && strings.isEmpty()) {
@@ -145,12 +155,13 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 String mat = matAndByte.split(":")[0];
                 Material type = Enums.getIfPresent(Material.class, mat).orNull();
                 if (type == null) {
-                    debug.error("Unknown Material found in config: " + mat);
+                    debug.error("Unknown Material found in config: " + mat,
+                            "You can check full material lists for your server version on the wiki (Use /wm wiki)",
+                            StringUtils.foundAt(file, path));
                     continue;
                 }
 
                 blockList.put(matAndByte, durability);
-
             } catch (ArrayIndexOutOfBoundsException ex) {
                 debug.error("Empty string in config Block_List!", StringUtils.foundAt(file, path));
                 debug.log(LogLevel.DEBUG, ex);
@@ -160,6 +171,48 @@ public class BlockDamage implements Serializer<BlockDamage> {
             }
         }
 
-        return new BlockDamage(isBreakBlocks, damage, regenTicks, isBlacklist, blockList);
+        strings = config.getStringList("Shots_To_Break_Blocks");
+        Map<String, Integer> shotsToBreak = new HashMap<>(strings.size());
+
+        // Shots_To_Break_Blocks should only be used alongside Blacklist: true
+        // This is because you cannot define blocks to be broken inside of a blacklist,
+        // so all blocks will have the same durability
+        if (isBlacklist) {
+
+            for (String str : strings) {
+                String[] split = StringUtils.split(str);
+
+                try {
+                    String matAndByte = split[0].toUpperCase();
+                    int durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
+
+                    // We don't need to save this information, just validate that
+                    // the user input is correct for this bukkit version
+                    String mat = matAndByte.split(":")[0];
+                    Material type = Enums.getIfPresent(Material.class, mat).orNull();
+                    if (type == null) {
+                        debug.error("Unknown Material found in config: " + mat,
+                                "You can check full material lists for your server version on the wiki (Use /wm wiki)",
+                                StringUtils.foundAt(file, path));
+                        continue;
+                    }
+
+                    shotsToBreak.put(matAndByte, durability);
+
+                } catch (ArrayIndexOutOfBoundsException ex) {
+                    debug.error("Empty string in config Block_List!", StringUtils.foundAt(file, path));
+                    debug.log(LogLevel.DEBUG, ex);
+                } catch (NumberFormatException ex) {
+                    debug.error("Invalid integer format: " + ex.getMessage(), StringUtils.foundAt(file, path));
+                    debug.log(LogLevel.DEBUG, ex);
+                }
+            }
+        } else {
+            debug.error("Error in Block_Damage!", "You tried to use Shots_To_Break_Blocks with Blacklist: true!",
+                    "This doesn't make sense, since all materials/durability should be defined in Block_List",
+                    StringUtils.foundAt(file, path));
+        }
+
+        return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, blockList, shotsToBreak);
     }
 }

@@ -99,8 +99,13 @@ public class WorldGuardV7 implements IWorldGuardCompatibility {
         try {
             registry.register(flag);
         } catch (FlagConflictException ex) {
+
+            // At this point, we know that there is already a world guard
+            // flag with this name, so we should get it
             Flag<?> existing = registry.get(flagString);
 
+            // Check if the data type of the 2 flags are the same, and
+            // try to use it
             if (existing.getClass() == flag.getClass()) {
                 debug.warn("Flag " + flagString + " already registered. This may cause compatibility issues!");
                 flag = existing;
