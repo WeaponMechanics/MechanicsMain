@@ -88,6 +88,22 @@ public class ReflectionUtil {
     }
 
     /**
+     * Gets a new instance of a class using the default constructor
+     *
+     * @param clazz The class to instantiate
+     * @return Instantiated object
+     */
+    public static <T> T newInstance(@Nonnull Class<T> clazz) {
+        try {
+            Constructor<T> constructor = clazz.getConstructor();
+            return constructor.newInstance();
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
      * @param classObject the class from where to get field
      * @param fieldName the field name in class
      * @return the field or null if not found

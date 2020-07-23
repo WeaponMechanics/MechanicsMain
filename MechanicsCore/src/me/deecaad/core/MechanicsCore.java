@@ -6,9 +6,12 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
+import me.deecaad.core.utils.LogLevel;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.jar.JarFile;
 
 public class MechanicsCore extends JavaPlugin {
 
@@ -18,6 +21,7 @@ public class MechanicsCore extends JavaPlugin {
     public static Debugger debug;
 
     private List<Serializer<?>> defaultSerializers;
+    private JarFile jarFile;
 
     @Override
     public void onEnable() {
@@ -25,6 +29,11 @@ public class MechanicsCore extends JavaPlugin {
         plugin = this;
         debug = new Debugger(getLogger(), 2, true);
         defaultSerializers = new JarSerializers().getAllSerializersInsideJar(this, getFile());
+        try {
+            jarFile = new JarFile(getFile());
+        } catch (IOException e) {
+            debug.log(LogLevel.ERROR, e);
+        }
         new PacketListenerAPI(this);
 
         ArmorEquipTrigger armorEquipTrigger = new ArmorEquipTrigger();
@@ -36,6 +45,10 @@ public class MechanicsCore extends JavaPlugin {
         PlaceholderAPI.onDisable();
         PacketListenerAPI.onDisable();
         plugin = null;
+    }
+
+    public JarFile getJarFile() {
+        return jarFile;
     }
 
     /**

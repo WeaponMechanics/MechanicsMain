@@ -1,12 +1,14 @@
 package me.deecaad.core.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import org.bukkit.ChatColor;
+import org.intellij.lang.annotations.Language;
 
-import java.awt.*;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +38,16 @@ public class StringUtils {
      */
     public static int countChars(char c, String string) {
         return (int) string.chars().filter(character -> character == c).count();
+    }
+
+    @Nullable
+    public static String match(@Language("RegExp") String regex, String str) {
+        Matcher matcher = Pattern.compile(regex).matcher(str);
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return null;
+        }
     }
     
     /**
