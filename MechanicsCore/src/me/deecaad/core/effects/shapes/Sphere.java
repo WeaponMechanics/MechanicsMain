@@ -6,7 +6,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Sphere implements Shape {
+public class Sphere extends Shape {
 
     private double radius;
     private ArrayList<Vector> points;
@@ -29,19 +29,6 @@ public class Sphere implements Shape {
             double z = r * Math.sin(theta);
             points.add(new Vector(x * radius, y * radius, z * radius)); // todo make this an array when finished debugging
         }
-    }
-
-
-
-    @Override
-    public void setAxis(Vector vector) {
-        // We could set the axis of a sphere,
-        // but we really don't need to
-    }
-
-    @Override
-    public Vector getAxis() {
-        return null;
     }
 
     @Override

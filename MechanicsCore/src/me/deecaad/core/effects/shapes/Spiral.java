@@ -4,7 +4,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 
-public class Spiral implements Shape {
+public class Spiral extends Shape {
 
     private final Circle circle;
     private Vector step;
@@ -43,11 +43,7 @@ public class Spiral implements Shape {
         circle.setAxis(dir);
 
         step = dir.clone().multiply(1.0 / (totalPoints));
-    }
-
-    @Override
-    public Vector getAxis() {
-        return circle.getAxis();
+        axis = dir;
     }
 
     @Override

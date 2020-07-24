@@ -5,9 +5,8 @@ import org.bukkit.util.Vector;
 
 import java.util.Iterator;
 
-public class Line implements Shape, Offsetable {
+public class Line extends Shape implements Offsetable {
 
-    private Vector vector;
     private Vector offset;
     private int points;
 
@@ -15,7 +14,7 @@ public class Line implements Shape, Offsetable {
         if (points < 2) throw new IllegalArgumentException("Must have at least 2 points on a line");
 
         this.points = points;
-        this.vector = new Vector();
+        this.axis = new Vector();
         this.offset = new Vector();
     }
 
@@ -30,18 +29,8 @@ public class Line implements Shape, Offsetable {
     }
 
     @Override
-    public Vector getAxis() {
-        return vector;
-    }
-
-    @Override
-    public void setAxis(Vector vector) {
-        this.vector = vector;
-    }
-
-    @Override
     public Iterator<Vector> iterator() {
-        return new LineIterator(vector, offset, points);
+        return new LineIterator(axis, offset, points);
     }
 
     public static Line between(Vector a, Vector b, int points) {

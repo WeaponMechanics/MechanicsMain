@@ -4,9 +4,11 @@ import org.bukkit.util.Vector;
 
 /**
  * A shape is a set of points (or Vectors) relative
- * to an origin.
+ * to an origin (0, 0, 0)
  */
-public interface Shape extends Iterable<Vector> {
+public abstract class Shape implements Iterable<Vector> {
+
+    protected Vector axis;
 
     /**
      * Should set the axis of the shape, where the
@@ -15,12 +17,16 @@ public interface Shape extends Iterable<Vector> {
      *
      * @param vector The vector to draw around
      */
-    void setAxis(Vector vector);
+    public void setAxis(Vector vector) {
+        axis = vector;
+    }
 
     /**
      * Gets the axis of the shape
      *
      * @return The current axis
      */
-    Vector getAxis();
+    public final Vector getAxis() {
+        return axis.clone();
+    }
 }

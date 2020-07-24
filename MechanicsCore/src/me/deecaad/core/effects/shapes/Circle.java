@@ -9,10 +9,9 @@ import java.util.Iterator;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class Circle implements Shape {
+public class Circle extends Shape {
 
     private final Point[] points;
-    private Vector a;
     private Vector b;
     private Vector c;
     private final double offset;
@@ -94,28 +93,23 @@ public class Circle implements Shape {
      */
     @Override
     public void setAxis(Vector dir) {
-        a = dir.clone().normalize();
+        axis = dir.clone().normalize();
 
         // Getting 2 perpendicular Vectors
-        b = VectorUtils.getPerpendicular(a).normalize();
-        c = a.clone().crossProduct(b).normalize();
+        b = VectorUtils.getPerpendicular(axis).normalize();
+        c = axis.clone().crossProduct(b).normalize();
 
         // I do this check to avoid wasting resource to get the
         // dot product of these vectors.
         if (debug.canLog(LogLevel.DEBUG)) {
-            double dot1 = a.dot(b);
+            double dot1 = axis.dot(b);
             double dot2 = b.dot(c);
-            double dot3 = a.dot(c);
+            double dot3 = axis.dot(c);
 
             debug.validate(NumberUtils.equals(dot1, 0.0), "A is not perpendicular to B");
             debug.validate(NumberUtils.equals(dot2, 0.0), "B is not perpendicular to C");
             debug.validate(NumberUtils.equals(dot3, 0.0), "A is not perpendicular to C");
         }
-    }
-
-    @Override
-    public Vector getAxis() {
-        return a.clone();
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Lightning implements Shape {
+public class Lightning extends Shape {
 
     private static final double DISTANCE_BETWEEN_POINTS = 0.3;
 
@@ -24,9 +24,8 @@ public class Lightning implements Shape {
 
     @Override
     public void setAxis(Vector vector) {
+        axis = vector;
         lines.clear();
-
-
 
         // Setup the main lightning bolt map
         Map<Vector, Vector> vectors = new HashMap<>();
@@ -46,11 +45,6 @@ public class Lightning implements Shape {
             line.setOffset(offset);
             lines.add(line);
         }
-    }
-
-    @Override
-    public Vector getAxis() {
-        return null;
     }
 
     public Map<Vector, Vector> nextGeneration(Map<Vector, Vector> vectors) {
