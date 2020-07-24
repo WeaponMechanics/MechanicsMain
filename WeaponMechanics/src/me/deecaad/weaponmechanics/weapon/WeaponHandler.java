@@ -124,27 +124,27 @@ public class WeaponHandler {
             String currentSelectiveFire = TagHelper.getStringTag(weaponStack, CustomTag.SELECTIVE_FIRE);
             if (currentSelectiveFire == null) {
                 if (hasBurst) {
-                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "burst");
+                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "BURST");
                 } else if (hasAuto) {
-                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "auto");
+                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "AUTO");
                 }
             } else {
                 switch (currentSelectiveFire) {
-                    case ("burst"):
+                    case ("BURST"):
                         if (hasAuto) {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "auto");
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "AUTO");
                         } else {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "single");
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "SINGLE");
                         }
                         break;
-                    case ("auto"):
-                        TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "single");
+                    case ("AUTO"):
+                        TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "SINGLE");
                         break;
                     default:
                         if (hasBurst) {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "burst");
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "BURST");
                         } else if (hasAuto) {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "auto");
+                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "AUTO");
                         }
                         break;
                 }

@@ -1,0 +1,10 @@
+# me.deecaad.weaponmechanics.weapon.firearm.Firearm
+Firearm_Action:
+  Type: <FirearmType>
+  Firearm_Action_Frequency: <use every x amount of shots>
+  Open:
+    Time: <ticks>
+    # All general and effect stuff
+  Close:
+    Time: <ticks>
+    # All general and effect stuff

@@ -1,6 +1,6 @@
 package me.deecaad.core.web;
 
-import me.deecaad.core.utils.AsyncUtil;
+import me.deecaad.core.utils.TaskUtil;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -26,7 +26,7 @@ public class SpigotUser {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        AsyncUtil.runAsync(plugin, () -> {
+        TaskUtil.runAsync(plugin, () -> {
             update();
             return null;
         });

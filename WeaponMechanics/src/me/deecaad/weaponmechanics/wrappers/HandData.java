@@ -11,7 +11,7 @@ import java.util.List;
 
 public class HandData {
 
-    private IEntityWrapper entityWrapper;
+    private final IEntityWrapper entityWrapper;
 
     private int fullAutoTask;
     private int burstTask;
@@ -21,15 +21,19 @@ public class HandData {
     private RecoilTask recoilTask;
     private final List<Integer> reloadTasks = new ArrayList<>();
     private ZoomData zoomData;
+    private int shootFirearmActionTask;
 
     public HandData(IEntityWrapper entityWrapper) {
         this.entityWrapper = entityWrapper;
     }
 
     /**
-     * Cancels full auto, burst and reload tasks and resets them.
-     * Also cancels zooming.
-     * Cancel task method name might be a bit misleading now :p
+     * Cancels following things
+     * - Full auto
+     * - Burst
+     * - Reload tasks
+     * - Shoot firearm action task
+     * - Zooming
      *
      * Does not cancel recoil task.
      */
@@ -45,6 +49,10 @@ public class HandData {
         if (!reloadTasks.isEmpty()) {
             reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
             reloadTasks.clear();
+        }
+        if (shootFirearmActionTask != 0) {
+            Bukkit.getScheduler().cancelTask(shootFirearmActionTask);
+            shootFirearmActionTask = 0;
         }
         if (getZoomData().isZooming()) {
             WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
@@ -120,5 +128,13 @@ public class HandData {
 
     public ZoomData getZoomData() {
         return zoomData == null ? zoomData = new ZoomData() : zoomData;
+    }
+
+    public int getShootFirearmActionTask() {
+        return shootFirearmActionTask;
+    }
+
+    public void setShootFirearmActionTask(int shootFirearmActionTask) {
+        this.shootFirearmActionTask = shootFirearmActionTask;
     }
 }

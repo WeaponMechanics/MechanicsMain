@@ -423,6 +423,8 @@ public class CustomProjectile implements ICustomProjectile {
      */
     private boolean handleCollisions() {
 
+        // todo: make this method better
+
         // Pre calculate the motion to add for location on each iteration
         // First normalize motion and then multiply
         Vector addMotion = motion.clone().divide(new Vector(motionLength, motionLength, motionLength)).multiply(projectile.getProjectileHeight() * 2);
@@ -431,9 +433,9 @@ public class CustomProjectile implements ICustomProjectile {
         Vector oldMotion = motion.clone();
         projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
         location.add(oldMotion);
-        this.distanceTravelled += this.motionLength;
+        this.distanceTravelled += motionLength;
 
-        for (double i = 0.0; i <= motionLength; i += projectile.getProjectileHeight()) {
+        for (double travelled = 0.0; travelled <= motionLength; travelled += projectile.getProjectileHeight()) {
             Collisions iteration = getCollisions(projectileBox);
 
             if (iteration == null) {
@@ -441,11 +443,8 @@ public class CustomProjectile implements ICustomProjectile {
                 continue;
             }
 
-            if (handleEntityHits(iteration.getEntityCollisions())) {
-                // Projectile should die
-                return true;
-            }
-            if (handleBlockHits(iteration.getBlockCollisions())) {
+            if (handleEntityHits(iteration.getEntityCollisions())
+                    || handleBlockHits(iteration.getBlockCollisions())) {
                 // Projectile should die
                 return true;
             }

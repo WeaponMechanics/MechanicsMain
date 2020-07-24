@@ -42,7 +42,7 @@ public class TagHelper {
      * @param tag the tag name
      * @param value the value for tag
      * @param playerWrapper the player for who set, only required if silently is true
-     * @param silently if true, then next set slot packet is canclled for the given player
+     * @param silently if true, then next set slot packet is cancelled for the given player
      * @return the item stack with new or modified tag value
      */
     public static ItemStack setStringTag(ItemStack itemStack, CustomTag tag, String value, @Nullable IPlayerWrapper playerWrapper, boolean silently) {

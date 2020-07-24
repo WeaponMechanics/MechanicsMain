@@ -1,14 +1,17 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.core.MechanicsCore;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class AsyncUtil {
+import java.util.List;
+
+public class TaskUtil {
     
     /**
      * Don't let anyone instantiate this class
      */
-    private AsyncUtil() { }
+    private TaskUtil() { }
     
     /**
      * Runs task asynchronously.
