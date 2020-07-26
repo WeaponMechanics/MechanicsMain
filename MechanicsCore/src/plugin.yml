@@ -1,5 +1,10 @@
-main: me.deecaad.core.MechanicsCore
+name: 'MechanicsCore'
+author: 'DeeCaaD'
+authors:
+  - 'CJCrafter'
 version: '1.0.0'
-api-version: '1.13'
-name: MechanicsCore
-description: Useful tools for plugins to use
+api-version: '1.13' # DO NOT SET HIGHER OR LOWER THAN THIS
+description: 'Useful tools for plugins to use.'
+main: 'me.deecaad.core.MechanicsCore'
+softdepend:
+  - 'PlaceholderAPI'

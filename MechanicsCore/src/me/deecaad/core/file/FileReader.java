@@ -50,12 +50,24 @@ public class FileReader {
      * @param serializer the new serializer for this file reader
      */
     public void addSerializer(Serializer<?> serializer) {
-        if (this.serializers.containsKey(serializer.getKeyword().toLowerCase())) {
-            debug.log(LogLevel.ERROR,
-                    "Can't add serializer with keyword of " + serializer.getKeyword() + " because some other serializer already has same keyword.");
-            return;
+        String serializerLowerCase = serializer.getKeyword().toLowerCase();
+        if (this.serializers.containsKey(serializerLowerCase)) {
+            Serializer<?> alreadyAdded = this.serializers.get(serializerLowerCase);
+
+            // Check if already added serializer isn't assignable with the new one
+            if (!alreadyAdded.getClass().isAssignableFrom(serializer.getClass())) {
+                debug.log(LogLevel.ERROR,
+                        "Can't add serializer with keyword of " + serializer.getKeyword() + " because other serializer already has same keyword.",
+                        "Already added serializer is located at " + alreadyAdded.getClass().getName() + " and this new one was located at " + serializer.getClass().getName() + ".",
+                        "To override existing serializer either make new serializer extend existing serializer or implement Serializer<same data type as the existing one>.");
+                return;
+            }
+
+            // If code reaches this point, it was assignable from new serializer
+            debug.log(LogLevel.DEBUG,
+                    "New serializer " + serializer.getClass().getName() + " will now override already added serializer " + alreadyAdded.getClass().getName());
         }
-        this.serializers.put(serializer.getKeyword().toLowerCase(), serializer);
+        this.serializers.put(serializerLowerCase, serializer);
     }
 
     /**
