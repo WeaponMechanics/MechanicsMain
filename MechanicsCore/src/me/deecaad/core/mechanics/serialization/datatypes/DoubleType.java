@@ -2,12 +2,16 @@ package me.deecaad.core.mechanics.serialization.datatypes;
 
 import java.util.regex.Pattern;
 
+/**
+ * Matches any positive or negative <code>Number</code>.
+ * Examples: 0.0, 0, -30.9, 10.00000001
+ */
 public class DoubleType extends DataType<Double> {
 
-    private static final Pattern PATTERN = Pattern.compile("\\d*\\.?\\d+");
+    private static final Pattern PATTERN = Pattern.compile("-?\\d*\\.?\\d+");
 
     public DoubleType() {
-        super("Double");
+        super("DOUBLE");
     }
 
     @Override

@@ -1,31 +1,78 @@
 package me.deecaad.core.mechanics.serialization.datatypes;
 
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.mechanics.serialization.Argument;
 import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.mechanics.serialization.StringSerializable;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtils;
+/*import org.intellij.lang.annotations.Language;*/
 
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
-public class SerializerType<T extends StringSerializable<T>> extends DataType<StringSerializable<T>> {
+import static me.deecaad.core.MechanicsCore.debug;
 
-    private Class<T> clazz;
+public class SerializerType<T extends StringSerializable<T>> extends DataType<T> {
 
-    public SerializerType(Class<T> clazz) {
-        super("Serializer");
+    private final Class<T> clazz;
+    /*@Language("RegExp")*/ private String nameMatcher;
+
+    public SerializerType(Class<T> clazz, String name) {
+        super(name);
 
         this.clazz = clazz;
+        this.nameMatcher = "[^( ]+";
+    }
+
+    public String getNameMatcher() {
+        return nameMatcher;
+    }
+
+    public void setNameMatcher(/*@Language("RegExp")*/ String nameMatcher) {
+        this.nameMatcher = nameMatcher;
     }
 
     @Override
-    public StringSerializable<T> serialize(String str) {
-        T t = ReflectionUtil.newInstance(clazz);
+    public T serialize(String str) {
 
-        Map<String, Object> data = MechanicListSerializer.getArguments(t.getName(), str, t.getArgs());
-        return t.serialize(data);
+        if (Modifier.isAbstract(clazz.getModifiers())) {
+
+            String inputName = StringUtils.match(nameMatcher, str);
+
+            // Get all subclasses of the string serializable
+            // determine which class to serialize
+            // serialize it, then return
+            for (Class<StringSerializable> serializable : MechanicsCore.getPlugin().getStringSerializers().values()) {
+
+                // Check if the class is a subclass of this serializer's class
+                if (serializable.isAssignableFrom(clazz)) {
+
+                    String name = StringSerializable.parseName(serializable);
+                    if (name.equals(inputName)) {
+
+                        Argument[] args = StringSerializable.parseArgs(serializable);
+                        Map<String, Object> data = MechanicListSerializer.getArguments(name, str, args);
+                        return ReflectionUtil.newInstance(clazz).serialize(data);
+                    }
+                }
+            }
+
+            debug.error("Unknown serializer: " + nameMatcher, "Perhaps you spelled it wrong?");
+            return null;
+        } else {
+
+            String name = StringSerializable.parseName(clazz);
+            Argument[] args = StringSerializable.parseArgs(clazz);
+            Map<String, Object> data = MechanicListSerializer.getArguments(name, str, args);
+            return ReflectionUtil.newInstance(clazz).serialize(data);
+        }
     }
 
     @Override
     public boolean validate(String str) {
-        return false;
+
+        // It's a bit challenging to validate this, will work on that later
+        return true;
     }
 }

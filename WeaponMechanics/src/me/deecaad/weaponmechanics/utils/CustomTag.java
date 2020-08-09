@@ -10,7 +10,8 @@ public enum CustomTag {
      */
     WEAPON_TITLE("weapon-title"),
     SELECTIVE_FIRE("selective-fire"),
-    AMMO_LEFT("ammo-left");
+    AMMO_LEFT("ammo-left"),
+    ATTACHMENTS("attachments");
 
     private String id;
 

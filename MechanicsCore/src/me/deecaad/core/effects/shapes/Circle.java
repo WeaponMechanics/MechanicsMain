@@ -1,21 +1,30 @@
 package me.deecaad.core.effects.shapes;
 
+import me.deecaad.core.mechanics.serialization.SerializerData;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
+@SerializerData(name = "circle", args = {"points~INTEGER", "radius~DOUBLE~r", "startAngle~DOUBLE~angle"})
 public class Circle extends Shape {
 
-    private final Point[] points;
+    private Point[] points;
     private Vector b;
     private Vector c;
-    private final double offset;
-    private final double amplitude;
+    private double offset;
+    private double amplitude;
+
+    /**
+     * Default constructor for serializer
+     */
+    public Circle() {
+    }
 
     /**
      * Constructs a circle with the given number of points and
@@ -37,6 +46,7 @@ public class Circle extends Shape {
      * @param startAngle The angle, in radians, to start at
      */
     public Circle(int points, double amplitude, double startAngle) {
+
         this.points = new Point[points];
         double period = VectorUtils.PI_2;
 
@@ -80,14 +90,11 @@ public class Circle extends Shape {
     }
 
     /**
-     * Sets the axis to draw the circle on. Vectors
+     * Sets the axis to draw the circle on.
      * The circle is formed on the plane formed by
      * the b and c vectors. Since b and c are
-     * perpendicular to a (and), the circle is formed
+     * perpendicular to a, the circle is formed
      * around vector a.
-     *
-     * If what you are drawing a circle around is changing
-     * it's yaw and pitch,
      *
      * @param dir Vector to draw circle around
      */
@@ -115,6 +122,31 @@ public class Circle extends Shape {
     @Override
     public Iterator<Vector> iterator() {
         return new CircleIterator(points, b, c);
+    }
+
+    @Override
+    public Shape serialize(Map<String, Object> data) {
+
+        int points = (int) data.getOrDefault("points", 16);
+        double radius = (double) data.getOrDefault("radius", 1.0);
+        double startAngle = (double) data.getOrDefault("startAngle", 0.0);
+
+        debug.validate(points < 1, "Points must be >= 1! Found: " + points);
+        debug.validate(radius < 0, "Radius must be positive! Found: " + radius);
+
+        this.points = new Point[points];
+        double period = VectorUtils.PI_2;
+
+        for (int i = 0; i < points; i++) {
+            double radian = VectorUtils.normalizeRadians(period / points * i + startAngle);
+            double cos = amplitude * Math.cos(radian);
+            double sin = amplitude * Math.sin(radian);
+            this.points[i] = new Point(sin, cos);
+        }
+
+        this.offset = startAngle;
+        this.amplitude = radius;
+        return this;
     }
 
     private static class Point {

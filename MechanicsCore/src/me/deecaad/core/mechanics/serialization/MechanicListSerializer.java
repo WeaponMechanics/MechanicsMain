@@ -1,7 +1,6 @@
 package me.deecaad.core.mechanics.serialization;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.JarSearcher;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.serialization.datatypes.DataType;
@@ -13,6 +12,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +21,10 @@ import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
+@SuppressWarnings("unchecked")
 public class MechanicListSerializer implements Serializer<MechanicListSerializer.MechanicList> {
 
+    // Default serializer, can be changed via reflection if need be
     private static final Targeter<?> DEFAULT = new SelfTargeter();
 
     private Map<String, Class<Mechanic>> mechanics;
@@ -32,35 +34,19 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
         mechanics = new HashMap<>();
         targeters = new HashMap<>();
 
-        JarSearcher searcher = new JarSearcher(MechanicsCore.getPlugin().getJarFile());
+        Map<String, Class<StringSerializable>> serializers = MechanicsCore.getPlugin().getStringSerializers();
+        for (Map.Entry<String, Class<StringSerializable>> entry : serializers.entrySet()) {
 
-        for (Class<Mechanic> clazz : searcher.findAllSubclasses(Mechanic.class, true)) {
-            Mechanic mechanic = ReflectionUtil.newInstance(clazz);
-            if (mechanic == null) {
-                debug.error(clazz + " didn't have an empty constructor!");
-                continue;
-            }
+            String name = entry.getKey();
+            Class<StringSerializable> clazz = entry.getValue();
 
-            String name = mechanic.getName();
-            Class<Mechanic> replaced = mechanics.put(name, clazz);
+            if (Mechanic.class.isAssignableFrom(clazz)) {
+                Class<Mechanic> replaced = mechanics.put(name, (Class<Mechanic>)((Class<?>)clazz));
+                if (replaced != null) debug.debug("Overridden mechanic: " + replaced);
 
-            if (replaced != null) {
-                debug.debug("Overridden Mechanic: " + clazz);
-            }
-        }
-
-        for (Class<Targeter> clazz : searcher.findAllSubclasses(Targeter.class, true)) {
-            Targeter<?> targeter = ReflectionUtil.newInstance(clazz);
-            if (targeter == null) {
-                debug.error(clazz + " didn't have an empty constructor!");
-                continue;
-            }
-
-            String name = targeter.getName();
-            Class<Targeter> replaced = targeters.put(name, clazz);
-
-            if (replaced != null) {
-                debug.debug("Overridden Mechanic: " + clazz);
+            } else if (Targeter.class.isAssignableFrom(clazz)) {
+                Class<Targeter> replaced = targeters.put(name, (Class<Targeter>)((Class<?>)clazz));
+                if (replaced != null) debug.debug("Overridden targeter: " + replaced);
             }
         }
     }
@@ -87,40 +73,71 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
                 String mechanicTitle = StringUtils.match("[^( ]+", str);
                 String targeterTitle = StringUtils.match("@[^( ]+", str);
 
+                if (!mechanics.containsKey(mechanicTitle)) {
+                    debug.error("Unknown mechanic: " + mechanicTitle, "Found at: " + str);
+                    continue;
+                } else if (!targeters.containsKey(targeterTitle)) {
+                    debug.error("Unknown targeter: " + targeterTitle, "Found at: " + str);
+                    continue;
+                }
+
                 Mechanic mechanic = ReflectionUtil.newInstance(mechanics.get(mechanicTitle));
                 Targeter<?> targeter = targeters.containsKey(targeterTitle) ? ReflectionUtil.newInstance(targeters.get(targeterTitle)) : DEFAULT;
-                Map<String, Object> mechanicData = getArguments(mechanicTitle, str, mechanic.getArgs());
-                Map<String, Object> targeterData = getArguments(targeterTitle, str, mechanic.getArgs());
+                Argument[] mechanicArgs = StringSerializable.parseArgs(mechanics.get(mechanicTitle));
+                Argument[] targeterArgs = StringSerializable.parseArgs(targeters.get(targeterTitle));
+                Map<String, Object> mechanicData = getArguments(mechanicTitle, str, mechanicArgs);
+                Map<String, Object> targeterData = getArguments(targeterTitle, str, targeterArgs);
+                
+                Mechanic tempMechanic = mechanic.serialize(mechanicData);
+                Targeter tempTargeter = targeter.serialize(targeterData);
 
-                // This redundancy is for when the serializer
-                // returns a new instance instead of modifying
-                // the existing instance
-                mechanic = mechanic.serialize(mechanicData);
-                targeter = targeter.serialize(targeterData);
+                if (tempMechanic != mechanic || tempTargeter != targeter) {
+                    debug.warn("DEVELOPERS: You should not return a new instance of the StringSerializable...",
+                            "...during data serialization. This is not an error, but it is violation of contract");
+                }
+                
+                mechanic.setTargeter(tempTargeter);
 
-                mechanic.setTargeter(targeter);
-
-                temp.add(mechanic);
+                temp.add(tempMechanic);
             }
 
         } else {
-
+            ConfigurationSection config = configurationSection.getConfigurationSection(path);
+            for (String key: config.getKeys(false)) {
+                Class<Mechanic> clazz = mechanics.get(key.substring(0, key.length() - 2));
+                
+                if (clazz == null) {
+                    debug.error("Unknown mechanic key: " + key);
+                    debug.error("");
+                }
+            }
         }
         return new MechanicList(temp);
     }
 
     public static Map<String, Object> getArguments(String name, String str, Argument[] args) {
 
-        String inParens = StringUtils.match("(?<=" + name + "\\().+(?=\\))", str);
+        String inParens = StringUtils.match("(?<=" + name + "\\().*?(?=\\))", str);
         Map<String, Object> data = new HashMap<>();
 
-        for (String match : inParens.split(" ?[,;] ?")) {
-            String[] split = match.split(" ?[:=] ?", 1);
-
-            if (split.length != 2) {
-                // Darth Vader Yells: "NOOOOOOOOOOOOOOOOOOOOOOOOO"
+        // Checking to see if the user gave arguments.
+        // If not, this may be an error, so alert the user
+        if (inParens == null) {
+            if (args.length != 0) {
+                debug.warn("Failed to specify arguments for: " + name,
+                        "THIS MAY NOT BE AN ERROR! Possible arguments: " + Arrays.toString(args));
             }
+            return data;
+        }
 
+        // Splitting up all the arguments. Example:
+        // "arg1=0; arg2=test; arg3=true"
+        for (String match : inParens.split(" ?[,;] ?")) {
+            
+            // Splitting the variables name (split[0]) and value (split[1])
+            String[] split = match.split(" ?[:=] ?", 2);
+
+            // Determine which argument is being used
             Argument arg = null;
             for (Argument argument : args) {
                 if (argument.isArgument(split[0])) {
@@ -129,21 +146,37 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
                 }
             }
 
+            // Inform the user of unknown arguments, incorrect
+            // variable declarations and invalid types
             if (arg == null) {
-                // unknown arg
+                debug.error("Unknown argument: " + split[0],
+                        "Valid arguments: " + Arrays.toString(args),
+                        "Found at: " + str);
+                continue;
+            } else if (split.length != 2) {
+                debug.error("Failed to specify value for argument: " + split[0],
+                        "Valid arguments: " + Arrays.toString(args),
+                        "Found at: " + str);
+                continue;
+            } else if (!arg.getType().validate(split[1])) {
+                debug.error("Invalid data type for arg: " + arg + "!", "Expected: " + arg.getType(), "Got: " + split[1], "Found at: " + str);
+                continue;
             }
 
-            DataType<?> type = arg.getType();
-            if (!type.validate(split[1])) {
-                // Invalid type
-            }
-
-            data.put(split[0], type.serialize(split[1]));
+            data.put(split[0], arg.getType().serialize(split[1]));
         }
 
         return data;
     }
     
+    /**
+     * Since <code>Configuration</code> classes check for lists
+     * and converts them into string lists, we have to use this
+     * wrapper class
+     *
+     * In the future, it would be nice to implement our own parser
+     * and implement serializers during parsing
+     */
     public static final class MechanicList {
         
         private final List<Mechanic> mechanics;

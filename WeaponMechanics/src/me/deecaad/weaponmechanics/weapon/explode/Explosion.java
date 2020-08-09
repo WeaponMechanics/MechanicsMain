@@ -1,11 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import me.deecaad.core.effects.Effect;
+import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.mechanics.casters.EntityCaster;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
@@ -40,7 +40,7 @@ public class Explosion {
     private final Set<ExplosionTrigger> triggers;
     private final int delay;
     private final boolean isKnockback;
-    private final List<Effect> effects;
+    private final List<Mechanic> mechanics;
 
     public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
@@ -62,7 +62,7 @@ public class Explosion {
                      @Nonnull Set<ExplosionTrigger> triggers,
                      @Nonnegative int delay,
                      boolean isKnockback,
-                     @Nullable List<Effect> effects) {
+                     @Nullable List<Mechanic> mechanics) {
 
         this.weaponTitle = weaponTitle;
         this.shape = shape;
@@ -72,7 +72,7 @@ public class Explosion {
         this.triggers = triggers;
         this.delay = delay;
         this.isKnockback = isKnockback;
-        this.effects = effects;
+        this.mechanics = mechanics;
     }
 
     public static DamageHandler getDamageHandler() {
@@ -115,8 +115,8 @@ public class Explosion {
         return isKnockback;
     }
 
-    public List<Effect> getEffects() {
-        return effects;
+    public List<Mechanic> getEffects() {
+        return mechanics;
     }
 
     /**
@@ -217,8 +217,8 @@ public class Explosion {
             }
         }
 
-        if (effects != null) {
-            effects.forEach(effect -> effect.spawn(WeaponMechanics.getPlugin(), origin));
+        if (mechanics != null) {
+            mechanics.forEach(mechanic -> mechanic.cast((EntityCaster) () -> cause));
         }
     }
 

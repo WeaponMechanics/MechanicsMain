@@ -53,4 +53,9 @@ public class Argument {
         
         return false;
     }
+
+    @Override
+    public String toString() {
+        return name + "=" + type;
+    }
 }

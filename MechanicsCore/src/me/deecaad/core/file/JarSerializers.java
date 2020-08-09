@@ -54,6 +54,9 @@ public class JarSerializers extends FileCopier {
                     nameClass = Class.forName(nameWithoutSuffix);
                 } catch (ClassNotFoundException | NoClassDefFoundError e) {
                     continue;
+                } catch (ExceptionInInitializerError e) {
+                    debug.log(LogLevel.ERROR, "Failed to init class " + nameWithoutSuffix, e);
+                    continue;
                 }
                 if (noUse != null && noUse.length > 0) {
                     boolean no = false;

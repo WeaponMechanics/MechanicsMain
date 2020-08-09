@@ -2,12 +2,15 @@ package me.deecaad.core.mechanics.serialization.datatypes;
 
 import java.util.regex.Pattern;
 
+/**
+ * Matches any positive or negative <code>Integer</code>
+ */
 public class IntegerType extends DataType<Integer> {
 
-    private static final Pattern PATTERN = Pattern.compile("\\d+");
+    private static final Pattern PATTERN = Pattern.compile("-?\\d+");
 
     public IntegerType() {
-        super("Integer");
+        super("INTEGER");
     }
 
     @Override

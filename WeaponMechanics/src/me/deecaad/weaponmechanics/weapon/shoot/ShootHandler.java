@@ -1,12 +1,16 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
+import com.google.common.collect.Lists;
 import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
-import me.deecaad.core.effects.Effect;
 import me.deecaad.core.effects.EffectList;
-import me.deecaad.core.effects.EffectSerializer;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.mechanics.casters.EntityCaster;
+import me.deecaad.core.mechanics.casters.LocationCaster;
+import me.deecaad.core.mechanics.casters.MechanicCaster;
+import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.StringUtils;
@@ -37,7 +41,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -361,9 +364,10 @@ public class ShootHandler implements IValidator {
 
         // Handle general stuff and effects
         UsageHelper.useGeneral(weaponTitle + ".Shoot", livingEntity, weaponStack, weaponTitle);
-        EffectList effects = config.getObject(weaponTitle + ".Shoot.Effects", EffectList.class);
-        if (effects != null) {
-            effects.getEffects().forEach(effect -> effect.spawn(WeaponMechanics.getPlugin(), eyeLocation, eyeLocation.getDirection()));
+        MechanicListSerializer.MechanicList mechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", MechanicListSerializer.MechanicList.class);
+        if (mechanics != null) {
+            MechanicCaster caster = (EntityCaster) () -> livingEntity;
+            mechanics.getMechanics().forEach(mechanic -> mechanic.cast(caster));
         }
 
         // Handle explosions

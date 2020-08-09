@@ -1,11 +1,14 @@
 package me.deecaad.core.effects.shapes;
 
+import me.deecaad.core.mechanics.serialization.SerializerData;
 import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
+@SerializerData(name = "sphere", args = {"radius~DOUBLE~r", "points~INTEGER"})
 public class Sphere extends Shape {
 
     private double radius;
@@ -34,5 +37,10 @@ public class Sphere extends Shape {
     @Override
     public Iterator<Vector> iterator() {
         return points.iterator();
+    }
+
+    @Override
+    public Shape serialize(Map<String, Object> data) {
+        return null;
     }
 }

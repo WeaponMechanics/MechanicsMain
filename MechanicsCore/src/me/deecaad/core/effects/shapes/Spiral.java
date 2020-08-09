@@ -1,14 +1,17 @@
 package me.deecaad.core.effects.shapes;
 
+import me.deecaad.core.mechanics.serialization.SerializerData;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
+import java.util.Map;
 
+@SerializerData(name = "spiral", args = {"points~INTEGER", "radius~DOUBLE~r", "offset~DOUBLE~angle", "loops~INTEGER"})
 public class Spiral extends Shape {
 
-    private final Circle circle;
+    private Circle circle;
     private Vector step;
-    private final int totalPoints;
+    private int totalPoints;
 
     public Spiral(int points, double amplitude, double offset, Vector around, int loops) {
         this(new Circle(points, amplitude, offset), around, loops);
@@ -49,6 +52,11 @@ public class Spiral extends Shape {
     @Override
     public Iterator<Vector> iterator() {
         return new SpiralIterator(circle, step, totalPoints);
+    }
+
+    @Override
+    public Shape serialize(Map<String, Object> data) {
+        return null;
     }
 
     private static class SpiralIterator implements Iterator<Vector> {

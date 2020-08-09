@@ -17,12 +17,16 @@ public class JarSearcher {
     private JarFile jar;
 
     public JarSearcher(JarFile jar) {
+        if (jar == null) {
+            throw new IllegalArgumentException("Cannot search a null jar!");
+        }
+
         this.jar = jar;
     }
 
     @SuppressWarnings("unchecked")
     public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, boolean isIgnoreAbstract, Class<?>...classes) {
-        List<Class<?>> classList = Arrays.asList(classes);
+        List<Class<?>> classList = new ArrayList<>(Arrays.asList(classes));
         classList.add(clazz);
         Set<String> blacklist = classList.stream()
                 .map(Class::getName)
@@ -46,13 +50,13 @@ public class JarSearcher {
             Class<?> subclass;
             try {
                 subclass = Class.forName(name);
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | NoClassDefFoundError ex) {
                 continue;
             }
 
             // Check for inheritance and abstraction
             int mod = subclass.getModifiers();
-            if (!subclass.isAssignableFrom(clazz)) {
+            if (!clazz.isAssignableFrom(subclass)) {
                 continue;
             } else if (isIgnoreAbstract && (Modifier.isAbstract(mod) || Modifier.isInterface(mod))) {
                 continue;

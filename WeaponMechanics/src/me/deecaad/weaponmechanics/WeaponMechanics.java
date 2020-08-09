@@ -70,7 +70,7 @@ public class WeaponMechanics extends JavaPlugin {
         // Setup the debugger
         Logger logger = getLogger();
         int level = getConfig().getInt("Debug_Level", 2);
-        debug = new Debugger(logger, level);
+        debug = new Debugger(logger, level, true);
 
         // Register all WorldGuard flags
         IWorldGuardCompatibility guard = WorldGuardAPI.getWorldGuardCompatibility();

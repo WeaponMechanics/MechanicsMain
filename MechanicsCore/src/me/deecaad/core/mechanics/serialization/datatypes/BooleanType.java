@@ -1,9 +1,12 @@
 package me.deecaad.core.mechanics.serialization.datatypes;
 
+/**
+ * <code>true</code> or <code>false</code>. Ignores case
+ */
 public class BooleanType extends DataType<Boolean> {
 
     BooleanType() {
-        super("Boolean");
+        super("BOOLEAN");
     }
 
     @Override

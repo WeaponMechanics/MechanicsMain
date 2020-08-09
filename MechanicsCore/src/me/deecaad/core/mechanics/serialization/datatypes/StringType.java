@@ -1,9 +1,12 @@
 package me.deecaad.core.mechanics.serialization.datatypes;
 
+/**
+ * Matches any input
+ */
 public class StringType extends DataType<String> {
 
     public StringType() {
-        super("String");
+        super("STRING");
     }
 
     @Override

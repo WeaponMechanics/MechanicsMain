@@ -1,9 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.effects.Effect;
-import me.deecaad.core.effects.EffectList;
 import me.deecaad.core.effects.serializers.EffectListSerializer;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
@@ -18,12 +19,10 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.VoidExposure;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -164,12 +163,12 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         }
 
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
-
-        List<Effect> effects = null;
-        if (section.contains("Effects")) {
-            effects = new EffectListSerializer().serialize(file, configurationSection, path + ".Effects").getEffects();
+        
+        List<Mechanic> mechanics = null;
+        if (section.contains("Mechanics")) {
+            mechanics = new MechanicListSerializer().serialize(file, configurationSection, path + ".Mechanics").getMechanics();
         }
-        return new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback, effects);
+        return new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback, mechanics);
     }
     
     private enum ExplosionShapeType {

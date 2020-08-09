@@ -1,14 +1,20 @@
 package me.deecaad.core.effects.shapes;
 
+import me.deecaad.core.mechanics.serialization.SerializerData;
+import me.deecaad.core.mechanics.serialization.StringSerializable;
 import org.bukkit.util.Vector;
 
 /**
  * A shape is a set of points (or Vectors) relative
  * to an origin (0, 0, 0)
  */
-public abstract class Shape implements Iterable<Vector> {
+@SerializerData(name = "shape", args = "vector~VECTOR~axis")
+public abstract class Shape implements StringSerializable<Shape>, Iterable<Vector> {
 
     protected Vector axis;
+
+    protected Shape() {
+    }
 
     /**
      * Should set the axis of the shape, where the

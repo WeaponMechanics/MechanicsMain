@@ -1,12 +1,15 @@
 package me.deecaad.weaponmechanics;
 
+import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+
+import java.util.Arrays;
 
 public class Tools {
     
     public static void main(String[] args) {
-        blockDamageData();
+        System.out.println(StringUtils.didYouMean("endermen", Arrays.asList("enderdragon", "enderman", "endermite")));
     }
     
     public static void entityHitBox() {
@@ -38,16 +41,4 @@ public class Tools {
             System.out.println("          - " + mat.name().toLowerCase() + "~" + durability);
         }
     }
-    
-    public static void splitTest() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("AK-47.Damage.Head.");
-        int length = builder.length();
-
-        builder.append("Test");
-        builder.setLength(length);
-        builder.append("Test2");
-    }
-
 }

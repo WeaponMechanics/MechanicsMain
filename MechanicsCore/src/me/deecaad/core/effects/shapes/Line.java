@@ -1,10 +1,13 @@
 package me.deecaad.core.effects.shapes;
 
 import me.deecaad.core.effects.Offsetable;
+import me.deecaad.core.mechanics.serialization.SerializerData;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
+import java.util.Map;
 
+@SerializerData(name = "line", args = "points~INTEGER")
 public class Line extends Shape implements Offsetable {
 
     private Vector offset;
@@ -39,6 +42,11 @@ public class Line extends Shape implements Offsetable {
         Line line = new Line(points);
         line.setAxis(vector);
         return line;
+    }
+
+    @Override
+    public Shape serialize(Map<String, Object> data) {
+        return null;
     }
 
     private static class LineIterator implements Iterator<Vector> {

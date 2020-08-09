@@ -1,8 +1,7 @@
 package me.deecaad.core.mechanics.targeters;
 
-import me.deecaad.core.mechanics.MechanicCaster;
-import me.deecaad.core.mechanics.serialization.Argument;
-import me.deecaad.core.mechanics.serialization.datatypes.DataType;
+import me.deecaad.core.mechanics.casters.MechanicCaster;
+import me.deecaad.core.mechanics.serialization.SerializerData;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -14,19 +13,18 @@ import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class EntitiesInRadiusTargeter extends Targeter<Entity> {
+@SerializerData(name = "@entitiesInRadius", args = {"radius~DOUBLE~r", "isLiving~BOOLEAN~living", "entity~ENTITY~type"})
+public class EntitiesInRadiusTargeter implements Targeter<Entity> {
 
     private double radius;
     private double radiusSquared;
     private boolean isLiving;
     private EntityType only;
 
+    /**
+     * Default constructor for serializer
+     */
     public EntitiesInRadiusTargeter() {
-        super("EntitiesInRadius",
-                new Argument("radius", DataType.DOUBLE, "r"),
-                new Argument("isLiving", DataType.BOOLEAN, "living"),
-                new Argument("entity", DataType.ENTITY, "type")
-        );
     }
 
     public double getRadius() {

@@ -4,6 +4,8 @@ import me.deecaad.core.effects.EffectList;
 import me.deecaad.core.effects.serializers.EffectListSerializer;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.mechanics.casters.EntityCaster;
+import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.general.AddPotionEffect;
@@ -57,18 +59,15 @@ public class DamageHandler implements IValidator {
         DamageUtils.apply(shooter, victim, damage, point, isBackstab);
         DamageUtils.damageArmor(victim, config.getInt(weaponTitle + ".Damage.Armor_Damage"), point);
 
+        if (victim.isDead()) {
+            // todo WeaponKillEvent
+        }
+
         // Fire ticks
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
         if (fireTicks > 0) {
             victim.setFireTicks(fireTicks);
         }
-
-        // Setup variables for effects and potions
-        Plugin plugin = WeaponMechanics.getPlugin();
-        Location victimLoc = victim.getEyeLocation();
-        Location shooterLoc = shooter.getEyeLocation();
-        Vector victimDir = victimLoc.getDirection();
-        Vector shooterDir = shooterLoc.getDirection();
 
         // Using string builder for minor performance optimization
         // Since this method may be called >20 times per second,
@@ -80,49 +79,17 @@ public class DamageHandler implements IValidator {
             builder.append(weaponTitle).append(".Damage.").append(str).append('.');
             final int length = builder.length();
 
-            builder.append("Global_Effects_Shooter");
-            EffectList globalEffectsShooter = config.getObject(builder.toString(), EffectList.class);
-            if (globalEffectsShooter != null) {
-                globalEffectsShooter.getEffects().forEach(effect -> effect.spawn(plugin, shooterLoc, shooterDir));
+            builder.append("Global_Mechanics_Shooter");
+            MechanicListSerializer.MechanicList globalMechanicsShooter = config.getObject(builder.toString(), MechanicListSerializer.MechanicList.class);
+            if (globalMechanicsShooter != null) {
+                globalMechanicsShooter.getMechanics().forEach(mechanic -> mechanic.cast((EntityCaster) () -> shooter));
             }
 
             builder.setLength(length);
-            builder.append("Global_Effects_Victim");
-            EffectList globalEffectsVictim = config.getObject(builder.toString(), EffectList.class);
-            if (globalEffectsVictim != null) {
-                globalEffectsVictim.getEffects().forEach(effect -> effect.spawn(plugin, victimLoc, victimDir));
-            }
-
-            if (shooter.getType() == EntityType.PLAYER) {
-                builder.setLength(length);
-                builder.append("Effects_Shooter");
-                EffectList effectsShooter = config.getObject(builder.toString(), EffectList.class);
-                if (effectsShooter != null) {
-                    effectsShooter.getEffects().forEach((effect -> effect.spawnFor(plugin, (Player) shooter, shooterLoc, shooterDir)));
-                }
-            }
-
-            if (victim.getType() == EntityType.PLAYER) {
-                builder.setLength(length);
-                builder.append("Effects_Victim");
-                EffectList effectsVictim = config.getObject(builder.toString(), EffectList.class);
-                if (effectsVictim != null) {
-                    effectsVictim.getEffects().forEach(effect -> effect.spawnFor(plugin, (Player) victim, victimLoc, victimDir));
-                }
-            }
-
-            builder.setLength(length);
-            builder.append("Potions_Shooter");
-            AddPotionEffect potionsShooter = config.getObject(builder.toString(), AddPotionEffect.class);
-            if (potionsShooter != null) {
-                potionsShooter.add(shooter);
-            }
-
-            builder.setLength(length);
-            builder.append("Potions_Victim");
-            AddPotionEffect potionsVictim = config.getObject(builder.toString(), AddPotionEffect.class);
-            if (potionsVictim != null) {
-                potionsVictim.add(victim);
+            builder.append("Global_Mechanics_Victim");
+            MechanicListSerializer.MechanicList globalMechanicsVictim = config.getObject(builder.toString(), MechanicListSerializer.MechanicList.class);
+            if (globalMechanicsVictim != null) {
+                globalMechanicsVictim.getMechanics().forEach(mechanic -> mechanic.cast((EntityCaster) () -> victim));
             }
 
             builder.setLength(0);
@@ -165,7 +132,7 @@ public class DamageHandler implements IValidator {
 
     @Override
     public void validate(Configuration config, File file, ConfigurationSection configurationSection, String path) {
-        final String[] effectPaths = new String[]{"Global_Effects_Shooter", "Global_Effects_Victim", "Effects_Shooter", "Effects_Victim"};
+        final String[] effectPaths = new String[]{"Global_Mechanics_Shooter", "Global_Mechanics_Victim", "Mechanics_Shooter", "Mechanics_Victim"};
         final String[] potionPaths = new String[]{"Potions_Shooter", "Potions_Victim"};
         EffectListSerializer effectSerializer = new EffectListSerializer();
         AddPotionEffect potionSerializer = new AddPotionEffect();

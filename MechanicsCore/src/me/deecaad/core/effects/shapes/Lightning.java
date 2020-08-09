@@ -1,6 +1,8 @@
 package me.deecaad.core.effects.shapes;
 
 import com.google.common.collect.Iterators;
+import me.deecaad.core.mechanics.serialization.Argument;
+import me.deecaad.core.mechanics.serialization.SerializerData;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.util.Vector;
@@ -11,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+@SerializerData(name = "lightning", args = {"distanceBetweenPoints~DOUBLE~space", "generations~INTEGER", "branchChance~DOUBLE"})
 public class Lightning extends Shape {
 
     private static final double DISTANCE_BETWEEN_POINTS = 0.3;
@@ -165,5 +168,10 @@ public class Lightning extends Shape {
     @Override
     public Iterator<Vector> iterator() {
         return Iterators.concat(lines.stream().map(Shape::iterator).iterator());
+    }
+
+    @Override
+    public Shape serialize(Map<String, Object> data) {
+        return null;
     }
 }

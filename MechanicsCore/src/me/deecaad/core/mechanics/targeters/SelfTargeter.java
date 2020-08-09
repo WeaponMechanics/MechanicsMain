@@ -1,28 +1,33 @@
 package me.deecaad.core.mechanics.targeters;
 
-import me.deecaad.core.mechanics.MechanicCaster;
-import me.deecaad.core.mechanics.serialization.Argument;
-import org.bukkit.Location;
+import me.deecaad.core.mechanics.casters.EntityCaster;
+import me.deecaad.core.mechanics.casters.MechanicCaster;
+import me.deecaad.core.mechanics.serialization.SerializerData;
 
 import java.util.List;
 import java.util.Map;
 
-public class SelfTargeter extends Targeter<Location> {
-    
+@SerializerData(name = "self")
+public class SelfTargeter implements Targeter<Object> {
+
+    /**
+     * Default constructor for serializer
+     */
     public SelfTargeter() {
-        super("self");
     }
     
     @Override
-    public List<Location> getTargets(MechanicCaster caster, List<Location> list) {
+    public List<Object> getTargets(MechanicCaster caster, List<Object> list) {
         list.clear();
         
-        list.add(caster.getLocation());
+        list.add(caster instanceof EntityCaster ? ((EntityCaster) caster).getEntity() : caster.getLocation());
         return list;
     }
     
     @Override
-    public Targeter<Location> serialize(Map<String, Object> data) {
+    public Targeter<Object> serialize(Map<String, Object> data) {
+
+        // Nothing needs to be done to the serializer
         return this;
     }
 }
