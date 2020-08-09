@@ -1,14 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
-import com.google.common.collect.Lists;
 import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
-import me.deecaad.core.effects.EffectList;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
-import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.casters.EntityCaster;
-import me.deecaad.core.mechanics.casters.LocationCaster;
 import me.deecaad.core.mechanics.casters.MechanicCaster;
 import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.utils.LogLevel;
@@ -41,6 +37,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;

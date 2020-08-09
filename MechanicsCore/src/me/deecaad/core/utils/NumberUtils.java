@@ -259,7 +259,7 @@ public class NumberUtils {
      * @return true only if enough millis have passed since last millis
      */
     public static boolean hasMillisPassed(long lastMillis, long amount) {
-        return (System.currentTimeMillis() - lastMillis > amount);
+        return System.currentTimeMillis() - lastMillis > amount;
     }
 
     /**

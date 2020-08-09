@@ -6,7 +6,6 @@ import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -117,7 +116,7 @@ public class ScopeHandler implements IValidator {
 
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
-                UsageHelper.useGeneral(weaponTitle + ".Scope.Zoom_Stacking", entity, weaponStack, weaponTitle);
+                // todo: use Mechanics from path weaponTitle + ".Scope.Zoom_Stacking" to entity, weaponStack, weaponTitle
 
                 return true;
             } else {
@@ -140,7 +139,7 @@ public class ScopeHandler implements IValidator {
         }
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
-        UsageHelper.useGeneral(weaponTitle + ".Scope", entity, weaponStack, weaponTitle);
+        // todo: use Mechanics from path weaponTitle + ".Scope" to entity, weaponStack, weaponTitle
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
 
         return true;
@@ -162,7 +161,7 @@ public class ScopeHandler implements IValidator {
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
-        UsageHelper.useGeneral(weaponTitle + ".Scope.Zoom_Off", entity, weaponStack, weaponTitle);
+        // todo: use Mechanics from path weaponTitle + ".Scope.Zoom_Off" to entity, weaponStack, weaponTitle
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
 
         return true;

@@ -11,7 +11,7 @@ public enum CustomTag {
     WEAPON_TITLE("weapon-title"),
     SELECTIVE_FIRE("selective-fire"),
     AMMO_LEFT("ammo-left"),
-    ATTACHMENTS("attachments");
+    FIREARM_ACTION_STATE("firearm-action-state");
 
     private String id;
 

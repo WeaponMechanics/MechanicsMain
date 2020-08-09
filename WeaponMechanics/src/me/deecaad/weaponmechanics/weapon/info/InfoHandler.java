@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
-import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.Material;
@@ -138,7 +137,7 @@ public class InfoHandler {
         }
         inventory.addItem(weaponStack);
 
-        UsageHelper.useGeneral(weaponTitle + ".Info.Weapon_Get_Actions", player, weaponStack, weaponTitle);
+        // todo: use Mechanics from path weaponTitle + ".Info.Weapon_Get_Actions" to player, weaponStack, weaponTitle
     }
 
     /**
