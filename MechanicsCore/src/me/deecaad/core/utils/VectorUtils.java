@@ -25,7 +25,7 @@ public class VectorUtils {
 
     /**
      * Gets a random <code>Vector</code> with
-     * a length of 1
+     * a given length
      *
      * @return Randomized vector
      */

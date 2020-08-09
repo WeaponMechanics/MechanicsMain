@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
 
+import static me.deecaad.core.MechanicsCore.debug;
+
 /**
  * Made this into external class in case we decide to use XMaterial resource so its easier to start using it when we only have to modify this class
  */
@@ -17,8 +19,21 @@ public class MaterialHelper {
     private static final Method getDurability;
 
     static {
+        Method getBlock1;
         getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("block.data.CraftBlockData"), "getState");
-        getBlock = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
+
+        if (CompatibilityAPI.getVersion() >= 1.16) {
+            try {
+                getBlock1 = getState.getReturnType().getMethod("getBlock");
+            } catch (NoSuchMethodException e) {
+                debug.log(LogLevel.ERROR, e);
+                getBlock1 = null;
+            }
+        } else {
+            getBlock1 = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
+        }
+
+        getBlock = getBlock1;
         getDurability = ReflectionUtil.getMethod(getBlock.getReturnType(), "getDurability");
     }
 

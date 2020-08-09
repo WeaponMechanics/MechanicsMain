@@ -3,6 +3,7 @@ package me.deecaad.core.utils;
 import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -130,8 +131,8 @@ public class ReflectionUtil {
      * @param instance the instance holding field (null in static use)
      * @return the field object or null if not found
      */
-    public static Object invokeField(@Nonnull Field field, @Nonnull Object instance) {
-        if (field == null || instance == null) {
+    public static Object invokeField(@Nonnull Field field, @Nullable Object instance) {
+        if (field == null) {
             debug.log(LogLevel.ERROR, "field or instance is null in invokeField()");
             return null;
         }
@@ -148,8 +149,8 @@ public class ReflectionUtil {
      * @param instance the instance holding field (null in static use)
      * @param value the new value for field
      */
-    public static void setField(@Nonnull Field field, Object instance, Object value) {
-        if (field == null || instance == null) {
+    public static void setField(@Nonnull Field field, @Nullable Object instance, Object value) {
+        if (field == null) {
             debug.log(LogLevel.ERROR, "field or instance is null in setField()");
         }
         try {
