@@ -1,7 +1,6 @@
 package me.deecaad.core.effects.shapes;
 
 import com.google.common.collect.Iterators;
-import me.deecaad.core.mechanics.serialization.Argument;
 import me.deecaad.core.mechanics.serialization.SerializerData;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.VectorUtils;

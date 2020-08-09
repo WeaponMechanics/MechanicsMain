@@ -1,10 +1,7 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.core.MechanicsCore;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.List;
 
 public class TaskUtil {
     

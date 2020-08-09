@@ -1,10 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
+import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
@@ -22,8 +22,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ScopeHandler implements IValidator {
 

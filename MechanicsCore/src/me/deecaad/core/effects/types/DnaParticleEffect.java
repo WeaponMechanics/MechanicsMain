@@ -1,9 +1,7 @@
 package me.deecaad.core.effects.types;
 
-import me.deecaad.core.effects.Shaped;
 import me.deecaad.core.effects.shapes.Circle;
 import me.deecaad.core.effects.shapes.Line;
-import me.deecaad.core.effects.shapes.Shape;
 import me.deecaad.core.effects.shapes.Spiral;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Particle;

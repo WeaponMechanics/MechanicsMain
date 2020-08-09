@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import me.deecaad.core.effects.EffectList;
 import me.deecaad.core.effects.serializers.EffectListSerializer;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
@@ -9,15 +8,9 @@ import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.general.AddPotionEffect;
-import me.deecaad.weaponmechanics.weapon.explode.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
-import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.Map;

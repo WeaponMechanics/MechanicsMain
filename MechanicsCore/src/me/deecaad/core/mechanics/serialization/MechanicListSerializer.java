@@ -3,7 +3,6 @@ package me.deecaad.core.mechanics.serialization;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.mechanics.Mechanic;
-import me.deecaad.core.mechanics.serialization.datatypes.DataType;
 import me.deecaad.core.mechanics.targeters.SelfTargeter;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.ReflectionUtil;

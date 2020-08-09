@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
 
 @CommandPermission(permission = "weaponmechanics.commands.give")
 public class GiveCommand extends SubCommand {

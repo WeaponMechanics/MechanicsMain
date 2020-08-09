@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
-import me.deecaad.core.utils.MaterialHelper;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -11,13 +10,12 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.*;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.*;
 
 public class Ray {
 

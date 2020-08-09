@@ -19,7 +19,8 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
 
 /**
  * Class to generally handle weapon functions

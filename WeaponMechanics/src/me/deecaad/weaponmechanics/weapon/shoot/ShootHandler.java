@@ -14,7 +14,6 @@ import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
-import me.deecaad.weaponmechanics.utils.UsageHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
@@ -37,10 +36,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ShootHandler implements IValidator {
 
@@ -360,7 +358,6 @@ public class ShootHandler implements IValidator {
         handData.setLastShotWeaponTitle(weaponTitle);
 
         // Handle general stuff and effects
-        UsageHelper.useGeneral(weaponTitle + ".Shoot", livingEntity, weaponStack, weaponTitle);
         MechanicListSerializer.MechanicList mechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", MechanicListSerializer.MechanicList.class);
         if (mechanics != null) {
             MechanicCaster caster = (EntityCaster) () -> livingEntity;

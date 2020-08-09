@@ -2,6 +2,8 @@ package me.deecaad.core.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 
+import javax.annotation.Nullable;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -9,9 +11,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /*import org.intellij.lang.annotations.Language;*/
-
-import javax.annotation.Nullable;
-import java.io.File;
 
 /**
  * This utility class contains methods wrapping

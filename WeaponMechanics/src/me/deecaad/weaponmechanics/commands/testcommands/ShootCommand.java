@@ -3,9 +3,9 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.effects.Effect;
-import me.deecaad.core.effects.types.ShapedParticleEffect;
 import me.deecaad.core.effects.shapes.Shape;
 import me.deecaad.core.effects.shapes.Spiral;
+import me.deecaad.core.effects.types.ShapedParticleEffect;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.ProjectileMoveEvent;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
@@ -17,7 +17,6 @@ import org.bukkit.Particle;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 

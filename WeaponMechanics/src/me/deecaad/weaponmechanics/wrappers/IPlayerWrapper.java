@@ -1,10 +1,7 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.core.file.storage.FileSaveable;
-import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import org.bukkit.entity.Player;
-
-import javax.annotation.Nullable;
 
 /**
  * This class wraps an Player. Contains

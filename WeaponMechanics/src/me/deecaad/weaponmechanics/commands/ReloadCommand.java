@@ -2,12 +2,8 @@ package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import org.bukkit.command.CommandSender;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 @CommandPermission(permission = "weaponmechanics.commands.reload")
 public class ReloadCommand extends SubCommand {

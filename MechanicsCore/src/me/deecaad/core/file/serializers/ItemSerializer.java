@@ -2,7 +2,12 @@ package me.deecaad.core.file.serializers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.AttributeType;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.MaterialHelper;
+import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.TagUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -17,7 +22,9 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static me.deecaad.core.MechanicsCore.debug;
 

@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
-import me.deecaad.core.file.serializers.ItemSerializer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;

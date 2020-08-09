@@ -1,8 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.firearm;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * This class highlights the different
  * types a Firearm can have.

@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.firearm;
 
-import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;

@@ -6,9 +6,8 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-import static org.bukkit.block.BlockFace.*;
-
 import static me.deecaad.core.MechanicsCore.debug;
+import static org.bukkit.block.BlockFace.*;
 
 public class VectorUtils {
 

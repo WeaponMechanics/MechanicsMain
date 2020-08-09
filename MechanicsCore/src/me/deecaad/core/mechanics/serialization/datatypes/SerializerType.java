@@ -6,12 +6,13 @@ import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.mechanics.serialization.StringSerializable;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
-/*import org.intellij.lang.annotations.Language;*/
 
 import java.lang.reflect.Modifier;
 import java.util.Map;
 
 import static me.deecaad.core.MechanicsCore.debug;
+
+/*import org.intellij.lang.annotations.Language;*/
 
 public class SerializerType<T extends StringSerializable<T>> extends DataType<T> {
 

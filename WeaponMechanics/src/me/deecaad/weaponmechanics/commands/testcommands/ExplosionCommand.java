@@ -6,10 +6,10 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import org.bukkit.Location;
@@ -19,8 +19,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Useful commands for testing different explosion

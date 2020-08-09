@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-
 public final class BlockDamageData implements Listener {
 
     private static final Map<Chunk, Map<Block, DamageData>> BLOCK_DAMAGE_MAP = new HashMap<>(1000);

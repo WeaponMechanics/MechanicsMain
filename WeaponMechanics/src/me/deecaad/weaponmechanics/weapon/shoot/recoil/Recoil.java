@@ -1,20 +1,22 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
 
 public class Recoil implements Serializer<Recoil> {
 

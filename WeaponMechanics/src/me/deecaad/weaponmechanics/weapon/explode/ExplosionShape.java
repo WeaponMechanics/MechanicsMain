@@ -3,12 +3,10 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This interface outlines an explosion. Classes that

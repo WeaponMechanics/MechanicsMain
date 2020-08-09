@@ -1,7 +1,6 @@
 package me.deecaad.core.effects.serializers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.effects.Effect;
 import me.deecaad.core.effects.shapes.Shape;
 import me.deecaad.core.effects.types.ParticleEffect;
 import me.deecaad.core.effects.types.ShapedParticleEffect;

@@ -1,8 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;

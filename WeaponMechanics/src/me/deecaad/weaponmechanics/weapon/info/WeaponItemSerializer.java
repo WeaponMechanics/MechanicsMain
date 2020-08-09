@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import org.bukkit.configuration.ConfigurationSection;
