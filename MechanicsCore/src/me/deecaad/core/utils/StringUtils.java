@@ -1,15 +1,17 @@
 package me.deecaad.core.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import org.intellij.lang.annotations.Language;
 
-import javax.annotation.Nullable;
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+/*import org.intellij.lang.annotations.Language;*/
+
+import javax.annotation.Nullable;
+import java.io.File;
 
 /**
  * This utility class contains methods wrapping
@@ -20,8 +22,9 @@ import java.util.stream.Collectors;
  */
 public class StringUtils {
 
-    private static final String VALID_HEX = "0123456789AaBbCcDdEeFf";
-    private static final String CODES = VALID_HEX + "KkLlMmNnOoRrXx";
+    public static final String LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+    public static final String VALID_HEX = "0123456789AaBbCcDdEeFf";
+    public static final String CODES = VALID_HEX + "KkLlMmNnOoRrXx";
 
     /**
      * Don't let anyone instantiate this class
@@ -41,7 +44,7 @@ public class StringUtils {
     }
 
     @Nullable
-    public static String match(@Language("RegExp") String regex, String str) {
+    public static String match(/*@Language("RegExp")*/ String regex, String str) {
         Matcher matcher = Pattern.compile(regex).matcher(str);
         if (matcher.find()) {
             return matcher.group();
@@ -252,5 +255,57 @@ public class StringUtils {
             builder.append(" ");
         }
         return builder.substring(0, builder.length() - 1);
+    }
+    
+    /**
+     * Gets the most similar <code>String</code> to
+     * <code>input</code> found in <code>options</code>
+     *
+     * Example:
+     * <blockquote><pre>{@code
+     *
+     *      // Input:
+     *      String correction = didYouMean("endermen", {"pig", "zombie", enderman});
+     *      System.out.println("Unknown mob " + "endermen" + "... Did you mean " + correction + "?")
+     *
+     *      // Output
+     *      [...] Unkown mob endermen... Did you mean enderman?
+     * }</pre></blockquote>
+     *
+     *
+     * @param input The
+     * @param options
+     * @return
+     */
+    public static String didYouMean(String input, Iterable<String> options) {
+        String closest = null;
+        int difference = Integer.MAX_VALUE;
+        int[] table = mapToCharTable(input.toLowerCase());
+        
+        for (String str : options) {
+            int[] localTable = mapToCharTable(str.toLowerCase());
+            int localDifference = 0;
+            
+            for (int i = 0; i < table.length; i++) {
+                localDifference += Math.abs(table[i] - localTable[i]);
+            }
+            
+            if (localDifference < difference) {
+                closest = str;
+                difference = localDifference;
+            }
+        }
+        
+        return closest;
+    }
+    
+    private static int[] mapToCharTable(String str) {
+        int[] table = new int[LOWER_ALPHABET.length()];
+    
+        for (int i = 0; i < str.length(); i++) {
+            table[str.charAt(i) - 97]++;
+        }
+        
+        return table;
     }
 }
