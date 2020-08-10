@@ -2,15 +2,12 @@ package me.deecaad.weaponmechanics.weapon.firearm;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
-import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 
@@ -39,49 +36,11 @@ public class FirearmAction implements Serializer<FirearmAction> {
         this.closeTime = closeTime;
     }
 
+    /**
+     * @return whether the state is READY
+     */
     public boolean hasReadyFirearmActions(ItemStack weaponStack) {
-        // Return whether the state is READY
         return getState(weaponStack).equals("READY");
-    }
-
-    public void doShootFirearmActions(HandData handData, IEntityWrapper entityWrapper, ItemStack weaponStack, int weaponMagSize) {
-
-        // Return if firearm actions should not be done in this shot
-        if (weaponMagSize % firearmActionFrequency != 0) return;
-
-        // No need to do any firearm actions if its REVOLVER
-        if (firearmType == FirearmType.REVOLVER) return;
-
-        // Otherwise open and close
-
-        BukkitRunnable closeRunnable = new BukkitRunnable() {
-            @Override
-            public void run() {
-                readyState(weaponStack, entityWrapper);
-                handData.setShootFirearmActionTask(0);
-            }
-        };
-
-        // Check if OPEN state was already completed, but was cancelled on CLOSE state
-        if (getState(weaponStack).equals("CLOSE")) {
-
-            // Only do CLOSE state
-
-            handData.setShootFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), getCloseTime()).getTaskId());
-
-            return;
-        }
-
-        openState(weaponStack, entityWrapper);
-        handData.setShootFirearmActionTask(new BukkitRunnable() {
-            @Override
-            public void run() {
-
-                closeState(weaponStack, entityWrapper);
-                handData.setShootFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), getCloseTime()).getTaskId());
-
-            }
-        }.runTaskLater(WeaponMechanics.getPlugin(), getOpenTime()).getTaskId());
     }
 
     public String getState(ItemStack weaponStack) {
@@ -90,6 +49,10 @@ public class FirearmAction implements Serializer<FirearmAction> {
 
     public void openState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
         changeState(weaponStack, entityWrapper, "OPEN");
+    }
+
+    public void reloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
+        changeState(weaponStack, entityWrapper, "RELOAD");
     }
 
     public void closeState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
@@ -118,6 +81,10 @@ public class FirearmAction implements Serializer<FirearmAction> {
 
     public int getCloseTime() {
         return closeTime;
+    }
+
+    public int getFirearmActionFrequency() {
+        return firearmActionFrequency;
     }
 
     @Override
