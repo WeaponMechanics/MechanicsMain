@@ -4,8 +4,8 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.effects.Delayable;
 import me.deecaad.core.effects.Repeatable;
 import me.deecaad.core.mechanics.casters.MechanicCaster;
+import me.deecaad.core.mechanics.serialization.SerializerData;
 import me.deecaad.core.mechanics.serialization.StringSerializable;
-import me.deecaad.core.mechanics.targeters.Targetable;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Location;
@@ -13,18 +13,19 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
+@SerializerData(name = "MECHANIC_NO_USE", args = {"delay~INTEGER", "repeatAmount~INTEGER~repeat", "repeatInterval~INTEGER~interval"})
 public abstract class Mechanic implements StringSerializable<Mechanic>, Targetable, Delayable, Repeatable {
 
     private Targeter<?> targeter;
 
-    private int delay;
-    private int repeatAmount = 1; // Everything still works if this is 0, fyi
-    private int repeatInterval;
+    protected int delay;
+    protected int repeatAmount = 1; // Everything still works if this is 0, fyi
+    protected int repeatInterval;
 
     public Mechanic() {
     }
@@ -66,7 +67,15 @@ public abstract class Mechanic implements StringSerializable<Mechanic>, Targetab
     public void setRepeatInterval(int repeatInterval) {
         this.repeatInterval = repeatInterval;
     }
-    
+
+    @Override
+    public Mechanic serialize(Map<String, Object> data) {
+        delay = (int) data.getOrDefault("delay", 0);
+        repeatAmount = (int) data.getOrDefault("repeatAmount", 1);
+        repeatInterval = (int) data.getOrDefault("repeatInterval", 0);
+        return this;
+    }
+
     /**
      *
      *
@@ -84,9 +93,27 @@ public abstract class Mechanic implements StringSerializable<Mechanic>, Targetab
             
             @Override
             public void run() {
-                List<?> targets = targeter.getTargets(caster, new ArrayList<>());
-    
+                List<?> targets;
+                try {
+                    targets = targeter.getTargets(caster);
+                } catch (Exception e) {
+                    debug.log(LogLevel.ERROR, "Unhandled exception caugh during target receiving: ", e);
+                    return;
+                }
+
+                if (debug.canLog(LogLevel.DEBUG))
+                    debug.debug("Mechanic " + Mechanic.this.toString() + " casted at " + targets);
+
+                // This is valid behavoir of targeters if nothing is targeted
+                if (targets == null) {
+                    return;
+                }
+
+                // Cast the mechanic at each target
                 for (Object obj : targets) {
+                    if (obj == null)
+                        continue;
+
                     try {
                         if (obj instanceof Player) {
                             cast(caster, (Player) obj);
@@ -99,7 +126,8 @@ public abstract class Mechanic implements StringSerializable<Mechanic>, Targetab
                         debug.log(LogLevel.ERROR, "Unhandled exception caught during mechanic casting: ", e);
                     }
                 }
-    
+
+                // Cancel once there have been enough loops
                 if (++counter >= repeatAmount) {
                     cancel();
                 }
