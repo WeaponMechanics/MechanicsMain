@@ -1,6 +1,7 @@
 package me.deecaad.core.__mechanics.features;
 
 import me.deecaad.core.__mechanics.IMechanic;
+import me.deecaad.core.file.FileReader;
 import me.deecaad.core.file.Serializer;
 import org.bukkit.Location;
 import org.bukkit.TreeType;
@@ -14,6 +15,11 @@ public class AnotherFeature implements Serializer<AnotherFeature>, IMechanic {
     @Override
     public int use(Entity entity) {
         return use(entity.getLocation());
+    }
+
+    @Override
+    public int useFor(Entity entity) {
+        return 0;
     }
 
     @Override
@@ -35,7 +41,8 @@ public class AnotherFeature implements Serializer<AnotherFeature>, IMechanic {
         return null;
     }
 
-    public AnotherFeature stringSerialize(File file, ConfigurationSection configurationSection, String path, String line) {
+    @Override
+    public IMechanic stringSerialize(File file, ConfigurationSection configurationSection, String path, FileReader fileReader, String line) {
 
         // Serialize using param line
 
