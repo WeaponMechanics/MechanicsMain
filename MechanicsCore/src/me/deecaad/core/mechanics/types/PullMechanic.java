@@ -55,4 +55,14 @@ public class PullMechanic extends Mechanic {
         if (velocity != -1) VectorUtils.setLength(between, velocity);
         target.setVelocity(between);
     }
+
+    @Override
+    public String toString() {
+        return "PullMechanic{" +
+                "velocity=" + velocity +
+                ", delay=" + delay +
+                ", repeatAmount=" + repeatAmount +
+                ", repeatInterval=" + repeatInterval +
+                '}';
+    }
 }

@@ -96,6 +96,7 @@ public class VectorUtils {
 
         int index = (int) Math.round(angle / (360f / AXIS.length));
         try {
+            index = Math.min(index, 15);
             return AXIS[index];
         } catch (ArrayIndexOutOfBoundsException ex) {
 
@@ -131,8 +132,10 @@ public class VectorUtils {
 
         if (z != 0.0) {
             return new Vector(y, -x, 0);
-        } else {
+        } else if (x != 0.0) {
             return new Vector(0, -z, y);
+        } else {
+            return new Vector(z, 0, -x);
         }
     }
 

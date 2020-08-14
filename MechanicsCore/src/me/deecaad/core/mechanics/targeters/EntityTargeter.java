@@ -1,13 +1,13 @@
 package me.deecaad.core.mechanics.targeters;
 
 import me.deecaad.core.mechanics.serialization.SerializerData;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 
 import java.util.Map;
 import java.util.function.Predicate;
 
-@SerializerData(name = "ENTITY_TARGETER_NO_USE", args = {"isLiving~BOOLEAN~living", "entity~ENTITY~type"})
+@SerializerData(name = "@@ENTITY_TARGETER_NO_USE", args = {"isLiving~BOOLEAN~living", "entity~ENTITY~type"})
 public abstract class EntityTargeter implements Targeter<Entity> {
 
     protected Predicate<Entity> predicate = entity -> isAllowed(entity.getType());
