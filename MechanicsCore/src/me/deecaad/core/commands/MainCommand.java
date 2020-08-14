@@ -1,6 +1,5 @@
 package me.deecaad.core.commands;
 
-import me.deecaad.core.utils.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -38,14 +37,8 @@ public abstract class MainCommand extends BukkitCommand {
         commands.register(dummy);
     }
 
-    public boolean help(CommandSender sender, String[] args) {
-        if (args.length == 0) {
-            commands.get().forEach((key, cmd) -> sender.sendMessage(StringUtils.color("&7➢  " + cmd.toString())));
-            return true;
-        }
-        else {
-            return commands.sendHelp(sender, args);
-        }
+    private boolean help(CommandSender sender, String[] args) {
+        return commands.sendHelp(sender, args);
     }
 
     @Override

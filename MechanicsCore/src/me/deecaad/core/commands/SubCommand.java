@@ -1,40 +1,59 @@
 package me.deecaad.core.commands;
 
+import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
+import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class SubCommand {
+public abstract class SubCommand extends BukkitCommand {
 
     protected static final String PLAYERS = "<player>";
     protected static final String INTEGERS = "<amount>";
     protected static final String SUB_COMMANDS = "<subcommand>";
 
+    private static final SimpleCommandMap COMMAND_MAP;
+
+    static {
+        Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
+        COMMAND_MAP = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
+    }
+
     protected SubCommands commands;
     private String prefix;
-    private String label;
-    private String desc;
-    private String[] usage;
+    private String[] args;
 
     public SubCommand(String parentPrefix, String label, String desc) {
         this(parentPrefix, label, desc, "");
     }
 
     public SubCommand(String parentPrefix, String label, String desc, String usage) {
+        super(label);
+
         this.commands = new SubCommands();
         this.prefix = parentPrefix + " " + label;
-        this.label = label;
-        this.desc = desc;
-        this.usage = StringUtils.splitAfterWord(usage);
+        this.args = StringUtils.splitAfterWord(usage);
 
+        setDescription(desc);
 
         if (getClass().isAnnotationPresent(CommandPermission.class)) {
 
@@ -51,16 +70,12 @@ public abstract class SubCommand {
         }
     }
 
-    public String getLabel() {
-        return label;
+    public String[] getArgs() {
+        return args;
     }
 
-    public String getDesc() {
-        return desc;
-    }
-
-    public String[] getUsage() {
-        return usage;
+    public String getPrefix() {
+        return prefix;
     }
 
     /**
@@ -71,9 +86,21 @@ public abstract class SubCommand {
      * @param args Command arguments
      * @return Whether or not the command is valid
      */
-    public boolean sendHelp(CommandSender sender, String[] args) {
+    protected boolean sendHelp(CommandSender sender, String[] args) {
         if (commands.isEmpty()) {
-            sender.sendMessage(StringUtils.color(toString()));
+            if (CompatibilityAPI.getVersion() < 1.09 || !(sender instanceof Player)) {
+                sender.sendMessage(StringUtils.color(toString()));
+            } else {
+                ComponentBuilder builder = new ComponentBuilder();
+                for (BaseComponent component : TextComponent.fromLegacyText(StringUtils.color(toString()))) {
+                    component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + prefix));
+                    component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to fill command")));
+                    builder.append(component);
+                }
+
+                Player player = (Player) sender;
+                player.spigot().sendMessage(builder.create());
+            }
             return true;
         } else {
             return commands.sendHelp(sender, args);
@@ -81,18 +108,13 @@ public abstract class SubCommand {
     }
 
     /**
-     * Attempts to get TabCompletions based on what is currently
-     * being typed. This is the more "general" method that may
-     * let other overridden methods handle tabcompletions or let
-     * subcommands handle tab completions. This method probably
-     * shouldn't be overridden
-     *
-     * /ench enchant withering 3
+     * Uses <code>this.args</code> to determine what
+     * tab completion options the user
      *
      * @param args
      * @return
      */
-    public List<String> tabCompletions(String[] args) {
+    List<String> tabCompletions(String[] args) {
 
         // Nothing is being typed, so we have no suggestions
         if (args.length == 0) return new ArrayList<>();
@@ -102,7 +124,7 @@ public abstract class SubCommand {
         // then usage.length, it is out of bounds. This probably
         // means that subcommands are in use or the user is typing
         // past what the command will take in
-        String current = usage.length >= args.length ? usage[args.length - 1] : "OUT_OF_BOUNDS";
+        String current = args.length >= args.length ? args[args.length - 1] : "OUT_OF_BOUNDS";
 
         switch (current) {
             case PLAYERS:
@@ -114,32 +136,19 @@ public abstract class SubCommand {
             case SUB_COMMANDS:
                 return new ArrayList<>(commands.keys());
             case "OUT_OF_BOUNDS":
-                int index = ArrayUtils.indexOf(usage, SUB_COMMANDS);
+                int index = ArrayUtils.indexOf(args, SUB_COMMANDS);
 
                 // If this command does not have subcommands, give no info
                 if (index == -1) return new ArrayList<>();
                 // Else let subcommands handle tab completions
                 else return commands.tabCompletions(args[index], Arrays.copyOfRange(args, index + 1, args.length));
             default:
-                return tabCompletions(args, current);
-        }
-    }
-
-    /**
-     * Gets the tab completion based on the currently typed String.
-     *
-     * By default, this just checks for a tag like: "hi, how, are, you".
-     * and adds each element into the list of tab completions.
-     *
-     * @param current What is currently being typed
-     * @return The tab completions
-     */
-    protected List<String> tabCompletions(String[] args, String current) {
-        if (current.contains(",")) {
-            String[] split = current.replaceAll("[<>]", "").split(",");
-            return StringUtils.getList(split);
-        } else {
-            return handleCustomTag(args, current);
+                if (current.contains(",")) {
+                    String[] split = current.replaceAll("[<>]", "").split(",");
+                    return StringUtils.getList(split);
+                } else {
+                    return handleCustomTag(args, current);
+                }
         }
     }
 
@@ -166,14 +175,14 @@ public abstract class SubCommand {
      * @return true if sender has permission
      */
     public boolean hasPermission(CommandSender sender) {
-
-        // Class has no permission, so the sender has permission
-        if (!getClass().isAnnotationPresent(CommandPermission.class)) {
+        if (getPermission() != null && !getPermission().isEmpty()) {
+            return sender.hasPermission(getPermission());
+        } else if (!getClass().isAnnotationPresent(CommandPermission.class)) {
             return true;
+        } else {
+            CommandPermission permission = getClass().getAnnotation(CommandPermission.class);
+            return sender.hasPermission(permission.permission());
         }
-
-        CommandPermission permission = getClass().getAnnotation(CommandPermission.class);
-        return sender.hasPermission(permission.permission());
     }
 
     /**
@@ -185,7 +194,41 @@ public abstract class SubCommand {
     public abstract void execute(CommandSender sender, String[] args);
 
     @Override
+    public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+        if (getPermission() != null && !sender.hasPermission(getPermission())) {
+            sender.sendMessage(getPermissionMessage());
+            return false;
+        }
+
+        if (args.length > 1) {
+            if (args[0].equals("help")) {
+                sendHelp(sender, Arrays.copyOfRange(args, 1, args.length));
+            } else {
+                execute(sender, args);
+            }
+        } else {
+            execute(sender, args);
+        }
+
+        return true;
+    }
+
+    @Override
+    @NotNull
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+        if (!hasPermission(sender)) {
+            return Collections.emptyList();
+        } else {
+            return tabCompletions(args);
+        }
+    }
+
+    @Override
     public String toString() {
-        return "&6/" + prefix + " " + String.join(" ", usage) + "&7: " + desc;
+        return StringUtils.color("&6/" + prefix + " " + String.join(" ", args) + "&7: " + description);
+    }
+
+    public void register() {
+        COMMAND_MAP.register(getLabel(), this);
     }
 }
