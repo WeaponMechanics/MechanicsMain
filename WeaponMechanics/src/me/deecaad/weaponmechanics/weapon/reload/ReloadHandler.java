@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
+import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -81,15 +82,45 @@ public class ReloadHandler implements IValidator {
 
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
 
-        // todo ADD open & close times for reloadDuration above
+        if (firearmAction != null) {
 
-        handData.addReloadTask(new BukkitRunnable() {
+            if (!firearmAction.hasReadyFirearmActions(weaponStack)) {
+                // Meaning that shoot firearm actions are most likely in progress
+                // -> Deny reload
+                return false;
+            }
+
+
+        }
+
+        BukkitRunnable closeTask = new BukkitRunnable() {
             @Override
             public void run() {
+                firearmAction.readyState(weaponStack, entityWrapper);
+                finishReload(handData);
+                if (bulletsPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
+                    startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                }
+            }
+        };
 
-                // todo when REVOLVER or LEVER, play open sounds here
-                // -> AND add their tasks to handData reload tasks
-                // -> handData.addReloadTask(open sound task ids)
+        BukkitRunnable openTask = null;
+
+        boolean isPump = firearmAction.getFirearmType() == FirearmType.PUMP;
+        if (isPump) {
+            openTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    firearmAction.closeState(weaponStack, entityWrapper);
+                    handData.addReloadTask(closeTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+                }
+            };
+        }
+
+        BukkitRunnable finalOpenTask = openTask;
+        BukkitRunnable reloadTask = new BukkitRunnable() {
+            @Override
+            public void run() {
 
                 // Variable which decides the final ammo amount set to weapon after reload
                 int ammoToSet;
@@ -111,23 +142,49 @@ public class ReloadHandler implements IValidator {
                     TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet);
                 }
 
-                // todo when PUMP, play open and close sounds here
-                // -> AND add their tasks to handData reload tasks
-                // -> handData.addReloadTask(open sound task ids)
+                if (firearmAction != null) {
+                    if (isPump) {
+                        firearmAction.openState(weaponStack, entityWrapper);
+                        handData.addReloadTask(finalOpenTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getOpenTime()).getTaskId());
+                    } else {
+                        firearmAction.closeState(weaponStack, entityWrapper);
+                        handData.addReloadTask(closeTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+                    }
 
-                // todo when REVOLVER or LEVER, play close sounds here
-                // -> AND add their tasks to handData reload tasks
-                // -> handData.addReloadTask(open sound task ids)
+                } else {
+                    finishReload(handData);
 
-                handData.stopReloadingTasks();
-
-                // todo after cancelling reload tasks
-                // -> start reloading again if bullets_per_reload is used & weapon isn't full yet
-
+                    if (bulletsPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
+                        startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    }
+                }
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), reloadDuration).getTaskId());
+        };
+
+        if (!isPump) {
+            openTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    firearmAction.reloadState(weaponStack, entityWrapper);
+                    handData.addReloadTask(reloadTask.runTaskLater(WeaponMechanics.getPlugin(), reloadDuration).getTaskId());
+                }
+            };
+
+            firearmAction.openState(weaponStack, entityWrapper);
+            handData.addReloadTask(reloadTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getOpenTime()).getTaskId());
+
+        } else {
+            firearmAction.reloadState(weaponStack, entityWrapper);
+            handData.addReloadTask(reloadTask.runTaskLater(WeaponMechanics.getPlugin(), reloadDuration).getTaskId());
+        }
+
+
 
         return true;
+    }
+
+    private void finishReload(HandData handData) {
+        handData.stopReloadingTasks();
     }
 
     /**

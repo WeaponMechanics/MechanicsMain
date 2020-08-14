@@ -1,7 +1,6 @@
 package me.deecaad.core.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import org.intellij.lang.annotations.Language;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -42,7 +41,7 @@ public class StringUtils {
     }
 
     @Nullable
-    public static String match(@Language("RegExp") String regex, String str) {
+    public static String match(String regex, String str) {
         Matcher matcher = Pattern.compile(regex).matcher(str);
         if (matcher.find()) {
             return matcher.group();
@@ -278,6 +277,15 @@ public class StringUtils {
         }
         return builder.substring(0, builder.length() - 1);
     }
+
+    /**
+     * @see #didYouMean(String, Iterable)
+     *
+     * @param enumClazz the enum class
+     */
+    public static String didYouMean(String input, Class<? extends Enum<?>> enumClazz) {
+        return didYouMean(input, Arrays.stream(enumClazz.getEnumConstants()).map(Enum::name).collect(Collectors.toList()));
+    }
     
     /**
      * Gets the most similar <code>String</code> to
@@ -294,10 +302,6 @@ public class StringUtils {
      *      [...] Unkown mob endermen... Did you mean enderman?
      * }</pre></blockquote>
      *
-     *
-     * @param input The
-     * @param options
-     * @return
      */
     public static String didYouMean(String input, Iterable<String> options) {
         String closest = null;

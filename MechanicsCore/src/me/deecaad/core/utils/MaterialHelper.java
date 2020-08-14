@@ -7,40 +7,26 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
 
-import static me.deecaad.core.MechanicsCore.debug;
-
 /**
  * Made this into external class in case we decide to use XMaterial resource so its easier to start using it when we only have to modify this class
  */
 public class MaterialHelper {
 
-    private static final Method getState;
-    private static final Method getBlock;
-    private static final Method getDurability;
-
-    static {
-        Method getBlock1;
-        getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("block.data.CraftBlockData"), "getState");
-
-        if (CompatibilityAPI.getVersion() >= 1.16) {
-            try {
-                getBlock1 = getState.getReturnType().getMethod("getBlock");
-            } catch (NoSuchMethodException e) {
-                debug.log(LogLevel.ERROR, e);
-                getBlock1 = null;
-            }
-        } else {
-            getBlock1 = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
-        }
-
-        getBlock = getBlock1;
-        getDurability = ReflectionUtil.getMethod(getBlock.getReturnType(), "getDurability");
-    }
+    private static Method getState;
+    private static Method getBlock;
+    private static Method getDurability;
 
     /**
      * Don't let anyone instantiate this class
      */
-    private MaterialHelper() {
+    private MaterialHelper() { }
+
+    private static void reflectionSetup() {
+        if (CompatibilityAPI.getVersion() < 1.13) {
+            getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("block.data.CraftBlockData"), "getState");
+            getBlock = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
+            getDurability = ReflectionUtil.getMethod(getBlock.getReturnType(), "getDurability");
+        }
     }
     
     /**
@@ -62,6 +48,8 @@ public class MaterialHelper {
             if (isFluid(type)) {
                 return 100.0f;
             }
+
+            reflectionSetup();
 
             BlockData data = type.createBlockData();
 
