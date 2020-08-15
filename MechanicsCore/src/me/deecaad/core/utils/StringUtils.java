@@ -57,6 +57,10 @@ public class StringUtils {
      * @return Colored String
      */
     public static String color(String string) {
+        if (string == null) {
+            return null;
+        }
+
         StringBuilder result = new StringBuilder(string.length());
 
         char[] chars = string.toCharArray();
@@ -112,6 +116,26 @@ public class StringUtils {
         }
 
         return result.toString();
+    }
+
+    private static final String[] SUFFIXES = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
+
+    /**
+     * The ordinal of an integer is
+     *
+     * @param i
+     * @return
+     */
+    public static String ordinal(int i) {
+        switch (i % 100) {
+            case 11:
+            case 12:
+            case 13:
+                return i + "th";
+            default:
+                return i + SUFFIXES[i % 10];
+
+        }
     }
 
     /**

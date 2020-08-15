@@ -1,0 +1,31 @@
+Messages:
+  Chat:
+    Messages:
+      - "No hover"
+      - "Yes hover\n"
+      - "Yes click\n"
+    Hover_Actions:
+      - ""
+      - "SHOW_TEXT~&6I could show you the world..."
+      - "SHOW_TEXT~&6rip deecaad"
+    Click_Actions:
+      - ""
+      - ""
+      - "SUGGEST_COMMAND~/kill deecaad"
+  Action_Bar:
+    Time: -1
+    Message: "&6Message"
+  Title:
+    Fade_In: -1
+    Stay: -1
+    Fade_Out: -1
+    Title: "&6Title"
+    Subtitle: "&6Subtitle"
+  Bossbar:
+    Title: "Title"
+    Color: "RED"
+    Style: "SOLID"
+    Darken_Sky: <Boolean>
+    Play_Music: <Boolean>
+    Show_Fog: <Boolean>
+    Active_Time: 200

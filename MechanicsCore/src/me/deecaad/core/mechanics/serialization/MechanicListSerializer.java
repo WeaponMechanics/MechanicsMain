@@ -111,6 +111,8 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
                 }
             }
         }
+
+        debug.debug("Serialized Mechanics at " + path + ": " + temp);
         return new MechanicList(temp);
     }
 
@@ -162,7 +164,7 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
                 continue;
             }
 
-            data.put(split[0], arg.getType().serialize(split[1]));
+            data.put(arg.getName(), arg.getType().serialize(split[1]));
         }
 
         return data;

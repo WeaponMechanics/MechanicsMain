@@ -47,7 +47,7 @@ public class PotionMechanic extends Mechanic {
         }
 
         setPotion(new PotionEffect(effectType, duration, amplifier, true, showParticles));
-        return this;
+        return super.serialize(data);
     }
 
     @Override
@@ -67,5 +67,15 @@ public class PotionMechanic extends Mechanic {
     @Override
     public void cast(MechanicCaster caster, Player target) {
         target.addPotionEffect(potion);
+    }
+
+    @Override
+    public String toString() {
+        return "PotionMechanic{" +
+                "potion=" + potion +
+                ", delay=" + delay +
+                ", repeatAmount=" + repeatAmount +
+                ", repeatInterval=" + repeatInterval +
+                '}';
     }
 }

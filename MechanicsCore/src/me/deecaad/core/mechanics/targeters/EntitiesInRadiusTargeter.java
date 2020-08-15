@@ -4,22 +4,18 @@ import me.deecaad.core.mechanics.casters.MechanicCaster;
 import me.deecaad.core.mechanics.serialization.SerializerData;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-@SerializerData(name = "@entitiesInRadius", args = {"radius~DOUBLE~r", "isLiving~BOOLEAN~living", "entity~ENTITY~type"})
-public class EntitiesInRadiusTargeter implements Targeter<Entity> {
+@SerializerData(name = "@entitiesInRadius", args = "radius~DOUBLE~r")
+public class EntitiesInRadiusTargeter extends EntityTargeter {
 
     private double radius;
     private double radiusSquared;
-    private boolean isLiving;
-    private EntityType only;
 
     /**
      * Default constructor for serializer
@@ -38,28 +34,13 @@ public class EntitiesInRadiusTargeter implements Targeter<Entity> {
         this.radiusSquared = radius * radius;
     }
 
-    public boolean isLiving() {
-        return isLiving;
-    }
-
-    public void setLiving(boolean living) {
-        isLiving = living;
-    }
-
-    public EntityType getOnly() {
-        return only;
-    }
-
-    public void setOnly(@Nullable EntityType only) {
-        this.only = only;
-    }
-
     @Override
-    public List<Entity> getTargets(MechanicCaster caster, List<Entity> list) {
+    public List<Entity> getTargets(MechanicCaster caster) {
         Location loc = caster.getLocation();
+        boolean hasNoFilter = only == null && !living;
 
         return loc.getWorld().getNearbyEntities(loc, radius, radius, radius, entity ->
-            (isLiving && entity.getType().isAlive()) || (only != null && only == entity.getType())).stream()
+            hasNoFilter || (living && entity.getType().isAlive()) || (only != null && only == entity.getType())).stream()
                 .filter(entity -> entity.getLocation().distanceSquared(loc) <= radiusSquared)
                 .collect(Collectors.toList());
     }
@@ -67,16 +48,10 @@ public class EntitiesInRadiusTargeter implements Targeter<Entity> {
     @Override
     public Targeter<Entity> serialize(Map<String, Object> data) {
 
-        double radius = (double) data.get("radius");
-        boolean isLiving = (boolean) data.get("isLiving");
-        EntityType only = (EntityType) data.get("entity");
-
+        double radius = (double) data.getOrDefault("radius", 1.0);
         debug.validate(radius > 0, "Radius must be positive!");
-
         setRadius(radius);
-        setLiving(isLiving);
-        setOnly(only);
 
-        return this;
+        return super.serialize(data);
     }
 }

@@ -7,24 +7,35 @@ import me.deecaad.weaponcompatibility.scope.Scope_1_15_R1;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponcompatibility.shoot.Shoot_1_15_R1;
 
+import javax.annotation.Nonnull;
+
 public class v1_15_R1 implements IWeaponCompatibility {
 
     private IScopeCompatibility scopeCompatibility;
     private IProjectileCompatibility projectileCompatibility;
     private IShootCompatibility shootCompatibility;
 
+    public v1_15_R1() {
+        this.scopeCompatibility = new Scope_1_15_R1();
+        this.projectileCompatibility = new Projectile_1_15_R1();
+        this.shootCompatibility = new Shoot_1_15_R1();
+    }
+
+    @Nonnull
     @Override
     public IScopeCompatibility getScopeCompatibility() {
-        return scopeCompatibility == null ? scopeCompatibility = new Scope_1_15_R1() : scopeCompatibility;
+        return scopeCompatibility;
     }
 
+    @Nonnull
     @Override
     public IProjectileCompatibility getProjectileCompatibility() {
-        return projectileCompatibility == null ? projectileCompatibility = new Projectile_1_15_R1() : projectileCompatibility;
+        return projectileCompatibility;
     }
 
+    @Nonnull
     @Override
     public IShootCompatibility getShootCompatibility() {
-        return shootCompatibility == null ? shootCompatibility = new Shoot_1_15_R1() : shootCompatibility;
+        return shootCompatibility;
     }
 }

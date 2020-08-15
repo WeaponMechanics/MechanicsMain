@@ -16,18 +16,18 @@ public class MaterialHelper {
     private static Method getBlock;
     private static Method getDurability;
 
-    /**
-     * Don't let anyone instantiate this class
-     */
-    private MaterialHelper() { }
-
-    private static void reflectionSetup() {
+    static {
         if (CompatibilityAPI.getVersion() < 1.13) {
             getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("block.data.CraftBlockData"), "getState");
             getBlock = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
             getDurability = ReflectionUtil.getMethod(getBlock.getReturnType(), "getDurability");
         }
     }
+
+    /**
+     * Don't let anyone instantiate this class
+     */
+    private MaterialHelper() { }
     
     /**
      * Simple method to convert string to item stack.
@@ -48,8 +48,6 @@ public class MaterialHelper {
             if (isFluid(type)) {
                 return 100.0f;
             }
-
-            reflectionSetup();
 
             BlockData data = type.createBlockData();
 

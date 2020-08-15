@@ -50,7 +50,7 @@ public interface StringSerializable<T> {
         }
 
         // Recursively check superclasses for arguments
-        if (clazz.getSuperclass() != Object.class && clazz.getSuperclass().isAssignableFrom(StringSerializable.class)) {
+        if (StringSerializable.class.isAssignableFrom(clazz.getSuperclass())) {
             List<Argument> superArgs = Arrays.asList(parseArgs(clazz.getSuperclass()));
             args.addAll(superArgs);
         }

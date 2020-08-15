@@ -25,7 +25,7 @@ public class DamageMechanic extends Mechanic {
     @Override
     public Mechanic serialize(Map<String, Object> data) {
         amount = (double) data.getOrDefault("amount", 0.0);
-        return this;
+        return super.serialize(data);
     }
     
     @Override
@@ -47,5 +47,15 @@ public class DamageMechanic extends Mechanic {
     public void cast(MechanicCaster caster, Player target) {
         Entity entity = caster instanceof EntityCaster ? ((EntityCaster) caster).getEntity() : null;
         target.damage(amount, entity);
+    }
+
+    @Override
+    public String toString() {
+        return "DamageMechanic{" +
+                "amount=" + amount +
+                ", delay=" + delay +
+                ", repeatAmount=" + repeatAmount +
+                ", repeatInterval=" + repeatInterval +
+                '}';
     }
 }

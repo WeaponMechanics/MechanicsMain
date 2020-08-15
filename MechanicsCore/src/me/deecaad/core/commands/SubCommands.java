@@ -1,7 +1,15 @@
 package me.deecaad.core.commands;
 
 import me.deecaad.core.utils.StringUtils;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,9 +100,28 @@ public class SubCommands {
      * @param args Command arguments
      * @return Whether or not the command is valid
      */
-    public boolean sendHelp(CommandSender sender, String[] args) {
+    boolean sendHelp(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            commands.forEach((key, cmd) -> sender.sendMessage(StringUtils.color("&7➢  " + cmd.toString())));
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(StringUtils.color(toString()));
+            } else {
+
+                // Create the messages with ho
+                ComponentBuilder builder = new ComponentBuilder();
+                for (SubCommand command : commands.values()) {
+                    builder.append("➢  ").color(ChatColor.GRAY);
+                    BaseComponent[] components = TextComponent.fromLegacyText(command.toString());
+                    for (BaseComponent component : components) {
+                        component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
+                        component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to fill command")));
+                        builder.append(component);
+                    }
+                    builder.append("\n");
+                }
+
+                Player player = (Player) sender;
+                player.spigot().sendMessage(builder.create());
+            }
             return true;
         }
 
