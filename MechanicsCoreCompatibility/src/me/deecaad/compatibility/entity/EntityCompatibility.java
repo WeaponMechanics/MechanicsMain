@@ -1,6 +1,11 @@
 package me.deecaad.compatibility.entity;
 
 import me.deecaad.core.utils.BitOperation;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import java.util.Collection;
 
 public interface EntityCompatibility {
 
@@ -57,8 +62,9 @@ public interface EntityCompatibility {
      */
     Object getDestroyPacket(Object entity);
 
-    Object getGoalSelector(CustomPathfinderGoal goal);
+    void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects);
 
+    Object getGoalSelector(CustomPathfinderGoal goal);
 
     /**
      * This enum gives location of a bit of information inside

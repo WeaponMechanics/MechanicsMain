@@ -1,10 +1,14 @@
 package me.deecaad.compatibility.entity;
 
 import me.deecaad.core.utils.BitOperation;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import static me.deecaad.core.MechanicsCore.debug;
 import static me.deecaad.core.utils.ReflectionUtil.*;
@@ -87,6 +91,11 @@ public class EntityReflection implements EntityCompatibility {
     @Override
     public Object getDestroyPacket(Object entity) {
         return newInstance(destroyPacketConstructor, invokeMethod(getId, entity));
+    }
+
+    @Override
+    public void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect... effects) {
+
     }
 
     @Override
