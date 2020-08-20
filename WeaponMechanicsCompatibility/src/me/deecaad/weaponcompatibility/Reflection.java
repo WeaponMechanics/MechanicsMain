@@ -7,24 +7,35 @@ import me.deecaad.weaponcompatibility.scope.Scope_Reflection;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponcompatibility.shoot.Shoot_Reflection;
 
+import javax.annotation.Nonnull;
+
 public class Reflection implements IWeaponCompatibility {
 
     private IScopeCompatibility scopeCompatibility;
     private IProjectileCompatibility projectileCompatibility;
     private IShootCompatibility shootCompatibility;
 
+    public Reflection() {
+        this.scopeCompatibility = new Scope_Reflection();
+        this.projectileCompatibility = new Projectile_Reflection();
+        this.shootCompatibility = new Shoot_Reflection();
+    }
+
+    @Nonnull
     @Override
     public IScopeCompatibility getScopeCompatibility() {
-        return scopeCompatibility == null ? scopeCompatibility = new Scope_Reflection() : scopeCompatibility;
+        return scopeCompatibility;
     }
 
+    @Nonnull
     @Override
     public IProjectileCompatibility getProjectileCompatibility() {
-        return projectileCompatibility == null ? projectileCompatibility = new Projectile_Reflection() : projectileCompatibility;
+        return projectileCompatibility;
     }
 
+    @Nonnull
     @Override
     public IShootCompatibility getShootCompatibility() {
-        return shootCompatibility == null ? shootCompatibility = new Shoot_Reflection() : shootCompatibility;
+        return shootCompatibility;
     }
 }

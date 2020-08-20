@@ -2,6 +2,7 @@ package me.deecaad.compatibility.block;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,6 +31,8 @@ public interface BlockCompatibility {
      * @return The constructed packet
      */
     Object getCrackPacket(Block block, int crack);
+
+    Object createFallingBlock(Block block, Vector vector);
 
     //todo BlockMask
 }

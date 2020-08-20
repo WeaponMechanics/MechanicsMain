@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static me.deecaad.core.MechanicsCore.debug;
+
 public abstract class SubCommand extends BukkitCommand {
 
     protected static final String PLAYERS = "<player>";
@@ -124,7 +126,9 @@ public abstract class SubCommand extends BukkitCommand {
         // then usage.length, it is out of bounds. This probably
         // means that subcommands are in use or the user is typing
         // past what the command will take in
-        String current = args.length >= args.length ? args[args.length - 1] : "OUT_OF_BOUNDS";
+        String current = this.args.length >= args.length ? this.args[args.length - 1] : "OUT_OF_BOUNDS";
+
+        debug.debug("TabCompleting: " + current);
 
         switch (current) {
             case PLAYERS:
@@ -136,7 +140,7 @@ public abstract class SubCommand extends BukkitCommand {
             case SUB_COMMANDS:
                 return new ArrayList<>(commands.keys());
             case "OUT_OF_BOUNDS":
-                int index = ArrayUtils.indexOf(args, SUB_COMMANDS);
+                int index = ArrayUtils.indexOf(this.args, SUB_COMMANDS);
 
                 // If this command does not have subcommands, give no info
                 if (index == -1) return new ArrayList<>();
