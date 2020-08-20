@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static me.deecaad.core.MechanicsCore.debug;
+
 public class SubCommands {
 
     private Map<String, SubCommand> commands;
@@ -159,9 +161,10 @@ public class SubCommands {
      * @param args what is being typed
      * @return tab completions
      */
-    public List<String> tabCompletions(String key, String[] args) {
+    List<String> tabCompletions(String key, String[] args) {
         SubCommand command = commands.get(key);
         if (command == null) {
+            debug.debug("Unknown sub-command: " + key);
             return new ArrayList<>();
         } else {
             return command.tabCompletions(args);
