@@ -36,9 +36,9 @@ If you are still having problems, there are still a few things you can try:
   are trying to tell you that you've made a mistake! Look out for lines that 
   start with `[Server thread/ERROR]: [MechanicsCore]`. This will tell you 
   exactly where your issue is.
-  * **Paste your config into a validator** - A [YAML Validator]() can help tell
-  you where your issue is. Click on the link, paste your config, then click
-  "Validate YAML"
+  * **Paste your config into a validator** - A [YAML Validator](https://jsonformatter.org/yaml-validator)
+  can help tell you where your issue is. Click on the link, paste 
+  your config, then click "Validate YAML"
   
 Now that you have tried EVERYTHING possible, you should [get in contact with us]()
 so we can help fix your issue. Please do not leave a 1 star review, get help with us
