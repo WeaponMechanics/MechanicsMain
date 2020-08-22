@@ -98,7 +98,7 @@ public class WeaponMechanics extends JavaPlugin {
             guard.registerFlag("weapon-damage", IWorldGuardCompatibility.FlagType.STATE_FLAG);
             guard.registerFlag("weapon-damage-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
         } else {
-            debug.log(LogLevel.DEBUG, "No WorldGuard detected0");
+            debug.log(LogLevel.DEBUG, "No WorldGuard detected");
         }
     }
 

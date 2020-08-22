@@ -28,8 +28,11 @@ public class DamageHandler implements IValidator {
         }
 
         // Base damage amounts
-        double damage = config.getDouble(weaponTitle + ".Damage.Base_Damage")
-                + config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
+        double damage = config.getDouble(weaponTitle + ".Damage.Base_Damage");
+
+        if (point != null) {
+            damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
+        }
 
         // Damage changes based on how far the projectile travelled
         double distance = projectile.getDistanceTravelled();
