@@ -18,6 +18,8 @@ public class TestCommand extends SubCommand {
         commands.register(new ShootCommand());
         commands.register(new ShapeCommand());
         commands.register(new FireworkCommand());
+        commands.register(new MaskCommand());
+        commands.register(new FallingBlockCommand());
     }
 
     @Override

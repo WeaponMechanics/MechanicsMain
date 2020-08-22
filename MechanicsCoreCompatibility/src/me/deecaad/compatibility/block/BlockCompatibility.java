@@ -1,18 +1,23 @@
 package me.deecaad.compatibility.block;
 
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public interface BlockCompatibility {
 
+
     AtomicInteger IDS = new AtomicInteger(0);
 
     /**
-     * Sends a Block Break Animation packet to every player
-     * in the block's <code>World</code>.
+     * Gets a <code>PacketPlayOutBlockBreakAnimation</code> packet
+     * for the given block
      *
      * https://wiki.vg/Protocol#Block_Break_Animation
      *
@@ -30,9 +35,89 @@ public interface BlockCompatibility {
      * @param crack The amount to crack
      * @return The constructed packet
      */
-    Object getCrackPacket(Block block, int crack);
+    Object getCrackPacket(@Nonnull Block block, int crack);
 
-    Object createFallingBlock(Block block, Vector vector);
+    /**
+     * Creates a falling block with the data and location
+     * from the given <code>block</code> and with
+     * <code>vector</code> motion
+     *
+     * @param loc The location to spawn the entity at
+     * @param mat The Material of the falling block
+     * @param data Legacy data of the falling block
+     * @return NMS EntityFallingBlock
+     */
+    Object createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data);
 
-    //todo BlockMask
+    /**
+     * Creates an NMS <code>EntityFallingBlock</code> of the given
+     * block state. The entity is then given the provided
+     * <code>Vector</code> as motion, if it is not null
+     *
+     * @param loc The location of the entity (World must not be null!)
+     * @param state The block state to use as the block's data
+     * @return NMS falling block
+     */
+    Object createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state);
+
+    /**
+     * Gets a <code>PacketPlayOutBlockChange</code> packet for the given
+     * <code>bukkitBlock</code> with the given <code>mask</code>. This
+     * effectively masks the block as a different block.
+     *
+     * Note: You probably want to save the previous block state of the block
+     * so you can tell the client what the block actually is later. This may
+     * cause issues with anti-cheats
+     *
+     * @param bukkitBlock The bukkit block to mask
+     * @param mask The material to change the block to
+     * @param data The data (for legacy minecraft) of the material
+     * @return Instantiated packet
+     */
+    Object getBlockMaskPacket(Block bukkitBlock, Material mask, byte data);
+
+    /**
+     * Gets a <code>PacketPlayOutBlockChange</code> packet for the given
+     * <code>bukkitBlock</code> with the given <code>mask</code>. This
+     * effectively masks the block as a different block.
+     *
+     * Note: You probably want to save the previous block state of the block
+     * so you can tell the client what the block actually is later. This may
+     * cause issues with anti-cheats
+     *
+     * @param bukkitBlock The bukkit block to mask
+     * @param mask The state to set the block to
+     * @return Instantiated packet
+     */
+    Object getBlockMaskPacket(Block bukkitBlock, BlockState mask);
+
+    /**
+     * Gets a <code>PacketPlayOutMultiBlockChange</code> packet holding
+     * masks for all of the given <code>blocks</code>. The mask applied
+     * depends on <code>mask</code> and <code>data</code> (Though
+     * <code>data</code> isn't used in legacy (pre1.13) versions)
+     *
+     * Note: You probably want to send this packet twice, once to mask the
+     * blocks and another time (Which different masks) to unmask the blocks
+     *
+     * @param blocks The blocks to mask
+     * @param mask The material mask
+     * @param data The data (for legacy minecraft) of the material
+     * @return Instantiated packet
+     */
+    Object getMultiBlockMaskPacket(List<Block> blocks, Material mask, byte data);
+
+    /**
+     * Gets a <code>PacketPlayOutMultiBlockChange</code> packet holding
+     * masks for all of the given <code>blocks</code>. The mask applied
+     * depends on <code>mask</code>.
+     *
+     * Note: You probably want to send this packet twice, once to mask the
+     * blocks and another time (Which different masks) to unmask the blocks
+     *
+     * @param blocks The blocks to mask
+     * @param mask The state to set as the mask
+     * @return Instantiated packet
+     */
+    Object getMultiBlockMaskPacket(List<Block> blocks, BlockState mask);
 }

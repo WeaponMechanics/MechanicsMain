@@ -1,10 +1,10 @@
 package me.deecaad.compatibility.entity;
 
-import me.deecaad.core.utils.BitOperation;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -18,6 +18,7 @@ public class EntityReflection implements EntityCompatibility {
     private static final Class<?> nmsEntityClass;
     private static final Class<?> cbEntityClass;
     private static final Class<?> dataWatcherClass;
+
     private static final Method getId;
     private static final Method getHandle;
     private static final Method getDataWatcher;
@@ -61,6 +62,11 @@ public class EntityReflection implements EntityCompatibility {
     }
 
     @Override
+    public Object getVelocityPacket(Object entity, Vector velocity) {
+        return null;
+    }
+
+    @Override
     public Object getMetadataPacket(Object entity) {
         if (!nmsEntityClass.isInstance(entity)) {
             debug.error("Object must be NMS entity! Got: " + entity);
@@ -74,7 +80,7 @@ public class EntityReflection implements EntityCompatibility {
     }
 
     @Override
-    public Object getMetadataPacket(Object entity, BitOperation operation, boolean isAddFlags, EntityMeta... flags) {
+    public Object getMetadataPacket(Object entity, boolean isEnableFlags, EntityMeta... flags) {
         if (!nmsEntityClass.isInstance(entity)) {
             debug.error("Object must be NMS entity! Got: " + entity);
             return null;
@@ -84,7 +90,7 @@ public class EntityReflection implements EntityCompatibility {
     }
 
     @Override
-    public Object setMetadata(Object packet, BitOperation operation, EntityMeta... flags) {
+    public Object setMetadata(Object packet, boolean isEnableFlags, EntityMeta... flags) {
         return null; // todo
     }
 

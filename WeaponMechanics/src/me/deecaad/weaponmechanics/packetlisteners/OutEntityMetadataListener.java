@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
@@ -45,7 +44,7 @@ public class OutEntityMetadataListener extends PacketHandler {
             
             // Sets the glowing flag
             byte previousValue = (byte) itemObject;
-            byte newValue = EntityCompatibility.EntityMeta.GLOWING.setFlag(previousValue, color != null);
+            byte newValue = -1 /*EntityCompatibility.EntityMeta.GLOWING.setFlag(previousValue, color != null)*/;
     
             // Sets the fields via reflection
             ReflectionUtil.setField(field, byteData, newValue);

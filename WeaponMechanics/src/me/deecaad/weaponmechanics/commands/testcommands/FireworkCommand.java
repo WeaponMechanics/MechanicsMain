@@ -54,17 +54,17 @@ public class FireworkCommand extends SubCommand {
     protected List<String> handleCustomTag(String[] args, String tag) {
         switch (tag) {
             case "<flight-time>":
-                return Arrays.asList("10", "40");
+                return Arrays.asList(tag, "10", "40");
             case "<type>":
                 return new ArrayList<>(Enums.getOptions(FireworkEffect.Type.class));
             case "<color>":
             case "<fade>":
-                return Arrays.asList("FFFFFF", "FF0000", "00FF00", "0000FF");
+                return Arrays.asList(tag, "FFFFFF", "FF0000", "00FF00", "0000FF");
             case "<flicker>":
             case "<trail>":
-                return Arrays.asList("true", "false");
+                return Arrays.asList(tag, "true", "false");
             default:
-                return Collections.emptyList();
+                return Collections.singletonList(tag);
         }
     }
 }

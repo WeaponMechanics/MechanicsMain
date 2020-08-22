@@ -1,9 +1,9 @@
 package me.deecaad.compatibility.entity;
 
-import me.deecaad.core.utils.BitOperation;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.Collection;
 
@@ -33,25 +33,36 @@ public interface EntityCompatibility {
      *
      * @param entity NMS entity to spawn
      * @return Packet used to spawn <code>entity</code>
+     * @throws IllegalArgumentException If the given object is not an nms entity
      */
     Object getSpawnPacket(Object entity);
 
     /**
+     * Gets a velocity packet for the given NMS
+     * <code>entity</code> with the given motion
+     * <code>velocity</code>.
+     *
+     * @param entity The NMS entity to apply the velocity to
+     * @param velocity The velocity
+     * @return PacketPlayOutEntityVelocity
+     * @throws IllegalArgumentException If the given object is not an nms entity
+     */
+    Object getVelocityPacket(Object entity, Vector velocity);
+
+    /**
      * Gets the <code>PacketPlayOutEntityMetadata</code>
-     * used to display <code>entity</code>
+     * containing the metadata from the <code>DataWatcher</code>
+     * from the NMS Entity <code>entity</code>
      *
      * @param entity NMS entity to display
      * @return Packet used to display <code>entity</code>
+     * @throws IllegalArgumentException If the given object is not an nms entity
      */
     Object getMetadataPacket(Object entity);
 
-    Object getMetadataPacket(Object entity, BitOperation operation, boolean isAddFlags, EntityMeta...flags);
+    Object getMetadataPacket(Object entity, boolean isEnableFlags, EntityMeta...flags);
 
-    default Object setMetadata(Object packet, boolean isAddFlags, EntityMeta...flags) {
-        return setMetadata(packet, BitOperation.OR, flags);
-    }
-
-    Object setMetadata(Object packet, BitOperation operation, EntityMeta...flags);
+    Object setMetadata(Object packet, boolean isEnableFlags, EntityMeta...flags);
 
     /**
      * Gets the <code>PacketPlayOutEntityDestory</code> used
@@ -62,8 +73,36 @@ public interface EntityCompatibility {
      */
     Object getDestroyPacket(Object entity);
 
+    /**
+     * Spawns an NMS <code>EntityFirework</code> using packets
+     * for the given <code>players</code>. The spawned
+     * <code>EntityFirework</code> will have the given
+     * <code>effects</code> applied to it when it explodes.
+     *
+     * The <code>EntityFirework</code> "explodes" aync after
+     * <code>flightTime</code> amount of ticks passes.
+     *
+     * @param loc The bukkit location to spawn the firework at
+     * @param players All of the players that will see the firework
+     * @param flightTime The time before the firework explodes
+     * @param effects The effects that the firework will have
+     */
     void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects);
 
+    /**
+     * Gets an NMS <code>PathFinderGoal</code> that can be
+     * applied to entities that uses methods from the given
+     * <code>CustomPathfinderGoal</code>.
+     *
+     * An <code>UnsupportedOperationException</code> will be thrown
+     * if the implementing class cannot make subclasses of
+     * <code>PathFinderGoal</code>
+     * @see EntityReflection
+     *
+     * @param goal The goal to use
+     * @return NMS PathFinderGoal
+     * @throws UnsupportedOperationException If using reflection
+     */
     Object getGoalSelector(CustomPathfinderGoal goal);
 
     /**
@@ -86,20 +125,19 @@ public interface EntityCompatibility {
         GLOWING(6),   // If the entity is glowing
         GLIDING(7);   // If the entity is gliding on an elytra
 
-        // This represents the "index" of the bit used for this
-        // data on a byte.
-        private final byte flag;
 
-        EntityMeta(int flag) {
-            this.flag = (byte) flag;
+        private final byte mask;
+
+        EntityMeta(int location) {
+            this.mask = (byte) (1 << location);
         }
 
-        public byte getFlag() {
-            return this.flag;
+        public byte getMask() {
+            return mask;
         }
 
-        public byte setFlag(byte data, boolean is) {
-            return (byte) (is ? data | 1 << flag : data & ~(1 << flag));
+        public byte set(byte data, boolean is) {
+            return (byte) (is ? data | mask : data & ~(mask));
         }
     }
 }

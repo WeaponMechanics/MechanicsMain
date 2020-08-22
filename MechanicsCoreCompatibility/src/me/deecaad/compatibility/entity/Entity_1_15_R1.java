@@ -3,7 +3,7 @@ package me.deecaad.compatibility.entity;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.utils.BitOperation;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.FireworkEffect;
@@ -16,6 +16,7 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -50,14 +51,25 @@ public class Entity_1_15_R1 implements EntityCompatibility {
             throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
         }
 
+        if (entity instanceof EntityFallingBlock) {
+            EntityFallingBlock block = (EntityFallingBlock) entity;
+            debug.debug(block.getMot().toString()); //
+            return new PacketPlayOutSpawnEntity(block, Block.getCombinedId(block.getBlock()));
+        }
+
         return new PacketPlayOutSpawnEntity((Entity) entity);
+    }
+
+    @Override
+    public Object getVelocityPacket(Object entity, Vector velocity) {
+        return new PacketPlayOutEntityVelocity(((Entity) entity).getId(),
+                new Vec3D(velocity.getX(), velocity.getY(), velocity.getZ()));
     }
 
     @Override
     public Object getMetadataPacket(Object entity) {
         if (!(entity instanceof Entity)) {
-            debug.error("Entity " + entity + " must be a 1.15 NMS entity");
-            return null;
+            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
         }
 
         Entity nmsEntity = (Entity) entity;
@@ -65,7 +77,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     }
 
     @Override
-    public Object getMetadataPacket(Object entity, BitOperation operation, boolean isAddFlags, EntityMeta... flags) {
+    public Object getMetadataPacket(Object entity, boolean isEnableFlags, EntityMeta... flags) {
 
         // Make sure the given object is an entity
         if (!(entity instanceof Entity)) {
@@ -75,8 +87,9 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         // Setup the byte data
         byte mask = 0;
         for (EntityMeta flag : flags) {
-            mask = flag.setFlag(mask, isAddFlags);
+            mask |= flag.getMask();
         }
+        debug.info("Mask: " + NumberUtils.toBinary(mask, 8));
 
         // Get the metadata stored in the entity
         Entity nmsEntity = (Entity) entity;
@@ -95,9 +108,9 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         @SuppressWarnings("unchecked")
         DataWatcher.Item<Byte> item = (DataWatcher.Item<Byte>) items.get(0);
 
-        // Create and set byte data
+        // Get the byte data, then apply the bitmask
         byte data = item.b();
-        data = operation.invoke(data, mask);
+        data = (byte) (isEnableFlags ? data | mask : data & ~mask);
         item.a(data);
 
         // Create the packet
@@ -105,16 +118,16 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         ReflectionUtil.setField(metaPacketA, metaPacket, nmsEntity.getId());
         ReflectionUtil.setField(metaPacketB, metaPacket, items);
 
-        return new PacketPlayOutEntityMetadata(nmsEntity.getId(), nmsEntity.getDataWatcher(), true);
+        return metaPacket;
     }
 
     @Override
-    public Object setMetadata(Object packet, BitOperation operation, EntityMeta... flags) {
+    public Object setMetadata(Object packet, boolean isEnableFlags, EntityMeta... flags) {
 
         // Setup the byte data
         byte mask = 0;
         for (EntityMeta flag : flags) {
-            mask = flag.setFlag(mask, true);
+            mask |= flag.getMask();
         }
 
         @SuppressWarnings("unchecked")
@@ -123,9 +136,9 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         @SuppressWarnings("unchecked")
         DataWatcher.Item<Byte> item = (DataWatcher.Item<Byte>) items.get(0);
 
-        // Create and set byte data
+        // Get the byte data, then apply the bitmask
         byte data = item.b();
-        data = operation.invoke(data, mask);
+        data = (byte) (isEnableFlags ? data | mask : data & ~mask);
         item.a(data);
 
         ReflectionUtil.setField(metaPacketB, packet, items);
