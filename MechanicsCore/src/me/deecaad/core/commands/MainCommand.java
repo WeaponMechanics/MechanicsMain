@@ -19,7 +19,7 @@ public abstract class MainCommand extends BukkitCommand {
         super(name);
 
         this.permission = permission;
-        commands = new SubCommands();
+        commands = new SubCommands("/" + name);
 
         // Get the shortest alias for the help command
         String prefix = name;

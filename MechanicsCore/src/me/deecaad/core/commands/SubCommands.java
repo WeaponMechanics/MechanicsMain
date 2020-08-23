@@ -1,5 +1,6 @@
 package me.deecaad.core.commands;
 
+import joptsimple.internal.Strings;
 import me.deecaad.core.utils.StringUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -7,7 +8,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -23,9 +23,11 @@ import static me.deecaad.core.MechanicsCore.debug;
 public class SubCommands {
 
     private Map<String, SubCommand> commands;
+    private String parentPrefix;
 
-    public SubCommands() {
-        commands = new HashMap<>();
+    public SubCommands(String parentPrefix) {
+        this.commands = new HashMap<>();
+        this.parentPrefix = parentPrefix;
     }
 
     /**
@@ -110,16 +112,34 @@ public class SubCommands {
 
                 // Create the messages with ho
                 ComponentBuilder builder = new ComponentBuilder();
+                builder.append("Showing " + commands.size() + " Sub-Commands (" + parentPrefix + ")").color(ChatColor.GOLD).append("\n");
+
                 for (SubCommand command : commands.values()) {
-                    builder.append("➢  ").color(ChatColor.GRAY);
-                    BaseComponent[] components = TextComponent.fromLegacyText(command.toString());
-                    for (BaseComponent component : components) {
-                        component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
-                        component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to fill command")));
-                        builder.append(component);
-                    }
+
+                    // Create a hoverable for the command
+                    BaseComponent[] hover = new ComponentBuilder("Command: ").color(ChatColor.GOLD)
+                            .append(command.getLabel()).color(ChatColor.GRAY)
+                            .append("\n").append("Description: ").color(ChatColor.GOLD)
+                            .append(command.getDescription()).color(ChatColor.GRAY)
+                            .append("\n").append("Usage: ").color(ChatColor.GOLD)
+                            .append("/" + command.getPrefix() + " " + Strings.join(command.getArgs(), " ")).color(ChatColor.GRAY)
+                            .append("\n").append("Permission: ").color(ChatColor.GOLD)
+                            .append(command.getPermission() == null ? "N/A" : command.getPermission()).color(ChatColor.GRAY)
+                            .append("\n\n").append("Click to auto-complete.").color(ChatColor.GRAY).create();
+
+                    builder.append("➢ ").color(ChatColor.GRAY);
+                    BaseComponent component = new TextComponent("/" + command.getPrefix());
+                    component.setColor(ChatColor.GOLD);
+                    component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
+                    component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
+                    builder.append(component);
+
+                    // Every command goes on a new line
                     builder.append("\n");
                 }
+
+                // Remove the last new line, since it's extra
+                builder.removeComponent(builder.getCursor());
 
                 Player player = (Player) sender;
                 player.spigot().sendMessage(builder.create());
@@ -145,7 +165,7 @@ public class SubCommands {
         SubCommand command = commands.get(key);
         if (command == null) {
             return false;
-        } else if (command.hasPermission(sender)) {
+        } else if (sender.hasPermission(command.getPermission())) {
             command.execute(sender, args);
         } else {
             sender.sendMessage(StringUtils.color("&cInvalid permissions."));

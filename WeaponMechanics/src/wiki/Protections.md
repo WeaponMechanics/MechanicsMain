@@ -25,7 +25,7 @@ PlotsSquared support is planned, but is not yet complete.
 ## Other
 If you want us to add another hook for protections, please tell us.
 
-[WorldGuard]: #
-[Towny]: #
-[Grief Prevention]: #
-[PlotsSquared]: #
+[WorldGuard]: https://dev.bukkit.org/projects/worldguard
+[Towny]: https://www.spigotmc.org/resources/towny-advanced.72694/
+[Grief Prevention]: https://www.spigotmc.org/resources/griefprevention.1884/
+[PlotsSquared]: https://www.spigotmc.org/resources/plotsquared-v5.77506/
