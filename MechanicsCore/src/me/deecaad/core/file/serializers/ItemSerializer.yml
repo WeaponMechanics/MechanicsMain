@@ -18,3 +18,12 @@ Item:
   Attributes:
   - <Attribute>-<Amount>
   Leather_Color: <me.deecaad.core.file.serializer.ColorSerializer>
+  Recipe:
+    Shape:
+      - "012"
+      - "345"
+      - "678"
+    Ingredients:
+      '0': <ItemSerializer>
+      '1': <ItemSerializer>
+

@@ -38,9 +38,9 @@ public class MaterialHelper {
     public static ItemStack fromStringToItemStack(String itemstackString) {
         if (CompatibilityAPI.getVersion() < 1.13) {
             String[] splitted = itemstackString.split(":");
-            return new ItemStack(Material.valueOf(splitted[0].toUpperCase()), 1, splitted.length > 1 ? Short.parseShort(splitted[1]) : 0);
+            return new ItemStack(Material.valueOf(splitted[0].trim().toUpperCase()), 1, splitted.length > 1 ? Short.parseShort(splitted[1]) : 0);
         }
-        return new ItemStack(Material.valueOf(itemstackString.toUpperCase()));
+        return new ItemStack(Material.valueOf(itemstackString.trim().toUpperCase()));
     }
 
     public static float getBlastResistance(Material type) {

@@ -1,6 +1,7 @@
 package me.deecaad.core.file.serializers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.LogLevel;
@@ -9,21 +10,26 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.TagUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -35,6 +41,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
      */
     private static Method spigotMethod;
     private static Method setUnbreakable;
+
+    private final static Field ingredientsField;
+
+    static {
+        ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
+    }
 
     /**
      * Empty constructor to be used as serializer
@@ -64,7 +76,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         ItemMeta itemMeta = itemStack.getItemMeta();
         String name = configurationSection.getString(path + ".Name");
         if (name != null) {
-            itemMeta.setDisplayName(colorizeString(name));
+            itemMeta.setDisplayName(StringUtils.color(name));
         }
         List<?> lore = configurationSection.getList(path + ".Lore");
         if (lore != null && !lore.isEmpty()) {
@@ -224,6 +236,73 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 return null;
             }
         }
+
+        if (configurationSection.contains(path + ".Recipe")) {
+            ShapedRecipe recipe;
+            if (CompatibilityAPI.getVersion() < 1.13) {
+                recipe = new ShapedRecipe(itemStack);
+            } else {
+                recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), path), itemStack);
+            }
+
+            if (!configurationSection.contains(path + ".Recipe.Shape")) {
+                debug.error("You forgot to specify a shape for your item recipe!", StringUtils.foundAt(file, path + ".Recipe.Shape"));
+                return null;
+            }
+
+            String[] shape = configurationSection.getStringList(path + ".Recipe.Shape").toArray(new String[0]);
+            if (shape.length < 1 || shape.length > 3) {
+                debug.error("Your recipe shape must have between 1 and 3 rows! Found " + shape.length,
+                        StringUtils.foundAt(file, path + ".Recipe.Shape"));
+                return null;
+            }
+
+            recipe.shape(shape);
+
+            // Shaped recipes in 1.12 and lower just use a map of
+            // characters and ItemStacks. In 1.13 and higher, recipes
+            // use Characters and RecipeChoices.
+            final Map<Character, Object> ingredients = new HashMap<>();
+            ConfigurationSection config = configurationSection.getConfigurationSection(path + ".Recipe.Ingredients");
+
+            if (config == null) {
+                debug.error("You need to specify ingredients for your recipe", StringUtils.foundAt(file, path + ".Recipe.Ingredients"));
+                return null;
+            }
+
+            for (String key : config.getKeys(false)) {
+                String[] split = key.split("\\.");
+                String last = split[split.length - 1];
+
+                if (last.length() != 1) {
+                    debug.error("Recipe ingredients can only be one character!", StringUtils.foundAt(file, path + ".Recipe.Ingredients." + last));
+                    return null;
+                }
+
+                // At this point, we need to figure out if people are using
+                // the simple ingredients (Material~Byte) or advanced ingredients
+                // (ItemStack). People can mix and match
+                ItemStack item;
+                if (config.isString(last)) {
+                    item = MaterialHelper.fromStringToItemStack(config.getString(last));
+                } else {
+                    item = this.serialize(file, configurationSection, path + ".Recipe.Ingredients." + last);
+                }
+
+                if (CompatibilityAPI.getVersion() < 1.13) {
+                    ingredients.put(last.charAt(0), item);
+                } else {
+                    ingredients.put(last.charAt(0), new RecipeChoice.ExactChoice(item));
+                }
+
+            }
+
+            ReflectionUtil.setField(ingredientsField, recipe, ingredients);
+
+            // Register the recipe to bukkit
+            Bukkit.addRecipe(recipe);
+        }
+
         return itemStack;
     }
 
@@ -250,12 +329,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private List<String> convertListObject(Object object) {
         List<String> list = new ArrayList<>();
         for (Object obj : (List<?>) object) {
-            list.add(colorizeString(obj.toString()));
+            list.add(StringUtils.color(obj.toString()));
         }
         return list;
-    }
-
-    private String colorizeString(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
     }
 }
