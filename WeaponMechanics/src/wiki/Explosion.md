@@ -63,7 +63,7 @@ Determines the shape of the blocks that are blown up. Certain methods take less 
 * `Sphere`: Spherical shaped explosion, takes the argument(s): `Radius`
 * `Cube`: Cubical shaped explosion, takes the argument(s): `Height`, `Width`
 * `Parabola`: Parabolic shaped explosion, takes the argument(s): `Depth`, `Angle`
-* `Default`: Replicates the [vanilla minecraft explosions](Vanilla_Explosion), takes the argument(s): `Yield`
+* `Default`: Replicates the [vanilla minecraft explosion](Vanilla_Explosion), takes the argument(s): `Yield`
 
 #### `Explosion_Type_Data`:
 The arguments taken by the shape of the explosion. Note, only arguments used from the explosion's shape will be used.
@@ -84,6 +84,9 @@ For example, `Explosion_Shape: SPHERE` will only use `Radius`
 * `Height`:
   * How tall the explosion is
   
+Alright, I understand that is probably a bit confusing, so I suggest looking at [the examples]()
+for some help.
+
 #### `Detonation`:
 Determines when the explosion is triggered
 * `Delay_After_Impact`: How long, in ticks, after the explosion triggers that the explosion actually occurs

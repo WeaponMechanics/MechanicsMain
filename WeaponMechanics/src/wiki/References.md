@@ -1,3 +1,8 @@
+## Reference Page
+This page contains useful links for information that changes every version.
+Note, after a new Minecraft version is released, this page will be out-dated
+for about a week.
+
 ## Materials
 **1.8**: https://helpch.at/docs/1.8.8/org/bukkit/Material.html  
 **1.9**: https://helpch.at/docs/1.9/org/bukkit/Material.html  

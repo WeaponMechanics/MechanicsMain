@@ -19,9 +19,13 @@ Towny support is planned, but is not yet complete.
 ## Grief Prevention
 Grief Prevention support is planned, but is not yet complete.
 
+## PlotsSquared
+PlotsSquared support is planned, but is not yet complete.
+
 ## Other
 If you want us to add another hook for protections, please tell us.
 
 [WorldGuard]: #
 [Towny]: #
 [Grief Prevention]: #
+[PlotsSquared]: #
