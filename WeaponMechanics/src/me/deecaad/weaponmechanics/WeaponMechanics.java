@@ -5,15 +5,7 @@ import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.DuplicateKeyException;
-import me.deecaad.core.file.FileCopier;
-import me.deecaad.core.file.FileReader;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.JarSerializers;
-import me.deecaad.core.file.LinkedConfig;
-import me.deecaad.core.file.SeparatedConfig;
-import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
@@ -28,11 +20,7 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
-import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
+import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
@@ -49,7 +37,6 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -72,8 +59,6 @@ public class WeaponMechanics extends JavaPlugin {
     private static MainCommand mainCommand;
     private static WeaponHandler weaponHandler;
     private static UpdateChecker updateChecker;
-
-    private static List<Serializer<?>> tempSerializers;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -98,7 +83,7 @@ public class WeaponMechanics extends JavaPlugin {
             guard.registerFlag("weapon-damage", IWorldGuardCompatibility.FlagType.STATE_FLAG);
             guard.registerFlag("weapon-damage-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
         } else {
-            debug.log(LogLevel.DEBUG, "No WorldGuard detected");
+            debug.log(LogLevel.DEBUG, "No WorldGuard detected!");
         }
     }
 
@@ -179,71 +164,6 @@ public class WeaponMechanics extends JavaPlugin {
             getPlayerWrapper(player);
         }
 
-        loadConfig();
-
-        debug.info("Loading API");
-        new WeaponMechanicsAPI(this);
-
-        long tookMillis = System.currentTimeMillis() - millisCurrent;
-        double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
-        debug.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
-    }
-
-    @Override
-    public void onDisable() {
-        getServer().getScheduler().cancelTasks(this);
-        HandlerList.unregisterAll(this);
-
-        BlockDamageData.regenerateAll();
-
-        // Remove EntityWrappers just in case something odd happens
-        for (LivingEntity entity : entityWrappers.keySet()) {
-            removeEntityWrapper(entity);
-        }
-        weaponHandler = null;
-        updateChecker = null;
-        entityWrappers = null;
-        configurations = null;
-        basicConfiguration = null;
-        plugin = null;
-    }
-    
-    public void onReload() {
-        long millisCurrent = System.currentTimeMillis();
-
-        // Update debugger level
-        int level = getConfig().getInt("Debug_Level", 2);
-        debug.setLevel(level);
-
-        // Create files
-        new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml", ".png");
-    
-        // Fill config.yml mappings
-        File configyml = new File(getDataFolder(), "config.yml");
-        if (configyml != null && configyml.exists()) {
-            //basicConfiguration = null;
-            //basicConfiguration = new FileReader(null, null).fillOneFile(configyml);
-        } else {
-            // Just creates empty map to prevent other issues
-            //basicConfiguration = new LinkedConfig();
-            debug.log(LogLevel.WARN,
-                    "Could not locate config.yml inside?",
-                    "Make sure it exists in path " + getDataFolder() + "/config.yml");
-        }
-
-        loadConfig();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            // Add PlayerWrapper in onEnable in case server is reloaded for example
-            getPlayerWrapper(player);
-        }
-
-        long tookMillis = System.currentTimeMillis() - millisCurrent;
-        double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
-        debug.log(LogLevel.INFO, "Reloaded WeaponMechanics in " + seconds + "s");
-    }
-
-    private void loadConfig() {
         debug.info("Serializing config");
 
         if (configurations == null) {
@@ -252,8 +172,7 @@ public class WeaponMechanics extends JavaPlugin {
             configurations.clear();
         }
 
-        tempSerializers = new JarSerializers().getAllSerializersInsideJar(WeaponMechanics.this, getFile());
-        tempSerializers.addAll(MechanicsCore.getPlugin().getDefaultSerializers());
+        MechanicsCore.addSerializers(this, new JarSerializers().getAllSerializersInsideJar(this, getFile()));
 
         // This is done like this to allow other plugins to add their own serializers
         // before WeaponMechanics starts filling those configuration mappings.
@@ -267,13 +186,12 @@ public class WeaponMechanics extends JavaPlugin {
                 validators.add(new ReloadHandler(weaponHandler));
 
                 // Fill configuration mappings (except config.yml)
-                Configuration temp = new FileReader(tempSerializers, validators).fillAllFiles(getDataFolder(), "config.yml");
+                Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(WeaponMechanics.this), validators).fillAllFiles(getDataFolder(), "config.yml");
                 try {
                     configurations.add(temp);
                 } catch (DuplicateKeyException e) {
                     debug.error("Error loading config: " + e.getMessage());
                 }
-                tempSerializers = null;
 
                 // Register events
                 // Registering events after serialization is completed to prevent any errors from happening
@@ -294,6 +212,31 @@ public class WeaponMechanics extends JavaPlugin {
 
             }
         }.runTask(this);
+
+        debug.info("Loading API");
+        new WeaponMechanicsAPI(this);
+
+        long tookMillis = System.currentTimeMillis() - millisCurrent;
+        double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
+        debug.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
+    }
+
+    @Override
+    public void onDisable() {
+        BlockDamageData.regenerateAll();
+
+        // Remove EntityWrappers just in case something odd happens
+        for (LivingEntity entity : entityWrappers.keySet()) {
+            removeEntityWrapper(entity);
+        }
+        weaponHandler = null;
+        updateChecker = null;
+        entityWrappers = null;
+        mainCommand = null;
+        configurations = null;
+        basicConfiguration = null;
+        plugin = null;
+        debug = null;
     }
 
     /**
@@ -408,56 +351,5 @@ public class WeaponMechanics extends JavaPlugin {
     @Nullable
     public static UpdateChecker getUpdateChecker() {
         return updateChecker;
-    }
-
-    /**
-     * @return the current weapon handler
-     */
-    public static WeaponHandler getWeaponHandler() {
-        return weaponHandler;
-    }
-
-    /**
-     * Sets new weapon handler for WeaponMechanics.
-     * It is up to you how you use this. You can override all methods used by
-     * default if you want to or simply some methods you want to modify some.
-     *
-     * WeaponMechanics doesn't notify you about changes in weapon handler code
-     * so you will have to be careful when using this method. It is recommended
-     * to use super.method() and after that add your new stuff you want to add, this
-     * way the compatibility with WeaponMechanics should stay, but it is still not guaranteed compatibility!
-     *
-     * @param weaponHandler the new weapon handler
-     */
-    public static void setWeaponHandler(WeaponHandler weaponHandler) {
-        if (weaponHandler == null) throw new NullPointerException("Someone tried to set null weapon handler...");
-        WeaponMechanics.weaponHandler = weaponHandler;
-    }
-
-    /**
-     * Registers given serializers. Make sure to use this method in onEnable or onLoad!
-     *
-     * @param serializers the serializers to add
-     */
-    public static void addSerializers(List<Serializer<?>> serializers) {
-        if (configurations != null) {
-            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable");
-        }
-        serializers.forEach(WeaponMechanics::addSerializer);
-    }
-
-    /**
-     * Registers given serializer. Make sure to use this method in onEnable or onLoad!
-     *
-     * @param serializer the serializer to add
-     */
-    public static void addSerializer(Serializer<?> serializer) {
-        if (configurations != null) {
-            throw new IllegalArgumentException("You can't register serializers anymore, do it in onEnable");
-        }
-        if (tempSerializers == null) {
-            tempSerializers = new ArrayList<>();
-        }
-        tempSerializers.add(serializer);
     }
 }

@@ -6,13 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -95,12 +89,23 @@ public class FileReader {
      * @param validator the new validator for this file reader
      */
     public void addValidator(IValidator validator) {
-        if (this.validators.containsKey(validator.getKeyword().toLowerCase())) {
-            debug.log(LogLevel.ERROR,
-                    "Can't add validator with keyword of " + validator.getKeyword() + " because some other validator already has same keyword.");
-            return;
+        String validatorLowerCase = validator.getKeyword().toLowerCase();
+        if (this.validators.containsKey(validatorLowerCase)) {
+            IValidator alreadyAdded = this.validators.get(validatorLowerCase);
+
+            // Check if already added validator isn't assignable with the new one
+            if (!alreadyAdded.getClass().isAssignableFrom(validator.getClass())) {
+                debug.log(LogLevel.ERROR,
+                        "Can't add validator with keyword of " + validator.getKeyword() + " because other validator already has same keyword.",
+                        "Already added validators is located at " + alreadyAdded.getClass().getName() + " and this new one was located at " + validator.getClass().getName() + ".");
+                return;
+            }
+
+            // If code reaches this point, it was assignable from new validator
+            debug.log(LogLevel.DEBUG,
+                    "New validator " + validator.getClass().getName() + " will now override already added validator " + alreadyAdded.getClass().getName());
         }
-        this.validators.put(validator.getKeyword().toLowerCase(), validator);
+        this.validators.put(validatorLowerCase, validator);
     }
 
     /**

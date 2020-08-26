@@ -11,6 +11,13 @@ public interface IMechanic {
     int use(Entity entity);
 
     /**
+     * Mainly used for playing per entity sounds or particles
+     *
+     * @return the task id if used (0 otherwise)
+     */
+    int useFor(Entity entity);
+
+    /**
      * @return the task id if used (0 otherwise)
      */
     int use(Location location);

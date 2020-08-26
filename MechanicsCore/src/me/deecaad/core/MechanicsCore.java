@@ -1,66 +1,37 @@
 package me.deecaad.core;
 
 import me.deecaad.core.events.triggers.ArmorEquipTrigger;
-import me.deecaad.core.file.JarSearcher;
 import me.deecaad.core.file.JarSerializers;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.mechanics.serialization.StringSerializable;
 import me.deecaad.core.packetlistener.PacketListenerAPI;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
 
 public class MechanicsCore extends JavaPlugin {
 
     private static MechanicsCore plugin;
+    private static List<Serializer<?>> serializersList;
 
     // public so people can import a static variable
     public static Debugger debug;
 
-    private List<Serializer<?>> defaultSerializers;
-    private JarFile jarFile;
-    private List<JarFile> registeredPlugins;
-
-    private Map<String, Class<StringSerializable>> stringSerializers;
-
     @Override
     public void onLoad() {
-        plugin = this;
         debug = new Debugger(getLogger(), 3, true);
-        registeredPlugins = new ArrayList<>();
-        stringSerializers = new HashMap<>();
     }
 
     @Override
     public void onEnable() {
+        plugin = this;
 
-        // string format serializers
-        try {
-            jarFile = new JarFile(getFile());
-        } catch (IOException e) {
-            debug.log(LogLevel.ERROR, e);
-        }
-
-        registeredPlugins.add(jarFile);
-        debug.info("Searching jar files for serializers");
-        debug.info("Registered jars: " + registeredPlugins);
-        registeredPlugins.forEach(jar -> new JarSearcher(jar).findAllSubclasses(StringSerializable.class, true).forEach(clazz -> {
-
-            // Load serializer arguments all at once as to not worry about it later
-            StringSerializable.parseArgs(clazz);
-            stringSerializers.put(StringSerializable.parseName(clazz), clazz);
-        }));
-
-        // Default yaml format serializers
-        defaultSerializers = new JarSerializers().getAllSerializersInsideJar(this, getFile());
+        reloadSerializers();
 
         new PacketListenerAPI(this);
 
@@ -73,10 +44,19 @@ public class MechanicsCore extends JavaPlugin {
         PlaceholderAPI.onDisable();
         PacketListenerAPI.onDisable();
         plugin = null;
+        serializersList = null;
+        debug = null;
     }
 
-    public JarFile getJarFile() {
-        return jarFile;
+    public void reloadSerializers() {
+        serializersList = new ArrayList<>(new JarSerializers().getAllSerializersInsideJar(this, getFile()));
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                serializersList = null;
+                debug.debug("Cleared serializers list");
+            }
+        }.runTaskLater(this, 5);
     }
 
     /**
@@ -87,21 +67,41 @@ public class MechanicsCore extends JavaPlugin {
     }
 
     /**
-     * @return all serializers within MechanicsCore
+     * @return the list of all serializers added to core
      */
-    public List<Serializer<?>> getDefaultSerializers() {
-        return defaultSerializers;
+    public static List<Serializer<?>> getListOfSerializers(Plugin plugin) {
+        if (serializersList == null) {
+            debug.log(LogLevel.WARN, plugin.getName() + " tried to get serializer list after startup...");
+            return null;
+        }
+
+        // Return copy of list
+        return new ArrayList<>(serializersList);
     }
 
-    public Map<String, Class<StringSerializable>> getStringSerializers() {
-        return stringSerializers;
-    }
-
-    public void registerJar(JarFile jar) {
-        if (registeredPlugins.contains(jar)) {
-            debug.warn("Plugin tried to register jar twice: " + jar);
+    /**
+     * Add serializer for MechanicsCore serializer list
+     *
+     * @param serializer the serializer
+     */
+    public static void addSerializer(Plugin plugin, Serializer<?> serializer) {
+        if (serializersList == null) {
+            debug.log(LogLevel.WARN, plugin.getName() + " tried to add serializer after startup...");
             return;
         }
-        registeredPlugins.add(jar);
+        serializersList.add(serializer);
+    }
+
+    /**
+     * Add list of serializers for MechanicsCore serializer list
+     *
+     * @param serializers the list of serializers
+     */
+    public static void addSerializers(Plugin plugin, List<Serializer<?>> serializers) {
+        if (serializers != null && serializers.size() > 0) {
+            for (Serializer<?> serializer : serializers) {
+                addSerializer(plugin, serializer);
+            }
+        }
     }
 }
