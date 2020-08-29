@@ -6,31 +6,27 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
  */
 public class Point {
     
-    private double x;
-    private double y;
-    private int value;
-    
-    public Point() {}
-    
-    public Point(double x, double y) {
-        this(x, y, 0);
+    private double yaw;
+    private double pitch;
+
+    public Point(double yaw, double pitch) {
+        this.yaw = yaw;
+        this.pitch = pitch;
     }
-    
-    public Point(double x, double y, int value) {
-        this.x = x;
-        this.y = y;
-        this.value = value;
+
+    public double getYaw() {
+        return yaw;
     }
-    
-    public double getX() {
-        return x;
+
+    public void setYaw(double yaw) {
+        this.yaw = yaw;
     }
-    
-    public double getY() {
-        return y;
+
+    public double getPitch() {
+        return pitch;
     }
-    
-    public int getValue() {
-        return value;
+
+    public void setPitch(double pitch) {
+        this.pitch = pitch;
     }
 }

@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -44,8 +45,8 @@ public class Spread implements Serializer<Spread> {
         Location location = entityWrapper.getEntity().getLocation();
         double yaw = location.getYaw(), pitch = location.getPitch();
         if (spreadImage != null) {
-            Point point = spreadImage.getLocation(3);
-            return getNormalizedSpreadImageDirection(yaw, pitch, point.getX(), point.getY());
+            Point point = spreadImage.getLocation();
+            return getNormalizedSpreadImageDirection(Math.toRadians(yaw), Math.toRadians(pitch), point.getYaw(), point.getPitch());
         }
 
         double spread = baseSpread;
@@ -56,11 +57,8 @@ public class Spread implements Serializer<Spread> {
         return getNormalizedSpreadDirection(yaw, pitch, spread);
     }
 
-    private Vector getNormalizedSpreadImageDirection(double yaw, double pitch, double x, double y) {
-
-        // todo
-
-        return null;
+    private Vector getNormalizedSpreadImageDirection(double startYaw, double startPitch, double yaw, double pitch) {
+        return VectorUtils.getVector(startYaw + yaw, startPitch + pitch).normalize();
     }
 
     /**

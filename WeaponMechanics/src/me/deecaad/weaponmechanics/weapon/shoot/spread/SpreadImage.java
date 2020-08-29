@@ -2,16 +2,14 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ProbabilityMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.ArrayUtils;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -29,7 +27,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  */
 public class SpreadImage implements Serializer<SpreadImage> {
     
-    private List<Point> points;
+    private ProbabilityMap<Point> points;
     private int height, width;
     
     /**
@@ -38,11 +36,14 @@ public class SpreadImage implements Serializer<SpreadImage> {
     public SpreadImage() {}
     
     public SpreadImage(Sprite sprite, int fovWidth, int fovHeight) {
-        this.points = new ArrayList<>();
+        this.points = new ProbabilityMap<>();
 
         width = sprite.getWidth();
         height = sprite.getHeight();
-        
+
+        double maxYaw = Math.toRadians(fovWidth);
+        double maxPitch = Math.toRadians(fovHeight);
+
         double xMiddle = width / 2.0;
         double yMiddle = height / 2.0;
         
@@ -50,9 +51,12 @@ public class SpreadImage implements Serializer<SpreadImage> {
         for (int y = 0; y < pixels.length; y++) {
             for (int x = 0; x < pixels[y].length; x++) {
                 if (pixels[y][x] != 0) {
-                    double xPos = (x - xMiddle) / sprite.getWidth() * fovWidth;
-                    double yPos = (y - yMiddle) / sprite.getHeight() * fovHeight;
-                    points.add(new Point(xPos, yPos, pixels[y][x]));
+                    double yaw = (x - xMiddle) / sprite.getWidth() * maxYaw;
+                    double pitch = (y - yMiddle) / sprite.getHeight() * maxPitch;
+
+                    Point point = new Point(yaw, pitch);
+                    double chance = pixels[y][x] / 255d;
+                    points.add(point, chance);
                 }
             }
         }
@@ -65,10 +69,6 @@ public class SpreadImage implements Serializer<SpreadImage> {
     public int getWidth() {
         return width;
     }
-    
-    public Set<Point> getLocations(int amount) {
-        return getLocations(amount, amount * 3);
-    }
 
     /**
      * Gets a given number of random points (x, y) from
@@ -80,42 +80,20 @@ public class SpreadImage implements Serializer<SpreadImage> {
      * the point's value into account
      *
      * @param amount Number of points to get
-     * @param maxChecks The maximum number of checks to find the points
      * @return The found points
      */
-    public Set<Point> getLocations(int amount, int maxChecks) {
+    public Set<Point> getLocations(int amount) {
         Set<Point> points = new HashSet<>();
-        ThreadLocalRandom current = ThreadLocalRandom.current();
         
         while (points.size() < amount) {
-            Point point = this.points.get(current.nextInt(this.points.size()));
-            if (point.getValue() > current.nextInt(255)) {
-                points.add(point);
-            }
-
-            // If we checked too many times, fill in the
-            // rest of the points
-            if (maxChecks-- == 0) {
-                for (int i = points.size(); i < amount; i++) {
-                    points.add(this.points.get(current.nextInt(this.points.size())));
-                }
-            }
+            points.add(this.points.get());
         }
+
         return points;
     }
 
-    public Point getLocation(int maxChecks) {
-        ThreadLocalRandom current = ThreadLocalRandom.current();
-
-        while (0 < maxChecks--) {
-            Point point = this.points.get(current.nextInt(this.points.size()));
-            if (point.getValue() > current.nextInt(255)) {
-                return point;
-            }
-        }
-
-        // Guaranteed hit
-        return this.points.get(current.nextInt(this.points.size()));
+    public Point getLocation() {
+        return points.get();
     }
 
     @Override
@@ -142,11 +120,11 @@ public class SpreadImage implements Serializer<SpreadImage> {
         // tested). If there is no file extension given (or, in
         // other terms, there is no "." in the file name), add the
         // png file extension
-        if (imageName.contains("\\.")) imageName += ".png";
+        if (!imageName.contains("\\.")) imageName += ".png";
 
-        int FOVWidth = configurationSection.getInt(path + ".Field_Of_View_Width", 90);
-        int FOVHeight = configurationSection.getInt(path + ".Field_Of_View_Height", 90);
-        
+        int FOVWidth = configurationSection.getInt(path + ".Field_Of_View_Width", 45);
+        int FOVHeight = configurationSection.getInt(path + ".Field_Of_View_Height", 45);
+
         File dataFolder = WeaponMechanics.getPlugin().getDataFolder();
         File sprites = new File(dataFolder, "spread_patterns");
 

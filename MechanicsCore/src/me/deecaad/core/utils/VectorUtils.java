@@ -6,6 +6,8 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 import static me.deecaad.core.MechanicsCore.debug;
 import static org.bukkit.block.BlockFace.*;
 
@@ -106,6 +108,24 @@ public class VectorUtils {
             debug.log(LogLevel.ERROR, "angle(" + angle + ") got index " + index, ex);
             return null;
         }
+    }
+
+    /**
+     * Translates the given <code>yaw</code> and <code>pitch</code> into
+     * (x, y, z) components (a vector)
+     *
+     * @param yaw Yaw
+     * @param pitch Pitch
+     * @return Vector
+     */
+    public static Vector getVector(double yaw, double pitch) {
+        double cosPitch = Math.cos(pitch);
+
+        double x = sin(yaw) * -cosPitch;
+        double y = -sin(pitch);
+        double z = cos(yaw) * cosPitch;
+
+        return new Vector(x, y, z);
     }
 
     /**
