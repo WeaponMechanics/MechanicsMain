@@ -3,7 +3,6 @@ package me.deecaad.compatibility.entity;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.FireworkEffect;
@@ -89,7 +88,6 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         for (EntityMeta flag : flags) {
             mask |= flag.getMask();
         }
-        debug.info("Mask: " + NumberUtils.toBinary(mask, 8));
 
         // Get the metadata stored in the entity
         Entity nmsEntity = (Entity) entity;

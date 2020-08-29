@@ -1,6 +1,5 @@
 package me.deecaad.core.mechanics.serialization;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.SelfTargeter;
@@ -33,7 +32,7 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
         mechanics = new HashMap<>();
         targeters = new HashMap<>();
 
-        Map<String, Class<StringSerializable>> serializers = MechanicsCore.getPlugin().getStringSerializers();
+        Map<String, Class<StringSerializable>> serializers = new HashMap<>() /*MechanicsCore.getPlugin().getStringSerializers()*/;
         for (Map.Entry<String, Class<StringSerializable>> entry : serializers.entrySet()) {
 
             String name = entry.getKey();

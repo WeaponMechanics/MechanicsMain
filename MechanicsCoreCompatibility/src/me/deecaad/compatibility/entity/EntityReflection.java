@@ -22,6 +22,8 @@ public class EntityReflection implements EntityCompatibility {
     private static final Method getId;
     private static final Method getHandle;
     private static final Method getDataWatcher;
+    private static final Method getItems;
+    private static final Method methodE;
 
     private static final Constructor<?> spawnPacketConstructor;
     private static final Constructor<?> metadataPacketConstructor;
@@ -35,6 +37,9 @@ public class EntityReflection implements EntityCompatibility {
         getId = getMethod(nmsEntityClass, "getId");
         getHandle = getMethod(cbEntityClass, "getHandle");
         getDataWatcher = getMethod(nmsEntityClass, "getDataWatcher");
+        getItems = getMethod(dataWatcherClass, "c");
+        methodE = getMethod(dataWatcherClass, "e");
+        //getData = getMethod(m)
 
         spawnPacketConstructor = getConstructor(getNMSClass("PacketPlayOutSpawnEntity"), nmsEntityClass);
         metadataPacketConstructor = getConstructor(getNMSClass("PacketPlayOutEntityMetadata"), int.class, dataWatcherClass, boolean.class);
@@ -86,7 +91,13 @@ public class EntityReflection implements EntityCompatibility {
             return null;
         }
 
-        return null; // todo
+        // Setup the byte data
+        byte mask = 0;
+        for (EntityMeta flag : flags) {
+            mask |= flag.getMask();
+        }
+
+        return null;
     }
 
     @Override

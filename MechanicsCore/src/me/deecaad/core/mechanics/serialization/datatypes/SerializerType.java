@@ -1,6 +1,5 @@
 package me.deecaad.core.mechanics.serialization.datatypes;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.mechanics.serialization.Argument;
 import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.mechanics.serialization.StringSerializable;
@@ -8,6 +7,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -44,7 +44,7 @@ public class SerializerType<T extends StringSerializable<T>> extends DataType<T>
             // Get all subclasses of the string serializable
             // determine which class to serialize
             // serialize it, then return
-            for (Class<StringSerializable> serializable : MechanicsCore.getPlugin().getStringSerializers().values()) {
+            for (Class<StringSerializable> serializable : new ArrayList<Class<StringSerializable>>() /*MechanicsCore.getPlugin().getStringSerializers().values()*/) {
 
                 // Check if the class is a subclass of this serializer's class
                 if (serializable.isAssignableFrom(clazz)) {
