@@ -40,6 +40,12 @@ public class NBT_Reflection implements INBTCompatibility {
     private static Method nbtBaseGetTypeId;
 
     public NBT_Reflection() {
+
+        if (CompatibilityAPI.getVersion() >= 1.132) {
+            // Don't even try in 1.13 R2 or newer, only use TagUtils / TagHelper class
+            return;
+        }
+
         Class<?> nbtTagCompoundClass = ReflectionUtil.getNMSClass("NBTTagCompound");
         Class<?> nmsItemStackClass = ReflectionUtil.getNMSClass("ItemStack");
         Class<?> nbtTagListClass = ReflectionUtil.getNMSClass("NBTTagList");

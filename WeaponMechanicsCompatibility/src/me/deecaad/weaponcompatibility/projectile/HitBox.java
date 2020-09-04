@@ -321,7 +321,7 @@ public class HitBox implements IValidator {
 
             if (head == -1 || body == -1 || legs == -1 || feet == -1) {
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " is missing some of its damage point values, please add it",
-                        "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
                         "Its missing one of these: HEAD, BODY, LEGS or FEET");
 
                 putDefaults(configuration, entityType);
@@ -331,7 +331,7 @@ public class HitBox implements IValidator {
             boolean horizontalEntity = configuration.getBool("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
             if (horizontalEntity && head > 0.0) {
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box had horizontal entity true and HEAD was not 0.0",
-                        "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
                         "When using horizontal entity true HEAD should be set to 0.0!");
 
                 // Set default value to BODY
@@ -342,7 +342,7 @@ public class HitBox implements IValidator {
             double sumOf = head + body + legs + feet;
             if (Math.abs(sumOf - 1.0) > 1e-5) { // If the numbers are not super close together (floating point issues)
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box values sum doesn't match 1.0",
-                        "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
                         "Now the total sum was " + sumOf + ", please make it 1.0.");
 
                 putDefaults(configuration, entityType);

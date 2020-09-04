@@ -26,9 +26,6 @@ test:
         Type: "EGG"
   Damage:
     Base_Damage: 2
-    Dropoff:
-      - 5~-1
-      - 10~-2
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"

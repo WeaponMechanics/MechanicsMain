@@ -3,11 +3,13 @@ package me.deecaad.weaponcompatibility.scope;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.server.v1_15_R1.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.craftbukkit.v1_15_R1.attribute.CraftAttributeMap;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,26 +24,25 @@ public class Scope_1_15_R1 implements IScopeCompatibility {
     @Override
     public void updateAttributesFor(Player player) {
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        AttributeMapServer attributemapserver = (AttributeMapServer) entityPlayer.getAttributeMap();
-        Collection<AttributeInstance> collection = attributemapserver.c();
-        if (!collection.isEmpty()) {
-            entityPlayer.playerConnection.sendPacket(new PacketPlayOutUpdateAttributes(entityPlayer.getId(), collection));
-        }
+        List<AttributeInstance> list = new ArrayList<>();
+        list.add(entityPlayer.getAttributeMap().a(CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)));
+
+        // Negative entity id for identifying packet
+        entityPlayer.playerConnection.sendPacket(new PacketPlayOutUpdateAttributes(-entityPlayer.getId(), list));
     }
 
     @Override
-    public void modifyUpdateAttributesPacket(Packet packet, int zoomAmount) {
+    public void modifyUpdateAttributesPacket(me.deecaad.core.packetlistener.Packet packet, int zoomAmount) {
 
         //noinspection unchecked
         List<PacketPlayOutUpdateAttributes.AttributeSnapshot> attributeSnapshots = (List<PacketPlayOutUpdateAttributes.AttributeSnapshot>) packet.getFieldValue("b");
 
-        for (PacketPlayOutUpdateAttributes.AttributeSnapshot attributeSnapshot : attributeSnapshots) {
-            if (!attributeSnapshot.a().equals("generic.movementSpeed")) continue;
+        // Since this is always used from OutUpdateAttributesListener class, there can only be one object in this list (which is generic movement speed)
+        PacketPlayOutUpdateAttributes.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
 
-            Collection<AttributeModifier> attributeModifiers = attributeSnapshot.c();
-            attributeModifiers.add(new AttributeModifier(UUID.randomUUID(), () -> "WM_SCOPE", ScopeLevel.getScope(zoomAmount), AttributeModifier.Operation.ADDITION));
-            break;
-        }
+        List<AttributeModifier> list = new ArrayList<>();
+        list.add(new AttributeModifier(UUID.randomUUID(), () -> "WM_SCOPE", ScopeLevel.getScope(zoomAmount), AttributeModifier.Operation.ADDITION));
+        attributeSnapshots.add(new PacketPlayOutUpdateAttributes().new AttributeSnapshot(attributeSnapshot.a(), attributeSnapshot.b(), list));
     }
 
     @Override
