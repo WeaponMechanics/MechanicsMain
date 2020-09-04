@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Set;
 
 public interface IWorldGuardCompatibility {

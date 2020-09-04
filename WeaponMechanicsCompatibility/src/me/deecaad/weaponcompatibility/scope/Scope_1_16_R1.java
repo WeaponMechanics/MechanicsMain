@@ -3,12 +3,14 @@ package me.deecaad.weaponcompatibility.scope;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R1.attribute.CraftAttributeMap;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class Scope_1_16_R1 implements IScopeCompatibility {
 

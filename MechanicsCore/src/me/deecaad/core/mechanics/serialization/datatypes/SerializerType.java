@@ -1,6 +1,5 @@
 package me.deecaad.core.mechanics.serialization.datatypes;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.mechanics.serialization.Argument;
 import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.mechanics.serialization.StringSerializable;

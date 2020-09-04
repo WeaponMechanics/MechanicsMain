@@ -4,7 +4,6 @@ import me.deecaad.core.mechanics.casters.EntityCaster;
 import me.deecaad.core.mechanics.casters.MechanicCaster;
 import me.deecaad.core.mechanics.serialization.SerializerData;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

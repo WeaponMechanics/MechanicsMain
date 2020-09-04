@@ -1,10 +1,10 @@
 package me.deecaad.weaponcompatibility.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

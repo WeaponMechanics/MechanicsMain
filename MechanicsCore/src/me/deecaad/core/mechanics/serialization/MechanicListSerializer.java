@@ -1,6 +1,5 @@
 package me.deecaad.core.mechanics.serialization;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.SelfTargeter;
@@ -10,12 +9,7 @@ import me.deecaad.core.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;

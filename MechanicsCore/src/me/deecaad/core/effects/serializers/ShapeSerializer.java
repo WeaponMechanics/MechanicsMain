@@ -1,10 +1,6 @@
 package me.deecaad.core.effects.serializers;
 
-import me.deecaad.core.effects.shapes.Circle;
-import me.deecaad.core.effects.shapes.Line;
-import me.deecaad.core.effects.shapes.Shape;
-import me.deecaad.core.effects.shapes.Sphere;
-import me.deecaad.core.effects.shapes.Spiral;
+import me.deecaad.core.effects.shapes.*;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;

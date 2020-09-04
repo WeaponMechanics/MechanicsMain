@@ -1,11 +1,6 @@
 package me.deecaad.core.inventory;
 
-import me.deecaad.core.inventory.api.IButtonListener;
-import me.deecaad.core.inventory.api.IWindow;
-import me.deecaad.core.inventory.api.IWindowPageHolder;
-import me.deecaad.core.inventory.api.Window;
-import me.deecaad.core.inventory.api.WindowButton;
-import me.deecaad.core.inventory.api.WindowPageHolder;
+import me.deecaad.core.inventory.api.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
