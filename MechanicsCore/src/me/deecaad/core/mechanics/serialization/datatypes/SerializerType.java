@@ -44,20 +44,20 @@ public class SerializerType<T extends StringSerializable<T>> extends DataType<T>
             // Get all subclasses of the string serializable
             // determine which class to serialize
             // serialize it, then return
-            for (Class<StringSerializable> serializable : MechanicsCore.getPlugin().getStringSerializers().values()) {
+            //for (Class<StringSerializable> serializable : MechanicsCore.getPlugin().getStringSerializers().values()) {
 
                 // Check if the class is a subclass of this serializer's class
-                if (serializable.isAssignableFrom(clazz)) {
+            //    if (serializable.isAssignableFrom(clazz)) {
+//
+            //        String name = StringSerializable.parseName(serializable);
+            //        if (name.equals(inputName)) {
 
-                    String name = StringSerializable.parseName(serializable);
-                    if (name.equals(inputName)) {
-
-                        Argument[] args = StringSerializable.parseArgs(serializable);
-                        Map<String, Object> data = MechanicListSerializer.getArguments(name, str, args);
-                        return ReflectionUtil.newInstance(clazz).serialize(data);
-                    }
-                }
-            }
+                        //            Argument[] args = StringSerializable.parseArgs(serializable);
+            //            Map<String, Object> data = MechanicListSerializer.getArguments(name, str, args);
+            //            return ReflectionUtil.newInstance(clazz).serialize(data);
+            //        }
+            //    }
+            //}
 
             debug.error("Unknown serializer: " + nameMatcher, "Perhaps you spelled it wrong?");
             return null;

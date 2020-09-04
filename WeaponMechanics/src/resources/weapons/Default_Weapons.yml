@@ -6,15 +6,6 @@ test:
       Lore:
         - "&6Y"
         - "&6y"
-    Weapon_Get_Actions:
-      Firework:
-        1_Firework_Spawn:
-          Flight_Power: 0
-          Firework_Type: "BALL"
-          Colors:
-            - "GOLD"
-            - "GRAY"
-            - "YELLOW"
     Cancel:
       Drop_Item: true
   Shoot:
@@ -33,34 +24,6 @@ test:
     Projectile:
       Settings:
         Type: "EGG"
-    Spread:
-      Base_Spread: 1.5
-    Effects:
-      Sounds:
-        - BLOCK_ANVIL_LAND~1.0~1.0~0~0.5
-      Items:
-        Test:
-          Item:
-            Type: "IRON_NUGGET"
-        Test2:
-          Item:
-            Type: "IRON_INGOT"
-      Particles:
-        Particle:
-          Type: REDSTONE
-          Shape:
-            Type: SPIRAL
-            Radius: 1.5
-            Points: 100
-            Spiral_Loops: 2
-            Axis:
-              Direction: UP
-              Length: 10
-          Extra_Data:
-            Color:
-              Type: RGB
-              Data: 0~255~100
-            Size: 2.0
   Damage:
     Base_Damage: 2
     Dropoff:
@@ -73,27 +36,3 @@ test:
     Zoom_Stacking:
       Maximum_Stacks: 2
       Increase_Zoom_Per_Stack: 8
-  Explosion:
-    Detonation:
-      Delay_After_Impact: 80
-      Impact_When:
-        SHOOT: true
-    Blocks:
-      Block_Damage:
-        Break_Blocks: true
-        Default_Block_Durability: 1
-        Damage_Per_Hit: 1
-        Blacklist: false
-        Block_List:
-          - dirt~1
-          - stone~2
-      Regeneration:
-        Ticks_Before_Start: 40 # Amount of time before blocks can regenerate, in ticks
-        Max_Blocks_Per_Update: 5 # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
-        Ticks_Between_Updates: 1 # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
-
-    Explosion_Shape: DEFAULT
-    Explosion_Type_Data:
-      # Fetch required values based on explosion type or simply don't do anything with these if not needed
-      # Give default values for everything if not defined here
-      Yield: 10
