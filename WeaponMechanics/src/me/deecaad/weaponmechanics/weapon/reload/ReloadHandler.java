@@ -7,12 +7,14 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
+import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -78,55 +80,31 @@ public class ReloadHandler implements IValidator {
         if (ammoLeft >= magazineSize) return false;
 
         int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
-        int bulletsPerReload = config.getInt(weaponTitle + ".Bullets_Per_Reload", -1);
+        int ammoPerReload = config.getInt(weaponTitle + ".Reload.Ammo_Per_Reload", -1);
+        boolean unloadAmmoOnReload = config.getBool(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
 
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
 
-        if (firearmAction != null) {
-
-            if (!firearmAction.hasReadyFirearmActions(weaponStack)) {
-                // Meaning that shoot firearm actions are most likely in progress
-                // -> Deny reload
-                return false;
+        if (firearmAction != null && firearmAction.hasShootState(weaponStack)) {
+            int shootFirearmTaskId = handData.getShootFirearmActionTask();
+            if (shootFirearmTaskId != 0) {
+                Bukkit.getScheduler().cancelTask(shootFirearmTaskId);
+                handData.setShootFirearmActionTask(0);
             }
-
-
+            firearmAction.readyState(weaponStack, entityWrapper);
         }
 
-        BukkitRunnable closeTask = new BukkitRunnable() {
+        boolean isPump = firearmAction != null && firearmAction.getFirearmType() == FirearmType.PUMP;
+
+        ChainTask reloadTask = new ChainTask(reloadDuration) {
+
             @Override
-            public void run() {
-                firearmAction.readyState(weaponStack, entityWrapper);
-                finishReload(handData);
-                if (bulletsPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
-                    startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
-                }
-            }
-        };
-
-        BukkitRunnable openTask = null;
-
-        boolean isPump = firearmAction.getFirearmType() == FirearmType.PUMP;
-        if (isPump) {
-            openTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    firearmAction.closeState(weaponStack, entityWrapper);
-                    handData.addReloadTask(closeTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
-                }
-            };
-        }
-
-        BukkitRunnable finalOpenTask = openTask;
-        BukkitRunnable reloadTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-
+            public void task() {
                 // Variable which decides the final ammo amount set to weapon after reload
                 int ammoToSet;
 
-                if (bulletsPerReload != -1) {
-                    ammoToSet = ammoLeft + bulletsPerReload;
+                if (ammoPerReload != -1) {
+                    ammoToSet = ammoLeft + ammoPerReload;
                     if (ammoToSet > magazineSize) {
                         ammoToSet = magazineSize;
                     }
@@ -144,47 +122,123 @@ public class ReloadHandler implements IValidator {
 
                 if (firearmAction != null) {
                     if (isPump) {
-                        firearmAction.openState(weaponStack, entityWrapper);
-                        handData.addReloadTask(finalOpenTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getOpenTime()).getTaskId());
+                        firearmAction.openReloadState(weaponStack, entityWrapper);
                     } else {
-                        firearmAction.closeState(weaponStack, entityWrapper);
-                        handData.addReloadTask(closeTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+                        firearmAction.closeReloadState(weaponStack, entityWrapper);
                     }
 
                 } else {
                     finishReload(handData);
 
-                    if (bulletsPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
+                    if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
                         startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
                     }
                 }
             }
+
+            @Override
+            public void setup() {
+                handData.addReloadTask(getTaskId());
+                if (isPump) {
+                    firearmAction.reloadState(weaponStack, entityWrapper);
+                }
+                if (unloadAmmoOnReload) {
+                    unloadWeapon(entityWrapper, weaponStack);
+                }
+            }
         };
 
-        if (!isPump) {
-            openTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    firearmAction.reloadState(weaponStack, entityWrapper);
-                    handData.addReloadTask(reloadTask.runTaskLater(WeaponMechanics.getPlugin(), reloadDuration).getTaskId());
-                }
-            };
+        if (firearmAction == null) {
 
-            firearmAction.openState(weaponStack, entityWrapper);
-            handData.addReloadTask(reloadTask.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getOpenTime()).getTaskId());
+            // Doesn't run any chain in this case as there isn't next task
+            reloadTask.startChain();
 
-        } else {
-            firearmAction.reloadState(weaponStack, entityWrapper);
-            handData.addReloadTask(reloadTask.runTaskLater(WeaponMechanics.getPlugin(), reloadDuration).getTaskId());
+            return true;
         }
 
+        ChainTask closeTask = new ChainTask(firearmAction.getCloseTime()) {
 
+            @Override
+            public void task() {
+                firearmAction.readyState(weaponStack, entityWrapper);
+                finishReload(handData);
+
+                if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
+                    startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                }
+            }
+
+            @Override
+            public void setup() {
+                handData.addReloadTask(getTaskId());
+            }
+        };
+
+        ChainTask openTask = new ChainTask(firearmAction.getOpenTime()) {
+
+            @Override
+            public void task() {
+                if (isPump) {
+                    firearmAction.closeReloadState(weaponStack, entityWrapper);
+                } else {
+                    firearmAction.reloadState(weaponStack, entityWrapper);
+                }
+            }
+
+            @Override
+            public void setup() {
+                handData.addReloadTask(getTaskId());
+                if (!isPump) {
+                    firearmAction.openReloadState(weaponStack, entityWrapper);
+                }
+            }
+        };
+
+        FirearmState state = firearmAction.getState(weaponStack);
+        if (isPump) {
+            // reload, open, close
+            reloadTask.setNextTask(openTask);
+            openTask.setNextTask(closeTask);
+
+            switch (state) {
+                case RELOAD_OPEN:
+                    openTask.startChain();
+                    break;
+                case RELOAD_CLOSE:
+                    closeTask.startChain();
+                    break;
+                default:
+                    reloadTask.startChain();
+                    break;
+            }
+        } else {
+            // open, reload, close
+            openTask.setNextTask(reloadTask);
+            reloadTask.setNextTask(closeTask);
+
+            switch (state) {
+                case RELOAD:
+                    reloadTask.startChain();
+                    break;
+                case RELOAD_CLOSE:
+                    closeTask.startChain();
+                    break;
+                default:
+                    openTask.startChain();
+                    break;
+            }
+        }
 
         return true;
     }
 
-    private void finishReload(HandData handData) {
+    public void finishReload(HandData handData) {
         handData.stopReloadingTasks();
+    }
+
+    private void unloadWeapon(IEntityWrapper entityWrapper, ItemStack weaponStack) {
+        // unload weapon and give ammo back to given entity
+        TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
     }
 
     /**

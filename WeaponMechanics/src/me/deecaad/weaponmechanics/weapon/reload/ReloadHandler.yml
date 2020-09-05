@@ -1,6 +1,7 @@
 Reload:
   Trigger: <trigger serializer>
   Magazine_Size: <amount>
-  Bullets_Per_Reload: <amount>
+  Ammo_Per_Reload: <amount>
+  Unload_Ammo_On_Reload: <true/false>
   Reload_Duration: <ticks>
   # All general and effect stuff

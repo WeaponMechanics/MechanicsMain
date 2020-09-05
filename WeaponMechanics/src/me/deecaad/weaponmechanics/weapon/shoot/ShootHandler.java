@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
+import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
@@ -25,6 +26,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -121,14 +123,45 @@ public class ShootHandler implements IValidator {
             return false;
         }
 
+        ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+        int ammoLeft = reloadHandler.getAmmoLeft(weaponStack);
+
+        // FIREARM START
+
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
 
         if (firearmAction != null && !firearmAction.hasReadyFirearmActions(weaponStack)) {
             // Don't let shoot if they aren't ready
+
+            if (firearmAction.hasReloadState(weaponStack)) {
+                if (ammoLeft > 0) {
+
+                    // Close if ammo left is more than 0
+                    handData.stopReloadingTasks();
+
+                    firearmAction.closeShootState(weaponStack, entityWrapper);
+                    handData.setShootFirearmActionTask(new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            firearmAction.readyState(weaponStack, entityWrapper);
+                            handData.setShootFirearmActionTask(0);
+                        }
+                    }.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+                } else {
+                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                }
+            } else if (handData.getShootFirearmActionTask() == 0) {
+                // Meaning that firearm actions were probably cancelled by switching hand
+                // -> Continue where they left on
+                doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData);
+            }
+
             return false;
         }
 
-        // START RELOAD STUFF
+        // FIREARM END
+
+        // RELOAD START
 
         // Check if other hand is reloading and deny shooting if it is
         if (slot == EquipmentSlot.HAND) {
@@ -138,20 +171,16 @@ public class ShootHandler implements IValidator {
         } else if (entityWrapper.getMainHandData().isReloading()) {
             return false;
         }
-        ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
         // If no ammo left, start reloading
-        if (reloadHandler.getAmmoLeft(weaponStack) == 0) {
+        if (ammoLeft == 0) {
             reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
             return false;
         } else if (handData.isReloading()) {
-
-            // Cancel reload and let shoot if mag isn't empty
-            // -> If firearms are used, the mag wouldn't be there so firearm actions ready state is checked above
             handData.stopReloadingTasks();
         }
 
-        // END RELOAD STUFF
+        // RELOAD END
 
         boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
         boolean isSelectiveFireAuto = false;
@@ -318,12 +347,10 @@ public class ShootHandler implements IValidator {
 
         Configuration config = getConfigurations();
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
-        if (firearmAction == null || weaponHandler.getReloadHandler().getAmmoLeft(weaponStack) <= 0) return;
-
-        int weaponMagSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
+        if (firearmAction == null) return;
 
         // Return if firearm actions should not be done in this shot
-        if (weaponMagSize % firearmAction.getFirearmActionFrequency() != 0) return;
+        if (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack) % firearmAction.getFirearmActionFrequency() != 0) return;
 
         // No need to do any firearm actions if its REVOLVER
         if (firearmAction.getFirearmType() == FirearmType.REVOLVER) return;
@@ -339,7 +366,7 @@ public class ShootHandler implements IValidator {
         };
 
         // Check if OPEN state was already completed, but was cancelled on CLOSE state
-        if (firearmAction.getState(weaponStack).equals("CLOSE")) {
+        if (firearmAction.getState(weaponStack) == FirearmState.SHOOT_CLOSE) {
 
             // Only do CLOSE state
 
@@ -348,12 +375,12 @@ public class ShootHandler implements IValidator {
             return;
         }
 
-        firearmAction.openState(weaponStack, entityWrapper);
+        firearmAction.openShootState(weaponStack, entityWrapper);
         handData.setShootFirearmActionTask(new BukkitRunnable() {
             @Override
             public void run() {
 
-                firearmAction.closeState(weaponStack, entityWrapper);
+                firearmAction.closeShootState(weaponStack, entityWrapper);
                 handData.setShootFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 
             }

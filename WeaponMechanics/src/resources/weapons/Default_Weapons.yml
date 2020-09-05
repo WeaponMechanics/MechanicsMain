@@ -8,12 +8,13 @@ test:
         - "&6y"
     Cancel:
       Drop_Item: true
+      Swap_Hands: true
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
     Projectile_Speed: 30.0
     Projectiles_Per_Shot: 1
-    Delay_Between_Shots: 20
+    #Delay_Between_Shots: 20
     Selective_Fire:
       Trigger:
         Main_Hand: "DROP_ITEM"
@@ -30,6 +31,21 @@ test:
     Trigger:
       Main_Hand: "LEFT_CLICK"
     Zoom_Amount: 8
+    Night_Vision: true
     Zoom_Stacking:
       Maximum_Stacks: 2
       Increase_Zoom_Per_Stack: 8
+  Firearm_Action:
+    Type: LEVER
+    Firearm_Action_Frequency: 3
+    Open:
+      Time: 13
+    Close:
+      Time: 20
+  Reload:
+    Trigger:
+      Main_Hand: "SWAP_TO_OFF_HAND"
+    Magazine_Size: 30
+    #Ammo_Per_Reload: 2
+    Unload_Ammo_On_Reload: true
+    Reload_Duration: 30
