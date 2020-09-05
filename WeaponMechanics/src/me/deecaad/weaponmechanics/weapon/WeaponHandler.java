@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
+import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -122,30 +123,30 @@ public class WeaponHandler {
             // 2) Burst
             // 3) Auto
 
-            String currentSelectiveFire = TagHelper.getStringTag(weaponStack, CustomTag.SELECTIVE_FIRE);
+            Integer currentSelectiveFire = TagHelper.getIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE);
             if (currentSelectiveFire == null) {
                 if (hasBurst) {
-                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "BURST");
+                    TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.BURST.getId());
                 } else if (hasAuto) {
-                    TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "AUTO");
+                    TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.AUTO.getId());
                 }
             } else {
                 switch (currentSelectiveFire) {
-                    case ("BURST"):
+                    case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
                         if (hasAuto) {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "AUTO");
+                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.AUTO.getId());
                         } else {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "SINGLE");
+                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.SINGLE.getId());
                         }
                         break;
-                    case ("AUTO"):
-                        TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "SINGLE");
+                    case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
+                        TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.SINGLE.getId());
                         break;
                     default:
                         if (hasBurst) {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "BURST");
+                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.BURST.getId());
                         } else if (hasAuto) {
-                            TagHelper.setStringTag(weaponStack, CustomTag.SELECTIVE_FIRE, "AUTO");
+                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.AUTO.getId());
                         }
                         break;
                 }

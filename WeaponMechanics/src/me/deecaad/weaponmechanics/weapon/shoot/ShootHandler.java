@@ -184,10 +184,10 @@ public class ShootHandler implements IValidator {
 
         boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
         boolean isSelectiveFireAuto = false;
-        String selectiveFire = null;
+        Integer selectiveFire = null;
         if (usesSelectiveFire) {
-            selectiveFire = TagHelper.getStringTag(weaponStack, CustomTag.SELECTIVE_FIRE);
-            if (selectiveFire != null && selectiveFire.equals("AUTO")) {
+            selectiveFire = TagHelper.getIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE);
+            if (selectiveFire != null && selectiveFire == SelectiveFireState.AUTO.getId()) {
                 isSelectiveFireAuto = true;
             }
         }
@@ -203,9 +203,9 @@ public class ShootHandler implements IValidator {
                 return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
             } else {
                 switch (selectiveFire) {
-                    case ("BURST"):
+                    case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
                         return burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-                    case ("AUTO"):
+                    case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
                         return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
                     default:
                         return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
