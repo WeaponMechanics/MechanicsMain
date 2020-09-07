@@ -8,13 +8,23 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
 public class ReflectionUtil {
 
     private static final String versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-    
+    private static final String nmsVersion = "net.minecraft.server." + versionString + '.';
+    private static final String cbVersion = "org.bukkit.craftbukkit." + versionString + '.';
+
+    private static final Field modifiersField;
+
+    static {
+        modifiersField = ReflectionUtil.getField(Field.class, "modifiers");
+        modifiersField.setAccessible(true);
+    }
+
     /**
      * Don't let anyone instantiate this class
      */
@@ -28,7 +38,7 @@ public class ReflectionUtil {
      */
     public static Class<?> getNMSClass(@Nonnull String className) {
         try {
-            return Class.forName("net.minecraft.server." + versionString + "." + className);
+            return Class.forName(nmsVersion + className);
         } catch (ClassNotFoundException e) {
             debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
             return null;
@@ -43,7 +53,7 @@ public class ReflectionUtil {
      */
     public static Class<?> getCBClass(@Nonnull String className) {
         try {
-            return Class.forName("org.bukkit.craftbukkit." + versionString + "." + className);
+            return Class.forName(cbVersion + className);
         } catch (ClassNotFoundException e) {
             debug.log(LogLevel.ERROR, "Issue getting CB class!", e);
             return null;
@@ -124,6 +134,21 @@ public class ReflectionUtil {
             debug.log(LogLevel.ERROR, "Issue getting field!", e);
             return null;
         }
+    }
+
+    /**
+     * Sets the field to be a non final field
+     *
+     * @param field The field to set
+     * @return The field
+     */
+    public static Field setFieldModifiable(Field field) {
+        try {
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        } catch (IllegalAccessException ex) {
+            debug.log(LogLevel.ERROR, "Issue changing final field to non-final!", ex);
+        }
+        return field;
     }
 
     /**
