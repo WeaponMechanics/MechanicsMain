@@ -69,7 +69,7 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
             tempSpread = gliding.applyTo(tempSpread);
         }
 
-        return tempSpread;
+        return Math.max(tempSpread, 0.0);
     }
 
     @Override

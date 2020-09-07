@@ -1,7 +1,12 @@
 ## Reference Page
-This page contains useful links for information that changes every version.
-Note, after a new Minecraft version is released, this page will be out-dated
-for about a week.
+This page contains useful links and references. Contents:
+  * [Materials](#Materials)
+  * [Sounds](#Sounds)
+  * [Particles](#Particles)
+  * [Entities](#Entities)
+  * [Potion Effects](#Potion Effects)
+  * [Color Codes](#Color Codes)
+  
 
 ## Materials
 **1.8**: https://helpch.at/docs/1.8.8/org/bukkit/Material.html  
@@ -57,3 +62,14 @@ for about a week.
 **1.14**: https://helpch.at/docs/1.14/org/bukkit/potion/PotionEffectType.html  
 **1.15**: https://helpch.at/docs/1.15/org/bukkit/potion/PotionEffectType.html  
 **1.16**: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html  
+
+## Color Codes
+In minecraft versions under 1.16, you can use basic color codes by using the `&` symbol.
+![](colorcodes.png)
+
+In minecraft versions 1.16 and higher, you can do the above, and have full HEX code support. 
+If you are not familiar with HEX, it's basically just a number format. Here we use hex to
+store colors. You can use HEX format in config by using `&#<code>` where code is your 6 digit
+hex code. You can use an [Online Color Picker](https://htmlcolorcodes.com/color-picker/) to 
+help find the hex code you want.
+

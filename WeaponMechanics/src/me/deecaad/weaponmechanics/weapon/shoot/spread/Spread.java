@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
@@ -9,6 +10,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Spread implements Serializer<Spread> {
 
@@ -102,6 +105,7 @@ public class Spread implements Serializer<Spread> {
         }
         double baseSpread = configurationSection.getDouble(path + ".Base_Spread");
         if (baseSpread == 0.0) {
+            debug.error("Base_Spread must be greater than 0!", StringUtils.foundAt(file, path));
             return null;
         }
 

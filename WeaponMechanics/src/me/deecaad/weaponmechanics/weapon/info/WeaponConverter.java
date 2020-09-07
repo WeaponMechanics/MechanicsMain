@@ -4,10 +4,14 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class WeaponConverter implements Serializer<WeaponConverter> {
 
@@ -68,7 +72,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         }
         if (this.enchantments) {
             if (weaponMeta.hasEnchants() && !otherMeta.hasEnchants()
-                    || !weaponMeta.getEnchants().equals(otherMeta.getEnchants())) {
+                    || equals(weaponMeta.getEnchants(), otherMeta.getEnchants())) {
                 // If weapon would have enchantments, but other doesn't
                 // OR
                 // If weapon and other enchantments doesn't match
@@ -76,6 +80,29 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
             }
         }
         return true;
+    }
+
+    private static boolean equals(Map<Enchantment, Integer> ench1, Map<Enchantment, Integer> ench2) {
+        if (ench1 == ench2)
+            return true;
+        else if (ench1.size() != ench2.size())
+            return false;
+        else {
+            List<Map.Entry<Enchantment, Integer>> list1 = new ArrayList<>(ench1.entrySet());
+            List<Map.Entry<Enchantment, Integer>> list2 = new ArrayList<>(ench2.entrySet());
+
+            for (int i = 0; i < list1.size(); i++) {
+                Map.Entry<Enchantment, Integer> entry1 = list1.get(i);
+                Map.Entry<Enchantment, Integer> entry2 = list2.get(i);
+
+                if (!entry1.getKey().equals(entry2.getKey()))
+                    return false;
+                else if (!entry1.getValue().equals(entry2.getValue()))
+                    return false;
+            }
+
+            return true;
+        }
     }
 
     @Override
