@@ -1,6 +1,7 @@
 package me.deecaad.core.file.serializers;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.utils.Enums;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Color;
@@ -8,7 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -20,44 +21,68 @@ public class ColorSerializer implements Serializer<Color> {
 
     @Override
     public Color serialize(File file, ConfigurationSection configurationSection, String path) {
-        ConfigurationSection config = configurationSection.getConfigurationSection(path);
 
-        String type = config.getString("Type", "NAME").toUpperCase();
-        String value = config.getString("Data");
-
-        String foundAt = StringUtils.foundAt(file, path);
-
-        if (value == null) {
-            debug.error("You forgot to add data to the Color!", foundAt);
-        }
+        String data = configurationSection.getString(path);
 
         Color color;
-        switch (type) {
-            case "NAME":
-                try {
-                    color = ColorType.valueOf(value).color;
-                } catch (EnumConstantNotPresentException ex) {
-                    debug.error("Unknown color name \"" + value + "\"",
-                            "Valid Colors: " + Arrays.stream(ColorType.values()).map(Enum::name).collect(Collectors.joining()),
-                            foundAt);
-                    debug.log(LogLevel.DEBUG, ex);
+
+        try {
+            if (data.startsWith("0x")) {
+                String subString = data.substring(2);
+                if (subString.length() != 6) {
+                    debug.warn("Hex strings are usually 6 digits for colors... Found: " + subString,
+                            StringUtils.foundAt(file, path));
+                }
+                int rgb = Integer.parseInt(subString, 16);
+                color = Color.fromRGB(rgb);
+
+            } else if (data.startsWith("#")) {
+                String subString = data.substring(1);
+                if (subString.length() != 6) {
+                    debug.warn("Hex strings are usually 6 digits for colors... Found: " + subString,
+                            StringUtils.foundAt(file, path));
+                }
+                int rgb = Integer.parseInt(subString, 16);
+                color = Color.fromRGB(rgb);
+
+            } else if (StringUtils.countChars('-', data) == 2) {
+                String[] split = data.split("-");
+                int r = Integer.parseInt(split[0]);
+                int g = Integer.parseInt(split[1]);
+                int b = Integer.parseInt(split[2]);
+
+                if (r < 0 || r > 255) {
+                    debug.error("Invalid number for red color. Number should be in range 0-255. Found: " + r,
+                            StringUtils.foundAt(file, path));
+                    return null;
+                } else if (g < 0 || g > 255) {
+                    debug.error("Invalid number for green color. Number should be in range 0-255. Found: " + g,
+                            StringUtils.foundAt(file, path));
+                    return null;
+                } else if (b < 0 || b > 255) {
+                    debug.error("Invalid number for blue color. Number should be in range 0-255. Found: " + b,
+                            StringUtils.foundAt(file, path));
                     return null;
                 }
-                break;
-            case "RGB":
-                color = ColorType.fromString(value);
-                break;
-            case "HEX":
-                value = value.replaceFirst("#", "0x");
-                int hex = Integer.parseInt(value, 16);
-                int r = (hex >> 16) & 0xFF;
-                int g = (hex >> 8) & 0xFF;
-                int b = (hex) & 0xFF;
+
                 color = Color.fromRGB(r, g, b);
-                break;
-            default:
-                debug.error("Unknown color type \"" + type + "\"", foundAt);
-                return null;
+
+            } else {
+                Optional<ColorType> optional = Enums.getIfPresent(ColorType.class, data.trim().toUpperCase());
+
+                if (optional.isPresent()) {
+                    color = optional.get().color;
+                } else {
+                    debug.error("Can't figure out which color to use for input: " + data,
+                            "Did you mean " + StringUtils.didYouMean(data, Enums.getOptions(ColorType.class)) + "?",
+                            StringUtils.foundAt(file, path));
+                    return null;
+                }
+            }
+        } catch (NumberFormatException ex) {
+            debug.error("Found an invalid number or hex string in configurations: " + ex.getMessage(),
+                    StringUtils.foundAt(file, path));
+            return null;
         }
 
         return color;
