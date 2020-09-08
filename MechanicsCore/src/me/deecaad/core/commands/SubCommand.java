@@ -16,8 +16,8 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -187,7 +187,7 @@ public abstract class SubCommand extends BukkitCommand {
     public abstract void execute(CommandSender sender, String[] args);
 
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+    public boolean execute(@Nonnull CommandSender sender, @Nonnull String label, @Nonnull String[] args) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
             sender.sendMessage(getPermissionMessage());
             return false;
@@ -207,8 +207,8 @@ public abstract class SubCommand extends BukkitCommand {
     }
 
     @Override
-    @NotNull
-    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+    @Nonnull
+    public List<String> tabComplete(@Nonnull CommandSender sender, @Nonnull String alias, @Nonnull String[] args) {
         if (!sender.hasPermission(getPermission())) {
             return Collections.emptyList();
         } else {
