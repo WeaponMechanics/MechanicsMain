@@ -221,6 +221,10 @@ public class WeaponMechanics extends JavaPlugin {
         debug.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
     }
 
+    public void onReload() {
+        // todo, DON'T FILL YET
+    }
+
     @Override
     public void onDisable() {
         BlockDamageData.regenerateAll();
@@ -351,5 +355,12 @@ public class WeaponMechanics extends JavaPlugin {
     @Nullable
     public static UpdateChecker getUpdateChecker() {
         return updateChecker;
+    }
+
+    /**
+     * @return the current weapon handler
+     */
+    public static WeaponHandler getWeaponHandler() {
+        return weaponHandler;
     }
 }

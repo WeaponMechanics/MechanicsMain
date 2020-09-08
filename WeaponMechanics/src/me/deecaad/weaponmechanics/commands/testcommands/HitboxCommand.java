@@ -57,14 +57,14 @@ public class HitboxCommand extends SubCommand {
 
                     if (head == -1 || body == -1 || legs == -1 || feet == -1) {
                         debug.log(LogLevel.ERROR, "Entity type " + type.name() + " is missing some of its damage point values, please add it",
-                                "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
+                                "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
                                 "Its missing one of these: HEAD, BODY, LEGS or FEET");
                         continue;
                     }
                     double sumOf = head + body + legs + feet;
                     if (Math.abs(sumOf - 1.0) > 1e-5) { // If the numbers are not super close together (floating point issues)
                         debug.log(LogLevel.ERROR, "Entity type " + type.name() + " hit box values sum doesn't match 1.0",
-                                "Located at file /CrackShotPlus/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
+                                "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
                                 "Now the total sum was " + sumOf + ", please make it 1.0.");
                         continue;
                     }

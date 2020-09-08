@@ -6,11 +6,7 @@ import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.VectorUtils;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @SerializerData(name = "lightning", args = {"distanceBetweenPoints~DOUBLE~space", "generations~INTEGER", "branchChance~DOUBLE"})
 public class Lightning extends Shape {

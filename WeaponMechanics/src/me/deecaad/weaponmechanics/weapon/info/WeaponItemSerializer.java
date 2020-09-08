@@ -25,6 +25,12 @@ public class WeaponItemSerializer extends ItemSerializer {
         if (weaponStack == null) return null;
         String weaponTitle = path.split("\\.")[0];
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
+
+        int magazineSize = configurationSection.getInt(weaponTitle + ".Reload.Magazine_Size", -1);
+        if (magazineSize != -1) {
+            TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, magazineSize);
+        }
+
         return TagHelper.setStringTag(weaponStack, CustomTag.WEAPON_TITLE, weaponTitle);
     }
 }

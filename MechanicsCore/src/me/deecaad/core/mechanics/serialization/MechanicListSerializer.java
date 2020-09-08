@@ -9,12 +9,7 @@ import me.deecaad.core.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -29,10 +24,15 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
     private Map<String, Class<Targeter>> targeters;
 
     public MechanicListSerializer() {
+
+        if (true) {
+            return;
+        }
+
         mechanics = new HashMap<>();
         targeters = new HashMap<>();
 
-        Map<String, Class<StringSerializable>> serializers = new HashMap<>() /*MechanicsCore.getPlugin().getStringSerializers()*/;
+        Map<String, Class<StringSerializable>> serializers = null;//MechanicsCore.getPlugin().getStringSerializers();
         for (Map.Entry<String, Class<StringSerializable>> entry : serializers.entrySet()) {
 
             String name = entry.getKey();
@@ -51,7 +51,7 @@ public class MechanicListSerializer implements Serializer<MechanicListSerializer
     
     @Override
     public String getKeyword() {
-        return "Mechanics";
+        return "Mechanics_______";
     }
 
     @Override

@@ -18,6 +18,7 @@ public class OutEntityEffectListener extends PacketHandler {
         if (id < 0) { // Means that it was sent by ScopeCompatibility
 
             // Simply convert id back to normal and let packet pass
+            // By pass I mean, not cancel it, that return statement is there for reason (to cancel night vision remove when it should be on)
             packet.setFieldValue("a", (id * -1), 0);
             return;
         }

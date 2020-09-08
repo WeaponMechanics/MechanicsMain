@@ -1,13 +1,7 @@
 package me.deecaad.core.utils;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nonnull;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.SplittableRandom;
-import java.util.TreeSet;
+import java.util.*;
 
 public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
 
@@ -99,7 +93,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
         return set.size();
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Iterator<Node<E>> iterator() {
         return set.iterator();

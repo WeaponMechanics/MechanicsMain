@@ -3,11 +3,7 @@ package me.deecaad.core.mechanics.serialization;
 import me.deecaad.core.mechanics.serialization.datatypes.DataType;
 import me.deecaad.core.utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static me.deecaad.core.MechanicsCore.debug;
 

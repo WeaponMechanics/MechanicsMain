@@ -6,6 +6,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
@@ -40,35 +41,69 @@ public class FirearmAction implements Serializer<FirearmAction> {
      * @return whether the state is READY
      */
     public boolean hasReadyFirearmActions(ItemStack weaponStack) {
-        return getState(weaponStack).equals("READY");
+        return getState(weaponStack) == FirearmState.READY;
     }
 
-    public String getState(ItemStack weaponStack) {
-        return TagHelper.getStringTag(weaponStack, CustomTag.FIREARM_ACTION_STATE);
+    public boolean hasReloadState(ItemStack weaponStack) {
+        FirearmState state = getState(weaponStack);
+        return state == FirearmState.RELOAD_OPEN || state == FirearmState.RELOAD || state == FirearmState.RELOAD_CLOSE;
     }
 
-    public void openState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, "OPEN");
+    public boolean hasShootState(ItemStack weaponStack) {
+        FirearmState state = getState(weaponStack);
+        return state == FirearmState.SHOOT_OPEN || state == FirearmState.SHOOT_CLOSE;
     }
 
-    public void reloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, "RELOAD");
-    }
+    public FirearmState getState(ItemStack weaponStack) {
+        Integer state = TagHelper.getIntegerTag(weaponStack, CustomTag.FIREARM_ACTION_STATE);
 
-    public void closeState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, "CLOSE");
+        if (state == null) return FirearmState.READY;
+        switch (state) {
+            case 1:
+                return FirearmState.RELOAD_OPEN;
+            case 2:
+                return FirearmState.RELOAD;
+            case 3:
+                return FirearmState.RELOAD_CLOSE;
+            case 4:
+                return FirearmState.SHOOT_OPEN;
+            case 5:
+                return FirearmState.SHOOT_CLOSE;
+            default:
+                return FirearmState.READY;
+        }
     }
 
     public void readyState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, "READY");
+        changeState(weaponStack, entityWrapper, FirearmState.READY);
     }
 
-    private void changeState(ItemStack weaponStack, IEntityWrapper entityWrapper, String state) {
+    public void openReloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
+        changeState(weaponStack, entityWrapper, FirearmState.RELOAD_OPEN);
+    }
+
+    public void reloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
+        changeState(weaponStack, entityWrapper, FirearmState.RELOAD);
+    }
+
+    public void closeReloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
+        changeState(weaponStack, entityWrapper, FirearmState.RELOAD_CLOSE);
+    }
+
+    public void openShootState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
+        changeState(weaponStack, entityWrapper, FirearmState.SHOOT_OPEN);
+    }
+
+    public void closeShootState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
+        changeState(weaponStack, entityWrapper, FirearmState.SHOOT_CLOSE);
+    }
+
+    private void changeState(ItemStack weaponStack, IEntityWrapper entityWrapper, FirearmState state) {
         if (entityWrapper instanceof IPlayerWrapper) {
-            TagHelper.setStringTag(weaponStack, CustomTag.FIREARM_ACTION_STATE, state, (IPlayerWrapper) entityWrapper, true);
+            TagHelper.setIntegerTag(weaponStack, CustomTag.FIREARM_ACTION_STATE, state.getId(), (IPlayerWrapper) entityWrapper, true);
             return;
         }
-        TagHelper.setStringTag(weaponStack, CustomTag.FIREARM_ACTION_STATE, state);
+        TagHelper.setIntegerTag(weaponStack, CustomTag.FIREARM_ACTION_STATE, state.getId());
     }
 
     public FirearmType getFirearmType() {

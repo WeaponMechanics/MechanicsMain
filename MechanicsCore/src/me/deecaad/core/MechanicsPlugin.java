@@ -1,12 +1,7 @@
 package me.deecaad.core;
 
 import me.deecaad.core.commands.MainCommand;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.FileCopier;
-import me.deecaad.core.file.FileReader;
-import me.deecaad.core.file.JarSerializers;
-import me.deecaad.core.file.SeparatedConfig;
-import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.*;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
