@@ -11,21 +11,21 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
 
-    private ModifierHolder always;
-    private ModifierHolder zooming;
-    private ModifierHolder sneaking;
-    private ModifierHolder standing;
-    private ModifierHolder walking;
-    private ModifierHolder swimming;
-    private ModifierHolder inMidair;
-    private ModifierHolder gliding;
+    private NumberModifier always;
+    private NumberModifier zooming;
+    private NumberModifier sneaking;
+    private NumberModifier standing;
+    private NumberModifier walking;
+    private NumberModifier swimming;
+    private NumberModifier inMidair;
+    private NumberModifier gliding;
 
     /**
      * Empty constructor to be used as serializer
      */
     public ModifySpreadWhen() { }
 
-    public ModifySpreadWhen(ModifierHolder always, ModifierHolder zooming, ModifierHolder sneaking, ModifierHolder standing, ModifierHolder walking, ModifierHolder swimming, ModifierHolder inMidair, ModifierHolder gliding) {
+    public ModifySpreadWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking, NumberModifier standing, NumberModifier walking, NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         this.always = always;
         this.zooming = zooming;
         this.sneaking = sneaking;
@@ -47,25 +47,25 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
         if (always != null) {
             tempSpread = always.applyTo(tempSpread);
         }
-        if ((entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming()) && zooming != null) {
+        if (zooming != null && (entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming())) {
             tempSpread = zooming.applyTo(tempSpread);
         }
-        if (entityWrapper.isSneaking() && sneaking != null) {
+        if (sneaking != null && entityWrapper.isSneaking()) {
             tempSpread = sneaking.applyTo(tempSpread);
         }
-        if (entityWrapper.isStanding() && standing != null) {
+        if (standing != null && entityWrapper.isStanding()) {
             tempSpread = standing.applyTo(tempSpread);
         }
-        if (entityWrapper.isWalking() && walking != null) {
+        if (walking != null && entityWrapper.isWalking()) {
             tempSpread = walking.applyTo(tempSpread);
         }
-        if (entityWrapper.isSwimming() && swimming != null) {
+        if (swimming != null && entityWrapper.isSwimming()) {
             tempSpread = swimming.applyTo(tempSpread);
         }
-        if (entityWrapper.isInMidair() && inMidair != null) {
+        if (inMidair != null && entityWrapper.isInMidair()) {
             tempSpread = inMidair.applyTo(tempSpread);
         }
-        if (entityWrapper.isGliding() && gliding != null) {
+        if (gliding != null && entityWrapper.isGliding()) {
             tempSpread = gliding.applyTo(tempSpread);
         }
 
@@ -79,14 +79,14 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
 
     @Override
     public ModifySpreadWhen serialize(File file, ConfigurationSection configurationSection, String path) {
-        ModifierHolder always = getModifierHandler(file, configurationSection, path + ".Always");
-        ModifierHolder zooming = getModifierHandler(file, configurationSection, path + ".Zooming");
-        ModifierHolder sneaking = getModifierHandler(file, configurationSection, path + ".Sneaking");
-        ModifierHolder standing = getModifierHandler(file, configurationSection, path + ".Standing");
-        ModifierHolder walking = getModifierHandler(file, configurationSection, path + ".Walking");
-        ModifierHolder swimming = getModifierHandler(file, configurationSection, path + ".Swimming");
-        ModifierHolder inMidair = getModifierHandler(file, configurationSection, path + ".In_Midair");
-        ModifierHolder gliding = getModifierHandler(file, configurationSection, path + ".Gliding");
+        NumberModifier always = getModifierHandler(file, configurationSection, path + ".Always");
+        NumberModifier zooming = getModifierHandler(file, configurationSection, path + ".Zooming");
+        NumberModifier sneaking = getModifierHandler(file, configurationSection, path + ".Sneaking");
+        NumberModifier standing = getModifierHandler(file, configurationSection, path + ".Standing");
+        NumberModifier walking = getModifierHandler(file, configurationSection, path + ".Walking");
+        NumberModifier swimming = getModifierHandler(file, configurationSection, path + ".Swimming");
+        NumberModifier inMidair = getModifierHandler(file, configurationSection, path + ".In_Midair");
+        NumberModifier gliding = getModifierHandler(file, configurationSection, path + ".Gliding");
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
                 && swimming == null && inMidair == null && gliding == null) {
             return null;
@@ -94,11 +94,11 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
         return new ModifySpreadWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
     }
 
-    private ModifierHolder getModifierHandler(File file, ConfigurationSection configurationSection, String path) {
+    private NumberModifier getModifierHandler(File file, ConfigurationSection configurationSection, String path) {
         String value = configurationSection.getString(path);
         if (value == null) return null;
         try {
-            return new ModifierHolder(Double.parseDouble(value.split("%")[0]), value.endsWith("%"));
+            return new NumberModifier(Double.parseDouble(value.split("%")[0]), value.endsWith("%"));
         } catch (NumberFormatException e) {
             debug.log(LogLevel.ERROR,
                     "Found an invalid number in configurations!",
