@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -66,10 +67,6 @@ public class ReflectionUtil {
      * @return the constructor or null if not found
      */
     public static Constructor<?> getConstructor(@Nonnull Class<?> classObject, Class<?>... parameters) {
-        if (classObject == null) {
-            debug.log(LogLevel.ERROR, "classObject is null in getConstructor()");
-            return null;
-        }
         try {
             return classObject.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
@@ -86,10 +83,6 @@ public class ReflectionUtil {
      * @return the new instance as object
      */
     public static Object newInstance(@Nonnull Constructor<?> constructor, Object... parameters) {
-        if (constructor == null) {
-            debug.log(LogLevel.ERROR, "constructor is null in newInstance()!");
-            return null;
-        }
         try {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -120,10 +113,6 @@ public class ReflectionUtil {
      * @return the field or null if not found
      */
     public static Field getField(@Nonnull Class<?> classObject, @Nonnull String fieldName) {
-        if (classObject == null || fieldName == null) {
-            debug.log(LogLevel.ERROR, "classObject or fieldName is null in getField()");
-            return null;
-        }
         try {
             Field field = classObject.getDeclaredField(fieldName);
             if (!field.isAccessible()) {
@@ -134,6 +123,50 @@ public class ReflectionUtil {
             debug.log(LogLevel.ERROR, "Issue getting field!", e);
             return null;
         }
+    }
+
+    /**
+     * Gets the field by it's datatype instead of it's name. Useful
+     * for obfuscated code where the variable name changes but the
+     * type of the variables does not.
+     *
+     * @param target The class to pull the field from (Or from any of it's superclasses)
+     * @param name The name of the field, or null for any name
+     * @param type The type the field must have
+     * @return The found field
+     * @throws IllegalArgumentException When no such field exists
+     */
+    public static Field getField(@Nonnull Class<?> target, @Nullable String name, Class<?> type) {
+        return getField(target, name, type, 0);
+    }
+
+    public static Field getField(@Nonnull Class<?> target, @Nullable String name, Class<?> type, int index) {
+        for (final Field field : target.getDeclaredFields()) {
+
+            // Check if the name field, if the name is not a wildcard
+            if (name == null || name.equals(field.getName())) {
+
+                // Type check. Make sure the field's datatype
+                // matches the data type we are trying to find
+                if (!type.isAssignableFrom(field.getType()))
+                    continue;
+                else if (index-- > 0)
+                    continue;
+
+                if (!field.isAccessible())
+                    field.setAccessible(true);
+
+                return field;
+            }
+        }
+
+        // if the class has a superclass, then recursively check
+        // the super class for the field
+        Class<?> superClass = target.getSuperclass();
+        if (superClass != null)
+            return getField(superClass, name, type);
+
+        throw new IllegalArgumentException("Cannot find field with type " + type);
     }
 
     /**
@@ -157,10 +190,6 @@ public class ReflectionUtil {
      * @return the field object or null if not found
      */
     public static Object invokeField(@Nonnull Field field, @Nullable Object instance) {
-        if (field == null) {
-            debug.log(LogLevel.ERROR, "field or instance is null in invokeField()");
-            return null;
-        }
         try {
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -175,9 +204,6 @@ public class ReflectionUtil {
      * @param value the new value for field
      */
     public static void setField(@Nonnull Field field, @Nullable Object instance, Object value) {
-        if (field == null) {
-            debug.log(LogLevel.ERROR, "field or instance is null in setField()");
-        }
         try {
             field.set(instance, value);
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -192,10 +218,6 @@ public class ReflectionUtil {
      * @return the method or null if not found
      */
     public static Method getMethod(@Nonnull Class<?> classObject, @Nonnull String methodName, Class<?>... parameters) {
-        if (classObject == null || methodName == null) {
-            debug.log(LogLevel.ERROR, "classObject or methodName is null in getMethod()");
-            return null;
-        }
         try {
             Method method = classObject.getDeclaredMethod(methodName, parameters);
             if (!method.isAccessible()) {
@@ -208,6 +230,27 @@ public class ReflectionUtil {
         }
     }
 
+    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, Class<?>...params) {
+        for (final Method method : target.getDeclaredMethods()) {
+            if (returnType != null && !returnType.isAssignableFrom(method.getReturnType()))
+                continue;
+            else if (!Arrays.equals(method.getParameterTypes(), params))
+                continue;
+
+            if (!method.isAccessible())
+                method.setAccessible(true);
+
+            return method;
+        }
+
+        // Recursively check superclasses for the method
+        if (target.getSuperclass() != null)
+            return getMethod(target.getSuperclass(), returnType, params);
+
+        throw new IllegalArgumentException("Cannot find field with return=" + returnType
+                + ", params=" + Arrays.toString(params));
+    }
+
     /**
      * @param method the method to modify
      * @param instance the instance used to invoke method (null in static use)
@@ -215,10 +258,6 @@ public class ReflectionUtil {
      * @return the method object or null if not found or null if method is for e.g void
      */
     public static Object invokeMethod(@Nonnull Method method, Object instance, Object... parameters) {
-        if (method == null) {
-            debug.log(LogLevel.ERROR, "method is null in invokeField()");
-            return null;
-        }
         try {
             return method.invoke(instance, parameters);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
