@@ -3,7 +3,9 @@ package me.deecaad.core;
 import me.deecaad.core.events.triggers.ArmorEquipTrigger;
 import me.deecaad.core.file.JarSerializers;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.packetlistener.PacketListenerAPI;
+import me.deecaad.core.packetlistener.Packet;
+import me.deecaad.core.packetlistener.PacketHandler;
+import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
@@ -33,16 +35,22 @@ public class MechanicsCore extends JavaPlugin {
 
         reloadSerializers();
 
-        new PacketListenerAPI(this);
+        PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
 
         ArmorEquipTrigger armorEquipTrigger = new ArmorEquipTrigger();
-        PacketListenerAPI.addPacketHandler(this, armorEquipTrigger);
+        packetListener.addPacketHandler(armorEquipTrigger, true);
+
+        packetListener.addPacketHandler(new PacketHandler("PacketPlayOutLogin") {
+            @Override
+            public void onPacket(Packet packet) {
+                debug.info("Test: " + packet.getPacket());
+            }
+        }, true);
     }
 
     @Override
     public void onDisable() {
         PlaceholderAPI.onDisable();
-        PacketListenerAPI.onDisable();
         plugin = null;
         serializersList = null;
         debug = null;
