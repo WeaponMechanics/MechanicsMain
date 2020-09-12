@@ -4,4 +4,11 @@ Reload:
   Ammo_Per_Reload: <amount>
   Unload_Ammo_On_Reload: <true/false>
   Reload_Duration: <ticks>
-  # All general and effect stuff
+  # All general and effect stuff when start & finish reload
+  Ammo:
+    # All general and effect stuff (when out of ammo)
+    Item_Ammo:
+      Magazine: <item serializer>
+      Ammo: <item serializer>
+    Exp_Ammo:
+      Exp_Cost: <exp per one ammo>
