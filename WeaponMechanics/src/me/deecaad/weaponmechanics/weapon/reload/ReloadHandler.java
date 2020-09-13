@@ -86,12 +86,20 @@ public class ReloadHandler implements IValidator {
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
 
         if (firearmAction != null && firearmAction.hasShootState(weaponStack)) {
-            int shootFirearmTaskId = handData.getShootFirearmActionTask();
-            if (shootFirearmTaskId != 0) {
-                Bukkit.getScheduler().cancelTask(shootFirearmTaskId);
-                handData.setShootFirearmActionTask(0);
-            }
-            firearmAction.readyState(weaponStack, entityWrapper);
+
+            // Call this again to make sure firearm actions are running
+            weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData);
+
+            // ... and deny reload while has shoot firearm actions
+            return false;
+        }
+
+        Ammo ammo = config.getObject(weaponTitle + ".Reload.Ammo", Ammo.class);
+        if (ammo != null && ammo.getAmount(entityWrapper) <= 0) {
+
+            // todo out of ammo effects
+
+            return false;
         }
 
         boolean isPump = firearmAction != null && firearmAction.getFirearmType() == FirearmType.PUMP;
@@ -100,24 +108,51 @@ public class ReloadHandler implements IValidator {
 
             @Override
             public void task() {
-                // Variable which decides the final ammo amount set to weapon after reload
-                int ammoToSet;
+
+                int ammoLeft = getAmmoLeft(weaponStack);
+
+                // Variable which decides how much ammo is added
+                int ammoToAdd;
 
                 if (ammoPerReload != -1) {
-                    ammoToSet = ammoLeft + ammoPerReload;
-                    if (ammoToSet > magazineSize) {
-                        ammoToSet = magazineSize;
+
+                    ammoToAdd = ammoPerReload;
+                    if (ammoLeft + ammoToAdd > magazineSize) {
+                        ammoToAdd = magazineSize - ammoLeft;
                     }
+
                 } else {
-                    ammoToSet = magazineSize;
+                    ammoToAdd = magazineSize - ammoLeft;
                 }
 
+                if (ammo != null) {
+
+                    int removedAmount = ammo.remove(entityWrapper, ammoToAdd);
+
+                    // Just check if for some reason ammo disappeared from entity before reaching reload state
+                    if (removedAmount <= 0) {
+
+                        // todo out of ammo effects
+
+                        // Remove next task as reload can't be finished
+                        setNextTask(null);
+
+                        return;
+                    }
+
+                    // Else simply set ammo to add value to removed amount
+                    // Removed amount will be less than ammo to add amount IF there wasn't enough ammo in entity
+                    ammoToAdd = removedAmount;
+
+                }
+
+                int finalAmmoSet = ammoLeft + ammoToAdd;
 
                 if (entityWrapper instanceof IPlayerWrapper) {
                     // Set the tag silently
-                    TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet, (IPlayerWrapper) entityWrapper, true);
+                    TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, finalAmmoSet, (IPlayerWrapper) entityWrapper, true);
                 } else {
-                    TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet);
+                    TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, finalAmmoSet);
                 }
 
                 if (firearmAction != null) {
@@ -143,7 +178,17 @@ public class ReloadHandler implements IValidator {
                     firearmAction.reloadState(weaponStack, entityWrapper);
                 }
                 if (unloadAmmoOnReload) {
-                    unloadWeapon(entityWrapper, weaponStack);
+
+                    if (ammo != null) {
+                        ammo.give(entityWrapper, TagHelper.getIntegerTag(weaponStack, CustomTag.AMMO_LEFT));
+                    }
+
+                    // unload weapon and give ammo back to given entity
+                    if (entityWrapper instanceof IPlayerWrapper) {
+                        TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0, (IPlayerWrapper) entityWrapper, true);
+                    } else {
+                        TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
+                    }
                 }
             }
         };
@@ -234,11 +279,7 @@ public class ReloadHandler implements IValidator {
 
     public void finishReload(HandData handData) {
         handData.stopReloadingTasks();
-    }
-
-    private void unloadWeapon(IEntityWrapper entityWrapper, ItemStack weaponStack) {
-        // unload weapon and give ammo back to given entity
-        TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
+        // todo event + mechanics
     }
 
     /**
@@ -260,7 +301,7 @@ public class ReloadHandler implements IValidator {
     /**
      * @return false if can't consume ammo (no enough ammo left)
      */
-    public boolean consumeAmmo(IEntityWrapper entityWrapper, ItemStack weaponStack, EquipmentSlot slot, int amount) {
+    public boolean consumeAmmo(IEntityWrapper entityWrapper, ItemStack weaponStack, int amount) {
         int ammoLeft = getAmmoLeft(weaponStack);
 
         // -1 means infinite ammo

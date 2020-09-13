@@ -6,8 +6,8 @@ import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class HandData {
 
@@ -19,7 +19,7 @@ public class HandData {
     private String lastShotWeaponTitle;
     private double spreadChange;
     private RecoilTask recoilTask;
-    private final List<Integer> reloadTasks = new ArrayList<>();
+    private final Set<Integer> reloadTasks = new HashSet<>();
     private ZoomData zoomData;
     private int shootFirearmActionTask;
 

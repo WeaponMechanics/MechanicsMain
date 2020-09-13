@@ -147,6 +147,7 @@ public class ShootHandler implements IValidator {
                             handData.setShootFirearmActionTask(0);
                         }
                     }.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+
                 } else {
                     reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
                 }
@@ -226,7 +227,7 @@ public class ShootHandler implements IValidator {
         // START RELOAD STUFF
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
-        reloadHandler.consumeAmmo(entityWrapper, weaponStack, slot, 1);
+        reloadHandler.consumeAmmo(entityWrapper, weaponStack, 1);
 
         // END RELOAD STUFF
 
@@ -256,7 +257,7 @@ public class ShootHandler implements IValidator {
 
                 // START RELOAD STUFF
 
-                if (!weaponHandler.getReloadHandler().consumeAmmo(entityWrapper, weaponStack, slot, 1)) {
+                if (!weaponHandler.getReloadHandler().consumeAmmo(entityWrapper, weaponStack, 1)) {
                     handData.setBurstTask(0);
                     cancel();
                     return;
@@ -318,7 +319,7 @@ public class ShootHandler implements IValidator {
                         shootAmount = ammoLeft;
                     }
 
-                    if (!reloadHandler.consumeAmmo(entityWrapper, weaponStack, slot, shootAmount)) {
+                    if (!reloadHandler.consumeAmmo(entityWrapper, weaponStack, shootAmount)) {
                         handData.setFullAutoTask(0);
                         cancel();
                         return;
@@ -343,11 +344,11 @@ public class ShootHandler implements IValidator {
         return true;
     }
 
-    private void doShootFirearmActions(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData) {
+    public void doShootFirearmActions(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData) {
 
         Configuration config = getConfigurations();
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
-        if (firearmAction == null) return;
+        if (firearmAction == null || handData.getShootFirearmActionTask() != 0) return;
 
         // Return if firearm actions should not be done in this shot
         if (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack) % firearmAction.getFirearmActionFrequency() != 0) return;

@@ -14,7 +14,7 @@ test:
       Main_Hand: "RIGHT_CLICK"
     Projectile_Speed: 30.0
     Projectiles_Per_Shot: 1
-    #Delay_Between_Shots: 20
+    Delay_Between_Shots: 20
     Selective_Fire:
       Trigger:
         Main_Hand: "DROP_ITEM"

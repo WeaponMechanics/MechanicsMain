@@ -104,8 +104,8 @@ public class Spread implements Serializer<Spread> {
             return new Spread(spreadImage);
         }
         double baseSpread = configurationSection.getDouble(path + ".Base_Spread");
-        if (baseSpread == 0.0) {
-            debug.error("Base_Spread must be greater than 0!", StringUtils.foundAt(file, path));
+        if (baseSpread <= 0.0) {
+            debug.error("Base_Spread must be greater than 0!", StringUtils.foundAt(file, path + ".Base_Spread"));
             return null;
         }
 

@@ -3,12 +3,12 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 /**
  * Simple class to help with handling spreads
  */
-public class ModifierHolder {
+public class NumberModifier {
 
     private double spread;
     private boolean percentage;
 
-    public ModifierHolder(double spread, boolean percentage) {
+    public NumberModifier(double spread, boolean percentage) {
         this.percentage = percentage;
         if (percentage) {
             // Convert from 100% to 1.0 format
