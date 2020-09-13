@@ -2,7 +2,9 @@ package me.deecaad.compatibility.entity;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
@@ -106,6 +108,19 @@ public interface EntityCompatibility {
     Object getGoalSelector(CustomPathfinderGoal goal);
 
     /**
+     * Gets an NMS <code>EntityItem</code> entity, setting it's
+     * location to the given world and coordinates.
+     *
+     * @param item The bukkit itemstack
+     * @param world The bukkit world
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
+     * @return The NMS item entity
+     */
+    Object toNMSItemEntity(ItemStack item, World world, double x, double y, double z);
+
+    /**
      * This enum gives location of a bit of information inside
      * the byte from <a href="https://wiki.vg/Entity_metadata#Entity">EntityMetaData</a>.
      *
@@ -118,12 +133,12 @@ public interface EntityCompatibility {
 
         FIRE(0),      // If the entity is on fire
         SNEAKING(1),  // If the entity is sneaking
-        UNUSED(2),    // If the entity is mounted
+        UNUSED(2),    // If the entity is mounted (no longer used in recent versions)
         SPRINTING(3), // If the entity is running
         SWIMMING(4),  // If the entity is swimming
         INVISIBLE(5), // If the entity is invisible
         GLOWING(6),   // If the entity is glowing
-        GLIDING(7);   // If the entity is gliding on an elytra
+        GLIDING(7);   // If the entity is gliding using an elytra
 
 
         private final byte mask;

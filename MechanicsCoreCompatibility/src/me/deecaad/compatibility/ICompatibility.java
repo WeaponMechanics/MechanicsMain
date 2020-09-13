@@ -2,7 +2,6 @@ package me.deecaad.compatibility;
 
 import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
-import me.deecaad.compatibility.item.dropped.DropCompatibility;
 import me.deecaad.compatibility.item.nbt.INBTCompatibility;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -58,9 +57,6 @@ public interface ICompatibility {
 
     @Nonnull
     EntityCompatibility getEntityCompatibility();
-
-    @Nonnull
-    DropCompatibility getDropCompatibility();
 
     @Nonnull
     BlockCompatibility getBlockCompatibility();

@@ -4,8 +4,6 @@ import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.block.Block_1_15_R1;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.Entity_1_15_R1;
-import me.deecaad.compatibility.item.dropped.DropCompatibility;
-import me.deecaad.compatibility.item.dropped.Drop_1_15_R1;
 import me.deecaad.compatibility.item.nbt.INBTCompatibility;
 import me.deecaad.core.utils.LogLevel;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
@@ -24,12 +22,10 @@ import static me.deecaad.core.MechanicsCore.debug;
 public class v1_15_R1 implements ICompatibility {
 
     private EntityCompatibility entityCompatibility;
-    private DropCompatibility dropCompatibility;
     private BlockCompatibility blockCompatibility;
 
     public v1_15_R1() {
         entityCompatibility = new Entity_1_15_R1();
-        dropCompatibility = new Drop_1_15_R1();
         blockCompatibility = new Block_1_15_R1();
     }
 
@@ -67,12 +63,6 @@ public class v1_15_R1 implements ICompatibility {
     @Override
     public EntityCompatibility getEntityCompatibility() {
         return entityCompatibility;
-    }
-
-    @Nonnull
-    @Override
-    public DropCompatibility getDropCompatibility() {
-        return dropCompatibility;
     }
 
     @Nonnull

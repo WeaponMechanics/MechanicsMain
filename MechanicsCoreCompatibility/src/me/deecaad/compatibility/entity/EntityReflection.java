@@ -2,8 +2,10 @@ package me.deecaad.compatibility.entity;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Constructor;
@@ -24,10 +26,13 @@ public class EntityReflection implements EntityCompatibility {
     private static final Method getDataWatcher;
     private static final Method getItems;
     private static final Method methodE;
+    private static final Method worldGetHandle;
+    private static final Method asNMSCopy;
 
     private static final Constructor<?> spawnPacketConstructor;
     private static final Constructor<?> metadataPacketConstructor;
     private static final Constructor<?> destroyPacketConstructor;
+    private static final Constructor<?> entityItemConstructor;
 
     static {
         nmsEntityClass = getNMSClass("Entity");
@@ -40,10 +45,13 @@ public class EntityReflection implements EntityCompatibility {
         getItems = getMethod(dataWatcherClass, "c");
         methodE = getMethod(dataWatcherClass, "e");
         //getData = getMethod(m)
+        worldGetHandle = getMethod(getCBClass("CraftWorld"), "getHandle");
+        asNMSCopy = getMethod(getCBClass("inventory.CraftItemStack"), "asNMSCopy");
 
         spawnPacketConstructor = getConstructor(getNMSClass("PacketPlayOutSpawnEntity"), nmsEntityClass);
         metadataPacketConstructor = getConstructor(getNMSClass("PacketPlayOutEntityMetadata"), int.class, dataWatcherClass, boolean.class);
         destroyPacketConstructor = getConstructor(getNMSClass("PacketPlayOutEntityDestroy"), int[].class);
+        entityItemConstructor = getConstructor(getNMSClass("EntityItem"), getNMSClass("World"), double.class, double.class, double.class, asNMSCopy.getReturnType());
     }
 
     @Override
@@ -118,5 +126,13 @@ public class EntityReflection implements EntityCompatibility {
     @Override
     public Object getGoalSelector(CustomPathfinderGoal goal) {
         throw new UnsupportedOperationException("Cannot reflectively make sub-classes for this version!");
+    }
+
+    @Override
+    public Object toNMSItemEntity(ItemStack item, World world, double x, double y, double z) {
+        Object nmsWorld = invokeMethod(getHandle, world);
+        Object nmsItem = invokeMethod(asNMSCopy, null, item);
+
+        return newInstance(entityItemConstructor, nmsWorld, x, y, z, nmsItem);
     }
 }

@@ -36,7 +36,7 @@ public class ItemEffect extends Effect {
 
         EntityCompatibility compatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
 
-        Object entity = CompatibilityAPI.getCompatibility().getDropCompatibility().toNMSItemEntity(toDrop, world, x, y, z);
+        Object entity = CompatibilityAPI.getCompatibility().getEntityCompatibility().toNMSItemEntity(toDrop, world, x, y, z);
         Object spawn = compatibility.getSpawnPacket(entity);
         Object metadata = compatibility.getMetadataPacket(entity);
         Object destroy = compatibility.getDestroyPacket(entity);
@@ -67,7 +67,7 @@ public class ItemEffect extends Effect {
 
         EntityCompatibility compatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
 
-        Object entity = CompatibilityAPI.getCompatibility().getDropCompatibility().toNMSItemEntity(toDrop, world, x, y, z);
+        Object entity = CompatibilityAPI.getCompatibility().getEntityCompatibility().toNMSItemEntity(toDrop, world, x, y, z);
         Object spawn = compatibility.getSpawnPacket(entity);
         Object metadata = compatibility.getMetadataPacket(entity);
         Object destroy = compatibility.getDestroyPacket(entity);

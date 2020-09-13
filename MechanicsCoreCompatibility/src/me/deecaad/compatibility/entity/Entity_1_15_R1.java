@@ -198,6 +198,14 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         return null;
     }
 
+    @Override
+    public Object toNMSItemEntity(org.bukkit.inventory.ItemStack item, org.bukkit.World world, double x, double y, double z) {
+        World nmsWorld = ((CraftWorld) world).getHandle();
+        net.minecraft.server.v1_15_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+
+        return new EntityItem(nmsWorld, x, y, z, nmsItem);
+    }
+
 
     private static class v1_15_R1_Path extends PathfinderGoal {
 
