@@ -46,7 +46,7 @@ public class EntityReflection implements EntityCompatibility {
         methodE = getMethod(dataWatcherClass, "e");
         //getData = getMethod(m)
         worldGetHandle = getMethod(getCBClass("CraftWorld"), "getHandle");
-        asNMSCopy = getMethod(getCBClass("inventory.CraftItemStack"), "asNMSCopy");
+        asNMSCopy = getMethod(getCBClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
 
         spawnPacketConstructor = getConstructor(getNMSClass("PacketPlayOutSpawnEntity"), nmsEntityClass);
         metadataPacketConstructor = getConstructor(getNMSClass("PacketPlayOutEntityMetadata"), int.class, dataWatcherClass, boolean.class);
