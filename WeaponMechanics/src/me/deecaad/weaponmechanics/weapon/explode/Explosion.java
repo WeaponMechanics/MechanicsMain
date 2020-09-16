@@ -1,7 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import me.deecaad.core.mechanics.Mechanic;
-import me.deecaad.core.mechanics.casters.EntityCaster;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
@@ -40,7 +38,6 @@ public class Explosion {
     private final Set<ExplosionTrigger> triggers;
     private final int delay;
     private final boolean isKnockback;
-    private final List<Mechanic> mechanics;
 
     public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
@@ -51,19 +48,6 @@ public class Explosion {
                      @Nonnegative int delay,
                      boolean isKnockback) {
 
-        this(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback, null);
-    }
-
-    public Explosion(@Nullable String weaponTitle,
-                     @Nonnull ExplosionShape shape,
-                     @Nonnull ExplosionExposure exposure,
-                     @Nullable BlockDamage blockDamage,
-                     @Nullable RegenerationData regeneration,
-                     @Nonnull Set<ExplosionTrigger> triggers,
-                     @Nonnegative int delay,
-                     boolean isKnockback,
-                     @Nullable List<Mechanic> mechanics) {
-
         this.weaponTitle = weaponTitle;
         this.shape = shape;
         this.exposure = exposure;
@@ -72,7 +56,6 @@ public class Explosion {
         this.triggers = triggers;
         this.delay = delay;
         this.isKnockback = isKnockback;
-        this.mechanics = mechanics;
     }
 
     public static DamageHandler getDamageHandler() {
@@ -113,10 +96,6 @@ public class Explosion {
 
     public boolean isKnockback() {
         return isKnockback;
-    }
-
-    public List<Mechanic> getEffects() {
-        return mechanics;
     }
 
     /**
@@ -215,10 +194,6 @@ public class Explosion {
 
                 entity.sendMessage(StringUtils.color("&cYou suffered " + impact * 100 + "% of the impact"));
             }
-        }
-
-        if (mechanics != null) {
-            mechanics.forEach(mechanic -> mechanic.cast((EntityCaster) () -> cause));
         }
     }
 

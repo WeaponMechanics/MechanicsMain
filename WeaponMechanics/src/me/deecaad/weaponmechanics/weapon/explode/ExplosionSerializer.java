@@ -1,8 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.mechanics.Mechanic;
-import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
@@ -19,7 +17,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -161,12 +158,8 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         }
 
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
-        
-        List<Mechanic> mechanics = null;
-        if (section.contains("Mechanics")) {
-            mechanics = new MechanicListSerializer().serialize(file, configurationSection, path + ".Mechanics").getMechanics();
-        }
-        return new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback, mechanics);
+
+        return new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback);
     }
     
     private enum ExplosionShapeType {

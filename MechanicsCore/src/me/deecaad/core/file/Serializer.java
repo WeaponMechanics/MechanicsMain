@@ -1,6 +1,5 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.__mechanics.IMechanic;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -71,8 +70,4 @@ public interface Serializer<T> {
      * @return the serialized object or null
      */
     T serialize(File file, ConfigurationSection configurationSection, String path);
-
-    default IMechanic stringSerialize(File file, ConfigurationSection configurationSection, String path, FileReader fileReader, String line) {
-        throw new UnsupportedOperationException("This serializer doesn't support string serialization (" + getKeyword() + ")");
-    }
 }
