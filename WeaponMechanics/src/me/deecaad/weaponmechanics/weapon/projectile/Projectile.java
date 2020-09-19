@@ -58,6 +58,21 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     /**
+     * Shoots this projectile with given location and motion
+     *
+     * @param entity the living entity used to shoot
+     * @param location the location from where to shoot
+     * @param motion the motion of projectile
+     * @param weaponStack the weapon stack used to shoot
+     * @param weaponTitle the weapon title used to shoot
+     */
+    public ICustomProjectile shoot(LivingEntity entity, Location location, Vector motion, @Nullable ItemStack weaponStack, @Nullable String weaponTitle) {
+        CustomProjectile projectile = new CustomProjectile(this, entity, location, motion, weaponStack, weaponTitle);
+        CustomProjectilesRunnable.addProjectile(projectile);
+        return projectile;
+    }
+
+    /**
      * @return the entity type this projectile should be disguised as
      */
     public EntityType getProjectileDisguise() {
