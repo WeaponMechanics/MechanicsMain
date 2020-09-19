@@ -19,6 +19,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
@@ -62,6 +63,9 @@ public class CustomProjectile implements ICustomProjectile {
     private boolean dead;
     private final Map<String, String> tags;
 
+    private ItemStack weaponStack;
+    private String weaponTitle;
+
     /**
      * NMS entity if used as disguise, null otherwise.
      */
@@ -75,6 +79,12 @@ public class CustomProjectile implements ICustomProjectile {
     // Some pre calculated / initialized stuff
     private final Comparator<CollisionData> blockComparator;
     private final Comparator<CollisionData> entityComparator;
+
+    public CustomProjectile(Projectile projectile, LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle) {
+        this(projectile, shooter, location, motion);
+        this.weaponStack = weaponStack;
+        this.weaponTitle = weaponTitle;
+    }
 
     public CustomProjectile(Projectile projectile, LivingEntity shooter, Location location, Vector motion) {
         this.id = ++ids;
@@ -109,6 +119,16 @@ public class CustomProjectile implements ICustomProjectile {
     @Override
     public LivingEntity getShooter() {
         return this.shooter;
+    }
+
+    @Override
+    public ItemStack getWeaponStack() {
+        return weaponStack;
+    }
+
+    @Override
+    public String getWeaponTitle() {
+        return weaponTitle;
     }
 
     @Override

@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -13,6 +14,12 @@ public interface ICustomProjectile {
      * @return the shooter of projectile
      */
     LivingEntity getShooter();
+
+    @Nullable
+    ItemStack getWeaponStack();
+
+    @Nullable
+    String getWeaponTitle();
 
     /**
      * This does not return the disguise entity id, but WeaponMechanics own unique identifier.

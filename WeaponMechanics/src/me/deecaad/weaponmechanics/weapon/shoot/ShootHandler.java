@@ -26,7 +26,6 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -447,7 +446,7 @@ public class ShootHandler implements IValidator {
                 recoil.start((Player) entityWrapper.getEntity(), mainHand);
             }
 
-            ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion);
+            ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
             bullet.setTag("weaponTitle", weaponTitle);
 
             // Handle worldguard flags
