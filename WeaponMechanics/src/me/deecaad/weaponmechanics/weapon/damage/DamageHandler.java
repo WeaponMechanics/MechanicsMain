@@ -1,10 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import me.deecaad.core.effects.serializers.EffectListSerializer;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
-import me.deecaad.core.mechanics.casters.EntityCaster;
-import me.deecaad.core.mechanics.serialization.MechanicListSerializer;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.general.AddPotionEffect;
@@ -76,17 +73,9 @@ public class DamageHandler implements IValidator {
             final int length = builder.length();
 
             builder.append("Global_Mechanics_Shooter");
-            MechanicListSerializer.MechanicList globalMechanicsShooter = config.getObject(builder.toString(), MechanicListSerializer.MechanicList.class);
-            if (globalMechanicsShooter != null) {
-                globalMechanicsShooter.getMechanics().forEach(mechanic -> mechanic.cast((EntityCaster) () -> shooter));
-            }
 
             builder.setLength(length);
             builder.append("Global_Mechanics_Victim");
-            MechanicListSerializer.MechanicList globalMechanicsVictim = config.getObject(builder.toString(), MechanicListSerializer.MechanicList.class);
-            if (globalMechanicsVictim != null) {
-                globalMechanicsVictim.getMechanics().forEach(mechanic -> mechanic.cast((EntityCaster) () -> victim));
-            }
 
             builder.setLength(0);
         }
@@ -130,7 +119,6 @@ public class DamageHandler implements IValidator {
     public void validate(Configuration config, File file, ConfigurationSection configurationSection, String path) {
         final String[] effectPaths = new String[]{"Global_Mechanics_Shooter", "Global_Mechanics_Victim", "Mechanics_Shooter", "Mechanics_Victim"};
         final String[] potionPaths = new String[]{"Potions_Shooter", "Potions_Victim"};
-        EffectListSerializer effectSerializer = new EffectListSerializer();
         AddPotionEffect potionSerializer = new AddPotionEffect();
 
         // Using string builder and instantiating outside the scope of the loop
@@ -143,7 +131,7 @@ public class DamageHandler implements IValidator {
 
                 // Only if there are defined effects, should we serialize them
                 if (config.containsKey(toString)) {
-                    effectSerializer.serialize(file, configurationSection, toString);
+
                 }
 
                 // Fastest method to clear StringBuilder

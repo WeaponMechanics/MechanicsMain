@@ -9,7 +9,7 @@ main: 'me.deecaad.weaponmechanics.WeaponMechanics'
 softdepend:
   - 'PlaceholderAPI'
 depend:
-  - 'MechanicsCore'
+  - 'MechanicsCore' # todo People aren't smart enough to read "UnknownDependencyException", so we need to either install this for them automatically, or make this a soft depend
 permissions:
   weaponmechanics.admin:
     description: 'Permission to admin related functions of WeaponMechanics, default false'
