@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -24,8 +23,6 @@ import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-
 public class DamageUtils {
 
     private static Configuration config = WeaponMechanics.getBasicConfigurations();
@@ -35,26 +32,8 @@ public class DamageUtils {
      */
     private DamageUtils() {
     }
-    
-    /**
-     * @param cause The cause of the entity's damage
-     * @param victim The entity being damaged
-     * @param point Where the victim was hit
-     * @param isBackStab Whether or not the hit was a backstab
-     * @return The amount of damage applied
-     */
-    public static double apply(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
 
-        if (victim.isInvulnerable() || victim.isDead()) {
-            return 0.0;
-        } else if (victim instanceof Player) {
-            GameMode gamemode = ((Player) victim).getGameMode();
-
-            if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR) {
-                return 0.0;
-            }
-        }
-
+    public static double calculateFinalDamage(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
         AtomicDouble rate = new AtomicDouble(1.0);
         IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
 
@@ -100,18 +79,34 @@ public class DamageUtils {
         rate.set(Math.max(rate.get(), config.getDouble("Damage.Minimum_Rate")));
 
         // Apply damage to victim
-        double damageAmount = damage * rate.get();
+        return damage * rate.get();
+    }
 
-        EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damageAmount);
-        Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
-        if (entityDamageByEntityEvent.isCancelled()) {
-            return 0;
+    /**
+     * @param cause The cause of the entity's damage
+     * @param victim The entity being damaged
+     * @return The amount of damage applied
+     */
+    public static void apply(LivingEntity cause, LivingEntity victim, double damage) {
+
+        if (victim.isInvulnerable() || victim.isDead()) {
+            return;
+        } else if (victim instanceof Player) {
+            GameMode gamemode = ((Player) victim).getGameMode();
+
+            if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR) {
+                return;
+            }
         }
 
-        victim.setHealth(NumberUtils.minMax(0, victim.getHealth() - damageAmount, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
+        Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
+        if (entityDamageByEntityEvent.isCancelled()) {
+            return;
+        }
+
+        victim.setHealth(NumberUtils.minMax(0, victim.getHealth() - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
         victim.playEffect(EntityEffect.HURT);
-        debug.log(LogLevel.DEBUG, victim + " damaged by " + cause + " for " + damageAmount + " damage.");
-        return damageAmount;
     }
     
     public static void damageArmor(LivingEntity victim, int amount) {
