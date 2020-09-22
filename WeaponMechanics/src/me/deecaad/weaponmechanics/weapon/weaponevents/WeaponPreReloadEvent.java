@@ -4,11 +4,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
 
-public class WeaponPreScopeEvent extends WeaponEvent implements Cancellable {
+public class WeaponPreReloadEvent extends WeaponEvent implements Cancellable {
 
     private boolean isCancelled;
 
-    public WeaponPreScopeEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser) {
+    public WeaponPreReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser) {
         super(weaponTitle, weaponItem, weaponUser);
     }
 

@@ -1,21 +1,30 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
-import org.bukkit.Location;
+import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import org.bukkit.event.Cancellable;
 import org.bukkit.util.Vector;
 
-public class ProjectileMoveEvent extends WeaponEvent implements Cancellable {
+public class ProjectileMoveEvent extends ProjectileEvent implements Cancellable {
 
-    private CustomProjectile projectile;
     private Vector path;
     private boolean isCancelled;
 
-    public ProjectileMoveEvent(CustomProjectile projectile,) {
-        super(projectile.getTag("weaponTitle"), projectile.getShooter());
+    public ProjectileMoveEvent(ICustomProjectile projectile, Vector path) {
+        super(projectile);
 
-        this.projectile = projectile;
-        this.isCancelled = isCancelled;
+        this.path = path;
+    }
+
+    public ICustomProjectile getProjectile() {
+        return projectile;
+    }
+
+    public Vector getPath() {
+        return path;
+    }
+
+    public void setPath(Vector path) {
+        this.path = path;
     }
 
     @Override
@@ -24,23 +33,7 @@ public class ProjectileMoveEvent extends WeaponEvent implements Cancellable {
     }
 
     @Override
-    public void setCancelled(boolean b) {
-        isCancelled = b;
+    public void setCancelled(boolean cancelled) {
+        isCancelled = cancelled;
     }
-
-    public Location getLastLocation() {
-        Vector vector = projectile.getLastLocation();
-        return new Location(projectile.getWorld(), vector.getX(), vector.getY(), vector.getZ());
-    }
-
-    public Location getLocation() {
-        Vector vector = projectile.getLocation();
-        return new Location(projectile.getWorld(), vector.getX(), vector.getY(), vector.getZ());
-    }
-
-    public Vector getPath() {
-        return projectile.getLocation().subtract(projectile.getLastLocation());
-    }
-
-
 }

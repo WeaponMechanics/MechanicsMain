@@ -1,17 +1,15 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Cancellable;
-import org.bukkit.inventory.ItemStack;
 
-public class WeaponShootEvent extends WeaponEvent implements Cancellable {
+import javax.annotation.Nonnull;
+
+public class WeaponShootEvent extends WeaponEvent {
 
     private ICustomProjectile projectile;
-    private boolean isCancelled;
 
-    public WeaponShootEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, ICustomProjectile projectile) {
-        super(weaponTitle, weaponItem, weaponUser);
+    public WeaponShootEvent(ICustomProjectile projectile) {
+        super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter());
 
         this.projectile = projectile;
     }
@@ -20,17 +18,10 @@ public class WeaponShootEvent extends WeaponEvent implements Cancellable {
         return projectile;
     }
 
-    public void setProjectile(ICustomProjectile projectile) {
+    public void setProjectile(@Nonnull ICustomProjectile projectile) {
+        if (projectile == null)
+            throw new IllegalArgumentException("projectile cannot be null");
+
         this.projectile = projectile;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return isCancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        isCancelled = cancelled;
     }
 }

@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
+import me.deecaad.weaponmechanics.weapon.damage.DamageUtils;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
@@ -40,12 +41,16 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     public void setBaseDamage(double baseDamage) {
+        if (finalDamage != Integer.MIN_VALUE) {
+            finalDamage = Integer.MIN_VALUE;
+        }
+
         this.baseDamage = baseDamage;
     }
 
     public double getFinalDamage() {
         if (finalDamage == Integer.MIN_VALUE) {
-            // Calculate final damage
+            finalDamage = DamageUtils.calculateFinalDamage(getShooter(), victim, baseDamage, point, isBackStab);
         }
 
         return finalDamage;
@@ -60,6 +65,10 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     public void setBackStab(boolean backStab) {
+        if (finalDamage != Integer.MIN_VALUE) {
+            finalDamage = Integer.MIN_VALUE;
+        }
+
         isBackStab = backStab;
     }
 
@@ -68,6 +77,10 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     public void setPoint(DamagePoint point) {
+        if (finalDamage != Integer.MIN_VALUE) {
+            finalDamage = Integer.MIN_VALUE;
+        }
+
         this.point = point;
     }
 

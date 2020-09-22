@@ -1,24 +1,25 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.events.WeaponMechanicsEvent;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
-public class WeaponEvent extends WeaponMechanicsEvent {
+public abstract class WeaponEvent extends WeaponMechanicsEvent {
 
     protected final String weaponTitle;
-    private final ItemStack weaponItem;
-    private final LivingEntity weaponUser;
+    private final ItemStack weaponStack;
+    private final LivingEntity shooter;
 
     /**
      * Called when any weapon event is called.
      *
      * @param weaponTitle the weapon name used in event
      */
-    public WeaponEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser) {
+    public WeaponEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter) {
         this.weaponTitle = weaponTitle;
-        this.weaponItem = weaponItem;
-        this.weaponUser = weaponUser;
+        this.weaponStack = weaponStack;
+        this.shooter = shooter;
     }
 
     /**
@@ -31,14 +32,18 @@ public class WeaponEvent extends WeaponMechanicsEvent {
     /**
      * @return The itemstack weapon
      */
-    public ItemStack getWeaponItem() {
-        return weaponItem;
+    public ItemStack getWeaponStack() {
+        return weaponStack;
     }
 
     /**
      * @return the living entity involved in event
      */
-    public LivingEntity getWeaponUser() {
-        return this.weaponUser;
+    public LivingEntity getShooter() {
+        return this.shooter;
+    }
+
+    public EntityType getShooterType() {
+        return shooter.getType();
     }
 }
