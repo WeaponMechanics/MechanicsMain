@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class WeaponReloadCompleteEvent extends WeaponEvent{
+public class WeaponReloadCompleteEvent extends WeaponEvent {
 
     private WeaponReloadEvent reloadEvent;
     private List<WeaponReloadCancelEvent> cancelEvents;
