@@ -1,15 +1,19 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Cancellable;
+import org.bukkit.inventory.ItemStack;
 
-public class WeaponScopeEvent extends WeaponCancellableEvent {
+public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
 
     private final ScopeType scopeType;
     private int zoomAmount;
     private final int zoomStack;
+    private boolean isCancelled;
     
-    public WeaponScopeEvent(String weaponTitle, LivingEntity livingEntity, ScopeType scopeType, int zoomAmount, int zoomStack) {
-        super(weaponTitle, livingEntity);
+    public WeaponScopeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity livingEntity, ScopeType scopeType, int zoomAmount, int zoomStack) {
+        super(weaponTitle, weaponStack, livingEntity);
+
         this.scopeType = scopeType;
         this.zoomAmount = zoomAmount;
         this.zoomStack = zoomStack;
@@ -53,6 +57,16 @@ public class WeaponScopeEvent extends WeaponCancellableEvent {
      */
     public int getZoomStack() {
         return zoomStack;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean b) {
+        this.isCancelled = b;
     }
 
     public enum ScopeType {

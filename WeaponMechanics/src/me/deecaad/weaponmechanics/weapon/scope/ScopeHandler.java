@@ -108,7 +108,7 @@ public class ScopeHandler implements IValidator {
             if (increaseZoomPerStack != 0) {
                 int zoomStack = zoomData.getZoomStacks() + 1;
                 int zoomAmount = config.getInt(weaponTitle + ".Scope.Zoom_Amount");
-                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, entity, WeaponScopeEvent.ScopeType.STACK, zoomAmount + (zoomStack * increaseZoomPerStack), zoomStack);
+                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.STACK, zoomAmount + (zoomStack * increaseZoomPerStack), zoomStack);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
                 if (weaponScopeEvent.isCancelled()) {
                     return false;
@@ -132,7 +132,7 @@ public class ScopeHandler implements IValidator {
         if (zoomAmount == 0) return false;
 
         // zoom stack = 0, because its not used OR this is first zoom in
-        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, entity, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0);
+        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0);
         Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         if (weaponScopeEvent.isCancelled()) {
             return false;
@@ -153,7 +153,7 @@ public class ScopeHandler implements IValidator {
         LivingEntity entity = entityWrapper.getEntity();
 
         // Zoom amount and stack 0 because zooming out
-        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, entity, WeaponScopeEvent.ScopeType.OUT, 0, 0);
+        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.OUT, 0, 0);
         Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         if (weaponScopeEvent.isCancelled()) {
             return false;

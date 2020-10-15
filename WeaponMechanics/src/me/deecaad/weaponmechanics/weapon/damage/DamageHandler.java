@@ -49,7 +49,8 @@ public class DamageHandler implements IValidator {
             damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
         }
 
-        DamageUtils.apply(shooter, victim, damage, point, isBackstab);
+        double finalDamage = DamageUtils.calculateFinalDamage(shooter, victim, damage, point, isBackstab);
+        DamageUtils.apply(shooter, victim, finalDamage);
         DamageUtils.damageArmor(victim, config.getInt(weaponTitle + ".Damage.Armor_Damage"), point);
 
         if (victim.isDead()) {
@@ -99,7 +100,9 @@ public class DamageHandler implements IValidator {
                 continue;
             }
 
-            DamageUtils.apply(shooter, victim, baseDamage * exposure, null, false);
+            double damage = DamageUtils.calculateFinalDamage(shooter, victim, baseDamage * exposure, null, false);
+
+            DamageUtils.apply(shooter, victim, damage);
             DamageUtils.damageArmor(victim, config.getInt(weaponTitle + ".Damage.Explosion_Damage.Armor_Damage"));
 
             // Fire ticks
