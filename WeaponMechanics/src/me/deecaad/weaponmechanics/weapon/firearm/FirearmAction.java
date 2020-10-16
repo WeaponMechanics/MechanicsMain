@@ -6,11 +6,13 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -18,12 +20,8 @@ public class FirearmAction implements Serializer<FirearmAction> {
 
     private FirearmType firearmType;
     private int firearmActionFrequency;
-
     private int openTime;
-    // todo: Mechanics for open
-
     private int closeTime;
-    // todo: Mechanics for close
 
     /**
      * Empty constructor to be used as serializer
@@ -125,6 +123,11 @@ public class FirearmAction implements Serializer<FirearmAction> {
     @Override
     public String getKeyword() {
         return "Firearm_Action";
+    }
+
+    @Override
+    public Set<String> allowOtherSerializers() {
+        return new HashSet<>(Arrays.asList("Type", "Firearm_Action_Frequency", "Time"));
     }
 
     @Override

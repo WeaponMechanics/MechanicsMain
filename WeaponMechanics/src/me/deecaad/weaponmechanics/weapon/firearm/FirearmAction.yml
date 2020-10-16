@@ -4,7 +4,7 @@ Firearm_Action:
   Firearm_Action_Frequency: <use every x amount of shots>
   Open:
     Time: <ticks>
-    # All general and effect stuff
+    # All registered mechanics
   Close:
     Time: <ticks>
-    # All general and effect stuff
+    # All registered mechanics

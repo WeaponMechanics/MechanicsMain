@@ -182,23 +182,35 @@ public class FileReader {
         // If a serializer is found, it's path is saved here. Any
         // variable within a serializer is then "skipped"
         String startsWithDeny = null;
+
+        // If this is used then starts with deny doesn't exactly work.
+        // All keys and serializers expect the ones defined in this set are stored after startsWithDeny keyword.
+        Set<String> allowOtherSerializers = null;
+
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
             if (startsWithDeny != null) {
+                if (allowOtherSerializers != null) {
+                    if (key.startsWith(startsWithDeny)) {
+                        continue;
+                    }
+                    startsWithDeny = null;
+                } else if (!key.startsWith(startsWithDeny)) {
 
-                // We may still want to add this key to the map. It may make
-                // it easier for developers if they don't want to deal with
-                // our serializers or they want to make specific variables
-                // inside of serializers -- It may save a headache
-                if (key.startsWith(startsWithDeny)) {
-                    continue;
+                    // Loop until key start doesn't match the allow other serializer's path
+                    startsWithDeny = null;
+                    allowOtherSerializers = null;
                 }
-                startsWithDeny = null;
             }
             String[] keySplit = key.split("\\.");
             if (keySplit.length > 0) {
                 // Get the last "key name" of the key
                 String lastKey = keySplit[keySplit.length - 1].toLowerCase();
+
+                if (allowOtherSerializers != null && allowOtherSerializers.contains(lastKey)) {
+                    // Skip as this should not be stored
+                    continue;
+                }
 
                 IValidator validator = this.validators.get(lastKey);
                 if (validator != null) {
@@ -222,7 +234,17 @@ public class FileReader {
                         continue;
                     }
                     if (valid != null) {
-                        startsWithDeny = key;
+
+                        // Only if allow other serializers isn't currently used
+                        // This to avoid serializers within serializer also looping serializers inside serializers...
+                        if (allowOtherSerializers == null) {
+                            Set<String> validAllowOthers = serializer.allowOtherSerializers();
+                            if (validAllowOthers != null) {
+                                allowOtherSerializers = validAllowOthers;
+                            }
+                            startsWithDeny = key;
+                        }
+
                         filledMap.set(key, valid);
                         continue;
                     }
