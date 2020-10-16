@@ -122,6 +122,11 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
                     next.play(castData);
                 }
 
+                if (!iterator.hasNext()) {
+                    cancel();
+                    return;
+                }
+
                 ++ticker;
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0).getTaskId();

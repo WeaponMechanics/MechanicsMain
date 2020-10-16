@@ -16,6 +16,6 @@ public enum ReloadSound {
     }
 
     public static String getDataKeyword() {
-        return "reloadData";
+        return "reload";
     }
 }
