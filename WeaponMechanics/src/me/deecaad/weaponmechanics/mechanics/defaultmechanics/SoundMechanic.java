@@ -141,6 +141,7 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
     @Override
     public SoundMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
         List<String> stringSoundList = configurationSection.getStringList(path);
+        if (stringSoundList == null || stringSoundList.isEmpty()) return null;
 
         List<SoundMechanicData> soundList = new ArrayList<>();
 
@@ -169,25 +170,9 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
                     pitch = Float.parseFloat(soundData[2]);
 
                     if (soundData.length > 3) delay = Integer.parseInt(soundData[3]);
-                    if (delay < 0) {
-                        debug.log(LogLevel.ERROR,
-                                "Found an invalid number in configurations!",
-                                "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations",
-                                "Make sure delay is positive number (0 is okay also).");
-                        continue;
-                    }
                     if (delay > 0) hasDelay = true;
 
                     if (soundData.length > 4) noise = Float.parseFloat(soundData[4]);
-                    if (noise < 0) {
-                        debug.log(LogLevel.ERROR,
-                                "Found an invalid number in configurations!",
-                                "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations",
-                                "Make sure noise is positive number.");
-                        continue;
-                    }
-
-
                 } catch (NumberFormatException e) {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid number format in configurations!",
@@ -195,6 +180,8 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
                             "Make sure you only use numbers after sound parameter.");
                     continue;
                 }
+                if (delay < 0) delay = 0;
+                if (noise < 0) noise = 0;
 
                 String stringSound = soundData[0];
                 if (stringSound.toLowerCase().startsWith("custom:")) {

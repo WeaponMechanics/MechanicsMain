@@ -1,0 +1,13 @@
+# me.deecaad.weaponmechanics.mechanics.defaultmechanics.FireworkMechanic
+Firework:
+  Firework_Type: <Firework.Type>
+  Flight_Power: <1-5> OR <0 to nearly instantly detonate>
+  Flicker: <true/false>
+  Trail: <true/false>
+  Location_Adjuster: <x>~<y>~<z>
+  Colors:
+    - <ColorSerializer>,<etc.>
+    - <etc.>
+  Fade_Colors:
+    - <ColorSerializer>,<etc.>
+    - <etc.>
