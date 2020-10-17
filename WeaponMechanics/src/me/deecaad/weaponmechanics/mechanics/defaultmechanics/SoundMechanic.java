@@ -48,6 +48,7 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
      * Empty constructor to be used as serializer
      */
     public SoundMechanic() {
+        if (Mechanics.hasMechanic(getKeyword())) return;
         Mechanics.registerMechanic(WeaponMechanics.getPlugin(), getKeyword());
     }
 
