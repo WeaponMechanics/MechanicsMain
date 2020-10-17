@@ -1,6 +1,4 @@
-Color:
-  Type: <Name/RGB/HEX>
-  Data: ""
+Color: <Name/RGB/HEX>
 
 # If type is Name, then use RED, YELLOW, BLUE, etc
 # If type is RGB, then use "rrr~ggg~bbb"

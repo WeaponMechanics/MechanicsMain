@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -123,11 +124,13 @@ public class FireworkMechanic implements Serializer<FireworkMechanic>, IMechanic
         List<String> stringColorList = configurationSection.getStringList(path);
         if (stringColorList == null || stringColorList.isEmpty()) return null;
 
+        ColorSerializer colorSerializer = new ColorSerializer();
+
         List<Color> colorList = new ArrayList<>();
         for (String stringInList : stringColorList) {
             for (String stringInLine : stringInList.split(", ?")) {
 
-                Color color = null; // todo add support for ColorSerializer and parse stringInLine
+                Color color = colorSerializer.fromString(file, configurationSection, path, stringInLine);
 
                 if (color == null) {
                     continue;

@@ -14,6 +14,7 @@ import java.util.Optional;
 import static me.deecaad.core.MechanicsCore.debug;
 
 public class ColorSerializer implements Serializer<Color> {
+
     @Override
     public String getKeyword() {
         return "Color";
@@ -23,7 +24,12 @@ public class ColorSerializer implements Serializer<Color> {
     public Color serialize(File file, ConfigurationSection configurationSection, String path) {
 
         String data = configurationSection.getString(path);
+        if (data == null) return null;
 
+        return fromString(file, configurationSection, path, data);
+    }
+
+    public Color fromString(File file, ConfigurationSection configurationSection, String path, String data) {
         Color color;
 
         try {
