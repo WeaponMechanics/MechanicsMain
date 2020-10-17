@@ -1,7 +1,7 @@
 package me.deecaad.core.placeholder;
 
 import me.deecaad.core.utils.LogLevel;
-import org.bukkit.ChatColor;
+import me.deecaad.core.utils.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -79,7 +79,7 @@ public class PlaceholderAPI {
             Class.forName("me.clip.placeholderapi.PlaceholderAPI");
             to = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, to);
         } catch (ClassNotFoundException e) {/**/}
-        return ChatColor.translateAlternateColorCodes('&', to);
+        return StringUtils.color(to);
     }
 
     /**
