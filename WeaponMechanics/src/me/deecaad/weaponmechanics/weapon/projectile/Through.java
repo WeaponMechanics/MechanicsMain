@@ -69,6 +69,12 @@ public class Through implements Serializer<Through> {
         for (Object data : list) {
             String[] split = StringUtils.split(data.toString());
 
+            if (split.length == 1) {
+                debug.error("Found an invalid value in configurations!",
+                        "Tried to specify per " + (blocks ? "block" : "entity") + " speed/damage modifiers but only partially completed it",
+                        StringUtils.foundAt(file, path));
+            }
+
             double speedModifier = 1.0;
             if (split.length >= 2) {
                 try {
@@ -77,7 +83,7 @@ public class Through implements Serializer<Through> {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid value in configurations!",
                             "Located at file " + file + " in " + path + ".List (" + data.toString() + ") in configurations",
-                            "Tried to get get double from " + split[1] + ", but it wasn't double?");
+                            "Tried to get get number from " + split[1] + ", but it wasn't a number?");
                     continue;
                 }
             }
@@ -90,7 +96,7 @@ public class Through implements Serializer<Through> {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid value in configurations!",
                             "Located at file " + file + " in " + path + ".List (" + data.toString() + ") in configurations",
-                            "Tried to get get double from " + split[2] + ", but it wasn't double?");
+                            "Tried to get get number from " + split[2] + ", but it wasn't a number?");
                     continue;
                 }
             }
@@ -133,7 +139,7 @@ public class Through implements Serializer<Through> {
         if (map.isEmpty()) {
             debug.log(LogLevel.ERROR,
                     "For some reason any value in list wasn't valid!",
-                    "Located at file " + file + " in " + path + ".List in configurations");
+                    StringUtils.foundAt(file, path + ".List"));
             return null;
         }
 

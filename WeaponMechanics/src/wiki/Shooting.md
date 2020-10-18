@@ -272,3 +272,92 @@ minecraft handle it (which makes the plugin much faster then other gun plugins!)
             - <EntityType>-<speed multiplier>-<damage modifier>
             - <etc.>
 ```
+#### `Settings`:
+Defines the main settings for the projectile (The hitbox and the display)
+
+  * `Type`: What the projectile appears as, which is either an entity or invisible
+    * For entity types, check [references](#References)
+    * If you want the projectile to be invisible, use `"invisible"`
+  * `Width`: The horizontal width of the hitbox of the projectile.
+    * Defines "how big" the projectile is
+    * If you leave this at 0, it will default to the default hitbox size of `Type`
+  * `Height`: The vertical height of the hitbox of the projectile.
+    * Defines "how big" the projectile is
+    * If you leave this at 0, it will default to the default hitbox size of `Type`
+  * `Projectile_Item_Or_Block`:
+    * This is the data used if the projectile type is `"falling_block"` or `"dropped_item"`
+    * This just uses the [item serializer](#todo)
+    
+## Projectile_Motion:
+Defines how the projectile moves
+
+#### `Gravity`:
+How much vertical deceleration to apply. Negative numbers 
+make the projectile float upwards. `0.05` is a good number for this.
+
+#### `Minimum`:
+  * `Speed`: The minimum speed the projectile can travel at
+  * `Remove_Projectile`: Whether or not to remove the projectile when the minimum speed is reached
+    * true = The projectile will be removed when the minimum speed is reached
+  
+#### `Maximum`:
+  * `Speed`: The maximum speed the projectile can travel at
+  * `Remove_Projectile`: Whether or not to remove the projectile when the maximum speed is reached
+  
+---
+  
+#### `Decrease_Motion`:
+Think about speed. You cannot multiply speed by a negative number. A number `(0.0, 1.0)` will slow the
+projectile down. A number `1.0` will keep the projectile at a constant speed. A number `(1.0, ∞)` will
+increase the speed.
+
+  * `Base`: The amount to multiply speed by every tick
+  * `In_Water`: The amount to multiply speed by when the projectile is in liquid
+  * `When_Raining_Or_Snowing`: The amount to multiply speed by when it is raining or snowing
+
+## Through
+Defines which blocks/entities the projectile can pass through, and what happens to the projectile
+afterwards. This is how you define bullet penetration.
+
+#### Blocks:
+When this projectile hits a non-air, non-fluid block, it will look to the settings here. If you don't add any
+settings here, then the projectile will end at the block it hits.
+
+  * `Default_Speed_Modifier`: The number to multiply the projectile speed by
+    * This is the default speed modifier, meaning that if the following list
+    does not contain specific information for speed about the hit block, then it defaults
+    to this value. 
+  * `Default_Damage_Modifier`: The number to multiply the damage by
+    * This is the default damage modifier, meaning that if the following list
+    does not contain specific information for damage about the hit block, then it defaults
+    to this value.
+  * `Maximum_Pass_Throughs`: The maximum number of blocks to let the projectile pass through
+  * `List`: 
+    * This is a list of data to specify the **per block** speed and damage (Not to be confused with the defaults)
+    * Pre 1.13 Format: `Material:Data~Speed~Damage`
+    * 1.13+ Format: `Material~Speed~Damage`
+    * For the full material list, check out [the references](todo)
+
+#### Entities:
+When this projectile hits any living entity (Meaning, an entity with health and that is sentient, like a zombie),
+it will look to the settings here. If you don't add any settings here, the projectile will end after hitting the
+first entity.
+
+  * `Default_Speed_Modifier`: The number to multiply the projectile speed by
+    * This is the default speed modifier, meaning that if the following list
+    does not contain specific information for speed about the hit entity, then it defaults
+    to this value. 
+  * `Default_Damage_Modifier`: The number to multiply the damage by
+    * This is the default damage modifier, meaning that if the following list
+    does not contain specific information for damage about the hit entity, then it defaults
+    to this value.
+  * `Maximum_Pass_Throughs`: The maximum number of entities to let the projectile pass through
+  * `List`: 
+    * This is a list of data to specify the **per entity** speed and damage (Not to be confused with the defaults)
+    * Format: `Entity~Speed~Damage`
+    * For the full entity list, check out [the references](todo)
+
+---
+
+## Examples
+todo

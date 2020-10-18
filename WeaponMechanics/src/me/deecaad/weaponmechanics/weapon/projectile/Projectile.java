@@ -129,22 +129,22 @@ public class Projectile implements Serializer<Projectile> {
 
     @Override
     public Projectile serialize(File file, ConfigurationSection configurationSection, String path) {
-        String type = configurationSection.getString(path + ".Settings.Type");
+        String type = configurationSection.getString(path + ".Settings.Type").trim().toUpperCase();
         if (type == null) {
             return null;
         }
-        boolean isInvisible = type.equalsIgnoreCase("INVISIBLE");
+        boolean isInvisible = type.equals("INVISIBLE");
 
         EntityType projectileType = null;
         ItemStack projectileItem = null;
 
         if (!isInvisible) {
             try {
-                projectileType = EntityType.valueOf(type.toUpperCase());
+                projectileType = EntityType.valueOf(type);
             } catch (IllegalArgumentException e) {
                 debug.log(LogLevel.ERROR,
                         "Found an invalid projectile type in configurations!",
-                        "Located at file " + file + " in " + path + ".Settings.Type (" + type.toUpperCase() + ") in configurations");
+                        "Located at file " + file + " in " + path + ".Settings.Type (" + type + ") in configurations");
                 return null;
             }
             projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");
@@ -165,7 +165,7 @@ public class Projectile implements Serializer<Projectile> {
             debug.log(LogLevel.ERROR,
                     "Found an invalid height or width in configurations!",
                     "Located at file " + file + " in " + path + ".Settings (" + type.toUpperCase() + ") in configurations",
-                    "Please make sure that they aren't 0 or less.");
+                    "Please make sure that they aren't less than 0.");
             return null;
         }
 
