@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
@@ -12,10 +13,8 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Firework;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.entity.Player;
+import org.bukkit.util.NumberConversions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 public class FireworkMechanic implements Serializer<FireworkMechanic>, IMechanic {
 
     private LocationAdjuster locationAdjuster;
-    private int flightPower;
+    private int flightTime;
     private FireworkEffect fireworkEffect;
 
     /**
@@ -37,34 +36,23 @@ public class FireworkMechanic implements Serializer<FireworkMechanic>, IMechanic
         Mechanics.registerMechanic(WeaponMechanics.getPlugin(), getKeyword());
     }
 
-    public FireworkMechanic(LocationAdjuster locationAdjuster, int flightPower, FireworkEffect fireworkEffect) {
+    public FireworkMechanic(LocationAdjuster locationAdjuster, int flightTime, FireworkEffect fireworkEffect) {
         this.locationAdjuster = locationAdjuster;
-        this.flightPower = flightPower;
+        this.flightTime = flightTime;
         this.fireworkEffect = fireworkEffect;
     }
 
     @Override
     public void use(CastData castData) {
-        Location location = castData.getCastLocation();
-        if (locationAdjuster != null) location = locationAdjuster.getNewLocation(location);
+        Location location = locationAdjuster != null ? locationAdjuster.getNewLocation(castData.getCastLocation()) : castData.getCastLocation();
 
-        Firework firework = (Firework) location.getWorld().spawnEntity(location, EntityType.FIREWORK);
-        FireworkMeta fireworkMeta = firework.getFireworkMeta();
-        fireworkMeta.addEffect(fireworkEffect);
-        if (flightPower != 0) {
-            fireworkMeta.setPower(flightPower);
-        } else {
+        List<Player> players = location.getWorld().getPlayers();
 
-            // Almost instant spawn.
-            // If wanted to make instant, requires some NMS.
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    firework.detonate();
-                }
-            }.runTaskLater(WeaponMechanics.getPlugin(), 2);
-        }
-        firework.setFireworkMeta(fireworkMeta);
+        // 22500 = around 150 blocks
+        // Does not check Y axis
+        players.removeIf(player -> NumberConversions.square(location.getX() - player.getLocation().getX()) + NumberConversions.square(location.getZ() - player.getLocation().getZ()) > 22500);
+
+        CompatibilityAPI.getCompatibility().getEntityCompatibility().spawnFirework(location, players, (byte) flightTime, fireworkEffect);
     }
 
     @Override
@@ -103,12 +91,12 @@ public class FireworkMechanic implements Serializer<FireworkMechanic>, IMechanic
 
         LocationAdjuster locationAdjuster = new LocationAdjuster().serialize(file, configurationSection, path + ".Location_Adjuster");
 
-        int flightPower = configurationSection.getInt(path + ".Flight_Power", 0);
-        if (flightPower < 0 || flightPower > 5) {
+        int flightTime = configurationSection.getInt(path + ".Flight_Time", 0);
+        if (flightTime < 0) {
             debug.log(LogLevel.ERROR,
-                    "Found an invalid firework flight power in configurations!",
-                    "Located at file " + file + " in " + path + ".Flight_Power (" + flightPower + ") in configurations",
-                    "It has to be between 0 and 5!");
+                    "Found an invalid firework flight time in configurations!",
+                    "Located at file " + file + " in " + path + ".Flight_Time (" + flightTime + ") in configurations",
+                    "It can't have negative value");
             return null;
         }
 
@@ -117,7 +105,7 @@ public class FireworkMechanic implements Serializer<FireworkMechanic>, IMechanic
             fireworkEffectBuilder.withFade(fadeColors);
         }
 
-        return new FireworkMechanic(locationAdjuster, flightPower, fireworkEffectBuilder.build());
+        return new FireworkMechanic(locationAdjuster, flightTime, fireworkEffectBuilder.build());
     }
 
     private List<Color> convertColorList(File file, ConfigurationSection configurationSection, String path) {
