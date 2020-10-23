@@ -1,7 +1,5 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
@@ -63,54 +61,36 @@ public class StringUtils {
 
         StringBuilder result = new StringBuilder(string.length());
 
-        char[] chars = string.toCharArray();
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
 
-        // Gets the current minecraft version. Used for 1.16+ hex codes
-        double ver = CompatibilityAPI.getVersion();
-
-        for (int i = 0; i < chars.length; i++) {
-            char c = chars[i];
-
-            // Check for alternate color code and escape character
             if (c != '&') {
                 result.append(c);
-                continue;
-            } else if (i != 0 && chars[i - 1] == '/') {
-                result.deleteCharAt(result.length() - 1);
-                result.append('&');
-                continue;
-            }
+            } else if (i != 0 && string.charAt(i - 1) == '/') {
+                result.setCharAt(result.length() - 1, '&');
+            } else if (i + 1 != string.length()) {
+                if (CODES.indexOf(string.charAt(i + 1)) != -1) {
+                    result.append('§');
+                } else if (string.charAt(i + 1) == '#') {
+                    int bound = i + 7;
+                    if (bound <= string.length()) {
 
-            // Check for advanced 1.16+ hex colors
-            if (ver >= 1.16) {
+                        result.append('§').append('x');
 
-                int bound = i + 7;
-                if (bound <= chars.length) {
-                    StringBuilder hex = new StringBuilder("§x");
-                    boolean isHex = true;   // true until proven false
+                        // We have to skip forward 2 for the color code and hex symbol
+                        i += 2;
 
-                    for (int j = i + 1; j < bound; j++) {
-                        if (VALID_HEX.indexOf(chars[j]) != -1) {
-                            hex.append('§').append(chars[j]);
-                        } else {
-                            isHex = false;
-                            break;
+                        // We could validate the hex, but we are just going
+                        // to let people debug that themselves. The msg
+                        // in chat will look obviously wrong, so people
+                        // should have no problem checking their hex.
+
+                        for (; i <= bound; i++) {
+                            result.append('§').append(string.charAt(i));
                         }
-                    }
 
-                    if (isHex) {
-                        result.append(hex);
-                        i += 6;
-                        continue;
+                        i--;
                     }
-                }
-            }
-
-            if (i + 1 != chars.length) {
-                char code = chars[i + 1];
-                if (CODES.indexOf(code) != -1) {
-                    result.append('§').append(code);
-                    i++;
                 }
             }
         }
@@ -179,10 +159,10 @@ public class StringUtils {
      * Splits with whitespaces (" "), minus ("-") and ("~") while allowing negative values also
      * Example:
      * <pre>
-     *    split("SOUND-1-5"); // [SOUND, 1, 1]
-     *    split("Value--2-6"); // [Value, -2, 6]
-     *    split("Something 22 -634"); // [Something, 22, -634]
-     *    split("Yayyy~6423~-2"); // [Yayyy, 6424, -2]
+     *    split("SOUND-1-5"); // ["SOUND", "1", "1"]
+     *    split("Value--2-6"); // ["Value", "-2", "6"]
+     *    split("Something 22 -634"); // ["Something", "22", "-634"]
+     *    split("Yayyy~6423~-2"); // ["Yayyy", "6424", "-2"]
      * </pre>
      *
      * @param from the string to split
@@ -277,15 +257,6 @@ public class StringUtils {
         }
         return builder.substring(0, builder.length() - 1);
     }
-
-    /**
-     * @see #didYouMean(String, Iterable)
-     *
-     * @param enumClazz the enum class
-     */
-    public static String didYouMean(String input, Class<? extends Enum<?>> enumClazz) {
-        return didYouMean(input, Arrays.stream(enumClazz.getEnumConstants()).map(Enum::name).collect(Collectors.toList()));
-    }
     
     /**
      * Gets the most similar <code>String</code> to
@@ -329,7 +300,7 @@ public class StringUtils {
         int[] table = new int[LOWER_ALPHABET.length()];
     
         for (int i = 0; i < str.length(); i++) {
-            table[str.charAt(i) - 97]++;
+            table[Character.toLowerCase(str.charAt(i)) - 97]++;
         }
         
         return table;
