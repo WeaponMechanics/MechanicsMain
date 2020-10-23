@@ -53,12 +53,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WeaponMechanics extends JavaPlugin {
@@ -76,6 +81,39 @@ public class WeaponMechanics extends JavaPlugin {
 
     @Override
     public void onLoad() {
+
+        if (false) {
+            Logger logger = getLogger();
+            logger.log(Level.SEVERE, "----------------------------------------");
+            logger.log(Level.SEVERE, "No MechanicsCore detected...");
+            logger.log(Level.SEVERE, "Attempting to download MechanicsCore from github");
+
+            File directory = new File(getDataFolder().getParentFile(), "MechanicsCore.jar");
+            String link = "link to jar";
+
+            try (
+                    BufferedInputStream input =
+                            new BufferedInputStream(new URL(link).openStream());
+                    FileOutputStream output =
+                            new FileOutputStream(directory);
+
+            ) {
+
+                byte[] data = new byte[1024];
+                int content;
+
+                while ((content = input.read(data, 0, 1024)) != -1) {
+                    output.write(data, 0, content);
+                }
+
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Failed to install MechanicsCore.jar automatically!");
+                logger.log(Level.SEVERE, "You'll have to download it yourself by going to the following url:");
+                logger.log(Level.SEVERE, link);
+            }
+
+            logger.log(Level.SEVERE, "----------------------------------------");
+        }
 
         // Setup the debugger
         Logger logger = getLogger();

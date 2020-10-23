@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.utils;
 
+import java.util.Collection;
+
 public class ArrayUtils {
     
     /**
@@ -45,5 +47,14 @@ public class ArrayUtils {
             System.arraycopy(array, y * width, split[y], 0, split[y].length);
         }
         return split;
+    }
+
+    public static String toString(Collection<?> list) {
+        StringBuilder builder = new StringBuilder();
+        for (Object obj : list) {
+            builder.append(obj).append(", ");
+        }
+        builder.setLength(builder.length() - 2);
+        return builder.toString();
     }
 }

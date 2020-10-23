@@ -263,7 +263,7 @@ public class ScopeHandler implements IValidator {
         int increaseZoomPerStack = configuration.getInt(path + ".Zoom_Stacking.Increase_Zoom_Per_Stack");
         int finalValue = maximumStacks * increaseZoomPerStack + zoomAmount;
         if (finalValue > 32 || finalValue < 1) {
-            debug.log(LogLevel.ERROR, "Final value of zoom stacking can go above 32 or below 1.",
+            debug.log(LogLevel.ERROR, "Final value of zoom stacking cannot go above 32 or below 1.",
                     "Currently potential final value is " + finalValue + ", make sure its between 1 and 32.",
                     "Located at file " + file + " in " + path + ".Zoom_Stacking in configurations.");
         }

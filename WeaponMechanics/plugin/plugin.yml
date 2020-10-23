@@ -8,8 +8,7 @@ description: 'The new era of weapons in Minecraft!'
 main: 'me.deecaad.weaponmechanics.WeaponMechanics'
 softdepend:
   - 'PlaceholderAPI'
-depend:
-  - 'MechanicsCore' # todo People aren't smart enough to read "UnknownDependencyException", so we need to either install this for them automatically, or make this a soft depend
+  - 'MechanicsCore'
 permissions:
   weaponmechanics.admin:
     description: 'Permission to admin related functions of WeaponMechanics, default false'

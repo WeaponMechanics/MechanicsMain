@@ -24,9 +24,12 @@ public class WeaponMechanicsAPI implements Listener {
     private static WeaponMechanics plugin;
 
     /**
-     * Only let the plugin instantiate this class
+     * Only let the WeaponMechanics plugin instantiate this class
      */
     WeaponMechanicsAPI(WeaponMechanics plugin) {
+        if (WeaponMechanicsAPI.plugin != null)
+            throw new UnsupportedOperationException("Cannot redefine singleton plugin");
+
         WeaponMechanicsAPI.plugin = plugin;
     }
 
@@ -36,7 +39,7 @@ public class WeaponMechanicsAPI implements Listener {
      * this method will return null.
      *
      * @param weapon A nonnull item
-     * @return The weapon title associated with it
+     * @return The weapon title associated with it, or null
      *
      * @throws IllegalStateException If this method is invoked before initialization
      * @throws IllegalArgumentException If the given item is null
@@ -78,6 +81,9 @@ public class WeaponMechanicsAPI implements Listener {
      */
     @Nullable
     public static Set<ICustomProjectile> getActiveProjectilesFor(LivingEntity shooter) {
+        IEntityWrapper wrapper = getEntityWrapper(shooter);
+
+        // return wrapper.getActiveProjectiles();
         return null;
     }
 
@@ -112,7 +118,7 @@ public class WeaponMechanicsAPI implements Listener {
     /**
      * Returns <code>true</code> if the given bukkit <code>Block</code>
      * was broken by WeaponMechanics from an <code>Explosion</code> or
-     * an external plugin if it calls the damage method.
+     * an external plugin that calls the damage method.
      *
      * @see BlockDamageData#damageBlock(Block, int, int, boolean, int)
      *
