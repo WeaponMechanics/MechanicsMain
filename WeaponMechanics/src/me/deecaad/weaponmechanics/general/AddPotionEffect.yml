@@ -1,7 +1,0 @@
-# me.deecaad.weaponmechanics.general.AddPotionEffect
-Potion_Effect:
-  Allow_Particles: <true/false>
-  Produce_More_Particles: <true/false>
-  Potion_Effects:
-  - <PotionEffectType>-<duration in ticks>-<amplifier>
-  - <etc.>

@@ -1,7 +1,0 @@
-Bossbar:
-  Title: "Title"
-  Color: "RED"
-  Style: "SOLID"
-  Darken_Sky: <Boolean>
-  Play_Music: <Boolean>
-  Show_Fog: <Boolean>
