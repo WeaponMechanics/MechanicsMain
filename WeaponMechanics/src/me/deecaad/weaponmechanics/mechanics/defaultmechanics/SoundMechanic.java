@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.SoundHelper;
+import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadSound;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -66,19 +67,25 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
             return;
         }
 
+
         // Check if this is start reload cast
-        int data = castData.getData(ReloadSound.getDataKeyword(), Integer.class);
-
-        if (data == 0) {
-            startWithDelays(castData);
-            return;
-        }
-
-        // Here we know it was start reload cast -> store the task id
-        if (data == ReloadSound.MAIN_HAND.getId()) {
-            castData.getCasterWrapper().getMainHandData().addReloadTask(startWithDelays(castData));
+        Integer reloadData = castData.getData(ReloadSound.getDataKeyword(), Integer.class);
+        Integer firearmActionData = castData.getData(FirearmSound.getDataKeyword(), Integer.class);
+        
+        if (reloadData != null) {
+            if (reloadData == ReloadSound.MAIN_HAND.getId()) {
+                castData.getCasterWrapper().getMainHandData().addReloadTask(startWithDelays(castData));
+            } else {
+                castData.getCasterWrapper().getOffHandData().addReloadTask(startWithDelays(castData));
+            }
+        } else if (firearmActionData != null) {
+            if (firearmActionData == FirearmSound.MAIN_HAND.getId()) {
+                castData.getCasterWrapper().getMainHandData().addFirearmActionTask(startWithDelays(castData));
+            } else {
+                castData.getCasterWrapper().getOffHandData().addFirearmActionTask(startWithDelays(castData));
+            }
         } else {
-            castData.getCasterWrapper().getOffHandData().addReloadTask(startWithDelays(castData));
+            startWithDelays(castData);
         }
     }
 

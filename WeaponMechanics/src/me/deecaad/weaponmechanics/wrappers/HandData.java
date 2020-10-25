@@ -21,7 +21,7 @@ public class HandData {
     private RecoilTask recoilTask;
     private final Set<Integer> reloadTasks = new HashSet<>();
     private ZoomData zoomData;
-    private int shootFirearmActionTask;
+    private final Set<Integer> firearmActionTasks = new HashSet<>();
 
     public HandData(IEntityWrapper entityWrapper) {
         this.entityWrapper = entityWrapper;
@@ -46,14 +46,8 @@ public class HandData {
             Bukkit.getScheduler().cancelTask(burstTask);
             burstTask = 0;
         }
-        if (!reloadTasks.isEmpty()) {
-            reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
-            reloadTasks.clear();
-        }
-        if (shootFirearmActionTask != 0) {
-            Bukkit.getScheduler().cancelTask(shootFirearmActionTask);
-            shootFirearmActionTask = 0;
-        }
+        stopReloadingTasks();
+        stopFirearmActionTasks();
         if (getZoomData().isZooming()) {
             WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
         }
@@ -130,11 +124,18 @@ public class HandData {
         return zoomData == null ? zoomData = new ZoomData() : zoomData;
     }
 
-    public int getShootFirearmActionTask() {
-        return shootFirearmActionTask;
+    public void addFirearmActionTask(int firearmTask) {
+        firearmActionTasks.add(firearmTask);
     }
 
-    public void setShootFirearmActionTask(int shootFirearmActionTask) {
-        this.shootFirearmActionTask = shootFirearmActionTask;
+    public boolean hasRunningFirearmAction() {
+        return !firearmActionTasks.isEmpty();
+    }
+
+    public void stopFirearmActionTasks() {
+        if (!firearmActionTasks.isEmpty()) {
+            firearmActionTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
+            firearmActionTasks.clear();
+        }
     }
 }

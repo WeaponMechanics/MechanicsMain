@@ -88,7 +88,7 @@ public class ReloadHandler implements IValidator {
         if (firearmAction != null && firearmAction.hasShootState(weaponStack)) {
 
             // Call this again to make sure firearm actions are running
-            weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData);
+            weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
 
             // ... and deny reload while has shoot firearm actions
             return false;
@@ -97,7 +97,7 @@ public class ReloadHandler implements IValidator {
         Ammo ammo = config.getObject(weaponTitle + ".Reload.Ammo", Ammo.class);
         if (ammo != null && ammo.getAmount(entityWrapper) <= 0) {
 
-            Mechanics.use(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", new CastData(entityWrapper));
+            Mechanics.use(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", new CastData(entityWrapper, weaponTitle, weaponStack));
 
             return false;
         }
@@ -132,7 +132,7 @@ public class ReloadHandler implements IValidator {
                     // Just check if for some reason ammo disappeared from entity before reaching reload state
                     if (removedAmount <= 0) {
 
-                        Mechanics.use(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", new CastData(entityWrapper));
+                        Mechanics.use(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", new CastData(entityWrapper, weaponTitle, weaponStack));
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);
@@ -163,7 +163,7 @@ public class ReloadHandler implements IValidator {
                     }
 
                 } else {
-                    finishReload(entityWrapper, weaponTitle, handData);
+                    finishReload(entityWrapper, weaponTitle, weaponStack, handData);
 
                     if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
                         startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
@@ -175,10 +175,10 @@ public class ReloadHandler implements IValidator {
             public void setup() {
                 handData.addReloadTask(getTaskId());
 
-                CastData castData = new CastData(entityWrapper);
+                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                Mechanics.use(weaponTitle + ".Reload.Start", new CastData(entityWrapper));
+                Mechanics.use(weaponTitle + ".Reload.Start", castData);
 
                 if (isPump) {
                     firearmAction.reloadState(weaponStack, entityWrapper);
@@ -212,7 +212,7 @@ public class ReloadHandler implements IValidator {
             @Override
             public void task() {
                 firearmAction.readyState(weaponStack, entityWrapper);
-                finishReload(entityWrapper, weaponTitle, handData);
+                finishReload(entityWrapper, weaponTitle, weaponStack, handData);
 
                 if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
                     startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
@@ -223,10 +223,10 @@ public class ReloadHandler implements IValidator {
             public void setup() {
                 handData.addReloadTask(getTaskId());
 
-                CastData castData = new CastData(entityWrapper);
+                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                Mechanics.use(weaponTitle + ".Firearm_Action.Close", new CastData(entityWrapper));
+                Mechanics.use(weaponTitle + ".Firearm_Action.Close", castData);
             }
         };
 
@@ -245,10 +245,10 @@ public class ReloadHandler implements IValidator {
             public void setup() {
                 handData.addReloadTask(getTaskId());
 
-                CastData castData = new CastData(entityWrapper);
+                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                Mechanics.use(weaponTitle + ".Firearm_Action.Open", new CastData(entityWrapper));
+                Mechanics.use(weaponTitle + ".Firearm_Action.Open", castData);
 
                 if (!isPump) {
                     firearmAction.openReloadState(weaponStack, entityWrapper);
@@ -294,9 +294,9 @@ public class ReloadHandler implements IValidator {
         return true;
     }
 
-    public void finishReload(IEntityWrapper entityWrapper, String weaponTitle, HandData handData) {
+    public void finishReload(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData) {
         handData.stopReloadingTasks();
-        Mechanics.use(weaponTitle + ".Reload.Finish", new CastData(entityWrapper));
+        Mechanics.use(weaponTitle + ".Reload.Finish", new CastData(entityWrapper, weaponTitle, weaponStack));
     }
 
     /**
