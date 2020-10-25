@@ -22,6 +22,6 @@ public class ExpAmmo implements IAmmoType {
 
     @Override
     public void give(IEntityWrapper entityWrapper, int amount) {
-
+        // TODO
     }
 }
