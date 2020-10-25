@@ -4,7 +4,6 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.general.SendMessage;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,17 +21,15 @@ public class DualWield implements Serializer<DualWield> {
 
     private boolean whitelist;
     private Set<String> weapons;
-    private SendMessage deniedMessage;
 
     /**
      * Empty constructor to be used as serializer
      */
     public DualWield() { }
 
-    public DualWield(boolean whitelist, Set<String> weapons, SendMessage deniedMessage) {
+    public DualWield(boolean whitelist, Set<String> weapons) {
         this.whitelist = whitelist;
         this.weapons = weapons;
-        this.deniedMessage = deniedMessage;
     }
 
     /**
@@ -62,12 +59,13 @@ public class DualWield implements Serializer<DualWield> {
      * @param weaponTitle the weapon used
      */
     public void sendDeniedMessage(TriggerType checkCause, @Nullable Player player, String weaponTitle) {
-        if (deniedMessage != null && player != null) {
+        if (player != null) {
             Configuration config = WeaponMechanics.getConfigurations();
             for (String type : new String[]{ ".Shoot", ".Reload", ".Scope" }) {
                 Trigger trigger = config.getObject(weaponTitle + type + ".Trigger", Trigger.class);
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
-                    deniedMessage.send(false, player, null, weaponTitle);
+
+                    // todo all mechanics
                     break;
                 }
             }
@@ -95,7 +93,6 @@ public class DualWield implements Serializer<DualWield> {
             return null;
         }
         boolean whitelist = configurationSection.getBoolean(path + ".Whitelist", false);
-        SendMessage deniedMessage = new SendMessage().serialize(file, configurationSection, path + ".Denied_Message");
-        return new DualWield(whitelist, weapons, deniedMessage);
+        return new DualWield(whitelist, weapons);
     }
 }

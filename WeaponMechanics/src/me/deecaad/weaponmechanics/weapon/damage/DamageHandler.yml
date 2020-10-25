@@ -5,61 +5,26 @@ Damage:
   Armor_Damage: <Integer>
   Head:
     Bonus_Damage: <amount>
-    Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Global_Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Potions_Shooter: <me.deecaad.weaponmechanics.general.AddPotionEffect>
-    Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
+    # All registered mechanics for victim and shooter
   Body:
     Bonus_Damage: <amount>
-    Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Global_Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Potions_Shooter: <me.deecaad.weaponmechanics.general.AddPotionEffect>
-    Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
+    # All registered mechanics for victim and shooter
   Arms:
     Bonus_Damage: <amount>
-    Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Global_Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Potions_Shooter: <me.deecaad.weaponmechanics.general.AddPotionEffect>
-    Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
+    # All registered mechanics for victim and shooter
   Legs:
     Bonus_Damage: <amount>
-    Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Global_Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Potions_Shooter: <me.deecaad.weaponmechanics.general.AddPotionEffect>
-    Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
+    # All registered mechanics for victim and shooter
   Feet:
     Bonus_Damage: <amount>
-    Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Global_Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Potions_Shooter: <me.deecaad.weaponmechanics.general.AddPotionEffect>
-    Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
+    # All registered mechanics for victim and shooter
   Backstab:
     Bonus_Damage: <amount>
-    Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Global_Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Potions_Shooter: <me.deecaad.weaponmechanics.general.AddPotionEffect>
-    Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
+    # All registered mechanics for victim and shooter
   Critical_Hit:
     Chance: <1-100>
     Bonus_Damage: <amount>
-    Global_Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Global_Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Shooter: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Potions_Shooter: <me.deecaad.weaponmechanics.general.AddPotionEffect>
-    Potions_Victim: <me.deecaad.weaponmechanics.general.AddPotionEffect>
+    # All registered mechanics for victim and shooter
   Dropoff:
     - <blocks>~<damage amount>
   Explosion_Damage:
@@ -67,6 +32,4 @@ Damage:
     Armor_Damage: <amount>
     Fire_Ticks: <Integer>
     Enable_Owner_Immunity: <Boolean>
-    Effects: <me.deecaad.core.effects.serializers.EffectListSerializer>
-    Effects_Victim: <me.deecaad.core.effects.serializers.EffectListSerializer>
-
+    # All registered mechanics for victim

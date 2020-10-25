@@ -67,8 +67,7 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
         }
 
         // Check if this is start reload cast
-
-        int data = castData.getData(ReloadSound.getDataKeyword());
+        int data = castData.getData(ReloadSound.getDataKeyword(), Integer.class);
 
         if (data == 0) {
             startWithDelays(castData);
@@ -130,7 +129,7 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
 
                 ++ticker;
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0).getTaskId();
+        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0).getTaskId();
     }
 
     @Override

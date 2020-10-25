@@ -14,6 +14,7 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     private long lastRightClick;
     private long lastStartSneak;
     private long lastWeaponDrop;
+    private MessageHelper messageHelper;
 
     public PlayerWrapper(Player player) {
         super(player);
@@ -76,6 +77,11 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     @Override
     public long getLastDropWeaponTime() {
         return lastWeaponDrop;
+    }
+
+    @Override
+    public MessageHelper getMessageHelper() {
+        return messageHelper == null ? messageHelper = new MessageHelper() : messageHelper;
     }
 
     @Override
