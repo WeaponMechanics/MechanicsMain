@@ -6,6 +6,8 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -116,7 +118,7 @@ public class ScopeHandler implements IValidator {
 
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
-                // todo: use Mechanics from path weaponTitle + ".Scope.Zoom_Stacking" to entity, weaponStack, weaponTitle
+                Mechanics.use(weaponTitle + ".Scope.Zoom_Stacking", new CastData(entityWrapper, weaponTitle, weaponStack));
 
                 return true;
             } else {
@@ -139,7 +141,7 @@ public class ScopeHandler implements IValidator {
         }
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
-        // todo: use Mechanics from path weaponTitle + ".Scope" to entity, weaponStack, weaponTitle
+        Mechanics.use(weaponTitle + ".Scope", new CastData(entityWrapper, weaponTitle, weaponStack));
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
 
         return true;
@@ -161,7 +163,7 @@ public class ScopeHandler implements IValidator {
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
-        // todo: use Mechanics from path weaponTitle + ".Scope.Zoom_Off" to entity, weaponStack, weaponTitle
+        Mechanics.use(weaponTitle + ".Scope.Zoom_Off", new CastData(entityWrapper, weaponTitle, weaponStack));
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
 
         return true;

@@ -455,7 +455,7 @@ public class ShootHandler implements IValidator {
         handData.setLastShotTime(System.currentTimeMillis());
         handData.setLastShotWeaponTitle(weaponTitle);
 
-        // todo: use Mechanics from path weaponTitle + ".Shoot" to livingEntity, weaponStack, weaponTitle
+        Mechanics.use(weaponTitle + ".Shoot", new CastData(entityWrapper, weaponTitle, weaponStack));
 
         // Handle explosions
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);

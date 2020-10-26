@@ -3,6 +3,7 @@ Damage:
   Fire_Ticks: <ticks>
   Enable_Friendly_Fire: <Boolean>
   Armor_Damage: <Integer>
+  # All registered mechanics for victim and shooter on all damage
   Head:
     Bonus_Damage: <amount>
     # All registered mechanics for victim and shooter

@@ -6,10 +6,4 @@ Reload:
   Reload_Duration: <ticks>
   Start: <all registered mechanics>
   Finish: <all registered mechanics>
-  Ammo:
-    Out_Of_Ammo: <all registered mechanics>
-    Item_Ammo:
-      Magazine: <item serializer>
-      Ammo: <item serializer>
-    Exp_Ammo:
-      Exp_Cost: <exp per one ammo>
+  Ammo: <ammo serializer>

@@ -1,10 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.entity.Player;
 
 public class ExpAmmo implements IAmmoType {
 
-    private int expCost;
+    private final int expCost;
 
     public ExpAmmo(int expCost) {
         this.expCost = expCost;
@@ -12,16 +14,34 @@ public class ExpAmmo implements IAmmoType {
 
     @Override
     public int getAmount(IEntityWrapper entityWrapper) {
-        return 0;
+        if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
+
+        return ((Player) entityWrapper.getEntity()).getTotalExperience() / expCost;
     }
 
     @Override
     public int remove(IEntityWrapper entityWrapper, int amount) {
-        return 0;
+        if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
+        Player player = (Player) entityWrapper.getEntity();
+        int removeAmount = expCost * amount;
+        int totalExp = player.getTotalExperience();
+
+        int setExp = totalExp - removeAmount;
+
+        if (setExp < 0) {
+            // Meaning not enough ammo
+            amount = totalExp / expCost;
+            player.setTotalExperience(totalExp - (amount * expCost));
+            return amount;
+        }
+        player.setTotalExperience(setExp);
+        return amount;
     }
 
     @Override
     public void give(IEntityWrapper entityWrapper, int amount) {
-        // TODO
+        if (!(entityWrapper instanceof IPlayerWrapper)) return;
+        Player player = (Player) entityWrapper.getEntity();
+        player.setTotalExperience(player.getTotalExperience() + (expCost * amount));
     }
 }

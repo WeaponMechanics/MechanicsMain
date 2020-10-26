@@ -2,11 +2,11 @@ Scope:
   Trigger: <trigger serializer>
   Night_Vision: <true/false>
   Zoom_Amount: <1-32>
-  # All general stuff
+  # All registered mechanics
   Zoom_Off:
     Trigger: <trigger serializer>
-    # All general stuff
+    # All registered mechanics
   Zoom_Stacking:
     Maximum_Stacks: <maximum zoom stack amount>
     Increase_Zoom_Per_Stack: <amount>
-    # All general stuff
+    # All registered mechanics

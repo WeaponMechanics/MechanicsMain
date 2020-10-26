@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
@@ -118,7 +120,7 @@ public class WeaponHandler {
             boolean hasBurst = config.getInt(weaponTitle + ".Shoot.Burst.Shots_Per_Burst") != 0 && config.getInt(weaponTitle + ".Shoot.Burst.Ticks_Between_Each_Shot") != 0;
             boolean hasAuto = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second") != 0;
 
-            // Order is basically
+            // Order is
             // 1) Single
             // 2) Burst
             // 3) Auto
@@ -151,6 +153,8 @@ public class WeaponHandler {
                         break;
                 }
             }
+
+            Mechanics.use(weaponTitle + ".Shoot.Selective_Fire", new CastData(entityWrapper, weaponTitle, weaponStack));
 
             entityWrapper.getMainHandData().cancelTasks();
             entityWrapper.getOffHandData().cancelTasks();

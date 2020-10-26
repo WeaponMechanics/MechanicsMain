@@ -1,5 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -137,7 +140,7 @@ public class InfoHandler {
         }
         inventory.addItem(weaponStack);
 
-        // todo: use Mechanics from path weaponTitle + ".Info.Weapon_Get_Actions" to player, weaponStack, weaponTitle
+        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Actions", new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, weaponStack));
     }
 
     /**

@@ -4,6 +4,8 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,6 +13,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,11 +68,17 @@ public class DualWield implements Serializer<DualWield> {
                 Trigger trigger = config.getObject(weaponTitle + type + ".Trigger", Trigger.class);
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
 
-                    // todo all mechanics
+                    Mechanics.use(weaponTitle + ".Info.Dual_Wield", new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, null));
+
                     break;
                 }
             }
         }
+    }
+
+    @Override
+    public Set<String> allowOtherSerializers() {
+        return new HashSet<>(Arrays.asList("Whitelist", "Weapons"));
     }
 
     @Override
