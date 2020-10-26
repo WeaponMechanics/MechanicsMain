@@ -17,7 +17,7 @@ Item:
     Color: <ColorType>
   Attributes:
   - <Attribute>-<Amount>
-  Leather_Color: <me.deecaad.core.file.serializer.ColorSerializer>
+  Leather_Color: <ColorSerializer>
   Recipe:
     Shape:
       - "012"

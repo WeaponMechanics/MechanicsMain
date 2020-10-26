@@ -17,6 +17,10 @@ public class MessageHelper {
     private BossBar currentInfoBossBar;
     private int currentInfoBossBarTask;
 
+    private int expTask;
+
+    private long itemUpdateTime;
+
     public void updateActionBarTime(int forTicks) {
         denyActionBarStart = System.currentTimeMillis();
         denyActionBarTime = forTicks * 50;
@@ -49,5 +53,21 @@ public class MessageHelper {
 
     public void setCurrentInfoBossBarTask(int currentInfoBossBarTask) {
         this.currentInfoBossBarTask = currentInfoBossBarTask;
+    }
+
+    public int getExpTask() {
+        return expTask;
+    }
+
+    public void setExpTask(int expTask) {
+        this.expTask = expTask;
+    }
+
+    public boolean allowItemUpdate() {
+        return NumberUtils.hasMillisPassed(itemUpdateTime, 5000);
+    }
+
+    public void updateItemTime() {
+        itemUpdateTime = System.currentTimeMillis();
     }
 }
