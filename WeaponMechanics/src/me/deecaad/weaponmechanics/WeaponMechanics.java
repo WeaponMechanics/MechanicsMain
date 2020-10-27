@@ -23,7 +23,6 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_
 import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
-import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
@@ -186,7 +185,6 @@ public class WeaponMechanics extends JavaPlugin {
                 validators.add(new ScopeHandler(weaponHandler));
                 validators.add(new ShootHandler(weaponHandler));
                 validators.add(new ReloadHandler(weaponHandler));
-                validators.add(new InfoHandler(weaponHandler));
 
                 // Fill configuration mappings (except config.yml)
                 Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(WeaponMechanics.this), validators).fillAllFiles(getDataFolder(), "config.yml");
