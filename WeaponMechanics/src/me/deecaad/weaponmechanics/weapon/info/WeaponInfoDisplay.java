@@ -103,25 +103,18 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 }
             }
         }
-        
-        ItemStack ogWeaponStack = null;
+
         if (updateItemName) {
-            ogWeaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class).clone();
+            String ogWeaponStackName = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class).getItemMeta().getDisplayName();
 
             ItemMeta itemMeta = weaponStack.getItemMeta();
-            itemMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(ogWeaponStack.getItemMeta().getDisplayName(), playerWrapper.getPlayer(), weaponStack, weaponTitle));
+            itemMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(ogWeaponStackName, playerWrapper.getPlayer(), weaponStack, weaponTitle));
             weaponStack.setItemMeta(itemMeta);
         }
 
         if (messageHelper.allowItemUpdate()) {
-            if (ogWeaponStack == null) ogWeaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class).clone();
-
             messageHelper.updateItemTime();
-
-            ItemMeta weaponMeta = weaponStack.getItemMeta();
-            ItemMeta ogWeaponMeta = ogWeaponStack.getItemMeta();
-
-
+            doChangesIfRequired(getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class), playerWrapper, weaponTitle, weaponStack);
         }
     }
 
