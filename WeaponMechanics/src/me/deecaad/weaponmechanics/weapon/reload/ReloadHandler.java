@@ -99,7 +99,7 @@ public class ReloadHandler implements IValidator {
         }
 
         Ammo ammo = config.getObject(weaponTitle + ".Reload.Ammo", Ammo.class);
-        if (ammo != null && ammo.getAmount(entityWrapper) <= 0) {
+        if (ammo != null && ammo.getAmount(entityWrapper, magazineSize) <= 0) {
 
             Mechanics.use(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", new CastData(entityWrapper, weaponTitle, weaponStack));
 
@@ -131,7 +131,7 @@ public class ReloadHandler implements IValidator {
 
                 if (ammo != null) {
 
-                    int removedAmount = ammo.remove(entityWrapper, ammoToAdd);
+                    int removedAmount = ammo.remove(entityWrapper, ammoToAdd, magazineSize);
 
                     // Just check if for some reason ammo disappeared from entity before reaching reload state
                     if (removedAmount <= 0) {
@@ -185,7 +185,7 @@ public class ReloadHandler implements IValidator {
                 if (unloadAmmoOnReload) {
 
                     if (ammo != null) {
-                        ammo.give(entityWrapper, TagHelper.getIntegerTag(weaponStack, CustomTag.AMMO_LEFT));
+                        ammo.give(entityWrapper, TagHelper.getIntegerTag(weaponStack, CustomTag.AMMO_LEFT), magazineSize);
                     }
 
                     // unload weapon and give ammo back to given entity

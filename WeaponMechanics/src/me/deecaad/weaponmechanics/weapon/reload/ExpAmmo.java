@@ -13,14 +13,14 @@ public class ExpAmmo implements IAmmoType {
     }
 
     @Override
-    public int getAmount(IEntityWrapper entityWrapper) {
+    public int getAmount(IEntityWrapper entityWrapper, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
 
         return ((Player) entityWrapper.getEntity()).getTotalExperience() / expCost;
     }
 
     @Override
-    public int remove(IEntityWrapper entityWrapper, int amount) {
+    public int remove(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
         Player player = (Player) entityWrapper.getEntity();
         int removeAmount = expCost * amount;
@@ -39,7 +39,7 @@ public class ExpAmmo implements IAmmoType {
     }
 
     @Override
-    public void give(IEntityWrapper entityWrapper, int amount) {
+    public void give(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return;
         Player player = (Player) entityWrapper.getEntity();
         player.setTotalExperience(player.getTotalExperience() + (expCost * amount));

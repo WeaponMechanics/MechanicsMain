@@ -24,27 +24,30 @@ public class Ammo implements Serializer<Ammo> {
 
     /**
      * @param entityWrapper the entity
+     * @param magazineSize the weapon's full magazine size
      * @return the amount of this type ammo entity currently has
      */
-    public int getAmount(IEntityWrapper entityWrapper) {
-        return ammoType.getAmount(entityWrapper);
+    public int getAmount(IEntityWrapper entityWrapper, int magazineSize) {
+        return ammoType.getAmount(entityWrapper, magazineSize);
     }
 
     /**
      * @param entityWrapper the entity
      * @param amount the amount to remove ammo
+     * @param magazineSize the weapon's full magazine size
      * @return the amount of ammo that was removed from entity
      */
-    public int remove(IEntityWrapper entityWrapper, int amount) {
-        return ammoType.remove(entityWrapper, amount);
+    public int remove(IEntityWrapper entityWrapper, int amount, int magazineSize) {
+        return ammoType.remove(entityWrapper, amount, magazineSize);
     }
 
     /**
      * @param entityWrapper the entity
      * @param amount the amount of ammo to give for entity
+     * @param magazineSize the weapon's full magazine size
      */
-    public void give(IEntityWrapper entityWrapper, int amount) {
-        ammoType.give(entityWrapper, amount);
+    public void give(IEntityWrapper entityWrapper, int amount, int magazineSize) {
+        ammoType.give(entityWrapper, amount, magazineSize);
     }
 
     @Override

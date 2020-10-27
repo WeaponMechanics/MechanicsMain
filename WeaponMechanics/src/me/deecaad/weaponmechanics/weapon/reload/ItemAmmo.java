@@ -19,7 +19,7 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public int getAmount(IEntityWrapper entityWrapper) {
+    public int getAmount(IEntityWrapper entityWrapper, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
 
         // todo
@@ -28,16 +28,19 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public int remove(IEntityWrapper entityWrapper, int amount) {
+    public int remove(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
+
+        // todo
 
         return 0;
     }
 
     @Override
-    public void give(IEntityWrapper entityWrapper, int amount) {
+    public void give(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return;
 
+        // todo
     }
 
     private boolean isMatch(ItemStack ammoStack, ItemStack other) {
