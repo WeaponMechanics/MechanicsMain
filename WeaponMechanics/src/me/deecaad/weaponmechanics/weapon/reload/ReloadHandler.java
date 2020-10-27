@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
+import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -178,11 +179,6 @@ public class ReloadHandler implements IValidator {
             public void setup() {
                 handData.addReloadTask(getTaskId());
 
-                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
-                // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
-                castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                Mechanics.use(weaponTitle + ".Reload.Start", castData);
-
                 if (isPump) {
                     firearmAction.reloadState(weaponStack, entityWrapper);
                 }
@@ -199,6 +195,14 @@ public class ReloadHandler implements IValidator {
                         TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
                     }
                 }
+
+                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
+                // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
+                castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
+                Mechanics.use(weaponTitle + ".Reload.Start", castData);
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
         };
 
@@ -230,6 +234,9 @@ public class ReloadHandler implements IValidator {
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
                 Mechanics.use(weaponTitle + ".Firearm_Action.Close", castData);
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
         };
 
@@ -248,14 +255,17 @@ public class ReloadHandler implements IValidator {
             public void setup() {
                 handData.addReloadTask(getTaskId());
 
+                if (!isPump) {
+                    firearmAction.openReloadState(weaponStack, entityWrapper);
+                }
+
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
                 Mechanics.use(weaponTitle + ".Firearm_Action.Open", castData);
 
-                if (!isPump) {
-                    firearmAction.openReloadState(weaponStack, entityWrapper);
-                }
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
         };
 
@@ -299,7 +309,11 @@ public class ReloadHandler implements IValidator {
 
     public void finishReload(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData) {
         handData.stopReloadingTasks();
+
         Mechanics.use(weaponTitle + ".Reload.Finish", new CastData(entityWrapper, weaponTitle, weaponStack));
+
+        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
     }
 
     /**

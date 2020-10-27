@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -9,17 +11,19 @@ import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
-public class InfoHandler {
+public class InfoHandler implements IValidator {
 
     /**
      * List of all registered weapons
@@ -190,5 +194,15 @@ public class InfoHandler {
         // If this is false, then dual wielding is allowed
         return mainWeaponTitle != null && offWeaponTitle != null
                 && mainDualWield == null && offDualWield == null;
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Info";
+    }
+
+    @Override
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+
     }
 }

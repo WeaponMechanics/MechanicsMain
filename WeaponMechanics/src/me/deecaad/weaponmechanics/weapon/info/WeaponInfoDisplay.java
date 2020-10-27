@@ -3,7 +3,9 @@ package me.deecaad.weaponmechanics.weapon.info;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.MessageMechanic;
@@ -20,6 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.lang.reflect.Constructor;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
@@ -43,6 +46,14 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
      * Empty constructor to be used as serializer
      */
     public WeaponInfoDisplay() { }
+
+    public WeaponInfoDisplay(MessageMechanic messageMechanic, boolean updateItemName, boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress) {
+        this.messageMechanic = messageMechanic;
+        this.updateItemName = updateItemName;
+        this.showAmmoInBossBarProgress = showAmmoInBossBarProgress;
+        this.showAmmoInExpLevel = showAmmoInExpLevel;
+        this.showAmmoInExpProgress = showAmmoInExpProgress;
+    }
 
     public void send(IPlayerWrapper playerWrapper, String weaponTitle, ItemStack weaponStack) {
 
@@ -169,6 +180,28 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
     @Override
     public WeaponInfoDisplay serialize(File file, ConfigurationSection configurationSection, String path) {
-        return null;
+        MessageMechanic messageMechanic = new MessageMechanic().serialize(file, configurationSection, path);
+        boolean updateItemName = configurationSection.getBoolean(path + ".Update_Item_Name");
+        boolean expLevel = configurationSection.getBoolean(path + ".Show_Ammo_In.Exp_Level");
+        boolean expProgress = configurationSection.getBoolean(path + ".Show_Ammo_In.Exp_Progress");
+
+        if (messageMechanic == null && !updateItemName && !expLevel && !expProgress) {
+            debug.log(LogLevel.ERROR,
+                    StringUtils.foundInvalid("weapon info display"),
+                    StringUtils.foundAt(file, path),
+                    "Either message has to be defined, Update_Item_Name true, Exp_Level true OR Exp_Progress true");
+            return null;
+        }
+
+        boolean bossBarProgress = configurationSection.getBoolean(path + ".Show_Ammo_In.Boss_Bar_Progress");
+        if (bossBarProgress && (messageMechanic == null || !messageMechanic.hasBossBar())) {
+            debug.log(LogLevel.ERROR,
+                    StringUtils.foundInvalid("boss bar"),
+                    StringUtils.foundAt(file, path),
+                    "When using Show_Ammo_In.Boss_Bar_Progress you need properly configured Boss_Bar configuration also");
+            return null;
+        }
+
+        return new WeaponInfoDisplay(messageMechanic, updateItemName, bossBarProgress, expLevel, expProgress);
     }
 }

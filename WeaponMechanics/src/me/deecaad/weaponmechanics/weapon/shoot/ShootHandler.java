@@ -19,6 +19,7 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
+import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
@@ -143,12 +144,16 @@ public class ShootHandler implements IValidator {
                     // Close if ammo left is more than 0
                     handData.stopReloadingTasks();
 
+                    firearmAction.closeShootState(weaponStack, entityWrapper);
+
                     CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                     // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
                     castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
                     Mechanics.use(weaponTitle + ".Firearm_Action.Close", castData);
 
-                    firearmAction.closeShootState(weaponStack, entityWrapper);
+                    WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
                     handData.addFirearmActionTask(new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -385,17 +390,24 @@ public class ShootHandler implements IValidator {
             castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
             Mechanics.use(weaponTitle + ".Firearm_Action.Close", castData);
 
+            WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
             handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 
             return;
         }
+
+        firearmAction.openShootState(weaponStack, entityWrapper);
 
         CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
         castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
         Mechanics.use(weaponTitle + ".Firearm_Action.Open", castData);
 
-        firearmAction.openShootState(weaponStack, entityWrapper);
+        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
         handData.addFirearmActionTask(new BukkitRunnable() {
             @Override
             public void run() {
@@ -406,6 +418,9 @@ public class ShootHandler implements IValidator {
                 // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
                 Mechanics.use(weaponTitle + ".Firearm_Action.Close", castData);
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 
@@ -456,6 +471,9 @@ public class ShootHandler implements IValidator {
         handData.setLastShotWeaponTitle(weaponTitle);
 
         Mechanics.use(weaponTitle + ".Shoot", new CastData(entityWrapper, weaponTitle, weaponStack));
+
+        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
         // Handle explosions
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);

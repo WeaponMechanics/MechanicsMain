@@ -189,6 +189,7 @@ public class MessageMechanic implements Serializer<MessageMechanic>, IMechanic {
                 }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), bossBarData.time).getTaskId());
             } else {
                 BossBar bossBar = Bukkit.createBossBar(bossBarMessage, bossBarData.barColor, bossBarData.barStyle);
+
                 bossBar.addPlayer(player);
                 new BukkitRunnable() {
                     public void run() {
@@ -197,6 +198,10 @@ public class MessageMechanic implements Serializer<MessageMechanic>, IMechanic {
                 }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), bossBarData.time);
             }
         }
+    }
+
+    public boolean hasBossBar() {
+        return bossBarData != null;
     }
 
     private void sendActionBar(Player player, ItemStack weaponStack, String weaponTitle) {
@@ -332,6 +337,10 @@ public class MessageMechanic implements Serializer<MessageMechanic>, IMechanic {
             }
             int time = configurationSection.getInt(path + ".Boss_Bar.Time");
             bossBarData = new BossBarData(StringUtils.color(bossBarMessage), barColor, barStyle, time);
+        }
+
+        if (chatData == null && actionBarMessage == null && titleData == null && bossBarData == null) {
+            return null;
         }
 
         boolean sendGlobally = configurationSection.getBoolean(path + ".Send_Globally");
