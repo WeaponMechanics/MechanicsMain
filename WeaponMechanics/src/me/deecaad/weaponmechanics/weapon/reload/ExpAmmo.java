@@ -31,6 +31,7 @@ public class ExpAmmo implements IAmmoType {
         if (setExp < 0) {
             // Meaning not enough ammo
             amount = totalExp / expCost;
+            if (amount == 0) return 0;
             player.setTotalExperience(totalExp - (amount * expCost));
             return amount;
         }

@@ -6,3 +6,5 @@ Ammo:
     Ammo: <item serializer>
   Exp_Ammo:
     Exp_Cost: <exp per one ammo>
+  Economy_Ammo:
+    Money_Cost: <money per one ammo>
