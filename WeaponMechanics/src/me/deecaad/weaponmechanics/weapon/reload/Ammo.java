@@ -24,6 +24,14 @@ public class Ammo implements Serializer<Ammo> {
 
     /**
      * @param entityWrapper the entity
+     * @return whether entity has at least 1 ammo
+     */
+    public boolean hasAmmo(IEntityWrapper entityWrapper) {
+        return ammoType.hasAmmo(entityWrapper);
+    }
+
+    /**
+     * @param entityWrapper the entity
      * @param magazineSize the weapon's full magazine size
      * @return the amount of this type ammo entity currently has
      */
@@ -48,6 +56,13 @@ public class Ammo implements Serializer<Ammo> {
      */
     public void give(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         ammoType.give(entityWrapper, amount, magazineSize);
+    }
+
+    /**
+     * @return whether this ammo uses item ammo type
+     */
+    public boolean isItemMagazineAmmo() {
+        return ammoType instanceof ItemAmmo && ((ItemAmmo) ammoType).useMagazine();
     }
 
     @Override

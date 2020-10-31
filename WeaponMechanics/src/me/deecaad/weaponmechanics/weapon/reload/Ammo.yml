@@ -1,10 +1,16 @@
 # me.deecaad.weaponmechanics.weapon.reload.Ammo
 Ammo:
   Out_Of_Ammo: <all registered mechanics>
-  Item_Ammo:
+  Use_Item_As_Ammo:
+    Ammo_Name: <name of ammo>
     Magazine: <item serializer>
     Ammo: <item serializer>
-  Exp_Ammo:
+    Ammo_Converter_Check:
+      Type: <true/false>
+      Name: <true/false>
+      Lore: <true/false>
+      Enchants: <true/false>
+  Use_Exp_As_Ammo:
     Exp_Cost: <exp per one ammo>
-  Economy_Ammo:
+  Use_Money_As_Ammo:
     Money_Cost: <money per one ammo>

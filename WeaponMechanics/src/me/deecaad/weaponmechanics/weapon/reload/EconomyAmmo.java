@@ -17,6 +17,11 @@ public class EconomyAmmo implements IAmmoType {
     }
 
     @Override
+    public boolean hasAmmo(IEntityWrapper entityWrapper) {
+        return getAmount(entityWrapper, 0) > 0;
+    }
+
+    @Override
     public int getAmount(IEntityWrapper entityWrapper, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
         double balance = vaultCompatibility.getBalance(((IPlayerWrapper) entityWrapper).getPlayer());
@@ -27,6 +32,7 @@ public class EconomyAmmo implements IAmmoType {
     @Override
     public int remove(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
+        if (amount == 0) return 0;
         Player player = ((IPlayerWrapper) entityWrapper).getPlayer();
         double balance = vaultCompatibility.getBalance(player);
         if (balance == 0) return 0;
@@ -47,6 +53,7 @@ public class EconomyAmmo implements IAmmoType {
     @Override
     public void give(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         if (!(entityWrapper instanceof IPlayerWrapper)) return;
+        if (amount == 0) return;
         vaultCompatibility.depositBalance(((IPlayerWrapper) entityWrapper).getPlayer(), moneyCost * amount);
     }
 }

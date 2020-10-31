@@ -6,6 +6,12 @@ public interface IAmmoType {
 
     /**
      * @param entityWrapper the entity
+     * @return whether entity has at least 1 ammo
+     */
+    boolean hasAmmo(IEntityWrapper entityWrapper);
+
+    /**
+     * @param entityWrapper the entity
      * @param magazineSize the weapon's full magazine size
      * @return the amount of this type ammo entity currently has
      */
