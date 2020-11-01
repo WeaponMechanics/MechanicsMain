@@ -1,10 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -101,11 +103,13 @@ public class ItemAmmo implements IAmmoType {
         if (!(entityWrapper instanceof IPlayerWrapper)) return 0;
         if (amount == 0) return 0;
 
-        Player player = ((IPlayerWrapper) entityWrapper).getPlayer();
+        IPlayerWrapper playerWrapper = ((IPlayerWrapper) entityWrapper);
+
+        Player player = playerWrapper.getPlayer();
         Inventory inventory = player.getInventory();
 
         if (magazine != null) {
-            MagazineData magazineData = getMagazineAmmo(inventory, amount);
+            MagazineData magazineData = getMagazineAmmo(playerWrapper, inventory, amount);
 
             // check if magazine ammo was found
             if (magazineData == null) return 0;
@@ -124,7 +128,7 @@ public class ItemAmmo implements IAmmoType {
             return amount;
         }
 
-        Map<Integer, Integer> ammoData = getAmmo(inventory, amount);
+        Map<Integer, Integer> ammoData = getAmmo(playerWrapper, inventory, amount);
 
         // check if ammo was found
         if (ammoData == null) return 0;
@@ -208,17 +212,32 @@ public class ItemAmmo implements IAmmoType {
         return magazine != null;
     }
 
-    private MagazineData getMagazineAmmo(Inventory inventory, int amount) {
+    private MagazineData getMagazineAmmo(IPlayerWrapper playerWrapper, Inventory inventory, int amount) {
 
-        // todo handle convert
+        // Allow converting only every 10s
+        boolean shouldTryConverting = ammoConverter != null && NumberUtils.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000);
+        boolean didChanges = false;
 
         int slotWithMostAmmoMag = -1;
         int mostAmmoInSlotMag = 0;
         for (int i = 0; i < inventory.getSize(); ++i) {
             ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getType() == Material.AIR) continue;
 
             String itemAmmoName = TagHelper.getStringTag(itemStack, CustomTag.ITEM_AMMO_NAME);
-            if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) continue;
+            if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) {
+                if (!shouldTryConverting) continue;
+
+                if (!ammoConverter.isMatch(itemStack, magazine)) continue;
+
+                itemStack.setType(magazine.getType());
+                itemStack.setItemMeta(magazine.getItemMeta());
+                inventory.setItem(i, itemStack);
+
+                didChanges = true;
+                // Break since magazines have 0 ammo by default...
+                break;
+            }
 
             Integer itemAmmoLeft = TagHelper.getIntegerTag(itemStack, CustomTag.ITEM_AMMO_LEFT);
             if (itemAmmoLeft == null || itemAmmoLeft <= 0) continue;
@@ -231,19 +250,38 @@ public class ItemAmmo implements IAmmoType {
                 if (mostAmmoInSlotMag >= amount) break;
             }
         }
+
+        if (shouldTryConverting) {
+            playerWrapper.convertedAmmo();
+            if (didChanges) playerWrapper.getPlayer().updateInventory();
+        }
+
         return slotWithMostAmmoMag == -1 ? null : new MagazineData(slotWithMostAmmoMag, mostAmmoInSlotMag);
     }
 
-    private Map<Integer, Integer> getAmmo(Inventory inventory, int amount) {
+    private Map<Integer, Integer> getAmmo(IPlayerWrapper playerWrapper, Inventory inventory, int amount) {
 
-        // todo handle convert
+        // Allow converting only every 10s
+        boolean shouldTryConverting = ammoConverter != null && NumberUtils.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000);
+        boolean didChanges = false;
 
         Map<Integer, Integer> ammoMap = new HashMap<>();
         for (int i = 0; i < inventory.getSize(); ++i) {
             ItemStack itemStack = inventory.getItem(i);
+            if (itemStack.getType() == Material.AIR) continue;
 
             String itemAmmoName = TagHelper.getStringTag(itemStack, CustomTag.ITEM_AMMO_NAME);
-            if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) continue;
+            if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) {
+                if (!shouldTryConverting) continue;
+
+                if (!ammoConverter.isMatch(itemStack, ammo)) continue;
+
+                itemStack.setType(ammo.getType());
+                itemStack.setItemMeta(ammo.getItemMeta());
+                inventory.setItem(i, itemStack);
+
+                didChanges = true;
+            }
 
             int itemStackAmount = itemStack.getAmount();
 
@@ -255,8 +293,13 @@ public class ItemAmmo implements IAmmoType {
 
             ammoMap.put(i, itemStackAmount);
             amount -= itemStackAmount;
-
         }
+
+        if (shouldTryConverting) {
+            playerWrapper.convertedAmmo();
+            if (didChanges) playerWrapper.getPlayer().updateInventory();
+        }
+
         return ammoMap.isEmpty() ? null : ammoMap;
     }
 

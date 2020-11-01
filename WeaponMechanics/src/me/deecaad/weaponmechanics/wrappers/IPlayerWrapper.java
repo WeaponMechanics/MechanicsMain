@@ -76,4 +76,14 @@ public interface IPlayerWrapper extends IEntityWrapper, FileSaveable {
      */
     @Nullable
     MessageHelper getMessageHelper();
+
+    /**
+     * Updates last ammo convert time
+     */
+    void convertedAmmo();
+
+    /**
+     * @return the last time ammo was converted
+     */
+    long getLastAmmoConvert();
 }
