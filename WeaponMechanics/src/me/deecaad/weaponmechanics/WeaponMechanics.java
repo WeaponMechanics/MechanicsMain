@@ -14,6 +14,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
+import me.deecaad.weaponmechanics.listeners.AmmoListeners;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
@@ -207,6 +208,9 @@ public class WeaponMechanics extends JavaPlugin {
 
                 // WEAPON EVENTS
                 Bukkit.getServer().getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
+
+                // AMMO EVENTS
+                Bukkit.getPluginManager().registerEvents(new AmmoListeners(), WeaponMechanics.this);
 
                 // EXPLOSION EVENT
                 Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), WeaponMechanics.this);

@@ -11,6 +11,7 @@ import java.util.Set;
 
 public class Ammo implements Serializer<Ammo> {
 
+
     private IAmmoType ammoType;
 
     /**
@@ -78,6 +79,9 @@ public class Ammo implements Serializer<Ammo> {
     @Override
     public Ammo serialize(File file, ConfigurationSection configurationSection, String path) {
 
+
+        // Add required TAGS
+        // If ItemAmmo -> ItemAmmo.register
 
         return null;
     }

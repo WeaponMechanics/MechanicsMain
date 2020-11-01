@@ -14,16 +14,35 @@ import java.util.Map;
 
 public class ItemAmmo implements IAmmoType {
 
-    private String ammoName;
-    private ItemStack magazine;
-    private ItemStack ammo;
+    private static Map<String, ItemAmmo> registeredItemAmmo;
+    private final String ammoName;
+    private final int maximumMagazineSize;
+    private final ItemStack magazine;
+    private final ItemStack ammo;
     private WeaponConverter ammoConverter;
 
-    public ItemAmmo(String ammoName, ItemStack magazine, ItemStack ammo, WeaponConverter ammoConverter) {
+    public ItemAmmo(String ammoName, int maximumMagazineSize, ItemStack magazine, ItemStack ammo, WeaponConverter ammoConverter) {
         this.ammoName = ammoName;
+        this.maximumMagazineSize = maximumMagazineSize;
         this.magazine = magazine;
         this.ammo = ammo;
         this.ammoConverter = ammoConverter;
+    }
+
+    public static boolean hasItemAmmo(ItemAmmo itemAmmo) {
+        return registeredItemAmmo != null && registeredItemAmmo.containsKey(itemAmmo.ammoName);
+    }
+
+    public static void registerItemAmmo(ItemAmmo itemAmmo) {
+        if (registeredItemAmmo == null) registeredItemAmmo = new HashMap<>();
+        if (registeredItemAmmo.containsKey(itemAmmo.ammoName)) {
+            throw new IllegalArgumentException("Tried to register item ammo with same name... (" + itemAmmo.ammoName + ")");
+        }
+        registeredItemAmmo.put(itemAmmo.ammoName, itemAmmo);
+    }
+
+    public static ItemAmmo getByName(String ammoName) {
+        return registeredItemAmmo != null ? registeredItemAmmo.get(ammoName) : null;
     }
 
     @Override
@@ -153,10 +172,11 @@ public class ItemAmmo implements IAmmoType {
                 giveOrDrop(player, TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, magazineSize));
                 amount -= magazineSize;
             }
-            if (amount <= 0) return;
 
-            // give magazine with all amount left
-            giveOrDrop(player, TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, amount));
+            if (amount > 0) {
+                // give magazine with all amount left
+                giveOrDrop(player, TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, amount));
+            }
             player.updateInventory();
             return;
         }
@@ -172,12 +192,16 @@ public class ItemAmmo implements IAmmoType {
             giveOrDrop(player, ammoClone);
             amount -= 64;
         }
-        if (amount <= 0) return;
-
-        // give remaining amount of ammo
-        ammoClone.setAmount(amount);
-        giveOrDrop(player, ammoClone);
+        if (amount > 0) {
+            // give remaining amount of ammo
+            ammoClone.setAmount(amount);
+            giveOrDrop(player, ammoClone);
+        }
         player.updateInventory();
+    }
+
+    public int getMaximumMagazineSize() {
+        return maximumMagazineSize;
     }
 
     public boolean useMagazine() {

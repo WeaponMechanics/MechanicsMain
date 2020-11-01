@@ -154,7 +154,7 @@ public class ReloadHandler implements IValidator {
                         // 1 = false
 
                         if (itemMagazineNum == null || itemMagazineNum == 0) {
-                            // give current mag for player
+                            // give current mag for player (even if there is ammo left)
                             ammo.give(entityWrapper, ammoLeft, magazineSize);
                         } else {
                             // Set to value 0 to indicate that the mag is in again
