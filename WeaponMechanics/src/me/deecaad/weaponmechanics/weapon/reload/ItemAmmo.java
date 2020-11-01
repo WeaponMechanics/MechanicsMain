@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.reload;
 
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
@@ -22,15 +24,23 @@ public class ItemAmmo implements IAmmoType {
     private final String ammoName;
     private final int maximumMagazineSize;
     private final ItemStack magazine;
+    private final Mechanics notSameAmmoName;
+    private final Mechanics magazineAlreadyFull;
+    private final Mechanics magazineFilled;
     private final ItemStack ammo;
     private final WeaponConverter ammoConverter;
 
-    public ItemAmmo(String ammoName, int maximumMagazineSize, ItemStack magazine, ItemStack ammo, WeaponConverter ammoConverter) {
+    public ItemAmmo(String ammoName, int maximumMagazineSize, ItemStack magazine, Mechanics notSameAmmoName, Mechanics magazineAlreadyFull, Mechanics magazineFilled, ItemStack ammo, WeaponConverter ammoConverter) {
         this.ammoName = ammoName;
         this.maximumMagazineSize = maximumMagazineSize;
         this.magazine = magazine;
+        this.notSameAmmoName = notSameAmmoName;
+        this.magazineAlreadyFull = magazineAlreadyFull;
+        this.magazineFilled = magazineFilled;
         this.ammo = ammo;
         this.ammoConverter = ammoConverter;
+
+        registerItemAmmo(this);
     }
 
     public static boolean hasItemAmmo(ItemAmmo itemAmmo) {
@@ -47,6 +57,18 @@ public class ItemAmmo implements IAmmoType {
 
     public static ItemAmmo getByName(String ammoName) {
         return registeredItemAmmo != null ? registeredItemAmmo.get(ammoName) : null;
+    }
+
+    public void useNotSameAmmoName(CastData castData) {
+        if (notSameAmmoName != null) notSameAmmoName.use(castData);
+    }
+
+    public void useMagazineAlreadyFull(CastData castData) {
+        if (magazineAlreadyFull != null) magazineAlreadyFull.use(castData);
+    }
+
+    public void useMagazineFilled(CastData castData) {
+        if (magazineFilled != null) magazineFilled.use(castData);
     }
 
     @Override
@@ -119,6 +141,9 @@ public class ItemAmmo implements IAmmoType {
             amount = magazineData.mostAmmoInSlotMag;
             ItemStack magazineItem = inventory.getItem(magazineData.slotWithMostAmmoMag);
             int magazineItemAmount = magazineItem.getAmount();
+
+            Integer itemAmmoLeft = TagHelper.getIntegerTag(magazineItem, CustomTag.ITEM_AMMO_LEFT);
+
             if (magazineItemAmount > 1) {
                 magazineItem.setAmount(magazineItemAmount - 1);
                 inventory.setItem(magazineData.slotWithMostAmmoMag, magazineItem);
@@ -126,7 +151,14 @@ public class ItemAmmo implements IAmmoType {
                 inventory.setItem(magazineData.slotWithMostAmmoMag, null);
             }
 
-            player.updateInventory();
+            if (itemAmmoLeft > amount) {
+                // Just in case magazine size and weapon mag size doesn't match...
+                // Give excess as ammo items
+                giveAmmo(player, itemAmmoLeft - amount);
+            } else {
+                // In else statement bc giveAmmo also does this
+                player.updateInventory();
+            }
             return amount;
         }
 
@@ -212,6 +244,10 @@ public class ItemAmmo implements IAmmoType {
 
         if (amount == 0) return;
 
+        giveAmmo(player, amount);
+    }
+
+    private void giveAmmo(Player player, int amount) {
         // clone ammo
         ItemStack ammoClone = ammo.clone();
 

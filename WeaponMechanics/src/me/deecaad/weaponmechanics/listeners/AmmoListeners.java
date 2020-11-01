@@ -1,9 +1,13 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.reload.ItemAmmo;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -47,20 +51,27 @@ public class AmmoListeners implements Listener {
         // And that it isn't magazine item
         if (ammoName == null && TagHelper.getIntegerTag(ammoItem, CustomTag.ITEM_AMMO_LEFT) == null) return;
 
+
+        ItemAmmo itemAmmo = ItemAmmo.getByName(magazineName);
+        if (itemAmmo == null) {
+            // This ammo has been removed...?
+            WeaponMechanics.debug.log(LogLevel.DEBUG, "Magazine is probably removed with name of " + magazineName + ".");
+            return;
+        }
+        Player player = (Player) e.getWhoClicked();
+        IPlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
+
         // Check that ammo types are same
         if (!magazineName.equals(ammoName)) {
-
+            itemAmmo.useNotSameAmmoName(new CastData(playerWrapper));
             e.setCancelled(true);
             return;
         }
 
-        ItemAmmo itemAmmo = ItemAmmo.getByName(magazineName);
-        if (itemAmmo == null) return; // This ammo has been removed...?
-
         int maximumMagazineSize = itemAmmo.getMaximumMagazineSize();
         if (magazineAmmoLeft >= maximumMagazineSize) {
             // Already full
-
+            itemAmmo.useMagazineAlreadyFull(new CastData(playerWrapper));
             e.setCancelled(true);
             return;
         }
@@ -78,14 +89,15 @@ public class AmmoListeners implements Listener {
             view.setCursor(ammoItem);
         }
 
-        Player player = (Player) e.getWhoClicked();
-
         ItemMeta magazineMeta = magazineItem.getItemMeta();
         magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, magazineItem, null));
         magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, magazineItem, null));
         magazineItem.setItemMeta(magazineMeta);
 
         clickedInventory.setItem(e.getSlot(), magazineItem);
+
+        // success
+        itemAmmo.useMagazineFilled(new CastData(playerWrapper));
 
         e.setCancelled(true);
     }

@@ -100,9 +100,7 @@ public class ReloadHandler implements IValidator {
 
         Ammo ammo = config.getObject(weaponTitle + ".Reload.Ammo", Ammo.class);
         if (ammo != null && !ammo.hasAmmo(entityWrapper)) {
-
-            Mechanics.use(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", new CastData(entityWrapper, weaponTitle, weaponStack));
-
+            ammo.useOutOfAmmo(new CastData(entityWrapper, weaponTitle, weaponStack));
             return false;
         }
 
@@ -135,8 +133,7 @@ public class ReloadHandler implements IValidator {
 
                     // Just check if for some reason ammo disappeared from entity before reaching reload state
                     if (removedAmount <= 0) {
-
-                        Mechanics.use(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", new CastData(entityWrapper, weaponTitle, weaponStack));
+                        ammo.useOutOfAmmo(new CastData(entityWrapper, weaponTitle, weaponStack));
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);

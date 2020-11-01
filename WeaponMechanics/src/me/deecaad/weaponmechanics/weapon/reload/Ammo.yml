@@ -8,7 +8,7 @@ Ammo:
       Not_Able_To_Fill:
         Not_Same_Ammo_Name: <all registered mechanics>
         Magazine_Already_Full: <all registered mechanics>
-      Fill_Success: <all registered mechanics>
+      Magazine_Filled: <all registered mechanics>
     Ammo: <item serializer>
     Ammo_Converter_Check:
       Type: <true/false>
