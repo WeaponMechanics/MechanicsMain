@@ -3,7 +3,9 @@ Ammo:
   Out_Of_Ammo: <all registered mechanics>
   Use_Item_As_Ammo:
     Ammo_Name: <name of ammo>
-    Magazine: <item serializer>
+    Magazine:
+      Item: <item serializer>
+      
     Ammo: <item serializer>
     Ammo_Converter_Check:
       Type: <true/false>

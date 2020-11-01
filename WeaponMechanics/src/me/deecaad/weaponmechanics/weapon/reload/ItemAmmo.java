@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
+import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
@@ -10,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -166,20 +168,43 @@ public class ItemAmmo implements IAmmoType {
 
             if (amount == 0) {
                 // To give empty magazine back
-                giveOrDrop(player, TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, 0));
+
+                magazineClone = TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, 0);
+                ItemMeta magazineMeta = magazineClone.getItemMeta();
+                magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, magazineClone, null));
+                magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, magazineClone, null));
+                magazineClone.setItemMeta(magazineMeta);
+
+                giveOrDrop(player, magazineClone);
+
                 player.updateInventory();
                 return;
             }
 
             // give magazine items of maximum magazine size UNTIL amount is reached
             while (amount > magazineSize) {
-                giveOrDrop(player, TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, magazineSize));
+
+                magazineClone = TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, magazineSize);
+                ItemMeta magazineMeta = magazineClone.getItemMeta();
+                magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, magazineClone, null));
+                magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, magazineClone, null));
+                magazineClone.setItemMeta(magazineMeta);
+
+                giveOrDrop(player, magazineClone);
+
                 amount -= magazineSize;
             }
 
             if (amount > 0) {
                 // give magazine with all amount left
-                giveOrDrop(player, TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, amount));
+
+                magazineClone = TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, amount);
+                ItemMeta magazineMeta = magazineClone.getItemMeta();
+                magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, magazineClone, null));
+                magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, magazineClone, null));
+                magazineClone.setItemMeta(magazineMeta);
+
+                giveOrDrop(player, magazineClone);
             }
             player.updateInventory();
             return;
@@ -217,6 +242,7 @@ public class ItemAmmo implements IAmmoType {
         // Allow converting only every 10s
         boolean shouldTryConverting = ammoConverter != null && NumberUtils.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000);
         boolean didChanges = false;
+        Player player = playerWrapper.getPlayer();
 
         int slotWithMostAmmoMag = -1;
         int mostAmmoInSlotMag = 0;
@@ -231,7 +257,12 @@ public class ItemAmmo implements IAmmoType {
                 if (!ammoConverter.isMatch(itemStack, magazine)) continue;
 
                 itemStack.setType(magazine.getType());
-                itemStack.setItemMeta(magazine.getItemMeta());
+
+                ItemMeta magazineMeta = magazine.clone().getItemMeta();
+                magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, itemStack, null));
+                magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, itemStack, null));
+                itemStack.setItemMeta(magazineMeta);
+
                 inventory.setItem(i, itemStack);
 
                 didChanges = true;
@@ -253,7 +284,7 @@ public class ItemAmmo implements IAmmoType {
 
         if (shouldTryConverting) {
             playerWrapper.convertedAmmo();
-            if (didChanges) playerWrapper.getPlayer().updateInventory();
+            if (didChanges) player.updateInventory();
         }
 
         return slotWithMostAmmoMag == -1 ? null : new MagazineData(slotWithMostAmmoMag, mostAmmoInSlotMag);
