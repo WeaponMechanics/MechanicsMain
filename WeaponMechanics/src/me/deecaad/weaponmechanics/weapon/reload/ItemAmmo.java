@@ -366,7 +366,6 @@ public class ItemAmmo implements IAmmoType {
         return ammoMap.isEmpty() ? null : ammoMap;
     }
 
-
     private void giveOrDrop(Player player, ItemStack itemStack) {
         Inventory inventory = player.getInventory();
 
