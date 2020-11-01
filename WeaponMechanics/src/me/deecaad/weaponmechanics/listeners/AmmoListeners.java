@@ -48,13 +48,22 @@ public class AmmoListeners implements Listener {
         if (ammoName == null && TagHelper.getIntegerTag(ammoItem, CustomTag.ITEM_AMMO_LEFT) == null) return;
 
         // Check that ammo types are same
-        if (!magazineName.equals(ammoName)) return;
+        if (!magazineName.equals(ammoName)) {
+
+            e.setCancelled(true);
+            return;
+        }
 
         ItemAmmo itemAmmo = ItemAmmo.getByName(magazineName);
         if (itemAmmo == null) return; // This ammo has been removed...?
 
         int maximumMagazineSize = itemAmmo.getMaximumMagazineSize();
-        if (magazineAmmoLeft >= maximumMagazineSize) return; // Already full
+        if (magazineAmmoLeft >= maximumMagazineSize) {
+            // Already full
+
+            e.setCancelled(true);
+            return;
+        }
 
         int maximumFillAmount = maximumMagazineSize - magazineAmmoLeft;
         int availableAmount = ammoItem.getAmount();

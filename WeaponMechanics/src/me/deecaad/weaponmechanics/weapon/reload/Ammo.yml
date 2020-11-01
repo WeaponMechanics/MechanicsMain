@@ -5,7 +5,10 @@ Ammo:
     Ammo_Name: <name of ammo>
     Magazine:
       Item: <item serializer>
-      
+      Not_Able_To_Fill:
+        Not_Same_Ammo_Name: <all registered mechanics>
+        Magazine_Already_Full: <all registered mechanics>
+      Fill_Success: <all registered mechanics>
     Ammo: <item serializer>
     Ammo_Converter_Check:
       Type: <true/false>

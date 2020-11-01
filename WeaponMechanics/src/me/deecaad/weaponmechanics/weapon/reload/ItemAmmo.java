@@ -23,7 +23,7 @@ public class ItemAmmo implements IAmmoType {
     private final int maximumMagazineSize;
     private final ItemStack magazine;
     private final ItemStack ammo;
-    private WeaponConverter ammoConverter;
+    private final WeaponConverter ammoConverter;
 
     public ItemAmmo(String ammoName, int maximumMagazineSize, ItemStack magazine, ItemStack ammo, WeaponConverter ammoConverter) {
         this.ammoName = ammoName;
