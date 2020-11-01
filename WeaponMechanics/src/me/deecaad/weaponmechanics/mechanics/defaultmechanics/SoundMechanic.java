@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -28,7 +27,7 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
+public class SoundMechanic implements IMechanic<SoundMechanic> {
 
     private static final float MIN_PITCH = (float) 0.0;
     private static final float MAX_PITCH = (float) 2.0;
@@ -50,7 +49,7 @@ public class SoundMechanic implements Serializer<SoundMechanic>, IMechanic {
      */
     public SoundMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), getKeyword());
+        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
     public SoundMechanic(boolean hasDelay, List<SoundMechanicData> soundList) {

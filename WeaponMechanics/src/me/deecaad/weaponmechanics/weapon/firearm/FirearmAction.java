@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.firearm;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -10,9 +12,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -22,17 +21,29 @@ public class FirearmAction implements Serializer<FirearmAction> {
     private int firearmActionFrequency;
     private int openTime;
     private int closeTime;
+    private Mechanics open;
+    private Mechanics close;
 
     /**
      * Empty constructor to be used as serializer
      */
     public FirearmAction() { }
 
-    public FirearmAction(FirearmType firearmType, int firearmActionFrequency, int openTime, int closeTime) {
+    public FirearmAction(FirearmType firearmType, int firearmActionFrequency, int openTime, int closeTime, Mechanics open, Mechanics close) {
         this.firearmType = firearmType;
         this.firearmActionFrequency = firearmActionFrequency;
         this.openTime = openTime;
         this.closeTime = closeTime;
+        this.open = open;
+        this.close = close;
+    }
+
+    public void useMechanics(CastData castData, boolean isOpen) {
+        if (isOpen) {
+            if (open != null) open.use(castData);
+            return;
+        }
+        if (close != null) close.use(castData);
     }
 
     /**
@@ -126,16 +137,12 @@ public class FirearmAction implements Serializer<FirearmAction> {
     }
 
     @Override
-    public Set<String> allowOtherSerializers() {
-        return new HashSet<>(Arrays.asList("Type", "Firearm_Action_Frequency", "Time"));
-    }
-
-    @Override
     public FirearmAction serialize(File file, ConfigurationSection configurationSection, String path) {
         String stringType = configurationSection.getString(path + ".Type");
         if (stringType == null) {
             return null;
         }
+
         FirearmType type;
         try {
             type = FirearmType.valueOf(stringType.toUpperCase());
@@ -174,6 +181,9 @@ public class FirearmAction implements Serializer<FirearmAction> {
             return null;
         }
 
-        return new FirearmAction(type, firearmActionFrequency, openTime, closeTime);
+        Mechanics open = new Mechanics().serialize(file, configurationSection, path + ".Open");
+        Mechanics close = new Mechanics().serialize(file, configurationSection, path + ".Close");
+
+        return new FirearmAction(type, firearmActionFrequency, openTime, closeTime, open, close);
     }
 }

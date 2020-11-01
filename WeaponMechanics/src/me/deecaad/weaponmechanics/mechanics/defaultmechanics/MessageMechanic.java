@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Serializer;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -31,7 +30,7 @@ import java.lang.reflect.Constructor;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class MessageMechanic implements Serializer<MessageMechanic>, IMechanic {
+public class MessageMechanic implements IMechanic<MessageMechanic> {
 
     /**
      * Reflection support for 1.8 action bar
@@ -59,7 +58,7 @@ public class MessageMechanic implements Serializer<MessageMechanic>, IMechanic {
      */
     public MessageMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), getKeyword());
+        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
     public MessageMechanic(boolean sendGlobally, boolean sendGloballyForWorld, ChatData chatData, String actionBar, int actionBarTime, TitleData titleData, BossBarData bossBarData) {

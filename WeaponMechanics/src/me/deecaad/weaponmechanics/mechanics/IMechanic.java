@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.mechanics;
 
-public interface IMechanic {
+import me.deecaad.core.file.Serializer;
+
+public interface IMechanic<T> extends Serializer<T> {
 
     /**
      * Use this mechanic with given cast data

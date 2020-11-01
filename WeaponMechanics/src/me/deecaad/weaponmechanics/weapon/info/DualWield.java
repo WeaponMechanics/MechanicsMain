@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,15 +23,17 @@ public class DualWield implements Serializer<DualWield> {
 
     private boolean whitelist;
     private Set<String> weapons;
+    private Mechanics mechanics;
 
     /**
      * Empty constructor to be used as serializer
      */
     public DualWield() { }
 
-    public DualWield(boolean whitelist, Set<String> weapons) {
+    public DualWield(boolean whitelist, Set<String> weapons, Mechanics mechanics) {
         this.whitelist = whitelist;
         this.weapons = weapons;
+        this.mechanics = mechanics;
     }
 
     /**
@@ -68,17 +69,12 @@ public class DualWield implements Serializer<DualWield> {
                 Trigger trigger = config.getObject(weaponTitle + type + ".Trigger", Trigger.class);
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
 
-                    Mechanics.use(weaponTitle + ".Info.Dual_Wield", new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, null));
+                    if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, null));
 
                     break;
                 }
             }
         }
-    }
-
-    @Override
-    public Set<String> allowOtherSerializers() {
-        return new HashSet<>(Arrays.asList("Whitelist", "Weapons"));
     }
 
     @Override
@@ -102,6 +98,7 @@ public class DualWield implements Serializer<DualWield> {
             return null;
         }
         boolean whitelist = configurationSection.getBoolean(path + ".Whitelist", false);
-        return new DualWield(whitelist, weapons);
+        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path);
+        return new DualWield(whitelist, weapons, mechanics);
     }
 }

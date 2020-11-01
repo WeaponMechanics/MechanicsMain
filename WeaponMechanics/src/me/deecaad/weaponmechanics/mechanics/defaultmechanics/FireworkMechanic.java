@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.utils.LogLevel;
@@ -23,7 +22,7 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class FireworkMechanic implements Serializer<FireworkMechanic>, IMechanic {
+public class FireworkMechanic implements IMechanic<FireworkMechanic> {
 
     private LocationAdjuster locationAdjuster;
     private int flightTime;
@@ -34,7 +33,7 @@ public class FireworkMechanic implements Serializer<FireworkMechanic>, IMechanic
      */
     public FireworkMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), getKeyword());
+        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
     public FireworkMechanic(LocationAdjuster locationAdjuster, int flightTime, FireworkEffect fireworkEffect) {

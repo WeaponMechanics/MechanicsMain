@@ -272,7 +272,7 @@ public class ReloadHandler implements IValidator {
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                Mechanics.use(weaponTitle + ".Firearm_Action.Close", castData);
+                firearmAction.useMechanics(castData, false);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
@@ -301,7 +301,7 @@ public class ReloadHandler implements IValidator {
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                Mechanics.use(weaponTitle + ".Firearm_Action.Open", castData);
+                firearmAction.useMechanics(castData, true);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);

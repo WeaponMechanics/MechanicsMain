@@ -5,9 +5,6 @@ import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Ammo implements Serializer<Ammo> {
 
@@ -64,11 +61,6 @@ public class Ammo implements Serializer<Ammo> {
      */
     public boolean isItemMagazineAmmo() {
         return ammoType instanceof ItemAmmo && ((ItemAmmo) ammoType).useMagazine();
-    }
-
-    @Override
-    public Set<String> allowOtherSerializers() {
-        return new HashSet<>(Arrays.asList("Magazine", "Ammo", "Exp_Cost"));
     }
 
     @Override
