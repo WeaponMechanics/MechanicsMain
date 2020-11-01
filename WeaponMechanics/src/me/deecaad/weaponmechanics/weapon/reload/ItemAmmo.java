@@ -43,10 +43,6 @@ public class ItemAmmo implements IAmmoType {
         registerItemAmmo(this);
     }
 
-    public static boolean hasItemAmmo(ItemAmmo itemAmmo) {
-        return registeredItemAmmo != null && registeredItemAmmo.containsKey(itemAmmo.ammoName);
-    }
-
     public static void registerItemAmmo(ItemAmmo itemAmmo) {
         if (registeredItemAmmo == null) registeredItemAmmo = new HashMap<>();
         if (registeredItemAmmo.containsKey(itemAmmo.ammoName)) {
