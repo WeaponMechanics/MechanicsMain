@@ -135,12 +135,9 @@ public class Ammo implements Serializer<Ammo> {
             magazineSize = 30;
         }
 
-        ItemAmmo itemAmmo = new ItemAmmo(ammoName, magazineSize, magazineItem, notSameAmmoName, magazineAlreadyFull, magazineFilled, ammoItem, ammoConverter);
-
-        if (!ItemAmmo.hasItemAmmo(itemAmmo)) {
-            ItemAmmo.registerItemAmmo(itemAmmo);
-        }
-
+        ItemAmmo itemAmmo = new ItemAmmo(ammoName, magazineSize, magazineItem,
+                notSameAmmoName, magazineAlreadyFull, magazineFilled,
+                ammoItem, ammoConverter);
         return new Ammo(outOfAmmo, itemAmmo);
     }
 }
