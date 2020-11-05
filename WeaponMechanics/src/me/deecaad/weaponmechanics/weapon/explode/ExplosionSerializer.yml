@@ -12,14 +12,12 @@ Explosion:
     Width: <Double>
     Height: <Double>
   Detonation:
-    Detonate_After_Ticks: <Ticks> # The time after the trigger that the explosion occurs
+    Delay_After_Impact: <Ticks> # The time after the trigger that the explosion occurs
     Impact_When:
       Shoot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
       Entity: <Boolean> # When the projectile hits an entity
       Block: <Boolean> # When the projectile hits a non-fluid, non-air block
       Liquid: <Boolean> # When the projectile hits a fluid block
-  Cluster_Bombs: <CusterBombSerializer>
-  Air_Strike: <AirStrikeSerializer>
   Block_Damage: <BlockDamageSerializer>
   Regeneration:
     Ticks_Before_Start: <Integer> # Amount of time before blocks can regenerate, in ticks

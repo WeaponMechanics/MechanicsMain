@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -18,7 +17,7 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class PotionMechanic implements Serializer<PotionMechanic>, IMechanic {
+public class PotionMechanic implements IMechanic<PotionMechanic> {
 
     private List<PotionEffect> potionEffectList;
 
@@ -27,7 +26,7 @@ public class PotionMechanic implements Serializer<PotionMechanic>, IMechanic {
      */
     public PotionMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), getKeyword());
+        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
     public PotionMechanic(List<PotionEffect> potionEffectList) {
@@ -76,8 +75,8 @@ public class PotionMechanic implements Serializer<PotionMechanic>, IMechanic {
                 boolean icon = false;
 
                 try {
-                    duration = Integer.parseInt(potionData[1]);;
-                    amplifier = Integer.parseInt(potionData[2]);;
+                    duration = Integer.parseInt(potionData[1]);
+                    amplifier = Integer.parseInt(potionData[2]);
                 } catch (NumberFormatException e) {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid number format in configurations!",

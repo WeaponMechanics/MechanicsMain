@@ -6,11 +6,15 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -116,7 +120,11 @@ public class ScopeHandler implements IValidator {
 
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
-                // todo: use Mechanics from path weaponTitle + ".Scope.Zoom_Stacking" to entity, weaponStack, weaponTitle
+
+                Mechanics.use(weaponTitle + ".Scope.Zoom_Stacking", new CastData(entityWrapper, weaponTitle, weaponStack));
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
                 return true;
             } else {
@@ -139,7 +147,11 @@ public class ScopeHandler implements IValidator {
         }
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
-        // todo: use Mechanics from path weaponTitle + ".Scope" to entity, weaponStack, weaponTitle
+        Mechanics.use(weaponTitle + ".Scope", new CastData(entityWrapper, weaponTitle, weaponStack));
+
+        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
 
         return true;
@@ -161,7 +173,12 @@ public class ScopeHandler implements IValidator {
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
-        // todo: use Mechanics from path weaponTitle + ".Scope.Zoom_Off" to entity, weaponStack, weaponTitle
+
+        Mechanics.use(weaponTitle + ".Scope.Zoom_Off", new CastData(entityWrapper, weaponTitle, weaponStack));
+
+        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
 
         return true;

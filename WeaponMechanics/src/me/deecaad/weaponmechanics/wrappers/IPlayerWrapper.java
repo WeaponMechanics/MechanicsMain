@@ -3,6 +3,8 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.core.file.storage.FileSaveable;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
+
 /**
  * This class wraps an Player. Contains
  * basic information for this plugin for
@@ -68,4 +70,20 @@ public interface IPlayerWrapper extends IEntityWrapper, FileSaveable {
      * @return the last time when weapon was dropped in main hand in millis
      */
     long getLastDropWeaponTime();
+
+    /**
+     * @return the message helper for weapon info display
+     */
+    @Nullable
+    MessageHelper getMessageHelper();
+
+    /**
+     * Updates last ammo convert time
+     */
+    void convertedAmmo();
+
+    /**
+     * @return the last time ammo was converted
+     */
+    long getLastAmmoConvert();
 }

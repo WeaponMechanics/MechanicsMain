@@ -1,5 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -8,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -128,6 +133,11 @@ public class InfoHandler {
         // Check for weapon title typos silently
         if (weaponStack == null) return;
 
+        ItemMeta weaponMeta = weaponStack.getItemMeta();
+        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle));
+        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle));
+        weaponStack.setItemMeta(weaponMeta);
+
         Inventory inventory = player.getInventory();
 
         // Check if inventory doesn't have any free slots
@@ -137,7 +147,7 @@ public class InfoHandler {
         }
         inventory.addItem(weaponStack);
 
-        // todo: use Mechanics from path weaponTitle + ".Info.Weapon_Get_Actions" to player, weaponStack, weaponTitle
+        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Actions", new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, weaponStack));
     }
 
     /**

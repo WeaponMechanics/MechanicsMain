@@ -1,7 +1,0 @@
-# me.deecaad.weaponmechanics.general.SendMessage
-Message:
-  Per_World: <true/false>
-  Chat: <message>
-  Action_Bar: <message>
-  Title: <message>
-  Subtitle: <message>

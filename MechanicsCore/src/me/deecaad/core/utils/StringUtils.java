@@ -194,7 +194,37 @@ public class StringUtils {
      * @return User readable location of error
      */
     public static String foundAt(File file, String path) {
-        return "Error found in directory \"" + file + "\" at path \"" + path + "\"";
+        return "Located at file " + file + " in path " + path + " in configurations";
+    }
+
+    /**
+     * Easy way to display where an error occurred in a file
+     * during data serialization
+     *
+     * @param file Which file the error occurred in
+     * @param path The path of configuration where the error occured
+     * @param specification The specific thing that was wrong
+     * @return User readable location of error
+     */
+    public static String foundAt(File file, String path, Object specification) {
+        return "Located at file " + file + " in path " + path + " (" + specification.toString() + ") in configurations.";
+    }
+
+    /**
+     * @param invalid what was invalid
+     * @return general invalid thing notifier for debugger
+     */
+    public static String foundInvalid(String invalid) {
+        return "Found an invalid " + invalid + " in configurations!";
+    }
+
+    /**
+     * @see #didYouMean(String, Iterable)
+     *
+     * @return the string in usable format at error debugs
+     */
+    public static String debugDidYouMean(String input, Class<? extends Enum<?>> enumClazz) {
+        return "Did you mean " + didYouMean(input, enumClazz) + " instead of " + input + "?";
     }
 
     /**

@@ -5,14 +5,7 @@ import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.DuplicateKeyException;
-import me.deecaad.core.file.FileCopier;
-import me.deecaad.core.file.FileReader;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.JarSerializers;
-import me.deecaad.core.file.LinkedConfig;
-import me.deecaad.core.file.SeparatedConfig;
+import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
@@ -21,17 +14,14 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
+import me.deecaad.weaponmechanics.listeners.AmmoListeners;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
-import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
+import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
@@ -256,6 +246,9 @@ public class WeaponMechanics extends JavaPlugin {
 
                 // WEAPON EVENTS
                 Bukkit.getServer().getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
+
+                // AMMO EVENTS
+                Bukkit.getPluginManager().registerEvents(new AmmoListeners(), WeaponMechanics.this);
 
                 // EXPLOSION EVENT
                 Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), WeaponMechanics.this);

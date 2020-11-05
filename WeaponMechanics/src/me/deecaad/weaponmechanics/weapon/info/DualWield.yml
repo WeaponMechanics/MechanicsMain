@@ -4,4 +4,4 @@ Dual_Wield:
   Weapons:
   - <weapon title>
   - <etc.>
-  Denied_Message: <message serializer>
+  # All registered mechanics on deny

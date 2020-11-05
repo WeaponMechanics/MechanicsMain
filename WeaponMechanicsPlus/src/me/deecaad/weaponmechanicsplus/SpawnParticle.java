@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.general;
+package me.deecaad.weaponmechanicsplus;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
@@ -22,11 +22,6 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-
-/**
- * @deprecated Instead use Effects
- * @see me.deecaad.core.effects.types.ParticleEffect
- */
 @Deprecated
 public class SpawnParticle implements Serializer<SpawnParticle> {
 
@@ -69,7 +64,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
     public void spawn(Location location) {
         for (ParticleData particleData : this.particlesDatas) {
             Vector offset = particleData.particleOffset;
-            location = particleData.locationFinder != null ? particleData.locationFinder.getNewLocation(location) : location;
+            //location = particleData.locationFinder != null ? particleData.locationFinder.getNewLocation(location) : location;
             if (CompatibilityAPI.getVersion() >= 1.09) {
                 location.getWorld().spawnParticle((org.bukkit.Particle) particleData.particle, location, particleData.particleAmount, offset.getX(), offset.getY(), offset.getZ(), particleData.particleSpeed, particleData.data);
                 continue;
@@ -224,7 +219,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
             extraData = new int[0];
         }
         int particleAmount = configurationSection.getInt(path + ".Particle_Amount", 1);
-        return new ParticleData(new LocationFinder().serialize(file, configurationSection, path + ".Location_Finder"), particle, particleAmount, particleSpeed, offset, extraData);
+        return new ParticleData(/*new LocationFinder().serialize(file, configurationSection, path + ".Location_Finder"), */particle, particleAmount, particleSpeed, offset, extraData);
     }
 
     private boolean hasType(String particle) {
@@ -237,15 +232,15 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
 
     public static class ParticleData {
 
-        private LocationFinder locationFinder;
+        //private LocationFinder locationFinder;
         private Object particle;
         private int particleAmount;
         private double particleSpeed;
         private Vector particleOffset;
         private Object data;
 
-        public ParticleData(LocationFinder locationFinder, Object particle, int particleAmount, double particleSpeed, Vector particleOffset, Object data) {
-            this.locationFinder = locationFinder;
+        public ParticleData(/*LocationFinder locationFinder, */Object particle, int particleAmount, double particleSpeed, Vector particleOffset, Object data) {
+            //this.locationFinder = locationFinder;
             this.particle = particle;
             this.particleAmount = particleAmount;
             this.particleSpeed = particleSpeed;
@@ -259,9 +254,9 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
         /**
          * @return the location finder for particles
          */
-        public LocationFinder getLocationFinder() {
+        /*public LocationFinder getLocationFinder() {
             return this.locationFinder;
-        }
+        }*/
 
         /**
          * In 1.8 this returns NMS EnumParticle, but in 1.9 and later Bukkit Particle.

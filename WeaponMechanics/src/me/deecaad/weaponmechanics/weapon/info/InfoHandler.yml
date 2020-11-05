@@ -1,9 +1,10 @@
 Info:
   Weapon_Item: <item serializer>
+  Weapon_Info_Display: <weapon info display serializer>
   Dual_Wield: <dual wield serializer>
   Weapon_Converter_Check: <weapon converter serializer>
   Weapon_Get_Actions:
-    # All general stuff
+    # All registered mechanics
   Cancel:
     Block_Interactions: <true/false>
     Item_Interactions: <true/false>
