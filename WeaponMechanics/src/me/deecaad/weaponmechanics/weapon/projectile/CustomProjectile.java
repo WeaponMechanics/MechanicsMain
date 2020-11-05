@@ -235,7 +235,7 @@ public class CustomProjectile implements ICustomProjectile {
     private boolean handleBlockHit(CollisionData collisionData) {
 
         Configuration config = WeaponMechanics.getConfigurations();
-        String weaponTitle = getTag("weaponTitle");
+        String weaponTitle = getTag("weapon-title");
 
         if (weaponTitle == null) {
             return false;
@@ -260,7 +260,7 @@ public class CustomProjectile implements ICustomProjectile {
             }
         } else if (explosion != null) {
             Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
-            boolean explosionTriggered = getTag("explosionDetonation") != null;
+            boolean explosionTriggered = getTag("explosion-detonation") != null;
             boolean fluid = MaterialHelper.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
             boolean solid = collisionData.getBlock().getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
 
@@ -271,9 +271,9 @@ public class CustomProjectile implements ICustomProjectile {
                     public void run() {
                         Vector v = getLocation();
                         Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
-                        explosion.explode(shooter, origin);
+                        explosion.explode(shooter, origin, CustomProjectile.this);
 
-                        setTag("explosionDetonation", "true");
+                        setTag("explosion-detonation", "true");
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
             }
@@ -310,7 +310,7 @@ public class CustomProjectile implements ICustomProjectile {
 
         Configuration config = WeaponMechanics.getConfigurations();
         DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
-        String weaponTitle = getTag("weaponTitle");
+        String weaponTitle = getTag("weapon-title");
 
         if (weaponTitle == null) {
             return true;
@@ -334,7 +334,7 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
-        boolean canExplode = getTag("explosionDetonation") == null;
+        boolean canExplode = getTag("explosion-detonation") == null;
         if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
             new BukkitRunnable() {
@@ -342,9 +342,9 @@ public class CustomProjectile implements ICustomProjectile {
                 public void run() {
                     Vector v = getLocation();
                     Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
-                    explosion.explode(shooter, origin);
+                    explosion.explode(shooter, origin, CustomProjectile.this);
 
-                    setTag("explosionDetonation", "true");
+                    setTag("explosion-detonation", "true");
                 }
             }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
         }

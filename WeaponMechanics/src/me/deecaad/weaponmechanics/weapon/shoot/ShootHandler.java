@@ -447,7 +447,7 @@ public class ShootHandler implements IValidator {
             }
 
             ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
-            bullet.setTag("weaponTitle", weaponTitle);
+            bullet.setTag("weapon-title", weaponTitle);
 
             // Handle worldguard flags
             IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
@@ -466,7 +466,7 @@ public class ShootHandler implements IValidator {
                 }
             }
 
-            boolean canExplode = bullet.getTag("explosionDetonation") == null;
+            boolean canExplode = bullet.getTag("explosion-detonation") == null;
             if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.SHOOT)) {
 
                 new BukkitRunnable() {
@@ -474,9 +474,9 @@ public class ShootHandler implements IValidator {
                     public void run() {
                         Vector v = bullet.getLocation();
                         Location origin = new Location(shootLocation.getWorld(), v.getX(), v.getY(), v.getZ());
-                        explosion.explode(entityWrapper.getEntity(), origin);
+                        explosion.explode(entityWrapper.getEntity(), origin, bullet);
 
-                        bullet.setTag("explosionDetonation", "true");
+                        bullet.setTag("explosion-detonation", "true");
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
             }
