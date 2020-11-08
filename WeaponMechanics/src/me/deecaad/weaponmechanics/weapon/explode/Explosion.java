@@ -1,6 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.MaterialHelper;
+import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -22,7 +26,11 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -250,8 +258,10 @@ public class Explosion {
             }
         }
 
-        cluster.ifPresent(clusterBomb -> clusterBomb.trigger(projectile, cause, origin));
-        airStrike.ifPresent(airStrike -> airStrike.trigger(origin, cause, projectile));
+        if (projectile != null) {
+            cluster.ifPresent(clusterBomb -> clusterBomb.trigger(projectile, cause, origin));
+            airStrike.ifPresent(airStrike -> airStrike.trigger(origin, cause, projectile));
+        }
     }
 
     public enum ExplosionTrigger {

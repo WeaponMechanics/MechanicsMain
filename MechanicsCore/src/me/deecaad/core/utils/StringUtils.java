@@ -219,15 +219,6 @@ public class StringUtils {
     }
 
     /**
-     * @see #didYouMean(String, Iterable)
-     *
-     * @return the string in usable format at error debugs
-     */
-    public static String debugDidYouMean(String input, Class<? extends Enum<?>> enumClazz) {
-        return "Did you mean " + didYouMean(input, enumClazz) + " instead of " + input + "?";
-    }
-
-    /**
      * Gets the Minecraft <code>NamespacedKey</code> format
      * from the given camel case format. See below examples.
      *
@@ -286,6 +277,15 @@ public class StringUtils {
             builder.append(" ");
         }
         return builder.substring(0, builder.length() - 1);
+    }
+
+    /**
+     * @see #didYouMean(String, Iterable)
+     *
+     * @return the string in usable format at error debugs
+     */
+    public static <T extends Enum<T>> String debugDidYouMean(String input, Class<T> enumClazz) {
+        return "Did you mean " + didYouMean(input, Enums.getOptions(enumClazz)) + " instead of " + input + "?";
     }
     
     /**
