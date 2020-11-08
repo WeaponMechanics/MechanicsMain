@@ -5,3 +5,4 @@ Block_Damage:
   Block_List:
     - <Material>:<Data>~<Integer>
   Shots_To_Break_Blocks:
+    - <Material>:<Data>~<Integer>

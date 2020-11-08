@@ -1,10 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.core.utils.StringUtils;
-import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -26,13 +22,11 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class Explosion {
 
     private static DamageHandler damageHandler = new DamageHandler();
@@ -40,12 +34,13 @@ public class Explosion {
     private String weaponTitle;
     private ExplosionShape shape;
     private ExplosionExposure exposure;
-    private ClusterBomb cluster;
     private BlockDamage blockDamage;
     private RegenerationData regeneration;
     private Set<ExplosionTrigger> triggers;
     private int delay;
     private boolean isKnockback;
+    private Optional<ClusterBomb> cluster;
+    private Optional<AirStrike> airStrike;
 
     public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
@@ -64,6 +59,8 @@ public class Explosion {
         this.triggers = triggers;
         this.delay = delay;
         this.isKnockback = isKnockback;
+        this.cluster = Optional.empty();
+        this.airStrike = Optional.empty();
     }
 
     public String getWeaponTitle() {
@@ -87,11 +84,11 @@ public class Explosion {
     }
 
     public ClusterBomb getCluster() {
-        return cluster;
+        return cluster.orElse(null);
     }
 
     public void setCluster(ClusterBomb cluster) {
-        this.cluster = cluster;
+        this.cluster = Optional.ofNullable(cluster);
     }
 
     public BlockDamage getBlockDamage() {
@@ -253,9 +250,8 @@ public class Explosion {
             }
         }
 
-        if (cluster != null) {
-            cluster.trigger(projectile, cause, origin);
-        }
+        cluster.ifPresent(clusterBomb -> clusterBomb.trigger(projectile, cause, origin));
+        airStrike.ifPresent(airStrike -> airStrike.trigger(origin, cause, projectile));
     }
 
     public enum ExplosionTrigger {
@@ -287,14 +283,14 @@ public class Explosion {
         private double speed;
         private int splits;
         private int bombs;
-        private Explosion explosion;
 
-        public ClusterBomb(Projectile projectile, double speed, int splits, int bombs, Explosion explosion) {
+        public ClusterBomb(Projectile projectile, double speed, int splits, int bombs) {
             this.projectile = projectile;
             this.speed = speed;
             this.splits = splits;
             this.bombs = bombs;
-            this.explosion = explosion;
+
+            Explosion.this.cluster = Optional.of(this);
         }
 
         public Projectile getProjectile() {
@@ -329,10 +325,6 @@ public class Explosion {
             this.bombs = bombs;
         }
 
-        public Explosion getExplosion() {
-            return explosion;
-        }
-
         public void trigger(ICustomProjectile projectile, LivingEntity shooter, Location splitLocation) {
 
             int currentDepth = 0;
@@ -351,7 +343,11 @@ public class Explosion {
             for (int i = 0; i < bombs; i++) {
                 Vector vector = VectorUtils.random(speed);
 
-                CustomProjectile split = new CustomProjectile(this.projectile, shooter, splitLocation, vector, null, weaponTitle);
+                // Either use the projectile settings from the "parent" projectile,
+                // or use the projectile settings for this clusterbomb
+                Projectile projectileSettings = this.projectile == null ? projectile.getProjectileSettings() : this.projectile;
+
+                CustomProjectile split = new CustomProjectile(projectileSettings, shooter, splitLocation, vector, null, weaponTitle);
                 CustomProjectilesRunnable.addProjectile(split);
 
                 split.setTag("cluster-split-level", String.valueOf(currentDepth + 1));
@@ -417,6 +413,8 @@ public class Explosion {
             this.radius = radius;
             this.loops = loops;
             this.delay = delay;
+
+            Explosion.this.airStrike = Optional.of(AirStrike.this);
         }
 
         public Projectile getProjectile() {
@@ -493,7 +491,7 @@ public class Explosion {
             this.delay = delay;
         }
 
-        public void trigger(Location flareLocation, LivingEntity shooter) {
+        public void trigger(Location flareLocation, LivingEntity shooter, ICustomProjectile projectile) {
             new BukkitRunnable() {
 
                 int count = 0;
@@ -513,6 +511,7 @@ public class Explosion {
                     // each other. Uses distanceBetweenSquared
                     List<Vector2d> spawnLocations = new ArrayList<>(bombs);
 
+                    locationFinder:
                     for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
 
                         double x = flareLocation.getX() + NumberUtils.random(-radius, radius);
@@ -520,22 +519,21 @@ public class Explosion {
 
                         Vector2d vector = new Vector2d(x, z);
 
-                        boolean anyMatch = false;
                         for (Vector2d spawnLocation : spawnLocations) {
                             if (vector.distanceSquared(spawnLocation) > distanceBetweenSquared) {
-                                anyMatch = true;
-                                break;
+                                continue locationFinder;
                             }
-                        }
-
-                        if (anyMatch) {
-                            continue;
                         }
 
                         spawnLocations.add(vector);
 
                         double y = flareLocation.getY() + height + NumberUtils.random(-yVariation, yVariation);
                         Location location = new Location(flareLocation.getWorld(), x, y, z);
+
+                        Projectile projectileSettings = AirStrike.this.projectileSettings;
+                        if (projectileSettings == null) {
+                            projectileSettings = projectile.getProjectileSettings();
+                        }
 
                         CustomProjectile projectile = new CustomProjectile(projectileSettings, shooter, location, new Vector(), null, weaponTitle);
                         CustomProjectilesRunnable.addProjectile(projectile);

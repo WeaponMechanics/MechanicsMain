@@ -133,4 +133,9 @@ public interface ICustomProjectile {
      * @return the pitch of projectile or 0 if disguise is not used
      */
     float getProjectileDisguisePitch();
+
+    /**
+     * @return the projectile settings for this projectile
+     */
+    Projectile getProjectileSettings();
 }

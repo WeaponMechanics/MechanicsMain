@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
+import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -46,7 +47,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         
         // Gets the explosion type from config, warns the user
         // if the type is invalid
-        String shapeTypeName = section.getString("Explosion_Shape", "DEFAULT").toUpperCase();
+        String shapeTypeName = section.getString("Explosion_Shape", "DEFAULT").trim().toUpperCase();
         ExplosionShapeType shapeType;
         try {
             shapeType = ExplosionShapeType.valueOf(shapeTypeName);
@@ -57,7 +58,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             return null;
         }
 
-        String exposureTypeName = section.getString("Explosion_Exposure", "DEFAULT").toUpperCase();
+        String exposureTypeName = section.getString("Explosion_Exposure", "DEFAULT").trim().toUpperCase();
         ExplosionExposureType exposureType;
         try {
             exposureType = ExplosionExposureType.valueOf(exposureTypeName);
@@ -80,7 +81,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         // todo change depth to be positive... makes more sense that way
         if (depth > 0) depth *= -1;
 
-        String found = StringUtils.foundAt(file, path);
+        String found = StringUtils.foundAt(file, path + ".Explosion_Type_Data");
 
         debug.validate(yield > 0, "Explosion Yield should be a positive number!", found);
         debug.validate(angle > 0, "Explosion Angle should be a positive number!", found);
@@ -148,6 +149,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         // Time after the trigger the explosion occurs
         int delay = section.getInt("Detonation.Delay_After_Impact");
+        debug.validate(delay >= 0, "Delay should be positive", StringUtils.foundAt(file, path + ".Detonation.Delay_After_Impact"));
 
         String weaponTitle;
         try {
@@ -159,7 +161,45 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
 
-        return new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback);
+        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, isKnockback);
+
+        if (section.contains("Cluster_Bomb")) {
+
+            Projectile projectileSettings = null;
+            if (section.contains("Cluster_Bomb.Split_Projectile")) {
+                projectileSettings = new Projectile().serialize(file, configurationSection, path + ".Cluster_Bomb.Split_Projectile");
+            }
+
+            double speed = section.getDouble("Cluster_Bomb.Projectile_Speed");
+            int splits = section.getInt("Cluster_Bomb.Number_Of_Splits", 1);
+            int bombs = section.getInt("Cluster_Bomb.Number_Of_Bombs");
+
+            explosion.new ClusterBomb(projectileSettings, speed, splits, bombs);
+        }
+
+        if (section.contains("Airstrike")) {
+
+            Projectile projectileSettings = null;
+            if (section.contains("Airstrike.Dropped_Projectile")) {
+                projectileSettings = new Projectile().serialize(file, configurationSection, path + ".Airstrike.Dropped_Projectile");
+            }
+
+            int min = section.getInt("Airstrike.Minimum_Bombs");
+            int max = section.getInt("Airstrike.Maximum_Bombs");
+
+            double yOffset = section.getDouble("Airstrike.Height");
+            double yNoise = section.getDouble("Airstrike.Vertical_Randomness");
+
+            double separation = section.getDouble("Airstrike.Distance_Between_Bombs");
+            double range = section.getDouble("Airstrike.Maximum_Distance_From_Center");
+
+            int layers = section.getInt("Airstrike.Layers");
+            int interval = section.getInt("Airstrike.Delay_Between_Layers");
+
+            explosion.new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval);
+        }
+
+        return explosion;
     }
     
     private enum ExplosionShapeType {

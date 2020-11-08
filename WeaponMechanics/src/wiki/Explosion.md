@@ -10,8 +10,8 @@ the explosions to cause less lag
 ```yaml
   Explosion:
     Disable_Vanilla_Knockback: <Boolean>
-    Explosion_Exposure: <Default/Distance/None>
     Explosion_Shape: <Sphere/Cube/Parabola/Default>
+    Explosion_Exposure: <Default/Distance/None>
     Explosion_Type_Data:
       Yield: <Double>
       Radius: <Double>
@@ -20,25 +20,39 @@ the explosions to cause less lag
       Width: <Double>
       Height: <Double>
     Detonation:
-      Delay_After_Impact: <Ticks>
+      Detonate_After_Ticks: <Ticks> 
       Impact_When:
         Shoot: <Boolean>
-        Entity: <Boolean>
-        Block: <Boolean>
-        Liquid: <Boolean>
+        Entity: <Boolean> 
+        Block: <Boolean> 
+        Liquid: <Boolean> 
     Block_Damage:
-      Break_Blocks: <Boolean>
+      Break_Blocks: <Boolean> 
       Damage_Per_Hit: <Integer>
       Blacklist: <Boolean>
       Block_List:
         - <Material>:<Data>~<Integer>
       Shots_To_Break_Blocks:
         - <Material>:<Data>~<Integer>
+    Cluster_Bomb:
+      Split_Projectile: <ProjectileSerializer> 
+      Projectile_Speed: <Double>
+      Number_Of_Bombs: <Integer> 
+      Number_Of_Splits: <Integer> 
+    Airstrike:
+      Dropped_Projectile: <ProjectileSerializer>
+      Minimum_Bombs: <Integer> 
+      Maximum_Bombs: <Integer>
+      Height: <Double> 
+      Vertical_Randomness: <Double> 
+      Distance_Between_Bombs: <Double> 
+      Maximum_Distance_From_Center: <Double>
+      Layers: <Integer> 
+      Delay_Between_Layers: <Integer>
     Regeneration:
-      Ticks_Before_Start: <Integer>
-      Max_Blocks_Per_Update: <Integer>
+      Ticks_Before_Start: <Integer> 
+      Max_Blocks_Per_Update: <Integer> 
       Ticks_Between_Updates: <Integer>
-    Effects: <EffectListSerializer>
 ```
 
 #### `Disable_Vanilla_Knockback`: 
