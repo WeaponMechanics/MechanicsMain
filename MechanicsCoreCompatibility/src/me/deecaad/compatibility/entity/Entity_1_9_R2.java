@@ -1,17 +1,18 @@
 package me.deecaad.compatibility.entity;
 
+import com.google.common.base.Optional;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_9_R2.*;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemFactory;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_9_R2.inventory.CraftItemFactory;
+import org.bukkit.craftbukkit.v1_9_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_9_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -23,7 +24,7 @@ import java.util.List;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class Entity_1_15_R1 implements EntityCompatibility {
+public class Entity_1_9_R2 implements EntityCompatibility {
 
     private static final Class<?> metaPacketClass;
     private static final Field metaPacketA;
@@ -47,28 +48,26 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public Object getSpawnPacket(Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_9_R2 Entity!");
         }
 
         if (entity instanceof EntityFallingBlock) {
             EntityFallingBlock block = (EntityFallingBlock) entity;
-            debug.debug(block.getMot().toString()); //
             return new PacketPlayOutSpawnEntity(block, Block.getCombinedId(block.getBlock()));
         }
 
-        return new PacketPlayOutSpawnEntity((Entity) entity);
+        return new PacketPlayOutSpawnEntity((Entity) entity, 0);
     }
 
     @Override
     public Object getVelocityPacket(Object entity, Vector velocity) {
-        return new PacketPlayOutEntityVelocity(((Entity) entity).getId(),
-                new Vec3D(velocity.getX(), velocity.getY(), velocity.getZ()));
+        return new PacketPlayOutEntityVelocity(((Entity) entity).getId(), velocity.getX(), velocity.getY(), velocity.getZ());
     }
 
     @Override
     public Object getMetadataPacket(Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_9_R2 Entity!");
         }
 
         Entity nmsEntity = (Entity) entity;
@@ -80,7 +79,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
         // Make sure the given object is an entity
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_9_R2 Entity!");
         }
 
         // Setup the byte data
@@ -146,7 +145,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public Object getDestroyPacket(Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_9_R2 Entity!");
         }
 
         return new PacketPlayOutEntityDestroy(((Entity) entity).getId());
@@ -160,7 +159,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
         // Instantiate the firework
         World world = ((CraftWorld) loc.getWorld()).getHandle();
-        EntityFireworks fireworks = new EntityFireworks(world, loc.getX(), loc.getY(), loc.getZ(), ItemStack.a);
+        EntityFireworks fireworks = new EntityFireworks(world, loc.getX(), loc.getY(), loc.getZ(), null);
         fireworks.expectedLifespan = flightTime;
 
         // Handle fireworkeffects
@@ -168,10 +167,10 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         FireworkMeta meta = (FireworkMeta) CraftItemFactory.instance().getItemMeta(org.bukkit.Material.FIREWORK_ROCKET);
         meta.addEffects(effects);
         CraftItemStack.setItemMeta(item, meta);
-        fireworks.getDataWatcher().set(EntityFireworks.FIREWORK_ITEM, item);
+        fireworks.getDataWatcher().set(EntityFireworks.FIREWORK_ITEM, Optional.of(item));
 
         // Spawn in the firework for all given players
-        PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(fireworks);
+        PacketPlayOutSpawnEntity spawnPacket = new PacketPlayOutSpawnEntity(fireworks, 0);
         PacketPlayOutEntityMetadata metaPacket = new PacketPlayOutEntityMetadata(fireworks.getId(), fireworks.getDataWatcher(), true);
         ICompatibility compatibility = CompatibilityAPI.getCompatibility();
         for (Player player : players) {
@@ -196,7 +195,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public Object toNMSItemEntity(org.bukkit.inventory.ItemStack item, org.bukkit.World world, double x, double y, double z) {
         World nmsWorld = ((CraftWorld) world).getHandle();
-        net.minecraft.server.v1_15_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        net.minecraft.server.v1_9_R2.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         return new EntityItem(nmsWorld, x, y, z, nmsItem);
     }

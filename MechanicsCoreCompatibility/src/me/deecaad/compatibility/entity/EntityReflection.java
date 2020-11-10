@@ -124,11 +124,6 @@ public class EntityReflection implements EntityCompatibility {
     }
 
     @Override
-    public Object getGoalSelector(CustomPathfinderGoal goal) {
-        throw new UnsupportedOperationException("Cannot reflectively make sub-classes for this version!");
-    }
-
-    @Override
     public Object toNMSItemEntity(ItemStack item, World world, double x, double y, double z) {
         Object nmsWorld = invokeMethod(getHandle, world);
         Object nmsItem = invokeMethod(asNMSCopy, null, item);

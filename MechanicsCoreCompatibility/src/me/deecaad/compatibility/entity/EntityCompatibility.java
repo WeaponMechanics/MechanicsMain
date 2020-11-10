@@ -92,22 +92,6 @@ public interface EntityCompatibility {
     void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects);
 
     /**
-     * Gets an NMS <code>PathFinderGoal</code> that can be
-     * applied to entities that uses methods from the given
-     * <code>CustomPathfinderGoal</code>.
-     *
-     * An <code>UnsupportedOperationException</code> will be thrown
-     * if the implementing class cannot make subclasses of
-     * <code>PathFinderGoal</code>
-     * @see EntityReflection
-     *
-     * @param goal The goal to use
-     * @return NMS PathFinderGoal
-     * @throws UnsupportedOperationException If using reflection
-     */
-    Object getGoalSelector(CustomPathfinderGoal goal);
-
-    /**
      * Gets an NMS <code>EntityItem</code> entity, setting it's
      * location to the given world and coordinates.
      *

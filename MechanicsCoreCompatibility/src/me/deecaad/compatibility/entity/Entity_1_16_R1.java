@@ -4,14 +4,14 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemFactory;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemFactory;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -23,7 +23,7 @@ import java.util.List;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class Entity_1_15_R1 implements EntityCompatibility {
+public class Entity_1_16_R1 implements EntityCompatibility {
 
     private static final Class<?> metaPacketClass;
     private static final Field metaPacketA;
@@ -47,7 +47,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public Object getSpawnPacket(Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_16_R1 Entity!");
         }
 
         if (entity instanceof EntityFallingBlock) {
@@ -68,7 +68,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public Object getMetadataPacket(Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_16_R1 Entity!");
         }
 
         Entity nmsEntity = (Entity) entity;
@@ -80,7 +80,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
         // Make sure the given object is an entity
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_16_R1 Entity!");
         }
 
         // Setup the byte data
@@ -146,7 +146,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public Object getDestroyPacket(Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_16_R1 Entity!");
         }
 
         return new PacketPlayOutEntityDestroy(((Entity) entity).getId());
@@ -160,7 +160,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
         // Instantiate the firework
         World world = ((CraftWorld) loc.getWorld()).getHandle();
-        EntityFireworks fireworks = new EntityFireworks(world, loc.getX(), loc.getY(), loc.getZ(), ItemStack.a);
+        EntityFireworks fireworks = new EntityFireworks(world, loc.getX(), loc.getY(), loc.getZ(), ItemStack.b);
         fireworks.expectedLifespan = flightTime;
 
         // Handle fireworkeffects
@@ -196,7 +196,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public Object toNMSItemEntity(org.bukkit.inventory.ItemStack item, org.bukkit.World world, double x, double y, double z) {
         World nmsWorld = ((CraftWorld) world).getHandle();
-        net.minecraft.server.v1_15_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        net.minecraft.server.v1_16_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         return new EntityItem(nmsWorld, x, y, z, nmsItem);
     }
