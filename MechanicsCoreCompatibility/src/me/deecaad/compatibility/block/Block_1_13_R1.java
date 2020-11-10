@@ -1,23 +1,23 @@
 package me.deecaad.compatibility.block;
 
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.Chunk;
-import net.minecraft.server.v1_15_R1.EntityFallingBlock;
-import net.minecraft.server.v1_15_R1.IBlockData;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockBreakAnimation;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_15_R1.PacketPlayOutMultiBlockChange;
-import net.minecraft.server.v1_15_R1.World;
-import net.minecraft.server.v1_15_R1.WorldServer;
+import net.minecraft.server.v1_13_R1.BlockPosition;
+import net.minecraft.server.v1_13_R1.EntityFallingBlock;
+import net.minecraft.server.v1_13_R1.IBlockData;
+import net.minecraft.server.v1_13_R1.PacketPlayOutBlockBreakAnimation;
+import net.minecraft.server.v1_13_R1.PacketPlayOutBlockChange;
+import net.minecraft.server.v1_13_R1.PacketPlayOutMultiBlockChange;
+import net.minecraft.server.v1_13_R1.World;
+import net.minecraft.server.v1_13_R1.WorldServer;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_15_R1.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_13_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_13_R1.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_13_R1.block.data.CraftBlockData;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Block_1_15_R1 implements BlockCompatibility {
+public class Block_1_13_R1 implements BlockCompatibility {
 
     private static final Field multiBlockChangeB;
 
@@ -85,7 +85,7 @@ public class Block_1_15_R1 implements BlockCompatibility {
         int x = block.getChunk().getX();
         int z = block.getChunk().getZ();
 
-        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world.getChunkAt(x, z), position);
+        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world.c(x, z), position);
         packet.block = mask;
 
         return packet;
@@ -97,7 +97,7 @@ public class Block_1_15_R1 implements BlockCompatibility {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
 
-        Map<org.bukkit.Chunk, List<Block>> sortedBlocks = new HashMap<>();
+        Map<Chunk, List<Block>> sortedBlocks = new HashMap<>();
         for (Block block : blocks) {
             List<Block> list = sortedBlocks.computeIfAbsent(block.getChunk(), chunk -> new ArrayList<>());
             list.add(block);
@@ -142,7 +142,7 @@ public class Block_1_15_R1 implements BlockCompatibility {
         // that the mask occurs will be a bit "odd", but there
         // shouldn't be any issues (Other then masks occuring in
         // the wrong chunk)
-        Chunk chunk = ((CraftChunk) blocks.get(0).getChunk()).getHandle();
+        net.minecraft.server.v1_13_R1.Chunk chunk = ((CraftChunk) blocks.get(0).getChunk()).getHandle();
 
         // Setup default information
         PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(0, new short[0], chunk);

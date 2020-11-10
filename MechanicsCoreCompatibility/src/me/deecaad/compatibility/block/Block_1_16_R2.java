@@ -1,23 +1,24 @@
 package me.deecaad.compatibility.block;
 
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.Chunk;
-import net.minecraft.server.v1_15_R1.EntityFallingBlock;
-import net.minecraft.server.v1_15_R1.IBlockData;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockBreakAnimation;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_15_R1.PacketPlayOutMultiBlockChange;
-import net.minecraft.server.v1_15_R1.World;
-import net.minecraft.server.v1_15_R1.WorldServer;
+import net.minecraft.server.v1_16_R2.BlockPosition;
+import net.minecraft.server.v1_16_R2.EntityFallingBlock;
+import net.minecraft.server.v1_16_R2.IBlockData;
+import net.minecraft.server.v1_16_R2.PacketPlayOutBlockBreakAnimation;
+import net.minecraft.server.v1_16_R2.PacketPlayOutBlockChange;
+import net.minecraft.server.v1_16_R2.PacketPlayOutMultiBlockChange;
+import net.minecraft.server.v1_16_R2.SectionPosition;
+import net.minecraft.server.v1_16_R2.World;
+import net.minecraft.server.v1_16_R2.WorldServer;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_15_R1.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;
+import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R2.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_16_R2.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_16_R2.block.data.CraftBlockData;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -26,13 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Block_1_15_R1 implements BlockCompatibility {
+public class Block_1_16_R2 implements BlockCompatibility {
 
     private static final Field multiBlockChangeB;
+    private static final Field multiBlockChangeC;
 
     static {
         Class<?> multiBlockChangeClass = ReflectionUtil.getNMSClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
+        multiBlockChangeC = ReflectionUtil.getField(multiBlockChangeClass, "c");
     }
 
     @Override
@@ -97,7 +100,7 @@ public class Block_1_15_R1 implements BlockCompatibility {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
 
-        Map<org.bukkit.Chunk, List<Block>> sortedBlocks = new HashMap<>();
+        Map<Chunk, List<Block>> sortedBlocks = new HashMap<>();
         for (Block block : blocks) {
             List<Block> list = sortedBlocks.computeIfAbsent(block.getChunk(), chunk -> new ArrayList<>());
             list.add(block);
@@ -142,33 +145,28 @@ public class Block_1_15_R1 implements BlockCompatibility {
         // that the mask occurs will be a bit "odd", but there
         // shouldn't be any issues (Other then masks occuring in
         // the wrong chunk)
-        Chunk chunk = ((CraftChunk) blocks.get(0).getChunk()).getHandle();
+        BlockPosition position = ((CraftBlock) blocks.get(0)).getPosition();
 
         // Setup default information
-        PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(0, new short[0], chunk);
-        PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[] changes
-                = new PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[blocks.size()];
+        short[] locations = new short[blocks.size()];
+        IBlockData[] data = new IBlockData[blocks.size()];
 
-        for (int i = 0; i < blocks.size(); i++) {
+        for (int i = 0; i < locations.length; i++) {
             Block block = blocks.get(i);
 
-            // Where the block is relative to the chunk it is in
             int x = block.getX() & 0xF;
-            int y = block.getY();
+            int y = block.getY() & 0xF;
             int z = block.getZ() & 0xF;
 
-            // Setting the (x, y, z) location into VarInt format
-            short location = (short) (x << 12 | y | z << 8);
-
-            // If mask is null, then undo the mask. Otherwise set the mask
-            if (mask == null) {
-                changes[i] = packet.new MultiBlockChangeInfo(location, chunk);
-            } else {
-                changes[i] = packet.new MultiBlockChangeInfo(location, mask);
-            }
+            short shortLocation = (short) (x << 8 | z << 4 | y);
+            locations[i] = shortLocation;
+            data[i] = mask;
         }
 
-        ReflectionUtil.setField(multiBlockChangeB, packet, changes);
+        PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(SectionPosition.a(position), new ShortArraySet(0), null, false);
+        ReflectionUtil.setField(multiBlockChangeB, packet, locations);
+        ReflectionUtil.setField(multiBlockChangeC, packet, data);
+
         return packet;
     }
 }
