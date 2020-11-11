@@ -23,7 +23,7 @@ public final class BlockDamageData implements Listener {
 
     private static final Map<Chunk, Map<Block, DamageData>> BLOCK_DAMAGE_MAP = new HashMap<>(1000);
     private static final int MAX_BLOCK_CRACK = 9;
-    private static final Material AIR = Material.valueOf("AIR"); // Maybe we should have XMaterial
+    private static final Material AIR = Material.valueOf("AIR");
 
     /**
      * Don't let anyone instantiate this class

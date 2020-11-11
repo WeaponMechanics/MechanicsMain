@@ -17,29 +17,15 @@ import java.util.HashSet;
  * with block regeneration, or cause damage because
  * of the missing blocks
  *
- * It also regenerates blocks if chunks unload/save
+ * It also regenerates blocks if chunks unload
  */
 public class ExplosionInteractionListener implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent e) {
-
         Chunk chunk = e.getChunk();
         BlockDamageData.regenerate(chunk);
         BlockDamageData.getBlockDamageMap().remove(chunk);
-    }
-
-    @EventHandler
-    public void onWorldSave(WorldSaveEvent e) {
-
-        // Cloning to avoid concurrent modification
-        for (Chunk chunk : new HashSet<>(BlockDamageData.getBlockDamageMap().keySet())) {
-
-            // Filter out chunks not from the world being saved
-            if (!chunk.getWorld().equals(e.getWorld())) continue;
-
-            BlockDamageData.regenerate(chunk);
-        }
     }
 
     @EventHandler
