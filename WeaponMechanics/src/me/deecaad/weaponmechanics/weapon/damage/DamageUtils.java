@@ -5,6 +5,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Bukkit;
@@ -22,8 +23,11 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 
 public class DamageUtils {
+
+    private static final Field killerField = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityLiving"), "killer");
 
     private static Configuration config = WeaponMechanics.getBasicConfigurations();
     
@@ -85,7 +89,6 @@ public class DamageUtils {
     /**
      * @param cause The cause of the entity's damage
      * @param victim The entity being damaged
-     * @return The amount of damage applied
      */
     public static void apply(LivingEntity cause, LivingEntity victim, double damage) {
 
@@ -105,8 +108,21 @@ public class DamageUtils {
             return;
         }
 
-        victim.setHealth(NumberUtils.minMax(0, victim.getHealth() - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        double newHealth = victim.getHealth() - damage;
+
+        //EntityLiving nmsVictim = ((CraftLivingEntity) victim).getHandle();
+        //EntityLiving nmsKiller = ((CraftLivingEntity) cause).getHandle();
+        //nmsVictim.combatTracker.trackDamage(DamageSource.projectile(nmsVictim, nmsKiller), (float) damage, (float) newHealth);
+
+        if (newHealth <= 0) {
+            //ReflectionUtil.setField(killerField, nmsVictim, nmsKiller);
+        }
+
+        victim.setHealth(NumberUtils.minMax(0, newHealth, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
         victim.playEffect(EntityEffect.HURT);
+
+        victim.setLastDamage(damage);
+        victim.setLastDamageCause(entityDamageByEntityEvent);
     }
     
     public static void damageArmor(LivingEntity victim, int amount) {
