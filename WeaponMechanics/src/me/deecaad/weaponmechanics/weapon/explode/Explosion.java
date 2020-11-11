@@ -1,5 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.block.BlockCompatibility;
+import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
@@ -19,18 +22,17 @@ import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -46,6 +48,7 @@ public class Explosion {
     private RegenerationData regeneration;
     private Set<ExplosionTrigger> triggers;
     private int delay;
+    private double blockChance;
     private boolean isKnockback;
     private Optional<ClusterBomb> cluster;
     private Optional<AirStrike> airStrike;
@@ -57,6 +60,7 @@ public class Explosion {
                      @Nullable RegenerationData regeneration,
                      @Nonnull Set<ExplosionTrigger> triggers,
                      @Nonnegative int delay,
+                     double blockChance,
                      boolean isKnockback) {
 
         this.weaponTitle = weaponTitle;
@@ -66,6 +70,7 @@ public class Explosion {
         this.regeneration = regeneration;
         this.triggers = triggers;
         this.delay = delay;
+        this.blockChance = blockChance;
         this.isKnockback = isKnockback;
         this.cluster = Optional.empty();
         this.airStrike = Optional.empty();
@@ -89,14 +94,6 @@ public class Explosion {
 
     public void setExposure(ExplosionExposure exposure) {
         this.exposure = exposure;
-    }
-
-    public ClusterBomb getCluster() {
-        return cluster.orElse(null);
-    }
-
-    public void setCluster(ClusterBomb cluster) {
-        this.cluster = Optional.ofNullable(cluster);
     }
 
     public BlockDamage getBlockDamage() {
@@ -131,12 +128,36 @@ public class Explosion {
         this.delay = delay;
     }
 
+    public double getBlockChance() {
+        return blockChance;
+    }
+
+    public void setBlockChance(double blockChance) {
+        this.blockChance = blockChance;
+    }
+
     public boolean isKnockback() {
         return isKnockback;
     }
 
     public void setKnockback(boolean knockback) {
         isKnockback = knockback;
+    }
+
+    public Optional<ClusterBomb> getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(ClusterBomb cluster) {
+        this.cluster = Optional.of(cluster);
+    }
+
+    public Optional<AirStrike> getAirStrike() {
+        return airStrike;
+    }
+
+    public void setAirStrike(AirStrike airStrike) {
+        this.airStrike = Optional.of(airStrike);
     }
 
     /**
@@ -173,6 +194,9 @@ public class Explosion {
             timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval() + regeneration.getTicksBeforeStart();
         }
 
+        // Stores data for falling blocks
+        Map<BlockState, Vector> blockVelocities = new HashMap<>();
+
         // We damage transparent blocks separately from solid blocks
         // to help make regeneration more accurate... mainly redstone.
         // If there are block updates during regeneration, we want to
@@ -181,14 +205,15 @@ public class Explosion {
         int size = transparent.size();
         for (int i = 0; i < size; i++) {
             Block block = transparent.get(i);
-
-            if (blockDamage.isBlacklisted(block) || BlockDamageData.isBroken(block)) {
-                continue;
-            }
+            BlockState state = block.getState();
 
             // This forces all transparent blocks to regenerate at once.
             // This fixes item sorters breaking and general hopper/redstone stuff
-            blockDamage.damage(block, timeOffset);
+            if (blockDamage.damage(block, timeOffset) && blockChance != 0.0 && NumberUtils.chance(blockChance)) {
+
+                Vector velocity = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5).subtract(origin.toVector());
+                blockVelocities.put(state, velocity);
+            }
         }
 
         // Sort out the blocks that are blown up. This sorter starts at
@@ -209,10 +234,6 @@ public class Explosion {
         for (int i = 0; i < size; i++) {
             Block block = solid.get(i);
 
-            if (blockDamage.isBlacklisted(block) || BlockDamageData.isBroken(block)) {
-                continue;
-            }
-
             int regenTime;
             if (regeneration == null) {
                 regenTime = -1;
@@ -221,8 +242,56 @@ public class Explosion {
                         (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
             }
 
-            blockDamage.damage(block, regenTime);
+            BlockState state = block.getState();
+
+            // Damage the block. If it breaks, handle any effects
+            if (blockDamage.damage(block, regenTime) && blockChance != 0.0 && NumberUtils.chance(blockChance)) {
+
+                Vector vector = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5).subtract(origin.toVector());
+                blockVelocities.put(state, vector);
+            }
         }
+
+        @SuppressWarnings("unchecked")
+        Iterable<Player> playersInView = (Collection<Player>) (Collection<?>) origin.getWorld().getNearbyEntities(origin, 100, 100, 100, entity -> entity.getType() == EntityType.PLAYER);
+        List<Object> fallingBlocks = new ArrayList<>(blockVelocities.size());
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                blockVelocities.forEach((state, vector) -> {
+                    BlockCompatibility blockCompatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();
+                    EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+
+                    Object nms = blockCompatibility.createFallingBlock(state.getLocation().add(0.5, 0.5, 0.5), state);
+                    Object spawnPacket = entityCompatibility.getSpawnPacket(nms);
+                    Object metaPacket = entityCompatibility.getMetadataPacket(nms);
+                    Object velocityPacket = entityCompatibility.getVelocityPacket(nms, vector);
+
+                    fallingBlocks.add(nms);
+
+                    for (Player player : playersInView) {
+                        CompatibilityAPI.getCompatibility().sendPackets(player, spawnPacket, metaPacket, velocityPacket);
+                    }
+                });
+            }
+        }.runTaskAsynchronously(WeaponMechanics.getPlugin());
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Object obj : fallingBlocks) {
+                    EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+
+                    Object destroyPacket = entityCompatibility.getDestroyPacket(obj);
+
+                    for (Player player : playersInView) {
+                        CompatibilityAPI.getCompatibility().sendPackets(player, destroyPacket);
+                    }
+                }
+            }
+        }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), 80);
+
 
         // Handles damage and knockback to living entities. Knockback
         // is handled like vanilla knockback, and damage is very similar
@@ -247,7 +316,7 @@ public class Explosion {
             }
         } else {
 
-            // This likely occurs because of the command /wm test
+            // This occurs because of the command /wm test
             // Useful for debugging, and can help users decide which
             // size explosion they may want
             for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
