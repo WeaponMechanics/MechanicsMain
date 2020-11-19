@@ -40,8 +40,25 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         return ((CraftEntity) entity).getHandle();
     }
 
+    @Override
     public int getId(org.bukkit.entity.Entity entity) {
         return ((CraftEntity) entity).getHandle().getId();
+    }
+
+    public int ticksToHitGround(Object entity, int limit) {
+        if (!(entity instanceof Entity)) {
+            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
+        }
+
+        Entity nms = (Entity) entity;
+        int counter = 0;
+
+        while (nms.isAlive() && counter < limit) {
+            nms.tick();
+            counter++;
+        }
+
+        return counter;
     }
 
     @Override

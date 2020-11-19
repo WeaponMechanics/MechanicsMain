@@ -105,7 +105,7 @@ public interface BlockCompatibility {
      * @param data The data (for legacy minecraft) of the material
      * @return Instantiated packet
      */
-    Object getMultiBlockMaskPacket(List<Block> blocks, Material mask, byte data);
+    List<Object> getMultiBlockMaskPacket(List<Block> blocks, Material mask, byte data);
 
     /**
      * Gets a <code>PacketPlayOutMultiBlockChange</code> packet holding
@@ -119,5 +119,5 @@ public interface BlockCompatibility {
      * @param mask The state to set as the mask
      * @return Instantiated packet
      */
-    Object getMultiBlockMaskPacket(List<Block> blocks, BlockState mask);
+    List<Object> getMultiBlockMaskPacket(List<Block> blocks, BlockState mask);
 }
