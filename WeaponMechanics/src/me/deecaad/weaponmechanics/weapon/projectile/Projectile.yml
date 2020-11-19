@@ -25,6 +25,7 @@ Projectile: <path to another Projectile key>
       Base: <multiplier>
       In_Water: <multiplier>
       When_Raining_Or_Snowing: <multiplier>
+
   Through:
     Blocks:
       Default_Speed_Modifier: <multiplier>

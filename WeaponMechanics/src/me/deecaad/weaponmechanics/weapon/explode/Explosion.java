@@ -424,12 +424,7 @@ public class Explosion {
 
                 // Either use the projectile settings from the "parent" projectile,
                 // or use the projectile settings for this clusterbomb
-                Projectile projectileSettings = this.projectile == null ? projectile.getProjectileSettings() : this.projectile;
-
-                CustomProjectile split = new CustomProjectile(projectileSettings, shooter, splitLocation, vector, null, weaponTitle);
-                CustomProjectilesRunnable.addProjectile(split);
-
-                split.setTag("cluster-split-level", String.valueOf(currentDepth + 1));
+                (this.projectile == null ? projectile.getProjectileSettings() : this.projectile).shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), weaponTitle).setTag("cluster-split-level", String.valueOf(currentDepth + 1));
             }
 
             // Remove the parent split
@@ -609,13 +604,7 @@ public class Explosion {
                         double y = flareLocation.getY() + height + NumberUtils.random(-yVariation, yVariation);
                         Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-                        Projectile projectileSettings = AirStrike.this.projectileSettings;
-                        if (projectileSettings == null) {
-                            projectileSettings = projectile.getProjectileSettings();
-                        }
-
-                        CustomProjectile projectile = new CustomProjectile(projectileSettings, shooter, location, new Vector(), null, weaponTitle);
-                        CustomProjectilesRunnable.addProjectile(projectile);
+                        (getProjectile() == null ? projectile.getProjectileSettings() : getProjectile()).shoot(shooter, location, new Vector(), projectile.getWeaponStack(), weaponTitle);
                     }
                 }
             }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, delay);
