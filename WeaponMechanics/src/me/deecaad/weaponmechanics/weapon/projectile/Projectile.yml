@@ -17,15 +17,41 @@ Projectile: <path to another Projectile key>
     Gravity: <gravity multiplier>
     Minimum:
       Speed: <minimum speed of projectile>
-      Remove_Projectile: <true/false>
+      Remove_Projectile_On_Speed_Reached: <true/false>
     Maximum:
       Speed: <maximum speed of projectile>
-      Remove_Projectile: <true/false>
+      Remove_Projectile_On_Speed_Reached: <true/false>
     Decrease_Motion:
       Base: <multiplier>
       In_Water: <multiplier>
       When_Raining_Or_Snowing: <multiplier>
-
+  Sticky:
+    Blocks:
+      Stick_To_Any_Block: <true/false>
+      Whitelist: <true/false>
+      List:
+        - <Material>:<data>
+        - <etc.>
+    Entities:
+      Stick_To_Any_Entity: <true/false>
+      Whitelist: <true/false>
+      List:
+        - <EntityType>
+        - <etc.>
+  Bouncy:
+    Maximum_Bounce_Amount: <amount>
+    Blocks:
+      Default_Speed_Modifier: <multiplier>
+      Whitelist: <true/false>
+      List:
+        - <Material>:<data>-<speed multiplier>
+        - <etc.>
+    Entities:
+      Default_Speed_Modifier: <multiplier>
+      Whitelist: <true/false>
+      List:
+        - <EntityType>-<speed multiplier>
+        - <etc.>
   Through:
     Blocks:
       Default_Speed_Modifier: <multiplier>
