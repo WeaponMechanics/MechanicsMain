@@ -12,9 +12,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -413,7 +411,6 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         Block blockAtLocation = world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-
         if (blockAtLocation.isEmpty()) {
             lastKnownAirLocation = location.clone().toLocation(world);
         }
@@ -430,8 +427,6 @@ public class CustomProjectile implements ICustomProjectile {
             motion.setY(motion.getY() - projectileMotion.getGravity());
         }
 
-        // todo event
-
         ++aliveTicks;
         return false;
     }
@@ -446,24 +441,19 @@ public class CustomProjectile implements ICustomProjectile {
      * @return true if projectile should die
      */
     private boolean handleCollisions() {
-
-        // todo: make this method better
-
         // Pre calculate the motion to add for location on each iteration
         // First normalize motion and then multiply
-        Vector addMotion = motion.clone().divide(new Vector(motionLength, motionLength, motionLength)).multiply(projectile.getProjectileHeight() * 2);
+        Vector addMotion = motion.clone().divide(new Vector(motionLength, motionLength, motionLength)).multiply(projectile.getProjectileWidth());
 
-        // Old motion without modified speed modifier
-        Vector oldMotion = motion.clone();
         projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
-        location.add(oldMotion);
-        this.distanceTravelled += motionLength;
 
-        for (double travelled = 0.0; travelled <= motionLength; travelled += projectile.getProjectileHeight()) {
+        for (double travelled = 0.0; travelled <= motionLength; travelled += projectile.getProjectileWidth()) {
             Collisions iteration = getCollisions(projectileBox);
 
             if (iteration == null) {
                 projectileBox.shift(addMotion);
+                location.add(addMotion);
+                distanceTravelled += projectile.getProjectileWidth();
                 continue;
             }
 
@@ -474,6 +464,8 @@ public class CustomProjectile implements ICustomProjectile {
             }
 
             projectileBox.shift(addMotion);
+            location.add(addMotion);
+            distanceTravelled += projectile.getProjectileWidth();
         }
 
         return false;
@@ -617,11 +609,10 @@ public class CustomProjectile implements ICustomProjectile {
         // Bounding box check may be inaccurate sometimes if entity moves when this is looping (async issue only)
         for (Chunk chunk : chunks) {
             for (final Entity entity : chunk.getEntities()) {
-                if (!(entity instanceof LivingEntity) || entity.getEntityId() == shooter.getEntityId()) {
-                    continue;
-                }
+                if (entity.getEntityId() == shooter.getEntityId()) continue;
+
                 HitBox entityBox = projectileCompatibility.getHitBox(entity);
-                if (entityBox == null) continue; // entity is invulnerable
+                if (entityBox == null) continue; // entity is invulnerable or non alive
 
                 Vector hitLocation = projectileBox.collisionPoint(entityBox);
                 if (hitLocation == null) continue; // Null means that projectile hit box and entity hit box didn't collide
