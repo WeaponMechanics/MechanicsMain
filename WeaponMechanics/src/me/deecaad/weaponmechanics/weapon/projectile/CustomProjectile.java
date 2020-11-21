@@ -14,6 +14,8 @@ import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -606,7 +608,6 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         // World.getNearbyEntities() is not allowed in async (entity checks aren't meant to be used async)
-        // Bounding box check may be inaccurate sometimes if entity moves when this is looping (async issue only)
         for (Chunk chunk : chunks) {
             for (final Entity entity : chunk.getEntities()) {
                 if (entity.getEntityId() == shooter.getEntityId()) continue;
