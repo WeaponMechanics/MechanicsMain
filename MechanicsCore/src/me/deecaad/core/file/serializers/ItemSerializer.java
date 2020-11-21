@@ -6,9 +6,11 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
@@ -59,13 +61,15 @@ public class ItemSerializer implements Serializer<ItemStack> {
         if (type == null) {
             return null;
         }
+        type = type.toUpperCase();
         ItemStack itemStack;
         try {
             itemStack = MaterialHelper.fromStringToItemStack(type);
         } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR,
-                    "Found an invalid material in configurations!",
-                    "Located at file " + file + " in " + path + ".Type (" + type + ") in configurations");
+                    StringUtils.foundInvalid("material"),
+                    StringUtils.foundAt(file, path + ".Type", type),
+                    StringUtils.debugDidYouMean(type.split(":")[0], Material.class));
             return null;
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -137,8 +141,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     attribute = AttributeType.valueOf(splitted[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
-                            "Found an invalid attribute type in configurations!",
-                            "Located at file " + file + " in " + path + ".Attributes (" + splitted[0].toUpperCase() + ") in configurations");
+                            StringUtils.foundInvalid("attribute type"),
+                            StringUtils.foundAt(file, path + ".Attributes", splitted[0].toUpperCase()),
+                            StringUtils.debugDidYouMean(splitted[0].toUpperCase(), AttributeType.class));
                     continue;
                 }
                 double amount;
