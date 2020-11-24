@@ -114,7 +114,7 @@ public class Block_1_15_R1 implements BlockCompatibility {
     }
 
     @Override
-    public Object getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
+    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
         if (blocks == null || blocks.size() <= 0) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
