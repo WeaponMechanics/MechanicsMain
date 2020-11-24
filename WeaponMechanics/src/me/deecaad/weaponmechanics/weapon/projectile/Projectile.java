@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -129,10 +130,11 @@ public class Projectile implements Serializer<Projectile> {
 
     @Override
     public Projectile serialize(File file, ConfigurationSection configurationSection, String path) {
-        String type = configurationSection.getString(path + ".Settings.Type").trim().toUpperCase();
+        String type = configurationSection.getString(path + ".Settings.Type");
         if (type == null) {
             return null;
         }
+        type = type.trim().toUpperCase();
         boolean isInvisible = type.equals("INVISIBLE");
 
         EntityType projectileType = null;
@@ -143,8 +145,9 @@ public class Projectile implements Serializer<Projectile> {
                 projectileType = EntityType.valueOf(type);
             } catch (IllegalArgumentException e) {
                 debug.log(LogLevel.ERROR,
-                        "Found an invalid projectile type in configurations!",
-                        "Located at file " + file + " in " + path + ".Settings.Type (" + type + ") in configurations");
+                        StringUtils.foundInvalid("projectile type"),
+                        StringUtils.foundAt(file, path + ".Settings.Type", type),
+                        StringUtils.debugDidYouMean(type, EntityType.class));
                 return null;
             }
             projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");

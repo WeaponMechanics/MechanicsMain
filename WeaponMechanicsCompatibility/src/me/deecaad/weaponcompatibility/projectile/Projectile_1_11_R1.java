@@ -120,7 +120,7 @@ public class Projectile_1_11_R1 implements IProjectileCompatibility {
 
     @Override
     public HitBox getHitBox(org.bukkit.entity.Entity entity) {
-        if (entity.isInvulnerable()) return null;
+        if (entity.isInvulnerable() || !entity.getType().isAlive()) return null;
 
         AxisAlignedBB aabb = ((CraftEntity) entity).getHandle().getBoundingBox();
         return new HitBox(new Vector(aabb.a, aabb.b, aabb.c), new Vector(aabb.d, aabb.e, aabb.f));

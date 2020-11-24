@@ -1,15 +1,7 @@
 package me.deecaad.compatibility.block;
 
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.Chunk;
-import net.minecraft.server.v1_15_R1.EntityFallingBlock;
-import net.minecraft.server.v1_15_R1.IBlockData;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockBreakAnimation;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_15_R1.PacketPlayOutMultiBlockChange;
-import net.minecraft.server.v1_15_R1.World;
-import net.minecraft.server.v1_15_R1.WorldServer;
+import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -63,7 +55,21 @@ public class Block_1_15_R1 implements BlockCompatibility {
 
         WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
         IBlockData blockData = ((CraftBlockState) state).getHandle();
-        return new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), blockData);
+        return createFallingBlock(loc, world, blockData);
+    }
+
+    private EntityFallingBlock createFallingBlock(Location loc, WorldServer world, IBlockData data) {
+        return new EntityFallingBlock(world, loc.getX(), loc.getBlockY(), loc.getZ(), data) {
+            @Override
+            public void tick() {
+                setMot(getMot().add(0.0, -0.4, 0.0));
+                move(EnumMoveType.SELF, getMot());
+
+                if (onGround) {
+                    die();
+                }
+            }
+        };
     }
 
     @Override

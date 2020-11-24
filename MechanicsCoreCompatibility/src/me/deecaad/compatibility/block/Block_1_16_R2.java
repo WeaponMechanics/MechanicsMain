@@ -100,9 +100,9 @@ public class Block_1_16_R2 implements BlockCompatibility {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
 
-        Map<Chunk, List<Block>> sortedBlocks = new HashMap<>();
+        Map<SubChunk, List<Block>> sortedBlocks = new HashMap<>();
         for (Block block : blocks) {
-            List<Block> list = sortedBlocks.computeIfAbsent(block.getChunk(), chunk -> new ArrayList<>());
+            List<Block> list = sortedBlocks.computeIfAbsent(SubChunk.byBlock(block), chunk -> new ArrayList<>());
             list.add(block);
         }
 
@@ -122,9 +122,9 @@ public class Block_1_16_R2 implements BlockCompatibility {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
 
-        Map<org.bukkit.Chunk, List<Block>> sortedBlocks = new HashMap<>();
+        Map<SubChunk, List<Block>> sortedBlocks = new HashMap<>();
         for (Block block : blocks) {
-            List<Block> list = sortedBlocks.computeIfAbsent(block.getChunk(), chunk -> new ArrayList<>());
+            List<Block> list = sortedBlocks.computeIfAbsent(SubChunk.byBlock(block), chunk -> new ArrayList<>());
             list.add(block);
         }
 

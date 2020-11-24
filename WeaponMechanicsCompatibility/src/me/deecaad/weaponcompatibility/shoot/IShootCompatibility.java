@@ -1,6 +1,7 @@
 package me.deecaad.weaponcompatibility.shoot;
 
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public interface IShootCompatibility {
@@ -46,4 +47,16 @@ public interface IShootCompatibility {
      * @param absolute whether to use absolute rotation
      */
     void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute);
+
+    /**
+     * Logs "fake" damage to the given <code>victim</code>'s <code>CombatTracker</code>. This is important
+     * for death messages, and any plugins that may use minecraft's built in combat tracker.
+     *
+     * @param victim The entity receiving the damage
+     * @param source The entity giving the damage
+     * @param health The health of the entity
+     * @param damage The damage being applied to the entity
+     * @param isMelee Whether or not this is a melee attack (And not a projectile)
+     */
+    void logDamage(LivingEntity victim, LivingEntity source, double health, double damage, boolean isMelee);
 }

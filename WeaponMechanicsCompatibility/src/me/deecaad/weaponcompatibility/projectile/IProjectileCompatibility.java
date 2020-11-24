@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
@@ -53,14 +54,14 @@ public interface IProjectileCompatibility {
     double[] getDefaultWidthAndHeight(EntityType entityType);
 
     /**
-     * If entity is invulnerable this will always return null.
+     * If entity is invulnerable or non alive this will always return null.
      * Otherwise this will always have non null value.
      *
      * @param entity the entity
      * @return the living entity's hit box
      */
     default HitBox getHitBox(Entity entity) {
-        if (entity.isInvulnerable()) return null;
+        if (entity.isInvulnerable() || !entity.getType().isAlive()) return null;
 
         // This default should only be used after 1.13 R2
 

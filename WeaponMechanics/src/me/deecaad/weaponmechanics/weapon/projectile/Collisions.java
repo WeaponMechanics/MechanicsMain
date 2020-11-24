@@ -22,4 +22,5 @@ public class Collisions {
     public SortedSet<CollisionData> getEntityCollisions() {
         return entityCollisions;
     }
+
 }

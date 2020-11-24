@@ -102,9 +102,9 @@ public class ProjectileMotion implements Serializer<ProjectileMotion> {
 
         // -1 so that CustomProjectile#tick() can understand that minimum or maximum speed isn't used
         double minimumSpeed = configurationSection.getDouble(path + ".Minimum.Speed", -10.0) * 0.1;
-        boolean removeAtMinimumSpeed = configurationSection.getBoolean(path + ".Minimum.Remove_Projectile", false);
+        boolean removeAtMinimumSpeed = configurationSection.getBoolean(path + ".Minimum.Remove_Projectile_On_Speed_Reached", false);
         double maximumSpeed = configurationSection.getDouble(path + ".Maximum.Speed", -10.0) * 0.1;
-        boolean removeAtMaximumSpeed = configurationSection.getBoolean(path + ".Maximum.Remove_Projectile", false);
+        boolean removeAtMaximumSpeed = configurationSection.getBoolean(path + ".Maximum.Remove_Projectile_On_Speed_Reached", false);
 
         double decrease = configurationSection.getDouble(path + ".Decrease_Motion.Base", 0.99);
         double decreaseInWater = configurationSection.getDouble(path + ".Decrease_Motion.In_Water", 0.96);

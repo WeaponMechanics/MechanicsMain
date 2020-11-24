@@ -3,6 +3,7 @@ package me.deecaad.compatibility.entity;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -28,6 +29,21 @@ public interface EntityCompatibility {
      * @return The id of the entity
      */
     int getId(org.bukkit.entity.Entity entity);
+
+    /**
+     * Gets the number of ticks it will take for the given nms
+     * <code>entity</code> to hit the ground (Assuming it has no
+     * change in acceleration)
+     *
+     * Note: This should probably only be used for falling blocks since method
+     * ticks the entity
+     * @see me.deecaad.compatibility.block.BlockCompatibility#createFallingBlock(Location, BlockState)
+     *
+     * @param entity The NMS entity to use
+     * @param limit The maximum number of ticks (600 is a good value)
+     * @return The amount of time, in ticks, to hit the ground
+     */
+    int ticksToHitGround(Object entity, int limit);
 
     /**
      * Gets the <code>PacketPlayOutSpawnEntity</code> used

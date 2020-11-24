@@ -161,7 +161,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
 
-        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, 1.0, isKnockback);
+        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, 0, isKnockback);
 
         if (section.contains("Cluster_Bomb")) {
 
