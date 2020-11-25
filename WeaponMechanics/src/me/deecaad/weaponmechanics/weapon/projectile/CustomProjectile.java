@@ -12,10 +12,10 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -597,7 +597,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                     CollisionData blockCollision = new CollisionData(blockBox, hitLocation, block);
                     if (blockCollisions.contains(blockCollision) // if this iteration already once hit block
-                            || (collisions != null && collisions.getBlockCollisions().contains(blockCollision))) { // if this projectile has already hit this block once
+                            || (collisions != null && collisions.isNotAbleToHit(blockCollision))) { // if this projectile has already hit this block once
                         continue;
                     }
 
@@ -620,7 +620,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                 CollisionData entityCollision = new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 if (entityCollisions.contains(entityCollision) // if this iteration already once hit entity
-                        || (collisions != null && collisions.getEntityCollisions().contains(entityCollision))) { // if this projectile has already hit this entity once
+                        || (collisions != null && collisions.isNotAbleToHit(entityCollision))) { // if this projectile has already hit this entity once
                     continue;
                 }
 
