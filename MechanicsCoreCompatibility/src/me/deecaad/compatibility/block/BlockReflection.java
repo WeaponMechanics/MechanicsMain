@@ -1,12 +1,10 @@
 package me.deecaad.compatibility.block;
 
 import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
@@ -42,16 +40,6 @@ public class BlockReflection implements BlockCompatibility {
     }
 
     @Override
-    public Object createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data) {
-        return null;
-    }
-
-    @Override
-    public Object createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state) {
-        return null;
-    }
-
-    @Override
     public Object getBlockMaskPacket(Block bukkitBlock, Material mask, byte data) {
         return null;
     }
@@ -62,12 +50,12 @@ public class BlockReflection implements BlockCompatibility {
     }
 
     @Override
-    public Object getMultiBlockMaskPacket(List<Block> blocks, Material mask, byte data) {
+    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, Material mask, byte data) {
         return null;
     }
 
     @Override
-    public Object getMultiBlockMaskPacket(List<Block> blocks, BlockState mask) {
+    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, BlockState mask) {
         return null;
     }
 }

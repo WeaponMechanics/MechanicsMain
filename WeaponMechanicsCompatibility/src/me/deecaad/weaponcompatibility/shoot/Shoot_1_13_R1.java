@@ -1,7 +1,11 @@
 package me.deecaad.weaponcompatibility.shoot;
 
+import net.minecraft.server.v1_13_R1.DamageSource;
+import net.minecraft.server.v1_13_R1.EntityLiving;
 import net.minecraft.server.v1_13_R1.PacketPlayOutPosition;
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_13_R1.entity.CraftPlayer;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -29,5 +33,23 @@ public class Shoot_1_13_R1 implements IShootCompatibility {
         pitch *= -1;
         ((CraftPlayer) player).getHandle().playerConnection.
                 sendPacket(new PacketPlayOutPosition(0, 0, 0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0));
+    }
+
+    @Override
+    public void logDamage(LivingEntity victim, LivingEntity source, double health, double damage, boolean isMelee) {
+        DamageSource damageSource;
+
+        if (isMelee) {
+            if (source instanceof Player) {
+                damageSource = DamageSource.playerAttack(((org.bukkit.craftbukkit.v1_13_R1.entity.CraftPlayer) source).getHandle());
+            } else {
+                damageSource = DamageSource.mobAttack(((CraftLivingEntity) source).getHandle());
+            }
+        } else {
+            damageSource = DamageSource.projectile(null, ((CraftLivingEntity) source).getHandle());
+        }
+
+        EntityLiving nms = ((CraftLivingEntity) victim).getHandle();
+        nms.combatTracker.trackDamage(damageSource, (float) damage, (float) health);
     }
 }

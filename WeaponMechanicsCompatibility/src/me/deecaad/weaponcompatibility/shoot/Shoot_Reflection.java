@@ -3,6 +3,7 @@ package me.deecaad.weaponcompatibility.shoot;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
@@ -22,6 +23,7 @@ public class Shoot_Reflection implements IShootCompatibility {
     private static Set<?> ABSOLUTE_FLAGS;
     private static Constructor<?> packetPlayOutPositionConstructor;
 
+    @SuppressWarnings("unchecked")
     public Shoot_Reflection() {
 
         if (CompatibilityAPI.getVersion() < 1.12) {
@@ -69,5 +71,10 @@ public class Shoot_Reflection implements IShootCompatibility {
                 ? ReflectionUtil.newInstance(packetPlayOutPositionConstructor, 0.0, 0.0, 0.0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS)
                 : ReflectionUtil.newInstance(packetPlayOutPositionConstructor, 0.0, 0.0, 0.0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0);
         CompatibilityAPI.getCompatibility().sendPackets(player, packetPlayOutPosition);
+    }
+
+    @Override
+    public void logDamage(LivingEntity victim, LivingEntity source, double health, double damage, boolean isMelee) {
+
     }
 }

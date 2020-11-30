@@ -2,18 +2,14 @@ package me.deecaad.compatibility.block;
 
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R1.BlockPosition;
-import net.minecraft.server.v1_16_R1.EntityFallingBlock;
 import net.minecraft.server.v1_16_R1.IBlockData;
 import net.minecraft.server.v1_16_R1.PacketPlayOutBlockBreakAnimation;
 import net.minecraft.server.v1_16_R1.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_16_R1.PacketPlayOutMultiBlockChange;
 import net.minecraft.server.v1_16_R1.World;
-import net.minecraft.server.v1_16_R1.WorldServer;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_16_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_16_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_16_R1.block.data.CraftBlockData;
@@ -44,25 +40,6 @@ public class Block_1_16_R1 implements BlockCompatibility {
 
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
-    }
-
-    @Override
-    public Object createFallingBlock(Location loc, org.bukkit.Material mat, byte data) {
-
-        WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
-        IBlockData blockData = ((CraftBlockData) mat.createBlockData()).getState();
-        return new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), blockData);
-    }
-
-    @Override
-    public Object createFallingBlock(Location loc, BlockState state) {
-        if (loc.getWorld() == null) {
-            throw new IllegalArgumentException("World cannot be null");
-        }
-
-        WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
-        IBlockData blockData = ((CraftBlockState) state).getHandle();
-        return new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), blockData);
     }
 
     @Override
@@ -113,7 +90,7 @@ public class Block_1_16_R1 implements BlockCompatibility {
     }
 
     @Override
-    public Object getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
+    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
         if (blocks == null || blocks.size() <= 0) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -136,11 +113,6 @@ public class Block_1_16_R1 implements BlockCompatibility {
 
     private PacketPlayOutMultiBlockChange getMultiBlockMaskPacket(List<Block> blocks, @Nullable IBlockData mask) {
 
-        // It is assumed that all blocks are in the same chunk.
-        // If blocks are not in the same chunk, the locations
-        // that the mask occurs will be a bit "odd", but there
-        // shouldn't be any issues (Other then masks occuring in
-        // the wrong chunk)
         net.minecraft.server.v1_16_R1.Chunk chunk = ((CraftChunk) blocks.get(0).getChunk()).getHandle();
 
         // Setup default information

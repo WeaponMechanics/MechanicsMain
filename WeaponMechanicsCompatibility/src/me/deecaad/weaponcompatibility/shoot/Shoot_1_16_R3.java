@@ -1,12 +1,10 @@
 package me.deecaad.weaponcompatibility.shoot;
 
-import net.minecraft.server.v1_9_R1.DamageSource;
-import net.minecraft.server.v1_9_R1.EntityLiving;
-import net.minecraft.server.v1_9_R1.PacketPlayOutPosition;
-import org.bukkit.craftbukkit.v1_9_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_9_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
+import net.minecraft.server.v1_16_R3.DamageSource;
+import net.minecraft.server.v1_16_R3.EntityLiving;
+import net.minecraft.server.v1_16_R3.PacketPlayOutPosition;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -14,27 +12,17 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Shoot_1_9_R1 implements IShootCompatibility {
+public class Shoot_1_16_R3 implements IShootCompatibility {
 
-    private Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
+    private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Z,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.X_ROT,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y_ROT));
 
-    private Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
+    private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Z));
-
-    @Override
-    public double getWidth(Entity entity) {
-        return ((CraftEntity) entity).getHandle().width;
-    }
-
-    @Override
-    public double getHeight(Entity entity) {
-        return ((CraftEntity) entity).getHandle().length;
-    }
 
     @Override
     public void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute) {
@@ -49,7 +37,7 @@ public class Shoot_1_9_R1 implements IShootCompatibility {
 
         if (isMelee) {
             if (source instanceof Player) {
-                damageSource = DamageSource.playerAttack(((org.bukkit.craftbukkit.v1_9_R1.entity.CraftPlayer) source).getHandle());
+                damageSource = DamageSource.playerAttack(((org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer) source).getHandle());
             } else {
                 damageSource = DamageSource.mobAttack(((CraftLivingEntity) source).getHandle());
             }
