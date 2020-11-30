@@ -17,6 +17,8 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
@@ -189,6 +191,16 @@ public class Entity_1_11_R1 implements EntityCompatibility {
                 }
             }
         }.runTaskLaterAsynchronously(MechanicsCore.getPlugin(), flightTime);
+    }
+
+    @Override
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull org.bukkit.Material mat, byte data, @Nullable Vector motion) {
+        return null;
+    }
+
+    @Override
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull org.bukkit.block.BlockState state, @Nullable Vector motion) {
+        return null;
     }
 
     @Override

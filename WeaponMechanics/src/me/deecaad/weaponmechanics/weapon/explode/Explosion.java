@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
@@ -10,13 +9,10 @@ import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
-import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import org.bukkit.Location;
@@ -32,7 +28,13 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -260,10 +262,9 @@ public class Explosion {
             @Override
             public void run() {
                 blockVelocities.forEach((state, vector) -> {
-                    BlockCompatibility blockCompatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();
                     EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
 
-                    Object nms = blockCompatibility.createFallingBlock(state.getLocation().add(0.5, 0.5, 0.5), state);
+                    Object nms = entityCompatibility.createFallingBlock(state.getLocation().add(0.5, 0.5, 0.5), state, vector);
                     Object spawnPacket = entityCompatibility.getSpawnPacket(nms);
                     Object metaPacket = entityCompatibility.getMetadataPacket(nms);
                     Object velocityPacket = entityCompatibility.getVelocityPacket(nms, vector);

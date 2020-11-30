@@ -2,8 +2,9 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
-import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
+import me.deecaad.compatibility.entity.FallingBlockWrapper;
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.Enums;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -21,6 +22,7 @@ import java.util.List;
 import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.FIRE;
 import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.GLOWING;
 
+@CommandPermission(permission = "weaponmechanics.commands.test.fallingblock")
 public class FallingBlockCommand extends SubCommand {
 
     public FallingBlockCommand() {
@@ -44,10 +46,10 @@ public class FallingBlockCommand extends SubCommand {
         final Vector motion = new Vector(x, y, z);
 
         ICompatibility compatibility = CompatibilityAPI.getCompatibility();
-        BlockCompatibility blockCompatibility = compatibility.getBlockCompatibility();
         EntityCompatibility entityCompatibility = compatibility.getEntityCompatibility();
 
-        Object block = blockCompatibility.createFallingBlock(player.getLocation(), material, (byte) -1);
+        FallingBlockWrapper blockWrapper = entityCompatibility.createFallingBlock(player.getLocation(), material, (byte) -1, motion);
+        Object block = blockWrapper.getEntity();
         Object spawnPacket = entityCompatibility.getSpawnPacket(block);
         Object metaPacket = entityCompatibility.getMetadataPacket(block, true, GLOWING, FIRE);
         Object velocityPacket = entityCompatibility.getVelocityPacket(block, motion);
@@ -59,7 +61,7 @@ public class FallingBlockCommand extends SubCommand {
             public void run() {
                 compatibility.sendPackets(player, destroyPacket);
             }
-        }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), remove);
+        }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), Math.min(remove, blockWrapper.getTimeToHitGround()));
     }
 
     @Override

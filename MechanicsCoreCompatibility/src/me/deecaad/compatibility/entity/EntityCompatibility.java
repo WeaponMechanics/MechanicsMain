@@ -2,12 +2,15 @@ package me.deecaad.compatibility.entity;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public interface EntityCompatibility {
@@ -29,21 +32,6 @@ public interface EntityCompatibility {
      * @return The id of the entity
      */
     int getId(org.bukkit.entity.Entity entity);
-
-    /**
-     * Gets the number of ticks it will take for the given nms
-     * <code>entity</code> to hit the ground (Assuming it has no
-     * change in acceleration)
-     *
-     * Note: This should probably only be used for falling blocks since method
-     * ticks the entity
-     * @see me.deecaad.compatibility.block.BlockCompatibility#createFallingBlock(Location, BlockState)
-     *
-     * @param entity The NMS entity to use
-     * @param limit The maximum number of ticks (600 is a good value)
-     * @return The amount of time, in ticks, to hit the ground
-     */
-    int ticksToHitGround(Object entity, int limit);
 
     /**
      * Gets the <code>PacketPlayOutSpawnEntity</code> used
@@ -106,6 +94,30 @@ public interface EntityCompatibility {
      * @param effects The effects that the firework will have
      */
     void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects);
+
+    /**
+     * Creates a falling block with the data and location
+     * from the given <code>block</code> and with
+     * <code>vector</code> motion
+     *
+     * @param loc The location to spawn the entity at
+     * @param mat The Material of the falling block
+     * @param data Legacy data of the falling block
+     * @param motion The planned motion of the block
+     * @return NMS EntityFallingBlock
+     */
+    FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data, @Nullable Vector motion);
+
+    /**
+     * Creates an NMS <code>EntityFallingBlock</code> of the given
+     * block state. The entity is then given the provided
+     * <code>Vector</code> as motion, if it is not null
+     *
+     * @param loc The location of the entity (World must not be null!)
+     * @param state The block state to use as the block's data
+     * @return NMS falling block
+     */
+    FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion);
 
     /**
      * Gets an NMS <code>EntityItem</code> entity, setting it's

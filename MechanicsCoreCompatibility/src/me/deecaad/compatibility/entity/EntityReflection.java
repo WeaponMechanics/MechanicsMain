@@ -3,11 +3,14 @@ package me.deecaad.compatibility.entity;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -121,6 +124,16 @@ public class EntityReflection implements EntityCompatibility {
     @Override
     public void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect... effects) {
 
+    }
+
+    @Override
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull org.bukkit.Material mat, byte data, @Nullable Vector motion) {
+        return null;
+    }
+
+    @Override
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion) {
+        return null;
     }
 
     @Override

@@ -7,6 +7,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemFactory;
@@ -17,6 +18,8 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
@@ -191,6 +194,16 @@ public class Entity_1_16_R2 implements EntityCompatibility {
                 }
             }
         }.runTaskLaterAsynchronously(MechanicsCore.getPlugin(), flightTime);
+    }
+
+    @Override
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull org.bukkit.Material mat, byte data, @Nullable Vector motion) {
+        return null;
+    }
+
+    @Override
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion) {
+        return null;
     }
 
     @Override
