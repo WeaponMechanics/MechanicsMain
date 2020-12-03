@@ -215,25 +215,27 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(Location loc, org.bukkit.Material mat, byte data, Vector motion) {
+    public FallingBlockWrapper createFallingBlock(Location loc, org.bukkit.Material mat, byte data, Vector motion, int maxTicks) {
 
         IBlockData blockData = ((CraftBlockData) mat.createBlockData()).getState();
-        return createFallingBlock(loc, blockData, motion);
+        return createFallingBlock(loc, blockData, motion, maxTicks);
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(Location loc, org.bukkit.block.BlockState state, Vector motion) {
+    public FallingBlockWrapper createFallingBlock(Location loc, org.bukkit.block.BlockState state, Vector motion, int maxTicks) {
         if (loc.getWorld() == null) {
             throw new IllegalArgumentException("World cannot be null");
         }
 
         IBlockData blockData = ((CraftBlockState) state).getHandle();
-        return createFallingBlock(loc, blockData, motion);
+        return createFallingBlock(loc, blockData, motion, maxTicks);
     }
 
-    private FallingBlockWrapper createFallingBlock(Location loc, IBlockData data, Vector motion) {
+    private FallingBlockWrapper createFallingBlock(Location loc, IBlockData data, Vector motion, int maxTicks) {
         WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
 
+        // Create an anonymous falling block implementation that simplifies movement logic
+        // in order to calculate the amount of ticks the falling block will live for.
         EntityFallingBlock block = new EntityFallingBlock(world, loc.getX(), loc.getBlockY(), loc.getZ(), data) {
             @Override
             public void tick() {
@@ -246,15 +248,6 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
             @Override
             public void move(EnumMoveType moveType, Vec3D motion) {
-
-                Vec3D stuckSpeedMultiplier = y;
-                if (stuckSpeedMultiplier.g() > 1.0E-7) {
-
-                    // Multiply the vectors
-                    motion = motion.h(stuckSpeedMultiplier);
-                    y = Vec3D.a;
-                    setMot(Vec3D.a);
-                }
 
                 // Some collision thing
                 Vec3D vec = getCollisionVector(motion);
@@ -274,19 +267,6 @@ public class Entity_1_15_R1 implements EntityCompatibility {
                 }
 
                 this.w = positionChanged || v; // w = collision
-
-                Vec3D currentMotion = getMot();
-                if (motion.x != currentMotion.x) {
-                    setMot(0, currentMotion.y, currentMotion.z);
-                }
-
-                if (motion.z != currentMotion.z) {
-                    setMot(currentMotion.x, currentMotion.y, 0);
-                }
-
-                if (motion.y != currentMotion.y) {
-                    getBlock().getBlock().a(this.world, this);
-                }
 
                 setMot(getMot().d(this.ai(), 1, this.ai()));
             }
@@ -329,20 +309,22 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
         int ticksAlive = -1;
 
-        if (motion != null) {
+        // Only determine the ticks the block will live if the arguments
+        // allow it
+        if (motion != null && maxTicks > 0) {
 
             block.setMot(motion.getX(), motion.getY(), motion.getZ());
-            while (block.isAlive()) {
+            while (block.isAlive() && block.ticksLived < maxTicks) {
                 block.tick();
             }
 
             ticksAlive = block.ticksLived;
         }
 
+        // Create a new block since the previous one is dead. No need
+        // to assign this block's motion, since that can only be updated
+        // via Velocity packets.
         block = new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), data);
-        if (motion != null) {
-            block.setMot(motion.getX(), motion.getY(), motion.getZ());
-        }
 
         return new FallingBlockWrapper(block, ticksAlive);
     }

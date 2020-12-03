@@ -7,7 +7,11 @@ import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_13_R1.*;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R1.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_13_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_13_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftItemFactory;
 import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftItemStack;
@@ -17,8 +21,6 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
@@ -164,8 +166,8 @@ public class Entity_1_13_R1 implements EntityCompatibility {
         fireworks.expectedLifespan = flightTime;
 
         // Handle fireworkeffects
-        ItemStack item = new ItemStack(CraftMagicNumbers.getItem(org.bukkit.Material.FIREWORK_ROCKET));
-        FireworkMeta meta = (FireworkMeta) CraftItemFactory.instance().getItemMeta(org.bukkit.Material.FIREWORK_ROCKET);
+        ItemStack item = new ItemStack(CraftMagicNumbers.getItem(Material.FIREWORK_ROCKET));
+        FireworkMeta meta = (FireworkMeta) CraftItemFactory.instance().getItemMeta(Material.FIREWORK_ROCKET);
         meta.addEffects(effects);
         CraftItemStack.setItemMeta(item, meta);
         fireworks.getDataWatcher().set(EntityFireworks.FIREWORK_ITEM, item);
@@ -194,19 +196,81 @@ public class Entity_1_13_R1 implements EntityCompatibility {
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull org.bukkit.Material mat, byte data, @Nullable Vector motion) {
-        return null;
+    public FallingBlockWrapper createFallingBlock(Location loc, Material mat, byte data, Vector motion, int maxTicks) {
+
+        IBlockData blockData = ((CraftBlockData) mat.createBlockData()).getState();
+        return createFallingBlock(loc, blockData, motion, maxTicks);
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull org.bukkit.block.BlockState state, @Nullable Vector motion) {
-        return null;
+    public FallingBlockWrapper createFallingBlock(Location loc, BlockState state, Vector motion, int maxTicks) {
+        if (loc.getWorld() == null) {
+            throw new IllegalArgumentException("World cannot be null");
+        }
+
+        IBlockData blockData = ((CraftBlockState) state).getHandle();
+        return createFallingBlock(loc, blockData, motion, maxTicks);
+    }
+
+    private FallingBlockWrapper createFallingBlock(Location loc, IBlockData data, Vector motion, int maxTicks) {
+        WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
+
+        // Create an anonymous falling block implementation that simplifies movement logic
+        // in order to calculate the amount of ticks the falling block will live for.
+        EntityFallingBlock block = new EntityFallingBlock(world, loc.getX(), loc.getBlockY(), loc.getZ(), data) {
+            @Override
+            public void tick() {
+                ticksLived++;
+
+                this.motY -= 0.04;
+
+                // Ideally, this method is overridden. Since I don't have the
+                // patience to sort through 300 lines of obfuscated code, I just
+                // use this method. Performance is slightly worse, but I don't care
+                // because nobody should be using this version anyway
+                move(EnumMoveType.SELF, this.motX, this.motY, this.motZ);
+
+                this.motX *= 0.98;
+                this.motY *= 0.98;
+                this.motZ *= 0.98;
+            }
+
+            @Override
+            public boolean ap() {
+                // This is to make sure this the move() method doesn't throw a bukkit event
+                // when the falling block falls into lava
+                return true;
+            }
+        };
+
+        int ticksAlive = -1;
+
+        // Only determine the ticks the block will live if the arguments
+        // allow it
+        if (motion != null && maxTicks > 0) {
+
+            block.motX = motion.getX();
+            block.motY = motion.getY();
+            block.motZ = motion.getZ();
+            while (block.isAlive() && block.ticksLived < maxTicks) {
+                block.tick();
+            }
+
+            ticksAlive = block.ticksLived;
+        }
+
+        // Create a new block since the previous one is dead. No need
+        // to assign this block's motion, since that can only be updated
+        // via Velocity packets.
+        block = new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), data);
+
+        return new FallingBlockWrapper(block, ticksAlive);
     }
 
     @Override
     public Object toNMSItemEntity(org.bukkit.inventory.ItemStack item, org.bukkit.World world, double x, double y, double z) {
         World nmsWorld = ((CraftWorld) world).getHandle();
-        net.minecraft.server.v1_13_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         return new EntityItem(nmsWorld, x, y, z, nmsItem);
     }

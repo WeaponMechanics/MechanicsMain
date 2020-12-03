@@ -2,6 +2,7 @@ package me.deecaad.compatibility.entity;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
@@ -127,12 +128,12 @@ public class EntityReflection implements EntityCompatibility {
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull org.bukkit.Material mat, byte data, @Nullable Vector motion) {
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data, @Nullable Vector motion, int maxTicks) {
         return null;
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion) {
+    public FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion, int maxTicks) {
         return null;
     }
 
