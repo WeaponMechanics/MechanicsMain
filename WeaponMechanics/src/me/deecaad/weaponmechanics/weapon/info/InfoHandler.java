@@ -87,7 +87,7 @@ public class InfoHandler {
      */
     @Nullable
     public String getWeaponTitle(ItemStack weaponStack, boolean autoConvert) {
-        if (weaponStack.getType() == Material.AIR) return null;
+        if (weaponStack == null || weaponStack.getType() == Material.AIR) return null;
         String weaponTitle = TagHelper.getStringTag(weaponStack, CustomTag.WEAPON_TITLE);
 
         // If its already weapon item stack

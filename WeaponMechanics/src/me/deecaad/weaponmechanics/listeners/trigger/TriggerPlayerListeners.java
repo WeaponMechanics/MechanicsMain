@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -270,6 +271,12 @@ public class TriggerPlayerListeners implements Listener {
         if (offWeapon != null)
             weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
 
+    }
+
+    // Just added this now?
+    @EventHandler
+    public void open(InventoryOpenEvent e) {
+        getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(true);
     }
 
     @EventHandler
