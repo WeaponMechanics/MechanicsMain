@@ -11,7 +11,8 @@ public class ScopeLevel {
     /**
      * Don't let anyone instantiate this class
      */
-    private ScopeLevel() { }
+    private ScopeLevel() {
+    }
 
     private static float[] getScopeLevels() {
         scopeLevels = new float[32];

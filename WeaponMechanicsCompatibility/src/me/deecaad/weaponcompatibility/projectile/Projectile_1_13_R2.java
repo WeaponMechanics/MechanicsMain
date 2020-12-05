@@ -114,6 +114,6 @@ public class Projectile_1_13_R2 implements IProjectileCompatibility {
         Location location = new Location(world, 1, 100, 1);
         org.bukkit.entity.Entity entity = ((CraftWorld) world).createEntity(location, entityType.getEntityClass()).getBukkitEntity();
         IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
-        return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
+        return new double[]{shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity)};
     }
 }

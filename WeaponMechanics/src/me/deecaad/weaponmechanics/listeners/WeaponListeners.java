@@ -25,7 +25,7 @@ public class WeaponListeners implements Listener {
         this.weaponHandler = weaponHandler;
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void itemHeld(PlayerItemHeldEvent e) {
         Player player = e.getPlayer();
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(player);
@@ -51,7 +51,7 @@ public class WeaponListeners implements Listener {
         entityWrapper.getOffHandData().cancelTasks();
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
 
@@ -63,7 +63,7 @@ public class WeaponListeners implements Listener {
         entityWrapper.getOffHandData().cancelTasks();
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getPlayer());
         entityWrapper.getMainHandData().cancelTasks();

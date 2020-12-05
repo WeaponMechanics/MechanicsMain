@@ -18,9 +18,9 @@ public class UpdateChecker extends AUpdateChecker {
         int minorsBehind = spigotResource.getMinorVersionsBehind();
         int patchesBehind = spigotResource.getPatchVersionsBehind();
 
-        char majorColor = majorsBehind >= 2 ? 'c': majorsBehind >= 1 ? 'e' : 'a';
-        char minorColor = minorsBehind >= 10 ? 'c': minorsBehind >= 5 ? 'e' : 'a';
-        char patchColor = patchesBehind >= 5 ? 'c': patchesBehind >= 3 ? 'e' : 'a';
+        char majorColor = majorsBehind >= 2 ? 'c' : majorsBehind >= 1 ? 'e' : 'a';
+        char minorColor = minorsBehind >= 10 ? 'c' : minorsBehind >= 5 ? 'e' : 'a';
+        char patchColor = patchesBehind >= 5 ? 'c' : patchesBehind >= 3 ? 'e' : 'a';
 
         sender.sendMessage("§7➢  §6There is an update available for WeaponMechanics");
         sender.sendMessage("§7➢    §6Major versions behind: " + majorColor + majorsBehind);

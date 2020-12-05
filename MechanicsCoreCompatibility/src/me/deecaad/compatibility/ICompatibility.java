@@ -31,7 +31,7 @@ public interface ICompatibility {
     /**
      * This is very useful method when using packet listeners since most of packets use entity ids
      *
-     * @param world the world where entity is
+     * @param world    the world where entity is
      * @param entityId the entity's id
      * @return the entity with that id as bukkit entity or null
      */
@@ -41,7 +41,7 @@ public interface ICompatibility {
     /**
      * Send all given packet objects to player
      *
-     * @param player the player to receive
+     * @param player  the player to receive
      * @param packets the packet objects to send
      */
     void sendPackets(Player player, Object... packets);

@@ -16,25 +16,26 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 /**
  * This class serves to get random
  * locations from points on an image.
- *
+ * <p>
  * A point is more likely to be selected
  * if it has less color (more black)
- *
+ * <p>
  * All SpreadImages should be constructed
  * onLoad or onEnable, as loading the image
  * from a file (IO operation) can be fairly
  * taxing.
  */
 public class SpreadImage implements Serializer<SpreadImage> {
-    
+
     private ProbabilityMap<Point> points;
     private int height, width;
-    
+
     /**
      * Default constructor for serialization
      */
-    public SpreadImage() {}
-    
+    public SpreadImage() {
+    }
+
     public SpreadImage(Sprite sprite, int fovWidth, int fovHeight) {
         this.points = new ProbabilityMap<>();
 
@@ -46,7 +47,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
 
         double xMiddle = width / 2.0;
         double yMiddle = height / 2.0;
-        
+
         int[][] pixels = ArrayUtils.toBlackAndWhite(sprite.getPixels());
         for (int y = 0; y < pixels.length; y++) {
             for (int x = 0; x < pixels[y].length; x++) {
@@ -61,11 +62,11 @@ public class SpreadImage implements Serializer<SpreadImage> {
             }
         }
     }
-    
+
     public int getHeight() {
         return height;
     }
-    
+
     public int getWidth() {
         return width;
     }
@@ -74,7 +75,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
      * Gets a given number of random points (x, y) from
      * <code>this.points</code> using the value of that
      * point as the chance for that point to be selected.
-     *
+     * <p>
      * If not enough points are found in the allowed number
      * of checks, then random points are selected, not taking
      * the point's value into account
@@ -84,7 +85,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
      */
     public Set<Point> getLocations(int amount) {
         Set<Point> points = new HashSet<>();
-        
+
         while (points.size() < amount) {
             points.add(this.points.get());
         }

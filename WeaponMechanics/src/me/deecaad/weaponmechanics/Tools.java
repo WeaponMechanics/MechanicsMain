@@ -5,14 +5,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 public class Tools {
-    
+
     public static void main(String[] args) {
         System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
     }
-    
+
     public static void entityHitBox() {
         EntityType[] types = EntityType.values();
-        
+
         System.out.println("Entity_Hitboxes:");
         for (EntityType type : types) {
             if (!type.isAlive()) continue; // If it can be a livingEntity, I think

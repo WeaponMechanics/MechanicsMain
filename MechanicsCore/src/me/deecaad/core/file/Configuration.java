@@ -35,7 +35,7 @@ public interface Configuration {
     /**
      * Sets the value at the given key
      *
-     * @param key Location to set
+     * @param key   Location to set
      * @param value The value to set at the location
      * @return The value previously at that location, or null
      */
@@ -177,9 +177,9 @@ public interface Configuration {
      * Get the <code>Object</code> value of type
      * <code>T</code> at the given key
      *
-     * @param key The location to pull the value from
+     * @param key   The location to pull the value from
      * @param clazz The class used to cast to type T
-     * @param <T> The data type of the value
+     * @param <T>   The data type of the value
      * @return The pulled and casted value
      */
     @Nullable
@@ -190,10 +190,10 @@ public interface Configuration {
      * <code>T</code> at the given key. If the key
      * is not present, the default value is returned.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
+     * @param key   The location to pull the value from
+     * @param def   The default value
      * @param clazz The class used to cast to type T
-     * @param <T> The data type of the value
+     * @param <T>   The data type of the value
      * @return The pulled and casted value
      */
     <T> T getObject(String key, T def, Class<T> clazz);
@@ -213,7 +213,7 @@ public interface Configuration {
      * then there is a second check to make sure it is of the
      * given data type
      *
-     * @param key The key to check for
+     * @param key   The key to check for
      * @param clazz The data type to check for
      * @return true if the key is present
      */
@@ -230,9 +230,9 @@ public interface Configuration {
      * <code>path</code> and checks to see if the
      * key is "deep" or not
      *
-     * @param path The starting path
+     * @param path     The starting path
      * @param consumer What to do with every key
-     * @param deep true if should go deep
+     * @param deep     true if should go deep
      */
     void forEach(String path, BiConsumer<String, Object> consumer, boolean deep);
 }

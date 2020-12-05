@@ -137,7 +137,7 @@ public abstract class PacketListener {
 
         beginInitProtocol = new ChannelInitializer<Channel>() {
             @Override
-            protected void initChannel(Channel channel)  {
+            protected void initChannel(Channel channel) {
                 channel.pipeline().addLast(endInitProtocol);
             }
         };
@@ -349,7 +349,7 @@ public abstract class PacketListener {
     /**
      * Gets called when any of the injected <code>Channel</code>'s
      * <code>PacketInterceptor</code> reads an incoming packet
-     *
+     * <p>
      * Note: This means that any injected server channel may
      * get this packet, meaning the result of
      * <code>wrapper#getPlayer</code> may equal <code>null</code>

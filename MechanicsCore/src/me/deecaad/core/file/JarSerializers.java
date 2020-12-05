@@ -8,7 +8,11 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -20,8 +24,8 @@ public class JarSerializers extends FileCopier {
      * Method to get all serializers inside plugin's jar file.
      *
      * @param plugin the plugin instance of jar
-     * @param jar the jar file of plugin
-     * @param noUse the list of class names which shouldn't be used (only simple name, not whole path)
+     * @param jar    the jar file of plugin
+     * @param noUse  the list of class names which shouldn't be used (only simple name, not whole path)
      * @return the list of all found serializers
      */
     public List<Serializer<?>> getAllSerializersInsideJar(Plugin plugin, File jar, String... noUse) {

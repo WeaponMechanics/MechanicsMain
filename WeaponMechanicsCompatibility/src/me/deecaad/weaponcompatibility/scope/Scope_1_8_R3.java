@@ -1,7 +1,15 @@
 package me.deecaad.weaponcompatibility.scope;
 
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_8_R3.AttributeInstance;
+import net.minecraft.server.v1_8_R3.AttributeModifier;
+import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_8_R3.MobEffect;
+import net.minecraft.server.v1_8_R3.MobEffectList;
+import net.minecraft.server.v1_8_R3.PacketPlayOutAbilities;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityEffect;
+import net.minecraft.server.v1_8_R3.PacketPlayOutRemoveEntityEffect;
+import net.minecraft.server.v1_8_R3.PacketPlayOutUpdateAttributes;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;

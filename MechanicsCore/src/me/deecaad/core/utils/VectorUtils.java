@@ -114,7 +114,7 @@ public class VectorUtils {
      * Translates the given <code>yaw</code> and <code>pitch</code> into
      * (x, y, z) components (a vector)
      *
-     * @param yaw Yaw
+     * @param yaw   Yaw
      * @param pitch Pitch
      * @return Vector
      */
@@ -131,15 +131,14 @@ public class VectorUtils {
     /**
      * Effectively gets a vector perpendicular to the
      * given vector.
-     *
+     * <p>
      * Examples:
      * (0, 10, 0) -> (0, -0, 10)
      * (10, 0, 10) -> (0, -10, 0)
      *
-     * @throws IllegalArgumentException If the given vector's length is 0
-     *
      * @param vector The vector to use to get a perpendicular
      * @return The perpendicular method
+     * @throws IllegalArgumentException If the given vector's length is 0
      */
     public static Vector getPerpendicular(Vector vector) {
         double x = vector.getX();

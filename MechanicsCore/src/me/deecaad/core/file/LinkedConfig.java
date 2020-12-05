@@ -10,7 +10,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -20,17 +24,17 @@ import static me.deecaad.core.MechanicsCore.debug;
  * This class is Map of Strings and Objects that
  * represent different keys and values. All values
  * are put in insertion order, for saving purpose.
- *
+ * <p>
  * Since all Objects are stored inside of one map,
  * there is an overheard created from typecasting
  * the objects from their reference type to their
  * Object type.
- *
+ * <p>
  * The advantage of this Configuration is that when
  * it is saved, all the keys are saved in order, not
  * disturbing whichever order players may have saved
  * it in.
- *
+ * <p>
  * Explanations on each method are provided
  * in the Configuration interface
  *
@@ -112,27 +116,27 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     public int getInt(@Nonnull String key) {
         return ((Number) getOrDefault(key, 0)).intValue();
     }
-    
+
     @Override
     public int getInt(String key, int def) {
         return ((Number) getOrDefault(key, def)).intValue();
     }
-    
+
     @Override
     public double getDouble(@Nonnull String key) {
         return ((Number) getOrDefault(key, 0.0)).doubleValue();
     }
-    
+
     @Override
     public double getDouble(String key, double def) {
         return ((Number) getOrDefault(key, def)).doubleValue();
     }
-    
+
     @Override
     public boolean getBool(@Nonnull String key) {
         return (boolean) getOrDefault(key, false);
     }
-    
+
     @Override
     public boolean getBool(String key, boolean def) {
         return (boolean) getOrDefault(key, def);
@@ -164,7 +168,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     public String getString(@Nonnull String key) {
         return (String) getOrDefault(key, null);
     }
-    
+
     @Override
     public String getString(String key, String def) {
         return (String) getOrDefault(key, def);
@@ -194,13 +198,13 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         // clazz.cast -> returns the object after casting, or null if obj is null
         return clazz.cast(get(key));
     }
-    
+
     @Override
     public <T> T getObject(String key, T def, Class<T> clazz) {
         Object value = get(key);
         return value != null ? clazz.cast(value) : def;
     }
-    
+
     @Override
     public boolean containsKey(@Nonnull String key) {
         return super.containsKey(key);
@@ -234,7 +238,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     public void save(@Nonnull File file) {
         FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-        
+
         // basic support for changing keys during the program AND
         // allowing the program to change keys.
         try {
@@ -245,7 +249,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
         // Deletes all keys from config
         configuration.getKeys(true).forEach(key -> configuration.set(key, null));
-        
+
         // Set and save
         forEach(configuration::set);
         try {

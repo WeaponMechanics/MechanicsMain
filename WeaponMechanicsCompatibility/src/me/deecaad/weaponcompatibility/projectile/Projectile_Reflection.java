@@ -333,7 +333,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
 
     @Override
     public void destroyDisguise(CustomProjectile customProjectile) {
-        Object destroy = ReflectionUtil.newInstance(entityDestroyPacket, new int[]{ customProjectile.getProjectileDisguiseId() });
+        Object destroy = ReflectionUtil.newInstance(entityDestroyPacket, new int[]{customProjectile.getProjectileDisguiseId()});
 
         sendUpdatePackets(customProjectile, 22500, destroy);
     }
@@ -345,7 +345,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         Object nmsEntity = ReflectionUtil.invokeMethod(createEntity, world, location, entityType.getEntityClass());
         org.bukkit.entity.Entity entity = (org.bukkit.entity.Entity) ReflectionUtil.invokeMethod(getAsBukkitEntity, nmsEntity);
         IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
-        return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
+        return new double[]{shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity)};
     }
 
     @Override

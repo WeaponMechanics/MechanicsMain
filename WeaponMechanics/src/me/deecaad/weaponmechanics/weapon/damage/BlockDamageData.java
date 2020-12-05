@@ -92,7 +92,7 @@ public final class BlockDamageData implements Listener {
 
         // Cloning to avoid concurrent modification
         Set<Chunk> chunks = new HashSet<>(getBlockDamageMap().keySet());
-        for (Chunk chunk: chunks) {
+        for (Chunk chunk : chunks) {
             regenerate(chunk);
         }
     }
@@ -136,7 +136,7 @@ public final class BlockDamageData implements Listener {
          * amount of damage
          *
          * @param damageAmount The amount of damage, should be lower then maxDamage
-         * @param maxDamage The maximum amount of damage this weapon can deal to a block
+         * @param maxDamage    The maximum amount of damage this weapon can deal to a block
          */
         public void damage(int damageAmount, int maxDamage) {
             this.durability -= ((double) damageAmount) / ((double) maxDamage);

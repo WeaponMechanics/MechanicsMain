@@ -13,13 +13,13 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
 
 @CommandPermission(permission = "weaponmechanics.commands.give")
 public class GiveCommand extends SubCommand {
-    
+
     // give <Player> <Weapon> <Amount>
-    
+
     public GiveCommand() {
         super("wm", "give", "Gives a given number of weapons to a given player", "<weapon> <amount> <player>");
     }
-    
+
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0 || args.length > 3) {

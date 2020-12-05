@@ -76,7 +76,7 @@ public class CastData {
      * Set new data for this cast.
      * For example this is used to store reload tasks to correct hand.
      *
-     * @param key the key used
+     * @param key   the key used
      * @param value the value for key
      */
     public void setData(String key, Object value) {

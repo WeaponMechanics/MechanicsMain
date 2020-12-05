@@ -21,7 +21,7 @@ public interface IVaultCompatibility {
      * deposit methods. If the player does not yet have an
      * account, a new one is created.
      *
-     * @param player The player to set the balance of
+     * @param player  The player to set the balance of
      * @param balance The balance to set
      */
     void setBalance(OfflinePlayer player, double balance);

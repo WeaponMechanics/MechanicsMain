@@ -34,7 +34,7 @@ public class HandData {
      * - Reload tasks
      * - Shoot firearm action task
      * - Zooming
-     *
+     * <p>
      * Does not cancel recoil task.
      */
     public void cancelTasks() {

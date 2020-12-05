@@ -48,8 +48,8 @@ public class WeaponHandler {
      * and PlayerSwapHandItemsEvent.
      *
      * @param livingEntity the living entity which caused trigger
-     * @param triggerType the trigger type
-     * @param autoConvert whether or not the weapon items should be converted
+     * @param triggerType  the trigger type
+     * @param autoConvert  whether or not the weapon items should be converted
      */
     public void useTrigger(LivingEntity livingEntity, TriggerType triggerType, boolean autoConvert) {
 
@@ -76,14 +76,17 @@ public class WeaponHandler {
         if (mainWeapon == null && offWeapon == null) return;
 
         // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
+        if (useOffHand && infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon))
+            return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
-        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield);
+        if (mainWeapon != null)
+            tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield);
 
         // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
+        if (offWeapon != null)
+            tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
     }
 
     /**
@@ -96,11 +99,11 @@ public class WeaponHandler {
      * }</pre>
      *
      * @param entityWrapper the entity which caused trigger
-     * @param weaponTitle the weapon title involved
-     * @param weaponStack the weapon stack involved
-     * @param slot the weapon slot used
-     * @param triggerType the trigger which caused this
-     * @param dualWield whether or not this was dual wield
+     * @param weaponTitle   the weapon title involved
+     * @param weaponStack   the weapon stack involved
+     * @param slot          the weapon slot used
+     * @param triggerType   the trigger which caused this
+     * @param dualWield     whether or not this was dual wield
      */
     public void tryUses(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
 
@@ -172,7 +175,7 @@ public class WeaponHandler {
      * Sets new info handler for WeaponMechanics.
      * It is up to you how you use this. You can override all methods used by
      * default if you want to or simply some methods you want to modify some.
-     *
+     * <p>
      * WeaponMechanics doesn't notify you about changes in info handler code
      * so you will have to be careful when using this method. It is recommended
      * to use super.method() and after that add your new stuff you want to add, this
@@ -196,7 +199,7 @@ public class WeaponHandler {
      * Sets new shoot handler for WeaponMechanics.
      * It is up to you how you use this. You can override all methods used by
      * default if you want to or simply some methods you want to modify some.
-     *
+     * <p>
      * WeaponMechanics doesn't notify you about changes in shoot handler code
      * so you will have to be careful when using this method. It is recommended
      * to use super.method() and after that add your new stuff you want to add, this
@@ -220,7 +223,7 @@ public class WeaponHandler {
      * Sets new reload handler for WeaponMechanics.
      * It is up to you how you use this. You can override all methods used by
      * default if you want to or simply some methods you want to modify some.
-     *
+     * <p>
      * WeaponMechanics doesn't notify you about changes in reload handler code
      * so you will have to be careful when using this method. It is recommended
      * to use super.method() and after that add your new stuff you want to add, this
@@ -244,7 +247,7 @@ public class WeaponHandler {
      * Sets new scope handler for WeaponMechanics.
      * It is up to you how you use this. You can override all methods used by
      * default if you want to or simply some methods you want to modify some.
-     *
+     * <p>
      * WeaponMechanics doesn't notify you about changes in scope handler code
      * so you will have to be careful when using this method. It is recommended
      * to use super.method() and after that add your new stuff you want to add, this

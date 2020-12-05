@@ -12,10 +12,10 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -25,7 +25,14 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class CustomProjectile implements ICustomProjectile {
 
@@ -203,7 +210,8 @@ public class CustomProjectile implements ICustomProjectile {
 
     @Override
     public void updateDisguiseLocationAndMotion() {
-        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
+        if (projectileDisguiseId != 0)
+            projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
     }
 
     @Override
@@ -258,30 +266,32 @@ public class CustomProjectile implements ICustomProjectile {
             }
         } else if (explosion != null) {
             Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
-            boolean explosionTriggered = getTag("explosion-detonation") != null;
+            boolean explosionCanTrigger = !"true".equals(getTag("explosion-detonation"));
             boolean fluid = MaterialHelper.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
             boolean solid = collisionData.getBlock().getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
 
-            if (!explosionTriggered && (fluid || solid)) {
+            if (explosionCanTrigger && (fluid || solid)) {
 
                 new BukkitRunnable() {
                     @Override
                     public void run() {
                         Vector v = getLocation();
-                        Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
+                        Location origin = v.toLocation(world);
                         explosion.explode(shooter, origin, CustomProjectile.this);
 
-                        setTag("explosion-detonation", "true");
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
             }
+
+            setTag("explosion-detonation", "true");
+            remove();
         }
 
         return false;
     }
 
     /**
-     * @param collisionData the collision data of hit entity
+     * @param collisionData       the collision data of hit entity
      * @param normalizedDirection the direction of projectile in normalized form
      * @return true if projectile hit was cancelled
      */
@@ -332,8 +342,8 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
-        boolean canExplode = getTag("explosion-detonation") == null;
-        if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
+        boolean explosionCanTrigger = !"true".equals(getTag("explosion-detonation"));
+        if (!isCancelled && explosion != null && explosionCanTrigger && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
             new BukkitRunnable() {
                 @Override
@@ -342,10 +352,11 @@ public class CustomProjectile implements ICustomProjectile {
                     Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
                     explosion.explode(shooter, origin, CustomProjectile.this);
 
-                    setTag("explosion-detonation", "true");
                 }
             }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
         }
+
+        setTag("explosion-detonation", "true");
 
         return false;
     }
@@ -403,7 +414,8 @@ public class CustomProjectile implements ICustomProjectile {
             motionLength = motion.length();
         }
 
-        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
+        if (projectileDisguiseId != 0)
+            projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
 
         lastLocation = location.clone();
 
@@ -435,7 +447,7 @@ public class CustomProjectile implements ICustomProjectile {
 
     /**
      * Ray traces projectile and motion length distance.
-     *
+     * <p>
      * If through settings doesn't allow passing through blocks or entities this will only
      * allow one block or entity. If they allow, then there may be many blocks or entities in one ray trace.
      * This method can't use more blocks or entities than getThroughSettings() settings allow (Maximum_Pass_Throughs).
@@ -593,7 +605,8 @@ public class CustomProjectile implements ICustomProjectile {
                     if (blockBox == null) continue; // Null means most likely that block is passable, liquid or air
 
                     Vector hitLocation = projectileBox.collisionPoint(blockBox);
-                    if (hitLocation == null) continue; // Null means that projectile hit box and block hit box didn't collide
+                    if (hitLocation == null)
+                        continue; // Null means that projectile hit box and block hit box didn't collide
 
                     CollisionData blockCollision = new CollisionData(blockBox, hitLocation, block);
                     if (blockCollisions.contains(blockCollision) // if this iteration already once hit block
@@ -616,7 +629,8 @@ public class CustomProjectile implements ICustomProjectile {
                 if (entityBox == null) continue; // entity is invulnerable or non alive
 
                 Vector hitLocation = projectileBox.collisionPoint(entityBox);
-                if (hitLocation == null) continue; // Null means that projectile hit box and entity hit box didn't collide
+                if (hitLocation == null)
+                    continue; // Null means that projectile hit box and entity hit box didn't collide
 
                 CollisionData entityCollision = new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 if (entityCollisions.contains(entityCollision) // if this iteration already once hit entity
@@ -644,7 +658,8 @@ public class CustomProjectile implements ICustomProjectile {
      * @param nmsEntityId the projectile disguise's id
      */
     public void setProjectileDisguiseId(int nmsEntityId) {
-        if (projectileDisguiseId != 0) throw new IllegalArgumentException("You can't set new projectile disguise id after its set!");
+        if (projectileDisguiseId != 0)
+            throw new IllegalArgumentException("You can't set new projectile disguise id after its set!");
         projectileDisguiseId = nmsEntityId;
     }
 

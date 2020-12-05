@@ -10,7 +10,7 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
     private int zoomAmount;
     private final int zoomStack;
     private boolean isCancelled;
-    
+
     public WeaponScopeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity livingEntity, ScopeType scopeType, int zoomAmount, int zoomStack) {
         super(weaponTitle, weaponStack, livingEntity);
 

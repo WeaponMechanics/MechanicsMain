@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -48,7 +49,7 @@ public class TriggerPlayerListeners implements Listener {
         removeEntityWrapper(e.getPlayer());
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void toggleSneak(PlayerToggleSneakEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak")) return;
 
@@ -63,7 +64,7 @@ public class TriggerPlayerListeners implements Listener {
         weaponHandler.useTrigger(player, isSneaking ? TriggerType.START_SNEAK : TriggerType.END_SNEAK, false);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void toggleSprint(PlayerToggleSprintEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint")) return;
 
@@ -76,7 +77,7 @@ public class TriggerPlayerListeners implements Listener {
         weaponHandler.useTrigger(e.getPlayer(), e.isDoubleJump() ? TriggerType.DOUBLE_JUMP : TriggerType.JUMP, false);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void toggleFlight(PlayerToggleFlightEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) return;
 
@@ -162,29 +163,35 @@ public class TriggerPlayerListeners implements Listener {
 
         if (rightClick) {
             // Only do dual wield check if server is 1.9 or newer
-            if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
+            if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon))
+                return;
 
-            if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield);
+            if (mainWeapon != null)
+                weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield);
 
             // Off weapon is automatically null at this point if server is using 1.8
-            if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield);
+            if (offWeapon != null)
+                weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield);
             return;
         }
 
         // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
+        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon))
+            return;
 
-        if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield);
+        if (mainWeapon != null)
+            weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield);
 
         // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield);
+        if (offWeapon != null)
+            weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield);
     }
 
     /**
      * This is simply used to cancel player arm swing animation from OTHER players.
      * It can't be cancelled from the player doing the arm swing.
      */
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void animation(PlayerAnimationEvent e) {
         if (e.getAnimationType() != PlayerAnimationType.ARM_SWING) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
@@ -220,7 +227,7 @@ public class TriggerPlayerListeners implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void dropItem(PlayerDropItemEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
         if (getPlayerWrapper(e.getPlayer()).isInventoryOpen()) return;
@@ -250,7 +257,8 @@ public class TriggerPlayerListeners implements Listener {
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
+        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon))
+            return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
@@ -260,8 +268,15 @@ public class TriggerPlayerListeners implements Listener {
         }
 
         // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
+        if (offWeapon != null)
+            weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
 
+    }
+
+    // Just added this now?
+    @EventHandler
+    public void open(InventoryOpenEvent e) {
+        getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(true);
     }
 
     @EventHandler

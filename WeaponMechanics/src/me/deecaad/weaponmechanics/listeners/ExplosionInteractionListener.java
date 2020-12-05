@@ -8,15 +8,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.WorldSaveEvent;
-
-import java.util.HashSet;
 
 /**
  * Listens and cancels events that could interfere
  * with block regeneration, or cause damage because
  * of the missing blocks
- *
+ * <p>
  * It also regenerates blocks if chunks unload
  */
 public class ExplosionInteractionListener implements Listener {
