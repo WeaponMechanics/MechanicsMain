@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
+import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
@@ -165,7 +166,7 @@ public class Explosion {
     /**
      * Triggers the explosion at the given location
      *
-     * @param cause Whoever caused the explosion
+     * @param cause  Whoever caused the explosion
      * @param origin The center of the explosion
      */
     public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
@@ -177,7 +178,11 @@ public class Explosion {
         final List<Block> transparent = new ArrayList<>();
         final List<Block> solid = new ArrayList<>();
 
-        // Sort out the blocks to destroy for later usage
+        final EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+
+        // Separate transparent and solid blocks. Since transparent
+        // blocks (e.x. GRASS) are prone to breaking during block
+        // updates, we need to remove/regenerate them differently
         for (Block block : blocks) {
             Material type = block.getType();
 
@@ -188,7 +193,7 @@ public class Explosion {
             }
         }
 
-        // Determine how soon we should start regenerating blocks
+        // The time, in ticks, before blocks can start regenerating
         int timeOffset;
         if (regeneration == null) {
             timeOffset = -1;
@@ -196,8 +201,8 @@ public class Explosion {
             timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval() + regeneration.getTicksBeforeStart();
         }
 
-        // Stores data for falling blocks
-        Map<BlockState, Vector> blockVelocities = new HashMap<>();
+        // Maps FallingBlockWrappers to the velocity it should have
+        Map<FallingBlockWrapper, Vector> blockVelocities = new HashMap<>();
 
         // We damage transparent blocks separately from solid blocks
         // to help make regeneration more accurate... mainly redstone.
@@ -207,14 +212,19 @@ public class Explosion {
         int size = transparent.size();
         for (int i = 0; i < size; i++) {
             Block block = transparent.get(i);
-            BlockState state = block.getState();
 
             // This forces all transparent blocks to regenerate at once.
             // This fixes item sorters breaking and general hopper/redstone stuff
-            if (blockDamage.damage(block, timeOffset) && blockChance != 0.0 && NumberUtils.chance(blockChance)) {
+            if (blockDamage.damage(block, timeOffset) && blockChance > 0.0 && (blockChance >= 1.0 || NumberUtils.chance(blockChance))) {
 
-                Vector velocity = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5).subtract(origin.toVector());
-                blockVelocities.put(state, velocity);
+                BlockState state = block.getState();
+                Location loc = state.getLocation().add(0.5, 0.5, 0.5);
+                Vector velocity = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5)
+                        .subtract(origin.toVector());
+
+                if (projectile != null) velocity.add(projectile.getMotion().multiply(-1).normalize());
+
+                blockVelocities.put(entityCompatibility.createFallingBlock(loc, state, velocity, 160), velocity);
             }
         }
 
@@ -244,32 +254,30 @@ public class Explosion {
                         (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
             }
 
-            BlockState state = block.getState();
-
             // Damage the block. If it breaks, handle any effects
-            if (blockDamage.damage(block, regenTime) && blockChance != 0.0 && NumberUtils.chance(blockChance)) {
+            if (blockDamage.damage(block, regenTime) && blockChance > 0.0 && (blockChance >= 1.0 || NumberUtils.chance(blockChance))) {
 
-                Vector vector = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5).subtract(origin.toVector());
-                blockVelocities.put(state, vector);
+                BlockState state = block.getState();
+                Location loc = state.getLocation().add(0.5, 0.5, 0.5);
+                Vector velocity = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5).subtract(origin.toVector());
+                blockVelocities.put(entityCompatibility.createFallingBlock(loc, state, velocity, 160), velocity);
             }
         }
 
         @SuppressWarnings("unchecked")
         Iterable<Player> playersInView = (Collection<Player>) (Collection<?>) origin.getWorld().getNearbyEntities(origin, 100, 100, 100, entity -> entity.getType() == EntityType.PLAYER);
-        List<Object> fallingBlocks = new ArrayList<>(blockVelocities.size());
+
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                blockVelocities.forEach((state, vector) -> {
-                    EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+                blockVelocities.forEach((wrapper, vector) -> {
 
-                    Object nms = entityCompatibility.createFallingBlock(state.getLocation().add(0.5, 0.5, 0.5), state, vector);
+                    Object nms = wrapper.getEntity();
+
                     Object spawnPacket = entityCompatibility.getSpawnPacket(nms);
                     Object metaPacket = entityCompatibility.getMetadataPacket(nms);
                     Object velocityPacket = entityCompatibility.getVelocityPacket(nms, vector);
-
-                    fallingBlocks.add(nms);
 
                     for (Player player : playersInView) {
                         CompatibilityAPI.getCompatibility().sendPackets(player, spawnPacket, metaPacket, velocityPacket);
@@ -278,21 +286,21 @@ public class Explosion {
             }
         }.runTaskAsynchronously(WeaponMechanics.getPlugin());
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Object obj : fallingBlocks) {
-                    EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+        blockVelocities.forEach((wrapper, vector) -> {
+            Object nms = wrapper.getEntity();
+            int delay = wrapper.getTimeToHitGround();
 
-                    Object destroyPacket = entityCompatibility.getDestroyPacket(obj);
+            Object destroyPacket = entityCompatibility.getDestroyPacket(nms);
 
+            new BukkitRunnable() {
+                @Override
+                public void run() {
                     for (Player player : playersInView) {
                         CompatibilityAPI.getCompatibility().sendPackets(player, destroyPacket);
                     }
                 }
-            }
-        }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), 80);
-
+            }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), delay);
+        });
 
         // Handles damage and knockback to living entities. Knockback
         // is handled like vanilla knockback, and damage is very similar
@@ -418,14 +426,16 @@ public class Explosion {
                 return;
             }
 
-            debug.debug("Splitting cluster bomb");
+            debug.debug("Splitting cluster bomb into " + bombs + " fragments. Current depth: " + currentDepth);
 
             for (int i = 0; i < bombs; i++) {
                 Vector vector = VectorUtils.random(speed);
 
                 // Either use the projectile settings from the "parent" projectile,
                 // or use the projectile settings for this clusterbomb
-                (this.projectile == null ? projectile.getProjectileSettings() : this.projectile).shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), weaponTitle).setTag("cluster-split-level", String.valueOf(currentDepth + 1));
+                (this.projectile == null ? projectile.getProjectileSettings() : this.projectile)
+                        .shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), weaponTitle)
+                        .setTag("cluster-split-level", String.valueOf(currentDepth + 1));
             }
 
             // Remove the parent split

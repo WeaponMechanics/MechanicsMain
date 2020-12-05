@@ -43,14 +43,15 @@ public class Projectile implements Serializer<Projectile> {
     /**
      * Empty constructor to be used as serializer
      */
-    public Projectile() { }
+    public Projectile() {
+    }
 
     /**
      * Shoots this projectile with given location and motion
      *
-     * @param entity the living entity used to shoot
+     * @param entity   the living entity used to shoot
      * @param location the location from where to shoot
-     * @param motion the motion of projectile
+     * @param motion   the motion of projectile
      */
     public ICustomProjectile shoot(LivingEntity entity, Location location, Vector motion) {
         CustomProjectile projectile = new CustomProjectile(this, entity, location, motion);
@@ -61,9 +62,9 @@ public class Projectile implements Serializer<Projectile> {
     /**
      * Shoots this projectile with given location and motion
      *
-     * @param entity the living entity used to shoot
-     * @param location the location from where to shoot
-     * @param motion the motion of projectile
+     * @param entity      the living entity used to shoot
+     * @param location    the location from where to shoot
+     * @param motion      the motion of projectile
      * @param weaponStack the weapon stack used to shoot
      * @param weaponTitle the weapon title used to shoot
      */

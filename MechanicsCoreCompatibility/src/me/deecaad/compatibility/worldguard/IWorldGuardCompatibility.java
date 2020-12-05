@@ -14,7 +14,7 @@ public interface IWorldGuardCompatibility {
      * the given <code>Location</code>
      *
      * @param location Where to test
-     * @param player Who to test against (Ops have more permission, for example)
+     * @param player   Who to test against (Ops have more permission, for example)
      * @param flagName The name of the flag to test
      * @return true if the flag is enabled in the region
      */

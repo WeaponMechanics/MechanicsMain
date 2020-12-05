@@ -12,7 +12,7 @@ public class FallingBlockWrapper {
     /**
      * Only let compatibility methods instantiate this class
      *
-     * @param entity The nms entity
+     * @param entity          The nms entity
      * @param timeToHitGround The time, in ticks, to hit the ground (or -1)
      */
     FallingBlockWrapper(Object entity, int timeToHitGround) {

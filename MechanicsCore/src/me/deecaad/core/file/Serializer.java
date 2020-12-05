@@ -19,11 +19,11 @@ public interface Serializer<T> {
     /**
      * Basically if this is not null then all other serializers will be used except these ones which
      * have useLater() returning not null. useLater() should only return something else than null if path to configuration option is used.
-     *
+     * <p>
      * Path to should not be never used multiple times inside one serializer!
      *
      * @param configurationSection the configuration section
-     * @param path the path to this serializer's path (path to keyword like path.keyword)
+     * @param path                 the path to this serializer's path (path to keyword like path.keyword)
      * @return true if this serializer should be used later
      */
     default String useLater(ConfigurationSection configurationSection, String path) {
@@ -41,9 +41,9 @@ public interface Serializer<T> {
     /**
      * This should be used in new iteration of serialization for all serializers which had Path_To used.
      *
-     * @param filledMap the already filled map
+     * @param filledMap        the already filled map
      * @param pathWhereToStore the path where the SAME object at filledMap should also be stored (just under different key)
-     * @param pathTo the path where to try to find object from filledMap
+     * @param pathTo           the path where to try to find object from filledMap
      */
     default void tryPathTo(Configuration filledMap, String pathWhereToStore, String pathTo) {
         Object obj = filledMap.getObject(pathTo, null);
@@ -78,9 +78,9 @@ public interface Serializer<T> {
      * everything required should be saved into this method's return object because
      * FileAPI will not save anything after this keyword anymore if this doesn't return null.
      *
-     * @param file the file being filled
+     * @param file                 the file being filled
      * @param configurationSection the configuration section
-     * @param path the path to this serializer's path (path to keyword like path.keyword)
+     * @param path                 the path to this serializer's path (path to keyword like path.keyword)
      * @return the serialized object or null
      */
     T serialize(File file, ConfigurationSection configurationSection, String path);

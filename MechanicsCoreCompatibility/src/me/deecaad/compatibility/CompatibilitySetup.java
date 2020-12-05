@@ -28,7 +28,7 @@ public class CompatibilitySetup {
 
     /**
      * @param interfaceClazz the compatibility interface type
-     * @param directory the directory in code where compatibility should exist
+     * @param directory      the directory in code where compatibility should exist
      * @return the compatible version from given directory
      */
     @Nullable

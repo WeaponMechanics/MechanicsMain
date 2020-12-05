@@ -27,8 +27,9 @@ public class MaterialHelper {
     /**
      * Don't let anyone instantiate this class
      */
-    private MaterialHelper() { }
-    
+    private MaterialHelper() {
+    }
+
     /**
      * Simple method to convert string to item stack.
      *

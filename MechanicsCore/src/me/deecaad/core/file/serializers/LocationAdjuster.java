@@ -16,7 +16,8 @@ public class LocationAdjuster implements Serializer<LocationAdjuster> {
     /**
      * Empty constructor to be used as serializer
      */
-    public LocationAdjuster() {}
+    public LocationAdjuster() {
+    }
 
     /**
      * This can be used to find new location based on x, y, z given from certain location.

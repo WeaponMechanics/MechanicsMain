@@ -11,7 +11,7 @@ public class EntityToggleInMidairEvent extends WeaponMechanicsEvent {
      * Called when player goes midair or lands.
      *
      * @param livingEntity the livingEntity used in event
-     * @param isInMidair is in midair
+     * @param isInMidair   is in midair
      */
     public EntityToggleInMidairEvent(LivingEntity livingEntity, boolean isInMidair) {
         this.livingEntity = livingEntity;

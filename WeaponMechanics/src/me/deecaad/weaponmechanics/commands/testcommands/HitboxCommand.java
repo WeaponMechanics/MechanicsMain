@@ -42,6 +42,7 @@ public class HitboxCommand extends SubCommand {
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
         new BukkitRunnable() {
             int ticksPassed = 0;
+
             public void run() {
 
                 for (Entity entity : entities) {

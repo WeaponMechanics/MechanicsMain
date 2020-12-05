@@ -83,7 +83,7 @@ public class EntityWrapper implements IEntityWrapper {
         }
         Bukkit.getPluginManager().callEvent(new EntityToggleWalkEvent(entity, walking));
     }
-    
+
     @Override
     public boolean isInMidair() {
         return this.inMidair;

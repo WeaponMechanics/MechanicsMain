@@ -20,11 +20,12 @@ public class TagUtils {
     /**
      * Don't let anyone instantiate this class
      */
-    private TagUtils() { }
+    private TagUtils() {
+    }
 
     /**
      * @param itemStack the item stack from which to get tag
-     * @param tag the tag name
+     * @param tag       the tag name
      * @return the value of the tag (may be null)
      */
     public static String getStringTag(ItemStack itemStack, String tag) {
@@ -53,8 +54,8 @@ public class TagUtils {
      * Set or change tag of item stack with given value.
      *
      * @param itemStack the item stack to modify
-     * @param tag the tag name
-     * @param value the value for tag
+     * @param tag       the tag name
+     * @param value     the value for tag
      * @return the item stack with new or modified tag value
      */
     public static ItemStack setStringTag(ItemStack itemStack, String tag, String value) {
@@ -89,7 +90,7 @@ public class TagUtils {
 
     /**
      * @param itemStack the item stack from which to get tag
-     * @param tag the tag name
+     * @param tag       the tag name
      * @return the value of the tag (may be null)
      */
     public static Integer getIntegerTag(ItemStack itemStack, String tag) {
@@ -120,8 +121,8 @@ public class TagUtils {
      * Set or change tag of item stack with given value.
      *
      * @param itemStack the item stack to modify
-     * @param tag the tag name
-     * @param value the value for tag
+     * @param tag       the tag name
+     * @param value     the value for tag
      * @return the item stack with new or modified tag value
      */
     public static ItemStack setIntegerTag(ItemStack itemStack, String tag, int value) {
@@ -160,9 +161,9 @@ public class TagUtils {
      * This method keeps other attributes set by for example commands or other plugins, BUT
      * overrides WeaponMechanics old attribute value if found.
      *
-     * @param itemStack the item stack to which attribute will be set
+     * @param itemStack     the item stack to which attribute will be set
      * @param attributeType the attribute type
-     * @param amount the amount for attribute type
+     * @param amount        the amount for attribute type
      * @return the item stack with attribute
      */
     public static ItemStack setAttributeValue(ItemStack itemStack, AttributeType attributeType, double amount) {

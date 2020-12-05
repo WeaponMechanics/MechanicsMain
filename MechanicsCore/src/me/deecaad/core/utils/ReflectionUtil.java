@@ -29,8 +29,9 @@ public class ReflectionUtil {
     /**
      * Don't let anyone instantiate this class
      */
-    private ReflectionUtil() { }
-    
+    private ReflectionUtil() {
+    }
+
     /**
      * Tries to find class from net.minecraft.server.SERVERVERSION.className
      *
@@ -63,7 +64,7 @@ public class ReflectionUtil {
 
     /**
      * @param classObject the class from where to get constructor
-     * @param parameters the params for constructor
+     * @param parameters  the params for constructor
      * @return the constructor or null if not found
      */
     public static Constructor<?> getConstructor(@Nonnull Class<?> classObject, Class<?>... parameters) {
@@ -79,7 +80,7 @@ public class ReflectionUtil {
      * Instantiates new object with given constructor and params
      *
      * @param constructor the constructor to construct
-     * @param parameters the params for constructor (must match)
+     * @param parameters  the params for constructor (must match)
      * @return the new instance as object
      */
     public static Object newInstance(@Nonnull Constructor<?> constructor, Object... parameters) {
@@ -109,7 +110,7 @@ public class ReflectionUtil {
 
     /**
      * @param classObject the class from where to get field
-     * @param fieldName the field name in class
+     * @param fieldName   the field name in class
      * @return the field or null if not found
      */
     public static Field getField(@Nonnull Class<?> classObject, @Nonnull String fieldName) {
@@ -131,8 +132,8 @@ public class ReflectionUtil {
      * type of the variables does not.
      *
      * @param target The class to pull the field from (Or from any of it's superclasses)
-     * @param name The name of the field, or null for any name
-     * @param type The type the field must have
+     * @param name   The name of the field, or null for any name
+     * @param type   The type the field must have
      * @return The found field
      * @throws IllegalArgumentException When no such field exists
      */
@@ -185,7 +186,7 @@ public class ReflectionUtil {
     }
 
     /**
-     * @param field the field to get value from
+     * @param field    the field to get value from
      * @param instance the instance holding field (null in static use)
      * @return the field object or null if not found
      */
@@ -199,9 +200,9 @@ public class ReflectionUtil {
     }
 
     /**
-     * @param field the field to set new value
+     * @param field    the field to set new value
      * @param instance the instance holding field (null in static use)
-     * @param value the new value for field
+     * @param value    the new value for field
      */
     public static void setField(@Nonnull Field field, @Nullable Object instance, Object value) {
         try {
@@ -213,8 +214,8 @@ public class ReflectionUtil {
 
     /**
      * @param classObject the class from where to get method
-     * @param methodName the method name in class
-     * @param parameters the params for method
+     * @param methodName  the method name in class
+     * @param parameters  the params for method
      * @return the method or null if not found
      */
     public static Method getMethod(@Nonnull Class<?> classObject, @Nonnull String methodName, Class<?>... parameters) {
@@ -230,7 +231,7 @@ public class ReflectionUtil {
         }
     }
 
-    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, Class<?>...params) {
+    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, Class<?>... params) {
         for (final Method method : target.getDeclaredMethods()) {
             if (returnType != null && !returnType.isAssignableFrom(method.getReturnType()))
                 continue;
@@ -252,8 +253,8 @@ public class ReflectionUtil {
     }
 
     /**
-     * @param method the method to modify
-     * @param instance the instance used to invoke method (null in static use)
+     * @param method     the method to modify
+     * @param instance   the instance used to invoke method (null in static use)
      * @param parameters the parmas of method
      * @return the method object or null if not found or null if method is for e.g void
      */

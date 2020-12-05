@@ -3,7 +3,11 @@ package me.deecaad.core.file;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -21,7 +25,7 @@ public class JarSearcher {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, boolean isIgnoreAbstract, Class<?>...classes) {
+    public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, boolean isIgnoreAbstract, Class<?>... classes) {
         List<Class<?>> classList = new ArrayList<>(Arrays.asList(classes));
         classList.add(clazz);
         Set<String> blacklist = classList.stream()

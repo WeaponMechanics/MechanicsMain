@@ -87,7 +87,7 @@ public class NumberUtils {
      * Gets a random element from the given list
      *
      * @param list The list to pull from
-     * @param <T> The type of the array
+     * @param <T>  The type of the array
      * @return Random element from the list
      */
     public static <T> T random(List<T> list) {
@@ -137,9 +137,9 @@ public class NumberUtils {
      * Shorthand for calling both <code>Math.min</code> and
      * <code>Math.max</code>.
      *
-     * @param min The minimum number the value can be
+     * @param min   The minimum number the value can be
      * @param value The actual value to compare
-     * @param max The maximum number the value can be
+     * @param max   The maximum number the value can be
      * @return Whichever bound [min, max]
      */
     public static int minMax(int min, int value, int max) {
@@ -156,9 +156,9 @@ public class NumberUtils {
      * Shorthand for calling both <code>Math.min</code> and
      * <code>Math.max</code>.
      *
-     * @param min The minimum number the value can be
+     * @param min   The minimum number the value can be
      * @param value The actual value to compare
-     * @param max The maximum number the value can be
+     * @param max   The maximum number the value can be
      * @return Whichever bound [min, max]
      */
     public static float minMax(float min, float value, float max) {
@@ -175,9 +175,9 @@ public class NumberUtils {
      * Shorthand for calling both <code>Math.min</code> and
      * <code>Math.max</code>.
      *
-     * @param min The minimum number the value can be
+     * @param min   The minimum number the value can be
      * @param value The actual value to compare
-     * @param max The maximum number the value can be
+     * @param max   The maximum number the value can be
      * @return Whichever bound [min, max]
      */
     public static double minMax(double min, double value, double max) {
@@ -253,7 +253,7 @@ public class NumberUtils {
 
     /**
      * @param lastMillis the last millis something happened
-     * @param amount the amount of millis required to pass since last millis
+     * @param amount     the amount of millis required to pass since last millis
      * @return true only if enough millis have passed since last millis
      */
     public static boolean hasMillisPassed(long lastMillis, long amount) {
@@ -264,7 +264,7 @@ public class NumberUtils {
      * Rounds the value to given amount of significands.
      * Will also strip trailing zeros.
      *
-     * @param value the version value to be rounded
+     * @param value        the version value to be rounded
      * @param significands the amount of significands in return value
      * @return value when rounded to decimals
      */
@@ -284,11 +284,10 @@ public class NumberUtils {
      * then either cuts off or adds onto the binary string
      * based on how many <code>bits</code> are needed
      *
-     * @see Integer#toBinaryString(int) 
-     * 
-     * @param i Integer to translate to binary
+     * @param i    Integer to translate to binary
      * @param bits How many bits to show
      * @return Binary String
+     * @see Integer#toBinaryString(int)
      */
     public static String toBinary(int i, int bits) {
         String binary = Integer.toBinaryString(i);

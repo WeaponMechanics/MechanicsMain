@@ -6,7 +6,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -113,7 +119,7 @@ public class FileReader {
      * It is recommended to give this method plugin's data folder directory.
      * This also takes in account given serializers.
      *
-     * @param directory the directory
+     * @param directory   the directory
      * @param ignoreFiles ignored files which name starts with any given string
      * @return the map with all configurations
      */

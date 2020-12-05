@@ -23,7 +23,8 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     /**
      * Empty constructor to be used as serializer
      */
-    public WeaponConverter() { }
+    public WeaponConverter() {
+    }
 
     public WeaponConverter(boolean type, boolean name, boolean lore, boolean enchantments) {
         this.type = type;
@@ -37,7 +38,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
      * If this returns true, then other item should he converted to weapon stack
      *
      * @param weaponStack the weapon item
-     * @param other the other item
+     * @param other       the other item
      * @return true only if weapon stack matches with other item enough (depending on this converter variable values)
      */
     public boolean isMatch(ItemStack weaponStack, ItemStack other) {

@@ -22,7 +22,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
      * Initializes custom projectiles runnable
      *
      * @param plugin the plugin used to run task
-     * @param async whether or not to run projectiles in async
+     * @param async  whether or not to run projectiles in async
      */
     public void init(Plugin plugin, boolean async) {
 

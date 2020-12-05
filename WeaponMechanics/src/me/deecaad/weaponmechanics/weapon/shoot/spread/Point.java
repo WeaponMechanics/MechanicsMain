@@ -5,7 +5,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
  * with a value.
  */
 public class Point {
-    
+
     private double yaw;
     private double pitch;
 

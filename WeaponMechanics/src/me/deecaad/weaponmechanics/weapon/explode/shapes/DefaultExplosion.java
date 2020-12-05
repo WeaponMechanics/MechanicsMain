@@ -23,7 +23,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 /**
  * This explosion uses the minecraft explosion system,
  * instead of using a shape.
- *
+ * <p>
  * https://minecraft.gamepedia.com/Explosion
  */
 public class DefaultExplosion implements ExplosionShape {
@@ -34,11 +34,11 @@ public class DefaultExplosion implements ExplosionShape {
     private static final double ABSORB_RATE = 0.3;
 
     private float yield;
-    
+
     public DefaultExplosion(double yield) {
         this.yield = (float) yield;
     }
-    
+
     @Nonnull
     @Override
     public List<Block> getBlocks(@Nonnull Location origin) {

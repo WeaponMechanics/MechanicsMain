@@ -40,11 +40,11 @@ public class ExplosionSerializer implements Serializer<Explosion> {
     public String getKeyword() {
         return "Explosion";
     }
-    
+
     @Override
     public Explosion serialize(File file, ConfigurationSection configurationSection, String path) {
         ConfigurationSection section = configurationSection.getConfigurationSection(path);
-        
+
         // Gets the explosion type from config, warns the user
         // if the type is invalid
         String shapeTypeName = section.getString("Explosion_Shape", "DEFAULT").trim().toUpperCase();
@@ -71,11 +71,11 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         // Get all possibly applicable data for the explosions,
         // and warn users for "odd" values
-        double yield  = section.getDouble("Explosion_Type_Data.Yield",  3.0);
-        double angle  = section.getDouble("Explosion_Type_Data.Angle",  0.5);
-        double depth  = section.getDouble("Explosion_Type_Data.Depth",  -3.0);
+        double yield = section.getDouble("Explosion_Type_Data.Yield", 3.0);
+        double angle = section.getDouble("Explosion_Type_Data.Angle", 0.5);
+        double depth = section.getDouble("Explosion_Type_Data.Depth", -3.0);
         double height = section.getDouble("Explosion_Type_Data.Height", 3.0);
-        double width  = section.getDouble("Explosion_Type_Data.Width",  3.0);
+        double width = section.getDouble("Explosion_Type_Data.Width", 3.0);
         double radius = section.getDouble("Explosion_Type_Data.Radius", 3.0);
 
         // todo change depth to be positive... makes more sense that way
@@ -161,7 +161,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
 
-        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, 0, isKnockback);
+        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, 1.0, isKnockback);
 
         if (section.contains("Cluster_Bomb")) {
 
@@ -201,29 +201,33 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         return explosion;
     }
-    
+
     private enum ExplosionShapeType {
-    
+
         /**
          * Represents a parabolic explosion
+         *
          * @see ParabolicExplosion
          */
         PARABOLA,
-    
+
         /**
          * Represents a spherical explosion
+         *
          * @see SphericalExplosion
          */
         SPHERE,
-    
+
         /**
          * Represents a cuboid explosion
+         *
          * @see CuboidExplosion
          */
         CUBE,
-    
+
         /**
          * Represents a default minecraft generated explosion
+         *
          * @see DefaultExplosion
          */
         DEFAULT
@@ -240,14 +244,16 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         /**
          * Damage is only based on the distance between the <code>LivingEntity</code>
          * involved and the origin of the explosion
+         *
          * @see DistanceExposure
          */
         DISTANCE,
 
         /**
          * Damage uses minecraft's explosion exposure method
+         *
          * @see DefaultExposure
-          */
+         */
         DEFAULT
     }
 }

@@ -61,7 +61,7 @@ public abstract class AUpdateChecker implements Listener {
     /**
      * This is ran for all players online when update is found or player joins server
      *
-     * @param sender the sender instance (or player)
+     * @param sender         the sender instance (or player)
      * @param spigotResource the spigot resource instance
      */
     public abstract void onUpdateFound(CommandSender sender, SpigotResource spigotResource);

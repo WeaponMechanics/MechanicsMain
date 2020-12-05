@@ -30,7 +30,8 @@ public class OutEntityEffectListener extends PacketHandler {
 
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
 
-        if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision()) return;
+        if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision())
+            return;
         if ((byte) packet.getFieldValue("b") != (byte) (PotionEffectType.NIGHT_VISION.getId() & 255)) return;
 
         packet.setCancelled(true);

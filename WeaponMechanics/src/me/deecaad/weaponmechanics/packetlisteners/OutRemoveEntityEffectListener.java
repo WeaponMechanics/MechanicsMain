@@ -21,7 +21,8 @@ public class OutRemoveEntityEffectListener extends PacketHandler {
 
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
 
-        if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision()) return;
+        if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision())
+            return;
         if (!WeaponCompatibilityAPI.getScopeCompatibility().isRemoveNightVisionPacket(packet)) return;
 
         packet.setCancelled(true);

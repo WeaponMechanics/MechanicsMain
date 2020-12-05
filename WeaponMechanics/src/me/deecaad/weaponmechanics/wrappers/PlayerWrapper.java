@@ -115,7 +115,7 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     public boolean isSneaking() {
         return player.isSneaking();
     }
-    
+
     @Override
     public boolean isSprinting() {
         return player.isSprinting();

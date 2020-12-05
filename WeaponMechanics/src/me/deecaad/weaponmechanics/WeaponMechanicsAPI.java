@@ -40,8 +40,7 @@ public class WeaponMechanicsAPI implements Listener {
      *
      * @param weapon A nonnull item
      * @return The weapon title associated with it, or null
-     *
-     * @throws IllegalStateException If this method is invoked before initialization
+     * @throws IllegalStateException    If this method is invoked before initialization
      * @throws IllegalArgumentException If the given item is null
      */
     public static String getWeaponTitle(@Nonnull ItemStack weapon) {
@@ -56,14 +55,13 @@ public class WeaponMechanicsAPI implements Listener {
     /**
      * Gets the plugin's <code>MainCommand</code>. Useful if you want
      * to add your plugins <code>SubCommand</code>s to this plugin
-     *
+     * <p>
      * For instructions on sub command use, see the <a href="TODO">wiki</a>
      *
+     * @return The main command
+     * @throws IllegalStateException If this method is invoked before initialization
      * @see me.deecaad.core.commands.MainCommand
      * @see me.deecaad.core.commands.SubCommand
-     * @return The main command
-     *
-     * @throws IllegalStateException If this method is invoked before initialization
      */
     public static MainCommand getCommand() {
         if (plugin == null)
@@ -93,8 +91,7 @@ public class WeaponMechanicsAPI implements Listener {
      *
      * @param weaponTitle The weaponTitle of the weapon
      * @return The nonnull weapon item
-     *
-     * @throws IllegalStateException If this method is invoked before initialization
+     * @throws IllegalStateException    If this method is invoked before initialization
      * @throws IllegalArgumentException If the given weaponTitle is invalid
      */
     @Nonnull
@@ -120,10 +117,9 @@ public class WeaponMechanicsAPI implements Listener {
      * was broken by WeaponMechanics from an <code>Explosion</code> or
      * an external plugin that calls the damage method.
      *
-     * @see BlockDamageData#damageBlock(Block, int, int, boolean, int)
-     *
      * @param block Which block to check
      * @return true if the block is broken, otherwise false
+     * @see BlockDamageData#damageBlock(Block, int, int, boolean, int)
      */
     public static boolean isBroken(@Nonnull Block block) {
         if (plugin == null)

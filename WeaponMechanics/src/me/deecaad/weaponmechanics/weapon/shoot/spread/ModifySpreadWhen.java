@@ -23,7 +23,8 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
     /**
      * Empty constructor to be used as serializer
      */
-    public ModifySpreadWhen() { }
+    public ModifySpreadWhen() {
+    }
 
     public ModifySpreadWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking, NumberModifier standing, NumberModifier walking, NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         this.always = always;
@@ -40,7 +41,7 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
      * Applies all changes from this spread modifier to given spread
      *
      * @param entityWrapper the entity wrapper used to check circumstances
-     * @param tempSpread the spread
+     * @param tempSpread    the spread
      * @return the spread with updated values
      */
     public double applyChanges(IEntityWrapper entityWrapper, double tempSpread) {

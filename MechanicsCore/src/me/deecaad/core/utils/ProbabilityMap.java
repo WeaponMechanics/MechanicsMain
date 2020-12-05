@@ -1,7 +1,11 @@
 package me.deecaad.core.utils;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NavigableSet;
+import java.util.SplittableRandom;
+import java.util.TreeSet;
 
 public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
 
@@ -23,7 +27,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
      * Maps the given element <code>e</code> to it's
      * given probability
      *
-     * @param e The element to add
+     * @param e      The element to add
      * @param chance The chance of selecting the
      * @return true if the element was added
      */

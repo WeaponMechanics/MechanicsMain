@@ -2,21 +2,13 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import com.google.common.base.Enums;
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.block.BlockCompatibility;
-import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.StringUtils;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

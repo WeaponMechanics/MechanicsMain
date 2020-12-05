@@ -6,7 +6,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,9 +50,9 @@ public class PlaceholderAPI {
      * Applies all possible placeholders. Includes Clip's PlaceholderAPI support.
      * Also colorizes string.
      *
-     * @param to the string where to apply placeholders
-     * @param player the player involved in event or null
-     * @param itemStack the item stack involved in event or null
+     * @param to          the string where to apply placeholders
+     * @param player      the player involved in event or null
+     * @param itemStack   the item stack involved in event or null
      * @param weaponTitle the weapon title involved in this request, can be null
      * @return the string with applied placeholders
      */
@@ -100,9 +105,9 @@ public class PlaceholderAPI {
     /**
      * Applies only given placeholder to string. Doesn't do anything else.
      *
-     * @param to the string where to apply placeholders
+     * @param to          the string where to apply placeholders
      * @param placeholder the placeholder key (e.g. victim)
-     * @param value the string to replace victim with
+     * @param value       the string to replace victim with
      * @return the string with applied placeholder
      */
     public static String applyTempPlaceholder(String to, String placeholder, String value) {

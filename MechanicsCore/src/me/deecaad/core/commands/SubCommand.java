@@ -94,7 +94,7 @@ public abstract class SubCommand extends BukkitCommand {
      * command defined by this class and the given args
      *
      * @param sender Who to send help to
-     * @param args Command arguments
+     * @param args   Command arguments
      * @return Whether or not the command is valid
      */
     protected boolean sendHelp(CommandSender sender, String[] args) {
@@ -153,7 +153,7 @@ public abstract class SubCommand extends BukkitCommand {
 
                 // If this command does not have subcommands, give no info
                 if (index == -1) return new ArrayList<>();
-                // Else let subcommands handle tab completions
+                    // Else let subcommands handle tab completions
                 else return commands.tabCompletions(args[index], Arrays.copyOfRange(args, index + 1, args.length));
             default:
                 if (current.contains(",")) {
@@ -171,7 +171,7 @@ public abstract class SubCommand extends BukkitCommand {
      * overridden to handle that.
      *
      * @param args The arguments the user typed
-     * @param tag The custom tag to handle
+     * @param tag  The custom tag to handle
      * @return The tabcompletions for the custom tag
      */
     protected List<String> handleCustomTag(String[] args, String tag) {
@@ -182,7 +182,7 @@ public abstract class SubCommand extends BukkitCommand {
      * What should be done when this command is executed
      *
      * @param sender Who executed the command
-     * @param args The arguments input by the user
+     * @param args   The arguments input by the user
      */
     public abstract void execute(CommandSender sender, String[] args);
 

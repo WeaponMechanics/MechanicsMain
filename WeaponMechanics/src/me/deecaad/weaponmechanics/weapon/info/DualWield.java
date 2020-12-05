@@ -28,7 +28,8 @@ public class DualWield implements Serializer<DualWield> {
     /**
      * Empty constructor to be used as serializer
      */
-    public DualWield() { }
+    public DualWield() {
+    }
 
     public DualWield(boolean whitelist, Set<String> weapons, Mechanics mechanics) {
         this.whitelist = whitelist;
@@ -58,18 +59,19 @@ public class DualWield implements Serializer<DualWield> {
      * Message is only sent if dual wield check cause is same as
      * weapon's shoot, scope or reload trigger type.
      *
-     * @param checkCause the cause of this dual wield check
-     * @param player the player for who to send
+     * @param checkCause  the cause of this dual wield check
+     * @param player      the player for who to send
      * @param weaponTitle the weapon used
      */
     public void sendDeniedMessage(TriggerType checkCause, @Nullable Player player, String weaponTitle) {
         if (player != null) {
             Configuration config = WeaponMechanics.getConfigurations();
-            for (String type : new String[]{ ".Shoot", ".Reload", ".Scope" }) {
+            for (String type : new String[]{".Shoot", ".Reload", ".Scope"}) {
                 Trigger trigger = config.getObject(weaponTitle + type + ".Trigger", Trigger.class);
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
 
-                    if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, null));
+                    if (mechanics != null)
+                        mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, null));
 
                     break;
                 }

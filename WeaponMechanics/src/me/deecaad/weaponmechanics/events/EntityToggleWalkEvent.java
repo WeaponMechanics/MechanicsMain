@@ -11,7 +11,7 @@ public class EntityToggleWalkEvent extends WeaponMechanicsEvent {
      * Called when player starts or stops walking.
      *
      * @param livingEntity the living entity used in event
-     * @param isWalking is walking
+     * @param isWalking    is walking
      */
     public EntityToggleWalkEvent(LivingEntity livingEntity, boolean isWalking) {
         this.livingEntity = livingEntity;

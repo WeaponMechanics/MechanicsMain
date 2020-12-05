@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ArmorEquipTrigger extends PacketHandler {
 
-    private static final ArmorEquipEvent.ArmorSlot[] SLOTS = new ArmorEquipEvent.ArmorSlot[] {
+    private static final ArmorEquipEvent.ArmorSlot[] SLOTS = new ArmorEquipEvent.ArmorSlot[]{
             ArmorEquipEvent.ArmorSlot.HEAD,
             ArmorEquipEvent.ArmorSlot.CHEST,
             ArmorEquipEvent.ArmorSlot.LEGS,

@@ -45,7 +45,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     /**
      * Empty constructor to be used as serializer
      */
-    public WeaponInfoDisplay() { }
+    public WeaponInfoDisplay() {
+    }
 
     public WeaponInfoDisplay(MessageMechanic messageMechanic, boolean updateItemName, boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress) {
         this.messageMechanic = messageMechanic;
