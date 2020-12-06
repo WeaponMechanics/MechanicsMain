@@ -21,8 +21,7 @@ public class ProjectileMotion implements Serializer<ProjectileMotion> {
     /**
      * Empty constructor to be used as serializer.
      */
-    public ProjectileMotion() {
-    }
+    public ProjectileMotion() { }
 
     public ProjectileMotion(double gravity, double minimumSpeed, boolean removeAtMinimumSpeed, double maximumSpeed, boolean removeAtMaximumSpeed, double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing) {
         this.minimumSpeed = minimumSpeed;

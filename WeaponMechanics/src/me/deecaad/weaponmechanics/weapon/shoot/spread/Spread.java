@@ -24,8 +24,7 @@ public class Spread implements Serializer<Spread> {
     /**
      * Empty constructor to be used as serializer
      */
-    public Spread() {
-    }
+    public Spread() { }
 
     public Spread(SpreadImage spreadImage) {
         this.spreadImage = spreadImage;
@@ -40,8 +39,8 @@ public class Spread implements Serializer<Spread> {
     /**
      * Returns normalized spread direction
      *
-     * @param entityWrapper      the entity involved
-     * @param mainHand           whether or not main hand was used
+     * @param entityWrapper the entity involved
+     * @param mainHand whether or not main hand was used
      * @param updateSpreadChange whether or not to allow updating current spread change
      * @return the normalized spread direction
      */
@@ -56,8 +55,7 @@ public class Spread implements Serializer<Spread> {
         double spread = baseSpread;
 
         if (modifySpreadWhen != null) spread = modifySpreadWhen.applyChanges(entityWrapper, spread);
-        if (changingSpread != null)
-            spread = changingSpread.applyChanges(entityWrapper, spread, mainHand, updateSpreadChange);
+        if (changingSpread != null) spread = changingSpread.applyChanges(entityWrapper, spread, mainHand, updateSpreadChange);
 
         return getNormalizedSpreadDirection(yaw, pitch, spread);
     }
@@ -69,8 +67,8 @@ public class Spread implements Serializer<Spread> {
     /**
      * Used to get random normalized spread direction
      *
-     * @param yaw    the yaw of direction
-     * @param pitch  the pitch of direction
+     * @param yaw the yaw of direction
+     * @param pitch the pitch of direction
      * @param spread the spread
      * @return the randomized direction based on given params as normalized vector
      */

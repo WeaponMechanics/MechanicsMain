@@ -16,12 +16,12 @@ import java.util.List;
  * instance variables
  */
 public interface ExplosionShape {
-
+    
     /**
      * This method should return a set of blocks that
      * are effected by this <code>Explosion</code>
      * triggered at the given <code>Location</code>
-     * <p>
+     *
      * Conditions (Like material blacklists) are not
      * used to filter out any <code>Blocks</code>, that
      * is handled separately

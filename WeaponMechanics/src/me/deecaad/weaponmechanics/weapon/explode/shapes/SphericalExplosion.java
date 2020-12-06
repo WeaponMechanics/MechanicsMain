@@ -20,16 +20,16 @@ public class SphericalExplosion implements ExplosionShape {
     private static final Configuration config = WeaponMechanics.getBasicConfigurations();
 
     private double radius;
-
+    
     public SphericalExplosion(double radius) {
         this.radius = radius;
     }
-
+    
     @Nonnull
     @Override
     public List<Block> getBlocks(@Nonnull Location origin) {
         List<Block> temp = new ArrayList<>();
-
+        
         Location pos1 = origin.clone().add(-radius, -radius, -radius);
         Location pos2 = origin.clone().add(+radius, +radius, +radius);
 
@@ -43,7 +43,7 @@ public class SphericalExplosion implements ExplosionShape {
             for (int y = pos1.getBlockY(); y < pos2.getBlockY(); y++) {
                 for (int z = pos1.getBlockZ(); z < pos2.getBlockZ(); z++) {
                     Location loc = new Location(origin.getWorld(), x, y, z);
-
+                    
                     // If the distance between the current iteration
                     // and the origin is less than the radius of the
                     // sphere. This "reshapes" the cube into a sphere
@@ -63,7 +63,7 @@ public class SphericalExplosion implements ExplosionShape {
         }
         return temp;
     }
-
+    
     @Nonnull
     @Override
     public List<LivingEntity> getEntities(@Nonnull Location origin) {

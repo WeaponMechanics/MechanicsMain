@@ -89,7 +89,7 @@ public interface ICustomProjectile {
     /**
      * This can store temporary data for projectiles
      *
-     * @param key   the key to use
+     * @param key the key to use
      * @param value the value for key
      */
     void setTag(@Nonnull String key, @Nonnull String value);

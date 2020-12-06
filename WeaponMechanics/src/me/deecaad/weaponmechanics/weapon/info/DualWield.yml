@@ -2,6 +2,6 @@
 Dual_Wield:
   Whitelist: <true/false>
   Weapons:
-    - <weapon title>
-    - <etc.>
+  - <weapon title>
+  - <etc.>
   # All registered mechanics on deny

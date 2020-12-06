@@ -25,8 +25,7 @@ public class Through implements Serializer<Through> {
     /**
      * Empty constructor to be used as serializer
      */
-    public Through() {
-    }
+    public Through() { }
 
     public Through(ThroughData blocks, ThroughData entities) {
         this.blocks = blocks;
@@ -169,7 +168,7 @@ public class Through implements Serializer<Through> {
 
         /**
          * @param material the material to check
-         * @param data     the data to check (only in versions before 1.13)
+         * @param data the data to check (only in versions before 1.13)
          * @return the extra through data or null if projectile should be removed
          */
         public ExtraThroughData getModifiers(Material material, byte data) {

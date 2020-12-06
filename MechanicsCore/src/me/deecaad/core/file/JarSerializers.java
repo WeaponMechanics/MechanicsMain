@@ -24,8 +24,8 @@ public class JarSerializers extends FileCopier {
      * Method to get all serializers inside plugin's jar file.
      *
      * @param plugin the plugin instance of jar
-     * @param jar    the jar file of plugin
-     * @param noUse  the list of class names which shouldn't be used (only simple name, not whole path)
+     * @param jar the jar file of plugin
+     * @param noUse the list of class names which shouldn't be used (only simple name, not whole path)
      * @return the list of all found serializers
      */
     public List<Serializer<?>> getAllSerializersInsideJar(Plugin plugin, File jar, String... noUse) {

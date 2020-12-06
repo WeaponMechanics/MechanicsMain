@@ -39,11 +39,11 @@ public class ReloadHandler implements IValidator {
      * Tries to use reload
      *
      * @param entityWrapper the entity who used trigger
-     * @param weaponTitle   the weapon title
-     * @param weaponStack   the weapon stack
-     * @param slot          the slot used on trigger
-     * @param triggerType   the trigger type trying to activate reload
-     * @param dualWield     whether or not this was dual wield
+     * @param weaponTitle the weapon title
+     * @param weaponStack the weapon stack
+     * @param slot the slot used on trigger
+     * @param triggerType the trigger type trying to activate reload
+     * @param dualWield whether or not this was dual wield
      * @return true if was able to start reloading
      */
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
@@ -57,10 +57,10 @@ public class ReloadHandler implements IValidator {
      * Starts reloading without checking for trigger
      *
      * @param entityWrapper the entity who used reload
-     * @param weaponTitle   the weapon title
-     * @param weaponStack   the weapon stack
-     * @param slot          the slot used on reload
-     * @param dualWield     whether or not this was dual wield
+     * @param weaponTitle the weapon title
+     * @param weaponStack the weapon stack
+     * @param slot the slot used on reload
+     * @param dualWield whether or not this was dual wield
      * @return true if was able to start reloading
      */
     public boolean startReloadWithoutTrigger(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
@@ -238,8 +238,7 @@ public class ReloadHandler implements IValidator {
                 Mechanics.use(weaponTitle + ".Reload.Start", castData);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
         };
 
@@ -273,8 +272,7 @@ public class ReloadHandler implements IValidator {
                 firearmAction.useMechanics(castData, false);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
         };
 
@@ -303,8 +301,7 @@ public class ReloadHandler implements IValidator {
                 firearmAction.useMechanics(castData, true);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
         };
 

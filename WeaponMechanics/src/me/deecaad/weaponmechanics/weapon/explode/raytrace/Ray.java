@@ -34,7 +34,7 @@ public class Ray {
     /**
      * Gets the point on the ray "at" block away
      * from the origin.
-     * <p>
+     *
      * Note: If "at" > "directionLength", there is likely a logic error
      *
      * @param at How far away from the origin to get the vector
@@ -49,8 +49,8 @@ public class Ray {
     public TraceResult trace(@Nonnull World world, @Nonnull TraceCollision collision, @Nonnegative double accuracy) {
 
         // Determine the behavior of the ray trace
-        boolean isFirst = collision == BLOCK || collision == ENTITY || collision == BLOCK_OR_ENTITY;
-        boolean isBlock = collision == BLOCK || collision == BLOCKS || collision == BLOCK_OR_ENTITY;
+        boolean isFirst = collision == BLOCK   || collision == ENTITY   || collision == BLOCK_OR_ENTITY;
+        boolean isBlock = collision == BLOCK   || collision == BLOCKS   || collision == BLOCK_OR_ENTITY;
         boolean isEntity = collision == ENTITY || collision == ENTITIES || collision == BLOCK_OR_ENTITY;
 
         Location loc = origin.toLocation(world);
@@ -74,6 +74,7 @@ public class Ray {
         LinkedHashSet<Entity> entities = new LinkedHashSet<>();
         LinkedHashSet<Block> blocks = new LinkedHashSet<>();
 
+        debug.debug("Tracing " + directionLength + " blocks by " + accuracy);
         for (double i = 0; i < directionLength; i += accuracy) {
 
             Vector point = getPoint(i);
@@ -101,7 +102,7 @@ public class Ray {
             // Only do entity calculations if needed
             if (isEntity) {
                 boolean isBreak = false;
-                for (Map.Entry<Entity, HitBox> entry : availableEntities.entrySet()) {
+                for (Map.Entry<Entity, HitBox> entry: availableEntities.entrySet()) {
                     Entity entity = entry.getKey();
                     HitBox hitbox = entry.getValue();
 

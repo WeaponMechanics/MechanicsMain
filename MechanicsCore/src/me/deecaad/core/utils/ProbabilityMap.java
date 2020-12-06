@@ -27,7 +27,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
      * Maps the given element <code>e</code> to it's
      * given probability
      *
-     * @param e      The element to add
+     * @param e The element to add
      * @param chance The chance of selecting the
      * @return true if the element was added
      */

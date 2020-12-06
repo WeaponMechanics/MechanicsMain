@@ -16,7 +16,7 @@ public class DamageHandler {
         Configuration config = WeaponMechanics.getConfigurations();
 
         boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
-        if (!DamageUtils.canHarm(shooter, victim, isFriendlyFire)) {
+        if (!isFriendlyFire && !DamageUtils.canHarm(shooter, victim)) {
             return false;
         }
 
@@ -35,7 +35,7 @@ public class DamageHandler {
         }
 
         // Critical Hit chance
-        double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance") / 100.0;
+        double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance") / 100;
         if (NumberUtils.chance(chance)) {
             damage += config.getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
         }
@@ -90,7 +90,7 @@ public class DamageHandler {
             LivingEntity victim = entry.getKey();
             double exposure = entry.getValue();
 
-            if (!DamageUtils.canHarm(shooter, victim, isFriendlyFire)) {
+            if (!isFriendlyFire && !DamageUtils.canHarm(shooter, victim)) {
                 continue;
             } else if (isOwnerImmune && victim.equals(shooter)) {
                 continue;

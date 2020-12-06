@@ -26,8 +26,7 @@ public class HitBox implements IValidator {
     public Vector min;
     public Vector max;
 
-    public HitBox() {
-    }
+    public HitBox() { }
 
     public HitBox(Vector min, Vector max) {
         this.min = min;
@@ -77,7 +76,7 @@ public class HitBox implements IValidator {
      * Updates this hit box minimum and maximum values to match new location
      *
      * @param center the center of hit box
-     * @param width  the width of hit box (XZ)
+     * @param width the width of hit box (XZ)
      * @param length the length of hit box (Y)
      */
     public void update(Vector center, float width, float length) {
@@ -152,7 +151,7 @@ public class HitBox implements IValidator {
     }
 
     /**
-     * @param collisionData       the collision data (must be living entity)
+     * @param collisionData the collision data (must be living entity)
      * @param normalizedDirection the direction of projectile
      * @return the damage point of projectile
      */
@@ -214,7 +213,7 @@ public class HitBox implements IValidator {
      * Checks whether or not point is in front of this hit box
      *
      * @param direction the direction of hit box's holder
-     * @param point     the point to check
+     * @param point the point to check
      * @return true only if point is inside front of the hit box
      */
     public boolean collidesFront(Vector direction, Vector point) {
@@ -355,7 +354,7 @@ public class HitBox implements IValidator {
      * Simply resets hit boxes to default is they're missing or are invalid
      *
      * @param basicConfiguration the config.yml configuration instance
-     * @param entityType         the entity type
+     * @param entityType the entity type
      */
     private void putDefaults(Configuration basicConfiguration, EntityType entityType) {
         basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.HEAD.name(), 0.0);

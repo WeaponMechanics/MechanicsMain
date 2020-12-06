@@ -150,8 +150,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                 player.sendTitle(titleMessage, subtitleMessage);
             } else {
 
-                if (!isWeaponInfoCast)
-                    messageHelper.updateTitleTime(titleData.fadeIn + titleData.stay + titleData.fadeOut);
+                if (!isWeaponInfoCast) messageHelper.updateTitleTime(titleData.fadeIn + titleData.stay + titleData.fadeOut);
 
                 player.sendTitle(titleMessage, subtitleMessage, titleData.fadeIn, titleData.stay, titleData.fadeOut);
             }

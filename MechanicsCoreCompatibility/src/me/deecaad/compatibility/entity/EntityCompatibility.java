@@ -26,10 +26,10 @@ public interface EntityCompatibility {
 
     /**
      * Gets the integer id of the given <code>entity</code>
+     * @see net.minecraft.server.v1_15_R1.Entity#getId()
      *
      * @param entity bukkit entity to grab the id from
      * @return The id of the entity
-     * @see net.minecraft.server.v1_15_R1.Entity#getId()
      */
     int getId(org.bukkit.entity.Entity entity);
 
@@ -48,7 +48,7 @@ public interface EntityCompatibility {
      * <code>entity</code> with the given motion
      * <code>velocity</code>.
      *
-     * @param entity   The NMS entity to apply the velocity to
+     * @param entity The NMS entity to apply the velocity to
      * @param velocity The velocity
      * @return PacketPlayOutEntityVelocity
      * @throws IllegalArgumentException If the given object is not an nms entity
@@ -66,9 +66,9 @@ public interface EntityCompatibility {
      */
     Object getMetadataPacket(Object entity);
 
-    Object getMetadataPacket(Object entity, boolean isEnableFlags, EntityMeta... flags);
+    Object getMetadataPacket(Object entity, boolean isEnableFlags, EntityMeta...flags);
 
-    Object setMetadata(Object packet, boolean isEnableFlags, EntityMeta... flags);
+    Object setMetadata(Object packet, boolean isEnableFlags, EntityMeta...flags);
 
     /**
      * Gets the <code>PacketPlayOutEntityDestory</code> used
@@ -84,16 +84,16 @@ public interface EntityCompatibility {
      * for the given <code>players</code>. The spawned
      * <code>EntityFirework</code> will have the given
      * <code>effects</code> applied to it when it explodes.
-     * <p>
+     *
      * The <code>EntityFirework</code> "explodes" aync after
      * <code>flightTime</code> amount of ticks passes.
      *
-     * @param loc        The bukkit location to spawn the firework at
-     * @param players    All of the players that will see the firework
+     * @param loc The bukkit location to spawn the firework at
+     * @param players All of the players that will see the firework
      * @param flightTime The time before the firework explodes
-     * @param effects    The effects that the firework will have
+     * @param effects The effects that the firework will have
      */
-    void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect... effects);
+    void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects);
 
     /**
      * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
@@ -101,9 +101,9 @@ public interface EntityCompatibility {
      * an <code>int</code> which defines how long before the block will hit the ground (With a
      * maximum of 400 ticks)
      *
-     * @param loc    The location to spawn the falling block at
-     * @param mat    The material of the falling block
-     * @param data   The byte data for the material (Ignored in mc versions 1.13+)
+     * @param loc The location to spawn the falling block at
+     * @param mat The material of the falling block
+     * @param data The byte data for the material (Ignored in mc versions 1.13+)
      * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
      * @return The instantiated <code>FallingBlockWrapper</code>
      */
@@ -117,10 +117,10 @@ public interface EntityCompatibility {
      * an <code>int</code> which defines how long before the block will hit the ground (With a
      * maximum of <code>maxTicks</code> ticks)
      *
-     * @param loc      The location to spawn the falling block at
-     * @param mat      The material of the falling block
-     * @param data     The byte data for the material (Ignored in mc versions 1.13+)
-     * @param motion   The motion to apply to the falling block, used for ticksAlive calculations, or null
+     * @param loc The location to spawn the falling block at
+     * @param mat The material of the falling block
+     * @param data The byte data for the material (Ignored in mc versions 1.13+)
+     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
      * @param maxTicks The maximum number of ticks to check for the block to hit the ground
      * @return The instantiated <code>FallingBlockWrapper</code>
      */
@@ -131,8 +131,8 @@ public interface EntityCompatibility {
      * created using the given <code>state</code>. The wrapper will also have an <code>int</code>
      * which defines how long before the block will hit the ground (With a maximum of 400 ticks)
      *
-     * @param loc    The location to spawn the block at
-     * @param state  The block state to assign to the block
+     * @param loc The location to spawn the block at
+     * @param state The block state to assign to the block
      * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
      * @return The instantiated <code>FallingBlockWrapper</code>
      */
@@ -145,9 +145,9 @@ public interface EntityCompatibility {
      * created using the given <code>state</code>. The wrapper will also have an <code>int</code>
      * which defines how long before the block will hit the ground (With a maximum of 400 ticks)
      *
-     * @param loc      The location to spawn the block at
-     * @param state    The block state to assign to the block
-     * @param motion   The motion to apply to the falling block, used for ticksAlive calculations, or null
+     * @param loc The location to spawn the block at
+     * @param state The block state to assign to the block
+     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
      * @param maxTicks The maximum number of ticks to check for the block to hit the ground
      * @return The instantiated <code>FallingBlockWrapper</code>
      */
@@ -157,11 +157,11 @@ public interface EntityCompatibility {
      * Gets an NMS <code>EntityItem</code> entity, setting it's
      * location to the given world and coordinates.
      *
-     * @param item  The bukkit itemstack
+     * @param item The bukkit itemstack
      * @param world The bukkit world
-     * @param x     The x coordinate
-     * @param y     The y coordinate
-     * @param z     The z coordinate
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @param z The z coordinate
      * @return The NMS item entity
      */
     Object toNMSItemEntity(ItemStack item, World world, double x, double y, double z);
@@ -169,11 +169,10 @@ public interface EntityCompatibility {
     /**
      * This enum gives location of a bit of information inside
      * the byte from <a href="https://wiki.vg/Entity_metadata#Entity">EntityMetaData</a>.
-     * <p>
-     * Note that effects here are visual, and only cause animations and/or effects.
-     * <p>
-     * This is most useful when modifying <code>PacketPlayOutEntityMetadata</code> packets.
      *
+     * Note that effects here are visual, and only cause animations and/or effects.
+     *
+     * This is most useful when modifying <code>PacketPlayOutEntityMetadata</code> packets.
      * @see net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata
      */
     enum EntityMeta {

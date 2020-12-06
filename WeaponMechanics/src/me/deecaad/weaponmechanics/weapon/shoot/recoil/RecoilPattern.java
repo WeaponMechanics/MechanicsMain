@@ -20,8 +20,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
     /**
      * Empty constructor to be used as serializer
      */
-    public RecoilPattern() {
-    }
+    public RecoilPattern() { }
 
     public RecoilPattern(boolean repeatPattern, List<ExtraRecoilPatternData> recoilPatternList) {
         this.repeatPattern = repeatPattern;

@@ -6,6 +6,7 @@ public class CompatibilityAPI {
     private static ICompatibility compatibility;
 
     /**
+     *
      * Example return values:
      * <pre>{@code
      * v1_8_R2 -> 1.082

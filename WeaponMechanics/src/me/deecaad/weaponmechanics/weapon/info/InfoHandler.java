@@ -127,8 +127,8 @@ public class InfoHandler {
      * All general weapon get actions are used.
      *
      * @param weaponTitle the weapon to give
-     * @param player      the player for who to give
-     * @param amount      the amount of weapons to give
+     * @param player the player for who to give
+     * @param amount the amount of weapons to give
      */
     public void giveOrDropWeapon(String weaponTitle, Player player, int amount) {
         ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class).clone();
@@ -157,9 +157,9 @@ public class InfoHandler {
     /**
      * Checks if two weapons are able to work together when holding both of them
      *
-     * @param player          the player for which to send denied message if not allowed to dual wield
+     * @param player the player for which to send denied message if not allowed to dual wield
      * @param mainWeaponTitle the main hand weapon title
-     * @param offWeaponTitle  the off hand weapon title
+     * @param offWeaponTitle the off hand weapon title
      * @return whether or not dual wielding is allowed
      */
     public boolean denyDualWielding(TriggerType checkCause, @Nullable Player player, @Nullable String mainWeaponTitle, @Nullable String offWeaponTitle) {

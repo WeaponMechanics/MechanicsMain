@@ -57,6 +57,7 @@ public class Entity_1_16_R1 implements EntityCompatibility {
 
         if (entity instanceof EntityFallingBlock) {
             EntityFallingBlock block = (EntityFallingBlock) entity;
+            debug.debug(block.getMot().toString()); //
             return new PacketPlayOutSpawnEntity(block, Block.getCombinedId(block.getBlock()));
         }
 
@@ -273,7 +274,7 @@ public class Entity_1_16_R1 implements EntityCompatibility {
                 if (this.G > 0.0F && flag3 && (flag || flag2)) {
                     Vec3D vec3d2 = a(this, new Vec3D(vec3d.x, this.G, vec3d.z), axisalignedbb, this.world, voxelshapecollision, streamaccumulator);
                     Vec3D vec3d3 = a(this, new Vec3D(0.0D, this.G, 0.0D), axisalignedbb.b(vec3d.x, 0.0D, vec3d.z), this.world, voxelshapecollision, streamaccumulator);
-                    if (vec3d3.y < (double) this.G) {
+                    if (vec3d3.y < (double)this.G) {
                         Vec3D vec3d4 = a(this, new Vec3D(vec3d.x, 0.0D, vec3d.z), axisalignedbb.c(vec3d3), this.world, voxelshapecollision, streamaccumulator).e(vec3d3);
                         if (b(vec3d4) > b(vec3d2)) {
                             vec3d2 = vec3d4;

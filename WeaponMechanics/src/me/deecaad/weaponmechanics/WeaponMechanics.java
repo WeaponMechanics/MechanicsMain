@@ -328,7 +328,7 @@ public class WeaponMechanics extends JavaPlugin {
      * This method will return null if no auto add is set to true and EntityWrapper is not found.
      * If no auto add is false then new EntityWrapper is automatically created if not found and returned by this method.
      *
-     * @param entity    the entity
+     * @param entity the entity
      * @param noAutoAdd true means that EntityWrapper wont be automatically added if not found
      * @return the entity wrapper or null if no auto add is true and EntityWrapper was not found
      */

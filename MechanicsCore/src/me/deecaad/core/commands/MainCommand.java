@@ -23,7 +23,7 @@ public abstract class MainCommand extends BukkitCommand {
 
         // Get the shortest alias for the help command
         String prefix = name;
-        for (String string : super.getAliases()) {
+        for (String string: super.getAliases()) {
             if (string.length() < prefix.length()) {
                 prefix = string;
             }
@@ -31,8 +31,7 @@ public abstract class MainCommand extends BukkitCommand {
 
         SubCommand dummy = new SubCommand(prefix, "help", "General help information for commands", "<args>") {
             @Override
-            public void execute(CommandSender sender, String[] args) {
-            }
+            public void execute(CommandSender sender, String[] args) {}
         };
 
         commands.register(dummy);
@@ -56,7 +55,8 @@ public abstract class MainCommand extends BukkitCommand {
         if (args.length > 0) {
             if (args[0].equals("help")) {
                 isSuccessful = help(sender, Arrays.copyOfRange(args, 1, args.length));
-            } else {
+            }
+            else {
                 isSuccessful = commands.execute(args[0], sender, Arrays.copyOfRange(args, 1, args.length));
             }
         }
@@ -84,7 +84,7 @@ public abstract class MainCommand extends BukkitCommand {
                 if (args.length == 2) temp = new ArrayList<>(commands.keys());
                 else temp = commands.tabCompletions(args[1], Arrays.copyOfRange(args, 2, args.length));
 
-                // Let subcommands handle tab completions
+            // Let subcommands handle tab completions
             } else {
                 temp = commands.tabCompletions(args[0], Arrays.copyOfRange(args, 1, args.length));
             }

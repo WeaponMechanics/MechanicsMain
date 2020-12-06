@@ -16,8 +16,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     /**
      * Empty constructor to be used as serializer
      */
-    public ChangingSpread() {
-    }
+    public ChangingSpread() { }
 
     public ChangingSpread(double startingAmount, ModifySpreadWhen increaseChangeWhen, Bounds bounds) {
         this.startingAmount = startingAmount;
@@ -30,9 +29,9 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
      * After changes are applied, also entity wrapper's {@link HandData#getSpreadChange()} is modified
      * based on circumstances. This basically means that changes are always made for NEXT shot, not current.
      *
-     * @param entityWrapper      the entity wrapper used to check circumstances
-     * @param tempSpread         the spread
-     * @param mainHand           whether or not main hand was used
+     * @param entityWrapper the entity wrapper used to check circumstances
+     * @param tempSpread the spread
+     * @param mainHand whether or not main hand was used
      * @param updateSpreadChange whether or not to allow updating current spread change
      * @return the modifier holder with updated horizontal and vertical values
      */

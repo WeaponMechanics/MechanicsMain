@@ -200,9 +200,9 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
                     }
                 } else {
                     if (stringParticle.equals("ITEM_CRACK")) {
-                        extraData = new int[]{type.getType().getId(), type.getDurability()};
+                        extraData = new int[] { type.getType().getId(), type.getDurability() };
                     } else if (stringParticle.equals("BLOCK_CRACK") || stringParticle.equals("BLOCK_DUST")) {
-                        extraData = new int[]{type.getData().getItemType().getId() + (type.getData().getData() << 12)};
+                        extraData = new int[] { type.getData().getItemType().getId() + (type.getData().getData() << 12) };
                     }
                 }
             }

@@ -4,18 +4,17 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class TaskUtil {
-
+    
     /**
      * Don't let anyone instantiate this class
      */
-    private TaskUtil() {
-    }
-
+    private TaskUtil() { }
+    
     /**
      * Runs task asynchronously.
      *
      * @param plugin the plugin instance used to run task
-     * @param async  the async execution
+     * @param async the async execution
      */
     public static void runAsync(Plugin plugin, IAsync async) {
         runAsync(plugin, async, null);
@@ -25,8 +24,8 @@ public class TaskUtil {
      * Runs task asynchronously with callback to synchronized task.
      * If async value is null, then callback wont be ran
      *
-     * @param plugin   the plugin instance used to run task
-     * @param async    the async execution
+     * @param plugin the plugin instance used to run task
+     * @param async the async execution
      * @param callback the callback ran in sync
      */
     public static void runAsync(Plugin plugin, IAsync async, ICallback callback) {
@@ -50,7 +49,7 @@ public class TaskUtil {
     /**
      * Runs callback task in sync with server thread
      *
-     * @param plugin   the plugin instance used to run task
+     * @param plugin the plugin instance used to run task
      * @param callback the callback ran in sync
      */
     public static void runSync(Plugin plugin, ICallback callback) {

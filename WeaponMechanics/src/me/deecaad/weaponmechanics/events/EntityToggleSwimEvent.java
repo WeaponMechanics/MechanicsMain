@@ -11,7 +11,7 @@ public class EntityToggleSwimEvent extends WeaponMechanicsEvent {
      * Called when player starts or stops swimming
      *
      * @param livingEntity the livingEntity used in event
-     * @param isSwimming   is swimming
+     * @param isSwimming is swimming
      */
     public EntityToggleSwimEvent(LivingEntity livingEntity, boolean isSwimming) {
         this.livingEntity = livingEntity;

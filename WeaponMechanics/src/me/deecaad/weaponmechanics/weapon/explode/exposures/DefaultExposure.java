@@ -84,7 +84,7 @@ public class DefaultExposure implements ExplosionExposure {
     /**
      * Gets a double [0, 1] representing how exposed the entity is to the explosion
      *
-     * @param vec3d  Vector between explosion and entity
+     * @param vec3d Vector between explosion and entity
      * @param entity The entity exposed to the explosion
      * @return The level of exposure of the entity to the epxlosion
      */

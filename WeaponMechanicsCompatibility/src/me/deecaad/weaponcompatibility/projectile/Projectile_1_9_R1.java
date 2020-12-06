@@ -82,7 +82,7 @@ public class Projectile_1_9_R1 implements IProjectileCompatibility {
         float yaw = customProjectile.getProjectileDisguiseYaw();
         float pitch = customProjectile.getProjectileDisguisePitch();
 
-        PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId, motion.getX(), motion.getY(), motion.getZ());
+        PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId,motion.getX(), motion.getY(), motion.getZ());
 
         if (customProjectile.getMotionLength() > 8) {
             net.minecraft.server.v1_9_R1.Entity nmsEntity = (net.minecraft.server.v1_9_R1.Entity) customProjectile.projectileDisguiseNMSEntity;
@@ -117,7 +117,7 @@ public class Projectile_1_9_R1 implements IProjectileCompatibility {
         Location location = new Location(world, 1, 100, 1);
         org.bukkit.entity.Entity entity = ((CraftWorld) world).createEntity(location, entityType.getEntityClass()).getBukkitEntity();
         IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
-        return new double[]{shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity)};
+        return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
     }
 
     @Override
@@ -138,8 +138,7 @@ public class Projectile_1_9_R1 implements IProjectileCompatibility {
         net.minecraft.server.v1_9_R1.Block nmsBlock = blockData.getBlock();
 
         // Passable block check -> false means passable (thats why !)
-        if (!(blockData.d(worldServer, blockPosition) != net.minecraft.server.v1_9_R1.Block.k && nmsBlock.a(blockData, false)))
-            return null;
+        if (!(blockData.d(worldServer, blockPosition) != net.minecraft.server.v1_9_R1.Block.k && nmsBlock.a(blockData, false))) return null;
 
         AxisAlignedBB aabb = blockData.c(worldServer, blockPosition);
         // 1.12 -> e

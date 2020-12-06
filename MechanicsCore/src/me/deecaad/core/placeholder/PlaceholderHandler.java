@@ -30,8 +30,8 @@ public abstract class PlaceholderHandler {
     /**
      * Used to modify placeholder result when this specific placeholder is being requested. Remember to check nulls of player and itemstack!
      *
-     * @param player      the player involved in this request, can be null
-     * @param itemStack   the item stack involved in this request, can be null
+     * @param player the player involved in this request, can be null
+     * @param itemStack the item stack involved in this request, can be null
      * @param weaponTitle the weapon title involved in this request, can be null
      * @return the result for placeholder or null
      */

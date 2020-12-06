@@ -26,7 +26,7 @@ import static me.deecaad.core.MechanicsCore.debug;
  * types into separate maps to avoid the
  * overhead from typecasting, and to improve
  * the readability.
- * <p>
+ *
  * Explanations on each method are provided
  * in the Configuration interface
  *
@@ -137,38 +137,38 @@ public class SeparatedConfig implements Configuration {
     public int getInt(String key) {
         return numbers.getOrDefault(key, 0).intValue();
     }
-
+    
     @Override
     public int getInt(String key, int def) {
         return numbers.getOrDefault(key, def).intValue();
     }
-
+    
     @Override
     public double getDouble(String key) {
         return numbers.getOrDefault(key, 0.0).doubleValue();
     }
-
+    
     @Override
     public double getDouble(String key, double def) {
         return numbers.getOrDefault(key, def).doubleValue();
     }
-
+    
     @Override
     public boolean getBool(String key) {
         return booleans.getOrDefault(key, false);
     }
-
+    
     @Override
     public boolean getBool(String key, boolean def) {
         return booleans.getOrDefault(key, def);
     }
-
+    
     @Nonnull
     @Override
     public String getString(String key) {
         return strings.getOrDefault(key, "");
     }
-
+    
     @Override
     public String getString(String key, String def) {
         return strings.getOrDefault(key, def);
@@ -191,7 +191,7 @@ public class SeparatedConfig implements Configuration {
         Object value = objects.get(key);
         return value == null ? null : clazz.cast(value);
     }
-
+    
     @Override
     public <T> T getObject(String key, T def, Class<T> clazz) {
         Object value = objects.get(key);
@@ -246,12 +246,12 @@ public class SeparatedConfig implements Configuration {
     public void clear() {
         maps.forEach(Map::clear);
     }
-
+    
     @Override
     public void forEach(@Nonnull String basePath, @Nonnull BiConsumer<String, Object> consumer, boolean deep) {
         maps.forEach(map -> forEach(map, basePath, consumer, deep));
     }
-
+    
     private void forEach(Map<String, ?> map, String basePath, BiConsumer<String, Object> consumer, boolean deep) {
         int memorySections = StringUtils.countChars('.', basePath);
         if (basePath.isEmpty()) memorySections--;
@@ -274,7 +274,7 @@ public class SeparatedConfig implements Configuration {
 
     public void save(@Nonnull File file) {
         FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-
+    
         // basic support for changing keys during the program AND
         // allowing the program to change keys.
         try {
@@ -284,7 +284,7 @@ public class SeparatedConfig implements Configuration {
 
         // Deletes all keys from config
         configuration.getKeys(true).forEach(key -> configuration.set(key, null));
-
+    
         // Set and save
         maps.forEach(map -> map.forEach(configuration::set));
         try {

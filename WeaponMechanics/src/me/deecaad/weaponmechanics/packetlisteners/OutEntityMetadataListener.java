@@ -18,34 +18,34 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 // todo: move to WMP
 public class OutEntityMetadataListener extends PacketHandler {
-
+    
     public OutEntityMetadataListener() {
         super("PacketPlayOutEntityMetadata");
     }
-
+    
     @Override
     public void onPacket(Packet packet) {
         try {
             // The entity's unique id and metadata
             int id = (int) packet.getFieldValue("a");
             List<?> metaData = (List<?>) packet.getFieldValue("b");
-
+            
             // Get data if present
             if (metaData == null || metaData.isEmpty()) return;
             Object byteData = metaData.get(0);
             Field field = ReflectionUtil.getField(byteData.getClass(), "b");
             Object itemObject = ReflectionUtil.invokeField(field, byteData);
             if (!(itemObject instanceof Byte)) return;
-
+    
             // Get the color the entity should be glowing (Or null if it should not be glowing)
             Entity entity = CompatibilityAPI.getCompatibility().getEntityById(packet.getPlayer().getWorld(), id);
             IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper((LivingEntity) entity);
             ColorSerializer.ColorType color = ColorSerializer.ColorType.WHITE;//(wrapper != null) ? wrapper.getThermalColor(packet.getPlayer()) : null;
-
+            
             // Sets the glowing flag
             byte previousValue = (byte) itemObject;
             byte newValue = -1 /*EntityCompatibility.EntityMeta.GLOWING.setFlag(previousValue, color != null)*/;
-
+    
             // Sets the fields via reflection
             ReflectionUtil.setField(field, byteData, newValue);
             ReflectionUtil.setField(packet.getField("b", 0), packet, metaData);

@@ -5,14 +5,13 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -24,11 +23,14 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 
 public class DamageUtils {
 
-    private static Configuration config = WeaponMechanics.getBasicConfigurations();
+    private static final Field killerField = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityLiving"), "killer");
 
+    private static Configuration config = WeaponMechanics.getBasicConfigurations();
+    
     /**
      * Do not let anyone instantiate this class
      */
@@ -85,10 +87,20 @@ public class DamageUtils {
     }
 
     /**
-     * @param cause  The cause of the entity's damage
+     * @param cause The cause of the entity's damage
      * @param victim The entity being damaged
      */
     public static void apply(LivingEntity cause, LivingEntity victim, double damage) {
+
+        if (victim.isInvulnerable() || victim.isDead()) {
+            return;
+        } else if (victim instanceof Player) {
+            GameMode gamemode = ((Player) victim).getGameMode();
+
+            if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR) {
+                return;
+            }
+        }
 
         EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
         Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
@@ -98,18 +110,25 @@ public class DamageUtils {
 
         double newHealth = victim.getHealth() - damage;
 
-        WeaponCompatibilityAPI.getShootCompatibility().logDamage(victim, cause, victim.getHealth(), damage, false);
+        //EntityLiving nmsVictim = ((CraftLivingEntity) victim).getHandle();
+        //EntityLiving nmsKiller = ((CraftLivingEntity) cause).getHandle();
+        //nmsVictim.combatTracker.trackDamage(DamageSource.projectile(nmsVictim, nmsKiller), (float) damage, (float) newHealth);
+
+        if (newHealth <= 0) {
+            //ReflectionUtil.setField(killerField, nmsVictim, nmsKiller);
+        }
+
         victim.setHealth(NumberUtils.minMax(0, newHealth, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
         victim.playEffect(EntityEffect.HURT);
 
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
     }
-
+    
     public static void damageArmor(LivingEntity victim, int amount) {
         damageArmor(victim, amount, null);
     }
-
+    
     public static void damageArmor(LivingEntity victim, int amount, @Nullable DamagePoint point) {
         // Stores which armors should be damaged
         ItemStack[] armor;
@@ -121,8 +140,7 @@ public class DamageUtils {
                 case HEAD:
                     armor = new ItemStack[]{equipment.getHelmet()};
                     break;
-                case BODY:
-                case ARMS:
+                case BODY: case ARMS:
                     armor = new ItemStack[]{equipment.getChestplate()};
                     break;
                 case LEGS:
@@ -135,7 +153,7 @@ public class DamageUtils {
                     throw new IllegalArgumentException("Unknown point: " + point);
             }
         }
-
+    
         for (ItemStack armorSlot : armor) {
             if (armorSlot == null || MaterialHelper.isAir(armorSlot.getType())) {
                 continue;
@@ -151,36 +169,38 @@ public class DamageUtils {
             }
         }
     }
-
+    
     /**
-     * @param cause  the cause entity (shooter of projectile)
+     * @param cause the cause entity (shooter of projectile)
      * @param victim the victim
      * @return true only if cause can harm victim
      */
-    public static boolean canHarm(LivingEntity cause, LivingEntity victim, boolean allowFriendlyFire) {
-
+    public static boolean canHarm(LivingEntity cause, LivingEntity victim) {
+        
         boolean allowDamaging = true;
-
-        if (victim.isInvulnerable() || victim.isDead()) {
-            allowDamaging = false;
-        } else if (victim.getType() == EntityType.PLAYER) {
-            Player player = (Player) victim;
-            GameMode mode = player.getGameMode();
-
-            allowDamaging = !(mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR);
-
-            // Only do this team check if we can still damage the victim
-            if (!allowFriendlyFire && allowDamaging && cause.getType() == EntityType.PLAYER) {
-                Scoreboard victimBoard = player.getScoreboard();
-                Scoreboard causeBoard = ((Player) cause).getScoreboard();
-
-                Team team1 = victimBoard.getTeam(player.getName());
-                Team team2 = causeBoard.getTeam(cause.getName());
-
-                allowDamaging = !team1.equals(team2);
+        
+        // Check for MC own scoreboard teams
+        if (cause instanceof Player && victim instanceof Player) {
+            Scoreboard shooterScoreboard = ((Player) cause).getScoreboard();
+            
+            if (shooterScoreboard != null) {
+                Player victimPlayer = (Player) victim;
+                
+                // Iterate through shooter's teams
+                for (Team team : shooterScoreboard.getTeams()) {
+                    if (!team.getEntries().contains(victimPlayer.getName()) || team.allowFriendlyFire()) {
+                        // Not in the same team
+                        // OR
+                        // Team allows damaging teammates
+                        continue;
+                    }
+                    // Else damaging is not allowed -> allowDamaging false
+                    allowDamaging = false;
+                    break;
+                }
             }
         }
-
+        
         // False only if teams did not allow damaging
         return allowDamaging;
     }

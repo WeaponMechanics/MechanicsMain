@@ -11,7 +11,7 @@ public class EntityToggleStandEvent extends WeaponMechanicsEvent {
      * Called when player starts or stops standing.
      *
      * @param livingEntity the livingEntity used in event
-     * @param isStanding   is standing
+     * @param isStanding is standing
      */
     public EntityToggleStandEvent(LivingEntity livingEntity, boolean isStanding) {
         this.livingEntity = livingEntity;

@@ -19,8 +19,8 @@ public interface IProjectileCompatibility {
      * This is only ran if disguises are used.
      *
      * @param customProjectile the projectile used to fetch all required data
-     * @param location         the location vector of projectile
-     * @param motion           the motion vector projectile
+     * @param location the location vector of projectile
+     * @param motion the motion vector projectile
      */
     void spawnDisguise(CustomProjectile customProjectile, Vector location, Vector motion);
 
@@ -29,9 +29,9 @@ public interface IProjectileCompatibility {
      * This is only ran if disguises are used.
      *
      * @param customProjectile the projectile used to fetch all required data
-     * @param location         the location vector of projectile
-     * @param motion           the motion vector projectile
-     * @param lastLocation     the last location vector of projectile
+     * @param location the location vector of projectile
+     * @param motion the motion vector projectile
+     * @param lastLocation the last location vector of projectile
      */
     void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation);
 
@@ -88,13 +88,13 @@ public interface IProjectileCompatibility {
     /**
      * Player has to be within distance to receive packet.
      * This does not use Y axis.
-     * <p>
+     *
      * 8050 = 90 blocks.
      * 22500 = 150 blocks.
      *
      * @param customProjectile the projectile used to fetch all required data
-     * @param distance         the distance squared XZ
-     * @param packets          the packet to send
+     * @param distance the distance squared XZ
+     * @param packets the packet to send
      */
     default void sendUpdatePackets(CustomProjectile customProjectile, int distance, Object... packets) {
         ICompatibility compatibility = CompatibilityAPI.getCompatibility();
@@ -113,7 +113,7 @@ public interface IProjectileCompatibility {
 
     /**
      * @param customProjectile the projectile used to fetch all required data
-     * @param degrees          the pitch degrees to convert to byte
+     * @param degrees the pitch degrees to convert to byte
      * @return the byte value of pitch
      */
     default byte convertPitchToByte(CustomProjectile customProjectile, float degrees) {
@@ -127,7 +127,7 @@ public interface IProjectileCompatibility {
 
     /**
      * @param customProjectile the projectile used to fetch all required data
-     * @param degrees          the yaw degrees to convert to byte
+     * @param degrees the yaw degrees to convert to byte
      * @return the byte value of yaw
      */
     default byte convertYawToByte(CustomProjectile customProjectile, float degrees) {

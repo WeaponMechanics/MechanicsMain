@@ -15,10 +15,10 @@ public interface IValidator {
      * This is used to validate configurations which can't be used as serializers.
      * This validation process should be done after the serialization.
      *
-     * @param configuration        the global configuration object
-     * @param file                 the file being filled
+     * @param configuration the global configuration object
+     * @param file the file being filled
      * @param configurationSection the configuration section object
-     * @param path                 the path to this validator's path (path to keyword like path.keyword)
+     * @param path the path to this validator's path (path to keyword like path.keyword)
      */
     void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path);
 }

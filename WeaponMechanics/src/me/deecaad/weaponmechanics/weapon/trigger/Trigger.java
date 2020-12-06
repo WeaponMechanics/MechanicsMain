@@ -21,8 +21,7 @@ public class Trigger implements Serializer<Trigger> {
     /**
      * Empty constructor to be used as serializer
      */
-    public Trigger() {
-    }
+    public Trigger() {}
 
     public Trigger(TriggerType mainhand, TriggerType offhand, Set<String> denyWhen) {
         this.mainhand = mainhand;
@@ -33,8 +32,8 @@ public class Trigger implements Serializer<Trigger> {
     /**
      * Checks if trigger is valid
      *
-     * @param triggerType   the trigger type
-     * @param slot          the slot used
+     * @param triggerType the trigger type
+     * @param slot the slot used
      * @param entityWrapper the entity's wrapper from whom to check
      * @return true if trigger is valid
      */
@@ -48,10 +47,8 @@ public class Trigger implements Serializer<Trigger> {
             // Not the same trigger type
             return false;
         }
-        if (denyWhenReloading() && (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()))
-            return false;
-        if (denyWhenZooming() && (entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming()))
-            return false;
+        if (denyWhenReloading() && (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading())) return false;
+        if (denyWhenZooming() && (entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming())) return false;
         if (denyWhenSneaking() && entityWrapper.isSneaking()) return false;
         if (denyWhenStanding() && entityWrapper.isStanding()) return false;
         if (denyWhenWalking() && entityWrapper.isWalking()) return false;
@@ -143,7 +140,7 @@ public class Trigger implements Serializer<Trigger> {
             return null;
         }
         TriggerType mainTrigger = null;
-        if (main != null) {
+        if (main != null)  {
             main = main.toUpperCase();
             try {
                 mainTrigger = TriggerType.valueOf(main);
@@ -155,7 +152,7 @@ public class Trigger implements Serializer<Trigger> {
             }
         }
         TriggerType offTrigger = null;
-        if (off != null) {
+        if (off != null)  {
             off = off.toUpperCase();
             try {
                 offTrigger = TriggerType.valueOf(off);

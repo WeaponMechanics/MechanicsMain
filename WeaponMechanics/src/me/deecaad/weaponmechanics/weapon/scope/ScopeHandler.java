@@ -42,10 +42,10 @@ public class ScopeHandler implements IValidator {
      * Tries to use scope
      *
      * @param entityWrapper the entity who used trigger
-     * @param weaponTitle   the weapon title
-     * @param weaponStack   the weapon stack
-     * @param slot          the slot used on trigger
-     * @param triggerType   the trigger type trying to activate scope
+     * @param weaponTitle the weapon title
+     * @param weaponStack the weapon stack
+     * @param slot the slot used on trigger
+     * @param triggerType the trigger type trying to activate scope
      * @return true if the scope used successfully to zoom in, our or stack
      */
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
@@ -124,8 +124,7 @@ public class ScopeHandler implements IValidator {
                 Mechanics.use(weaponTitle + ".Scope.Zoom_Stacking", new CastData(entityWrapper, weaponTitle, weaponStack));
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
                 return true;
             } else {
@@ -189,7 +188,7 @@ public class ScopeHandler implements IValidator {
      * Forces zooming out for entity
      *
      * @param entityWrapper the entity wrapper from whom to force zoom out
-     * @param zoomData      the zoom data of entity wrappers hand data
+     * @param zoomData the zoom data of entity wrappers hand data
      */
     public void forceZoomOut(IEntityWrapper entityWrapper, ZoomData zoomData) {
         ScopeHandler scopeHandler = WeaponMechanics.getWeaponHandler().getScopeHandler();

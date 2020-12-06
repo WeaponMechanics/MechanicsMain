@@ -52,7 +52,7 @@ public class Packet {
     /**
      * Gets field from some specific super class of this instance's packet instance
      *
-     * @param fieldName  the field name to search
+     * @param fieldName the field name to search
      * @param superClass the amount of super class
      * @return the field from the super class
      */
@@ -81,7 +81,7 @@ public class Packet {
     /**
      * Gets value from some field from specific super class of this instance's packet instance
      *
-     * @param fieldName  the field name to search
+     * @param fieldName the field name to search
      * @param superClass the amount of super class
      * @return the object of field from the super class
      */
@@ -92,8 +92,8 @@ public class Packet {
     /**
      * Sets new value for field in some specific super class
      *
-     * @param fieldName  the field name to change
-     * @param value      the new value for the field
+     * @param fieldName the field name to change
+     * @param value the new value for the field
      * @param superClass the amount of super class
      */
     public void setFieldValue(String fieldName, Object value, int superClass) {

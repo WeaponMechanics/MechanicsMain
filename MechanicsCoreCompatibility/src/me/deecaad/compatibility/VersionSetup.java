@@ -25,6 +25,7 @@ public class VersionSetup {
     }
 
     /**
+     *
      * Example return values when version string is:
      * <pre>{@code
      * v1_8_R2 -> 1.082

@@ -17,7 +17,7 @@ public class TriggerEntityListenersAbove_1_9 implements Listener {
         this.weaponHandler = weaponHandler;
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler (ignoreCancelled = true)
     public void toggleGlide(EntityToggleGlideEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide")) return;
 

@@ -11,12 +11,11 @@ public class TagHelper {
     /**
      * Don't let anyone instantiate this class
      */
-    private TagHelper() {
-    }
+    private TagHelper() { }
 
     /**
      * @param itemStack the item stack from which to get tag
-     * @param tag       the tag name
+     * @param tag the tag name
      * @return the value of the tag, if not found null
      */
     @Nullable
@@ -28,8 +27,8 @@ public class TagHelper {
      * Set or change tag of item stack with given value.
      *
      * @param itemStack the item stack to modify
-     * @param tag       the tag name
-     * @param value     the value for tag
+     * @param tag the tag name
+     * @param value the value for tag
      * @return the item stack with new or modified tag value
      */
     public static ItemStack setStringTag(ItemStack itemStack, CustomTag tag, String value) {
@@ -39,11 +38,11 @@ public class TagHelper {
     /**
      * Set or change tag of item stack with given value.
      *
-     * @param itemStack     the item stack to modify
-     * @param tag           the tag name
-     * @param value         the value for tag
+     * @param itemStack the item stack to modify
+     * @param tag the tag name
+     * @param value the value for tag
      * @param playerWrapper the player for who set, only required if silently is true
-     * @param silently      if true, then next set slot packet is cancelled for the given player
+     * @param silently if true, then next set slot packet is cancelled for the given player
      * @return the item stack with new or modified tag value
      */
     public static ItemStack setStringTag(ItemStack itemStack, CustomTag tag, String value, @Nullable IPlayerWrapper playerWrapper, boolean silently) {
@@ -55,7 +54,7 @@ public class TagHelper {
 
     /**
      * @param itemStack the item stack from which to get tag
-     * @param tag       the tag name
+     * @param tag the tag name
      * @return the value of the tag, if not found null
      */
     @Nullable
@@ -67,8 +66,8 @@ public class TagHelper {
      * Set or change tag of item stack with given value.
      *
      * @param itemStack the item stack to modify
-     * @param tag       the tag name
-     * @param value     the value for tag
+     * @param tag the tag name
+     * @param value the value for tag
      * @return the item stack with new or modified tag value
      */
     public static ItemStack setIntegerTag(ItemStack itemStack, CustomTag tag, int value) {
@@ -78,11 +77,11 @@ public class TagHelper {
     /**
      * Set or change tag of item stack with given value.
      *
-     * @param itemStack     the item stack to modify
-     * @param tag           the tag name
-     * @param value         the value for tag
+     * @param itemStack the item stack to modify
+     * @param tag the tag name
+     * @param value the value for tag
      * @param playerWrapper the player for who set, only required if silently is true
-     * @param silently      if true, then next set slot packet is canclled for the given player
+     * @param silently if true, then next set slot packet is canclled for the given player
      * @return the item stack with new or modified tag value
      */
     public static ItemStack setIntegerTag(ItemStack itemStack, CustomTag tag, int value, @Nullable IPlayerWrapper playerWrapper, boolean silently) {

@@ -24,7 +24,7 @@ public interface IScopeCompatibility {
      * Modifies the outgoing packet to have attribute of movement speed based on
      * player's scope level. It basically modifies FOV.
      *
-     * @param packet     the packet to modify
+     * @param packet the packet to modify
      * @param zoomAmount the amount of zoom
      */
     void modifyUpdateAttributesPacket(Packet packet, int zoomAmount);

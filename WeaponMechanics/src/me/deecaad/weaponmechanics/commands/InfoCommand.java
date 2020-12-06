@@ -16,11 +16,11 @@ import java.util.Set;
 
 @CommandPermission(permission = "weaponmechanics.commands.info")
 public class InfoCommand extends SubCommand {
-
+    
     public InfoCommand() {
         super("wm", "info", "General plugin information");
     }
-
+    
     @Override
     public void execute(CommandSender sender, String[] args) {
         PluginDescriptionFile desc = WeaponMechanics.getPlugin().getDescription();

@@ -29,30 +29,30 @@ public class ParabolicExplosion implements ExplosionShape {
 
     private double depth;   // This is assumed to be negative
     private double angle;
-
+    
     public ParabolicExplosion(double depth) {
         this(depth, 0.5);
     }
-
+    
     public ParabolicExplosion(double depth, double angle) {
         this.depth = depth;
         this.angle = angle;
     }
-
+    
     /**
      * @return Depth of the explosion
      */
     public double getDepth() {
         return depth;
     }
-
+    
     /**
      * @return Angle of the parabola
      */
     public double getAngle() {
         return angle;
     }
-
+    
     @Nonnull
     @Override
     public List<Block> getBlocks(@Nonnull Location origin) {
@@ -88,7 +88,7 @@ public class ParabolicExplosion implements ExplosionShape {
         }
         return temp;
     }
-
+    
     @Nonnull
     @Override
     public List<LivingEntity> getEntities(@Nonnull Location origin) {
@@ -110,7 +110,7 @@ public class ParabolicExplosion implements ExplosionShape {
      * based on the given origin
      *
      * @param origin Center of the explosion
-     * @param loc    Point to test
+     * @param loc Point to test
      * @return If the location is in the explosion
      */
     public boolean test(Location origin, Location loc) {

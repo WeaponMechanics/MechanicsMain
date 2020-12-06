@@ -13,7 +13,7 @@ public @interface CommandPermission {
      * Returns the string representation of the
      * annotated <code>SubCommand</code>'s
      * permission
-     * <p>
+     *
      * Ex. essentials.fly
      *
      * @return String permission

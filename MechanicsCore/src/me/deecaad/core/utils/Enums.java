@@ -33,7 +33,7 @@ public final class Enums {
      * <code>String</code> key into <code>cache</code>
      *
      * @param enumClass Enum class to map values into
-     * @param <T>       The type of the enum
+     * @param <T> The type of the enum
      * @return The mappings cached by this method
      */
     private static <T extends Enum<T>> Map<String, WeakReference<? extends Enum<?>>> populateEnum(Class<T> enumClass) {
@@ -61,8 +61,8 @@ public final class Enums {
      * with the name <code>name</code>
      *
      * @param enumClass Class to grab the enum from
-     * @param name      The name of the enum
-     * @param <T>       The enum type
+     * @param name The name of the enum
+     * @param <T> The enum type
      * @return Optional enum
      */
     public static <T extends Enum<T>> Optional<T> getIfPresent(Class<T> enumClass, String name) {
@@ -75,9 +75,9 @@ public final class Enums {
      * <code>enumClass</code>
      *
      * @param enumClass Class to grab the enum from
-     * @param <T>       The enum type
+     * @param <T> The enum type
      * @return immutable set of all enums
-     * @see Collections#unmodifiableMap(Map)
+     * @see Collections#unmodifiableMap(Map) 
      */
     public static <T extends Enum<T>> Set<String> getOptions(Class<T> enumClass) {
         Map<String, WeakReference<? extends Enum<?>>> temp = getConstants(enumClass);

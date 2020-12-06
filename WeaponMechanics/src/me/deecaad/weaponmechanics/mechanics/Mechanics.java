@@ -57,7 +57,7 @@ public class Mechanics implements Serializer<Mechanics> {
     /**
      * Register new mechanic keyword
      *
-     * @param plugin   the registering plugin's instance
+     * @param plugin the registering plugin's instance
      * @param mechanic the mechanic instance
      */
     public static void registerMechanic(Plugin plugin, IMechanic<?> mechanic) {
@@ -75,7 +75,7 @@ public class Mechanics implements Serializer<Mechanics> {
     /**
      * Use all registered mechanics under specific path with given cast data.
      *
-     * @param path     the path to mechanics (e.g. WeaponName.Damage)
+     * @param path the path to mechanics (e.g. WeaponName.Damage)
      * @param castData the cast data for this use of mechanics
      */
     public static void use(String path, CastData castData) {
@@ -88,15 +88,14 @@ public class Mechanics implements Serializer<Mechanics> {
                 debug.log(LogLevel.ERROR,
                         "Tried to get mechanic using keyword " + keyword + " at path " + path + ", but"
                                 + " couldn't cast it to IMechanic class?",
-                        "This might be plugin sided issue or this keyword was used somewhere it wasn't supposed to.",
-                        "Or serializer at this path didn't work properly because of misconfiguration.");
+                                "This might be plugin sided issue or this keyword was used somewhere it wasn't supposed to.",
+                                "Or serializer at this path didn't work properly because of misconfiguration.");
                 continue;
             }
 
             if (mechanic == null) continue;
             if (mechanic.requireEntity() && castData.getCaster() == null) continue;
-            if (mechanic.requirePlayer() && (castData.getCaster() == null || castData.getCaster().getType() != EntityType.PLAYER))
-                continue;
+            if (mechanic.requirePlayer() && (castData.getCaster() == null || castData.getCaster().getType() != EntityType.PLAYER)) continue;
 
             mechanic.use(castData);
         }
@@ -105,8 +104,7 @@ public class Mechanics implements Serializer<Mechanics> {
     public void use(CastData castData) {
         for (IMechanic<?> mechanic : mechanicList) {
             if (mechanic.requireEntity() && castData.getCaster() == null) continue;
-            if (mechanic.requirePlayer() && (castData.getCaster() == null || castData.getCaster().getType() != EntityType.PLAYER))
-                continue;
+            if (mechanic.requirePlayer() && (castData.getCaster() == null || castData.getCaster().getType() != EntityType.PLAYER)) continue;
 
             mechanic.use(castData);
         }

@@ -57,40 +57,40 @@ public class Debugger {
     /**
      * Shorthand to log at debugging level
      *
-     * @param msg Messages to log
      * @see LogLevel#DEBUG
+     * @param msg Messages to log
      */
-    public void debug(String... msg) {
+    public void debug(String...msg) {
         if (canLog(LogLevel.DEBUG)) log(LogLevel.DEBUG, msg);
     }
 
     /**
      * Shorthand to log at debugging level
      *
-     * @param msg Messages to log
      * @see LogLevel#INFO
+     * @param msg Messages to log
      */
-    public void info(String... msg) {
+    public void info(String...msg) {
         if (canLog(LogLevel.INFO)) log(LogLevel.INFO, msg);
     }
 
     /**
      * Shorthand to log at debugging level
      *
-     * @param msg Messages to log
      * @see LogLevel#WARN
+     * @param msg Messages to log
      */
-    public void warn(String... msg) {
+    public void warn(String...msg) {
         if (canLog(LogLevel.WARN)) log(LogLevel.WARN, msg);
     }
 
     /**
      * Shorthand to log at debugging level
      *
-     * @param msg Messages to log
      * @see LogLevel#ERROR
+     * @param msg Messages to log
      */
-    public void error(String... msg) {
+    public void error(String...msg) {
         if (canLog(LogLevel.ERROR)) log(LogLevel.ERROR, msg);
     }
 
@@ -100,9 +100,9 @@ public class Debugger {
      * logged on a new line.
      *
      * @param level The level to log at
-     * @param msg   The messages
+     * @param msg The messages
      */
-    public void log(LogLevel level, String... msg) {
+    public void log(LogLevel level, String...msg) {
         if (!canLog(level)) return;
 
         for (String str : msg) {
@@ -133,7 +133,7 @@ public class Debugger {
      * given message.
      *
      * @param level Level to log at
-     * @param msg   Message to send
+     * @param msg Message to send
      * @param error Error
      */
     public void log(LogLevel level, String msg, Throwable error) {
@@ -146,10 +146,10 @@ public class Debugger {
      * Shorthand for asserting true with an <code>ERROR</code>
      * <code>LoggingLevel</code>.
      *
-     * @param bool     What to assert
+     * @param bool What to assert
      * @param messages Messages to log if assertion failed
      */
-    public void validate(boolean bool, String... messages) {
+    public void validate(boolean bool, String...messages) {
         if (!bool) {
             log(LogLevel.ERROR, messages);
         }
@@ -162,11 +162,11 @@ public class Debugger {
      * should be logged at the given level so the user can be
      * aware of possible errors.
      *
-     * @param level    Level to log at
-     * @param bool     What to assert
+     * @param level Level to log at
+     * @param bool What to assert
      * @param messages Messages to log if assertion failed
      */
-    public void validate(LogLevel level, boolean bool, String... messages) {
+    public void validate(LogLevel level, boolean bool, String...messages) {
         if (!bool) {
             log(level, messages);
         }

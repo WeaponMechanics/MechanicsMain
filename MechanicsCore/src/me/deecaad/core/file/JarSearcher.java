@@ -25,7 +25,7 @@ public class JarSearcher {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, boolean isIgnoreAbstract, Class<?>... classes) {
+    public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, boolean isIgnoreAbstract, Class<?>...classes) {
         List<Class<?>> classList = new ArrayList<>(Arrays.asList(classes));
         classList.add(clazz);
         Set<String> blacklist = classList.stream()

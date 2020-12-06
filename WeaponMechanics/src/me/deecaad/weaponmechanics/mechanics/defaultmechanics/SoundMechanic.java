@@ -70,7 +70,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         // Check if this is start reload cast
         Integer reloadData = castData.getData(ReloadSound.getDataKeyword(), Integer.class);
         Integer firearmActionData = castData.getData(FirearmSound.getDataKeyword(), Integer.class);
-
+        
         if (reloadData != null) {
             if (reloadData == ReloadSound.MAIN_HAND.getId()) {
                 castData.getCasterWrapper().getMainHandData().addReloadTask(startWithDelays(castData));
@@ -89,6 +89,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
     }
 
     /**
+     *
      * @param castData the cast data
      * @return the task id chain of delayed sound plays and 0 if not used
      */

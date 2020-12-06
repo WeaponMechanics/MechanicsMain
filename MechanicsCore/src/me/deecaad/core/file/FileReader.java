@@ -119,7 +119,7 @@ public class FileReader {
      * It is recommended to give this method plugin's data folder directory.
      * This also takes in account given serializers.
      *
-     * @param directory   the directory
+     * @param directory the directory
      * @param ignoreFiles ignored files which name starts with any given string
      * @return the map with all configurations
      */

@@ -56,7 +56,7 @@ public class ShootHandler implements IValidator {
     /**
      * Hardcoded full auto values
      */
-    private static final int[][] auto = new int[][]{
+    private static final int[][] auto = new int[][] {
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 good
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2 good
             {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}, // 3
@@ -152,8 +152,7 @@ public class ShootHandler implements IValidator {
                     firearmAction.useMechanics(castData, false);
 
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null)
-                        weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
                     handData.addFirearmActionTask(new BukkitRunnable() {
                         @Override
@@ -211,8 +210,7 @@ public class ShootHandler implements IValidator {
         // Only check if selective fire doesn't have auto selected
         if (!isSelectiveFireAuto) {
             int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
-            if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots))
-                return false;
+            if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
         }
 
         if (usesSelectiveFire) {
@@ -306,7 +304,6 @@ public class ShootHandler implements IValidator {
 
         handData.setFullAutoTask(new BukkitRunnable() {
             int tick = 0;
-
             public void run() {
 
                 int ammoLeft = reloadHandler.getAmmoLeft(weaponStack);
@@ -368,8 +365,7 @@ public class ShootHandler implements IValidator {
         if (firearmAction == null || handData.hasRunningFirearmAction()) return;
 
         // Return if firearm actions should not be done in this shot
-        if (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack) % firearmAction.getFirearmActionFrequency() != 0)
-            return;
+        if (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack) % firearmAction.getFirearmActionFrequency() != 0) return;
 
         // No need to do any firearm actions if its REVOLVER
         if (firearmAction.getFirearmType() == FirearmType.REVOLVER) return;
@@ -395,8 +391,7 @@ public class ShootHandler implements IValidator {
             firearmAction.useMechanics(castData, false);
 
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null)
-                weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
             handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 
@@ -425,8 +420,7 @@ public class ShootHandler implements IValidator {
                 firearmAction.useMechanics(castData, false);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null)
-                    weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 

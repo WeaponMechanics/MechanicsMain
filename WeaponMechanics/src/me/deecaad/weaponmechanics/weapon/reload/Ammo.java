@@ -24,8 +24,7 @@ public class Ammo implements Serializer<Ammo> {
     /**
      * Empty constructor to be used as serializer
      */
-    public Ammo() {
-    }
+    public Ammo() { }
 
     public Ammo(Mechanics outOfAmmo, IAmmoType ammoType) {
         this.outOfAmmo = outOfAmmo;
@@ -46,7 +45,7 @@ public class Ammo implements Serializer<Ammo> {
 
     /**
      * @param entityWrapper the entity
-     * @param magazineSize  the weapon's full magazine size
+     * @param magazineSize the weapon's full magazine size
      * @return the amount of this type ammo entity currently has
      */
     public int getAmount(IEntityWrapper entityWrapper, int magazineSize) {
@@ -55,8 +54,8 @@ public class Ammo implements Serializer<Ammo> {
 
     /**
      * @param entityWrapper the entity
-     * @param amount        the amount to remove ammo
-     * @param magazineSize  the weapon's full magazine size
+     * @param amount the amount to remove ammo
+     * @param magazineSize the weapon's full magazine size
      * @return the amount of ammo that was removed from entity
      */
     public int remove(IEntityWrapper entityWrapper, int amount, int magazineSize) {
@@ -65,8 +64,8 @@ public class Ammo implements Serializer<Ammo> {
 
     /**
      * @param entityWrapper the entity
-     * @param amount        the amount of ammo to give for entity
-     * @param magazineSize  the weapon's full magazine size
+     * @param amount the amount of ammo to give for entity
+     * @param magazineSize the weapon's full magazine size
      */
     public void give(IEntityWrapper entityWrapper, int amount, int magazineSize) {
         ammoType.give(entityWrapper, amount, magazineSize);

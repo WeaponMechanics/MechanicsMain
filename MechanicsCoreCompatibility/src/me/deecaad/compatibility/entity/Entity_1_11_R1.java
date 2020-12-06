@@ -154,7 +154,7 @@ public class Entity_1_11_R1 implements EntityCompatibility {
     }
 
     @Override
-    public void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect... effects) {
+    public void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects) {
         if (loc.getWorld() == null) {
             throw new IllegalArgumentException("Location#getWorld must not return null!");
         }

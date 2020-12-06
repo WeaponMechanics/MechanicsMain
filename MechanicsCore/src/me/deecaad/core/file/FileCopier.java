@@ -20,9 +20,9 @@ public class FileCopier {
     /**
      * Creates resources inside path of plugin file into plugin's datafolder
      *
-     * @param plugin    the plugin instance
-     * @param file      the jar file of plugin
-     * @param path      the path inside plugin jar where resources are
+     * @param plugin the plugin instance
+     * @param file the jar file of plugin
+     * @param path the path inside plugin jar where resources are
      * @param fileTypes the required file types
      */
     public void createFromJarToDataFolder(Plugin plugin, File file, String path, String... fileTypes) {
@@ -34,11 +34,11 @@ public class FileCopier {
     /**
      * Creates resources inside path of plugin file into given copy path
      *
-     * @param plugin     the plugin instance
-     * @param jar        the jar file of plugin
-     * @param path       the path inside plugin jar where resources are
+     * @param plugin the plugin instance
+     * @param jar the jar file of plugin
+     * @param path the path inside plugin jar where resources are
      * @param copyToPath the path where to copy files
-     * @param fileTypes  the required file types
+     * @param fileTypes the required file types
      */
     public void createFromJar(Plugin plugin, File jar, String path, String copyToPath, String... fileTypes) {
         try {
@@ -92,7 +92,7 @@ public class FileCopier {
      * Its better to give the jar file for methods above from main class (use getFile() method there).
      *
      * @param plugin the plugin instance
-     * @param jar    the jar as file
+     * @param jar the jar as file
      * @return the jar file of plugin
      */
     public JarFile getJarFile(Plugin plugin, File jar) throws IOException {

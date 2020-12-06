@@ -29,12 +29,12 @@ public class CuboidExplosion implements ExplosionShape {
     // values, kind of like radius
     private double width;
     private double height;
-
+    
     /**
      * Constructs a <code>CuboidExplosion</code> object. The
      * width and height are divided by 2 to get the "radius"
      * of the rectangle.
-     * <p>
+     *
      * This is used when finding points about the origin,
      * the width input is the total width of the explosion.
      * The width instance variable is the distance from one
@@ -47,7 +47,7 @@ public class CuboidExplosion implements ExplosionShape {
         this.width = width / 2.0;
         this.height = height / 2.0;
     }
-
+    
     /**
      * Gets all blocks between 2 points, where the 2
      * points are found using this width, and height
@@ -90,7 +90,7 @@ public class CuboidExplosion implements ExplosionShape {
         }
         return temp;
     }
-
+    
     /**
      * Gets any <code>LivingEntity</code>s inside this
      * <code>CuboidExplosion</code> by getting the entity's
@@ -110,18 +110,18 @@ public class CuboidExplosion implements ExplosionShape {
     @Nonnull
     @Override
     public List<LivingEntity> getEntities(@Nonnull Location origin) {
-        double xMin = origin.getX() - width, xMax = origin.getX() + width;
+        double xMin = origin.getX() - width,  xMax = origin.getX() + width;
         double yMin = origin.getY() - height, yMax = origin.getY() + height;
-        double zMin = origin.getZ() - width, zMax = origin.getZ() + width;
-
+        double zMin = origin.getZ() - width,  zMax = origin.getZ() + width;
+        
         return origin.getWorld().getLivingEntities()
                 .stream()
                 .filter(entity -> {
                     double x = entity.getLocation().getX();
                     double y = entity.getLocation().getY();
                     double z = entity.getLocation().getZ();
-
-                    return x >= xMin && x <= xMax &&
+                    
+                    return  x >= xMin && x <= xMax &&
                             y >= yMin && y <= yMax &&
                             z >= zMin && z <= zMax;
                 })
@@ -138,7 +138,7 @@ public class CuboidExplosion implements ExplosionShape {
         y = height - Math.abs(y);
         z = width - Math.abs(z);
 
-        return x < distance ||
+        return  x < distance ||
                 y < distance ||
                 z < distance;
     }

@@ -44,7 +44,7 @@ public class SubCommands {
      * Registers a given sub-command with the
      * given key (for execution)
      *
-     * @param key     The key to use for activation
+     * @param key The key to use for activation
      * @param command to register
      */
     public void register(String key, SubCommand command) {
@@ -101,7 +101,7 @@ public class SubCommands {
      * command defined by this class and the given args
      *
      * @param sender Who to send help to
-     * @param args   Command arguments
+     * @param args Command arguments
      * @return Whether or not the command is valid
      */
     boolean sendHelp(CommandSender sender, String[] args) {
@@ -157,9 +157,9 @@ public class SubCommands {
      * Executes the given command, if present. Else
      * the default command is executed.
      *
-     * @param key    The command's activation key
+     * @param key The command's activation key
      * @param sender Who is executing the command
-     * @param args   What is being typed
+     * @param args What is being typed
      */
     public boolean execute(String key, CommandSender sender, String[] args) {
         SubCommand command = commands.get(key);
@@ -177,7 +177,7 @@ public class SubCommands {
      * Gets the tab completions for a given command,
      * if present. Else an empty list is returned
      *
-     * @param key  the command's activation key
+     * @param key the command's activation key
      * @param args what is being typed
      * @return tab completions
      */

@@ -18,7 +18,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  * follow standard rgb format using a byte for each color.
  */
 public class Sprite {
-
+    
     private int[][] pixels;
     private int height, width;
 
@@ -41,30 +41,30 @@ public class Sprite {
                     .filter(name -> name.endsWith(".png"))
                     .map(str -> str.substring(0, str.length() - ".png".length()))
                     .collect(Collectors.joining("\", \"")) + "\"";
-
+            
             debug.log(LogLevel.ERROR,
                     "Failed to load image " + file.getName() + " at " + file.getPath(),
                     "You may have put in an incorrect image name",
                     "Valid names: " + files);
             return;
         }
-
+        
         height = img.getHeight();
         width = img.getWidth();
-
+        
         // Gets the RGB value of every pixel in
         // the given image.
         pixels = ArrayUtils.split(img.getRGB(0, 0, width, height, null, 0, width), width);
     }
-
+    
     public int[][] getPixels() {
         return pixels;
     }
-
+    
     public int getHeight() {
         return height;
     }
-
+    
     public int getWidth() {
         return width;
     }

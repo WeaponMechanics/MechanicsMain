@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * This utility class contains methods wrapping
  * around the idea of a <code>String</code>.
- * <p>
+ *
  * Also contains formatting methods to change
  * the format of a <code>String</code>
  */
@@ -26,11 +26,11 @@ public class StringUtils {
      */
     private StringUtils() {
     }
-
+    
     /**
      * Counts the number of a given character in a String
      *
-     * @param c      The character to check for
+     * @param c The character to check for
      * @param string The string to check in
      * @return How many c's are found in the string
      */
@@ -47,7 +47,7 @@ public class StringUtils {
             return null;
         }
     }
-
+    
     /**
      * Colors a given string
      *
@@ -136,7 +136,7 @@ public class StringUtils {
     public static String[] splitCapitalLetters(String from) {
         return from.split("(?<=.)(?=\\p{Lu})");
     }
-
+    
     /**
      * Splits after each word, removing spaces if present.
      * Example:
@@ -171,17 +171,17 @@ public class StringUtils {
     public static String[] split(String from) {
         return from.split("[~ ]+|(?<![~ -])-");
     }
-
+    
     /**
      * Colors a given Array and returns it as a list.
      * Useful for TabCompletion stuff.
-     * <p>
+     *
      * Note: Players can NOT use colors in chat/commands
      *
      * @param strings Array to convert
      * @return The list version of the array
      */
-    public static List<String> getList(String... strings) {
+    public static List<String> getList(String...strings) {
         return Arrays.stream(strings).map(StringUtils::color).collect(Collectors.toList());
     }
 
@@ -201,8 +201,8 @@ public class StringUtils {
      * Easy way to display where an error occurred in a file
      * during data serialization
      *
-     * @param file          Which file the error occurred in
-     * @param path          The path of configuration where the error occured
+     * @param file Which file the error occurred in
+     * @param path The path of configuration where the error occured
      * @param specification The specific thing that was wrong
      * @return User readable location of error
      */
@@ -271,7 +271,7 @@ public class StringUtils {
         String[] split = key.toLowerCase().split("_");
 
         StringBuilder builder = new StringBuilder();
-        for (String s : split) {
+        for (String s: split) {
             builder.append(s.substring(0, 1).toUpperCase());
             builder.append(s.substring(1));
             builder.append(" ");
@@ -280,17 +280,18 @@ public class StringUtils {
     }
 
     /**
-     * @return the string in usable format at error debugs
      * @see #didYouMean(String, Iterable)
+     *
+     * @return the string in usable format at error debugs
      */
     public static <T extends Enum<T>> String debugDidYouMean(String input, Class<T> enumClazz) {
         return "Did you mean " + didYouMean(input, Enums.getOptions(enumClazz)) + " instead of " + input + "?";
     }
-
+    
     /**
      * Gets the most similar <code>String</code> to
      * <code>input</code> found in <code>options</code>
-     * <p>
+     *
      * Example:
      * <blockquote><pre>{@code
      *
@@ -301,36 +302,37 @@ public class StringUtils {
      *      // Output
      *      [...] Unkown mob endermen... Did you mean enderman?
      * }</pre></blockquote>
+     *
      */
     public static String didYouMean(String input, Iterable<String> options) {
         String closest = null;
         int difference = Integer.MAX_VALUE;
         int[] table = mapToCharTable(input.toLowerCase());
-
+        
         for (String str : options) {
             int[] localTable = mapToCharTable(str.toLowerCase());
             int localDifference = 0;
-
+            
             for (int i = 0; i < table.length; i++) {
                 localDifference += Math.abs(table[i] - localTable[i]);
             }
-
+            
             if (localDifference < difference) {
                 closest = str;
                 difference = localDifference;
             }
         }
-
+        
         return closest;
     }
-
+    
     private static int[] mapToCharTable(String str) {
         int[] table = new int[LOWER_ALPHABET.length()];
-
+    
         for (int i = 0; i < str.length(); i++) {
             table[Character.toLowerCase(str.charAt(i)) - 97]++;
         }
-
+        
         return table;
     }
 }
