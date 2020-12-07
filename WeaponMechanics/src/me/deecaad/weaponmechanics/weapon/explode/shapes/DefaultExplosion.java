@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

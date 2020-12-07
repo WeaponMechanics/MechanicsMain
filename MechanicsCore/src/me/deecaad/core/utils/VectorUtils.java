@@ -159,6 +159,24 @@ public class VectorUtils {
         }
     }
 
+    /**
+     * Gets the angle, in radians, between the 2 given bukkit vectors.
+     *
+     * @see Math#toDegrees(double)
+     *
+     * @param a The first vector
+     * @param b The second vector
+     * @return The angle between the vectors
+     */
+    public static double getAngleBetween(@Nonnull Vector a, @Nonnull Vector b) {
+
+        double magnitudeA = a.length();
+        double magnitudeB = b.length();
+
+        double dot = a.dot(b);
+        return Math.acos(dot / (magnitudeA * magnitudeB));
+    }
+
     public static boolean isEmpty(Vector vector) {
         return NumberUtils.equals(vector.getX() + vector.getY() + vector.getZ(), 0.0);
     }

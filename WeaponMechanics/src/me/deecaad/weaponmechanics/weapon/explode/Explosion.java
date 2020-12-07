@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
+import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
@@ -10,9 +11,11 @@ import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
 import org.bukkit.Location;
@@ -171,13 +174,20 @@ public class Explosion {
     public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
         debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
 
+        EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+
         List<Block> blocks = blockDamage == null ? new ArrayList<>() : shape.getBlocks(origin);
         Map<LivingEntity, Double> entities = exposure.mapExposures(origin, shape);
+        BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
 
-        final List<Block> transparent = new ArrayList<>();
-        final List<Block> solid = new ArrayList<>();
+        List<Block> transparent = new ArrayList<>();
+        List<Block> solid = new ArrayList<>();
+        Map<FallingBlockWrapper, Vector> fallingBlocks = new HashMap<>();
 
-        // Sort out the blocks to destroy for later usage
+        // Separate the blocks to destroy into solid blocks (blocks that can be safely
+        // removed without worry) and transparent blocks (blocks that are more likely
+        // to get removed from block updates)
+        // todo Check for redstone contraptions
         for (Block block : blocks) {
             Material type = block.getType();
 
@@ -188,40 +198,8 @@ public class Explosion {
             }
         }
 
-        // Determine how soon we should start regenerating blocks
-        int timeOffset;
-        if (regeneration == null) {
-            timeOffset = -1;
-        } else {
-            timeOffset = solid.size() / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval() + regeneration.getTicksBeforeStart();
-        }
-
-        // Stores data for falling blocks
-        Map<BlockState, Vector> blockVelocities = new HashMap<>();
-
-        // We damage transparent blocks separately from solid blocks
-        // to help make regeneration more accurate... mainly redstone.
-        // If there are block updates during regeneration, we want to
-        // try our best to keep the blocks coming back correctly. Still,
-        // redstone contraptions should be protected VIA worldguard
-        int size = transparent.size();
-        for (int i = 0; i < size; i++) {
-            Block block = transparent.get(i);
-            BlockState state = block.getState();
-
-            // This forces all transparent blocks to regenerate at once.
-            // This fixes item sorters breaking and general hopper/redstone stuff
-            if (blockDamage.damage(block, timeOffset) && blockChance != 0.0 && NumberUtils.chance(blockChance)) {
-
-                Vector velocity = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5).subtract(origin.toVector());
-                blockVelocities.put(state, velocity);
-            }
-        }
-
-        // Sort out the blocks that are blown up. This sorter starts at
-        // the bottom and works it's way up. It also regenerates blocks
-        // further away from the origin first
-        BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
+        // Sorting the blocks to create a satisfying pattern during regeneration.
+        // By default, this sorts from bottom to the top
         try {
             solid.sort(sorter);
         } catch (IllegalArgumentException ex) {
@@ -230,69 +208,41 @@ public class Explosion {
             debug.log(LogLevel.ERROR, ex);
         }
 
-        // Handle the actual block damage.
-        // todo Add block mask
-        size = solid.size();
-        for (int i = 0; i < size; i++) {
-            Block block = solid.get(i);
-
-            int regenTime;
-            if (regeneration == null) {
-                regenTime = -1;
-            } else {
-                regenTime = regeneration.getTicksBeforeStart() +
-                        (i / regeneration.getMaxBlocksPerUpdate()) * regeneration.getInterval();
-            }
-
-            BlockState state = block.getState();
-
-            // Damage the block. If it breaks, handle any effects
-            if (blockDamage.damage(block, regenTime) && blockChance != 0.0 && NumberUtils.chance(blockChance)) {
-
-                Vector vector = new Vector(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5).subtract(origin.toVector());
-                blockVelocities.put(state, vector);
-            }
-        }
+        damageBlocks(transparent, true, origin, projectile, fallingBlocks);
+        damageBlocks(solid, false, origin, projectile, fallingBlocks);
 
         @SuppressWarnings("unchecked")
         Iterable<Player> playersInView = (Collection<Player>) (Collection<?>) origin.getWorld().getNearbyEntities(origin, 100, 100, 100, entity -> entity.getType() == EntityType.PLAYER);
-        List<Object> fallingBlocks = new ArrayList<>(blockVelocities.size());
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                blockVelocities.forEach((state, vector) -> {
-                    EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+        // Handl
+        for (Map.Entry<FallingBlockWrapper, Vector> entry : fallingBlocks.entrySet()) {
+            Object nms = entry.getKey().getEntity();
+            int removeTime = entry.getKey().getTimeToHitGround();
+            Vector velocity = entry.getValue();
 
-                    Object nms = entityCompatibility.createFallingBlock(state.getLocation().add(0.5, 0.5, 0.5), state, vector);
-                    Object spawnPacket = entityCompatibility.getSpawnPacket(nms);
-                    Object metaPacket = entityCompatibility.getMetadataPacket(nms);
-                    Object velocityPacket = entityCompatibility.getVelocityPacket(nms, vector);
+            if (removeTime < 1) continue;
 
-                    fallingBlocks.add(nms);
+            // All the packets needed to handle showing the falling block
+            // to the player. The destroy packet is sent later, when the block
+            // hits the ground. Sent to every player in view.
+            Object spawn = entityCompatibility.getSpawnPacket(nms);
+            Object meta = entityCompatibility.getMetadataPacket(nms, true, EntityCompatibility.EntityMeta.values());
+            Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
+            Object destroy = entityCompatibility.getDestroyPacket(nms);
 
-                    for (Player player : playersInView) {
-                        CompatibilityAPI.getCompatibility().sendPackets(player, spawnPacket, metaPacket, velocityPacket);
+            for (Player player : playersInView) {
+
+                debug.debug(nms + " with velocity " + velocity + " removed in " + removeTime + " ticks");
+                CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
                     }
-                });
+                }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
             }
-        }.runTaskAsynchronously(WeaponMechanics.getPlugin());
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Object obj : fallingBlocks) {
-                    EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
-
-                    Object destroyPacket = entityCompatibility.getDestroyPacket(obj);
-
-                    for (Player player : playersInView) {
-                        CompatibilityAPI.getCompatibility().sendPackets(player, destroyPacket);
-                    }
-                }
-            }
-        }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), 80);
-
+        }
 
         // Handles damage and knockback to living entities. Knockback
         // is handled like vanilla knockback, and damage is very similar
@@ -331,6 +281,35 @@ public class Explosion {
         if (projectile != null) {
             cluster.ifPresent(clusterBomb -> clusterBomb.trigger(projectile, cause, origin));
             airStrike.ifPresent(airStrike -> airStrike.trigger(origin, cause, projectile));
+        }
+    }
+
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockWrapper, Vector> fallingBlocks) {
+
+        int timeOffset = regeneration == null ? -1 : regeneration.getTicksBeforeStart();
+
+        EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+        int size = blocks.size();
+        for (int i = 0; i < size; i++) {
+            Block block = blocks.get(i);
+
+            int counter = isAtOnce ? size : i;
+            int time = timeOffset + counter / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval();
+
+            if (blockDamage.damage(block, time) && NumberUtils.chance(blockChance)) {
+
+                Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+                BlockState state = block.getState();
+                Vector velocity = loc.toVector().subtract(origin.toVector());
+                velocity.setY(2.2);
+
+                if (projectile != null) {
+                    projectile.getMotion().multiply(-1);
+                }
+
+                FallingBlockWrapper wrapper = entityCompatibility.createFallingBlock(loc, state, velocity, 200);
+                fallingBlocks.put(wrapper, velocity);
+            }
         }
     }
 
