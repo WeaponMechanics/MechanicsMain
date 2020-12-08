@@ -57,7 +57,6 @@ public class Entity_1_16_R3 implements EntityCompatibility {
 
         if (entity instanceof EntityFallingBlock) {
             EntityFallingBlock block = (EntityFallingBlock) entity;
-            debug.debug(block.getMot().toString()); //
             return new PacketPlayOutSpawnEntity(block, Block.getCombinedId(block.getBlock()));
         }
 
