@@ -133,22 +133,22 @@ This is the randomness applied vertically and horizontally.
 #### `Modify_Spread_When`: 
 This modifies the amount from `Base_Spread`. If you use set amounts (e.x. `Zooming: -0.3`),
 the plugin will *ADD* that amount to the `Base_Spread` (Remember your algebra, `0.5 + -0.3 = 0.2`).
-If you use percentages (e.x. `Zooming: 0.20%`) the plugin will *MULTIPLY* `Base_Spread` by that
+If you use percentages (e.x. `Zooming: 0.20`) the plugin will *MULTIPLY* `Base_Spread` by that
 amount.
 
-  * `Zooming`: \<true/false\> 
+  * `Zooming`: \<Double\> 
     * When the shooter is currently scoping/zooming with their weapon
-  * `Sneaking`: \<true/false\>
+  * `Sneaking`: \<Double\>
     * When the player is sneaking/crouching (`shift` key)
-  * `Standing`: \<true/false\>
+  * `Standing`: \<Double\>
     * 
-  * `Walking`: \<true/false\> 
+  * `Walking`: \<Double\> 
     * When the shooter is moving
-  * `Swimming`: \<true/false\> 
+  * `Swimming`: \<Double\> 
     * When the shooter is in water (Not 1.13+ player swimming, just if they are in water)
-  * `In_Midair`: \<true/false\> 
+  * `In_Midair`: \<Double\> 
     * When the shooter is in mid air (Not on the ground)
-  * `Gliding`: \<true/false\> 
+  * `Gliding`: \<Double\> 
     * When the player is gliding (Using an elytra)
 
 Notes:
@@ -178,21 +178,22 @@ are being sprayed.
 * `Increase_Change_When`:
   * This works just like [Modify_Spread_When]() (You can use the percentages)
   * Personally, I think you should only use the `Always` option. You can use the others if you want.
-  * `Always`: \<true/false\>
+  * `Always`: \<double\>
+    * Every shot
+  * `Zooming`: \<Double\> 
+    * When the shooter is currently scoping/zooming with their weapon
+  * `Sneaking`: \<Double\>
+    * When the player is sneaking/crouching (`shift` key)
+  * `Standing`: \<Double\>
     * 
-  * `Zooming`: \<true/false\>
-    * 
-  * `Sneaking`: \<true/false\>
-    *
-  * `Standing`: \<true/false\>
-    * 
-  * `Walking`: \<true/false\>
-    * 
-  * `Swimming`: \<true/false\>
-    * 
-  * `In_Midair`: \<true/false\>
-    *
-  * `Gliding`: \<true/false\>
+  * `Walking`: \<Double\> 
+    * When the shooter is moving
+  * `Swimming`: \<Double\> 
+    * When the shooter is in water (Not 1.13+ player swimming, just if they are in water)
+  * `In_Midair`: \<Double\> 
+    * When the shooter is in mid air (Not on the ground)
+  * `Gliding`: \<Double\> 
+    * When the player is gliding (Using an elytra)
 * `Bounds`:
   * These are the maximum and minimum values for spread. (Spread will always stay within those bounds)
   * `Reset_After_Reach_Bounds`: \<true/false\>
@@ -203,7 +204,7 @@ are being sprayed.
     * The highest spread value allowed
 
 Notes:
-  * Spread is so important for your guns, it sets how people use guns, and how people move while shooting.
+  * Spread is super important for your guns, it sets how people use guns, and how people move while shooting.
   Certain video games may hardly use spread, and will rely mostly on [Recoil](todo). Some videos games 
   (valorant, for example), are mostly recoil based.
   * My personal suggestion is that every single one of your gun's spread works the same (If one gun has

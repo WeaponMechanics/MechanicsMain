@@ -73,7 +73,7 @@ public class Block_1_10_R1 implements BlockCompatibility {
 
     @Override
     public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable org.bukkit.Material mask, byte data) {
-        if (blocks == null || blocks.size() <= 0) {
+        if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
 
@@ -95,7 +95,7 @@ public class Block_1_10_R1 implements BlockCompatibility {
 
     @Override
     public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
-        if (blocks == null || blocks.size() <= 0) {
+        if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
 
