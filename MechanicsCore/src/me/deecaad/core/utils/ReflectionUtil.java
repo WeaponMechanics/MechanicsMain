@@ -164,7 +164,7 @@ public class ReflectionUtil {
         // the super class for the field
         Class<?> superClass = target.getSuperclass();
         if (superClass != null)
-            return getField(superClass, name, type);
+            return getField(superClass, name, type, index);
 
         throw new IllegalArgumentException("Cannot find field with type " + type);
     }
@@ -231,10 +231,16 @@ public class ReflectionUtil {
     }
 
     public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, Class<?>...params) {
+        return getMethod(target, returnType, 0, params);
+    }
+
+    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, int index, Class<?>...params) {
         for (final Method method : target.getDeclaredMethods()) {
             if (returnType != null && !returnType.isAssignableFrom(method.getReturnType()))
                 continue;
             else if (!Arrays.equals(method.getParameterTypes(), params))
+                continue;
+            else if (index-- > 0)
                 continue;
 
             if (!method.isAccessible())

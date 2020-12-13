@@ -1,7 +1,12 @@
 package me.deecaad.core.utils;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public final class Enums {
 

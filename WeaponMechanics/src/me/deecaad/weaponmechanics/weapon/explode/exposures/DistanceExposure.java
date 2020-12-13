@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
-import me.deecaad.weaponmechanics.weapon.explode.ExplosionExposure;
-import me.deecaad.weaponmechanics.weapon.explode.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;

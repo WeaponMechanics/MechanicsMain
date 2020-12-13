@@ -15,7 +15,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -83,7 +87,7 @@ public class InfoHandler {
      */
     @Nullable
     public String getWeaponTitle(ItemStack weaponStack, boolean autoConvert) {
-        if (weaponStack.getType() == Material.AIR) return null;
+        if (weaponStack == null || weaponStack.getType() == Material.AIR) return null;
         String weaponTitle = TagHelper.getStringTag(weaponStack, CustomTag.WEAPON_TITLE);
 
         // If its already weapon item stack

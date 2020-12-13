@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.explode;
+package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;

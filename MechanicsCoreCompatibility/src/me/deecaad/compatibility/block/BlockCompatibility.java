@@ -1,6 +1,5 @@
 package me.deecaad.compatibility.block;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -36,29 +35,6 @@ public interface BlockCompatibility {
      * @return The constructed packet
      */
     Object getCrackPacket(@Nonnull Block block, int crack);
-
-    /**
-     * Creates a falling block with the data and location
-     * from the given <code>block</code> and with
-     * <code>vector</code> motion
-     *
-     * @param loc The location to spawn the entity at
-     * @param mat The Material of the falling block
-     * @param data Legacy data of the falling block
-     * @return NMS EntityFallingBlock
-     */
-    Object createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data);
-
-    /**
-     * Creates an NMS <code>EntityFallingBlock</code> of the given
-     * block state. The entity is then given the provided
-     * <code>Vector</code> as motion, if it is not null
-     *
-     * @param loc The location of the entity (World must not be null!)
-     * @param state The block state to use as the block's data
-     * @return NMS falling block
-     */
-    Object createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state);
 
     /**
      * Gets a <code>PacketPlayOutBlockChange</code> packet for the given

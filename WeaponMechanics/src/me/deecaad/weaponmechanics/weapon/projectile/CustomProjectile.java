@@ -25,7 +25,14 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class CustomProjectile implements ICustomProjectile {
 

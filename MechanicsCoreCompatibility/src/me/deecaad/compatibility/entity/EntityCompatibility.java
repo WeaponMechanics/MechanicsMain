@@ -2,12 +2,15 @@ package me.deecaad.compatibility.entity;
 
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public interface EntityCompatibility {
@@ -29,21 +32,6 @@ public interface EntityCompatibility {
      * @return The id of the entity
      */
     int getId(org.bukkit.entity.Entity entity);
-
-    /**
-     * Gets the number of ticks it will take for the given nms
-     * <code>entity</code> to hit the ground (Assuming it has no
-     * change in acceleration)
-     *
-     * Note: This should probably only be used for falling blocks since method
-     * ticks the entity
-     * @see me.deecaad.compatibility.block.BlockCompatibility#createFallingBlock(Location, BlockState)
-     *
-     * @param entity The NMS entity to use
-     * @param limit The maximum number of ticks (600 is a good value)
-     * @return The amount of time, in ticks, to hit the ground
-     */
-    int ticksToHitGround(Object entity, int limit);
 
     /**
      * Gets the <code>PacketPlayOutSpawnEntity</code> used
@@ -106,6 +94,64 @@ public interface EntityCompatibility {
      * @param effects The effects that the firework will have
      */
     void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects);
+
+    /**
+     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
+     * created using the given <code>mat</code> and <code>data</code>. The wrapper will also have
+     * an <code>int</code> which defines how long before the block will hit the ground (With a
+     * maximum of 400 ticks)
+     *
+     * @param loc The location to spawn the falling block at
+     * @param mat The material of the falling block
+     * @param data The byte data for the material (Ignored in mc versions 1.13+)
+     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
+     * @return The instantiated <code>FallingBlockWrapper</code>
+     */
+    default FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data, @Nullable Vector motion) {
+        return createFallingBlock(loc, mat, data, motion, 400);
+    }
+
+    /**
+     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
+     * created using the given <code>mat</code> and <code>data</code>. The wrapper will also have
+     * an <code>int</code> which defines how long before the block will hit the ground (With a
+     * maximum of <code>maxTicks</code> ticks)
+     *
+     * @param loc The location to spawn the falling block at
+     * @param mat The material of the falling block
+     * @param data The byte data for the material (Ignored in mc versions 1.13+)
+     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
+     * @param maxTicks The maximum number of ticks to check for the block to hit the ground
+     * @return The instantiated <code>FallingBlockWrapper</code>
+     */
+    FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data, @Nullable Vector motion, int maxTicks);
+
+    /**
+     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
+     * created using the given <code>state</code>. The wrapper will also have an <code>int</code>
+     * which defines how long before the block will hit the ground (With a maximum of 400 ticks)
+     *
+     * @param loc The location to spawn the block at
+     * @param state The block state to assign to the block
+     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
+     * @return The instantiated <code>FallingBlockWrapper</code>
+     */
+    default FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion) {
+        return createFallingBlock(loc, state, motion, 400);
+    }
+
+    /**
+     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
+     * created using the given <code>state</code>. The wrapper will also have an <code>int</code>
+     * which defines how long before the block will hit the ground (With a maximum of 400 ticks)
+     *
+     * @param loc The location to spawn the block at
+     * @param state The block state to assign to the block
+     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
+     * @param maxTicks The maximum number of ticks to check for the block to hit the ground
+     * @return The instantiated <code>FallingBlockWrapper</code>
+     */
+    FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion, int maxTicks);
 
     /**
      * Gets an NMS <code>EntityItem</code> entity, setting it's

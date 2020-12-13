@@ -1,5 +1,6 @@
 package me.deecaad.compatibility.entity;
 
+import com.google.common.collect.ImmutableSet;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.core.MechanicsCore;
@@ -7,7 +8,11 @@ import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_14_R1.*;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_14_R1.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemFactory;
 import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
@@ -20,6 +25,7 @@ import org.bukkit.util.Vector;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -164,8 +170,8 @@ public class Entity_1_14_R1 implements EntityCompatibility {
         fireworks.expectedLifespan = flightTime;
 
         // Handle fireworkeffects
-        ItemStack item = new ItemStack(CraftMagicNumbers.getItem(org.bukkit.Material.FIREWORK_ROCKET));
-        FireworkMeta meta = (FireworkMeta) CraftItemFactory.instance().getItemMeta(org.bukkit.Material.FIREWORK_ROCKET);
+        ItemStack item = new ItemStack(CraftMagicNumbers.getItem(Material.FIREWORK_ROCKET));
+        FireworkMeta meta = (FireworkMeta) CraftItemFactory.instance().getItemMeta(Material.FIREWORK_ROCKET);
         meta.addEffects(effects);
         CraftItemStack.setItemMeta(item, meta);
         fireworks.getDataWatcher().set(EntityFireworks.FIREWORK_ITEM, item);
@@ -194,9 +200,122 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
+    public FallingBlockWrapper createFallingBlock(Location loc, Material mat, byte data, Vector motion, int maxTicks) {
+
+        IBlockData blockData = ((CraftBlockData) mat.createBlockData()).getState();
+        return createFallingBlock(loc, blockData, motion, maxTicks);
+    }
+
+    @Override
+    public FallingBlockWrapper createFallingBlock(Location loc, BlockState state, Vector motion, int maxTicks) {
+        if (loc.getWorld() == null) {
+            throw new IllegalArgumentException("World cannot be null");
+        }
+
+        IBlockData blockData = ((CraftBlockState) state).getHandle();
+        return createFallingBlock(loc, blockData, motion, maxTicks);
+    }
+
+    private FallingBlockWrapper createFallingBlock(Location loc, IBlockData data, Vector motion, int maxTicks) {
+        WorldServer world = ((CraftWorld) loc.getWorld()).getHandle();
+
+        // Create an anonymous falling block implementation that simplifies movement logic
+        // in order to calculate the amount of ticks the falling block will live for.
+        EntityFallingBlock block = new EntityFallingBlock(world, loc.getX(), loc.getBlockY(), loc.getZ(), data) {
+            @Override
+            public void tick() {
+                ticksLived++;
+
+                setMot(getMot().add(0.0, -0.04, 0.0));
+                move(EnumMoveType.SELF, getMot());
+                setMot(getMot().a(0.98));
+            }
+
+            @Override
+            public void move(EnumMoveType moveType, Vec3D motion) {
+
+                // Some collision thing
+                Vec3D vec = getCollisionVector(motion);
+                if (vec.g() > 1.0E-7) {
+
+                    // Add vector to the bounding box
+                    a(getBoundingBox().b(vec));
+                }
+
+                this.positionChanged = !MathHelper.b(motion.x, vec.x) || !MathHelper.b(motion.z, vec.z);
+                this.y = motion.y != vec.y; // y = verticalCollision
+                this.onGround = this.y && motion.y < 0.0;
+
+                if (onGround) {
+                    die();
+                    return;
+                }
+
+                this.z = positionChanged || y; // z = collision
+            }
+
+            /**
+             * This will have to be changed for each version, copied from the nms entity
+             * class (Called near the start of the move method)
+             */
+            @SuppressWarnings("unchecked")
+            private Vec3D getCollisionVector(Vec3D vec3d) {
+                AxisAlignedBB axisalignedbb = this.getBoundingBox();
+                VoxelShapeCollision voxelshapecollision = VoxelShapeCollision.a(this);
+                VoxelShape voxelshape = this.world.getWorldBorder().a();
+                Stream<VoxelShape> stream = VoxelShapes.c(voxelshape, VoxelShapes.a(axisalignedbb.shrink(1.0E-7D)), OperatorBoolean.AND) ? Stream.empty() : Stream.of(voxelshape);
+                Stream<VoxelShape> stream1 = this.world.a(this, axisalignedbb.a(vec3d), ImmutableSet.of());
+                StreamAccumulator<VoxelShape> streamaccumulator = new StreamAccumulator(Stream.concat(stream1, stream));
+                Vec3D vec3d1 = vec3d.g() == 0.0D ? vec3d : a(this, vec3d, axisalignedbb, this.world, voxelshapecollision, streamaccumulator);
+                boolean flag = vec3d.x != vec3d1.x;
+                boolean flag1 = vec3d.y != vec3d1.y;
+                boolean flag2 = vec3d.z != vec3d1.z;
+                boolean flag3 = this.onGround || flag1 && vec3d.y < 0.0D;
+                if (this.K > 0.0F && flag3 && (flag || flag2)) {
+                    Vec3D vec3d2 = a(this, new Vec3D(vec3d.x, (double)this.K, vec3d.z), axisalignedbb, this.world, voxelshapecollision, streamaccumulator);
+                    Vec3D vec3d3 = a(this, new Vec3D(0.0D, (double)this.K, 0.0D), axisalignedbb.b(vec3d.x, 0.0D, vec3d.z), this.world, voxelshapecollision, streamaccumulator);
+                    if (vec3d3.y < (double)this.K) {
+                        Vec3D vec3d4 = a(this, new Vec3D(vec3d.x, 0.0D, vec3d.z), axisalignedbb.b(vec3d3), this.world, voxelshapecollision, streamaccumulator).e(vec3d3);
+                        if (b(vec3d4) > b(vec3d2)) {
+                            vec3d2 = vec3d4;
+                        }
+                    }
+
+                    if (b(vec3d2) > b(vec3d1)) {
+                        return vec3d2.e(a(this, new Vec3D(0.0D, -vec3d2.y + vec3d.y, 0.0D), axisalignedbb.b(vec3d2), this.world, voxelshapecollision, streamaccumulator));
+                    }
+                }
+
+                return vec3d1;
+            }
+        };
+
+        int ticksAlive = -1;
+
+        // Only determine the ticks the block will live if the arguments
+        // allow it
+        if (motion != null && maxTicks > 0) {
+
+            block.setMot(motion.getX(), motion.getY(), motion.getZ());
+            while (block.isAlive() && block.ticksLived < maxTicks) {
+                block.tick();
+            }
+
+            ticksAlive = block.ticksLived;
+        }
+
+        // Create a new block since the previous one is dead. No need
+        // to assign this block's motion, since that can only be updated
+        // via Velocity packets.
+        block = new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), data);
+
+        return new FallingBlockWrapper(block, ticksAlive);
+    }
+
+    @Override
     public Object toNMSItemEntity(org.bukkit.inventory.ItemStack item, org.bukkit.World world, double x, double y, double z) {
         World nmsWorld = ((CraftWorld) world).getHandle();
-        net.minecraft.server.v1_14_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         return new EntityItem(nmsWorld, x, y, z, nmsItem);
     }
