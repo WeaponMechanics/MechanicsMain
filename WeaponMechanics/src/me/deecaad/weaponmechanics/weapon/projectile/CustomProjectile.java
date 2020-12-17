@@ -25,14 +25,7 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class CustomProjectile implements ICustomProjectile {
 
@@ -533,6 +526,8 @@ public class CustomProjectile implements ICustomProjectile {
         if (entityCollisions.isEmpty()) {
             return false;
         }
+
+
 
         Through through = projectile.getThrough();
         Through.ThroughData entityThru = null;

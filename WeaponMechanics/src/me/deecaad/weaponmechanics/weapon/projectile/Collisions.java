@@ -31,9 +31,13 @@ public class Collisions {
      * @return whether new collision data is not able to hit again
      */
     public boolean isNotAbleToHit(CollisionData collisionData) {
-        if (blockCollisions.isEmpty() && entityCollisions.isEmpty()) return false;
+        if (blockCollisions.isEmpty() && entityCollisions.isEmpty()) return false; // Not able to hit
+
+        // Check whether its block collision
         Iterator<CollisionData> iterator = collisionData.getBlock() != null ? blockCollisions.iterator() : entityCollisions.iterator();
+
         while (iterator.hasNext()) {
+
             CollisionData old = iterator.next();
             if (isNotAbleToHit(old, collisionData)) {
                 return true;

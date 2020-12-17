@@ -27,8 +27,9 @@ public class Projectile implements Serializer<Projectile> {
     private ItemStack projectileStack;
     private Through through;
     private ProjectileMotion projectileMotion;
+    private Sticky sticky;
 
-    public Projectile(@Nonnull ProjectileMotion projectileMotion, @Nullable EntityType projectileDisguise, float projectileWidth, float projectileHeight, @Nullable ItemStack projectileStack, @Nullable Through through) {
+    public Projectile(@Nonnull ProjectileMotion projectileMotion, @Nullable EntityType projectileDisguise, float projectileWidth, float projectileHeight, @Nullable ItemStack projectileStack, @Nullable Through through, @Nullable Sticky sticky) {
         this.projectileDisguise = projectileDisguise;
         if (projectileWidth <= 0) throw new IllegalArgumentException("Projectile width can't be 0 or less");
         if (projectileHeight <= 0) throw new IllegalArgumentException("Projectile height can't be 0 or less");
@@ -38,6 +39,7 @@ public class Projectile implements Serializer<Projectile> {
         this.through = through;
         if (projectileMotion == null) throw new IllegalArgumentException("Projectile motion can't be null!");
         this.projectileMotion = projectileMotion;
+        this.sticky = sticky;
     }
 
     /**
@@ -117,6 +119,13 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     /**
+     * @return the projectile sticky settings
+     */
+    public Sticky getSticky() {
+        return sticky;
+    }
+
+    /**
      * @return the projectile motion settings
      */
     public ProjectileMotion getProjectileMotion() {
@@ -186,6 +195,7 @@ public class Projectile implements Serializer<Projectile> {
 
         ProjectileMotion projectileMotion = new ProjectileMotion().serialize(file, configurationSection, path + ".Projectile_Motion");
         Through through = new Through().serialize(file, configurationSection, path + ".Through");
-        return new Projectile(projectileMotion, projectileType, width, height, projectileItem, through);
+        Sticky sticky = new Sticky().serialize(file, configurationSection, path + ".Sticky");
+        return new Projectile(projectileMotion, projectileType, width, height, projectileItem, through, sticky);
     }
 }
