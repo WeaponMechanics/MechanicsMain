@@ -1,6 +1,7 @@
 package me.deecaad.core.utils;
 
 import org.bukkit.Bukkit;
+import sun.misc.Unsafe;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,22 +16,64 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class ReflectionUtil {
 
-    private static final String versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-    private static final String nmsVersion = "net.minecraft.server." + versionString + '.';
-    private static final String cbVersion = "org.bukkit.craftbukkit." + versionString + '.';
+    private static final String versionString;
+    private static final String nmsVersion;
+    private static final String cbVersion;
 
     private static final Field modifiersField;
+    private static final Unsafe unsafe;
+    private static final int javaVersion;
 
     static {
-        modifiersField = ReflectionUtil.getField(Field.class, "modifiers");
-        modifiersField.setAccessible(true);
+
+        // Occurs when run without a server (e.x. In intellij)
+        if (Bukkit.getServer() == null) {
+            versionString = "TESTING";
+        } else {
+            versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+        }
+
+        nmsVersion = "net.minecraft.server." + versionString + '.';
+        cbVersion = "org.bukkit.craftbukkit." + versionString + '.';
+
+        int temp;
+        try {
+            String jvm = System.getProperty("java.version");
+            if (jvm.startsWith("1.")) {
+                temp = Integer.parseInt(jvm.substring(2, 3));
+            } else {
+                temp = Integer.parseInt(jvm.substring(0, jvm.indexOf(".")));
+            }
+        } catch (Throwable throwable) {
+            temp = -1;
+            throwable.printStackTrace();
+        }
+
+        javaVersion = temp;
+
+        if (javaVersion < 12) {
+            modifiersField = getField(Field.class, "modifiers");
+            unsafe = null;
+        } else {
+            unsafe = (Unsafe) invokeField(getField(Unsafe.class, "theUnsafe"), null);
+            modifiersField = null;
+        }
     }
 
     /**
      * Don't let anyone instantiate this class
      */
     private ReflectionUtil() { }
-    
+
+    /**
+     * Returns the major java version
+     *
+     * @return Major java version
+     */
+    public static int getJavaVersion() {
+        return javaVersion;
+    }
+
     /**
      * Tries to find class from net.minecraft.server.SERVERVERSION.className
      *
@@ -205,8 +248,21 @@ public class ReflectionUtil {
      */
     public static void setField(@Nonnull Field field, @Nullable Object instance, Object value) {
         try {
+            if (Modifier.isFinal(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
+                if (javaVersion < 12) {
+
+                    // Not sure why, but this does not allow modifying static final fields
+                    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+                } else {
+                    Object base = unsafe.staticFieldBase(field);;
+                    long offset = unsafe.staticFieldOffset(field);
+                    unsafe.putObject(base, offset, value);
+                }
+            }
+
             field.set(instance, value);
         } catch (IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
             debug.log(LogLevel.ERROR, "Issue setting field!", e);
         }
     }
