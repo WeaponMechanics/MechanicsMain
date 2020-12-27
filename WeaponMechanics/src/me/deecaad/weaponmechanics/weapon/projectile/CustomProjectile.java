@@ -25,14 +25,7 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class CustomProjectile implements ICustomProjectile {
 
@@ -533,6 +526,8 @@ public class CustomProjectile implements ICustomProjectile {
             return false;
         }
 
+
+
         Through through = projectile.getThrough();
         Through.ThroughData entityThru = null;
         if (through != null) {
@@ -603,7 +598,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                     CollisionData blockCollision = new CollisionData(blockBox, hitLocation, block);
                     if (blockCollisions.contains(blockCollision) // if this iteration already once hit block
-                            || (collisions != null && collisions.getBlockCollisions().contains(blockCollision))) { // if this projectile has already hit this block once
+                            || (collisions != null && collisions.isNotAbleToHit(blockCollision))) { // if this projectile has already hit this block once
                         continue;
                     }
 
@@ -626,7 +621,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                 CollisionData entityCollision = new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 if (entityCollisions.contains(entityCollision) // if this iteration already once hit entity
-                        || (collisions != null && collisions.getEntityCollisions().contains(entityCollision))) { // if this projectile has already hit this entity once
+                        || (collisions != null && collisions.isNotAbleToHit(entityCollision))) { // if this projectile has already hit this entity once
                     continue;
                 }
 
