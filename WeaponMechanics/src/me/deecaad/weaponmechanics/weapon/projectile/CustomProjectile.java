@@ -240,7 +240,6 @@ public class CustomProjectile implements ICustomProjectile {
     private boolean handleBlockHit(CollisionData collisionData) {
 
         Configuration config = WeaponMechanics.getConfigurations();
-        String weaponTitle = getTag("weapon-title");
 
         if (weaponTitle == null) {
             return false;
@@ -265,7 +264,7 @@ public class CustomProjectile implements ICustomProjectile {
             }
         } else if (explosion != null) {
             Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
-            boolean explosionTriggered = getTag("explosion-detonation") != null;
+            boolean explosionTriggered = "true".equals(getTag("explosion-detonated"));
             boolean fluid = MaterialHelper.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
             boolean solid = collisionData.getBlock().getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
 
@@ -277,11 +276,11 @@ public class CustomProjectile implements ICustomProjectile {
                         Vector v = getLocation();
                         Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
                         explosion.explode(shooter, origin, CustomProjectile.this);
-
-                        setTag("explosion-detonation", "true");
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
             }
+
+            setTag("explosion-detonated", "true");
         }
 
         return false;
@@ -339,7 +338,7 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
-        boolean canExplode = getTag("explosion-detonation") == null;
+        boolean canExplode = !"true".equals(getTag("explosion-detonated"));
         if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
             new BukkitRunnable() {
@@ -348,10 +347,10 @@ public class CustomProjectile implements ICustomProjectile {
                     Vector v = getLocation();
                     Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
                     explosion.explode(shooter, origin, CustomProjectile.this);
-
-                    setTag("explosion-detonation", "true");
                 }
             }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+
+            setTag("explosion-detonated", "true");
         }
 
         return false;
