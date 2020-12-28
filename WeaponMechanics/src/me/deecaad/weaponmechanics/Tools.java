@@ -1,12 +1,30 @@
 package me.deecaad.weaponmechanics;
 
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
+import java.lang.reflect.Field;
+
 public class Tools {
-    
+
+    private final Object a = "eyyyyy";
+    private static final Object b = "ohhhhhhhhh";
+
     public static void main(String[] args) {
+
+        Tools tools = new Tools();
+        Field aField = ReflectionUtil.getField(Tools.class, "a");
+        System.out.println(ReflectionUtil.invokeField(aField, tools));
+        ReflectionUtil.setField(aField, tools, "testing testing 123");
+        System.out.println(ReflectionUtil.invokeField(aField, tools));
+
+        Field bField = ReflectionUtil.getField(Tools.class, "b");
+        System.out.println(ReflectionUtil.invokeField(bField, null));
+        ReflectionUtil.setField(bField, null, "testing again");
+        System.out.println(ReflectionUtil.invokeField(aField, null));
+
         System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
     }
     

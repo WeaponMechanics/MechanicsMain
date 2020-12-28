@@ -1,9 +1,16 @@
 package me.deecaad.compatibility;
 
+import me.deecaad.compatibility.block.BlockCompatibility;
+import me.deecaad.compatibility.entity.EntityCompatibility;
+
 public class CompatibilityAPI {
 
     private static double version;
     private static ICompatibility compatibility;
+
+    static {
+        compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.compatibility");
+    }
 
     /**
      *
@@ -30,9 +37,14 @@ public class CompatibilityAPI {
      * @return the compatible version as ICompatibility
      */
     public static ICompatibility getCompatibility() {
-        if (compatibility == null) {
-            compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.compatibility");
-        }
         return compatibility;
+    }
+
+    public static EntityCompatibility getEntityCompatibility() {
+        return compatibility.getEntityCompatibility();
+    }
+
+    public static BlockCompatibility getBlockCompatibility() {
+        return compatibility.getBlockCompatibility();
     }
 }

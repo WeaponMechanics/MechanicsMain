@@ -217,22 +217,21 @@ public class Explosion {
         // Handl
         for (Map.Entry<FallingBlockWrapper, Vector> entry : fallingBlocks.entrySet()) {
             Object nms = entry.getKey().getEntity();
-            int removeTime = entry.getKey().getTimeToHitGround();
+            int removeTime = NumberUtils.minMax(0, entry.getKey().getTimeToHitGround(), 200);
             Vector velocity = entry.getValue();
 
-            if (removeTime < 1) continue;
+            if (removeTime == 0) continue;
 
             // All the packets needed to handle showing the falling block
             // to the player. The destroy packet is sent later, when the block
             // hits the ground. Sent to every player in view.
             Object spawn = entityCompatibility.getSpawnPacket(nms);
-            Object meta = entityCompatibility.getMetadataPacket(nms, true, EntityCompatibility.EntityMeta.values());
+            Object meta = entityCompatibility.getMetadataPacket(nms);
             Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
             Object destroy = entityCompatibility.getDestroyPacket(nms);
 
             for (Player player : playersInView) {
 
-                debug.debug(nms + " with velocity " + velocity + " removed in " + removeTime + " ticks");
                 CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
 
                 new BukkitRunnable() {

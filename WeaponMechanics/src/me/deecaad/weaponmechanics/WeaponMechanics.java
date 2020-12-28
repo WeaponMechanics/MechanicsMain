@@ -97,7 +97,6 @@ public class WeaponMechanics extends JavaPlugin {
                             new BufferedInputStream(new URL(link).openStream());
                     FileOutputStream output =
                             new FileOutputStream(directory);
-
             ) {
 
                 byte[] data = new byte[1024];
@@ -120,6 +119,17 @@ public class WeaponMechanics extends JavaPlugin {
         Logger logger = getLogger();
         int level = getConfig().getInt("Debug_Level", 2);
         debug = new Debugger(logger, level, true);
+        debug.permission = "weaponmechanics.errorlog";
+        debug.msg = "WeaponMechanics had %s error(s) in console. Check console for instructions on why the error occurred and how to fix it.";
+
+        // Check Java version and warn users about untested/unsupported versions
+        if (ReflectionUtil.getJavaVersion() < 8) {
+            debug.error("Detected a JAVA version under java 8. This plugin will NOT work in versions under java 8.");
+            debug.error("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
+        } else if (ReflectionUtil.getJavaVersion() > 11) {
+            debug.warn("Detected a JAVA version above java 11. This plugin MAY not work in versions above java 11.");
+            debug.warn("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
+        }
 
         // Register all WorldGuard flags
         IWorldGuardCompatibility guard = WorldGuardAPI.getWorldGuardCompatibility();
@@ -269,6 +279,8 @@ public class WeaponMechanics extends JavaPlugin {
 
         debug.info("Loading API");
         new WeaponMechanicsAPI(this);
+
+        debug.start(this);
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
