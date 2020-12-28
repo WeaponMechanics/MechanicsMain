@@ -69,12 +69,6 @@ public class Through implements Serializer<Through> {
         for (Object data : list) {
             String[] split = StringUtils.split(data.toString());
 
-            if (split.length == 1) {
-                debug.error("Found an invalid value in configurations!",
-                        "Tried to specify per " + (blocks ? "block" : "entity") + " speed/damage modifiers but only partially completed it",
-                        StringUtils.foundAt(file, path));
-            }
-
             double speedModifier = 1.0;
             if (split.length >= 2) {
                 try {

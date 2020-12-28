@@ -309,7 +309,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         String bossBarMessage = configurationSection.getString(path + ".Boss_Bar.Title");
         if (bossBarMessage != null) {
             if (CompatibilityAPI.getVersion() < 1.09) {
-                debug.log(LogLevel.WARN, "Boss bar isn't available in 1.8 server version.");
+                debug.log(LogLevel.ERROR, "Boss bar isn't available in 1.8 server version.");
                 return null;
             }
             BarColor barColor;
