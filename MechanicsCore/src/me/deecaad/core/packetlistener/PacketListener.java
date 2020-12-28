@@ -10,6 +10,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -262,7 +263,8 @@ public abstract class PacketListener {
         // Channel is not yet cached, so make sure to cache it
         // for fast getting
         if (channel == null) {
-            Object connection = ReflectionUtil.invokeField(playerConnectionField, player);
+            Object nmsPlayer = CompatibilityAPI.getEntityCompatibility().getNMSEntity(player);
+            Object connection = ReflectionUtil.invokeField(playerConnectionField, nmsPlayer);
             Object manager = ReflectionUtil.invokeField(networkManagerField, connection);
             channel = (Channel) ReflectionUtil.invokeField(channelField, manager);
 
