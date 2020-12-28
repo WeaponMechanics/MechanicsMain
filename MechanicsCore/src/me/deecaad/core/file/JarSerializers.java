@@ -55,7 +55,7 @@ public class JarSerializers extends FileCopier {
                 String nameWithoutSuffix = entryName.replaceAll("/", "\\.").replace(".class", "");
                 Class<?> nameClass;
                 try {
-                    nameClass = Class.forName(nameWithoutSuffix, false, null);
+                    nameClass = Class.forName(nameWithoutSuffix, false, getClass().getClassLoader());
                 } catch (ClassNotFoundException | NoClassDefFoundError e) {
                     continue;
                 } catch (ExceptionInInitializerError e) {
