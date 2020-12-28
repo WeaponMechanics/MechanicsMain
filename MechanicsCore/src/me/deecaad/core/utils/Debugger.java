@@ -1,5 +1,11 @@
 package me.deecaad.core.utils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import java.util.logging.Logger;
 
 public class Debugger {
@@ -9,16 +15,44 @@ public class Debugger {
     private final Logger logger;
     private int level;
     private boolean isPrintTraces;
+    private int errors;
+
+    public String msg = "MechanicsPlugin had %s error(s) in console.";
+    public String permission = "mechanicscore.errorlog";
+    public long updateTime = 300L;
+    private BukkitRunnable warningTask;
+    private boolean hasStarted;
 
     public Debugger(Logger logger, int level) {
-        this.logger = logger;
-        this.level = level;
+        this(logger, level, false);
     }
 
     public Debugger(Logger logger, int level, boolean isPrintTraces) {
         this.logger = logger;
         this.level = level;
         this.isPrintTraces = isPrintTraces;
+
+        warningTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (errors > 0) {
+                    boolean alertedPlayer = false;
+
+                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                        if (!player.hasPermission(permission)) {
+                            continue;
+                        }
+
+                        alertedPlayer = true;
+                        player.sendMessage(ChatColor.RED + String.format(msg, errors));
+                    }
+
+                    if (alertedPlayer) {
+                        errors = 0;
+                    }
+                }
+            }
+        };
     }
 
     public Logger getLogger() {
@@ -110,8 +144,12 @@ public class Debugger {
         }
 
         // Used if we want to find the origin of an error
-        if (isPrintTraces && level == LogLevel.ERROR) {
-            log(level, new Throwable());
+        if (level == LogLevel.ERROR) {
+            if (isPrintTraces) {
+                log(level, new Throwable());
+            }
+
+            errors++;
         }
     }
 
@@ -170,5 +208,13 @@ public class Debugger {
         if (!bool) {
             log(level, messages);
         }
+    }
+
+    public synchronized void start(Plugin plugin) {
+        if (hasStarted) return;
+
+        warningTask.runTaskTimerAsynchronously(plugin, 10L, updateTime);
+
+        hasStarted = true;
     }
 }
