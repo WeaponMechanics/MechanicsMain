@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -26,6 +27,8 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.*;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class CustomProjectile implements ICustomProjectile {
 
@@ -232,13 +235,11 @@ public class CustomProjectile implements ICustomProjectile {
      */
     private boolean handleBlockHit(CollisionData collisionData) {
 
-        Configuration config = WeaponMechanics.getConfigurations();
-
         if (weaponTitle == null) {
             return false;
         }
 
-        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
+        Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
 
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
@@ -270,7 +271,7 @@ public class CustomProjectile implements ICustomProjectile {
                         Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
                         explosion.explode(shooter, origin, CustomProjectile.this);
                     }
-                }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+                }.runTaskLater(getPlugin(), explosion.getDelay());
             }
 
             setTag("explosion-detonated", "true");
@@ -305,7 +306,6 @@ public class CustomProjectile implements ICustomProjectile {
             return true;
         }
 
-        Configuration config = WeaponMechanics.getConfigurations();
         DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
         String weaponTitle = getTag("weapon-title");
 
@@ -330,7 +330,7 @@ public class CustomProjectile implements ICustomProjectile {
             }
         }
 
-        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
+        Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
         boolean canExplode = !"true".equals(getTag("explosion-detonated"));
         if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
@@ -341,7 +341,7 @@ public class CustomProjectile implements ICustomProjectile {
                     Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
                     explosion.explode(shooter, origin, CustomProjectile.this);
                 }
-            }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+            }.runTaskLater(getPlugin(), explosion.getDelay());
 
             setTag("explosion-detonated", "true");
         }
@@ -510,7 +510,7 @@ public class CustomProjectile implements ICustomProjectile {
             motion.multiply(extraThroughData.getSpeedModifier());
             collisions.getBlockCollisions().add(block);
 
-            if (--maxBlocksLeft <= 0) { // Projectile should die
+            if (--maxBlocksLeft < 0) { // Projectile should die
                 return true;
             }
         }
@@ -525,8 +525,6 @@ public class CustomProjectile implements ICustomProjectile {
         if (entityCollisions.isEmpty()) {
             return false;
         }
-
-
 
         Through through = projectile.getThrough();
         Through.ThroughData entityThru = null;
@@ -556,7 +554,7 @@ public class CustomProjectile implements ICustomProjectile {
             motion.multiply(extraThroughData.getSpeedModifier());
             collisions.getEntityCollisions().add(entity);
 
-            if (--maxEntitiesLeft <= 0) { // Projectile should die
+            if (--maxEntitiesLeft < 0) { // Projectile should die
                 return true;
             }
         }
@@ -598,7 +596,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                     CollisionData blockCollision = new CollisionData(blockBox, hitLocation, block);
                     if (blockCollisions.contains(blockCollision) // if this iteration already once hit block
-                            || (collisions != null && collisions.isNotAbleToHit(blockCollision))) { // if this projectile has already hit this block once
+                            || (collisions != null && collisions.contains(blockCollision))) { // if this projectile has already hit this block once
                         continue;
                     }
 
@@ -621,7 +619,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                 CollisionData entityCollision = new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 if (entityCollisions.contains(entityCollision) // if this iteration already once hit entity
-                        || (collisions != null && collisions.isNotAbleToHit(entityCollision))) { // if this projectile has already hit this entity once
+                        || (collisions != null && collisions.contains(entityCollision))) { // if this projectile has already hit this entity once
                     continue;
                 }
 
