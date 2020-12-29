@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.utils.NumberUtils;
+import org.bukkit.Bukkit;
 
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -26,34 +27,18 @@ public class Collisions {
         return entityCollisions;
     }
 
-    /**
-     * @param collisionData the new collision data
-     * @return whether new collision data is not able to hit again
-     */
-    public boolean isNotAbleToHit(CollisionData collisionData) {
-        if (blockCollisions.isEmpty() && entityCollisions.isEmpty()) return false; // Not able to hit
+    public boolean contains(CollisionData collisionData) {
+        if (blockCollisions.isEmpty() && entityCollisions.isEmpty()) return false;
 
-        // Check whether its block collision
+        // Extra check to check whether the hit happened more than 1 second ago
+        // If it was more, consider this as non hit data
         Iterator<CollisionData> iterator = collisionData.getBlock() != null ? blockCollisions.iterator() : entityCollisions.iterator();
-
         while (iterator.hasNext()) {
-
             CollisionData old = iterator.next();
-            if (isNotAbleToHit(old, collisionData)) {
-                return true;
+            if (old.equals(collisionData)) {
+                return !NumberUtils.hasMillisPassed(old.getHitTime(), 1000);
             }
         }
         return false;
     }
-
-    private boolean isNotAbleToHit(CollisionData old, CollisionData collisionData) {
-        // Check if this "old" collision data matches new collision data
-        // -> Meaning same block or living entity is being hit
-        // --> If they're same same -> should not be able to hit
-
-        // After that check that the hit time of this old collision data is less than 1000
-        // If its less than 1000 -> should NOT be able to hit
-        return old.equals(collisionData) && !NumberUtils.hasMillisPassed(old.getHitTime(), 1000);
-    }
-
 }

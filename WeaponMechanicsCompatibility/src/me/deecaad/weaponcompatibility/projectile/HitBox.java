@@ -3,15 +3,21 @@ package me.deecaad.weaponcompatibility.projectile;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.io.File;
+import java.util.function.Predicate;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -22,6 +28,7 @@ public class HitBox implements IValidator {
      * Basically -0.2 means that 20% of hit box's front
      */
     private static final double FRONT_HIT = -0.2;
+    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
 
     public Vector min;
     public Vector max;
@@ -116,6 +123,10 @@ public class HitBox implements IValidator {
                 && max.getZ() > other.min.getZ();
     }
 
+    public Vector getCenter() {
+        return new Vector(min.getX() + getWidth() * 0.5, min.getY() + getHeight() * 0.5, min.getZ() + getDepth() * 0.5);
+    }
+
     /**
      * This is separated to new method for easier usage from collidesFront method.
      * That's why this is private.
@@ -138,16 +149,13 @@ public class HitBox implements IValidator {
     public Vector collisionPoint(HitBox other) {
         if (!collides(other)) return null;
 
-        double newMinX = Math.max(min.getX(), other.min.getX());
-        double newMinY = Math.max(min.getY(), other.min.getY());
-        double newMinZ = Math.max(min.getZ(), other.min.getZ());
+        Vector thisCenter = getCenter();
+        Vector otherCenter = other.getCenter();
 
-        double newMaxX = Math.min(max.getX(), other.max.getX());
-        double newMaxY = Math.min(max.getY(), other.max.getY());
-        double newMaxZ = Math.min(max.getZ(), other.max.getZ());
+        Vector direction = otherCenter.clone().subtract(thisCenter).normalize();
+        direction.multiply(getWidth() - 0.3);
 
-        // Return the center of collision point
-        return new Vector((newMaxX + newMinX) * 0.5, (newMaxY + newMinY) * 0.5, (newMaxZ + newMinZ) * 0.5);
+        return thisCenter.add(direction);
     }
 
     /**
@@ -294,6 +302,36 @@ public class HitBox implements IValidator {
     private int floor(double toFloor) {
         int flooredValue = (int) toFloor;
         return toFloor < (double) flooredValue ? flooredValue - 1 : flooredValue;
+    }
+
+    /**
+     * @param world the world where to check
+     * @param filter if filter matches entity, its not valid
+     * @return one entity in box if found
+     */
+    @Nullable
+    public CollisionData getEntityInBox(World world, @Nullable Predicate<Entity> filter) {
+        int minX = floor((min.getX() - 2.0D) / 16.0D);
+        int maxX = floor((max.getX() + 2.0D) / 16.0D);
+        int minZ = floor((min.getZ() - 2.0D) / 16.0D);
+        int maxZ = floor((max.getZ() + 2.0D) / 16.0D);
+        for(int x = minX; x <= maxX; ++x) {
+            for (int z = minZ; z <= maxZ; ++z) {
+                Chunk chunk = world.getChunkAt(x, z);
+                for (final Entity entity : chunk.getEntities()) {
+                    if (filter != null && filter.test(entity)) continue;
+
+                    HitBox entityBox = projectileCompatibility.getHitBox(entity);
+                    if (entityBox == null) continue; // entity is invulnerable or non alive
+
+                    Vector hitLocation = collisionPoint(entityBox);
+                    if (hitLocation == null) continue; // Null means that projectile hit box and entity hit box didn't collide
+
+                    return new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
+                }
+            }
+        }
+        return null;
     }
 
     @Override

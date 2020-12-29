@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -138,4 +139,21 @@ public interface ICustomProjectile {
      * @return the projectile settings for this projectile
      */
     Projectile getProjectileSettings();
+
+    /**
+     * @return whether projectile is sticked to entity or block
+     */
+    boolean isSticked();
+
+    /**
+     * @return the sticked block
+     */
+    @Nullable
+    Block getStickedBlock();
+
+    /**
+     * @return the sticked entity
+     */
+    @Nullable
+    LivingEntity getStickedEntity();
 }

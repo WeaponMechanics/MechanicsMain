@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
@@ -8,22 +10,39 @@ public class StickedData {
 
     private Location blockLocation;
     private LivingEntity livingEntity;
-    private Vector relativeSpawnLocation;
+    private final Vector relativeSpawnLocation;
+    private final String worldName;
 
     public StickedData(Location blockLocation, Vector hitLocation) {
         this.blockLocation = blockLocation;
-        this.relativeSpawnLocation = blockLocation.subtract(hitLocation).toVector();
+        this.relativeSpawnLocation = hitLocation.subtract(blockLocation.clone().toVector());
+        this.worldName = blockLocation.getWorld().getName();
     }
 
     public StickedData(LivingEntity livingEntity, Vector hitLocation) {
         this.livingEntity = livingEntity;
-        this.relativeSpawnLocation = livingEntity.getLocation().subtract(hitLocation).toVector();
+        this.relativeSpawnLocation = hitLocation.subtract(livingEntity.getLocation().toVector());
+        this.worldName = livingEntity.getWorld().getName();
     }
 
     public Vector getNewLocation() {
         if (livingEntity != null) {
-            return livingEntity.isDead() ? null : livingEntity.getLocation().add(relativeSpawnLocation).toVector();
+            return livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity.getLocation().clone().add(relativeSpawnLocation).toVector();
         }
-        return blockLocation.getBlock().isEmpty() ? null : blockLocation.add(relativeSpawnLocation).toVector();
+        return WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(blockLocation.getBlock()) == null ? null : blockLocation.clone().add(relativeSpawnLocation).toVector();
+    }
+
+    public boolean isBlockStick() {
+        return blockLocation != null;
+    }
+
+    public LivingEntity getLivingEntity() {
+        return livingEntity == null || livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity;
+    }
+
+    public Block getBlock() {
+        if (blockLocation == null) return null;
+        Block block = blockLocation.getBlock();
+        return WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(block) == null ? null : block;
     }
 }

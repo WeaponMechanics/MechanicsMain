@@ -81,7 +81,8 @@ public class Projectile_1_15_R1 implements IProjectileCompatibility {
 
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
 
-        if (customProjectile.getMotionLength() > 8) {
+        double motionLength = customProjectile.getMotionLength();
+        if (motionLength > 8 || motionLength == 0) {
             Entity nmsEntity = (Entity) customProjectile.projectileDisguiseNMSEntity;
 
             nmsEntity.setPositionRaw(location.getX(), location.getY(), location.getZ());

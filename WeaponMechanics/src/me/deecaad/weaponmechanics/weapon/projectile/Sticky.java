@@ -21,6 +21,7 @@ public class Sticky implements Serializer<Sticky> {
 
     private boolean stickToAnyBlock;
     private boolean stickToAnyEntity;
+    private boolean allowStickToEntitiesAfterStickBlock;
     private StickyData blocks, entities;
 
     /**
@@ -28,11 +29,12 @@ public class Sticky implements Serializer<Sticky> {
      */
     public Sticky() { }
 
-    public Sticky(boolean stickToAnyBlock, boolean stickToAnyEntity, StickyData blocks, StickyData entities) {
+    public Sticky(boolean stickToAnyBlock, boolean stickToAnyEntity, StickyData blocks, StickyData entities, boolean allowStickToEntitiesAfterStickBlock) {
         this.stickToAnyBlock = stickToAnyBlock;
         this.stickToAnyEntity = stickToAnyEntity;
         this.blocks = blocks;
         this.entities = entities;
+        this.allowStickToEntitiesAfterStickBlock = allowStickToEntitiesAfterStickBlock;
     }
 
     public boolean canStick(Material material, byte data) {
@@ -45,6 +47,10 @@ public class Sticky implements Serializer<Sticky> {
                 || (entities != null && entities.canStick(entityType.name()));
     }
 
+    public boolean isAllowStickToEntitiesAfterStickBlock() {
+        return allowStickToEntitiesAfterStickBlock;
+    }
+
     @Override
     public String getKeyword() {
         return "Sticky";
@@ -54,12 +60,13 @@ public class Sticky implements Serializer<Sticky> {
     public Sticky serialize(File file, ConfigurationSection configurationSection, String path) {
         StickyData blocks = tryStickyData(file, configurationSection, path + ".Blocks", true);
         StickyData entities = tryStickyData(file, configurationSection, path + ".Entities", false);
-        if (blocks == null && entities == null) {
+        boolean stickToAnyBlock = configurationSection.getBoolean(path + ".Blocks.Stick_To_Any_Block", false);
+        boolean stickToAnyEntity = configurationSection.getBoolean(path + ".Entities.Stick_To_Any_Entity", false);
+        if (blocks == null && entities == null && !stickToAnyBlock && !stickToAnyEntity) {
             return null;
         }
-        boolean stickToAnyBlock = configurationSection.getBoolean(path + ".Blocks.Stick_To_Any_Block", true);
-        boolean stickToAnyEntity = configurationSection.getBoolean(path + ".Entities.Stick_To_Any_Entity", true);
-        return new Sticky(stickToAnyBlock, stickToAnyEntity, blocks, entities);
+        boolean allowStickToEntitiesAfterStickBlock = configurationSection.getBoolean(path + ".Entities.Allow_Stick_To_Entities_After_Stick_Block", false);
+        return new Sticky(stickToAnyBlock, stickToAnyEntity, blocks, entities, allowStickToEntitiesAfterStickBlock);
     }
 
     private StickyData tryStickyData(File file, ConfigurationSection configurationSection, String path, boolean blocks) {

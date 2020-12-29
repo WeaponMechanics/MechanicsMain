@@ -84,7 +84,10 @@ public class Projectile_1_8_R3 implements IProjectileCompatibility {
 
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId, motion.getX(), motion.getY(), motion.getZ());
 
-        if (customProjectile.getMotionLength() > 8) {
+        double motionLength = customProjectile.getMotionLength();
+        // https://wiki.vg/Data_types#Fixed-point_numbers
+
+        if (motionLength > 4 || motionLength == 0) {
             net.minecraft.server.v1_8_R3.Entity nmsEntity = (net.minecraft.server.v1_8_R3.Entity) customProjectile.projectileDisguiseNMSEntity;
 
             nmsEntity.locX = location.getX();
@@ -97,11 +100,9 @@ public class Projectile_1_8_R3 implements IProjectileCompatibility {
             sendUpdatePackets(customProjectile, 8050, velocity, teleport);
 
         } else {
-            // In 1_9_R1 and higher, these are shorts. I am unsure if this will cause
-            // issues later on
-            byte x = (byte) ((location.getX() * 32 - lastLocation.getX() * 32) * 128);
-            byte y = (byte) ((location.getY() * 32 - lastLocation.getY() * 32) * 128);
-            byte z = (byte) ((location.getZ() * 32 - lastLocation.getZ() * 32) * 128);
+            byte x = (byte) floor((location.getX() - lastLocation.getX()) * 32);
+            byte y = (byte) floor((location.getY() - lastLocation.getY()) * 32);
+            byte z = (byte) floor((location.getZ() - lastLocation.getZ()) * 32);
 
             PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(projectileDisguiseId, x, y, z, convertYawToByte(customProjectile, yaw), convertPitchToByte(customProjectile, pitch), false);
             sendUpdatePackets(customProjectile, 8050, velocity, moveLook);

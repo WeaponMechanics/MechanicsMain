@@ -2,19 +2,16 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
-import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.MaterialHelper;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -26,6 +23,8 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.*;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class CustomProjectile implements ICustomProjectile {
 
@@ -55,6 +54,7 @@ public class CustomProjectile implements ICustomProjectile {
     private final HitBox projectileBox;
     private boolean dead;
     private final Map<String, String> tags;
+    private StickedData stickedData;
 
     private ItemStack weaponStack;
     private String weaponTitle;
@@ -226,19 +226,36 @@ public class CustomProjectile implements ICustomProjectile {
         return projectile;
     }
 
+    @Override
+    public boolean isSticked() {
+        return stickedData != null;
+    }
+
+    @Nullable
+    @Override
+    public Block getStickedBlock() {
+        if (stickedData == null) return null;
+        return stickedData.getBlock();
+    }
+
+    @Nullable
+    @Override
+    public LivingEntity getStickedEntity() {
+        if (stickedData == null) return null;
+        return stickedData.getLivingEntity();
+    }
+
     /**
      * @param collisionData the collision data of hit block
      * @return true if projectile hit was cancelled
      */
     private boolean handleBlockHit(CollisionData collisionData) {
 
-        Configuration config = WeaponMechanics.getConfigurations();
-
         if (weaponTitle == null) {
             return false;
         }
 
-        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
+        Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
 
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
@@ -266,11 +283,19 @@ public class CustomProjectile implements ICustomProjectile {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Vector v = getLocation();
-                        Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
+                        Location origin;
+
+                        if (explosion.getDelay() == 0) {
+                            Vector hitLocation = collisionData.getHitLocation();
+                            origin = new Location(world, hitLocation.getX(), hitLocation.getY(), hitLocation.getZ());
+                        } else {
+                            Vector projectileLocation = getLocation();
+                            origin = new Location(world, projectileLocation.getX(), projectileLocation.getY(), projectileLocation.getZ());
+                        }
+
                         explosion.explode(shooter, origin, CustomProjectile.this);
                     }
-                }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+                }.runTaskLater(getPlugin(), explosion.getDelay());
             }
 
             setTag("explosion-detonated", "true");
@@ -305,7 +330,6 @@ public class CustomProjectile implements ICustomProjectile {
             return true;
         }
 
-        Configuration config = WeaponMechanics.getConfigurations();
         DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
         String weaponTitle = getTag("weapon-title");
 
@@ -330,18 +354,26 @@ public class CustomProjectile implements ICustomProjectile {
             }
         }
 
-        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
+        Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
         boolean canExplode = !"true".equals(getTag("explosion-detonated"));
         if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Vector v = getLocation();
-                    Location origin = new Location(world, v.getX(), v.getY(), v.getZ());
+                    Location origin;
+
+                    if (explosion.getDelay() == 0) {
+                        Vector hitLocation = collisionData.getHitLocation();
+                        origin = new Location(world, hitLocation.getX(), hitLocation.getY(), hitLocation.getZ());
+                    } else {
+                        Vector projectileLocation = getLocation();
+                        origin = new Location(world, projectileLocation.getX(), projectileLocation.getY(), projectileLocation.getZ());
+                    }
+
                     explosion.explode(shooter, origin, CustomProjectile.this);
                 }
-            }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
+            }.runTaskLater(getPlugin(), explosion.getDelay());
 
             setTag("explosion-detonated", "true");
         }
@@ -363,10 +395,64 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         ProjectileMotion projectileMotion = projectile.getProjectileMotion();
-
         if (location.getY() < -32 || location.getY() > 288 || aliveTicks > maximumAliveTicks) {
             remove();
             return true;
+        }
+
+        if (stickedData != null) {
+            Vector newLoc = stickedData.getNewLocation();
+            if (newLoc == null) { // If this is null, either entity is dead or block isn't there anymore
+                stickedData = null;
+                motion = new Vector(NumberUtils.random().nextFloat() * 0.2, NumberUtils.random().nextFloat() * 0.2, NumberUtils.random().nextFloat() * 0.2);
+            } else {
+                if (stickedData.getLivingEntity() != null) {
+                    distanceTravelled += location.distance(lastLocation);
+                }
+
+                lastLocation = location.clone();
+                location = newLoc;
+
+                if (stickedData.isBlockStick() && projectile.getSticky().isAllowStickToEntitiesAfterStickBlock()) {
+                    // Stick to new entity if possible
+
+                    projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
+
+                    CollisionData entityInBox = projectileBox.getEntityInBox(world, entity -> entity.getEntityId() == shooter.getEntityId());
+                    if (entityInBox != null) {
+                        if (collisions == null || !collisions.contains(entityInBox)) {
+
+                            LivingEntity livingEntity = entityInBox.getLivingEntity();
+                            if (projectile.getSticky().canStick(livingEntity.getType())) {
+                                if (handleEntityHit(entityInBox, new Vector(0, 0, 0))) {
+                                    // Don't modify sticked data
+                                    ++aliveTicks;
+                                    return false;
+                                }
+                                stickedData = new StickedData(livingEntity, entityInBox.getHitLocation());
+
+                                // Check if entity died...
+                                if (stickedData.getLivingEntity() == null) {
+                                    stickedData = null;
+                                } else {
+                                    lastLocation = stickedData.getNewLocation();
+                                    location = stickedData.getNewLocation();
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+                Block blockAtLocation = world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+                if (blockAtLocation.isEmpty()) {
+                    lastKnownAirLocation = location.clone().toLocation(world);
+                }
+
+                if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
+                ++aliveTicks;
+                return false;
+            }
         }
 
         motionLength = motion.length();
@@ -409,6 +495,15 @@ public class CustomProjectile implements ICustomProjectile {
         if (handleCollisions()) {
             remove();
             return true;
+        }
+
+        if (stickedData != null) { // This may have changed after handleCollisions()
+            lastLocation = stickedData.getNewLocation();
+            location = stickedData.getNewLocation();
+            motion = new Vector(0, 0, 0);
+            motionLength = 0;
+            ++aliveTicks;
+            return false;
         }
 
         Block blockAtLocation = world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -464,6 +559,24 @@ public class CustomProjectile implements ICustomProjectile {
                 return true;
             }
 
+            if (stickedData != null) {
+
+                // Just extra check if entity happens to die or block disappear
+                if (stickedData.isBlockStick()) {
+
+                    if (stickedData.getBlock() == null) {
+                        stickedData = null;
+                    } else {
+                        break;
+                    }
+
+                } else if (stickedData.getLivingEntity() == null) {
+                    stickedData = null;
+                } else {
+                    break;
+                }
+            }
+
             projectileBox.shift(addMotion);
             location.add(addMotion);
             distanceTravelled += projectile.getProjectileWidth();
@@ -479,6 +592,21 @@ public class CustomProjectile implements ICustomProjectile {
     private boolean handleBlockHits(SortedSet<CollisionData> blockCollisions) {
         if (blockCollisions.isEmpty()) {
             return false;
+        }
+
+        Sticky sticky = projectile.getSticky();
+        if (sticky != null) {
+            CollisionData first = blockCollisions.first();
+
+            Block block = first.getBlock();
+            if (sticky.canStick(block.getType(), block.getData())) {
+                if (stickedData != null || handleBlockHit(first)) {
+                    // Don't add sticked data
+                    return false;
+                }
+                stickedData = new StickedData(block.getLocation(), first.getHitLocation());
+                return false;
+            }
         }
 
         Through through = projectile.getThrough();
@@ -510,7 +638,7 @@ public class CustomProjectile implements ICustomProjectile {
             motion.multiply(extraThroughData.getSpeedModifier());
             collisions.getBlockCollisions().add(block);
 
-            if (--maxBlocksLeft <= 0) { // Projectile should die
+            if (--maxBlocksLeft < 0) { // Projectile should die
                 return true;
             }
         }
@@ -526,7 +654,20 @@ public class CustomProjectile implements ICustomProjectile {
             return false;
         }
 
+        Sticky sticky = projectile.getSticky();
+        if (sticky != null) {
+            CollisionData first = entityCollisions.first();
 
+            LivingEntity livingEntity = first.getLivingEntity();
+            if (sticky.canStick(livingEntity.getType())) {
+                if (stickedData != null || handleEntityHit(first, motion.clone().divide(new Vector(motionLength, motionLength, motionLength)))) {
+                    // Don't add sticked data
+                    return false;
+                }
+                stickedData = new StickedData(livingEntity, first.getHitLocation());
+                return false;
+            }
+        }
 
         Through through = projectile.getThrough();
         Through.ThroughData entityThru = null;
@@ -540,10 +681,12 @@ public class CustomProjectile implements ICustomProjectile {
             return !handleEntityHit(entityCollisions.first(), motion.clone().divide(new Vector(motionLength, motionLength, motionLength)));
         }
 
+        Vector normalizedDirection = motion.clone().divide(new Vector(motionLength, motionLength, motionLength));
+
         int maxEntitiesLeft = entityThru.getMaximumPassThroughs() - collisions.getEntityCollisions().size();
         for (CollisionData entity : entityCollisions) {
 
-            if (handleEntityHit(entity, motion.clone().divide(new Vector(motionLength, motionLength, motionLength)))) {
+            if (handleEntityHit(entity, normalizedDirection)) {
                 // Returned true and that most likely means that entity hit was cancelled, skipping...
                 continue;
             }
@@ -556,7 +699,7 @@ public class CustomProjectile implements ICustomProjectile {
             motion.multiply(extraThroughData.getSpeedModifier());
             collisions.getEntityCollisions().add(entity);
 
-            if (--maxEntitiesLeft <= 0) { // Projectile should die
+            if (--maxEntitiesLeft < 0) { // Projectile should die
                 return true;
             }
         }
@@ -598,7 +741,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                     CollisionData blockCollision = new CollisionData(blockBox, hitLocation, block);
                     if (blockCollisions.contains(blockCollision) // if this iteration already once hit block
-                            || (collisions != null && collisions.isNotAbleToHit(blockCollision))) { // if this projectile has already hit this block once
+                            || (collisions != null && collisions.contains(blockCollision))) { // if this projectile has already hit this block once
                         continue;
                     }
 
@@ -621,7 +764,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                 CollisionData entityCollision = new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 if (entityCollisions.contains(entityCollision) // if this iteration already once hit entity
-                        || (collisions != null && collisions.isNotAbleToHit(entityCollision))) { // if this projectile has already hit this entity once
+                        || (collisions != null && collisions.contains(entityCollision))) { // if this projectile has already hit this entity once
                     continue;
                 }
 
