@@ -76,9 +76,7 @@ public abstract class PacketListener {
 
     // We don't use UUID's here (Like we normally would) because
     // when the PacketLoginInStart is sent, the game profile's UUID
-    // is not yet set, but the player's name is. This will not cause
-    // issues if a player changes their name and rejoins the server,
-    // the old channel will just be collected later during trash collection
+    // is not yet set, but the player's name is.
     private Map<String, Channel> channelCache = new MapMaker().weakValues().makeMap();
 
     protected final Plugin plugin;

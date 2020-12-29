@@ -18,6 +18,7 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -149,20 +150,20 @@ public class Explosion {
         isKnockback = knockback;
     }
 
-    public Optional<ClusterBomb> getCluster() {
-        return cluster;
+    public ClusterBomb getCluster() {
+        return cluster.orElse(null);
     }
 
     public void setCluster(ClusterBomb cluster) {
-        this.cluster = Optional.of(cluster);
+        this.cluster = Optional.ofNullable(cluster);
     }
 
-    public Optional<AirStrike> getAirStrike() {
-        return airStrike;
+    public AirStrike getAirStrike() {
+        return airStrike.orElse(null);
     }
 
     public void setAirStrike(AirStrike airStrike) {
-        this.airStrike = Optional.of(airStrike);
+        this.airStrike = Optional.ofNullable(airStrike);
     }
 
     /**
@@ -172,6 +173,12 @@ public class Explosion {
      * @param origin The center of the explosion
      */
     public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
+
+        if (projectile != null && airStrike.isPresent() && !"true".equals(projectile.getTag("airstrike-bomb"))) {
+            airStrike.get().trigger(origin, cause, projectile);
+            return;
+        }
+
         debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
 
         EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
@@ -203,9 +210,8 @@ public class Explosion {
         try {
             solid.sort(sorter);
         } catch (IllegalArgumentException ex) {
-            debug.error("A plugin modified the explosion block sorter with an illegal sorter!",
-                    "Please report this error to the developers of that plugin", "Sorter: " + sorter.getClass());
-            debug.log(LogLevel.ERROR, ex);
+            debug.log(LogLevel.ERROR, "A plugin modified the explosion block sorter with an illegal sorter! " +
+                    "Please report this error to the developers of that plugin. Sorter: " + sorter.getClass(), ex);
         }
 
         damageBlocks(transparent, true, origin, projectile, fallingBlocks);
@@ -279,7 +285,6 @@ public class Explosion {
 
         if (projectile != null) {
             cluster.ifPresent(clusterBomb -> clusterBomb.trigger(projectile, cause, origin));
-            airStrike.ifPresent(airStrike -> airStrike.trigger(origin, cause, projectile));
         }
     }
 
@@ -291,11 +296,14 @@ public class Explosion {
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
             Block block = blocks.get(i);
+            int time = timeOffset;
 
-            int counter = isAtOnce ? size : i;
-            int time = timeOffset + counter / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval();
+            if (regeneration != null) {
+                time += (isAtOnce ? size : i) / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval();
+            }
 
             if (blockDamage.damage(block, time) && NumberUtils.chance(blockChance)) {
+                Bukkit.broadcastMessage("time: " + time);
 
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                 BlockState state = block.getState();
@@ -348,7 +356,7 @@ public class Explosion {
             this.splits = splits;
             this.bombs = bombs;
 
-            Explosion.this.cluster = Optional.of(this);
+            setCluster(this);
         }
 
         public Projectile getProjectile() {
@@ -416,7 +424,7 @@ public class Explosion {
         /**
          * The settings of the bomb that is dropped.
          */
-        private Projectile projectileSettings;
+        private Projectile projectile;
 
         /**
          * Minimum/Maximum number of bombs dropped
@@ -457,7 +465,7 @@ public class Explosion {
 
 
         public AirStrike(Projectile projectile, int min, int max, double height, double yVariation, double distanceBetween, double radius, int loops, int delay) {
-            this.projectileSettings = projectile;
+            this.projectile = projectile;
             this.min = min;
             this.max = max;
             this.height = height;
@@ -467,15 +475,15 @@ public class Explosion {
             this.loops = loops;
             this.delay = delay;
 
-            Explosion.this.airStrike = Optional.of(AirStrike.this);
+            setAirStrike(this);
         }
 
         public Projectile getProjectile() {
-            return projectileSettings;
+            return projectile;
         }
 
         public void setProjectile(Projectile projectile) {
-            this.projectileSettings = projectile;
+            this.projectile = projectile;
         }
 
         public int getMin() {
@@ -552,11 +560,6 @@ public class Explosion {
                 @Override
                 public void run() {
 
-                    if (count++ >= loops) {
-                        cancel();
-                        return;
-                    }
-
                     int bombs = NumberUtils.random(min, max);
                     int checks = bombs * bombs;
 
@@ -573,7 +576,7 @@ public class Explosion {
                         Vector2d vector = new Vector2d(x, z);
 
                         for (Vector2d spawnLocation : spawnLocations) {
-                            if (vector.distanceSquared(spawnLocation) > distanceBetweenSquared) {
+                            if (vector.distanceSquared(spawnLocation) < distanceBetweenSquared) {
                                 continue locationFinder;
                             }
                         }
@@ -583,7 +586,12 @@ public class Explosion {
                         double y = flareLocation.getY() + height + NumberUtils.random(-yVariation, yVariation);
                         Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-                        (getProjectile() == null ? projectile.getProjectileSettings() : getProjectile()).shoot(shooter, location, new Vector(), projectile.getWeaponStack(), weaponTitle);
+                        (getProjectile() == null ? projectile.getProjectileSettings() : getProjectile()).shoot(shooter, location, new Vector(0.0, 0.0, 0.0), projectile.getWeaponStack(), weaponTitle)
+                                .setTag("airstrike-bomb", "true");
+                    }
+
+                    if (++count >= loops) {
+                        cancel();
                     }
                 }
             }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, delay);
