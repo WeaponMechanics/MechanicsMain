@@ -413,7 +413,36 @@ public class CustomProjectile implements ICustomProjectile {
                 lastLocation = location.clone();
                 location = newLoc;
 
-                world.spawnParticle(Particle.FLAME, location.getX(), location.getY(), location.getZ(), 1, 0, 0, 0, 0.001);
+                if (stickedData.isBlockStick() && projectile.getSticky().isAllowStickToEntitiesAfterStickBlock()) {
+                    // Stick to new entity if possible
+
+                    projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
+
+                    CollisionData entityInBox = projectileBox.getEntityInBox(world, entity -> entity.getEntityId() == shooter.getEntityId());
+                    if (entityInBox != null) {
+                        if (collisions == null || !collisions.contains(entityInBox)) {
+
+                            LivingEntity livingEntity = entityInBox.getLivingEntity();
+                            if (projectile.getSticky().canStick(livingEntity.getType())) {
+                                if (handleEntityHit(entityInBox, new Vector(0, 0, 0))) {
+                                    // Don't modify sticked data
+                                    ++aliveTicks;
+                                    return false;
+                                }
+                                stickedData = new StickedData(livingEntity, entityInBox.getHitLocation());
+
+                                // Check if entity died...
+                                if (stickedData.getLivingEntity() == null) {
+                                    stickedData = null;
+                                } else {
+                                    lastLocation = stickedData.getNewLocation();
+                                    location = stickedData.getNewLocation();
+                                }
+                            }
+
+                        }
+                    }
+                }
 
                 Block blockAtLocation = world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
                 if (blockAtLocation.isEmpty()) {
@@ -531,7 +560,21 @@ public class CustomProjectile implements ICustomProjectile {
             }
 
             if (stickedData != null) {
-                break;
+
+                // Just extra check if entity happens to die or block disappear
+                if (stickedData.isBlockStick()) {
+
+                    if (stickedData.getBlock() == null) {
+                        stickedData = null;
+                    } else {
+                        break;
+                    }
+
+                } else if (stickedData.getLivingEntity() == null) {
+                    stickedData = null;
+                } else {
+                    break;
+                }
             }
 
             projectileBox.shift(addMotion);

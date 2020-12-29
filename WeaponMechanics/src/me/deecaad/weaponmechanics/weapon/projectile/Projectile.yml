@@ -33,6 +33,7 @@ Projectile: <path to another Projectile key>
         - <Material>:<data>
         - <etc.>
     Entities:
+      Allow_Stick_To_Entities_After_Stick_Block: <true/false>
       Stick_To_Any_Entity: <true/false>
       Whitelist: <true/false>
       List:

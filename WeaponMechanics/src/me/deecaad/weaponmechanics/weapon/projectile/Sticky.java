@@ -21,6 +21,7 @@ public class Sticky implements Serializer<Sticky> {
 
     private boolean stickToAnyBlock;
     private boolean stickToAnyEntity;
+    private boolean allowStickToEntitiesAfterStickBlock;
     private StickyData blocks, entities;
 
     /**
@@ -28,11 +29,12 @@ public class Sticky implements Serializer<Sticky> {
      */
     public Sticky() { }
 
-    public Sticky(boolean stickToAnyBlock, boolean stickToAnyEntity, StickyData blocks, StickyData entities) {
+    public Sticky(boolean stickToAnyBlock, boolean stickToAnyEntity, StickyData blocks, StickyData entities, boolean allowStickToEntitiesAfterStickBlock) {
         this.stickToAnyBlock = stickToAnyBlock;
         this.stickToAnyEntity = stickToAnyEntity;
         this.blocks = blocks;
         this.entities = entities;
+        this.allowStickToEntitiesAfterStickBlock = allowStickToEntitiesAfterStickBlock;
     }
 
     public boolean canStick(Material material, byte data) {
@@ -43,6 +45,10 @@ public class Sticky implements Serializer<Sticky> {
     public boolean canStick(EntityType entityType) {
         return stickToAnyEntity
                 || (entities != null && entities.canStick(entityType.name()));
+    }
+
+    public boolean isAllowStickToEntitiesAfterStickBlock() {
+        return allowStickToEntitiesAfterStickBlock;
     }
 
     @Override
@@ -59,7 +65,8 @@ public class Sticky implements Serializer<Sticky> {
         if (blocks == null && entities == null && !stickToAnyBlock && !stickToAnyEntity) {
             return null;
         }
-        return new Sticky(stickToAnyBlock, stickToAnyEntity, blocks, entities);
+        boolean allowStickToEntitiesAfterStickBlock = configurationSection.getBoolean(path + ".Entities.Allow_Stick_To_Entities_After_Stick_Block", false);
+        return new Sticky(stickToAnyBlock, stickToAnyEntity, blocks, entities, allowStickToEntitiesAfterStickBlock);
     }
 
     private StickyData tryStickyData(File file, ConfigurationSection configurationSection, String path, boolean blocks) {

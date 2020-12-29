@@ -32,6 +32,10 @@ public class StickedData {
         return WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(blockLocation.getBlock()) == null ? null : blockLocation.clone().add(relativeSpawnLocation).toVector();
     }
 
+    public boolean isBlockStick() {
+        return blockLocation != null;
+    }
+
     public LivingEntity getLivingEntity() {
         return livingEntity == null || livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity;
     }

@@ -60,10 +60,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -295,10 +292,6 @@ public class WeaponMechanics extends JavaPlugin {
     public void onDisable() {
         BlockDamageData.regenerateAll();
 
-        // Remove EntityWrappers just in case something odd happens
-        for (LivingEntity entity : entityWrappers.keySet()) {
-            removeEntityWrapper(entity);
-        }
         weaponHandler = null;
         updateChecker = null;
         entityWrappers = null;
