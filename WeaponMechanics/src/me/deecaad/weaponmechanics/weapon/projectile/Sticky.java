@@ -54,11 +54,11 @@ public class Sticky implements Serializer<Sticky> {
     public Sticky serialize(File file, ConfigurationSection configurationSection, String path) {
         StickyData blocks = tryStickyData(file, configurationSection, path + ".Blocks", true);
         StickyData entities = tryStickyData(file, configurationSection, path + ".Entities", false);
-        if (blocks == null && entities == null) {
+        boolean stickToAnyBlock = configurationSection.getBoolean(path + ".Blocks.Stick_To_Any_Block", false);
+        boolean stickToAnyEntity = configurationSection.getBoolean(path + ".Entities.Stick_To_Any_Entity", false);
+        if (blocks == null && entities == null && !stickToAnyBlock && !stickToAnyEntity) {
             return null;
         }
-        boolean stickToAnyBlock = configurationSection.getBoolean(path + ".Blocks.Stick_To_Any_Block", true);
-        boolean stickToAnyEntity = configurationSection.getBoolean(path + ".Entities.Stick_To_Any_Entity", true);
         return new Sticky(stickToAnyBlock, stickToAnyEntity, blocks, entities);
     }
 

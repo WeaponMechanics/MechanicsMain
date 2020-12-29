@@ -290,6 +290,7 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         } else {
             velocity = ReflectionUtil.newInstance(entityVelocityPacket, projectileDisguiseId, ReflectionUtil.newInstance(vec3d, motion.getX(), motion.getY(), motion.getZ()));
         }
+        double motionLength = customProjectile.getMotionLength();
 
         Object move;
         if (version < 1.09) {

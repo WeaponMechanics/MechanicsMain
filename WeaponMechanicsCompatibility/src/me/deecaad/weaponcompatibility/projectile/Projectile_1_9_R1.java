@@ -84,7 +84,8 @@ public class Projectile_1_9_R1 implements IProjectileCompatibility {
 
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId,motion.getX(), motion.getY(), motion.getZ());
 
-        if (customProjectile.getMotionLength() > 8) {
+        double motionLength = customProjectile.getMotionLength();
+        if (motionLength > 8 || motionLength == 0) {
             net.minecraft.server.v1_9_R1.Entity nmsEntity = (net.minecraft.server.v1_9_R1.Entity) customProjectile.projectileDisguiseNMSEntity;
 
             nmsEntity.locX = location.getX();

@@ -6,9 +6,12 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
+import org.bukkit.Bukkit;
+import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -116,6 +119,10 @@ public class HitBox implements IValidator {
                 && max.getZ() > other.min.getZ();
     }
 
+    public Vector getCenter() {
+        return new Vector(min.getX() + getWidth() * 0.5, min.getY() + getHeight() * 0.5, min.getZ() + getDepth() * 0.5);
+    }
+
     /**
      * This is separated to new method for easier usage from collidesFront method.
      * That's why this is private.
@@ -138,16 +145,13 @@ public class HitBox implements IValidator {
     public Vector collisionPoint(HitBox other) {
         if (!collides(other)) return null;
 
-        double newMinX = Math.max(min.getX(), other.min.getX());
-        double newMinY = Math.max(min.getY(), other.min.getY());
-        double newMinZ = Math.max(min.getZ(), other.min.getZ());
+        Vector thisCenter = getCenter();
+        Vector otherCenter = other.getCenter();
 
-        double newMaxX = Math.min(max.getX(), other.max.getX());
-        double newMaxY = Math.min(max.getY(), other.max.getY());
-        double newMaxZ = Math.min(max.getZ(), other.max.getZ());
+        Vector direction = otherCenter.subtract(thisCenter).normalize();
+        direction.multiply(getWidth() - 0.3);
 
-        // Return the center of collision point
-        return new Vector((newMaxX + newMinX) * 0.5, (newMaxY + newMinY) * 0.5, (newMaxZ + newMinZ) * 0.5);
+        return thisCenter.add(direction);
     }
 
     /**

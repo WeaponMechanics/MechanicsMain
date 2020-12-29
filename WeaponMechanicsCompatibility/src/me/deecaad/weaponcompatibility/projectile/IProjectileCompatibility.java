@@ -60,7 +60,7 @@ public interface IProjectileCompatibility {
      * @return the living entity's hit box
      */
     default HitBox getHitBox(Entity entity) {
-        if (entity.isInvulnerable() || !entity.getType().isAlive()) return null;
+        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
 
         // This default should only be used after 1.13 R2
 
