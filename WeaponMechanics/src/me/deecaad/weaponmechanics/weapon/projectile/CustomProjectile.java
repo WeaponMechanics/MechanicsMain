@@ -250,11 +250,9 @@ public class CustomProjectile implements ICustomProjectile {
      * @return true if projectile hit was cancelled
      */
     private boolean handleBlockHit(CollisionData collisionData) {
-
         if (weaponTitle == null) {
             return false;
         }
-
         Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
 
         // Handle worldguard flags
@@ -294,6 +292,11 @@ public class CustomProjectile implements ICustomProjectile {
                         }
 
                         explosion.explode(shooter, origin, CustomProjectile.this);
+
+                        if (stickedData != null) {
+                            // Remove on explosion if sticky data is used
+                            remove();
+                        }
                     }
                 }.runTaskLater(getPlugin(), explosion.getDelay());
             }
@@ -372,6 +375,11 @@ public class CustomProjectile implements ICustomProjectile {
                     }
 
                     explosion.explode(shooter, origin, CustomProjectile.this);
+
+                    if (stickedData != null) {
+                        // Remove on explosion if sticky data is used
+                        remove();
+                    }
                 }
             }.runTaskLater(getPlugin(), explosion.getDelay());
 
@@ -414,6 +422,7 @@ public class CustomProjectile implements ICustomProjectile {
                 location = newLoc;
 
                 if (stickedData.isBlockStick() && projectile.getSticky().isAllowStickToEntitiesAfterStickBlock()) {
+
                     // Stick to new entity if possible
 
                     projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
