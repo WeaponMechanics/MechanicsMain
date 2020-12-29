@@ -8,6 +8,7 @@ import net.minecraft.server.v1_13_R2.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_13_R2.PacketPlayOutMultiBlockChange;
 import net.minecraft.server.v1_13_R2.World;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
@@ -15,6 +16,7 @@ import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -39,12 +41,17 @@ public class Block_1_13_R2 implements BlockCompatibility {
             IDS.set(0);
         }
 
+        return getCrackPacket(block, crack, id);
+    }
+
+    @Override
+    public Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
     }
 
     @Override
-    public Object getBlockMaskPacket(Block bukkitBlock, org.bukkit.Material mask, byte data) {
+    public Object getBlockMaskPacket(Block bukkitBlock, Material mask, byte data) {
         return getBlockMaskPacket(bukkitBlock, ((CraftBlockData) mask.createBlockData()).getState());
     }
 
@@ -69,7 +76,7 @@ public class Block_1_13_R2 implements BlockCompatibility {
     }
 
     @Override
-    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable org.bukkit.Material mask, byte data) {
+    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable Material mask, byte data) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -96,7 +103,7 @@ public class Block_1_13_R2 implements BlockCompatibility {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
 
-        Map<org.bukkit.Chunk, List<Block>> sortedBlocks = new HashMap<>();
+        Map<Chunk, List<Block>> sortedBlocks = new HashMap<>();
         for (Block block : blocks) {
             List<Block> list = sortedBlocks.computeIfAbsent(block.getChunk(), chunk -> new ArrayList<>());
             list.add(block);

@@ -15,6 +15,7 @@ import org.bukkit.craftbukkit.v1_10_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_10_R1.block.CraftBlock;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -39,6 +40,11 @@ public class Block_1_10_R1 implements BlockCompatibility {
             IDS.set(0);
         }
 
+        return getCrackPacket(block, crack, id);
+    }
+
+    @Override
+    public Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
     }

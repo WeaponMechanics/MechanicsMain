@@ -2,11 +2,13 @@ package me.deecaad.compatibility.block;
 
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R1.BlockPosition;
+import net.minecraft.server.v1_16_R1.Chunk;
 import net.minecraft.server.v1_16_R1.IBlockData;
 import net.minecraft.server.v1_16_R1.PacketPlayOutBlockBreakAnimation;
 import net.minecraft.server.v1_16_R1.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_16_R1.PacketPlayOutMultiBlockChange;
 import net.minecraft.server.v1_16_R1.World;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_16_R1.CraftChunk;
@@ -14,6 +16,7 @@ import org.bukkit.craftbukkit.v1_16_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_16_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_16_R1.block.data.CraftBlockData;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -38,12 +41,17 @@ public class Block_1_16_R1 implements BlockCompatibility {
             IDS.set(0);
         }
 
+        return getCrackPacket(block, crack, id);
+    }
+
+    @Override
+    public Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
     }
 
     @Override
-    public Object getBlockMaskPacket(Block bukkitBlock, org.bukkit.Material mask, byte data) {
+    public Object getBlockMaskPacket(Block bukkitBlock, Material mask, byte data) {
         return getBlockMaskPacket(bukkitBlock, ((CraftBlockData) mask.createBlockData()).getState());
     }
 
@@ -68,7 +76,7 @@ public class Block_1_16_R1 implements BlockCompatibility {
     }
 
     @Override
-    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable org.bukkit.Material mask, byte data) {
+    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable Material mask, byte data) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -113,7 +121,7 @@ public class Block_1_16_R1 implements BlockCompatibility {
 
     private PacketPlayOutMultiBlockChange getMultiBlockMaskPacket(List<Block> blocks, @Nullable IBlockData mask) {
 
-        net.minecraft.server.v1_16_R1.Chunk chunk = ((CraftChunk) blocks.get(0).getChunk()).getHandle();
+        Chunk chunk = ((CraftChunk) blocks.get(0).getChunk()).getHandle();
 
         // Setup default information
         PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(0, new short[0], chunk);
