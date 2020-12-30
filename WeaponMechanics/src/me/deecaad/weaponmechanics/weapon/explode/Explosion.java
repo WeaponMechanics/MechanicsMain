@@ -18,6 +18,7 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -39,6 +40,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.FIRE;
+import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.GLOWING;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -231,12 +234,13 @@ public class Explosion {
             // to the player. The destroy packet is sent later, when the block
             // hits the ground. Sent to every player in view.
             Object spawn = entityCompatibility.getSpawnPacket(nms);
-            Object meta = entityCompatibility.getMetadataPacket(nms);
+            Object meta = entityCompatibility.getMetadataPacket(nms, true, GLOWING, FIRE);
             Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
             Object destroy = entityCompatibility.getDestroyPacket(nms);
 
             for (Player player : playersInView) {
 
+                Bukkit.broadcastMessage("Velocity " + velocity);
                 CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
 
                 new BukkitRunnable() {
