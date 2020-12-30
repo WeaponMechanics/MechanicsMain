@@ -94,13 +94,17 @@ public class TriggerPlayerListeners implements Listener {
     @EventHandler
     public void interact(PlayerInteractEvent e) {
         Action action = e.getAction();
+        Player player = e.getPlayer();
+
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            return;
+        }
 
         // I don't think ignoreCancelled = true works in this event properly
         if (action == Action.PHYSICAL || e.useItemInHand() == Event.Result.DENY) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
-        Player player = e.getPlayer();
 
         // Basically this just cancel double call to player interact event
         if (useOffHand) {

@@ -11,7 +11,9 @@ import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -22,9 +24,17 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
 
 public class CustomProjectile implements ICustomProjectile {
 
@@ -755,6 +765,17 @@ public class CustomProjectile implements ICustomProjectile {
         for (Chunk chunk : chunks) {
             for (final Entity entity : chunk.getEntities()) {
                 if (entity.getEntityId() == shooter.getEntityId()) continue;
+
+                // After an EntityLiving dies, there is a delay before
+                // it's hitbox is removed. This check ensures projectiles
+                // aren't hitting "fake" hitboxes
+                // todo make this optional?
+                if (entity.isDead() || (entity.getType().isAlive() && ((LivingEntity) entity).getHealth() < 0.0001)) {
+                    LivingEntity living = (LivingEntity) entity;
+                    if (living.getHealth() <= 0.0) {
+                        continue;
+                    }
+                }
 
                 HitBox entityBox = projectileCompatibility.getHitBox(entity);
                 if (entityBox == null) continue; // entity is invulnerable or non alive
