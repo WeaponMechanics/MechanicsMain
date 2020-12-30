@@ -17,13 +17,11 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
@@ -615,6 +613,13 @@ public class CustomProjectile implements ICustomProjectile {
                 factor * normal.getZ() + direction.getZ());
     }
 
+    /* from unity
+        public static Vector3 Reflect(Vector3 inDirection, Vector3 inNormal)
+    {
+      return -2f * Vector3.Dot(inNormal, inDirection) * inNormal + inDirection;
+    }
+    */
+
     /**
      * @param blockCollisions the list of all collisions to handle
      * @return true if projectile should die
@@ -624,14 +629,39 @@ public class CustomProjectile implements ICustomProjectile {
             return false;
         }
 
+        CollisionData f = blockCollisions.first();
+        final Block b = f.getBlock();
+        final Vector hitLocation = f.getHitLocation().clone();
 
-        final Vector hitLocation = blockCollisions.first().getHitLocation().clone();
-        Vector direction = reflect(motion, new Vector(BlockFace.UP.getModX(), BlockFace.UP.getModY(), BlockFace.UP.getModZ()));
+        double x = b.getX() + 0.5, y = b.getY() + 0.5, z = b.getZ() + 0.5;
+
+        Location lastBlockLocation = hitLocation.clone().add(motion.clone().normalize().multiply(-0.5)).toLocation(world);//location.toLocation(world);
+
+        Block lastBlock = world.getBlockAt(lastBlockLocation);
+
+        double x2 = lastBlock.getX() + 0.5, y2 = lastBlock.getY() + 0.5, z2 = lastBlock.getZ() + 0.5;
+
+        Vector normal = new Vector(x, y, z).subtract(new Vector(x2, y2, z2));
+
+        Vector direction = reflect(motion, normal);
 
         new BukkitRunnable() {
             public void run() {
+
+                // Last block location
+                world.spawnParticle(Particle.HEART, new Location(world, x2, y2, z2), 1, 0, 0, 0, 0.001);
+
+                // Hit block location
+                world.spawnParticle(Particle.CLOUD, new Vector(x, y, z).toLocation(world), 1, 0, 0, 0, 0.001);
+
+                // Normal's direction
+                world.spawnParticle(Particle.CRIT_MAGIC, new Vector(x, y, z).add(normal.clone().multiply(2.0)).toLocation(world), 1, 0, 0, 0, 0.001);
+
+                // The hit location
                 world.spawnParticle(Particle.FLAME, hitLocation.toLocation(world), 1, 0, 0, 0, 0.001);
-                world.spawnParticle(Particle.FLAME, hitLocation.clone().add(direction.clone().multiply(3.0)).toLocation(world), 1, 0, 0, 0, 0.001);
+
+                // Reflection's direction
+                world.spawnParticle(Particle.CRIT, hitLocation.clone().add(direction.clone().multiply(2.0)).toLocation(world), 1, 0, 0, 0, 0.001);
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
 
