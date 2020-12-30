@@ -37,6 +37,29 @@ public interface BlockCompatibility {
     Object getCrackPacket(@Nonnull Block block, int crack);
 
     /**
+     * Gets a <code>PacketPlayOutBlockBreakAnimation</code> packet
+     * for the given block
+     *
+     * https://wiki.vg/Protocol#Block_Break_Animation
+     *
+     * Crack values [0-9] will show the crack animation, anything
+     * else will remove the animation.
+     *
+     * If this is used on a transparent block, weird graphical effects
+     * may occur
+     *
+     * Note that in order for players to see the changes, you must
+     * send them the returned packet
+     * @see me.deecaad.compatibility.ICompatibility#sendPackets(Player, Object...)
+     *
+     * @param block The block to crack
+     * @param crack The amount to crack
+     * @param id The id to use for the packet
+     * @return The constructed packet
+     */
+    Object getCrackPacket(@Nonnull Block block, int crack, int id);
+
+    /**
      * Gets a <code>PacketPlayOutBlockChange</code> packet for the given
      * <code>bukkitBlock</code> with the given <code>mask</code>. This
      * effectively masks the block as a different block.

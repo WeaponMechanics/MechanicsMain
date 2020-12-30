@@ -41,7 +41,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
         }
     }
 
-    public static void addProjectile(CustomProjectile projectile) {
+    public static synchronized void addProjectile(CustomProjectile projectile) {
         projectiles.add(projectile);
     }
 

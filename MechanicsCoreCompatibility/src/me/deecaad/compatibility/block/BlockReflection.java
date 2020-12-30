@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -61,6 +62,11 @@ public class BlockReflection implements BlockCompatibility {
             IDS.set(0);
         }
 
+        return getCrackPacket(block, crack, id);
+    }
+
+    @Override
+    public Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         Object blockPos = ReflectionUtil.newInstance(blockPosConstructor, block.getX(), block.getY(), block.getZ());
         return ReflectionUtil.newInstance(blockCrackPacketConstructor, id, blockPos, crack);
     }

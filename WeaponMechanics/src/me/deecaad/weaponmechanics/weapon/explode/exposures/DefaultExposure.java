@@ -90,6 +90,10 @@ public class DefaultExposure implements ExplosionExposure {
     private static double getExposure(Vector vec3d, Entity entity) {
         HitBox box = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(entity);
 
+        if (box == null) {
+            return 0.0;
+        }
+
         // Get the dimensions of the bounding box
         double width = box.getWidth();
         double height = box.getHeight();

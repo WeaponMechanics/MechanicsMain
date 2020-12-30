@@ -102,8 +102,9 @@ public final class BlockDamageData implements Listener {
         private final Block block;
         private double durability;
         private BlockState state;
+        private int id = -1;
 
-        public DamageData(Block block) {
+        DamageData(Block block) {
             this.block = block;
             durability = 1.0;
         }
@@ -124,11 +125,11 @@ public final class BlockDamageData implements Listener {
          *
          * @return true if the block is destroyed
          */
-        public boolean isDestroyed() {
+        boolean isDestroyed() {
 
             // Trying to fix floating point math inaccuracies
             // by creating my own inaccuracy
-            return durability < 0.0001;
+            return durability < 0.0000001;
         }
 
         /**
@@ -141,19 +142,13 @@ public final class BlockDamageData implements Listener {
         public void damage(int damageAmount, int maxDamage) {
             this.durability -= ((double) damageAmount) / ((double) maxDamage);
 
-            int blockCrack = (int) ((1 - durability) * MAX_BLOCK_CRACK);
-            blockCrack = NumberUtils.minMax(1, blockCrack, MAX_BLOCK_CRACK);
-
-            BlockCompatibility compatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();
-            Object packet = compatibility.getCrackPacket(block, blockCrack);
-
-            block.getWorld().getPlayers().forEach(player -> CompatibilityAPI.getCompatibility().sendPackets(player, packet));
+            update();
         }
 
         /**
          * Destroys this block
          */
-        public void destroy() {
+        void destroy() {
             state = block.getState();
 
             // Clear the contents of the inventory, if present
@@ -175,8 +170,8 @@ public final class BlockDamageData implements Listener {
         /**
          * Regenerates this block
          */
-        public void regenerate() {
-            if (state == null) {
+        void regenerate() {
+            if (state != null) {
                 // Update the state without applying physics
                 // Updating the state will update byte data, material,
                 // state, and data.
@@ -186,6 +181,35 @@ public final class BlockDamageData implements Listener {
                 state = null;
             }
             durability = 1.0;
+
+            // If the regen time is below 200 ticks (estimation),
+            // then the block will still be cracked after the
+            // reset, so we need to update it
+            update();
+        }
+
+        /**
+         * Updates the packet crack amount for all players
+         * in this block's world
+         */
+        private void update() {
+
+            if (id == -1) {
+                id = BlockCompatibility.IDS.incrementAndGet();
+            }
+
+            int blockCrack;
+            if (durability >= 1.0) {
+                blockCrack = -1;
+            } else {
+                blockCrack = (int) ((1.0 - durability) * MAX_BLOCK_CRACK);
+                blockCrack = NumberUtils.minMax(0, blockCrack, MAX_BLOCK_CRACK);
+            }
+
+            BlockCompatibility compatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();
+            Object packet = compatibility.getCrackPacket(block, blockCrack, id);
+
+            block.getWorld().getPlayers().forEach(player -> CompatibilityAPI.getCompatibility().sendPackets(player, packet));
         }
 
         /**

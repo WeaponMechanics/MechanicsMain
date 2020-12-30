@@ -163,7 +163,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
 
-        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, 0, isKnockback);
+        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, 0.5, isKnockback);
 
         if (section.contains("Cluster_Bomb")) {
 
@@ -176,7 +176,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             int splits = section.getInt("Cluster_Bomb.Number_Of_Splits", 1);
             int bombs = section.getInt("Cluster_Bomb.Number_Of_Bombs");
 
-            explosion.new ClusterBomb(projectileSettings, speed, splits, bombs);
+            explosion.new ClusterBomb(projectileSettings, speed / 10.0, splits, bombs);
         }
 
         if (section.contains("Airstrike")) {
