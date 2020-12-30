@@ -96,11 +96,8 @@ public class TriggerPlayerListeners implements Listener {
         Action action = e.getAction();
         Player player = e.getPlayer();
 
-        if (player.getGameMode() == GameMode.SPECTATOR) {
-            return;
-        }
-
         // I don't think ignoreCancelled = true works in this event properly
+        if (player.getGameMode() == GameMode.SPECTATOR) return;
         if (action == Action.PHYSICAL || e.useItemInHand() == Event.Result.DENY) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
@@ -118,7 +115,7 @@ public class TriggerPlayerListeners implements Listener {
                 if (action == Action.RIGHT_CLICK_BLOCK && hand == EquipmentSlot.HAND) {
                     return;
                 }
-                // This basically means that hand is now OFF_HAND, but it does't let HAND calls pass
+                // This basically means that hand is now OFF_HAND, but it doesn't let HAND calls pass
 
             } else if (hand == EquipmentSlot.OFF_HAND) {
                 // If main hand had item, then we can always just cancel OFF_HAND call since HAND is guaranteed to be used
@@ -195,6 +192,8 @@ public class TriggerPlayerListeners implements Listener {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         Player player = e.getPlayer();
+        if (player.getGameMode() == GameMode.SPECTATOR) return;
+
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         double version = CompatibilityAPI.getVersion();
@@ -227,10 +226,15 @@ public class TriggerPlayerListeners implements Listener {
 
     @EventHandler (ignoreCancelled = true)
     public void dropItem(PlayerDropItemEvent e) {
-        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
-        if (getPlayerWrapper(e.getPlayer()).isInventoryOpen()) return;
-
         Player player = e.getPlayer();
+
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
+
+        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+
+        if (playerWrapper.isInventoryOpen()) return;
+        if (player.getGameMode() == GameMode.SPECTATOR) return;
+
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
 
         ItemStack mainStack = e.getItemDrop().getItemStack();
@@ -252,8 +256,6 @@ public class TriggerPlayerListeners implements Listener {
             e.setCancelled(true);
         }
 
-        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
-
         // Only do dual wield check if server is 1.9 or newer
         if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
 
@@ -269,7 +271,6 @@ public class TriggerPlayerListeners implements Listener {
 
     }
 
-    // Just added this now?
     @EventHandler
     public void open(InventoryOpenEvent e) {
         getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(true);
