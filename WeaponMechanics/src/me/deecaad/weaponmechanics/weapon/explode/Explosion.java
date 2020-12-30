@@ -18,7 +18,6 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -303,7 +302,6 @@ public class Explosion {
             }
 
             if (blockDamage.damage(block, time) && NumberUtils.chance(blockChance)) {
-                Bukkit.broadcastMessage("time: " + time);
 
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                 BlockState state = block.getState();

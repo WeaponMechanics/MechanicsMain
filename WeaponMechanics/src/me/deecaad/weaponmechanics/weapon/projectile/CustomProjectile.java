@@ -770,11 +770,8 @@ public class CustomProjectile implements ICustomProjectile {
                 // it's hitbox is removed. This check ensures projectiles
                 // aren't hitting "fake" hitboxes
                 // todo make this optional?
-                if (entity.isDead() || (entity.getType().isAlive() && ((LivingEntity) entity).getHealth() < 0.0001)) {
-                    LivingEntity living = (LivingEntity) entity;
-                    if (living.getHealth() <= 0.0) {
-                        continue;
-                    }
+                if (entity.isDead() || (entity.getType().isAlive() && ((LivingEntity) entity).getHealth() <= 0.0)) {
+                    continue;
                 }
 
                 HitBox entityBox = projectileCompatibility.getHitBox(entity);
