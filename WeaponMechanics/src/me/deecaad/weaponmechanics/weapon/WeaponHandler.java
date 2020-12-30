@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -57,6 +58,8 @@ public class WeaponHandler {
         // -> No auto add true to deny entity wrappers being added for unnecessary entities (they can also trigger certain
         IEntityWrapper entityWrapper = getEntityWrapper(livingEntity, true);
         if (entityWrapper == null) return;
+
+        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
 
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
 

@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.listeners.trigger;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,14 +30,16 @@ public class TriggerPlayerListenersAbove_1_9 implements Listener {
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items")) return;
 
+        Player player = e.getPlayer();
+
+        if (player.getGameMode() == GameMode.SPECTATOR) return;
+
         ItemStack toMain = e.getMainHandItem();
         String toMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toMain, false);
 
         ItemStack toOff = e.getOffHandItem();
         String toOffWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toOff, false);
         if (toMainWeapon == null && toOffWeapon == null) return;
-
-        Player player = e.getPlayer();
 
         if (toMainWeapon != null && getConfigurations().getBool(toMainWeapon + ".Info.Cancel.Swap_Hands")
                 || toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands")) {

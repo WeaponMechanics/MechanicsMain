@@ -8,18 +8,22 @@ import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
@@ -604,6 +608,13 @@ public class CustomProjectile implements ICustomProjectile {
         return false;
     }
 
+    public Vector reflect(Vector direction, Vector normal) {
+        double factor = -2.0 * normal.dot(direction);
+        return new Vector(factor * normal.getX() + direction.getX(),
+                factor * normal.getY() * direction.getY(),
+                factor * normal.getZ() + direction.getZ());
+    }
+
     /**
      * @param blockCollisions the list of all collisions to handle
      * @return true if projectile should die
@@ -612,6 +623,18 @@ public class CustomProjectile implements ICustomProjectile {
         if (blockCollisions.isEmpty()) {
             return false;
         }
+
+
+        final Vector hitLocation = blockCollisions.first().getHitLocation().clone();
+        Vector direction = reflect(motion, new Vector(BlockFace.UP.getModX(), BlockFace.UP.getModY(), BlockFace.UP.getModZ()));
+
+        new BukkitRunnable() {
+            public void run() {
+                world.spawnParticle(Particle.FLAME, hitLocation.toLocation(world), 1, 0, 0, 0, 0.001);
+                world.spawnParticle(Particle.FLAME, hitLocation.clone().add(direction.clone().multiply(3.0)).toLocation(world), 1, 0, 0, 0, 0.001);
+            }
+        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
+
 
         Sticky sticky = projectile.getSticky();
         if (sticky != null) {
