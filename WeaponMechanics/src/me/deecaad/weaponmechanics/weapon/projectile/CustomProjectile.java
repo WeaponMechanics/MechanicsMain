@@ -836,7 +836,6 @@ public class CustomProjectile implements ICustomProjectile {
                 // After an EntityLiving dies, there is a delay before
                 // it's hitbox is removed. This check ensures projectiles
                 // aren't hitting "fake" hitboxes
-                // todo make this optional?
                 if (entity.isDead() || (entity.getType().isAlive() && ((LivingEntity) entity).getHealth() < 0.0001)) {
                     LivingEntity living = (LivingEntity) entity;
                     if (living.getHealth() <= 0.0) {

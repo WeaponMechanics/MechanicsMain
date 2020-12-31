@@ -28,8 +28,11 @@ public class Projectile implements Serializer<Projectile> {
     private Through through;
     private ProjectileMotion projectileMotion;
     private Sticky sticky;
+    private Bouncy bouncy;
 
-    public Projectile(@Nonnull ProjectileMotion projectileMotion, @Nullable EntityType projectileDisguise, float projectileWidth, float projectileHeight, @Nullable ItemStack projectileStack, @Nullable Through through, @Nullable Sticky sticky) {
+    public Projectile(@Nonnull ProjectileMotion projectileMotion, @Nullable EntityType projectileDisguise,
+                      float projectileWidth, float projectileHeight, @Nullable ItemStack projectileStack,
+                      @Nullable Through through, @Nullable Sticky sticky, @Nullable Bouncy bouncy) {
         this.projectileDisguise = projectileDisguise;
         if (projectileWidth <= 0) throw new IllegalArgumentException("Projectile width can't be 0 or less");
         if (projectileHeight <= 0) throw new IllegalArgumentException("Projectile height can't be 0 or less");
@@ -40,6 +43,7 @@ public class Projectile implements Serializer<Projectile> {
         if (projectileMotion == null) throw new IllegalArgumentException("Projectile motion can't be null!");
         this.projectileMotion = projectileMotion;
         this.sticky = sticky;
+        this.bouncy = bouncy;
     }
 
     /**
@@ -196,6 +200,7 @@ public class Projectile implements Serializer<Projectile> {
         ProjectileMotion projectileMotion = new ProjectileMotion().serialize(file, configurationSection, path + ".Projectile_Motion");
         Through through = new Through().serialize(file, configurationSection, path + ".Through");
         Sticky sticky = new Sticky().serialize(file, configurationSection, path + ".Sticky");
-        return new Projectile(projectileMotion, projectileType, width, height, projectileItem, through, sticky);
+        Bouncy bouncy = new Bouncy().serialize(file, configurationSection, path + ".Bouncy");
+        return new Projectile(projectileMotion, projectileType, width, height, projectileItem, through, sticky, bouncy);
     }
 }
