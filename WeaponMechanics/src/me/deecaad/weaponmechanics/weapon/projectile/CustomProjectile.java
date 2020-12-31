@@ -460,7 +460,6 @@ public class CustomProjectile implements ICustomProjectile {
                                     location = stickedData.getNewLocation();
                                 }
                             }
-
                         }
                     }
                 }
@@ -668,16 +667,19 @@ public class CustomProjectile implements ICustomProjectile {
 
         Sticky sticky = projectile.getSticky();
         if (sticky != null) {
-            CollisionData first = blockCollisions.first();
+            for (CollisionData blockCollision : blockCollisions) {
 
-            Block block = first.getBlock();
-            if (sticky.canStick(block.getType(), block.getData())) {
-                if (stickedData != null || handleBlockHit(first)) {
-                    // Don't add sticked data
+                Block block = blockCollision.getBlock();
+                if (sticky.canStick(block.getType(), block.getData())) {
+
+                    // Only apply handle block hit if its known that this projectile is already going to be stick to this block
+                    if (stickedData != null || handleBlockHit(blockCollision)) {
+                        // Don't add sticked data
+                        return false;
+                    }
+                    stickedData = new StickedData(block.getLocation(), blockCollision.getHitLocation());
                     return false;
                 }
-                stickedData = new StickedData(block.getLocation(), first.getHitLocation());
-                return false;
             }
         }
 
@@ -728,16 +730,19 @@ public class CustomProjectile implements ICustomProjectile {
 
         Sticky sticky = projectile.getSticky();
         if (sticky != null) {
-            CollisionData first = entityCollisions.first();
+            for (CollisionData entityCollision : entityCollisions) {
 
-            LivingEntity livingEntity = first.getLivingEntity();
-            if (sticky.canStick(livingEntity.getType())) {
-                if (stickedData != null || handleEntityHit(first, motion.clone().divide(new Vector(motionLength, motionLength, motionLength)))) {
-                    // Don't add sticked data
+                LivingEntity livingEntity = entityCollision.getLivingEntity();
+                if (sticky.canStick(livingEntity.getType())) {
+
+                    // Only apply handle entity hit if its known that this projectile is already going to be stick to this entity
+                    if (stickedData != null || handleEntityHit(entityCollision, motion.clone().divide(new Vector(motionLength, motionLength, motionLength)))) {
+                        // Don't add sticked data
+                        return false;
+                    }
+                    stickedData = new StickedData(livingEntity, entityCollision.getHitLocation());
                     return false;
                 }
-                stickedData = new StickedData(livingEntity, first.getHitLocation());
-                return false;
             }
         }
 
