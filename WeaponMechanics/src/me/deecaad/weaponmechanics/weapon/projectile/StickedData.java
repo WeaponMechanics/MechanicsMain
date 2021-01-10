@@ -6,6 +6,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
+
 public class StickedData {
 
     private Location blockLocation;
@@ -25,6 +27,7 @@ public class StickedData {
         this.worldName = livingEntity.getWorld().getName();
     }
 
+    @Nullable
     public Vector getNewLocation() {
         if (livingEntity != null) {
             return livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity.getLocation().clone().add(relativeSpawnLocation).toVector();
@@ -36,10 +39,12 @@ public class StickedData {
         return blockLocation != null;
     }
 
+    @Nullable
     public LivingEntity getLivingEntity() {
         return livingEntity == null || livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity;
     }
 
+    @Nullable
     public Block getBlock() {
         if (blockLocation == null) return null;
         Block block = blockLocation.getBlock();

@@ -319,13 +319,14 @@ public class HitBox implements IValidator {
             for (int z = minZ; z <= maxZ; ++z) {
                 Chunk chunk = world.getChunkAt(x, z);
                 for (final Entity entity : chunk.getEntities()) {
-                    if (filter != null && filter.test(entity)) continue;
 
                     HitBox entityBox = projectileCompatibility.getHitBox(entity);
                     if (entityBox == null) continue; // entity is invulnerable or non alive
 
                     Vector hitLocation = collisionPoint(entityBox);
                     if (hitLocation == null) continue; // Null means that projectile hit box and entity hit box didn't collide
+
+                    if (filter != null && filter.test(entity)) continue;
 
                     return new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 }
