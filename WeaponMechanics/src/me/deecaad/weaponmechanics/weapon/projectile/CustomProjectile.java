@@ -17,6 +17,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -447,8 +448,6 @@ public class CustomProjectile implements ICustomProjectile {
             return false;
         }
 
-        motionLength = motion.length();
-
         double minimumSpeed = projectileMotion.getMinimumSpeed();
         double maximumSpeed = projectileMotion.getMaximumSpeed();
         if (minimumSpeed != -1.0 && motionLength < minimumSpeed) {
@@ -480,7 +479,7 @@ public class CustomProjectile implements ICustomProjectile {
             motionLength = motion.length();
         }
 
-        if (projectileDisguiseId != 0) projectileCompatibility.updateDisguise(this, this.location, this.motion, this.lastLocation);
+        updateDisguiseLocationAndMotion();
 
         lastLocation = location.clone();
 
@@ -512,6 +511,7 @@ public class CustomProjectile implements ICustomProjectile {
         if (projectileMotion.getGravity() != 0.0) {
             motion.setY(motion.getY() - projectileMotion.getGravity());
         }
+        motionLength = motion.length();
 
         return false;
     }
@@ -598,7 +598,9 @@ public class CustomProjectile implements ICustomProjectile {
 
         double x2 = lastBlock.getX() + 0.5, y2 = lastBlock.getY() + 0.5, z2 = lastBlock.getZ() + 0.5;
 
-        Vector normal = new Vector(x2, y2, z2).subtract(new Vector(x, y, z));
+        BlockFace normalFace = b.getFace(lastBlock);
+        // Multiply towards given normal face
+        Vector normal = hitLocation.clone().add(normalFace.getDirection()).normalize();
 
         Vector direction = reflect(motion, normal);
 
@@ -631,37 +633,19 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         Through through = projectile.getThrough();
-        Through.ThroughData blockThru = null;
-        if (through != null) {
-            blockThru = through.getBlocks();
+        if (through != null && through.getBlocks() != null) {
+            return through.handleBlockThrough(this, collisions, blockCollisions, motion);
         }
 
-        if (blockThru == null) {
-            // If this is true, that most likely means that block hit was cancelled
-            // That is why add ! to destroy projectile it would have returned false
-            return !handleBlockHit(blockCollisions.first());
-        }
-
-        int maxBlocksLeft = blockThru.getMaximumPassThroughs() - collisions.getBlockCollisions().size();
-        for (CollisionData block : blockCollisions) {
-
-            if (handleBlockHit(block)) {
+        // This code is only reached if none of the above were used
+        // Or for example or sticky wasn't valid
+        for (CollisionData blockCollision : blockCollisions) {
+            if (handleBlockHit(blockCollision)) {
                 // Returned true and that most likely means that block hit was cancelled, skipping...
                 continue;
             }
-
-            Block bukkitBlock = block.getBlock();
-            Through.ExtraThroughData extraThroughData = blockThru.getModifiers(bukkitBlock.getType(), bukkitBlock.getData());
-            if (extraThroughData == null) { // Projectile should die
-                return true;
-            }
-
-            motion.multiply(extraThroughData.getSpeedModifier());
-            collisions.getBlockCollisions().add(block);
-
-            if (--maxBlocksLeft < 0) { // Projectile should die
-                return true;
-            }
+            // Hit was not cancelled so projectile should now die
+            return true;
         }
         return false;
     }
@@ -684,36 +668,19 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         Through through = projectile.getThrough();
-        Through.ThroughData entityThru = null;
-        if (through != null) {
-            entityThru = through.getEntities();
+        if (through != null && through.getEntities() != null) {
+            return through.handleEntityThrough(this, collisions, entityCollisions, motion, normalizedDirection);
         }
 
-        if (entityThru == null) {
-            // If this is true, that most likely means that entity hit was cancelled
-            // That is why add ! to destroy projectile it would have returned false
-            return !handleEntityHit(entityCollisions.first(), motion.clone().divide(new Vector(motionLength, motionLength, motionLength)));
-        }
-
-        int maxEntitiesLeft = entityThru.getMaximumPassThroughs() - collisions.getEntityCollisions().size();
-        for (CollisionData entity : entityCollisions) {
-
-            if (handleEntityHit(entity, normalizedDirection)) {
+        // This code is only reached if none of the above were used
+        // Or for example or sticky wasn't valid
+        for (CollisionData entityCollision : entityCollisions) {
+            if (handleEntityHit(entityCollision, normalizedDirection)) {
                 // Returned true and that most likely means that entity hit was cancelled, skipping...
                 continue;
             }
-
-            Through.ExtraThroughData extraThroughData = entityThru.getModifiers(entity.getLivingEntity().getType());
-            if (extraThroughData == null) { // Projectile should die
-                return true;
-            }
-
-            motion.multiply(extraThroughData.getSpeedModifier());
-            collisions.getEntityCollisions().add(entity);
-
-            if (--maxEntitiesLeft < 0) { // Projectile should die
-                return true;
-            }
+            // Hit was not cancelled so projectile should now die
+            return true;
         }
         return false;
     }
