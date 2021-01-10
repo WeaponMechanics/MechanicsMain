@@ -614,7 +614,7 @@ public class CustomProjectile implements ICustomProjectile {
                 world.spawnParticle(Particle.CLOUD, new Vector(x, y, z).toLocation(world), 1, 0, 0, 0, 0.001);
 
                 // Normal's direction
-                world.spawnParticle(Particle.CRIT_MAGIC, new Vector(x, y, z).add(normal.clone().multiply(2.0)).toLocation(world), 1, 0, 0, 0, 0.001);
+                world.spawnParticle(Particle.CRIT_MAGIC, hitLocation.clone().add(normal.clone().multiply(2.0)).toLocation(world), 1, 0, 0, 0, 0.001);
 
                 // The hit location
                 world.spawnParticle(Particle.FLAME, hitLocation.toLocation(world), 1, 0, 0, 0, 0.001);
