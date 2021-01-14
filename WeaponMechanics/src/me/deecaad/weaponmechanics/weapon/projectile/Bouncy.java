@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
@@ -10,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.HashMap;
@@ -40,6 +40,35 @@ public class Bouncy implements Serializer<Bouncy> {
         this.entities = entities;
     }
 
+    public boolean handleBlockBounce() {
+        // todo
+        return false;
+    }
+
+    public boolean handleEntityBounce() {
+        // todo
+        return false;
+    }
+
+    public void reflectProjectile() {
+        // todo
+    }
+
+    public boolean hasBlocks() {
+        return bounceFromAnyBlock || blocks != null;
+    }
+
+    public boolean hasEntities() {
+        return bounceFromAnyEntity || entities != null;
+    }
+
+    public Vector reflect(Vector direction, Vector normal) {
+        double factor = -2.0 * normal.dot(direction);
+        return new Vector(factor * normal.getX() + direction.getX(),
+                factor * normal.getY() * direction.getY(),
+                factor * normal.getZ() + direction.getZ());
+    }
+
     @Override
     public String getKeyword() {
         return "Bouncy";
@@ -47,7 +76,7 @@ public class Bouncy implements Serializer<Bouncy> {
 
     @Override
     public Bouncy serialize(File file, ConfigurationSection configurationSection, String path) {
-        int maximumBounceAmount = configurationSection.getInt(path + ".Maximum_Bounce_Amount", 0);
+        int maximumBounceAmount = configurationSection.getInt(path + ".Maximum_Bounce_Amount", 2);
         boolean bounceFromAnyBlock = configurationSection.getBoolean(path + ".Blocks.Bounce_From_Any_Block");
         boolean bounceFromAnyEntity = configurationSection.getBoolean(path + ".Entities.Bounce_From_Any_Entity");
 

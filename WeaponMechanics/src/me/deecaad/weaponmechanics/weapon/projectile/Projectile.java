@@ -130,6 +130,13 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     /**
+     * @return the projectile bouncy settings
+     */
+    public Bouncy getBouncy() {
+        return bouncy;
+    }
+
+    /**
      * @return the projectile motion settings
      */
     public ProjectileMotion getProjectileMotion() {

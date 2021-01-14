@@ -46,7 +46,7 @@ public class Through implements Serializer<Through> {
             }
 
             Block bukkitBlock = block.getBlock();
-            Through.ExtraThroughData extraThroughData = blocks.getModifiers(bukkitBlock.getType(), bukkitBlock.getData());
+            ExtraThroughData extraThroughData = blocks.getModifiers(bukkitBlock.getType(), bukkitBlock.getData());
             if (extraThroughData == null) { // Projectile should die
                 return true;
             }
@@ -71,7 +71,7 @@ public class Through implements Serializer<Through> {
                 continue;
             }
 
-            Through.ExtraThroughData extraThroughData = entities.getModifiers(entity.getLivingEntity().getType());
+            ExtraThroughData extraThroughData = entities.getModifiers(entity.getLivingEntity().getType());
             if (extraThroughData == null) { // Projectile should die
                 return true;
             }

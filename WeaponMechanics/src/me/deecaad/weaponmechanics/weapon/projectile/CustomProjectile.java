@@ -38,7 +38,7 @@ public class CustomProjectile implements ICustomProjectile {
     private static final int maximumAliveTicks = 600;
 
     private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
-    private static DamageHandler damageHandler = new DamageHandler();
+    private static final DamageHandler damageHandler = new DamageHandler();
 
     // Just to identify CustomProjectile
     private static int ids = 1;
@@ -56,10 +56,11 @@ public class CustomProjectile implements ICustomProjectile {
     private double motionLength;
     private double distanceTravelled;
     private Location lastKnownAirLocation;
-    private Collisions collisions;
+    private Collisions throughCollisions;
+    private Collisions bouncyCollisions;
     private final HitBox projectileBox;
     private boolean dead;
-    private final Map<String, String> tags;
+    private Map<String, String> tags;
     private StickedData stickedData;
 
     private ItemStack weaponStack;
@@ -96,7 +97,6 @@ public class CustomProjectile implements ICustomProjectile {
         this.lastKnownAirLocation = location.clone();
         this.lastLocation = this.location.clone();
         this.motion = motion;
-        this.tags = new HashMap<>();
 
         projectileBox = new HitBox(this.location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
 
@@ -106,7 +106,12 @@ public class CustomProjectile implements ICustomProjectile {
 
         if (projectile.getThrough() != null) {
             // Only required if through is used
-            this.collisions = new Collisions(new TreeSet<>(blockComparator), new TreeSet<>(entityComparator));
+            this.throughCollisions = new Collisions(new TreeSet<>(blockComparator), new TreeSet<>(entityComparator));
+        }
+
+        if (projectile.getBouncy() != null) {
+            // Only required if bouncy is used
+            this.bouncyCollisions = new Collisions(new TreeSet<>(blockComparator), new TreeSet<>(entityComparator));
         }
 
         if (projectile.getProjectileDisguise() != null) {
@@ -195,13 +200,16 @@ public class CustomProjectile implements ICustomProjectile {
 
     @Override
     public String getTag(String key) {
-        return this.tags.get(key);
+        return tags == null || tags.isEmpty() ? null : this.tags.get(key);
     }
 
     @Override
     public void setTag(String key, String value) {
         if (key == null) throw new IllegalArgumentException("Key can't be null");
         if (value == null) throw new IllegalArgumentException("Value can't be null");
+        if (this.tags == null) {
+            this.tags = new HashMap<>();
+        }
 
         this.tags.put(key, value);
     }
@@ -444,7 +452,7 @@ public class CustomProjectile implements ICustomProjectile {
             return true;
         }
 
-        if (stickedData != null && projectile.getSticky().updateProjectileLocation(this, location, lastLocation, collisions, projectileBox)) {
+        if (stickedData != null && projectile.getSticky().updateProjectileLocation(this, location, lastLocation, throughCollisions, projectileBox)) {
             return false;
         }
 
@@ -570,13 +578,6 @@ public class CustomProjectile implements ICustomProjectile {
                 factor * normal.getZ() + direction.getZ());
     }
 
-    /* from unity
-        public static Vector3 Reflect(Vector3 inDirection, Vector3 inNormal)
-    {
-      return -2f * Vector3.Dot(inNormal, inDirection) * inNormal + inDirection;
-    }
-    */
-
     /**
      * @param blockCollisions the list of all collisions to handle
      * @return true if projectile should die
@@ -634,7 +635,12 @@ public class CustomProjectile implements ICustomProjectile {
 
         Through through = projectile.getThrough();
         if (through != null && through.getBlocks() != null) {
-            return through.handleBlockThrough(this, collisions, blockCollisions, motion);
+            return through.handleBlockThrough(this, throughCollisions, blockCollisions, motion);
+        }
+
+        Bouncy bouncy = projectile.getBouncy();
+        if (bouncy != null && bouncy.hasBlocks()) {
+
         }
 
         // This code is only reached if none of the above were used
@@ -644,6 +650,8 @@ public class CustomProjectile implements ICustomProjectile {
                 // Returned true and that most likely means that block hit was cancelled, skipping...
                 continue;
             }
+
+
             // Hit was not cancelled so projectile should now die
             return true;
         }
@@ -669,7 +677,7 @@ public class CustomProjectile implements ICustomProjectile {
 
         Through through = projectile.getThrough();
         if (through != null && through.getEntities() != null) {
-            return through.handleEntityThrough(this, collisions, entityCollisions, motion, normalizedDirection);
+            return through.handleEntityThrough(this, throughCollisions, entityCollisions, motion, normalizedDirection);
         }
 
         // This code is only reached if none of the above were used
@@ -720,7 +728,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                     CollisionData blockCollision = new CollisionData(blockBox, hitLocation, block);
                     if (blockCollisions.contains(blockCollision) // if this iteration already once hit block
-                            || (collisions != null && collisions.contains(blockCollision))) { // if this projectile has already hit this block once
+                            || (throughCollisions != null && throughCollisions.contains(blockCollision))) { // if this projectile has already hit this block once
                         continue;
                     }
 
@@ -753,7 +761,7 @@ public class CustomProjectile implements ICustomProjectile {
 
                 CollisionData entityCollision = new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 if (entityCollisions.contains(entityCollision) // if this iteration already once hit entity
-                        || (collisions != null && collisions.contains(entityCollision))) { // if this projectile has already hit this entity once
+                        || (throughCollisions != null && throughCollisions.contains(entityCollision))) { // if this projectile has already hit this entity once
                     continue;
                 }
 
