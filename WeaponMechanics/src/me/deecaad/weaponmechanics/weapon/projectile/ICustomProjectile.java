@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -96,7 +95,7 @@ public interface ICustomProjectile {
     void setTag(@Nonnull String key, @Nonnull String value);
 
     /**
-     * @return true if projectile is marked for removal
+     * @return true if projectile is marked for removal or is already dead
      */
     boolean isDead();
 
@@ -141,19 +140,15 @@ public interface ICustomProjectile {
     Projectile getProjectileSettings();
 
     /**
-     * @return whether projectile is sticked to entity or block
-     */
-    boolean isSticked();
-
-    /**
-     * @return the sticked block
+     * @return the sticked data if this projectile is sticked to some entity or block
      */
     @Nullable
-    Block getStickedBlock();
+    StickedData getStickedData();
 
     /**
-     * @return the sticked entity
+     * Set new sticked data. If new sticked data is null, sticked data is removed
+     *
+     * @param stickedData the new sticked data
      */
-    @Nullable
-    LivingEntity getStickedEntity();
+    boolean setStickedData(@Nullable StickedData stickedData);
 }

@@ -6,14 +6,17 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -30,6 +33,57 @@ public class Through implements Serializer<Through> {
     public Through(ThroughData blocks, ThroughData entities) {
         this.blocks = blocks;
         this.entities = entities;
+    }
+
+    public boolean handleBlockThrough(CustomProjectile customProjectile, Collisions collisions,
+                                      SortedSet<CollisionData> blockCollisions, Vector motion) {
+        int maxBlocksLeft = blocks.getMaximumPassThroughs() - collisions.getBlockCollisions().size();
+        for (CollisionData block : blockCollisions) {
+
+            if (customProjectile.handleBlockHit(block)) {
+                // Returned true and that most likely means that block hit was cancelled, skipping...
+                continue;
+            }
+
+            Block bukkitBlock = block.getBlock();
+            ExtraThroughData extraThroughData = blocks.getModifiers(bukkitBlock.getType(), bukkitBlock.getData());
+            if (extraThroughData == null) { // Projectile should die
+                return true;
+            }
+
+            motion.multiply(extraThroughData.getSpeedModifier());
+            collisions.getBlockCollisions().add(block);
+
+            if (--maxBlocksLeft < 0) { // Projectile should die
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean handleEntityThrough(CustomProjectile customProjectile, Collisions collisions, SortedSet<CollisionData> entityCollisions,
+                                       Vector motion, Vector normalizedDirection) {
+        int maxEntitiesLeft = entities.getMaximumPassThroughs() - collisions.getEntityCollisions().size();
+        for (CollisionData entity : entityCollisions) {
+
+            if (customProjectile.handleEntityHit(entity, normalizedDirection)) {
+                // Returned true and that most likely means that entity hit was cancelled, skipping...
+                continue;
+            }
+
+            ExtraThroughData extraThroughData = entities.getModifiers(entity.getLivingEntity().getType());
+            if (extraThroughData == null) { // Projectile should die
+                return true;
+            }
+
+            motion.multiply(extraThroughData.getSpeedModifier());
+            collisions.getEntityCollisions().add(entity);
+
+            if (--maxEntitiesLeft < 0) { // Projectile should die
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

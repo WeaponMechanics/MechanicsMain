@@ -42,13 +42,17 @@ Projectile: <path to another Projectile key>
   Bouncy:
     Maximum_Bounce_Amount: <amount>
     Blocks:
+      Bounce_From_Any_Block: <true/false>
       Default_Speed_Modifier: <multiplier>
+      Default_Damage_Modifier: <amount>
       Whitelist: <true/false>
       List:
         - <Material>:<data>-<speed multiplier>-<damage modifier>
         - <etc.>
     Entities:
+      Bounce_From_Any_Entity: <true/false>
       Default_Speed_Modifier: <multiplier>
+      Default_Damage_Modifier: <amount>
       Whitelist: <true/false>
       List:
         - <EntityType>-<speed multiplier>-<damage modifier>
