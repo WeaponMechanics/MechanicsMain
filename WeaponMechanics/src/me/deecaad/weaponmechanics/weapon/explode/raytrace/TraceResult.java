@@ -12,7 +12,6 @@ public class TraceResult {
 
     private final Set<Entity> entities;
     private final Set<Block> blocks;
-    // todo hit block face
 
     public TraceResult(@Nullable Entity entity, @Nullable Block block) {
         entities = Collections.singleton(entity);

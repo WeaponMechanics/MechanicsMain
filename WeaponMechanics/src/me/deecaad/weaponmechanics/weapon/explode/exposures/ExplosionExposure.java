@@ -70,8 +70,8 @@ public interface ExplosionExposure {
             return false;
         }
 
-        Ray ray = new Ray(origin.toVector(), between);
-        TraceResult result = ray.trace(origin.getWorld(), TraceCollision.BLOCK, 0.3);
+        Ray ray = new Ray(origin.toVector(), between, origin.getWorld());
+        TraceResult result = ray.trace(TraceCollision.BLOCK, 0.3);
 
         // If there are no blocks between the entity and the origin,
         // then the entity can see the origin

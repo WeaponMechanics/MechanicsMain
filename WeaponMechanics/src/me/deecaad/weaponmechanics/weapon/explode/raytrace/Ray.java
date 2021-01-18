@@ -15,20 +15,49 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.*;
 
 public class Ray {
+
+    private static final double FINE_ACCURACY = 0.03125;
+    private static Map<Vector, Vector> normalizedVectorMap = new HashMap<>(6);
+    private static final double[] ACCURACIES = new double[]{
+            0.03,
+            0.1,
+            0.3
+    };
+
+    static {
+        a(new Vector(FINE_ACCURACY, 0.0, 0.0));
+        a(new Vector(-FINE_ACCURACY, 0.0, 0.0));
+        a(new Vector(0.0, FINE_ACCURACY, 0.0));
+        a(new Vector(0.0, -FINE_ACCURACY, 0.0));
+        a(new Vector(0.0, 0.0, FINE_ACCURACY));
+        a(new Vector(0.0, 0.0, -FINE_ACCURACY));
+
+        for (Vector vector : normalizedVectorMap.keySet()) {
+            Vector normal = normalizedVectorMap.get(vector);
+
+            debug.warn(vector + " --> " + normal);
+        }
+    }
+
+    private static void a(Vector vector) {
+        Vector normal = vector.clone().multiply(-1).normalize();
+        normalizedVectorMap.put(vector, normal);
+    }
 
     private final Vector origin;
     private final Vector direction;
     private final double directionLength;
+    private final World world;
 
-    public Ray(Vector origin, Vector direction) {
+    public Ray(@Nonnull Vector origin, @Nonnull Vector direction, @Nonnull World world) {
         this.origin = origin;
         this.direction = direction;
         this.directionLength = direction.length();
+        this.world = world;
 
-        this.direction.normalize();
+        this.direction.multiply(1.0 / directionLength);
     }
 
     /**
@@ -46,18 +75,13 @@ public class Ray {
         return origin.clone().add(direction.clone().multiply(at));
     }
 
-    public TraceResult trace(@Nonnull World world, @Nonnull TraceCollision collision, @Nonnegative double accuracy) {
-
-        // Determine the behavior of the ray trace
-        boolean isFirst = collision == BLOCK   || collision == ENTITY   || collision == BLOCK_OR_ENTITY;
-        boolean isBlock = collision == BLOCK   || collision == BLOCKS   || collision == BLOCK_OR_ENTITY;
-        boolean isEntity = collision == ENTITY || collision == ENTITIES || collision == BLOCK_OR_ENTITY;
+    public TraceResult trace(@Nonnull TraceCollision collision, @Nonnegative double accuracy) {
 
         Location loc = origin.toLocation(world);
         Map<Entity, HitBox> availableEntities = null;
 
         // Fill map with entities within radius
-        if (isEntity) {
+        if (collision.isEntity()) {
             availableEntities = new HashMap<>();
 
             for (Entity entity : world.getNearbyEntities(loc, directionLength, directionLength, directionLength)) {
@@ -67,7 +91,7 @@ public class Ray {
         }
 
         // Check if the map is empty
-        if (isEntity && !isBlock && availableEntities.isEmpty()) {
+        if (collision.isEntity() && !collision.isBlock() && availableEntities.isEmpty()) {
             return new TraceResult(new LinkedHashSet<>(0), null);
         }
 
@@ -75,12 +99,13 @@ public class Ray {
         LinkedHashSet<Block> blocks = new LinkedHashSet<>();
 
         debug.debug("Tracing " + directionLength + " blocks by " + accuracy);
+        main:
         for (double i = 0; i < directionLength; i += accuracy) {
 
             Vector point = getPoint(i);
 
             // Only do block calculations if needed
-            if (isBlock) {
+            if (collision.isBlock()) {
                 Block block = world.getBlockAt(point.getBlockX(), point.getBlockY(), point.getBlockZ());
 
                 // Filter out air blocks
@@ -92,7 +117,7 @@ public class Ray {
                         blocks.add(block);
 
                         // Break if the trace only needs to find 1 block
-                        if (isFirst) {
+                        if (collision.isFirst()) {
                             break;
                         }
                     }
@@ -100,8 +125,7 @@ public class Ray {
             }
 
             // Only do entity calculations if needed
-            if (isEntity) {
-                boolean isBreak = false;
+            if (collision.isEntity()) {
                 for (Map.Entry<Entity, HitBox> entry: availableEntities.entrySet()) {
                     Entity entity = entry.getKey();
                     HitBox hitbox = entry.getValue();
@@ -109,14 +133,11 @@ public class Ray {
                     if (contains(hitbox, point)) {
                         entities.add(entity);
 
-                        if (isFirst) {
-                            isBreak = true;
-                            break;
+                        if (collision.isFirst()) {
+                            break main;
                         }
                     }
                 }
-
-                if (isBreak) break;
             }
         }
 
