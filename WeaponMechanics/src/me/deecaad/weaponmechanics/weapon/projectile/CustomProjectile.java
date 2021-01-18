@@ -12,7 +12,9 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -25,9 +27,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
+import temp.Line;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
@@ -578,6 +588,85 @@ public class CustomProjectile implements ICustomProjectile {
                 factor * normal.getZ() + direction.getZ());
     }
 
+
+    private static BlockFace getNormal(CollisionData collision) {
+        HitBox hitBox = collision.getHitBox();
+        Vector hitLocation = collision.getHitLocation();
+
+        // todo Huge inaccuracies here -- This needs to be more accurate (Else this method fails on slabs,
+        //  end rods, and certain cases (hitting the blockface of the next block))
+        Vector relative = hitLocation.clone().subtract(hitBox.min);
+        double x = relative.getX();
+        double y = relative.getY();
+        double z = relative.getZ();
+
+        BlockFace hitFace = null;
+        double temp = Double.MAX_VALUE;
+
+        Bukkit.broadcastMessage(relative.toString());
+        if (x < temp) {
+            temp = x;
+            hitFace = BlockFace.WEST;
+        }
+        if (hitBox.getWidth() - x < temp) {
+            temp = hitBox.getWidth() - x;
+            hitFace = BlockFace.EAST;
+        }
+        if (y < temp) {
+            temp = y;
+            hitFace = BlockFace.DOWN;
+        }
+        if (hitBox.getHeight() - y < temp) {
+            temp = hitBox.getHeight() - y;
+            hitFace = BlockFace.UP;
+        }
+        if (z < temp) {
+            temp = z;
+            hitFace = BlockFace.NORTH;
+        }
+        if (hitBox.getDepth() - z < temp) {
+            hitFace = BlockFace.SOUTH;
+        }
+
+        return hitFace;
+    }
+
+    private enum Axis {
+        X {
+            @Override
+            public void flip(Vector vector) {
+                vector.setX(vector.getX() * -1);
+            }
+        },
+        Y {
+            @Override
+            public void flip(Vector vector) {
+                vector.setY(vector.getY() * -1);
+            }
+        },
+        Z {
+            @Override
+            public void flip(Vector vector) {
+                vector.setZ(vector.getZ() * -1);
+            }
+        };
+
+        abstract void flip(Vector vector);
+
+        public static Axis getHitAxis(BlockFace hitFace) {
+            switch (hitFace) {
+                case EAST: case WEST:
+                    return X;
+                case UP: case DOWN:
+                    return Y;
+                case NORTH: case SOUTH:
+                    return Z;
+                default:
+                    throw new IllegalArgumentException("CustomProjectile#getNormal returned a value it should not have");
+            }
+        }
+    }
+
     /**
      * @param blockCollisions the list of all collisions to handle
      * @return true if projectile should die
@@ -589,39 +678,41 @@ public class CustomProjectile implements ICustomProjectile {
 
         CollisionData f = blockCollisions.first();
         final Block b = f.getBlock();
-        final Vector hitLocation = f.getHitLocation().clone();
+        final Vector hitLocation = f.getHitLocation();
 
-        double x = b.getX() + 0.5, y = b.getY() + 0.5, z = b.getZ() + 0.5;
+        BlockFace hitBlockFace = getNormal(f);
+        Vector normal = hitBlockFace.getDirection();
 
-        Location lastBlockLocation = hitLocation.clone().add(motion.clone().normalize().multiply(-0.5)).toLocation(world);//location.toLocation(world);
-
-        Block lastBlock = world.getBlockAt(lastBlockLocation);
-
-        double x2 = lastBlock.getX() + 0.5, y2 = lastBlock.getY() + 0.5, z2 = lastBlock.getZ() + 0.5;
-
-        BlockFace normalFace = b.getFace(lastBlock);
-        // Multiply towards given normal face
-        Vector normal = hitLocation.clone().add(normalFace.getDirection()).normalize();
-
-        Vector direction = reflect(motion, normal);
+        Vector direction = motion /*reflect(motion, normal)*/;
+        Axis.getHitAxis(hitBlockFace).flip(direction);
 
         new BukkitRunnable() {
+
+            Particle.DustOptions red = new Particle.DustOptions(Color.RED, 0.5f);
+            Particle.DustOptions green = new Particle.DustOptions(Color.GREEN, 0.5f);
+            Particle.DustOptions blue = new Particle.DustOptions(Color.BLUE, 0.5f);
+
             public void run() {
+                Line line;
 
-                // Last block location
-                world.spawnParticle(Particle.HEART, new Location(world, x2, y2, z2), 1, 0, 0, 0, 0.001);
+                line = Line.between(hitLocation, lastLocation, 10);
+                for (Vector v : line) {
+                    world.spawnParticle(Particle.REDSTONE, v.getX(), v.getY(), v.getZ(), 1, 0, 0, 0, 0, red, true);
+                }
 
-                // Hit block location
-                world.spawnParticle(Particle.CLOUD, new Vector(x, y, z).toLocation(world), 1, 0, 0, 0, 0.001);
+                line = new Line(10);
+                line.setAxis(normal);
+                line.setOffset(hitLocation);
+                for (Vector v : line) {
+                    world.spawnParticle(Particle.REDSTONE, v.getX(), v.getY(), v.getZ(), 1, 0, 0, 0, 0, green, true);
+                }
 
-                // Normal's direction
-                world.spawnParticle(Particle.CRIT_MAGIC, hitLocation.clone().add(normal.clone().multiply(2.0)).toLocation(world), 1, 0, 0, 0, 0.001);
-
-                // The hit location
-                world.spawnParticle(Particle.FLAME, hitLocation.toLocation(world), 1, 0, 0, 0, 0.001);
-
-                // Reflection's direction
-                world.spawnParticle(Particle.CRIT, hitLocation.clone().add(direction.clone().multiply(2.0)).toLocation(world), 1, 0, 0, 0, 0.001);
+                line = new Line(10);
+                line.setAxis(direction);
+                line.setOffset(hitLocation);
+                for (Vector v : line) {
+                    world.spawnParticle(Particle.REDSTONE, v.getX(), v.getY(), v.getZ(), 1, 0, 0, 0, 0, blue, true);
+                }
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
 
@@ -747,10 +838,7 @@ public class CustomProjectile implements ICustomProjectile {
                 // it's hitbox is removed. This check ensures projectiles
                 // aren't hitting "fake" hitboxes
                 if (entity.isDead() || (entity.getType().isAlive() && ((LivingEntity) entity).getHealth() < 0.0001)) {
-                    LivingEntity living = (LivingEntity) entity;
-                    if (living.getHealth() <= 0.0) {
-                        continue;
-                    }
+                    continue;
                 }
 
                 HitBox entityBox = projectileCompatibility.getHitBox(entity);
