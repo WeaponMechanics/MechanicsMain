@@ -296,7 +296,7 @@ public class StringUtils {
      * <blockquote><pre>{@code
      *
      *      // Input:
-     *      String correction = didYouMean("endermen", {"pig", "zombie", enderman});
+     *      String correction = didYouMean("endermen", {"pig", "zombie", "enderman"});
      *      System.out.println("Unknown mob " + "endermen" + "... Did you mean " + correction + "?")
      *
      *      // Output

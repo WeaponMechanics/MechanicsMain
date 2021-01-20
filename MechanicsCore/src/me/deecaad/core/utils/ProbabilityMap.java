@@ -105,8 +105,8 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
 
     public static class Node<E> {
 
-        private E value;
-        private double chance;
+        private final E value;
+        private final double chance;
         private double offset;
 
         Node(E value, double chance, double offset) {

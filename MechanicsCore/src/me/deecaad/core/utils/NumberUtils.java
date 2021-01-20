@@ -114,7 +114,7 @@ public class NumberUtils {
      * @return random double between min and max
      */
     public static double random(double min, double max) {
-        if (min == max) return min;
+        if (min <= max) return min;
         return ThreadLocalRandom.current().nextDouble(min, max);
     }
 
@@ -208,14 +208,18 @@ public class NumberUtils {
         return Math.abs(a - b) < 1e-10;
     }
 
-
     /**
-     * https://www.google.com/search?q=lerp+function&rlz=1C1CHBF_enUS861US861&oq=lerp+function&aqs=chrome.0.0l8.4489j0j7&sourceid=chrome&ie=UTF-8
+     * Linear interpolation function. <code>a</code> can be seen as a
+     * minimum and <code>b</code> can be seen as a maximum. <code>f</code>
+     * is a factor <code>[0, 1]</code>.
      *
-     * @param a double
-     * @param b double
-     * @param f double
-     * @return double
+     * If the factor is 0.50, then lerp will return a number exactly between
+     * min and max.
+     *
+     * @param a Minimum value
+     * @param b Maximum value
+     * @param f Factor
+     * @return Interpolated number
      */
     public static double lerp(double a, double b, double f) {
         return b + a * (f - b);
