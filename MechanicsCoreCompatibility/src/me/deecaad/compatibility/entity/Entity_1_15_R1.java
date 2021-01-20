@@ -49,22 +49,6 @@ public class Entity_1_15_R1 implements EntityCompatibility {
         return ((CraftEntity) entity).getHandle().getId();
     }
 
-    public int ticksToHitGround(Object entity, int limit) {
-        if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_15_R1 Entity!");
-        }
-
-        Entity nms = (Entity) entity;
-        int counter = 0;
-
-        while (nms.isAlive() && counter < limit) {
-            nms.tick();
-            counter++;
-        }
-
-        return counter;
-    }
-
     @Override
     public Object getSpawnPacket(Object entity) {
         if (!(entity instanceof Entity)) {
@@ -73,7 +57,6 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
         if (entity instanceof EntityFallingBlock) {
             EntityFallingBlock block = (EntityFallingBlock) entity;
-            debug.debug(block.getMot().toString()); //
             return new PacketPlayOutSpawnEntity(block, Block.getCombinedId(block.getBlock()));
         }
 
@@ -236,7 +219,7 @@ public class Entity_1_15_R1 implements EntityCompatibility {
 
         // Create an anonymous falling block implementation that simplifies movement logic
         // in order to calculate the amount of ticks the falling block will live for.
-        EntityFallingBlock block = new EntityFallingBlock(world, loc.getX(), loc.getBlockY(), loc.getZ(), data) {
+        EntityFallingBlock block = new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), data) {
             @Override
             public void tick() {
                 ticksLived++;

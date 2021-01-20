@@ -27,17 +27,23 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  */
 public class DefaultExplosion implements ExplosionShape {
 
-    private static final int GRID_SIZE = 16; // 16 minecraft default
-    private static final int BOUND = GRID_SIZE - 1;
     private static final double DECAY_RATE = 0.3;
     private static final double ABSORB_RATE = 0.3;
 
     private float yield;
+    private int gridSize;
+    private int bound;
     
     public DefaultExplosion(double yield) {
-        this.yield = (float) yield;
+        this(yield, 16);
     }
-    
+
+    public DefaultExplosion(double yield, int gridSize) {
+        this.yield = (float) yield;
+        this.gridSize = gridSize;
+        this.bound = gridSize - 1;
+    }
+
     @Nonnull
     @Override
     public List<Block> getBlocks(@Nonnull Location origin) {
@@ -53,14 +59,14 @@ public class DefaultExplosion implements ExplosionShape {
 
         // Separates the explosion into a 16 by 16 by 16
         // grid.
-        for (int k = 0; k < GRID_SIZE; ++k) {
-            for (int i = 0; i < GRID_SIZE; ++i) {
-                for (int j = 0; j < GRID_SIZE; ++j) {
+        for (int k = 0; k < gridSize; ++k) {
+            for (int i = 0; i < gridSize; ++i) {
+                for (int j = 0; j < gridSize; ++j) {
 
                     // Checking if the the point defined by (k, i, j) is on the grid
-                    if (k == 0 || k == BOUND || i == 0 || i == BOUND || j == 0 || j == BOUND) {
+                    if (k == 0 || k == bound || i == 0 || i == bound || j == 0 || j == bound) {
 
-                        Vector vector = new Vector(((double) k) / BOUND * 2 - 1, ((double) i) / BOUND * 2 - 1, ((double) j) / BOUND * 2 - 1);
+                        Vector vector = new Vector(((double) k) / bound * 2 - 1, ((double) i) / bound * 2 - 1, ((double) j) / bound * 2 - 1);
                         vector.normalize();
 
                         double x = origin.getX();

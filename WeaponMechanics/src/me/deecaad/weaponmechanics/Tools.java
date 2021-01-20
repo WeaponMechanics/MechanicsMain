@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics;
 
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
@@ -9,26 +8,27 @@ import java.lang.reflect.Field;
 
 public class Tools {
 
-    private final Object a = "eyyyyy";
-    private static final Object b = "ohhhhhhhhh";
+    private final Object a = "before a";
+    private static final Object b = "before b";
 
     public static void main(String[] args) {
+        //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
+    }
 
+    private static void reflectionsTest() {
         Tools tools = new Tools();
         Field aField = ReflectionUtil.getField(Tools.class, "a");
         System.out.println(ReflectionUtil.invokeField(aField, tools));
-        ReflectionUtil.setField(aField, tools, "testing testing 123");
+        ReflectionUtil.setField(aField, tools, "After a");
         System.out.println(ReflectionUtil.invokeField(aField, tools));
 
         Field bField = ReflectionUtil.getField(Tools.class, "b");
         System.out.println(ReflectionUtil.invokeField(bField, null));
-        ReflectionUtil.setField(bField, null, "testing again");
+        ReflectionUtil.setField(bField, null, "After a");
         System.out.println(ReflectionUtil.invokeField(aField, null));
-
-        System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
     }
     
-    public static void entityHitBox() {
+    private static void entityHitBox() {
         EntityType[] types = EntityType.values();
         
         System.out.println("Entity_Hitboxes:");
@@ -44,7 +44,7 @@ public class Tools {
         }
     }
 
-    public static void blockDamageData() {
+    private static void blockDamageData() {
         System.out.println("        Block_List:");
         for (Material mat : Material.values()) {
             if (mat.isLegacy() || !mat.isBlock() || mat.isAir()) continue;

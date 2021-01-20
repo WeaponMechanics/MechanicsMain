@@ -85,7 +85,7 @@ public class NumberUtils {
      * Gets a random element from the given list
      *
      * @param list The list to pull from
-     * @param <T> The type of the array
+     * @param <T>  The type of the array
      * @return Random element from the list
      */
     public static <T> T random(List<T> list) {
@@ -141,9 +141,9 @@ public class NumberUtils {
      * Shorthand for calling both <code>Math.min</code> and
      * <code>Math.max</code>.
      *
-     * @param min The minimum number the value can be
+     * @param min   The minimum number the value can be
      * @param value The actual value to compare
-     * @param max The maximum number the value can be
+     * @param max   The maximum number the value can be
      * @return Whichever bound [min, max]
      */
     public static int minMax(int min, int value, int max) {
@@ -160,9 +160,9 @@ public class NumberUtils {
      * Shorthand for calling both <code>Math.min</code> and
      * <code>Math.max</code>.
      *
-     * @param min The minimum number the value can be
+     * @param min   The minimum number the value can be
      * @param value The actual value to compare
-     * @param max The maximum number the value can be
+     * @param max   The maximum number the value can be
      * @return Whichever bound [min, max]
      */
     public static float minMax(float min, float value, float max) {
@@ -179,9 +179,9 @@ public class NumberUtils {
      * Shorthand for calling both <code>Math.min</code> and
      * <code>Math.max</code>.
      *
-     * @param min The minimum number the value can be
+     * @param min   The minimum number the value can be
      * @param value The actual value to compare
-     * @param max The maximum number the value can be
+     * @param max   The maximum number the value can be
      * @return Whichever bound [min, max]
      */
     public static double minMax(double min, double value, double max) {

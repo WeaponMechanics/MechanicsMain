@@ -55,7 +55,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             shapeType = ExplosionShapeType.valueOf(shapeTypeName);
         } catch (IllegalArgumentException ex) {
             debug.log(LogLevel.ERROR, "The explosion shape \"" + shapeTypeName + "\" is invalid.",
-                    "Valid Shapes: " + Arrays.toString(ExplosionShapeType.values()),
+                    "Valid shapes: " + Arrays.toString(ExplosionShapeType.values()),
                     StringUtils.foundAt(file, path));
             return null;
         }
@@ -79,18 +79,18 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         double height = section.getDouble("Explosion_Type_Data.Height", 3.0);
         double width  = section.getDouble("Explosion_Type_Data.Width",  3.0);
         double radius = section.getDouble("Explosion_Type_Data.Radius", 3.0);
+        int rays = section.getInt("Explosion_Type_Data.Rays", 16);
 
-        // todo change depth to be positive... makes more sense that way
         if (depth > 0) depth *= -1;
 
-        String found = StringUtils.foundAt(file, path + ".Explosion_Type_Data");
+        String found = StringUtils.foundAt(file, path + ".Explosion_Type_Data.");
 
-        debug.validate(yield > 0, "Explosion Yield should be a positive number!", found);
-        debug.validate(angle > 0, "Explosion Angle should be a positive number!", found);
-        debug.validate(depth < 0, "Explosion depth should be a negative number!", found);
-        debug.validate(height > 0, "Explosion Height should be a positive number!", found);
-        debug.validate(width > 0, "Explosion Width should be a positive number!", found);
-        debug.validate(radius > 0, "Explosion Radius should be a positive number!", found);
+        debug.validate(yield > 0, "Explosion Yield should be a positive number!", found + "Yield");
+        debug.validate(angle > 0, "Explosion Angle should be a positive number!", found + "Angle");
+        debug.validate(height > 0, "Explosion Height should be a positive number!", found + "Depth");
+        debug.validate(width > 0, "Explosion Width should be a positive number!", found + "Width");
+        debug.validate(radius > 0, "Explosion Radius should be a positive number!", found + "Height");
+        debug.validate(rays > 0, "Explosion Rays should be a positive number!", found + "Rays");
 
         ExplosionShape shape;
         switch (shapeType) {
@@ -104,7 +104,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
                 shape = new ParabolicExplosion(depth, angle);
                 break;
             case DEFAULT:
-                shape = new DefaultExplosion(yield);
+                shape = new DefaultExplosion(yield, rays);
                 break;
             default:
                 throw new IllegalArgumentException("Something went wrong...");
@@ -161,9 +161,19 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             weaponTitle = null;
         }
 
+        double blockChance = section.getDouble("Block_Damage.Spawn_Falling_Block_Chance");
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
+        debug.validate(blockChance > 0.0 && blockChance <= 1.0, "Falling block spawn chance should be [0, 1]",
+                StringUtils.foundAt(file, path + "Block_Damage.Spawn_Falling_Block_Chance"));
 
-        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, 0.5, isKnockback);
+        // A weird check, but I (somehow) made this mistake. Thought it was worth checking for
+        if (blockDamage == null && regeneration != null) {
+            debug.error("Tried to use block regeneration for an explosion but blocks will not be broken.",
+                    "This is almost certainly a misconfiguration!", StringUtils.foundAt(file, path));
+        }
+
+        // Finally initialize the explosion
+        Explosion explosion = new Explosion(weaponTitle, shape, exposure, blockDamage, regeneration, triggers, delay, blockChance, isKnockback);
 
         if (section.contains("Cluster_Bomb")) {
 
@@ -197,6 +207,9 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
             int layers = section.getInt("Airstrike.Layers");
             int interval = section.getInt("Airstrike.Delay_Between_Layers");
+
+            debug.validate(LogLevel.WARN, max < 100, "WARNING: Found a large number in configurations", "This is not an error, but you should be careful.", StringUtils.foundAt(file, path + ".Airstrike.Maximum_Bombs"));
+            debug.validate(LogLevel.WARN, layers < 100, "WARNING: Found a large number in configurations", "This is not an error, but you should be careful.", StringUtils.foundAt(file, path + ".Airstrike.Layers"));
 
             explosion.new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval);
         }

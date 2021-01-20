@@ -19,6 +19,7 @@ the explosions to cause less lag.
       Depth: <Double>
       Width: <Double>
       Height: <Double>
+      Rays: <Integer>
     Detonation:
       Detonate_After_Ticks: <Ticks> 
       Impact_When:
@@ -43,6 +44,7 @@ the explosions to cause less lag.
       Delay_Between_Layers: <Integer>
     Block_Damage:
       Break_Blocks: <Boolean> 
+      Spawn_Falling_Block_Chance: <Double>
       Damage_Per_Hit: <Integer>
       Blacklist: <Boolean>
       Block_List:
@@ -71,7 +73,7 @@ can take a lot of resources to calculate, depending on which exposure type you s
 * `None`:
   * Most lightweight method.
   * Exposure is always `100%`.
-  * You should only use this if your server is super laggy due to explosions.
+  * You should only use this if your server is super laggy due to explosions (Even then, you should not use this!).
 
 #### `Explosion_Shape`:
 Determines the shape of the blocks that are blown up. Certain methods take less resources to calculate than others.
@@ -82,7 +84,7 @@ Determines the shape of the blocks that are blown up. Certain methods take less 
 * `Parabola`: 
   * Parabolic shaped explosion, takes the argument(s): `Depth`, `Angle`.
 * `Default`: 
-  * Replicates the [Vanilla_Explosion], takes the argument(s): `Yield`.
+  * Replicates the [Vanilla_Explosion], takes the argument(s): `Yield`, `Rays`.
 
 #### `Explosion_Type_Data`:
 The arguments taken by the shape of the explosion. Note, only arguments used from the explosion's shape will be used.
@@ -104,6 +106,13 @@ For example, `Explosion_Shape: SPHERE` will only use `Radius`.
   * How wide the explosion is.
 * `Height`:
   * How tall the explosion is.
+* `Rays`:
+  * How many rays are shot out of each block face.
+  * The default value that minecraft uses is 16
+    * The vanilla minecraft value **NEVER** changes, regardless of `yield`. You can change it here for lag reasons, or to allow larger explosions to look better
+    * If `Yield` is above ~10, then you should increase this number (To make explosions look better)
+    * If `Yield` is below ~5, then you should decrease this number (To help cause less lag)
+  * Here is a [wiki](https://minecraft.gamepedia.com/Explosion) explaining how this works
   
 Alright, I understand that is probably a bit confusing, so I suggest looking at [the examples]()
 for some help.
@@ -176,6 +185,10 @@ This will cause block calculations to be completely skipped, saving some resourc
 
 * `Break_Blocks`: 
   * True if you want blocks to break.
+* `Spawn_Falling_Block_Chance:`:
+  * The chance of spawning a falling block of the block that is broken.
+  * Setting this to `0.5` means that roughly half of the broken blocks will be "flung" up
+  * Note that these falling blocks are completely fake, and will not "break" your world in any way
 * `Damage_Per_Hit`: 
   * How much damage to deal to the block. Defaults to 1.
 * `Blacklist`:

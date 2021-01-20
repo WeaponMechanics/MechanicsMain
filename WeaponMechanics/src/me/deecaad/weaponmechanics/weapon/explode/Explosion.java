@@ -18,7 +18,6 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -39,9 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
-import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.FIRE;
-import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.GLOWING;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -191,7 +189,7 @@ public class Explosion {
 
         List<Block> transparent = new ArrayList<>();
         List<Block> solid = new ArrayList<>();
-        Map<FallingBlockWrapper, Vector> fallingBlocks = new HashMap<>();
+        Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>();
 
         // Separate the blocks to destroy into solid blocks (blocks that can be safely
         // removed without worry) and transparent blocks (blocks that are more likely
@@ -222,10 +220,11 @@ public class Explosion {
         @SuppressWarnings("unchecked")
         Iterable<Player> playersInView = (Collection<Player>) (Collection<?>) origin.getWorld().getNearbyEntities(origin, 100, 100, 100, entity -> entity.getType() == EntityType.PLAYER);
 
-        // Handl
-        for (Map.Entry<FallingBlockWrapper, Vector> entry : fallingBlocks.entrySet()) {
-            Object nms = entry.getKey().getEntity();
-            int removeTime = NumberUtils.minMax(0, entry.getKey().getTimeToHitGround(), 200);
+        // Handle falling blocks
+        for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
+            FallingBlockWrapper wrapper = entry.getKey().get();
+            Object nms = wrapper.getEntity();
+            int removeTime = NumberUtils.minMax(0, wrapper.getTimeToHitGround(), 200);
             Vector velocity = entry.getValue();
 
             if (removeTime == 0) continue;
@@ -234,13 +233,12 @@ public class Explosion {
             // to the player. The destroy packet is sent later, when the block
             // hits the ground. Sent to every player in view.
             Object spawn = entityCompatibility.getSpawnPacket(nms);
-            Object meta = entityCompatibility.getMetadataPacket(nms, true, GLOWING, FIRE);
+            Object meta = entityCompatibility.getMetadataPacket(nms);
             Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
             Object destroy = entityCompatibility.getDestroyPacket(nms);
 
             for (Player player : playersInView) {
 
-                Bukkit.broadcastMessage("Velocity " + velocity);
                 CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
 
                 new BukkitRunnable() {
@@ -291,11 +289,10 @@ public class Explosion {
         }
     }
 
-    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockWrapper, Vector> fallingBlocks) {
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks) {
 
         int timeOffset = regeneration == null ? -1 : regeneration.getTicksBeforeStart();
 
-        EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
             Block block = blocks.get(i);
@@ -305,20 +302,44 @@ public class Explosion {
                 time += (isAtOnce ? size : i) / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval();
             }
 
+            // Getting the state of the block BEFORE the block is broken is important,
+            // otherwise we are just getting an air block, which is useless
+            BlockState state = block.getState();
+
             if (blockDamage.damage(block, time) && NumberUtils.chance(blockChance)) {
 
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-                BlockState state = block.getState();
                 Vector velocity = loc.toVector().subtract(origin.toVector());
-                velocity.setY(2.2);
 
                 if (projectile != null) {
-                    projectile.getMotion().multiply(-1);
+                    Vector motion = projectile.getMotion().multiply(-1).normalize();
+                    velocity.add(motion);
                 }
 
-                FallingBlockWrapper wrapper = entityCompatibility.createFallingBlock(loc, state, velocity, 200);
-                fallingBlocks.put(wrapper, velocity);
+                // We want to store the data, and calculate the falling blocks later
+                // so the falling blocks don't interact with blocks that are going to be
+                // blown up (but aren't blown up yet by this explosion)
+                FallingBlockData data = new FallingBlockData(velocity, state, loc);
+                fallingBlocks.put(data, velocity);
             }
+        }
+    }
+
+    private static class FallingBlockData implements Supplier<FallingBlockWrapper> {
+
+        private final Vector velocity;
+        private final BlockState state;
+        private final Location loc;
+
+        FallingBlockData(Vector velocity, BlockState state, Location loc) {
+            this.velocity = velocity;
+            this.state = state;
+            this.loc = loc;
+        }
+
+        @Override
+        public FallingBlockWrapper get() {
+            return CompatibilityAPI.getEntityCompatibility().createFallingBlock(loc, state, velocity, 200);
         }
     }
 

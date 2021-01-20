@@ -57,7 +57,6 @@ public class Entity_1_16_R1 implements EntityCompatibility {
 
         if (entity instanceof EntityFallingBlock) {
             EntityFallingBlock block = (EntityFallingBlock) entity;
-            debug.debug(block.getMot().toString()); //
             return new PacketPlayOutSpawnEntity(block, Block.getCombinedId(block.getBlock()));
         }
 
@@ -220,7 +219,7 @@ public class Entity_1_16_R1 implements EntityCompatibility {
 
         // Create an anonymous falling block implementation that simplifies movement logic
         // in order to calculate the amount of ticks the falling block will live for.
-        EntityFallingBlock block = new EntityFallingBlock(world, loc.getX(), loc.getBlockY(), loc.getZ(), data) {
+        EntityFallingBlock block = new EntityFallingBlock(world, loc.getX(), loc.getY(), loc.getZ(), data) {
             @Override
             public void tick() {
                 ticksLived++;
