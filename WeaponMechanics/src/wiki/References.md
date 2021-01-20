@@ -18,11 +18,11 @@ to give the material "more data". For example, granite in 1.13 is `granite`, but
 Material names changed in the 1.13 update, so make sure you are using the correct list for your 
 version.
 
-**1.8**: https://www.digminecraft.com/lists/item_id_list_pc_1_8.php  
-**1.9**: https://www.digminecraft.com/lists/item_id_list_pc_1_9.php  
-**1.10**: https://www.digminecraft.com/lists/item_id_list_pc_1_10.php  
-**1.11**: https://www.digminecraft.com/lists/item_id_list_pc_1_11.php  
-**1.12**: https://www.digminecraft.com/lists/item_id_list_pc_1_12.php  
+**1.8**: https://helpch.at/docs/1.8.8/org/bukkit/Material.html  
+**1.9**: https://helpch.at/docs/1.9/org/bukkit/Material.html  
+**1.10**: https://helpch.at/docs/1.10/org/bukkit/Material.html   
+**1.11**: https://helpch.at/docs/1.11/org/bukkit/Material.html   
+**1.12**: https://helpch.at/docs/1.12/org/bukkit/Material.html  
 **1.13**: https://helpch.at/docs/1.13/org/bukkit/Material.html  
 **1.14**: https://helpch.at/docs/1.14/org/bukkit/Material.html  
 **1.15**: https://helpch.at/docs/1.15/org/bukkit/Material.html  
