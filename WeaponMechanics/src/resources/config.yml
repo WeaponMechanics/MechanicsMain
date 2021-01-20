@@ -108,8 +108,8 @@ Damage:
       DIAMOND: -0.05
       NETHERITE: -0.05
     Enchantments:
-      PROTECTION_ENVIRONMENTAL: -0.01
-      PROJECTILE_PROTECTION: -0.03
+      PROTECTION_ENVIRONMENTAL: -0.005
+      PROJECTILE_PROTECTION: -0.0175
   Movement:
     Sneaking: -0.01
     Walking: 0.025
