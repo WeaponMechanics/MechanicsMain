@@ -72,10 +72,11 @@ Recoil_Millis_Between_Rotations: 5
 # condition is then met for `-0.5`, the new rate is
 # `1.259`.
 Damage:
-  Minimum_Rate: 0.3
-  Maximum_Rate: 5.0
+  Minimum_Rate: 0.5
+  Maximum_Rate: 2.0
   Potions:
-    PotionTypeEnum: <Double>
+    DAMAGE_RESISTANCE: -0.05
+    WEAKNESS: 0.05
   Armor:
     HELMET:
       LEATHER: -0.01
@@ -83,26 +84,32 @@ Damage:
       CHAIN: -0.03
       IRON: -0.04
       DIAMOND: -0.05
+      NETHERITE: -0.05
+      TURTLE: -0.075
     CHESTPLATE:
-      LEATHER: 0.0
-      GOLD: 0.0
-      CHAIN: 0.0
-      IRON: 0.0
-      DIAMOND: 0.0
+      LEATHER: -0.01
+      GOLD: -0.02
+      CHAIN: -0.03
+      IRON: -0.04
+      DIAMOND: -0.05
+      NETHERITE: -0.05
     LEGGINS:
-      LEATHER: 0.0
-      GOLD: 0.0
-      CHAIN: 0.0
-      IRON: 0.0
-      DIAMOND: 0.0
+      LEATHER: -0.01
+      GOLD: -0.02
+      CHAIN: -0.03
+      IRON: -0.04
+      DIAMOND: -0.05
+      NETHERITE: -0.05
     BOOTS:
-      LEATHER: 0.0
-      GOLD: 0.0
-      CHAIN: 0.0
-      IRON: 0.0
-      DIAMOND: 0.0
+      LEATHER: -0.01
+      GOLD: -0.02
+      CHAIN: -0.03
+      IRON: -0.04
+      DIAMOND: -0.05
+      NETHERITE: -0.05
     Enchantments:
-      EnchantmentTypeEnum: <Double>
+      PROTECTION_ENVIRONMENTAL: -0.01
+      PROJECTILE_PROTECTION: -0.03
   Movement:
     Sneaking: -0.01
     Walking: 0.025
@@ -139,7 +146,7 @@ Explosions:
 #
 # HEAD, BODY, LEGS and FEET are percentages in range of 0 to 1. They MUST equal 1 in order to work.
 # Basically HEAD is some specific amount from top of player, then comes BODY, then LEGS and then FEET.
-# E.g.
+# E.x.
 # ZOMBIE:
 #   Horizontal_Entity: false # true mean that entity model is horizontal (head is in front of entity)
 #   HEAD: 0.25 # 25% from top of entity is considered as HEAD
