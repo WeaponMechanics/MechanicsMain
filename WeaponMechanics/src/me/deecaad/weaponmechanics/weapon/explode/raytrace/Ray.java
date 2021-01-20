@@ -10,41 +10,15 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Ray {
-
-    private static final double FINE_ACCURACY = 0.03125;
-    private static Map<Vector, Vector> normalizedVectorMap = new HashMap<>(6);
-    private static final double[] ACCURACIES = new double[]{
-            0.03,
-            0.1,
-            0.3
-    };
-
-    static {
-        a(new Vector(FINE_ACCURACY, 0.0, 0.0));
-        a(new Vector(-FINE_ACCURACY, 0.0, 0.0));
-        a(new Vector(0.0, FINE_ACCURACY, 0.0));
-        a(new Vector(0.0, -FINE_ACCURACY, 0.0));
-        a(new Vector(0.0, 0.0, FINE_ACCURACY));
-        a(new Vector(0.0, 0.0, -FINE_ACCURACY));
-
-        for (Vector vector : normalizedVectorMap.keySet()) {
-            Vector normal = normalizedVectorMap.get(vector);
-
-            debug.warn(vector + " --> " + normal);
-        }
-    }
-
-    private static void a(Vector vector) {
-        Vector normal = vector.clone().multiply(-1).normalize();
-        normalizedVectorMap.put(vector, normal);
-    }
 
     private final Vector origin;
     private final Vector direction;
@@ -76,6 +50,14 @@ public class Ray {
     }
 
     public TraceResult trace(@Nonnull TraceCollision collision, @Nonnegative double accuracy) {
+        return trace(collision, accuracy, null, null);
+    }
+
+    public TraceResult trace(@Nonnull TraceCollision collision,
+                             @Nonnegative double accuracy,
+                             @Nullable Predicate<Block> blockFilter,
+                             @Nullable Predicate<Entity> entityFilter
+    ) {
 
         Location loc = origin.toLocation(world);
         Map<Entity, HitBox> availableEntities = null;
@@ -86,6 +68,13 @@ public class Ray {
 
             for (Entity entity : world.getNearbyEntities(loc, directionLength, directionLength, directionLength)) {
                 HitBox box = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(entity);
+
+                if (box == null) {
+                    continue;
+                } else if (entityFilter != null && !entityFilter.test(entity)) {
+                    continue;
+                }
+
                 availableEntities.put(entity, box);
             }
         }
@@ -109,7 +98,7 @@ public class Ray {
                 Block block = world.getBlockAt(point.getBlockX(), point.getBlockY(), point.getBlockZ());
 
                 // Filter out air blocks
-                if (!block.isEmpty()) {
+                if (!block.isEmpty() && blockFilter.test(block)) {
 
                     // Check to see if the point is inside the block's hitbox
                     HitBox hitBox = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(block);

@@ -6,6 +6,7 @@ import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 
 public interface ExplosionExposure {
 
+    // 90 degree angle
     double FOV = Math.PI / 2.0;
 
     /**
@@ -71,7 +73,34 @@ public interface ExplosionExposure {
         }
 
         Ray ray = new Ray(origin.toVector(), between, origin.getWorld());
-        TraceResult result = ray.trace(TraceCollision.BLOCK, 0.3);
+        TraceResult result = ray.trace(TraceCollision.BLOCK_OR_ENTITY, 0.15, block -> {
+            Material mat = block.getType();
+            String name = mat.name();
+
+            // THIN_GLASS
+            // STAINED_GLASS_PANE
+            // GLASS
+            if (name.endsWith("GLASS") || name.endsWith("PANE")) {
+                return true;
+            }
+
+            // OAK_LEAVES
+            // LEAVES
+            else if (name.endsWith("LEAVES")) {
+                return true;
+            }
+
+            // BIRCH_FENCE_GATE
+            // OAK_FENCE
+            else if (name.endsWith("FENCE") || name.endsWith("FENCE_GATE")) {
+                return true;
+            } else if (name.equals("SLIME_BLOCK")) {
+                return true;
+            } else {
+                return false;
+            }
+
+        }, null);
 
         // If there are no blocks between the entity and the origin,
         // then the entity can see the origin
