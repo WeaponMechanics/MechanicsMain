@@ -3,6 +3,7 @@ package me.deecaad.weaponcompatibility.projectile;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
@@ -149,13 +150,20 @@ public class HitBox implements IValidator {
     public Vector collisionPoint(HitBox other) {
         if (!collides(other)) return null;
 
-        Vector thisCenter = getCenter();
-        Vector otherCenter = other.getCenter();
+        return getClosestPoint(other.getCenter());
+    }
 
-        Vector direction = otherCenter.clone().subtract(thisCenter).normalize();
-        direction.multiply(getWidth() - 0.3);
+    /**
+     * @param point the point
+     * @return the closest point between hit box and point vector
+     */
+    public Vector getClosestPoint(Vector point) {
 
-        return thisCenter.add(direction);
+        double cX = NumberUtils.minMax(min.getX(), point.getX(), max.getX());
+        double cY = NumberUtils.minMax(min.getY(), point.getY(), max.getY());
+        double cZ = NumberUtils.minMax(min.getZ(), point.getZ(), max.getZ());
+
+        return new Vector(cX, cY, cZ);
     }
 
     /**

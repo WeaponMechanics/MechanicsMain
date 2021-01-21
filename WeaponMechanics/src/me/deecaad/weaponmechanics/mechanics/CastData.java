@@ -21,7 +21,7 @@ public class CastData {
         this.caster = caster;
     }
 
-    public CastData(IEntityWrapper caster, String weaponTitle, ItemStack weaponStack) {
+    public CastData(IEntityWrapper caster, @Nullable String weaponTitle, @Nullable ItemStack weaponStack) {
         this.caster = caster;
         this.weaponTitle = weaponTitle;
         this.weaponStack = weaponStack;
