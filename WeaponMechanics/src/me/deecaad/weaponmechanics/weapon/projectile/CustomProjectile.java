@@ -8,13 +8,13 @@ import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -22,10 +22,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
-import temp.Line;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
@@ -576,85 +582,6 @@ public class CustomProjectile implements ICustomProjectile {
                 factor * normal.getZ() + direction.getZ());
     }
 
-
-    private static BlockFace getNormal(CollisionData collision) {
-        HitBox hitBox = collision.getHitBox();
-        Vector hitLocation = collision.getHitLocation();
-
-        // todo Huge inaccuracies here -- This needs to be more accurate (Else this method fails on slabs,
-        //  end rods, and certain cases (hitting the blockface of the next block))
-        Vector relative = hitLocation.clone().subtract(hitBox.min);
-        double x = relative.getX();
-        double y = relative.getY();
-        double z = relative.getZ();
-
-        BlockFace hitFace = null;
-        double temp = Double.MAX_VALUE;
-
-        Bukkit.broadcastMessage(relative.toString());
-        if (x < temp) {
-            temp = x;
-            hitFace = BlockFace.WEST;
-        }
-        if (hitBox.getWidth() - x < temp) {
-            temp = hitBox.getWidth() - x;
-            hitFace = BlockFace.EAST;
-        }
-        if (y < temp) {
-            temp = y;
-            hitFace = BlockFace.DOWN;
-        }
-        if (hitBox.getHeight() - y < temp) {
-            temp = hitBox.getHeight() - y;
-            hitFace = BlockFace.UP;
-        }
-        if (z < temp) {
-            temp = z;
-            hitFace = BlockFace.NORTH;
-        }
-        if (hitBox.getDepth() - z < temp) {
-            hitFace = BlockFace.SOUTH;
-        }
-
-        return hitFace;
-    }
-
-    private enum Axis {
-        X {
-            @Override
-            public void flip(Vector vector) {
-                vector.setX(vector.getX() * -1);
-            }
-        },
-        Y {
-            @Override
-            public void flip(Vector vector) {
-                vector.setY(vector.getY() * -1);
-            }
-        },
-        Z {
-            @Override
-            public void flip(Vector vector) {
-                vector.setZ(vector.getZ() * -1);
-            }
-        };
-
-        abstract void flip(Vector vector);
-
-        public static Axis getHitAxis(BlockFace hitFace) {
-            switch (hitFace) {
-                case EAST: case WEST:
-                    return X;
-                case UP: case DOWN:
-                    return Y;
-                case NORTH: case SOUTH:
-                    return Z;
-                default:
-                    throw new IllegalArgumentException("CustomProjectile#getNormal returned a value it should not have");
-            }
-        }
-    }
-
     /**
      * @param blockCollisions the list of all collisions to handle
      * @return true if projectile should die
@@ -663,47 +590,6 @@ public class CustomProjectile implements ICustomProjectile {
         if (blockCollisions.isEmpty()) {
             return false;
         }
-
-        CollisionData f = blockCollisions.first();
-        final Block b = f.getBlock();
-        final Vector hitLocation = f.getHitLocation();
-
-        BlockFace hitBlockFace = getNormal(f);
-        Vector normal = hitBlockFace.getDirection();
-
-        Vector direction = motion /*reflect(motion, normal)*/;
-        Axis.getHitAxis(hitBlockFace).flip(direction);
-
-        new BukkitRunnable() {
-
-            Particle.DustOptions red = new Particle.DustOptions(Color.RED, 0.5f);
-            Particle.DustOptions green = new Particle.DustOptions(Color.GREEN, 0.5f);
-            Particle.DustOptions blue = new Particle.DustOptions(Color.BLUE, 0.5f);
-
-            public void run() {
-                Line line;
-
-                line = Line.between(hitLocation, lastLocation, 10);
-                for (Vector v : line) {
-                    world.spawnParticle(Particle.REDSTONE, v.getX(), v.getY(), v.getZ(), 1, 0, 0, 0, 0, red, true);
-                }
-
-                line = new Line(10);
-                line.setAxis(normal);
-                line.setOffset(hitLocation);
-                for (Vector v : line) {
-                    world.spawnParticle(Particle.REDSTONE, v.getX(), v.getY(), v.getZ(), 1, 0, 0, 0, 0, green, true);
-                }
-
-                line = new Line(10);
-                line.setAxis(direction);
-                line.setOffset(hitLocation);
-                for (Vector v : line) {
-                    world.spawnParticle(Particle.REDSTONE, v.getX(), v.getY(), v.getZ(), 1, 0, 0, 0, 0, blue, true);
-                }
-            }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
-
 
         Sticky sticky = projectile.getSticky();
         if (sticky != null && stickedData == null && sticky.tryStickyToBlocks(this, blockCollisions)) {
@@ -719,7 +605,7 @@ public class CustomProjectile implements ICustomProjectile {
 
         Bouncy bouncy = projectile.getBouncy();
         if (bouncy != null && bouncy.hasBlocks()) {
-
+            bouncy.bounce(this, blockCollisions.first());
         }
 
         // This code is only reached if none of the above were used
@@ -757,6 +643,11 @@ public class CustomProjectile implements ICustomProjectile {
         Through through = projectile.getThrough();
         if (through != null && through.getEntities() != null) {
             return through.handleEntityThrough(this, throughCollisions, entityCollisions, motion, normalizedDirection);
+        }
+
+        Bouncy bouncy = projectile.getBouncy();
+        if (bouncy != null && bouncy.hasBlocks()) {
+            return bouncy.bounce(this, entityCollisions.first());
         }
 
         // This code is only reached if none of the above were used
