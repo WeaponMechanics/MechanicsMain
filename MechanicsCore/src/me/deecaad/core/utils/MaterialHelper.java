@@ -6,6 +6,9 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Made this into external class in case we decide to use XMaterial resource so its easier to start using it when we only have to modify this class
@@ -41,6 +44,58 @@ public class MaterialHelper {
             return new ItemStack(Material.valueOf(splitted[0].trim().toUpperCase()), 1, splitted.length > 1 ? Short.parseShort(splitted[1]) : 0);
         }
         return new ItemStack(Material.valueOf(itemstackString.trim().toUpperCase()));
+    }
+
+    /**
+     * Gets any materials associated with <code>input</code>. If the
+     * <code>input</code> contains a '$' character, then all materials
+     * that contain <code>input</code>
+     *
+     * @param input The input to search for materials
+     * @return The found materials
+     */
+    public static List<Material> parseMaterials(String input) {
+        input = input.trim().toUpperCase();
+
+        if (input.startsWith("$")) {
+
+            List<Material> materials = new ArrayList<>();
+            String base = input.substring(1);
+
+            for (Material mat : Material.values()) {
+                if (mat.name().contains(base)) {
+                    materials.add(mat);
+                }
+            }
+
+            return materials;
+
+        } else {
+            return Collections.singletonList(Enums.getIfPresent(Material.class, input).orElse(null));
+        }
+    }
+
+    /**
+     * Checks if the given <code>input</code> would match the given <code>mat</code>,
+     * if it were parsed in <code>parseMaterials</code>
+     *
+     * @see MaterialHelper#parseMaterials(String)
+     *
+     * @param mat The material
+     * @param input The input
+     * @return True if the arguments match
+     */
+    public static boolean matches(Material mat, String input) {
+        input = input.trim().toUpperCase();
+
+        if (input.startsWith("$")) {
+
+            String base = input.substring(1);
+            return mat.name().contains(base);
+
+        } else {
+            return mat.name().equals(input.trim().toUpperCase());
+        }
     }
 
     public static float getBlastResistance(Material type) {

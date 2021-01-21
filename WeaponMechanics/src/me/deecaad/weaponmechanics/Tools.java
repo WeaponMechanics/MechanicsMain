@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics;
 
+import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -13,6 +14,8 @@ public class Tools {
 
     public static void main(String[] args) {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
+
+        System.out.println(MaterialHelper.parseMaterials("$LOG"));
     }
 
     private static void reflectionsTest() {
