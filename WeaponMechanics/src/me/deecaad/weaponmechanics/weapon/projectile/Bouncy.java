@@ -5,8 +5,8 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
-import me.deecaad.weaponcompatibility.projectile.HitBox;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -55,10 +55,21 @@ public class Bouncy implements Serializer<Bouncy> {
             return true;
         }
 
-        Axis axis = getNormal(collision);
-        if (axis != null) {
+        BlockFace hitFace = collision.getBlockFace();
+        if (hitFace != null) {
             Vector motion = projectile.getMotion();
-            axis.flip(motion);
+
+            switch (hitFace) {
+                case UP: case DOWN:
+                    motion.setY(-motion.getY());
+                    break;
+                case EAST: case WEST:
+                    motion.setX(-motion.getX());
+                    break;
+                case NORTH: case SOUTH:
+                    motion.setZ(-motion.getZ());
+            }
+
 
             // The motion's length stays the same, so some method to
             // modify the raw value would improve bounce performance
@@ -68,68 +79,6 @@ public class Bouncy implements Serializer<Bouncy> {
         }
 
         return false;
-    }
-
-    private static Axis getNormal(CollisionData collision) {
-        if (collision == null) return null;
-
-        HitBox hitBox = collision.getHitBox();
-        Vector hitLocation = collision.getHitLocation();
-
-        Vector relative = hitLocation.clone().subtract(hitBox.min);
-        double x = relative.getX();
-        double y = relative.getY();
-        double z = relative.getZ();
-
-        Axis axis = null;
-        double temp = Double.MAX_VALUE;
-
-        if (x < temp) {
-            temp = x;
-            axis = Axis.X;
-        }
-        if (hitBox.getWidth() - x < temp) {
-            temp = hitBox.getWidth() - x;
-            axis = Axis.X;
-        }
-        if (y < temp) {
-            temp = y;
-            axis = Axis.Y;
-        }
-        if (hitBox.getHeight() - y < temp) {
-            temp = hitBox.getHeight() - y;
-            axis = Axis.Y;
-        }
-        if (z < temp) {
-            temp = z;
-            axis = Axis.Z;
-        }
-        if (hitBox.getDepth() - z < temp) {
-            axis = Axis.Z;
-        }
-
-        return axis;
-    }
-
-    private enum Axis {
-        X {
-            @Override
-            public void flip(Vector vector) {
-                vector.setX(vector.getX() * -1);
-            }
-        }, Y {
-            @Override
-            public void flip(Vector vector) {
-                vector.setY(vector.getY() * -1);
-            }
-        }, Z {
-            @Override
-            public void flip(Vector vector) {
-                vector.setZ(vector.getZ() * -1);
-            }
-        };
-
-        abstract void flip(Vector vector);
     }
 
     public boolean hasBlocks() {
