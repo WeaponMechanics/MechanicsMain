@@ -13,10 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
+import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -35,54 +32,37 @@ public class Through implements Serializer<Through> {
         this.entities = entities;
     }
 
-    public boolean handleBlockThrough(CustomProjectile customProjectile, Collisions collisions,
-                                      SortedSet<CollisionData> blockCollisions, Vector motion) {
-        int maxBlocksLeft = blocks.getMaximumPassThroughs() - collisions.getBlockCollisions().size();
-        for (CollisionData block : blockCollisions) {
+    /**
+     * @return true if projectile should die and did not go through
+     */
+    public boolean handleThrough(Collisions collisions, CollisionData collision, Vector motion) {
 
-            if (customProjectile.handleBlockHit(block)) {
-                // Returned true and that most likely means that block hit was cancelled, skipping...
-                continue;
-            }
+        ExtraThroughData extraThroughData;
+        Set<CollisionData> typeCollisions;
+        int maximumPassThroughs;
 
-            Block bukkitBlock = block.getBlock();
-            ExtraThroughData extraThroughData = blocks.getModifiers(bukkitBlock.getType(), bukkitBlock.getData());
-            if (extraThroughData == null) { // Projectile should die
-                return true;
-            }
-
-            motion.multiply(extraThroughData.getSpeedModifier());
-            collisions.getBlockCollisions().add(block);
-
-            if (--maxBlocksLeft < 0) { // Projectile should die
-                return true;
-            }
+        Block bukkitBlock = collision.getBlock();
+        if (bukkitBlock != null) {
+            extraThroughData = blocks.getModifiers(bukkitBlock.getType(), bukkitBlock.getData());
+            maximumPassThroughs = blocks.getMaximumPassThroughs();
+            typeCollisions = collisions.getBlockCollisions();
+        } else {
+            extraThroughData = entities.getModifiers(collision.getLivingEntity().getType());
+            maximumPassThroughs = entities.getMaximumPassThroughs();
+            typeCollisions = collisions.getEntityCollisions();
         }
-        return false;
-    }
 
-    public boolean handleEntityThrough(CustomProjectile customProjectile, Collisions collisions, SortedSet<CollisionData> entityCollisions,
-                                       Vector motion, Vector normalizedDirection) {
-        int maxEntitiesLeft = entities.getMaximumPassThroughs() - collisions.getEntityCollisions().size();
-        for (CollisionData entity : entityCollisions) {
-
-            if (customProjectile.handleEntityHit(entity, normalizedDirection)) {
-                // Returned true and that most likely means that entity hit was cancelled, skipping...
-                continue;
-            }
-
-            ExtraThroughData extraThroughData = entities.getModifiers(entity.getLivingEntity().getType());
-            if (extraThroughData == null) { // Projectile should die
-                return true;
-            }
-
-            motion.multiply(extraThroughData.getSpeedModifier());
-            collisions.getEntityCollisions().add(entity);
-
-            if (--maxEntitiesLeft < 0) { // Projectile should die
-                return true;
-            }
+        if (extraThroughData == null || maximumPassThroughs - typeCollisions.size() < 0) { // Projectile should die
+            typeCollisions.add(collision);
+            return true;
         }
+
+        if (extraThroughData.getSpeedModifier() != 1.0) {
+            motion.multiply(extraThroughData.getSpeedModifier());
+        }
+
+        typeCollisions.add(collision);
+
         return false;
     }
 
@@ -303,7 +283,7 @@ public class Through implements Serializer<Through> {
         }
 
         /**
-         * @return the speed modifier or 0.0 if should not be used
+         * @return the speed modifier or 1.0 if should not be used
          */
         public double getSpeedModifier() {
             return speedModifier;

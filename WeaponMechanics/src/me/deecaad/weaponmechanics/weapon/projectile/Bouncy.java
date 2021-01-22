@@ -5,7 +5,9 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -16,6 +18,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -41,23 +44,37 @@ public class Bouncy implements Serializer<Bouncy> {
         this.entities = entities;
     }
 
-    public boolean bounce(ICustomProjectile projectile, CollisionData collision) {
-
-        String tag = projectile.getTag("bounce-counter");
-        int bounceCounter = 0;
-        if (tag != null) {
-            bounceCounter = Integer.parseInt(tag);
+    /**
+     * @return true if projectile bounced
+     */
+    public boolean handleBounce(CustomProjectile projectile, Collisions collisions, CollisionData collision, Vector motion) {
+        if (projectile.getMotionLength() < REQUIRED_MOTION_TO_BOUNCE) {
+            return false;
         }
 
-        if (bounceCounter < maximumBounceAmount) {
-            return true;
-        } else if (projectile.getMotionLength() < REQUIRED_MOTION_TO_BOUNCE) {
-            return true;
+        ExtraBouncyData extraBouncyData;
+        Set<CollisionData> typeCollisions;
+
+        Block bukkitBlock = collision.getBlock();
+        if (bukkitBlock != null) {
+            extraBouncyData = blocks.getModifiers(bukkitBlock.getType(), bukkitBlock.getData());
+            typeCollisions = collisions.getBlockCollisions();
+        } else {
+            extraBouncyData = entities.getModifiers(collision.getLivingEntity().getType());
+            typeCollisions = collisions.getEntityCollisions();
+        }
+
+        if (extraBouncyData == null || maximumBounceAmount - collisions.getBlockCollisions().size() - collisions.getEntityCollisions().size() < 0) { // Projectile should die
+            typeCollisions.add(collision);
+            return false;
+        }
+
+        if (extraBouncyData.getSpeedModifier() != 1.0) {
+            motion.multiply(extraBouncyData.getSpeedModifier());
         }
 
         BlockFace hitFace = collision.getBlockFace();
         if (hitFace != null) {
-            Vector motion = projectile.getMotion();
 
             switch (hitFace) {
                 case UP: case DOWN:
@@ -69,16 +86,11 @@ public class Bouncy implements Serializer<Bouncy> {
                 case NORTH: case SOUTH:
                     motion.setZ(-motion.getZ());
             }
-
-
-            // The motion's length stays the same, so some method to
-            // modify the raw value would improve bounce performance
-            projectile.setMotion(motion);
-            bounceCounter++;
-            projectile.setTag("bounce-counter", String.valueOf(bounceCounter));
         }
 
-        return false;
+        typeCollisions.add(collision);
+
+        return true;
     }
 
     public boolean hasBlocks() {
@@ -87,13 +99,6 @@ public class Bouncy implements Serializer<Bouncy> {
 
     public boolean hasEntities() {
         return bounceFromAnyEntity || entities != null;
-    }
-
-    public Vector reflect(Vector direction, Vector normal) {
-        double factor = -2.0 * normal.dot(direction);
-        return new Vector(factor * normal.getX() + direction.getX(),
-                factor * normal.getY() * direction.getY(),
-                factor * normal.getZ() + direction.getZ());
     }
 
     @Override
@@ -261,7 +266,7 @@ public class Bouncy implements Serializer<Bouncy> {
         }
 
         /**
-         * @return the speed modifier or 0.0 if should not be used
+         * @return the speed modifier or 1.0 if should not be used
          */
         public double getSpeedModifier() {
             return speedModifier;
@@ -273,5 +278,7 @@ public class Bouncy implements Serializer<Bouncy> {
         public double getDamageModifier() {
             return damageModifier;
         }
+
+
     }
 }

@@ -1,29 +1,28 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.utils.NumberUtils;
-import org.bukkit.Bukkit;
 
 import java.util.Iterator;
-import java.util.SortedSet;
+import java.util.Set;
 
 /**
  * Class to hold all collisions
  */
 public class Collisions {
 
-    private final SortedSet<CollisionData> blockCollisions;
-    private final SortedSet<CollisionData> entityCollisions;
+    private final Set<CollisionData> blockCollisions;
+    private final Set<CollisionData> entityCollisions;
 
-    public Collisions(SortedSet<CollisionData> blockCollisions, SortedSet<CollisionData> entityCollisions) {
+    public Collisions(Set<CollisionData> blockCollisions, Set<CollisionData> entityCollisions) {
         this.blockCollisions = blockCollisions;
         this.entityCollisions = entityCollisions;
     }
 
-    public SortedSet<CollisionData> getBlockCollisions() {
+    public Set<CollisionData> getBlockCollisions() {
         return blockCollisions;
     }
 
-    public SortedSet<CollisionData> getEntityCollisions() {
+    public Set<CollisionData> getEntityCollisions() {
         return entityCollisions;
     }
 
@@ -36,7 +35,7 @@ public class Collisions {
         while (iterator.hasNext()) {
             CollisionData old = iterator.next();
             if (old.equals(collisionData)) {
-                return !NumberUtils.hasMillisPassed(old.getHitTime(), 1000);
+                return !NumberUtils.hasMillisPassed(old.getHitTime(), 500);
             }
         }
         return false;
