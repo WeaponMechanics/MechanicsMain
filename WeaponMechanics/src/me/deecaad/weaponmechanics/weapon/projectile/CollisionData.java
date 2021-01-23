@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.weaponcompatibility.projectile.HitBox;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
@@ -103,8 +102,6 @@ public class CollisionData {
             double z = relative.getZ();
 
             double temp = Double.MAX_VALUE;
-
-            Bukkit.broadcastMessage(relative.toString());
             if (x < temp) {
                 temp = x;
                 blockFace = BlockFace.WEST;

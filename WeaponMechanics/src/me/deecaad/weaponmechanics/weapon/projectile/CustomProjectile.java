@@ -24,14 +24,7 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
@@ -66,6 +59,7 @@ public class CustomProjectile implements ICustomProjectile {
     private boolean dead;
     private Map<String, String> tags;
     private StickedData stickedData;
+    private boolean justBounced;
 
     private ItemStack weaponStack;
     private String weaponTitle;
@@ -101,8 +95,10 @@ public class CustomProjectile implements ICustomProjectile {
         this.lastKnownAirLocation = location.clone();
         this.lastLocation = this.location.clone();
         this.motion = motion;
+        this.motionLength = motion.length();
 
         projectileBox = new HitBox(this.location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
+        projectileBox.direction = motion.clone().divide(new Vector(this.motionLength, this.motionLength, this.motionLength));
 
         // These can't be static as comparators has to be used for last known air location of this custom projectile
         blockComparator = (o1, o2) -> (int) (o1.getBlock().getLocation().distanceSquared(lastKnownAirLocation) - o2.getBlock().getLocation().distanceSquared(lastKnownAirLocation));
@@ -110,16 +106,15 @@ public class CustomProjectile implements ICustomProjectile {
 
         if (projectile.getThrough() != null) {
             // Only required if through is used
-            this.throughCollisions = new Collisions(new TreeSet<>(blockComparator), new TreeSet<>(entityComparator));
+            this.throughCollisions = new Collisions(new HashSet<>(), new HashSet<>());
         }
 
         if (projectile.getBouncy() != null) {
             // Only required if bouncy is used
-            this.bouncyCollisions = new Collisions(new TreeSet<>(blockComparator), new TreeSet<>(entityComparator));
+            this.bouncyCollisions = new Collisions(new HashSet<>(), new HashSet<>());
         }
 
         if (projectile.getProjectileDisguise() != null) {
-            motionLength = motion.length();
             projectileCompatibility.spawnDisguise(this, this.location, this.motion);
         }
     }
@@ -191,6 +186,10 @@ public class CustomProjectile implements ICustomProjectile {
         if (motion == null) throw new IllegalArgumentException("Motion can't be null");
         this.motion = motion;
         this.motionLength = motion.length();
+    }
+
+    public void setRawMotion(Vector motion) {
+        this.motion = motion;
     }
 
     @Override
@@ -436,7 +435,7 @@ public class CustomProjectile implements ICustomProjectile {
             return true;
         }
 
-        if (stickedData != null && projectile.getSticky().updateProjectileLocation(this, location, lastLocation, throughCollisions, projectileBox)) {
+        if (stickedData != null && projectile.getSticky().updateProjectileLocation(this, location, lastLocation, throughCollisions, bouncyCollisions, projectileBox)) {
             return false;
         }
 
@@ -520,12 +519,15 @@ public class CustomProjectile implements ICustomProjectile {
     private boolean handleCollisions() {
         // Pre calculate the motion to add for location on each iteration
         // First normalize motion and then multiply
-        Vector addMotion = motion.clone().divide(new Vector(motionLength, motionLength, motionLength)).multiply(projectile.getProjectileWidth());
+        Vector normalizedMotion = motion.clone().divide(new Vector(motionLength, motionLength, motionLength));
 
         projectileBox.update(location, projectile.getProjectileWidth(), projectile.getProjectileHeight());
+        projectileBox.direction = normalizedMotion.clone();
+
+        Vector addMotion = normalizedMotion.multiply(projectile.getProjectileWidth());
 
         for (double travelled = 0.0; travelled <= motionLength; travelled += projectile.getProjectileWidth()) {
-            Collisions iteration = getCollisions(projectileBox);
+            Set<CollisionData>[] iteration = getCollisions(projectileBox);
 
             if (iteration == null) {
                 projectileBox.shift(addMotion);
@@ -534,12 +536,17 @@ public class CustomProjectile implements ICustomProjectile {
                 continue;
             }
 
-            if (handleEntityHits(iteration.getEntityCollisions())
-                    || handleBlockHits(iteration.getBlockCollisions())) {
+            if (handleEntityHits(iteration[1])
+                    || handleBlockHits(iteration[0])) {
 
                 if (stickedData != null) {
                     // Projectile was only sticked to block or entity,
-                    // Meaning that we don't want to kill it
+                    // Meaning that we don't want to kill it (this method should return false
+                    break;
+                }
+
+                if (justBounced) {
+                    justBounced = false;
                     break;
                 }
 
@@ -555,50 +562,50 @@ public class CustomProjectile implements ICustomProjectile {
         return false;
     }
 
-    public Vector reflect(Vector direction, Vector normal) {
-        double factor = -2.0 * normal.dot(direction);
-        return new Vector(factor * normal.getX() + direction.getX(),
-                factor * normal.getY() * direction.getY(),
-                factor * normal.getZ() + direction.getZ());
-    }
-
     /**
      * @param blockCollisions the list of all collisions to handle
      * @return true if projectile should die
      */
-    private boolean handleBlockHits(SortedSet<CollisionData> blockCollisions) {
+    private boolean handleBlockHits(Set<CollisionData> blockCollisions) {
         if (blockCollisions.isEmpty()) {
             return false;
         }
-
         Sticky sticky = projectile.getSticky();
-        if (sticky != null && stickedData == null && sticky.tryStickyToBlocks(this, blockCollisions)) {
-            // Make this return true, but don't actually kill get projectile
-            // Just to be able to break this properly in handleCollisions method with extra sticked check
-            return true;
-        }
-
         Through through = projectile.getThrough();
-        if (through != null && through.getBlocks() != null) {
-            return through.handleBlockThrough(this, throughCollisions, blockCollisions, motion);
-        }
-
         Bouncy bouncy = projectile.getBouncy();
-        if (bouncy != null && bouncy.hasBlocks()) {
-            bouncy.bounce(this, blockCollisions.first());
-        }
 
-        // This code is only reached if none of the above were used
-        // Or for example or sticky wasn't valid
         for (CollisionData blockCollision : blockCollisions) {
+
             if (handleBlockHit(blockCollision)) {
                 // Returned true and that most likely means that block hit was cancelled, skipping...
                 continue;
             }
 
+            // First try sticky
+            if (sticky != null && stickedData == null && sticky.handleSticky(this, blockCollision)) {
+                // Make this return true, but don't actually kill get projectile
+                // Just to be able to break this properly in handleCollisions method with extra sticked check
+                return true;
+            }
 
-            // Hit was not cancelled so projectile should now die
+            // Then try through
+            if (through != null && through.getBlocks() != null) {
+                if (!through.handleThrough(throughCollisions, blockCollision, motion)) {
+                    // Continue since projectile went through this block
+                    // -> No need for bouncy check as this block should be ignored...
+                    continue;
+                }
+            }
+
+            // Then try bouncy
+            if (bouncy != null && bouncy.hasBlocks() && bouncy.handleBounce(this, bouncyCollisions, blockCollision, motion)) {
+                justBounced = true;
+                return true;
+            }
+
+            // Projectile should die if code reaches this point
             return true;
+
         }
         return false;
     }
@@ -607,38 +614,48 @@ public class CustomProjectile implements ICustomProjectile {
      * @param entityCollisions the list of all collisions to handle
      * @return true if projectile should die
      */
-    private boolean handleEntityHits(SortedSet<CollisionData> entityCollisions) {
+    private boolean handleEntityHits(Set<CollisionData> entityCollisions) {
         if (entityCollisions.isEmpty()) {
             return false;
         }
         Vector normalizedDirection = motion.clone().divide(new Vector(motionLength, motionLength, motionLength));
 
         Sticky sticky = projectile.getSticky();
-        if (sticky != null && stickedData == null && sticky.tryStickyToEntities(this, entityCollisions, normalizedDirection)) {
-            // Make this return true, but don't actually kill get projectile
-            // Just to be able to break this properly in handleCollisions method with extra sticked check
-            return true;
-        }
-
         Through through = projectile.getThrough();
-        if (through != null && through.getEntities() != null) {
-            return through.handleEntityThrough(this, throughCollisions, entityCollisions, motion, normalizedDirection);
-        }
-
         Bouncy bouncy = projectile.getBouncy();
-        if (bouncy != null && bouncy.hasBlocks()) {
-            return bouncy.bounce(this, entityCollisions.first());
-        }
 
-        // This code is only reached if none of the above were used
-        // Or for example or sticky wasn't valid
         for (CollisionData entityCollision : entityCollisions) {
+
             if (handleEntityHit(entityCollision, normalizedDirection)) {
                 // Returned true and that most likely means that entity hit was cancelled, skipping...
                 continue;
             }
-            // Hit was not cancelled so projectile should now die
+
+            // First try sticky
+            if (sticky != null && stickedData == null && sticky.handleSticky(this, entityCollision)) {
+                // Make this return true, but don't actually kill get projectile
+                // Just to be able to break this properly in handleCollisions method with extra sticked check
+                return true;
+            }
+
+            // Then try through
+            if (through != null && through.getEntities() != null) {
+                if (!through.handleThrough(throughCollisions, entityCollision, motion)) {
+                    // Continue since projectile went through this entity
+                    // -> No need for bouncy check as this entity should be ignored...
+                    continue;
+                }
+            }
+
+            // Then try bouncy
+            if (bouncy != null && bouncy.hasEntities() && bouncy.handleBounce(this, bouncyCollisions, entityCollision, motion)) {
+                justBounced = true;
+                return true;
+            }
+
+            // Projectile should die if code reaches this point
             return true;
+
         }
         return false;
     }
@@ -646,11 +663,12 @@ public class CustomProjectile implements ICustomProjectile {
     /**
      * Returns ALL collisions inside bounding box which are valid for projectile to hit.
      * This also sorts those collisions based on their distances to projectile.
+     * [0] blocks, [1] entities
      *
      * @param projectileBox the hit box of projectile
      * @return the collisions inside projectile hit box
      */
-    private Collisions getCollisions(HitBox projectileBox) {
+    private Set<CollisionData>[] getCollisions(HitBox projectileBox) {
 
         // First get all blocks and entities in bounding box and then sort them based on distance
 
@@ -678,7 +696,8 @@ public class CustomProjectile implements ICustomProjectile {
 
                     CollisionData blockCollision = new CollisionData(blockBox, hitLocation, block);
                     if (blockCollisions.contains(blockCollision) // if this iteration already once hit block
-                            || (throughCollisions != null && throughCollisions.contains(blockCollision))) { // if this projectile has already hit this block once
+                            || (throughCollisions != null && throughCollisions.contains(blockCollision)) // if this projectile has already hit this block once
+                            || (bouncyCollisions != null && bouncyCollisions.contains(blockCollision))) { // if this projectile has already hit this block once
                         continue;
                     }
 
@@ -693,22 +712,16 @@ public class CustomProjectile implements ICustomProjectile {
             for (final Entity entity : chunk.getEntities()) {
                 if (entity.getEntityId() == shooter.getEntityId()) continue;
 
-                // After an EntityLiving dies, there is a delay before
-                // it's hitbox is removed. This check ensures projectiles
-                // aren't hitting "fake" hitboxes
-                if (entity.isDead() || (entity.getType().isAlive() && ((LivingEntity) entity).getHealth() < 0.0001)) {
-                    continue;
-                }
-
                 HitBox entityBox = projectileCompatibility.getHitBox(entity);
-                if (entityBox == null) continue; // entity is invulnerable or non alive
+                if (entityBox == null) continue; // entity is invulnerable, non alive or dead
 
                 Vector hitLocation = projectileBox.collisionPoint(entityBox);
                 if (hitLocation == null) continue; // Null means that projectile hit box and entity hit box didn't collide
 
                 CollisionData entityCollision = new CollisionData(entityBox, hitLocation, (LivingEntity) entity);
                 if (entityCollisions.contains(entityCollision) // if this iteration already once hit entity
-                        || (throughCollisions != null && throughCollisions.contains(entityCollision))) { // if this projectile has already hit this entity once
+                        || (throughCollisions != null && throughCollisions.contains(entityCollision)) // if this projectile has already hit this entity once
+                            || (bouncyCollisions != null && bouncyCollisions.contains(entityCollision))) { // if this projectile has already hit this entity once
                     continue;
                 }
 
@@ -722,7 +735,8 @@ public class CustomProjectile implements ICustomProjectile {
             return null;
         }
 
-        return new Collisions(blockCollisions, entityCollisions);
+        //noinspection unchecked
+        return new Set[]{blockCollisions, entityCollisions};
     }
 
     /**

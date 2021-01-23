@@ -33,6 +33,7 @@ public class HitBox implements IValidator {
 
     public Vector min;
     public Vector max;
+    public Vector direction;
 
     public HitBox() { }
 
@@ -150,20 +151,11 @@ public class HitBox implements IValidator {
     public Vector collisionPoint(HitBox other) {
         if (!collides(other)) return null;
 
-        return getClosestPoint(other.getCenter());
-    }
+        Vector point = direction != null ? getCenter().add(direction.clone().multiply(-Math.max(getWidth(), getHeight()))) : getCenter();
 
-    /**
-     * @param point the point
-     * @return the closest point between hit box and point vector
-     */
-    public Vector getClosestPoint(Vector point) {
-
-        double cX = NumberUtils.minMax(min.getX(), point.getX(), max.getX());
-        double cY = NumberUtils.minMax(min.getY(), point.getY(), max.getY());
-        double cZ = NumberUtils.minMax(min.getZ(), point.getZ(), max.getZ());
-
-        return new Vector(cX, cY, cZ);
+        return new Vector(NumberUtils.minMax(other.min.getX(), point.getX(), other.max.getX()),
+                NumberUtils.minMax(other.min.getY(), point.getY(), other.max.getY()),
+                NumberUtils.minMax(other.min.getZ(), point.getZ(), other.max.getZ()));
     }
 
     /**
