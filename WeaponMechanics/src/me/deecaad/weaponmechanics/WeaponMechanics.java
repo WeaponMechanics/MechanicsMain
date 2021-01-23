@@ -60,7 +60,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,6 +76,7 @@ public class WeaponMechanics extends JavaPlugin {
     private static MainCommand mainCommand;
     private static WeaponHandler weaponHandler;
     private static UpdateChecker updateChecker;
+    private static CustomProjectilesRunnable customProjectilesRunnable;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -184,7 +188,7 @@ public class WeaponMechanics extends JavaPlugin {
         weaponHandler = new WeaponHandler();
 
         // Start custom projectile runnable
-        new CustomProjectilesRunnable().init(this, basicConfiguration.getBool("Async_Tasks.Projectile_Updates"));
+        customProjectilesRunnable = new CustomProjectilesRunnable(this);
 
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 5);
@@ -300,6 +304,13 @@ public class WeaponMechanics extends JavaPlugin {
         basicConfiguration = null;
         plugin = null;
         debug = null;
+    }
+
+    /**
+     * @return The BukkitRunnable holding the projectiles being ticked
+     */
+    public static CustomProjectilesRunnable getCustomProjectilesRunnable() {
+        return customProjectilesRunnable;
     }
 
     /**

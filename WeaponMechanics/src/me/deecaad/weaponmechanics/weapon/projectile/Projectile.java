@@ -5,6 +5,7 @@ import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -60,7 +61,7 @@ public class Projectile implements Serializer<Projectile> {
      */
     public ICustomProjectile shoot(LivingEntity entity, Location location, Vector motion) {
         CustomProjectile projectile = new CustomProjectile(this, entity, location, motion);
-        CustomProjectilesRunnable.addProjectile(projectile);
+        WeaponMechanics.getCustomProjectilesRunnable().addProjectile(projectile);
         return projectile;
     }
 
@@ -75,7 +76,7 @@ public class Projectile implements Serializer<Projectile> {
      */
     public ICustomProjectile shoot(LivingEntity entity, Location location, Vector motion, @Nullable ItemStack weaponStack, @Nullable String weaponTitle) {
         CustomProjectile projectile = new CustomProjectile(this, entity, location, motion, weaponStack, weaponTitle);
-        CustomProjectilesRunnable.addProjectile(projectile);
+        WeaponMechanics.getCustomProjectilesRunnable().addProjectile(projectile);
         return projectile;
     }
 
