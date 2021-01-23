@@ -87,7 +87,6 @@ public class Ray {
         LinkedHashSet<Entity> entities = new LinkedHashSet<>();
         LinkedHashSet<Block> blocks = new LinkedHashSet<>();
 
-        debug.debug("Tracing " + directionLength + " blocks by " + accuracy);
         main:
         for (double i = 0; i < directionLength; i += accuracy) {
 
@@ -98,7 +97,7 @@ public class Ray {
                 Block block = world.getBlockAt(point.getBlockX(), point.getBlockY(), point.getBlockZ());
 
                 // Filter out air blocks
-                if (!block.isEmpty() && blockFilter.test(block)) {
+                if (!block.isEmpty() && (blockFilter != null && !blockFilter.test(block))) {
 
                     // Check to see if the point is inside the block's hitbox
                     HitBox hitBox = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(block);

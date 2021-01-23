@@ -27,6 +27,10 @@ Explosion:
       - <Material>:<Data>~<Integer>
     Shots_To_Break_Blocks:
       - <Material>:<Data>~<Integer>
+  Regeneration:
+    Ticks_Before_Start: <Integer> # Amount of time before blocks can regenerate, in ticks
+    Max_Blocks_Per_Update: <Integer> # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
+    Ticks_Between_Updates: <Integer> # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
   Cluster_Bomb:
     Split_Projectile: <ProjectileSerializer> # The projectile to spawn for each split bomb, defaults to the shot projectile
     Projectile_Speed: <Double> # The speed to spawn the split projectiles at
@@ -42,7 +46,7 @@ Explosion:
     Maximum_Distance_From_Center: <Double> # How far away bombs can spawn from the center
     Layers: <Integer> # How many airstrikes to spawn in
     Delay_Between_Layers: <Integer> # The delay (in ticks) between volleys of bombs
-  Regeneration:
-    Ticks_Before_Start: <Integer> # Amount of time before blocks can regenerate, in ticks
-    Max_Blocks_Per_Update: <Integer> # The maximum number of blocks that can be regenerated at once, use 1-2 to avoid trapping players
-    Ticks_Between_Updates: <Integer> # Time between block regenerations. If this is set to 0, all blocks are regenerated at once
+  Flashbang:
+    Effect_Distance: <Double>
+    Mechanics: <MechanicsSerializer>
+  Mechanics: <MechanicsSerializer>

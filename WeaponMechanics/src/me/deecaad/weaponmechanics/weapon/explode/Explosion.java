@@ -4,11 +4,12 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.StringUtils;
 import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
@@ -16,15 +17,20 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
+import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -58,6 +64,7 @@ public class Explosion {
     private boolean isKnockback;
     private Optional<ClusterBomb> cluster;
     private Optional<AirStrike> airStrike;
+    private Optional<Flashbang> flashbang;
 
     public Explosion(@Nullable String weaponTitle,
                      @Nonnull ExplosionShape shape,
@@ -80,6 +87,7 @@ public class Explosion {
         this.isKnockback = isKnockback;
         this.cluster = Optional.empty();
         this.airStrike = Optional.empty();
+        this.flashbang = Optional.empty();
     }
 
     public String getWeaponTitle() {
@@ -166,6 +174,24 @@ public class Explosion {
         this.airStrike = Optional.ofNullable(airStrike);
     }
 
+    public Flashbang getFlashbang() {
+        return flashbang.orElse(null);
+    }
+
+    public void setFlashbang(Flashbang flashbang) {
+        this.flashbang = Optional.ofNullable(flashbang);
+    }
+
+    public void explode(LivingEntity cause, CollisionData collision, ICustomProjectile projectile) {
+        if (collision == null || collision.getBlock() == null) {
+            explode(cause, projectile.getLocation().toLocation(projectile.getWorld()), projectile);
+        } else {
+            BlockFace hitBlockFace = collision.getBlockFace();
+            Vector location = projectile.getLocation().subtract(hitBlockFace.getDirection().multiply(0.5));
+            explode(cause, location.toLocation(projectile.getWorld()), projectile);
+        }
+    }
+
     /**
      * Triggers the explosion at the given location
      *
@@ -173,6 +199,12 @@ public class Explosion {
      * @param origin The center of the explosion
      */
     public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
+
+        ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, this);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return;
+        }
 
         if (projectile != null && airStrike.isPresent() && !"true".equals(projectile.getTag("airstrike-bomb"))) {
             airStrike.get().trigger(origin, cause, projectile);
@@ -196,11 +228,9 @@ public class Explosion {
         // to get removed from block updates)
         // todo Check for redstone contraptions
         for (Block block : blocks) {
-            Material type = block.getType();
-
-            if (type.isSolid()) {
+            if (block.getType().isSolid()) {
                 solid.add(block);
-            } else if (!MaterialHelper.isAir(type)) {
+            } else if (!block.isEmpty()) {
                 transparent.add(block);
             }
         }
@@ -286,6 +316,7 @@ public class Explosion {
 
         if (projectile != null) {
             cluster.ifPresent(clusterBomb -> clusterBomb.trigger(projectile, cause, origin));
+            flashbang.ifPresent(flashbang1 -> flashbang1.trigger(origin, projectile.getWeaponStack()));
         }
     }
 
@@ -619,5 +650,83 @@ public class Explosion {
                 }
             }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, delay);
         }
+    }
+
+    public class Flashbang {
+
+        private double distance;
+        private double distanceSquared;
+        private Mechanics mechanics;
+
+        public Flashbang(double distance, Mechanics mechanics) {
+            this.distance = distance;
+            this.distanceSquared = distance * distance;
+            this.mechanics = mechanics;
+
+            setFlashbang(this);
+        }
+
+        public double getDistance() {
+            return distance;
+        }
+
+        public void setDistance(double distance) {
+            this.distance = distance;
+            this.distanceSquared = distance * distance;
+        }
+
+        public Mechanics getMechanics() {
+            return mechanics;
+        }
+
+        public void setMechanics(Mechanics mechanics) {
+            this.mechanics = mechanics;
+        }
+
+        /**
+         * Triggers this flashbang at this location, effecting all living entities
+         * in the radius <code>distance</code>
+         *
+         * @param origin The center of the flashbang
+         * @param weapon The weapon that caused the flashbang
+         */
+        public void trigger(Location origin, ItemStack weapon) {
+            @SuppressWarnings("unchecked")
+            Collection<LivingEntity> entities = (Collection<LivingEntity>) (Collection<?>) origin.getWorld().getNearbyEntities(origin, distance, distance, distance, entity -> entity.getType() == EntityType.PLAYER);
+            for (LivingEntity entity : entities) {
+                if (canEffect(origin, entity)) {
+                    effect(entity, weapon);
+                }
+            }
+        }
+
+        public boolean canEffect(Location origin, LivingEntity entity) {
+
+            // Check to make sure the entity is in the same world
+            // of the flashbang (This check is needed for the distance check)
+            if (origin.getWorld() != entity.getWorld()) {
+                return false;
+            }
+
+            Location eye = entity.getEyeLocation();
+            double distanceSquared = origin.distanceSquared(eye);
+
+            // Check to make sure the entity is within the flashbang's radius
+            if (this.distanceSquared < distanceSquared) {
+                return false;
+            }
+
+            // Check if the explosion exposure can effect the entity
+            return exposure.canSee(origin, entity);
+        }
+
+        public void effect(LivingEntity entity, ItemStack weapon) {
+            entity.sendMessage("FLASH");
+            if (mechanics != null) {
+                IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity);
+                mechanics.use(new CastData(wrapper, weaponTitle, weapon));
+            }
+        }
+
     }
 }

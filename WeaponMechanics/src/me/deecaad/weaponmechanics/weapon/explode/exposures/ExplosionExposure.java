@@ -60,9 +60,10 @@ public interface ExplosionExposure {
      */
     default boolean canSee(@Nonnull Location origin, @Nonnull LivingEntity entity, double fov) {
 
+        // Get the vector between the entity and origin, and the player's eye
+        // vector, and determine the angle between the 2 vectors.
         Vector direction = entity.getLocation().getDirection();
-        Vector between = origin.toVector().subtract(entity.getLocation().toVector());
-
+        Vector between = origin.toVector().subtract(entity.getEyeLocation().toVector());
         double angle = VectorUtils.getAngleBetween(direction, between);
 
         // Check to see if the angle between the 2 vectors is smaller than the
@@ -76,6 +77,10 @@ public interface ExplosionExposure {
         TraceResult result = ray.trace(TraceCollision.BLOCK_OR_ENTITY, 0.15, block -> {
             Material mat = block.getType();
             String name = mat.name();
+
+            if (origin.getBlock().equals(block)) {
+                return true;
+            }
 
             // THIN_GLASS
             // STAINED_GLASS_PANE
@@ -100,7 +105,7 @@ public interface ExplosionExposure {
                 return false;
             }
 
-        }, null);
+        }, entity1 -> !entity1.equals(entity));
 
         // If there are no blocks between the entity and the origin,
         // then the entity can see the origin

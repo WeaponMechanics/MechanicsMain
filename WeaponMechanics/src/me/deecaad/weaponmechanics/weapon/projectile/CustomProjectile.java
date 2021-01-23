@@ -328,17 +328,7 @@ public class CustomProjectile implements ICustomProjectile {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Location origin;
-
-                        if (explosion.getDelay() == 0) {
-                            Vector hitLocation = collisionData.getHitLocation();
-                            origin = new Location(world, hitLocation.getX(), hitLocation.getY(), hitLocation.getZ());
-                        } else {
-                            Vector projectileLocation = getLocation();
-                            origin = new Location(world, projectileLocation.getX(), projectileLocation.getY(), projectileLocation.getZ());
-                        }
-
-                        explosion.explode(shooter, origin, CustomProjectile.this);
+                        explosion.explode(shooter, collisionData, CustomProjectile.this);
 
                         if (stickedData != null) {
                             // Remove on explosion if sticky data is used
@@ -411,17 +401,7 @@ public class CustomProjectile implements ICustomProjectile {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Location origin;
-
-                    if (explosion.getDelay() == 0) {
-                        Vector hitLocation = collisionData.getHitLocation();
-                        origin = new Location(world, hitLocation.getX(), hitLocation.getY(), hitLocation.getZ());
-                    } else {
-                        Vector projectileLocation = getLocation();
-                        origin = new Location(world, projectileLocation.getX(), projectileLocation.getY(), projectileLocation.getZ());
-                    }
-
-                    explosion.explode(shooter, origin, CustomProjectile.this);
+                    explosion.explode(shooter, collisionData, CustomProjectile.this);
 
                     if (stickedData != null) {
                         // Remove on explosion if sticky data is used

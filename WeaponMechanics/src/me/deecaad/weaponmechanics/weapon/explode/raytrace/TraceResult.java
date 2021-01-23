@@ -48,4 +48,14 @@ public class TraceResult {
     public Block getOneBlock() {
         return blocks.stream().findFirst().orElse(null);
     }
+
+    /**
+     * Returns <code>true</code> if no blocks and no entities were hit during
+     * the ray trace.
+     *
+     * @return true if nothing was hit
+     */
+    public boolean isNoHit() {
+        return (blocks == null || blocks.isEmpty()) && (entities == null || entities.isEmpty());
+    }
 }

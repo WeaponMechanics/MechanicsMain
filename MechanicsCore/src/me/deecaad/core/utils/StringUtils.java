@@ -101,10 +101,10 @@ public class StringUtils {
     private static final String[] SUFFIXES = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
 
     /**
-     * The ordinal of an integer is
+     * The ordinal of an integer is a more readable version of an index
      *
-     * @param i
-     * @return
+     * @param i The number to convert to an ordinal
+     * @return The ordinal
      */
     public static String ordinal(int i) {
         switch (i % 100) {
@@ -219,6 +219,24 @@ public class StringUtils {
     }
 
     /**
+     * A warning message for when somebody uses an absurdly wrong number in configurations
+     *
+     * @see Debugger#warn(String...)
+     *
+     * @param number The absurd number
+     * @param file The file the number is found in
+     * @param path The path to the number
+     * @return Predetermined warning message
+     */
+    public static String[] foundLarge(double number, File file, String path) {
+        return new String[]{
+                "WARNING: Found a large number in configurations (" + number + ")",
+                "This is not an error, but you should be careful when using large numbers, and this may be a mistake.",
+                StringUtils.foundAt(file, path + ".Airstrike.Maximum_Bombs")
+        };
+    }
+
+    /**
      * Gets the Minecraft <code>NamespacedKey</code> format
      * from the given camel case format. See below examples.
      *
@@ -300,7 +318,7 @@ public class StringUtils {
      *      System.out.println("Unknown mob " + "endermen" + "... Did you mean " + correction + "?")
      *
      *      // Output
-     *      [...] Unkown mob endermen... Did you mean enderman?
+     *      [...] Unknown mob endermen... Did you mean enderman?
      * }</pre></blockquote>
      *
      */

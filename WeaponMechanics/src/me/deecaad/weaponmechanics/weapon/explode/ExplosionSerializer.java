@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtils;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DistanceExposure;
@@ -92,6 +93,13 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         debug.validate(radius > 0, "Explosion Radius should be a positive number!", found + "Height");
         debug.validate(rays > 0, "Explosion Rays should be a positive number!", found + "Rays");
 
+        debug.validate(yield < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
+        debug.validate(angle < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Angle"));
+        debug.validate(height < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Height"));
+        debug.validate(width < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Width"));
+        debug.validate(radius < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Radius"));
+        debug.validate(rays < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Rays"));
+
         ExplosionShape shape;
         switch (shapeType) {
             case CUBE:
@@ -163,11 +171,11 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         double blockChance = section.getDouble("Block_Damage.Spawn_Falling_Block_Chance");
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
-        debug.validate(blockChance > 0.0 && blockChance <= 1.0, "Falling block spawn chance should be [0, 1]",
+        debug.validate(blockChance >= 0.0 && blockChance <= 1.0, "Falling block spawn chance should be [0, 1]",
                 StringUtils.foundAt(file, path + "Block_Damage.Spawn_Falling_Block_Chance"));
 
         // A weird check, but I (somehow) made this mistake. Thought it was worth checking for
-        if (blockDamage == null && regeneration != null) {
+        if ((blockDamage == null || !blockDamage.isBreakBlocks()) && regeneration != null) {
             debug.error("Tried to use block regeneration for an explosion but blocks will not be broken.",
                     "This is almost certainly a misconfiguration!", StringUtils.foundAt(file, path));
         }
@@ -208,10 +216,28 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             int layers = section.getInt("Airstrike.Layers");
             int interval = section.getInt("Airstrike.Delay_Between_Layers");
 
-            debug.validate(LogLevel.WARN, max < 100, "WARNING: Found a large number in configurations", "This is not an error, but you should be careful.", StringUtils.foundAt(file, path + ".Airstrike.Maximum_Bombs"));
-            debug.validate(LogLevel.WARN, layers < 100, "WARNING: Found a large number in configurations", "This is not an error, but you should be careful.", StringUtils.foundAt(file, path + ".Airstrike.Layers"));
+            debug.validate(LogLevel.WARN, max < 100, StringUtils.foundLarge(max, file, path + ".Airstrike.Maximum_Bombs"));
+            debug.validate(LogLevel.WARN, layers < 100, StringUtils.foundLarge(max, file, path + ".Airstrike.Layers"));
 
             explosion.new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval);
+        }
+
+        if (section.contains("Flashbang")) {
+            double distance = section.getDouble("Flashbang.Effect_Distance");
+            Mechanics mechanics = section.contains("Flashbang.Mechanics") ? new Mechanics().serialize(file, configurationSection, section + ".Flashbang.Mechanics") : null;
+
+            debug.validate(distance > 0.0, "Flashbang Effect_Distance should be a positive number! Found: " + distance,
+                    StringUtils.foundAt(file, path + ".Flashbang.Distance"));
+            debug.validate(LogLevel.WARN, distance < 100.0, StringUtils.foundLarge(distance, file, path + ".Flashbang.Effect_Distance"));
+
+            // Since the flashbang depends on mechanics for applying blindness to effected
+            // entities, not specifying the mechanics is always a mistake
+            if (mechanics == null) {
+                debug.error("Flashbang MUST use Mechanics in order to make people blind. You forgot to add Mechanics!",
+                        StringUtils.foundAt(file, path + ".Flashbang.Mechanics"));
+            }
+
+            explosion.new Flashbang(distance, mechanics);
         }
 
         return explosion;
