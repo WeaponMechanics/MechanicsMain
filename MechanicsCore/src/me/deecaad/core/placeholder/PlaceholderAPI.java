@@ -19,7 +19,7 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class PlaceholderAPI {
 
-    private static Map<String, PlaceholderHandler> placeholderHandlers = new HashMap<>();
+    private static final Map<String, PlaceholderHandler> placeholderHandlers = new HashMap<>();
     private static final Pattern PLACEHOLDERS = Pattern.compile("[%]([^%,^\\s]+)[%]");
 
     /**

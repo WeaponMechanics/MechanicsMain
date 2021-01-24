@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 public abstract class PlaceholderHandler {
 
-    private String placeholderName;
+    private final String placeholderName;
 
     /**
      * Creates new placeholder handler instance
@@ -15,6 +15,12 @@ public abstract class PlaceholderHandler {
      * @param placeholderName the placeholder (for example %my_placeholder%)
      */
     public PlaceholderHandler(String placeholderName) {
+        if (!placeholderName.startsWith("%")) {
+            placeholderName = "%" + placeholderName;
+        }
+        if (!placeholderName.endsWith("%")) {
+            placeholderName = placeholderName + "%";
+        }
         this.placeholderName = placeholderName.toLowerCase();
     }
 

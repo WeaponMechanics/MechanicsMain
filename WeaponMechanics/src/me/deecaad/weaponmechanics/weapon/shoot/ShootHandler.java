@@ -82,6 +82,8 @@ public class ShootHandler implements IValidator {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}  // 20 good
     };
 
+    public ShootHandler() { }
+
     public ShootHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }
