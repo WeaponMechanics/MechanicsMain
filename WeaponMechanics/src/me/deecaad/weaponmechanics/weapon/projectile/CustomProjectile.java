@@ -369,15 +369,16 @@ public class CustomProjectile implements ICustomProjectile {
             return true;
         }
 
-        DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
         String weaponTitle = getTag("weapon-title");
 
         if (weaponTitle == null) {
             return true;
         }
 
+        DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
+
         LivingEntity victim = collisionData.getLivingEntity();
-        boolean isDamaged = damageHandler.tryUse(victim, shooter, weaponTitle, this, point, false);
+        boolean isDamaged = damageHandler.tryUse(victim, shooter, weaponTitle, this, point, victim.getLocation().getDirection().dot(motion) > 0.0);
 
         // Handle worldguard flags
         if (shooter instanceof Player) {
