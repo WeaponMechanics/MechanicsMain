@@ -77,4 +77,9 @@ public class Shoot_Reflection implements IShootCompatibility {
     public void logDamage(LivingEntity victim, LivingEntity source, double health, double damage, boolean isMelee) {
 
     }
+
+    @Override
+    public void setKiller(LivingEntity victim, Player killer) {
+
+    }
 }
