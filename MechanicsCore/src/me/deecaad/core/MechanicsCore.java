@@ -22,7 +22,6 @@ public class MechanicsCore extends JavaPlugin {
 
     private static MechanicsCore plugin;
     private static List<Serializer<?>> serializersList;
-    private static boolean isPaper;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -31,13 +30,6 @@ public class MechanicsCore extends JavaPlugin {
     public void onLoad() {
         debug = new Debugger(getLogger(), 3, true);
         plugin = this;
-
-        try {
-            Class.forName("io.papermc.paperclip.Paperclip");
-            isPaper = true;
-        } catch (ClassNotFoundException e) {
-            isPaper = false;
-        }
     }
 
     @Override
@@ -111,9 +103,5 @@ public class MechanicsCore extends JavaPlugin {
                 addSerializer(plugin, serializer);
             }
         }
-    }
-
-    public static boolean isPaper() {
-        return isPaper;
     }
 }
