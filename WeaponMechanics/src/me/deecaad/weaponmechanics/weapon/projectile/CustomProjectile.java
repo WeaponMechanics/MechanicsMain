@@ -416,12 +416,7 @@ public class CustomProjectile implements ICustomProjectile {
         return false;
     }
 
-    /**
-     * Projectile base tick.
-     * Basically contains motion and collision checks
-     *
-     * @return true if projectile should be removed from projectile runnable
-     */
+    @Override
     public boolean tick() {
         if (this.dead) {
             // No need for remove() call as this can only be true if its already been called at least once

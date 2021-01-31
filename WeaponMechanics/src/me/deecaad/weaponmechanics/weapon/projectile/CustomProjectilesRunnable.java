@@ -135,7 +135,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
         while (projectilesIterator.hasNext()) {
             try {
                 ICustomProjectile projectile = projectilesIterator.next();
-                if (false) {
+                if (projectile.tick()) {
                     projectilesIterator.remove();
                 }
             } catch (Exception e) {
