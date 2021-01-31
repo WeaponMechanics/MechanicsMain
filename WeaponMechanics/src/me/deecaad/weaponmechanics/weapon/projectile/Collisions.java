@@ -29,7 +29,7 @@ public class Collisions {
     public boolean contains(CollisionData collisionData) {
         if (blockCollisions.isEmpty() && entityCollisions.isEmpty()) return false;
 
-        // Extra check to check whether the hit happened more than 1 second ago
+        // Extra check to check whether the hit happened more than 0.5 second ago
         // If it was more, consider this as non hit data
         Iterator<CollisionData> iterator = collisionData.getBlock() != null ? blockCollisions.iterator() : entityCollisions.iterator();
         while (iterator.hasNext()) {

@@ -138,6 +138,21 @@ Explosions:
     Noise_Distance: 1.0
     No_Block_Damage_In_Liquid: true
 
+Placeholder_Symbols:
+  REVOLVER:
+    Open: "□"
+    Close: "■"
+    Ready: ""
+  PUMP:
+    Open: "□"
+    Close: "■"
+    Ready: ""
+  LEVER:
+    Open: "□"
+    Close: "■"
+    Ready: ""
+  Reload: "ᴿ"
+
 # Here you can modify entity hitboxes if you feel like it or some entity is missing.
 # These aren't exactly meant to be changed, but if you feel like some entity's hitbox isn't quite right you can modify it yourself.
 #
