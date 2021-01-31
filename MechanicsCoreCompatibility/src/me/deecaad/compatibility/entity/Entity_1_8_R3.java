@@ -9,11 +9,13 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.v1_11_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemFactory;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_8_R3.util.CraftMagicNumbers;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.material.MaterialData;
@@ -270,5 +272,15 @@ public class Entity_1_8_R3 implements EntityCompatibility {
         ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         return new EntityItem(nmsWorld, x, y, z, nmsItem);
+    }
+
+    @Override
+    public double getAbsorption(LivingEntity entity) {
+        return ((CraftLivingEntity) entity).getHandle().getAbsorptionHearts();
+    }
+
+    @Override
+    public void setAbsorption(LivingEntity entity, double absorption) {
+        ((CraftLivingEntity) entity).getHandle().setAbsorptionHearts((float) absorption);
     }
 }

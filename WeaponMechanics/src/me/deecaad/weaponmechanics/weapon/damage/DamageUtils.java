@@ -6,12 +6,14 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.MaterialHelper;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -108,19 +110,24 @@ public class DamageUtils {
             return;
         }
 
-        double newHealth = victim.getHealth() - damage;
+        // Calculate the amount of damage to absorption hearts, and
+        // determine how much damage is left over to deal to the victim
+        double absorption = CompatibilityAPI.getEntityCompatibility().getAbsorption(victim);
+        damage = -Math.max(damage - Math.max(damage - absorption, 0), 0);
+        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, damage > 0.0 ? 0.0 : absorption - damage);
 
-        //EntityLiving nmsVictim = ((CraftLivingEntity) victim).getHandle();
-        //EntityLiving nmsKiller = ((CraftLivingEntity) cause).getHandle();
-        //nmsVictim.combatTracker.trackDamage(DamageSource.projectile(nmsVictim, nmsKiller), (float) damage, (float) newHealth);
-
-        if (newHealth <= 0) {
-            //ReflectionUtil.setField(killerField, nmsVictim, nmsKiller);
+        // Apply any remaining damage to the victim, and handle internals
+        double oldHealth = victim.getHealth();
+        victim.setHealth(NumberUtils.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        WeaponCompatibilityAPI.getShootCompatibility().logDamage(victim, cause, oldHealth, damage, false);
+        if (cause.getType() == EntityType.PLAYER) {
+            WeaponCompatibilityAPI.getShootCompatibility().setKiller(victim, (Player) cause);
         }
 
-        victim.setHealth(NumberUtils.minMax(0, newHealth, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        // Visual red flash
         victim.playEffect(EntityEffect.HURT);
 
+        // Spigot api things
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
     }
@@ -130,6 +137,12 @@ public class DamageUtils {
     }
     
     public static void damageArmor(LivingEntity victim, int amount, @Nullable DamagePoint point) {
+
+        // If the damage amount is 0, we can skip all of the calculations
+        if (amount <= 0) {
+            return;
+        }
+
         // Stores which armors should be damaged
         ItemStack[] armor;
         EntityEquipment equipment = victim.getEquipment();

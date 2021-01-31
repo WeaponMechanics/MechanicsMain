@@ -59,4 +59,13 @@ public interface IShootCompatibility {
      * @param isMelee Whether or not this is a melee attack (And not a projectile)
      */
     void logDamage(LivingEntity victim, LivingEntity source, double health, double damage, boolean isMelee);
+
+    /**
+     * Sets which player killed the <code>victim</code>. Entities that are killed by players
+     * will drop their experience.
+     *
+     * @param victim The entity that died
+     * @param killer The killer
+     */
+    void setKiller(LivingEntity victim, Player killer);
 }

@@ -60,4 +60,9 @@ public class Shoot_1_10_R1 implements IShootCompatibility {
         EntityLiving nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.trackDamage(damageSource, (float) damage, (float) health);
     }
+
+    @Override
+    public void setKiller(LivingEntity victim, Player killer) {
+        ((CraftLivingEntity) victim).getHandle().killer = ((CraftPlayer) killer).getHandle();
+    }
 }
