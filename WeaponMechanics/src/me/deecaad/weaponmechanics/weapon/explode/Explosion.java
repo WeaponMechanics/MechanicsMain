@@ -200,15 +200,17 @@ public class Explosion {
      */
     public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
 
-        ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, this);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) {
-            return;
-        }
+        if (projectile != null) {
+            if (airStrike.isPresent() && !"true".equals(projectile.getTag("airstrike-bomb"))) {
+                airStrike.get().trigger(origin, cause, projectile);
+                return;
+            }
 
-        if (projectile != null && airStrike.isPresent() && !"true".equals(projectile.getTag("airstrike-bomb"))) {
-            airStrike.get().trigger(origin, cause, projectile);
-            return;
+            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, this);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
         }
 
         debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());

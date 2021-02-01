@@ -209,20 +209,22 @@ public class NumberUtils {
     }
 
     /**
-     * Linear interpolation function. <code>a</code> can be seen as a
-     * minimum and <code>b</code> can be seen as a maximum. <code>f</code>
-     * is a factor <code>[0, 1]</code>.
+     * Linear interpolation function. Finds a number between <code>min</code>
+     * and <code>max</code> using <code>factor</code>. <code>Factor</code> should
+     * be a number [0, 1], where values approaching 1 will be closer to the
+     * <code>max</code> and values approaching 0 will be closer to the
+     * <code>min</code>.
      *
      * If the factor is 0.50, then lerp will return a number exactly between
      * min and max.
      *
-     * @param a Minimum value
-     * @param b Maximum value
-     * @param f Factor
+     * @param min Minimum value
+     * @param max Maximum value
+     * @param factor Factor
      * @return Interpolated number
      */
-    public static double lerp(double a, double b, double f) {
-        return b + a * (f - b);
+    public static double lerp(double min, double max, double factor) {
+        return min + factor * (max - min);
     }
 
     /**

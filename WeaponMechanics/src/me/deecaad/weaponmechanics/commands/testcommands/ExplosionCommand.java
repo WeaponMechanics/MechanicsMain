@@ -5,7 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
@@ -18,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 /**
  * Useful commands for testing different explosion
@@ -58,8 +57,9 @@ public class ExplosionCommand extends SubCommand {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
-                BlockDamage blockDamage = new BlockDamage(true, 1, 1, true, new HashMap<>(), new HashMap<>());
-                new Explosion(null, shape, new DefaultExposure(), blockDamage, regeneration, null, 0, 0.9, true).explode(player, loc, null);
+                BlockDamage blockDamage = null;//new BlockDamage(true, 1, 1, true, new HashMap<>(), new HashMap<>());
+                new Explosion(null, shape, new OptimizedExposure(), blockDamage, regeneration, null, 0, 0.9, true).explode(player, loc, null);
+
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
     }

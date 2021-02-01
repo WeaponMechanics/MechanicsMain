@@ -128,6 +128,22 @@ public class VectorUtils {
         return new Vector(x, y, z);
     }
 
+    public static Vector lerp(Vector min, Vector max, double factor) {
+        double x = NumberUtils.lerp(min.getX(), max.getX(), factor);
+        double y = NumberUtils.lerp(min.getY(), max.getY(), factor);
+        double z = NumberUtils.lerp(min.getZ(), max.getZ(), factor);
+
+        return new Vector(x, y, z);
+    }
+
+    public static Vector lerp(Vector min, Vector max, double xFactor, double yFactor, double zFactor) {
+        double x = NumberUtils.lerp(min.getX(), max.getX(), xFactor);
+        double y = NumberUtils.lerp(min.getY(), max.getY(), yFactor);
+        double z = NumberUtils.lerp(min.getZ(), max.getZ(), zFactor);
+
+        return new Vector(x, y, z);
+    }
+
     /**
      * Effectively gets a vector perpendicular to the
      * given vector.
@@ -177,6 +193,14 @@ public class VectorUtils {
         return Math.acos(dot / (magnitudeA * magnitudeB));
     }
 
+    /**
+     * Returns <code>true</code> if the given <code>vector</code> has a length of
+     * 0. This method doesn't use any natively implemented method, making it faster
+     * than checking the length manually.
+     *
+     * @param vector The vector to check
+     * @return true if the vector has no magnitude
+     */
     public static boolean isEmpty(Vector vector) {
         return NumberUtils.equals(vector.getX() + vector.getY() + vector.getZ(), 0.0);
     }
