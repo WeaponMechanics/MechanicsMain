@@ -15,6 +15,9 @@ public class DamageHandler implements IValidator {
 
     private static final String[] DAMAGE_POINTS = new String[]{"Head", "Body", "Arms", "Legs", "Feet", "Backstab", "Critical_Hit"};
 
+    /**
+     * @return false if damaging was cancelled
+     */
     public boolean tryUse(LivingEntity victim, LivingEntity shooter, String weaponTitle, CustomProjectile projectile, DamagePoint point, boolean isBackstab) {
         Configuration config = WeaponMechanics.getConfigurations();
 

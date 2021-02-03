@@ -151,4 +151,11 @@ public interface ICustomProjectile {
      * @param stickedData the new sticked data
      */
     boolean setStickedData(@Nullable StickedData stickedData);
+
+    /**
+     * Projectile base tick.
+     *
+     * @return true if projectile should be removed from projectile runnable
+     */
+    boolean tick();
 }
