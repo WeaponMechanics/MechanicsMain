@@ -77,13 +77,13 @@ public abstract class PacketListener {
     // We don't use UUID's here (Like we normally would) because
     // when the PacketLoginInStart is sent, the game profile's UUID
     // is not yet set, but the player's name is.
-    private Map<String, Channel> channelCache = new MapMaker().weakValues().makeMap();
+    private final Map<String, Channel> channelCache = new MapMaker().weakValues().makeMap();
 
     protected final Plugin plugin;
     protected final Debugger debug;
     protected final String handlerName;
 
-    protected boolean isClosed;
+    private boolean isClosed;
     private Listener listener;
 
     // Lock from that stops the main thread from changing
@@ -92,10 +92,10 @@ public abstract class PacketListener {
     private final Collection<Object> lock;
 
     // Minecraft Server Channels
-    private List<Channel> serverChannels = new ArrayList<>();
-    private ChannelInboundHandlerAdapter serverChannelHandler;
-    private ChannelInitializer<Channel> beginInitProtocol;
-    private ChannelInitializer<Channel> endInitProtocol;
+    private final List<Channel> serverChannels = new ArrayList<>();
+    private final ChannelInboundHandlerAdapter serverChannelHandler;
+    private final ChannelInitializer<Channel> beginInitProtocol;
+    private final ChannelInitializer<Channel> endInitProtocol;
 
     @SuppressWarnings("unchecked")
     public PacketListener(@Nonnull final Plugin plugin, @Nonnull final Debugger debug) {
@@ -171,8 +171,10 @@ public abstract class PacketListener {
             }
         }
 
-        for (Player player : plugin.getServer().getOnlinePlayers())
+        // Inject players that are already connected to the server
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
             injectPlayer(player);
+        }
     }
 
     /**
@@ -235,6 +237,9 @@ public abstract class PacketListener {
                 injectPlayer(e.getPlayer());
             }
 
+            // We want to close this packet listener to clean up the
+            // server channels. Otherwise, artifacts of this listener
+            // will remain
             @EventHandler
             public void onDisable(PluginDisableEvent e) {
                 if (e.getPlugin().equals(PacketListener.this.plugin)) {
