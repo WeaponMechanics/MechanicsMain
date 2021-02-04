@@ -24,7 +24,14 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
@@ -327,7 +334,7 @@ public class CustomProjectile implements ICustomProjectile {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        explosion.explode(shooter, collisionData, CustomProjectile.this);
+                        explosion.explode(shooter, loc, CustomProjectile.this);
 
                         if (stickedData != null) {
                             // Remove on explosion if sticky data is used

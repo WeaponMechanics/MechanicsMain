@@ -18,6 +18,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -84,9 +85,9 @@ public class Ray {
      * Traces along this ray, colliding with block(s) and/or entity(s), depending on the given
      * <code>collision</code>.
      *
-     * @param collision
-     * @param accuracy
-     * @return
+     * @param collision What the ray collides with
+     * @param accuracy The distance (in blocks) between checks
+     * @return The collision data
      */
     public TraceResult trace(@Nonnull TraceCollision collision, @Nonnegative double accuracy) {
         return trace(collision, accuracy, false);
@@ -118,7 +119,7 @@ public class Ray {
         // If we are checking for entities, and their are no entities that the vector
         // can hit, then we can take a shortcut and return an empty trace result, saving resources
         if (!collision.isHitBlock() && availableEntities.isEmpty()) {
-            return new TraceResult((Entity) null, null);
+            return new TraceResult(Collections.emptySet(), Collections.emptySet());
         }
 
         final LinkedHashSet<Block> blocks = new LinkedHashSet<>();
@@ -203,30 +204,6 @@ public class Ray {
         return temp;
     }
 
-    private boolean contains(Vector min, Vector max, Location loc) {
-        return loc.getX() > min.getX() && loc.getX() < max.getX() &&
-                loc.getY() > min.getY() && loc.getY() < max.getY() &&
-                loc.getZ() > min.getZ() && loc.getZ() < max.getZ();
-    }
-
-    private boolean contains(HitBox hitbox, Vector point) {
-        if (hitbox == null) return false;
-
-        double minX = hitbox.min.getX();
-        double maxX = hitbox.max.getX();
-        double minY = hitbox.min.getY();
-        double maxY = hitbox.max.getY();
-        double minZ = hitbox.min.getZ();
-        double maxZ = hitbox.max.getZ();
-
-        return point.getX() >= minX
-                && point.getX() <= maxX
-                && point.getY() >= minY
-                && point.getY() <= maxY
-                && point.getZ() >= minZ
-                && point.getZ() <= maxZ;
-    }
-
     private void displayPoint(Vector point, boolean collides) {
         Particle.DustOptions color = collides ? new Particle.DustOptions(Color.RED, 0.25f) : new Particle.DustOptions(Color.LIME, 0.25f);
 
@@ -241,5 +218,17 @@ public class Ray {
                 world.spawnParticle(Particle.REDSTONE, point.getX(), point.getY(), point.getZ(), 1, 0, 0, 0, 0, color, true);
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 2);
+    }
+
+    private static boolean contains(Vector min, Vector max, Location loc) {
+        return loc.getX() > min.getX() && loc.getX() < max.getX() &&
+                loc.getY() > min.getY() && loc.getY() < max.getY() &&
+                loc.getZ() > min.getZ() && loc.getZ() < max.getZ();
+    }
+
+    private static boolean contains(HitBox hitbox, Vector point) {
+        if (hitbox == null) return false;
+
+        return hitbox.contains(point);
     }
 }

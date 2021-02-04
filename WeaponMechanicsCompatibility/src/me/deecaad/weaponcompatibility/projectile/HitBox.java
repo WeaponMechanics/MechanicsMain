@@ -9,6 +9,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -16,6 +17,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.function.Predicate;
@@ -156,6 +158,38 @@ public class HitBox implements IValidator {
         return new Vector(NumberUtils.minMax(other.min.getX(), point.getX(), other.max.getX()),
                 NumberUtils.minMax(other.min.getY(), point.getY(), other.max.getY()),
                 NumberUtils.minMax(other.min.getZ(), point.getZ(), other.max.getZ()));
+    }
+
+    /**
+     * Returns <code>true</code> if the given location <code>loc</code> is inside
+     * this hitbox.
+     *
+     * @param loc The point to test
+     * @return If the point is in this hitbox
+     * @throws IllegalArgumentException If the given point is null
+     */
+    public boolean contains(@Nonnull Vector loc) {
+        if (loc == null) throw new IllegalArgumentException("loc cannot be null");
+
+        return loc.getX() > min.getX() && loc.getX() < max.getX() &&
+                loc.getY() > min.getY() && loc.getY() < max.getY() &&
+                loc.getZ() > min.getZ() && loc.getZ() < max.getZ();
+    }
+
+    /**
+     * Returns <code>true</code> if the given point <code>loc</code> is inside
+     * this hitbox.
+     *
+     * @param loc The point to test
+     * @return If the point is in this hitbox
+     * @throws IllegalArgumentException If the given point is null
+     */
+    public boolean contains(@Nonnull Location loc) {
+        if (loc == null) throw new IllegalArgumentException("loc cannot be null");
+
+        return loc.getX() > min.getX() && loc.getX() < max.getX() &&
+                loc.getY() > min.getY() && loc.getY() < max.getY() &&
+                loc.getZ() > min.getZ() && loc.getZ() < max.getZ();
     }
 
     /**

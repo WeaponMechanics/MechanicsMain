@@ -14,7 +14,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.ALL;
+import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.BLOCK_OR_ENTITY;
 
 public interface ExplosionExposure {
 
@@ -78,7 +78,7 @@ public interface ExplosionExposure {
         }
 
         Ray ray = new Ray(originLoc.getWorld(), origin, end, between.length());
-        TraceCollision collision = new TraceCollision(ALL) {
+        TraceCollision collision = new TraceCollision(BLOCK_OR_ENTITY) {
             @Override
             public boolean canHit(Block block) {
                 String name = block.getType().name();
@@ -116,7 +116,7 @@ public interface ExplosionExposure {
                 return !entity1.equals(entity);
             }
         };
-        TraceResult result = ray.trace(collision, 0.2, true);
+        TraceResult result = ray.trace(collision, 0.2);
 
         // If there are no blocks/entities between the entity and the
         // origin, than the entity can see the explosion

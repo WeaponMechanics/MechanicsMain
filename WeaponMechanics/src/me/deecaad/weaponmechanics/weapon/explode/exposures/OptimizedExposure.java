@@ -108,7 +108,7 @@ public class OptimizedExposure implements ExplosionExposure {
 
                     // Determine if the ray can hit the entity without hitting a block
                     Ray ray = new Ray(world, vec3d, lerp);
-                    TraceResult trace = ray.trace(TraceCollision.BLOCKS, 0.3, true);
+                    TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
                     if (trace.getBlocks().isEmpty()) {
                         successfulTraces++;
                         System.out.println("  " + ray);
