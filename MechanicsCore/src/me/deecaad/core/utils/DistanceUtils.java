@@ -1,10 +1,8 @@
 package me.deecaad.core.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.MechanicsCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -28,10 +26,6 @@ public class DistanceUtils {
      */
     public static int getRange() {
         int distance = Bukkit.getServer().getViewDistance();
-        if (MechanicsCore.isPaper()) {
-            int paper;
-        }
-
         return distance << 4;
     }
 
@@ -44,10 +38,6 @@ public class DistanceUtils {
      */
     public static int getRange(World world) {
         int distance = world.getViewDistance();
-        if (MechanicsCore.isPaper()) {
-            int paper;
-        }
-
         return distance << 4;
     }
 
