@@ -33,12 +33,12 @@ public class ShootCommand extends SubCommand implements Listener {
         if (args.length > 1) {
             EntityType entityType = EntityType.valueOf(args[1].toUpperCase());
             Projectile projectile = new Projectile(projectileMotion, entityType, 0.25f, 0.25f, null, null, null, null);
-            projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed));
+            projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed), null, null);
             return;
         }
 
         Projectile projectile = new Projectile(projectileMotion, null, 0.25f, 0.25f, null, null, null, null);
-        projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed));
+        projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed), null, null);
     }
 
     @Override

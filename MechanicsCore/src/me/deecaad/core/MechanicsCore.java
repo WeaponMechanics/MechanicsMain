@@ -9,10 +9,12 @@ import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,25 +29,15 @@ public class MechanicsCore extends JavaPlugin {
     @Override
     public void onLoad() {
         debug = new Debugger(getLogger(), 3, true);
+        plugin = this;
     }
 
     @Override
     public void onEnable() {
-        plugin = this;
-
         reloadSerializers();
 
         PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-
-        ArmorEquipTrigger armorEquipTrigger = new ArmorEquipTrigger();
-        packetListener.addPacketHandler(armorEquipTrigger, true);
-
-        packetListener.addPacketHandler(new PacketHandler("PacketPlayOutLogin") {
-            @Override
-            public void onPacket(Packet packet) {
-                debug.info("Test: " + packet.getPacket());
-            }
-        }, true);
+        packetListener.addPacketHandler(new ArmorEquipTrigger(), true);
     }
 
     @Override

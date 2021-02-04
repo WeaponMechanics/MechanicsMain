@@ -31,6 +31,8 @@ public class ReloadHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
+    public ReloadHandler() { }
+
     public ReloadHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }

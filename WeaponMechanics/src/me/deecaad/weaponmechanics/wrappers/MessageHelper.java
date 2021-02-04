@@ -3,11 +3,7 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.core.utils.NumberUtils;
 import org.bukkit.boss.BossBar;
 
-import java.util.List;
-
 public class MessageHelper {
-
-    private List<Integer> messageTasks;
 
     private long denyActionBarStart;
     private long denyActionBarTime;
@@ -23,7 +19,7 @@ public class MessageHelper {
 
     public void updateActionBarTime(int forTicks) {
         denyActionBarStart = System.currentTimeMillis();
-        denyActionBarTime = forTicks * 50;
+        denyActionBarTime = forTicks * 50L;
     }
 
     public boolean denyInfoActionBar() {
@@ -32,7 +28,7 @@ public class MessageHelper {
 
     public void updateTitleTime(int forTicks) {
         denyTitleStart = System.currentTimeMillis();
-        denyTitleTime = forTicks * 50;
+        denyTitleTime = forTicks * 50L;
     }
 
     public boolean denyInfoTitle() {

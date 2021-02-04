@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -165,6 +166,14 @@ public interface EntityCompatibility {
      * @return The NMS item entity
      */
     Object toNMSItemEntity(ItemStack item, World world, double x, double y, double z);
+
+    default double getAbsorption(LivingEntity entity) {
+        return entity.getAbsorptionAmount();
+    }
+
+    default void setAbsorption(LivingEntity entity, double absorption) {
+        entity.setAbsorptionAmount(absorption);
+    }
 
     /**
      * This enum gives location of a bit of information inside

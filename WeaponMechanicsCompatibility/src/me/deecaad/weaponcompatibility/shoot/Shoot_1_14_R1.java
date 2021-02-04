@@ -1,9 +1,9 @@
 package me.deecaad.weaponcompatibility.shoot;
 
-import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
+import net.minecraft.server.v1_14_R1.PacketPlayOutPosition;
 import net.minecraft.server.v1_14_R1.DamageSource;
 import net.minecraft.server.v1_14_R1.EntityLiving;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -51,5 +51,10 @@ public class Shoot_1_14_R1 implements IShootCompatibility {
 
         EntityLiving nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.trackDamage(damageSource, (float) damage, (float) health);
+    }
+
+    @Override
+    public void setKiller(LivingEntity victim, Player killer) {
+        ((CraftLivingEntity) victim).getHandle().killer = ((CraftPlayer) killer).getHandle();
     }
 }

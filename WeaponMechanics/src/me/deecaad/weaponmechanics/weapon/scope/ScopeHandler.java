@@ -34,6 +34,8 @@ public class ScopeHandler implements IValidator {
     private static final IScopeCompatibility scopeCompatibility = WeaponCompatibilityAPI.getScopeCompatibility();
     private WeaponHandler weaponHandler;
 
+    public ScopeHandler() {}
+
     public ScopeHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }

@@ -35,6 +35,7 @@ import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
@@ -163,7 +164,7 @@ public class WeaponMechanics extends JavaPlugin {
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml != null && configyml.exists()) {
             List<IValidator> validators = new ArrayList<>();
-            validators.add(new HitBox());
+            validators.add(new HitBox()); // No need for other validators here as this is only for config.yml
 
             FileReader basicConfigurationReader = new FileReader(null, validators);
             Configuration filledMap = basicConfigurationReader.fillOneFile(configyml);
@@ -243,9 +244,11 @@ public class WeaponMechanics extends JavaPlugin {
             public void run() {
 
                 List<IValidator> validators = new ArrayList<>();
-                validators.add(new ScopeHandler(weaponHandler));
-                validators.add(new ShootHandler(weaponHandler));
-                validators.add(new ReloadHandler(weaponHandler));
+                validators.add(new HitBox());
+                validators.add(new ReloadHandler());
+                validators.add(new ScopeHandler());
+                validators.add(new ShootHandler());
+                validators.add(new DamageHandler());
 
                 // Fill configuration mappings (except config.yml)
                 Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(WeaponMechanics.this), validators).fillAllFiles(getDataFolder(), "config.yml");

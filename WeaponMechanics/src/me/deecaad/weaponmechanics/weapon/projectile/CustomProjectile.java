@@ -349,6 +349,9 @@ public class CustomProjectile implements ICustomProjectile {
      * @return true if projectile hit was cancelled
      */
     public boolean handleEntityHit(CollisionData collisionData, Vector normalizedDirection) {
+        if (weaponTitle == null) {
+            return false;
+        }
 
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
@@ -365,62 +368,54 @@ public class CustomProjectile implements ICustomProjectile {
             if (obj != null && !obj.toString().isEmpty()) {
                 shooter.sendMessage(StringUtils.color(obj.toString()));
             }
-
             return true;
         }
 
         DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
-        String weaponTitle = getTag("weapon-title");
 
-        if (weaponTitle == null) {
+        LivingEntity victim = collisionData.getLivingEntity();
+
+        if (!damageHandler.tryUse(victim, shooter, weaponTitle, this, point, victim.getLocation().getDirection().dot(motion) > 0.0)) {
+            // Damage was cancelled
             return true;
         }
 
-        LivingEntity victim = collisionData.getLivingEntity();
-        boolean isDamaged = damageHandler.tryUse(victim, shooter, weaponTitle, this, point, false);
-
-        // Handle worldguard flags
-        if (shooter instanceof Player) {
-            isCancelled = !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode");
-        } else {
-            isCancelled = !worldGuard.testFlag(loc, null, "weapon-explode");
-        }
-
-        if (isCancelled) {
-            Object obj = worldGuard.getValue(loc, "weapon-explode-message");
-            if (obj != null && !obj.toString().isEmpty()) {
-                shooter.sendMessage(StringUtils.color(obj.toString()));
-            }
-        }
-
         Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
-        boolean canExplode = !"true".equals(getTag("explosion-detonated"));
-        if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
+        if (explosion != null && !"true".equals(getTag("explosion-detonated")) && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    explosion.explode(shooter, collisionData, CustomProjectile.this);
+            // Handle worldguard flags
+            if (shooter instanceof Player) {
+                isCancelled = !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode");
+            } else {
+                isCancelled = !worldGuard.testFlag(loc, null, "weapon-explode");
+            }
 
-                    if (stickedData != null) {
-                        // Remove on explosion if sticky data is used
-                        remove();
-                    }
+            if (isCancelled) {
+                Object obj = worldGuard.getValue(loc, "weapon-explode-message");
+                if (obj != null && !obj.toString().isEmpty()) {
+                    shooter.sendMessage(StringUtils.color(obj.toString()));
                 }
-            }.runTaskLater(getPlugin(), explosion.getDelay());
+            } else {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        explosion.explode(shooter, collisionData, CustomProjectile.this);
 
-            setTag("explosion-detonated", "true");
+                        if (stickedData != null) {
+                            // Remove on explosion if sticky data is used
+                            remove();
+                        }
+                    }
+                }.runTaskLater(getPlugin(), explosion.getDelay());
+
+                setTag("explosion-detonated", "true");
+            }
         }
 
         return false;
     }
 
-    /**
-     * Projectile base tick.
-     * Basically contains motion and collision checks
-     *
-     * @return true if projectile should be removed from projectile runnable
-     */
+    @Override
     public boolean tick() {
         if (this.dead) {
             // No need for remove() call as this can only be true if its already been called at least once

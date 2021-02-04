@@ -11,8 +11,8 @@ import java.util.Map;
 
 public class PacketHandlerListener extends PacketListener {
 
-    private Map<Class<?>, List<PacketHandler>> inHandlers;
-    private Map<Class<?>, List<PacketHandler>> outHandlers;
+    private final Map<Class<?>, List<PacketHandler>> inHandlers;
+    private final Map<Class<?>, List<PacketHandler>> outHandlers;
 
     public PacketHandlerListener(MechanicsPlugin plugin) {
         this(plugin, plugin.getDebug());

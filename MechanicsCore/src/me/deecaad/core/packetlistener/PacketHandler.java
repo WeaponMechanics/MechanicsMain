@@ -1,7 +1,8 @@
 package me.deecaad.core.packetlistener;
 
 import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
+
+import javax.annotation.Nullable;
 
 public abstract class PacketHandler {
 

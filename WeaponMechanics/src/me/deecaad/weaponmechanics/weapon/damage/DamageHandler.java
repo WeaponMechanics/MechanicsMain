@@ -1,17 +1,23 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 
+import java.io.File;
 import java.util.Map;
 
-public class DamageHandler {
+public class DamageHandler implements IValidator {
 
     private static final String[] DAMAGE_POINTS = new String[]{"Head", "Body", "Arms", "Legs", "Feet", "Backstab", "Critical_Hit"};
 
+    /**
+     * @return false if damaging was cancelled
+     */
     public boolean tryUse(LivingEntity victim, LivingEntity shooter, String weaponTitle, CustomProjectile projectile, DamagePoint point, boolean isBackstab) {
         Configuration config = WeaponMechanics.getConfigurations();
 
@@ -107,5 +113,15 @@ public class DamageHandler {
                 victim.setFireTicks(fireTicks);
             }
         }
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Damage";
+    }
+
+    @Override
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+        // todo
     }
 }
