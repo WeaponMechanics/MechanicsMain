@@ -132,8 +132,8 @@ public class DefaultExposure implements ExplosionExposure {
                     // box. The Vector is then ray traced to check for obstructions
                     Vector vector = new Vector(a + d3, b, c + d4).subtract(vec3d);
 
-                    Ray ray = new Ray(vec3d, vector, world);
-                    TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
+                    Ray ray = new Ray(vec3d.toLocation(world), vector);
+                    TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.05);
                     if (trace.getBlocks().isEmpty()) {
                         successfulTraces++;
                     }

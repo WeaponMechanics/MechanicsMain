@@ -6,17 +6,19 @@ import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
+import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.ALL;
+
 public interface ExplosionExposure {
 
-    // 90 degree angle
-    double FOV = Math.PI / 2.0;
+    double FOV = Math.toRadians(70.0);
 
     /**
      * This method should return a list of entities that
@@ -53,17 +55,19 @@ public interface ExplosionExposure {
     /**
      * Determines if the given entity can see the given <code>Location</code>.
      *
-     * @param origin The point to check if the entity can see
+     * @param originLoc The point to check if the entity can see
      * @param entity The entity to check against
      * @param fov The field of view of the entity
      * @return true if the entity can see the origin
      */
-    default boolean canSee(@Nonnull Location origin, @Nonnull LivingEntity entity, double fov) {
+    default boolean canSee(@Nonnull Location originLoc, @Nonnull LivingEntity entity, double fov) {
 
         // Get the vector between the entity and origin, and the player's eye
         // vector, and determine the angle between the 2 vectors.
+        Vector origin = originLoc.toVector();
+        Vector end = entity.getEyeLocation().toVector();
         Vector direction = entity.getLocation().getDirection();
-        Vector between = origin.toVector().subtract(entity.getEyeLocation().toVector());
+        Vector between = origin.clone().subtract(end);
         double angle = VectorUtils.getAngleBetween(direction, between);
 
         // Check to see if the angle between the 2 vectors is smaller than the
@@ -73,42 +77,49 @@ public interface ExplosionExposure {
             return false;
         }
 
-        Ray ray = new Ray(origin.toVector(), between, origin.getWorld());
-        TraceResult result = ray.trace(TraceCollision.BLOCK_OR_ENTITY, 0.15, block -> {
-            Material mat = block.getType();
-            String name = mat.name();
+        Ray ray = new Ray(originLoc.getWorld(), origin, end, between.length());
+        TraceCollision collision = new TraceCollision(ALL) {
+            @Override
+            public boolean canHit(Block block) {
+                String name = block.getType().name();
 
-            if (origin.getBlock().equals(block)) {
-                return true;
+                if (originLoc.getBlock().equals(block)) {
+                    return false;
+                }
+
+                // THIN_GLASS
+                // STAINED_GLASS_PANE
+                // GLASS
+                if (name.endsWith("GLASS") || name.endsWith("PANE")) {
+                    return false;
+                }
+
+                // OAK_LEAVES
+                // LEAVES
+                else if (name.endsWith("LEAVES")) {
+                    return false;
+                }
+
+                // BIRCH_FENCE_GATE
+                // OAK_FENCE
+                else if (name.endsWith("FENCE") || name.endsWith("FENCE_GATE")) {
+                    return false;
+                } else if (name.equals("SLIME_BLOCK")) {
+                    return false;
+                } else {
+                    return super.canHit(block);
+                }
             }
 
-            // THIN_GLASS
-            // STAINED_GLASS_PANE
-            // GLASS
-            if (name.endsWith("GLASS") || name.endsWith("PANE")) {
-                return true;
+            @Override
+            public boolean canHit(Entity entity1) {
+                return !entity1.equals(entity);
             }
+        };
+        TraceResult result = ray.trace(collision, 0.2, true);
 
-            // OAK_LEAVES
-            // LEAVES
-            else if (name.endsWith("LEAVES")) {
-                return true;
-            }
-
-            // BIRCH_FENCE_GATE
-            // OAK_FENCE
-            else if (name.endsWith("FENCE") || name.endsWith("FENCE_GATE")) {
-                return true;
-            } else if (name.equals("SLIME_BLOCK")) {
-                return true;
-            } else {
-                return false;
-            }
-
-        }, entity1 -> !entity1.equals(entity));
-
-        // If there are no blocks between the entity and the origin,
-        // then the entity can see the origin
-        return result.getBlocks() == null || result.getBlocks().isEmpty();
+        // If there are no blocks/entities between the entity and the
+        // origin, than the entity can see the explosion
+        return result.isEmpty();
     }
 }

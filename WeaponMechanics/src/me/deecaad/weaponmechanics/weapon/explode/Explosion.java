@@ -320,6 +320,8 @@ public class Explosion {
             cluster.ifPresent(clusterBomb -> clusterBomb.trigger(projectile, cause, origin));
             flashbang.ifPresent(flashbang1 -> flashbang1.trigger(origin, projectile.getWeaponStack()));
         }
+
+        flashbang.ifPresent(flashbang1 -> flashbang1.trigger(origin, null));
     }
 
     protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks) {

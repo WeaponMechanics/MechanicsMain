@@ -1,56 +1,50 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
-public enum TraceCollision {
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 
-    /**
-     * Stops the ray trace when it collides with 1 block
-     */
-    BLOCK(true, false, true),
+public class TraceCollision {
 
-    /**
-     * Stops the ray trace when it collides with 1 entity
-     */
-    ENTITY(false, true, true),
+    public static final TraceCollision BLOCK = new TraceCollision(true, false, true);
+    public static final TraceCollision ENTITY = new TraceCollision(false, true, true);
+    public static final TraceCollision BLOCK_OR_ENTITY = new TraceCollision(true, true, true);
+    public static final TraceCollision BLOCKS = new TraceCollision(true, false, false);
+    public static final TraceCollision ENTITIES = new TraceCollision(false, true, false);
+    public static final TraceCollision ALL = new TraceCollision(true, true, false);
 
-    /**
-     * Stops the ray trace on first collision with anything
-     */
-    BLOCK_OR_ENTITY(true, true, true),
+    private final boolean hitBlock;
+    private final boolean hitEntity;
+    private final boolean first;
 
-    /**
-     * The ray trace will calculate all block collisions
-     */
-    BLOCKS(true, false, false),
-
-    /**
-     * The ray trace will calculate all entity collisions
-     */
-    ENTITIES(false, true, false),
-
-    /**
-     * The ray trace will calculate all block and entity collisions
-     */
-    BLOCKS_OR_ENTITIES(true, true, false);
-
-    private final boolean isBlock;
-    private final boolean isEntity;
-    private final boolean isFirst;
-
-    TraceCollision(boolean isBlock, boolean isEntity, boolean isFirst) {
-        this.isBlock = isBlock;
-        this.isEntity = isEntity;
-        this.isFirst = isFirst;
+    private TraceCollision(boolean hitBlock, boolean hitEntity, boolean first) {
+        this.hitBlock = hitBlock;
+        this.hitEntity = hitEntity;
+        this.first = first;
     }
 
-    public boolean isBlock() {
-        return isBlock;
+    public TraceCollision(TraceCollision collision) {
+        this.hitBlock = collision.hitBlock;
+        this.hitEntity = collision.hitEntity;
+        this.first = collision.first;
     }
 
-    public boolean isEntity() {
-        return isEntity;
+    public boolean isHitBlock() {
+        return hitBlock;
+    }
+
+    public boolean isHitEntity() {
+        return hitEntity;
     }
 
     public boolean isFirst() {
-        return isFirst;
+        return first;
+    }
+
+    public boolean canHit(Block block) {
+        return !block.isEmpty();
+    }
+
+    public boolean canHit(Entity entity) {
+        return true;
     }
 }

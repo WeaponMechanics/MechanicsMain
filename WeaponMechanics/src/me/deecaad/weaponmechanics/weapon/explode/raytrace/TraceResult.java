@@ -13,12 +13,12 @@ public class TraceResult {
     private final Set<Entity> entities;
     private final Set<Block> blocks;
 
-    public TraceResult(@Nullable Entity entity, @Nullable Block block) {
+    TraceResult(@Nullable Entity entity, @Nullable Block block) {
         entities = Collections.singleton(entity);
         blocks = Collections.singleton(block);
     }
 
-    public TraceResult(@Nonnull Set<Entity> entities, @Nonnull Set<Block> blocks) {
+    TraceResult(@Nonnull Set<Entity> entities, @Nonnull Set<Block> blocks) {
         this.entities = entities;
         this.blocks = blocks;
     }
@@ -55,7 +55,7 @@ public class TraceResult {
      *
      * @return true if nothing was hit
      */
-    public boolean isNoHit() {
-        return (blocks == null || blocks.isEmpty()) && (entities == null || entities.isEmpty());
+    public boolean isEmpty() {
+        return blocks.isEmpty() && entities.isEmpty();
     }
 }

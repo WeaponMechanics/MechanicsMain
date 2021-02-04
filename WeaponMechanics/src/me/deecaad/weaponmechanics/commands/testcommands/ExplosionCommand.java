@@ -58,8 +58,9 @@ public class ExplosionCommand extends SubCommand {
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
                 BlockDamage blockDamage = null;//new BlockDamage(true, 1, 1, true, new HashMap<>(), new HashMap<>());
-                new Explosion(null, shape, new OptimizedExposure(), blockDamage, regeneration, null, 0, 0.9, true).explode(player, loc, null);
-
+                Explosion explosion = new Explosion(null, shape, new OptimizedExposure(), blockDamage, regeneration, null, 0, 0.9, true);
+                explosion.new Flashbang(10.0, null);
+                explosion.explode(player, loc, null);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
     }

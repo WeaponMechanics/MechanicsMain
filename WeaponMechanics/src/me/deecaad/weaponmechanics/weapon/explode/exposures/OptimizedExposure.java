@@ -106,14 +106,9 @@ public class OptimizedExposure implements ExplosionExposure {
                 for (int z = 0; z <= 1; z++) {
                     Vector lerp = VectorUtils.lerp(box.min, box.max, x, y, z);
 
-                    // Calculates a path from the origin of the explosion
-                    // (0, 0, 0) to the current grid on the entity's bounding
-                    // box. The Vector is then ray traced to check for obstructions
-                    Vector vector = lerp.subtract(vec3d);
-
                     // Determine if the ray can hit the entity without hitting a block
-                    Ray ray = new Ray(vec3d, vector, world);
-                    TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
+                    Ray ray = new Ray(world, vec3d, lerp);
+                    TraceResult trace = ray.trace(TraceCollision.BLOCKS, 0.3, true);
                     if (trace.getBlocks().isEmpty()) {
                         successfulTraces++;
                         System.out.println("  " + ray);

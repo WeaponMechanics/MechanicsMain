@@ -145,6 +145,47 @@ public class VectorUtils {
     }
 
     /**
+     * Gets the minimum vector of the bounding box with corners <code>a</code>
+     * and <code>b</code>. Note that the returned vector will never be ==, and
+     * is not always .equal to either of the given vectors.
+     *
+     * @param a The first corner of the box
+     * @param b The second corner of the box
+     * @return The minimum vector
+     */
+    public static Vector min(Vector a, Vector b) {
+        return new Vector(Math.min(a.getX(), b.getX()), Math.min(a.getY(), b.getY()), Math.min(a.getZ(), b.getZ()));
+    }
+
+    /**
+     * Gets the maximum vector of the bounding box with corners <code>a</code>
+     * and <code>b</code>. Note that the returned vector will never be ==, and
+     * is not always .equal to either of the given vectors.
+     *
+     * @param a The first corner of the box
+     * @param b The second corner of the box
+     * @return The maximum vector
+     */
+    public static Vector max(@Nonnull Vector a, @Nonnull Vector b) {
+        return new Vector(Math.max(a.getX(), b.getX()), Math.max(a.getY(), b.getY()), Math.max(a.getZ(), b.getZ()));
+    }
+
+    /**
+     * Shorthand for adding values to a vector without instantiating a new vector
+     *
+     * @param a The vector to add to
+     * @param x The x value to add
+     * @param y The y value to add
+     * @param z The z value to add
+     */
+    public static Vector add(@Nonnull Vector a, double x, double y, double z) {
+        a.setX(a.getX() + x);
+        a.setY(a.getY() + y);
+        a.setZ(a.getZ() + z);
+        return a;
+    }
+
+    /**
      * Effectively gets a vector perpendicular to the
      * given vector.
      *
