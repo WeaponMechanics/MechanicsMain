@@ -6,7 +6,11 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-// todo entity equip event
+/**
+ * This class outlines a bukkit event that occurs when a bukkit player equips
+ * or removes an item to/from an armor slot. This event is called 1 tick after
+ * receiving the packet.
+ */
 public class ArmorEquipEvent extends EntityEvent {
 
     private static HandlerList handlerList = new HandlerList();
@@ -14,6 +18,13 @@ public class ArmorEquipEvent extends EntityEvent {
     private final ArmorSlot slot;
     private final ItemStack armor;
 
+    /**
+     * The constructor.
+     *
+     * @param what  The bukkit entity that is equipping the armor.
+     * @param slot  Which slot the item is being equipped to.
+     * @param armor The item being equipped, or null if the item is unequipped.
+     */
     public ArmorEquipEvent(Entity what, ArmorSlot slot, ItemStack armor) {
         super(what);
 
@@ -21,10 +32,23 @@ public class ArmorEquipEvent extends EntityEvent {
         this.armor = armor;
     }
 
+    /**
+     * Returns the non-null slot that the item is being equipped/unequipped
+     * from.
+     *
+     * @return The slot involved.
+     */
     public ArmorSlot getSlot() {
         return slot;
     }
 
+    /**
+     * The item being equipped, or <code>null</code> if the item is being
+     * unequipped. The equipped item isn't always armor, as it can be a
+     * player head, a pumpkin, or a block placed there by a plugin.
+     *
+     * @return The item involved.
+     */
     public ItemStack getArmor() {
         return armor;
     }
@@ -38,6 +62,11 @@ public class ArmorEquipEvent extends EntityEvent {
         return handlerList;
     }
 
+    /**
+     * This enum outlines an armor slot belonging to a bukkit living entity.
+     *
+     * @see EquipmentSlot
+     */
     public enum ArmorSlot {
         HEAD,
         CHEST,

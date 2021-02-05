@@ -27,6 +27,12 @@ import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
+/**
+ * This immutable abstract class outlines a subsection or small section of a
+ * plugin's command structure. A subcommand can be registered as a bukkit
+ * command, but it should instead belong to the instantiating plugin's
+ * {@link MainCommand}.
+ */
 public abstract class SubCommand extends BukkitCommand {
 
     protected static final String PLAYERS = "<player>";
@@ -40,14 +46,48 @@ public abstract class SubCommand extends BukkitCommand {
         COMMAND_MAP = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
     }
 
-    protected SubCommands commands;
-    private String prefix;
-    private String[] args;
+    protected final SubCommands commands;
+    private final String prefix;
+    private final String[] args;
 
+    /**
+     * Constructor for simple subcommands that can only be used for 1 single
+     * purpose. Subcommands using this constructor should not use any
+     * arguments. E.x. Reload commands, plugin information commands.
+     *
+     * @param parentPrefix The arguments that come before the label. This is
+     *                     usually the main command's label, but it may also
+     *                     include parent subcommand's labels. If this
+     *                     subcommand is being used as a standalone command,
+     *                     this argument should be an empty {@link String}.
+     * @param label        The unique name for this command. Should not be
+     *                     null.
+     * @param desc         A simple readable description for what this command
+     *                     does.
+     */
     public SubCommand(String parentPrefix, String label, String desc) {
         this(parentPrefix, label, desc, "");
     }
 
+    /**
+     * Constructor for advanced subcommands that have different behaviors based
+     * on the command executor's arguments.
+     *
+     * @param parentPrefix The arguments that come before the label. This is
+     *                     usually the main command's label, but it may also
+     *                     include parent subcommand's labels. If this
+     *                     subcommand is being used as a standalone command,
+     *                     this argument should be an empty {@link String}.
+     * @param label        The unique name for this command. Should not be
+     *                     null.
+     * @param desc         A simple readable description for what this command
+     *                     does.
+     * @param usage        The arguments that the command can take. Arguments
+     *                     should be separated by spaces. Commands
+     *                     which utilise custom tags need to override
+     *                     {@link #handleCustomTag(String[], String)}. E.x.
+     *                     <samp>&lt;player&gt; &lt;amount&gt;</samp>.
+     */
     public SubCommand(String parentPrefix, String label, String desc, String usage) {
         super(label);
 
@@ -72,14 +112,31 @@ public abstract class SubCommand extends BukkitCommand {
         }
     }
 
+    /**
+     * Returns a non-null clone of the arguments that this subcommand accepts.
+     *
+     * @return A copy of the arguments.
+     */
     public String[] getArgs() {
-        return args;
+        return args.clone();
     }
 
+    /**
+     * Gets the non-null text put before the command, useful for command lists.
+     *
+     * @return The prefix of the subcommand.
+     */
     public String getPrefix() {
         return prefix;
     }
 
+    /**
+     * Gets the {@link String} value of the permission a command executor must
+     * have to use this subcommand. If the implementing class is not annotated
+     * by {@link CommandPermission}, this method may return <code>null</code>.
+     *
+     * @return The readable version of the permission
+     */
     @Override
     public String getPermission() {
         if (getClass().isAnnotationPresent(CommandPermission.class)) {
@@ -89,14 +146,6 @@ public abstract class SubCommand extends BukkitCommand {
         }
     }
 
-    /**
-     * Sends information to the given sender about the
-     * command defined by this class and the given args
-     *
-     * @param sender Who to send help to
-     * @param args Command arguments
-     * @return Whether or not the command is valid
-     */
     protected boolean sendHelp(CommandSender sender, String[] args) {
         if (commands.isEmpty()) {
             if (CompatibilityAPI.getVersion() < 1.09 || !(sender instanceof Player)) {
@@ -118,13 +167,6 @@ public abstract class SubCommand extends BukkitCommand {
         }
     }
 
-    /**
-     * Uses <code>this.args</code> to determine what
-     * tab completion options the user
-     *
-     * @param args
-     * @return
-     */
     List<String> tabCompletions(String[] args) {
 
         // Nothing is being typed, so we have no suggestions
@@ -153,7 +195,7 @@ public abstract class SubCommand extends BukkitCommand {
 
                 // If this command does not have subcommands, give no info
                 if (index == -1) return new ArrayList<>();
-                // Else let subcommands handle tab completions
+                    // Else let subcommands handle tab completions
                 else return commands.tabCompletions(args[index], Arrays.copyOfRange(args, index + 1, args.length));
             default:
                 if (current.contains(",")) {
@@ -166,23 +208,23 @@ public abstract class SubCommand extends BukkitCommand {
     }
 
     /**
-     * If you have a custom tag, like "my_doubles" (Something that
-     * isn't included in the default options), this method should be
-     * overridden to handle that.
+     * Returns a list of strings for the custom tag <code>tag</code>. This
+     * method is called when an unrecognized tag is used during tab
+     * completion.
      *
-     * @param args The arguments the user typed
-     * @param tag The custom tag to handle
-     * @return The tabcompletions for the custom tag
+     * @param args The arguments the user typed.
+     * @param tag  The custom tag to handle.
+     * @return The tab completions for the custom tag.
      */
     protected List<String> handleCustomTag(String[] args, String tag) {
         return StringUtils.getList(tag);
     }
 
     /**
-     * What should be done when this command is executed
+     * What should be done when this command is executed.
      *
      * @param sender Who executed the command
-     * @param args The arguments input by the user
+     * @param args   The arguments input by the user
      */
     public abstract void execute(CommandSender sender, String[] args);
 
