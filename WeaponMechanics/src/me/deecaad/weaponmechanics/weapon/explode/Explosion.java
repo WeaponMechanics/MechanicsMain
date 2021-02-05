@@ -213,7 +213,9 @@ public class Explosion {
             }
         }
 
-        debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
+        if (debug.canLog(LogLevel.DEBUG)) {
+            debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
+        }
 
         EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
 

@@ -133,7 +133,7 @@ public class DefaultExposure implements ExplosionExposure {
                     Vector vector = new Vector(a + d3, b, c + d4).subtract(vec3d);
 
                     Ray ray = new Ray(vec3d.toLocation(world), vector);
-                    TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.05);
+                    TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
                     if (trace.getBlocks().isEmpty()) {
                         successfulTraces++;
                     }

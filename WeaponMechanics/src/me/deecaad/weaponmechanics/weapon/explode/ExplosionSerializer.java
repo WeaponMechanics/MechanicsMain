@@ -93,12 +93,12 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         debug.validate(radius > 0, "Explosion Radius should be a positive number!", found + "Height");
         debug.validate(rays > 0, "Explosion Rays should be a positive number!", found + "Rays");
 
-        debug.validate(yield < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
-        debug.validate(angle < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Angle"));
-        debug.validate(height < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Height"));
-        debug.validate(width < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Width"));
-        debug.validate(radius < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Radius"));
-        debug.validate(rays < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Rays"));
+        debug.validate(LogLevel.WARN, yield < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
+        debug.validate(LogLevel.WARN, angle < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Angle"));
+        debug.validate(LogLevel.WARN, height < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Height"));
+        debug.validate(LogLevel.WARN, width < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Width"));
+        debug.validate(LogLevel.WARN, radius < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Radius"));
+        debug.validate(LogLevel.WARN, rays < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Rays"));
 
         ExplosionShape shape;
         switch (shapeType) {

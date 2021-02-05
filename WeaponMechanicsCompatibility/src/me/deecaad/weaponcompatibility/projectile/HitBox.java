@@ -4,6 +4,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.VectorUtils;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
@@ -128,7 +129,7 @@ public class HitBox implements IValidator {
     }
 
     public Vector getCenter() {
-        return new Vector(min.getX() + getWidth() * 0.5, min.getY() + getHeight() * 0.5, min.getZ() + getDepth() * 0.5);
+        return VectorUtils.lerp(min, max, 0.5);
     }
 
     /**
