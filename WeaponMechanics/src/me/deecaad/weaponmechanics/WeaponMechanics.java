@@ -12,7 +12,6 @@ import me.deecaad.core.file.FileReader;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.JarSerializers;
 import me.deecaad.core.file.LinkedConfig;
-import me.deecaad.core.file.SeparatedConfig;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
@@ -230,7 +229,7 @@ public class WeaponMechanics extends JavaPlugin {
         debug.info("Serializing config");
 
         if (configurations == null) {
-            configurations = new SeparatedConfig();
+            configurations = new LinkedConfig();
         } else {
             configurations.clear();
         }

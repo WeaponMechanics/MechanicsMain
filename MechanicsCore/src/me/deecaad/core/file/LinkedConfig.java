@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,29 +22,14 @@ import java.util.stream.Collectors;
 import static me.deecaad.core.MechanicsCore.debug;
 
 /**
- * This class is Map of Strings and Objects that
- * represent different keys and values. All values
- * are put in insertion order, for saving purpose.
+ * This class outlines an ordered configuration. Elements are added in
+ * insertion order, which may be useful for saving key-value pairs
+ * back to hard files.
  *
- * Since all Objects are stored inside of one map,
- * there is an overheard created from typecasting
- * the objects from their reference type to their
- * Object type.
- *
- * The advantage of this Configuration is that when
- * it is saved, all the keys are saved in order, not
- * disturbing whichever order players may have saved
- * it in.
- *
- * Explanations on each method are provided
- * in the Configuration interface
- *
- * @author cjcrafter
- * @see Configuration
- * @since 1.0
+ * {@link LinkedHashMap} seems to have a faster {@link Map#get(Object)} method
+ * then the {@link java.util.HashMap}.
  */
 public class LinkedConfig extends LinkedHashMap<String, Object> implements Configuration {
-
 
     @Override
     public void add(ConfigurationSection config) throws DuplicateKeyException {
@@ -92,7 +78,8 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     @Override
     public Object set(String key, Object value) {
 
-        // Convert lists to colored lists of strings
+        // If we are getting strings, make sure the color formatting has been
+        // done.
         if (value instanceof List<?>) {
             value = ((List<?>) value).stream()
                     .map(Object::toString)
@@ -102,8 +89,6 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
             value = StringUtils.color(value.toString());
         }
 
-        // There is no need to cast to specific data types
-        // here because they will be casted back to Objects
         return super.put(key, value);
     }
 
@@ -114,97 +99,140 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Override
     public int getInt(@Nonnull String key) {
-        return ((Number) getOrDefault(key, 0)).intValue();
+        Object value = super.get(key);
+        if (!(value instanceof Number)) {
+            return 0;
+        } else {
+            return ((Number) value).intValue();
+        }
     }
-    
+
     @Override
     public int getInt(String key, int def) {
-        return ((Number) getOrDefault(key, def)).intValue();
+        Object value = super.get(key);
+        if (!(value instanceof Number)) {
+            return def;
+        } else {
+            return ((Number) value).intValue();
+        }
     }
-    
+
     @Override
     public double getDouble(@Nonnull String key) {
-        return ((Number) getOrDefault(key, 0.0)).doubleValue();
+        Object value = super.get(key);
+        if (!(value instanceof Number)) {
+            return 0.0;
+        } else {
+            return ((Number) value).doubleValue();
+        }
     }
-    
+
     @Override
     public double getDouble(String key, double def) {
-        return ((Number) getOrDefault(key, def)).doubleValue();
+        Object value = super.get(key);
+        if (!(value instanceof Number)) {
+            return 0.0;
+        } else {
+            return ((Number) value).doubleValue();
+        }
     }
-    
+
     @Override
     public boolean getBool(@Nonnull String key) {
-        return (boolean) getOrDefault(key, false);
+        Object value = super.get(key);
+        if (!(value instanceof Boolean)) {
+            return false;
+        } else {
+            return (Boolean) value;
+        }
     }
-    
+
     @Override
     public boolean getBool(String key, boolean def) {
-        return (boolean) getOrDefault(key, def);
+        Object value = super.get(key);
+        if (!(value instanceof Boolean)) {
+            return def;
+        } else {
+            return (Boolean) value;
+        }
     }
 
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
     public List<String> getList(String key) {
-        List<String> value = (List<String>) get(key);
-
-        // Avoid initializing a new Object if
-        // we don't need to
-        if (value == null) {
-            return new ArrayList<>();
+        Object value = super.get(key);
+        if (!(value instanceof List)) {
+            return Collections.emptyList();
         } else {
-            return value;
+            return (List<String>) value;
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<String> getList(String key, List<String> def) {
-        return (List<String>) getOrDefault(key, def);
+        Object value = super.get(key);
+        if (!(value instanceof List)) {
+            return def;
+        } else {
+            return (List<String>) value;
+        }
     }
 
     @Nullable
     @Override
     public String getString(@Nonnull String key) {
-        return (String) getOrDefault(key, null);
-    }
-    
-    @Override
-    public String getString(String key, String def) {
-        return (String) getOrDefault(key, def);
+        Object value = super.get(key);
+        if (!(value instanceof String)) {
+            return null;
+        } else {
+            return (String) value;
+        }
     }
 
-    /**
-     * This implementation has the issue of returning
-     * any data type, since every generic is an <code>Object</code>
-     *
-     * @param key The location to pull the value from
-     * @return The object at the given key
-     */
+    @Override
+    public String getString(String key, String def) {
+        Object value = super.get(key);
+        if (!(value instanceof String)) {
+            return def;
+        } else {
+            return (String) value;
+        }
+    }
+
     @Nullable
     @Override
     public Object getObject(String key) {
-        return get(key);
+        return super.get(key);
     }
 
     @Override
     public Object getObject(String key, Object def) {
-        return getOrDefault(key, def);
+        return super.getOrDefault(key, def);
     }
 
     @Nullable
     @Override
     public <T> T getObject(String key, Class<T> clazz) {
-        // clazz.cast -> returns the object after casting, or null if obj is null
-        return clazz.cast(get(key));
+        Object value = super.get(key);
+        if (!clazz.isInstance(value)) {
+            return null;
+        } else {
+            return clazz.cast(value);
+        }
     }
-    
+
     @Override
     public <T> T getObject(String key, T def, Class<T> clazz) {
-        Object value = get(key);
-        return value != null ? clazz.cast(value) : def;
+        Object value = super.get(key);
+        if (!clazz.isInstance(value)) {
+            return def;
+        } else {
+            return clazz.cast(value);
+        }
     }
-    
+
     @Override
     public boolean containsKey(@Nonnull String key) {
         return super.containsKey(key);
@@ -238,7 +266,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     public void save(@Nonnull File file) {
         FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-        
+
         // basic support for changing keys during the program AND
         // allowing the program to change keys.
         try {
@@ -249,7 +277,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
         // Deletes all keys from config
         configuration.getKeys(true).forEach(key -> configuration.set(key, null));
-        
+
         // Set and save
         forEach(configuration::set);
         try {

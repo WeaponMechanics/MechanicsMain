@@ -4,224 +4,270 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+/**
+ * This interface outlines the methods needed to pull values from a
+ * configuration file. Implementors should have compatibility with bukkit's
+ * {@link ConfigurationSection}. Using an implementation of this config instead
+ * of bukkit's config should have the advantage of better performance.
+ *
+ * <p>Configuration files are YAML files, which are files that follow a
+ * key-value pair format. The key is a unique {@link String}, but the value can
+ * be any {@link Object}.
+ */
 public interface Configuration {
 
     /**
-     * Adds every key and value from the given <code>ConfigurationSection</code>
-     * to this configuration. If a key is added that already exists in
-     * this <code>Configuration</code>, then a <code>DuplicateKeyException</code>
-     * is thrown.
+     * Adds every key-value pair from the bukkit configuration into this
+     * configuration. If a key that exists in this configuration also exists in
+     * the bukkit configuration, it is saved separately then thrown as a
+     * {@link DuplicateKeyException}.
      *
-     * @param config The configuration to pull from
-     * @throws DuplicateKeyException If a duplicate key is found
+     * @param config The bukkit configuration to copy key-value pairs from.
+     * @throws DuplicateKeyException Thrown if a key is attempted to be added
+     *                               when it already exists in this config.
      */
     void add(ConfigurationSection config) throws DuplicateKeyException;
 
     /**
-     * Adds every key and value from the given <code>Configuration</code>
-     * to this configuration. If a key is added that already exists in
-     * this <code>Configuration</code>, then a <code>DuplicateKeyException</code>
-     * is thrown.
+     * Adds every key-value pair from the configuration into this
+     * configuration. If a key that exists in this configuration also exists in
+     * the given configuration, it is saved separately then thrown as a
+     * {@link DuplicateKeyException}.
      *
-     * @param config The configuration to pull from
-     * @throws DuplicateKeyException If a duplicate key is found
+     * @param config The configuration to copy key-value pairs from.
+     * @throws DuplicateKeyException Thrown if a key is attempted to be added
+     *                               when it already exists in this config.
      */
     void add(Configuration config) throws DuplicateKeyException;
 
     /**
-     * Sets the value at the given key
+     * Sets the key-value pair for the given <code>key</code>. If the key
+     * already exists, the value previously assigned to it is returned,
+     * and the new <code>value</code> is assigned.
      *
-     * @param key Location to set
-     * @param value The value to set at the location
-     * @return The value previously at that location, or null
+     * @param key   The key location to assign the <code>value</code> to.
+     * @param value The value to assign to the <code>location</code>.
+     * @return The value that was previously assigned to the <code>key</code>,
+     *         or null.
      */
     @Nullable
     Object set(String key, Object value);
 
     /**
-     * Gets every key present in this <code>Configuration</code>
+     * Returns an immutable set of the every key present. This is most useful
+     * for looping through every config key. Use {@link #containsKey(String)}
+     * if you want to check for a key's existence.
      *
-     * @return All keys
+     * @return Immutable, non-null set of all keys.
      */
     Set<String> getKeys();
 
     /**
-     * Get the <code>int</code> value stored at
-     * the given key
+     * Returns the integer present at the given <code>key</code>. If there is a
+     * number at that location that is not an integer, that number is casted to
+     * an integer. If the value at that <code>key</code> does not exist, or it
+     * is not a number, <code>0</code> is returned.
      *
-     * @param key The location to pull the value from
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @return The integer found.
      */
     int getInt(String key);
 
     /**
-     * Get the <code>int</code> value stored at
-     * the given key. If the key is not present,
-     * the default value is returned.
+     * Returns the integer present at the given <code>key</code>. If there is a
+     * number at that location that is not an integer, that number is casted to
+     * an integer. If the value at that <code>key</code> does not exist, or it
+     * is not a number, <code>def</code> is returned.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @param def The default value to use if the <code>key</code> does not
+     *            exist or the value is not a number.
+     * @return The integer found.
      */
     int getInt(String key, int def);
 
     /**
-     * Get the <code>double</code> value stored at
-     * the given key
+     * Returns the double present at the given <code>key</code>. If there is a
+     * number at that location that is not a double, that number is casted to a
+     * double. If the value at that <code>key</code> does not exist, or it is
+     * not a number, <code>0.0</code> is returned.
      *
-     * @param key The location to pull the value from
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @return The double found.
      */
     double getDouble(String key);
 
     /**
-     * Get the <code>Double</code> value stored at
-     * the given key. If the key is not present,
-     * the default value is returned.
+     * Returns the double present at the given <code>key</code>. If there is a
+     * number at that location that is not a double, that number is casted to a
+     * double. If the value at that <code>key</code> does not exist, or it is
+     * not a number, <code>def</code> is returned.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @param def The default value to use if the <code>key</code> does not
+     *            exist or the value is not a number.
+     * @return The double found.
      */
     double getDouble(String key, double def);
 
     /**
-     * Get the <code>String</code> value stored at
-     * the given key
+     * Returns the {@link String} present at the given <code>key</code>. If the
+     * value at that location is not a {@link String}, or if the key is not
+     * present, then this method should return <code>null</code>.
      *
-     * @param key The location to pull the value from
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @return The {@link String} found.
      */
-    @Nonnull
     String getString(String key);
 
     /**
-     * Get the <code>String</code> value stored at
-     * the given key. If the key is not present,
-     * the default value is returned.
+     * Returns the {@link String} present at the given <code>key</code>. If the
+     * value at that location is not a {@link String}, or if the key is not
+     * present, then this method should return <code>def</code>.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @param def The default value to use if the <code>key</code> does not
+     *            exist or the value is not a {@link String}.
+     * @return The {@link String} found.
      */
     String getString(String key, String def);
 
     /**
-     * Get the <code>boolean</code> value stored at
-     * the given key
+     * Returns the boolean present at the given <code>key</code>. If the value
+     * at that location is not a boolean, or if the key is not present, then
+     * this method should return <code>false</code>.
      *
-     * @param key The location to pull the value from
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @return The boolean found.
      */
     boolean getBool(String key);
 
     /**
-     * Get the <code>boolean</code> value stored at
-     * the given key. If the key is not present,
-     * the default value is returned.
+     * Returns the boolean present at the given <code>key</code>. If the value
+     * at that location is not a boolean, or if the key is not present, then
+     * this method should return <code>false</code>.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
-     * @return The pulled value
+     * @param key The location to look for a value.
+     * @param def The default value to use if the <code>key</code> does not
+     *            exist or the value is not a boolean.
+     * @return The boolean found.
      */
     boolean getBool(String key, boolean def);
 
     /**
-     * Get the <code>List</code> value stored at
-     * the given key
+     * Returns the {@link List} of {@link String}s at the given
+     * <code>key</code>. If the value at that location is not a {@link List}
+     * of {@link String}s, or if the key is not present, then this method
+     * should return an immutable empty list.
      *
-     * @param key The location to pull the value from
-     * @return The pulled value
+     * If you want to modify this list, you should create a deep copy of the
+     * returned {@link List}, modify that, and set it using
+     * {@link #set(String, Object)}.
+     *
+     * @see Collections#emptyList()
+     *
+     * @param key The location to pull the value from.
+     * @return The pulled value.
      */
     @Nonnull
     List<String> getList(String key);
 
     /**
-     * Get the <code>List</code> value stored at
-     * the given key. If the key is not present,
-     * the default value is returned.
+     * Returns the {@link List} of {@link String}s at the given
+     * <code>key</code>. If the value at that location is not a {@link List}
+     * of {@link String}s, or if the key is not present, then this method
+     * should return <code>def</code>.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
-     * @return The pulled value
+     * @param key The location to pull the value from.
+     * @param def The default value to use if the <code>key</code> does not
+     *            exist or the value is not a {@link List} of {@link String}s.
+     * @return The pulled value.
      */
     List<String> getList(String key, List<String> def);
 
     /**
-     * Get the <code>Object</code> value stored at
-     * the given key. If no object is found null is
-     * returned
+     * Returns the {@link Object} at the given <code>key</code>. If the key is
+     * not present, then this method should return <code>null</code>.
      *
-     * @param key The location to pull the value from
-     * @return The pulled value
+     * @param key The location to pull the value from.
+     * @return The pulled value.
      */
     @Nullable
     Object getObject(String key);
 
     /**
-     * Get the <code>Object</code> value stored at
-     * the given key. If the key is not present,
-     * the default value is returned.
+     * Returns the {@link Object} at the given <code>key</code>. If the key is
+     * not present, then this method should return <code>def</code>.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
-     * @return The pulled value
+     * @param key The location to pull the value from.
+     * @param def The default value to use if the <code>key</code> does not
+     *            exist.
+     * @return The pulled value.
      */
     Object getObject(String key, Object def);
 
     /**
-     * Get the <code>Object</code> value of type
-     * <code>T</code> at the given key
+     * Returns the {@link Object} at the given <code>key</code>. The value is
+     * casted to the generic type of <code>clazz</code>. If the key is not
+     * present, then this method should return <code>null</code>.
      *
-     * @param key The location to pull the value from
-     * @param clazz The class used to cast to type T
-     * @param <T> The data type of the value
-     * @return The pulled and casted value
+     * @param key The location to pull the value from.
+     * @param clazz The class that defines the class type.
+     * @param <T> The class type to cast the value to.
+     * @return The pulled value.
      */
     @Nullable
     <T> T getObject(String key, Class<T> clazz);
 
     /**
-     * Get the <code>Object</code> value of type
-     * <code>T</code> at the given key. If the key
-     * is not present, the default value is returned.
+     * Returns the {@link Object} at the given <code>key</code>. The value is
+     * casted to the generic type of <code>clazz</code>. If the key is not
+     * present, then this method should return <code>null</code>.
      *
-     * @param key The location to pull the value from
-     * @param def The default value
-     * @param clazz The class used to cast to type T
-     * @param <T> The data type of the value
-     * @return The pulled and casted value
+     * @param key The location to pull the value from.
+     * @param def The default value to use if the <code>key</code> does not
+     *            exist.
+     * @param clazz The class that defines the class type.
+     * @param <T> The class type to cast the value to.
+     * @return The pulled value.
      */
     <T> T getObject(String key, T def, Class<T> clazz);
 
     /**
-     * Checks to see if the given key is contained within
-     * this <code>Configuration</code>
+     * Returns <code>true</code> if the given <code>key</code> is present in
+     * this configuration. Otherwise, this method will return
+     * <code>false</code>.
      *
-     * @param key The key to check for
-     * @return true if the key is present
+     * @param key The key to check for.
+     * @return <code>true</code> if the <code>key</code> is present.
      */
     boolean containsKey(String key);
 
     /**
-     * Checks to see if the given key is contained within
-     * this <code>Configuration</code>. If the key is present,
-     * then there is a second check to make sure it is of the
-     * given data type
+     * Returns <code>true</code> if the given <code>key</code> is present in
+     * this configuration and the value is an instance of the given
+     * {@link Class} <code>clazz</code>.
      *
-     * @param key The key to check for
-     * @param clazz The data type to check for
-     * @return true if the key is present
+     * <p>Since generics cannot store primitive data types, it is important
+     * that you use the wrapper classes when checking for numbers/booleans.
+     * For example, use <code>Boolean.class</code> instead of
+     * <code>boolean.class</code>.
+     *
+     * @param key The key to check for.
+     * @param clazz The class type to check for.
+     * @return <code>true</code> if the <code>key</code> is present and if the
+     *         value matches the class type.
      */
     boolean containsKey(String key, Class<?> clazz);
 
     /**
-     * Clears this <code>Configuration</code> by removing
-     * every key and value
+     * Removes every key-value pair from the backing data structures, leaving
+     * them for garbage collection later.
      */
     void clear();
 
@@ -230,9 +276,9 @@ public interface Configuration {
      * <code>path</code> and checks to see if the
      * key is "deep" or not
      *
-     * @param path The starting path
+     * @param path     The starting path
      * @param consumer What to do with every key
-     * @param deep true if should go deep
+     * @param deep     true if should go deep
      */
     void forEach(String path, BiConsumer<String, Object> consumer, boolean deep);
 }

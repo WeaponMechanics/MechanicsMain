@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,26 +23,21 @@ import java.util.stream.Collectors;
 import static me.deecaad.core.MechanicsCore.debug;
 
 /**
- * This class separates "common" reference
- * types into separate maps to avoid the
- * overhead from typecasting, and to improve
- * the readability.
+ * This implementation of {@link Configuration} separates <i>common</i> data
+ * types into separate maps.
  *
- * Explanations on each method are provided
- * in the Configuration interface
- *
- * @author cjcrafter
- * @see Configuration
- * @since 1.0
+ * @deprecated Separation into separate maps is redundant, since generics do
+ *             not exist at runtime. Use instead: {@link LinkedConfig}
  */
+@Deprecated
 public class SeparatedConfig implements Configuration {
 
-    private List<Map<String, ?>> maps;
-    private Map<String, Number> numbers;
-    private Map<String, Boolean> booleans;
-    private Map<String, String> strings;
-    private Map<String, Object> objects;
-    private Map<String, List<String>> lists;
+    private final List<Map<String, ?>> maps;
+    private final Map<String, Number> numbers;
+    private final Map<String, Boolean> booleans;
+    private final Map<String, String> strings;
+    private final Map<String, Object> objects;
+    private final Map<String, List<String>> lists;
 
     public SeparatedConfig() {
 
@@ -202,44 +198,35 @@ public class SeparatedConfig implements Configuration {
     @Override
     public List<String> getList(String key) {
         List<String> value = lists.get(key);
-        if (value == null) {
-            return new ArrayList<>();
-        } else {
-            return value;
-        }
+        return value == null ? Collections.emptyList() : value;
     }
 
     @Override
     public List<String> getList(String key, List<String> def) {
         List<String> value = lists.get(key);
-        if (value == null) {
-            return def;
-        } else {
-            return value;
-        }
+        return value == null ? def : value;
     }
 
     @Override
     public boolean containsKey(@Nonnull String key) {
-        return maps.stream().anyMatch(map -> map.containsKey(key));
+        for (Map<String, ?> map : maps) {
+            if (map.containsKey(key)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
     public boolean containsKey(String key, Class<?> clazz) {
-        if (clazz == int.class) clazz = Integer.class;
-        else if (clazz == double.class) clazz = Double.class;
-        else if (clazz == boolean.class) clazz = Boolean.class;
-
-        final Class<?> finalClazz = clazz;
-
-        return maps.stream().anyMatch(map -> {
-            Object value = map.get(key);
-            if (value == null) {
-                return false;
-            } else {
-                return finalClazz.isInstance(value);
+        for (Map<String, ?> map : maps) {
+            if (map.containsKey(key) && clazz.isInstance(map.get(key))) {
+                return true;
             }
-        });
+        }
+
+        return false;
     }
 
     @Override
