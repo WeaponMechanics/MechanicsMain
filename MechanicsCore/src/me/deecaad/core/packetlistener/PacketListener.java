@@ -36,8 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This abstract class outlines a packet interceptor that listens for packets
  * of information being exchanged between the server and connected players.
  *
- * If a plugin is listening for 5 or more different packets, then it should use
+ * <p>If a plugin is listening for 5 or more different packets, then it should use
  * an implementation of this class to separate out the work for the packets.
+ *
  * @see PacketHandlerListener
  */
 public abstract class PacketListener {
@@ -112,7 +113,7 @@ public abstract class PacketListener {
      * the server channels.
      * @see PacketListener#close()
      *
-     * This constructor also instantiates a {@link Listener} to get a player's
+     * <p>This constructor also instantiates a {@link Listener} to get a player's
      * channel when they join, and to automatically close this packet listener
      * when the <code>plugin</code> is disabled.
      *
@@ -156,7 +157,7 @@ public abstract class PacketListener {
 
         beginInitProtocol = new ChannelInitializer<Channel>() {
             @Override
-            protected void initChannel(Channel channel)  {
+            protected void initChannel(Channel channel) {
                 channel.pipeline().addLast(endInitProtocol);
             }
         };
@@ -260,9 +261,8 @@ public abstract class PacketListener {
      * Returns <code>true</code> if this listener has been closed, and is no
      * longer intercepting packets.
      *
-     * @see PacketListener#close()
-     *
      * @return <code>true</code> if the {@link #close()} method has been called.
+     * @see PacketListener#close()
      */
     public boolean isClosed() {
         return isClosed;
@@ -298,13 +298,12 @@ public abstract class PacketListener {
      * Adds the given <code>player</code> to this listener by injecting the
      * {@link Channel} associated with it into this listener.
      *
-     * @see #injectChannel(Channel)
-     *
      * @param player The non-null bukkit player to inject.
      * @throws ClassCastException If there is another plugin's packet listener
      *                            with the same {@link #getHandlerName()} to
      *                            this one. If this occurs, your plugin name is
      *                            too generic, and should be changed.
+     * @see #injectChannel(Channel)
      */
     public void injectPlayer(@Nonnull Player player) {
         injectChannel(getChannel(player)).player = player;
@@ -314,7 +313,7 @@ public abstract class PacketListener {
      * Adds the given <code>channel</code> to this listener by adding a
      * {@link PacketInterceptor} to it the key {@link #getHandlerName()}.
      *
-     * If the {@link Channel} has already been injected, this method will only
+     * <p>If the {@link Channel} has already been injected, this method will only
      * return the associated {@link PacketInterceptor} (Without any side
      * effects).
      *
@@ -350,7 +349,7 @@ public abstract class PacketListener {
      * calling this method, the result of {@link #isClosed()} will always be
      * <code>true</code>.
      *
-     * This method uninjects the {@link PacketInterceptor}s from all online
+     * <p>This method uninjects the {@link PacketInterceptor}s from all online
      * players' channels, as well as the server channels. Note that if a
      * {@link Player} was injected, logs off, this method is called, then that
      * {@link Player} logs back on, they create a new {@link Channel}.

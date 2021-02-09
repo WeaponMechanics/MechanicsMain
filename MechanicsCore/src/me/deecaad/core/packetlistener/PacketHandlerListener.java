@@ -33,9 +33,10 @@ public class PacketHandlerListener extends PacketListener {
 
     /**
      * Default implementation of the super class constructor.
+     *
      * @see PacketListener
      *
-     * @param plugin The non-null plugin to register the packet interceptors to.
+     * @param plugin   The non-null plugin to register the packet interceptors to.
      * @param debugger The non-null debugger to use for possible issues.
      */
     public PacketHandlerListener(@Nonnull Plugin plugin, @Nonnull Debugger debugger) {

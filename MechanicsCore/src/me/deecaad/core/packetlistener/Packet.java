@@ -49,7 +49,7 @@ public class Packet {
      * packets do not reach their destination (Outgoing packets do not reach
      * the client, and incoming packets do not reach the server).
      *
-     * Note that packet wrappers are plugin specific, so this method returning
+     * <p>Note that packet wrappers are plugin specific, so this method returning
      * <code>true</code> means that, at some point, your plugin has cancelled
      * the packet.
      *
@@ -73,7 +73,7 @@ public class Packet {
     /**
      * Gets field from some specific super class of this instance's packet instance
      *
-     * @param fieldName the field name to search
+     * @param fieldName  the field name to search
      * @param superClass the amount of super class
      * @return the field from the super class
      */
@@ -102,7 +102,7 @@ public class Packet {
     /**
      * Gets value from some field from specific super class of this instance's packet instance
      *
-     * @param fieldName the field name to search
+     * @param fieldName  the field name to search
      * @param superClass the amount of super class
      * @return the object of field from the super class
      */
@@ -113,8 +113,8 @@ public class Packet {
     /**
      * Sets new value for field in some specific super class
      *
-     * @param fieldName the field name to change
-     * @param value the new value for the field
+     * @param fieldName  the field name to change
+     * @param value      the new value for the field
      * @param superClass the amount of super class
      */
     public void setFieldValue(String fieldName, Object value, int superClass) {
