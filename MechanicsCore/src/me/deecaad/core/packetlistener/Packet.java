@@ -3,12 +3,18 @@ package me.deecaad.core.packetlistener;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 
+/**
+ * This class outlines a wrapper for storing nms packets exchanged between the
+ * minecraft server and players connected to the server.
+ */
 public class Packet {
 
-    private Player player;
-    private Object packet;
+    private final Player player;
+    private final Object packet;
     private boolean cancelled;
 
     public Packet(Player player, Object packet) {
@@ -17,33 +23,48 @@ public class Packet {
     }
 
     /**
-     * @return the player for who packet is being sent
+     * The player whose channel the packet belongs to. If the packet
+     * was originates from an internal server channel, this method
+     * will return <code>null</code>.
+     *
+     * @return The nullable player who is involved in this packet.
      */
+    @Nullable
     public Player getPlayer() {
         return this.player;
     }
 
     /**
-     * @return the packet instance
+     * The nms packet instance.
+     *
+     * @return The nonnull packet that was intercepted.
      */
+    @Nonnull
     public Object getPacket() {
         return this.packet;
     }
 
     /**
-     * Checks if packet sending is cancelled
+     * Returns <code>true</code> if this packet has been cancelled. Cancelled
+     * packets do not reach their destination (Outgoing packets do not reach
+     * the client, and incoming packets do not reach the server).
      *
-     * @return the state of cancelling
+     * Note that packet wrappers are plugin specific, so this method returning
+     * <code>true</code> means that, at some point, your plugin has cancelled
+     * the packet.
+     *
+     * @return The cancellation state.
      */
     public boolean isCancelled() {
         return this.cancelled;
     }
 
     /**
-     * Sets packet cancellation state.
-     * False means that this packet wont be sent to the player.
+     * Sets the cancellation state of the packet. If <code>cancelled</code> is
+     * equal to <code>true</code>, this packet will not be sent to it's
+     * destination.
      *
-     * @param cancelled the new cancelling state
+     * @param cancelled The cancellation state to set.
      */
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;

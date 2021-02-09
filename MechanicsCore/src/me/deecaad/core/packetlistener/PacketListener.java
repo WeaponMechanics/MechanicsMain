@@ -32,6 +32,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This abstract class outlines a packet interceptor that listens for packets
+ * of information being exchanged between the server and connected players.
+ *
+ * If a plugin is listening for 5 or more different packets, then it should use
+ * an implementation of this class to separate out the work for the packets.
+ * @see PacketHandlerListener
+ */
 public abstract class PacketListener {
 
     private static final Class<?> LOGIN_PACKET;
@@ -97,13 +105,25 @@ public abstract class PacketListener {
     private final ChannelInitializer<Channel> beginInitProtocol;
     private final ChannelInitializer<Channel> endInitProtocol;
 
+    /**
+     * Sets up the protocols for receiving packets, and injects them into the
+     * server's channels. if there is a point when you no longer need to
+     * intercept packets, this should be closed to uninject the protocols from
+     * the server channels.
+     * @see PacketListener#close()
+     *
+     * This constructor also instantiates a {@link Listener} to get a player's
+     * channel when they join, and to automatically close this packet listener
+     * when the <code>plugin</code> is disabled.
+     *
+     * @param plugin The non-null plugin to register this listener to.
+     * @param debug  The non-null debugger to relay possible issues to.
+     */
     @SuppressWarnings("unchecked")
     public PacketListener(@Nonnull final Plugin plugin, @Nonnull final Debugger debug) {
         this.plugin = plugin;
         this.debug = debug;
         this.handlerName = "MechanicsCore-" + plugin.getName() + "-" + IDS.incrementAndGet();
-
-        registerInjectionListener();
 
         // Handle internal minecraft server channel that
         // handles packets before the player's channel
@@ -171,51 +191,14 @@ public abstract class PacketListener {
             }
         }
 
+        registerInjectionListener();
+
         // Inject players that are already connected to the server
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             injectPlayer(player);
         }
     }
 
-    /**
-     * Gets the plugin associated with this <code>PacketListener</code>
-     *
-     * @return bukkit plugin
-     */
-    @Nonnull
-    public Plugin getPlugin() {
-        return plugin;
-    }
-
-    /**
-     * Gets the unique handlerName of this <code>PacketListener</code>.
-     * Every <code>PacketListener</code> has a unique name
-     *
-     * @return handlerName
-     */
-    @Nonnull
-    public String getHandlerName() {
-        return handlerName;
-    }
-
-    /**
-     * @return true if this packet listener has been closed
-     * @see PacketListener#close()
-     */
-    public boolean isClosed() {
-        return isClosed;
-    }
-
-    /**
-     * Instantiates this <code>PacketListener</code>'s
-     * <code>listener</code> and listens for the
-     * <code>PlayerLoginEvent</code> and the
-     * <code>PluginDisableEvent</code> to inject/uninject
-     * channels. The listener is cached for later for the
-     * close() method
-     *
-     * @see PacketListener#close()
-     */
     private void registerInjectionListener() {
 
         if (this.listener != null)
@@ -252,13 +235,46 @@ public abstract class PacketListener {
     }
 
     /**
-     * Gets the <code>Channel</code> associated with the given
-     * <code>Player</code>. This will almost always pull the channel
-     * from cache because players are injected from the initial
-     * <code>PacketLoginInStart</code> sent to the server.
+     * Returns the plugin that instantiated this listener.
      *
-     * @param player The player to grab the channel from
-     * @return The channel associated with the given player
+     * @return The non-null plugin.
+     */
+    @Nonnull
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    /**
+     * Gets the name of the handler that this listener uses to inject into
+     * {@link Channel}s.
+     *
+     * @return The unique, non-null handler name. The returned name will follow
+     *         a <code>MechanicsCore-&lt;plugin&gt;-&lt;id&gt;</code> format.
+     */
+    @Nonnull
+    public String getHandlerName() {
+        return handlerName;
+    }
+
+    /**
+     * Returns <code>true</code> if this listener has been closed, and is no
+     * longer intercepting packets.
+     *
+     * @see PacketListener#close()
+     *
+     * @return <code>true</code> if the {@link #close()} method has been called.
+     */
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    /**
+     * Returns the {@link Channel} associated with the given
+     * <code>player</code>'s name. If no {@link Channel} is cached for that
+     * player, then this method will use reflection to grab it.
+     *
+     * @param player The player to grab the {@link Channel} from.
+     * @return The cached (Or newly cached) {@link Channel}.
      */
     public Channel getChannel(Player player) {
         Channel channel = channelCache.get(player.getName());
@@ -269,6 +285,7 @@ public abstract class PacketListener {
             Object nmsPlayer = CompatibilityAPI.getEntityCompatibility().getNMSEntity(player);
             Object connection = ReflectionUtil.invokeField(playerConnectionField, nmsPlayer);
             Object manager = ReflectionUtil.invokeField(networkManagerField, connection);
+
             channel = (Channel) ReflectionUtil.invokeField(channelField, manager);
 
             channelCache.put(player.getName(), channel);
@@ -278,30 +295,31 @@ public abstract class PacketListener {
     }
 
     /**
-     * Injects/adds the given <code>player</code>'s <code>Channel</code>
-     * into this <code>PacketListener</code>. If the player's channel
-     * is already registered, this will update the
-     * <code>PacketInterceptor</code>'s <code>player</code> instance to
-     * the given <code>player</code>
+     * Adds the given <code>player</code> to this listener by injecting the
+     * {@link Channel} associated with it into this listener.
      *
-     * @param player The player to inject
-     * @throws ClassCastException If there is a different packet interceptor with the same handlerName
+     * @see #injectChannel(Channel)
+     *
+     * @param player The non-null bukkit player to inject.
+     * @throws ClassCastException If there is another plugin's packet listener
+     *                            with the same {@link #getHandlerName()} to
+     *                            this one. If this occurs, your plugin name is
+     *                            too generic, and should be changed.
      */
     public void injectPlayer(@Nonnull Player player) {
         injectChannel(getChannel(player)).player = player;
     }
 
     /**
-     * Injects/adds the given <code>channel</code> into this
-     * <code>PacketListener</code>. If the <code>channel</code> has
-     * already been injected, then this method will return the
-     * <code>PacketInterceptor</code> involved (for internal use).
-     * Otherwise, a new <code>PacketInterceptor</code> will be
-     * instantiated.
+     * Adds the given <code>channel</code> to this listener by adding a
+     * {@link PacketInterceptor} to it the key {@link #getHandlerName()}.
      *
-     * @param channel The channel to inject
-     * @return The PacketInterceptor associated with the channel
-     * @throws ClassCastException If there is a different packet interceptor with the same handlerName
+     * If the {@link Channel} has already been injected, this method will only
+     * return the associated {@link PacketInterceptor} (Without any side
+     * effects).
+     *
+     * @param channel The channel to inject.
+     * @return The interceptor that was added to the channel.
      */
     public PacketInterceptor injectChannel(@Nonnull Channel channel) {
         PacketInterceptor interceptor = (PacketInterceptor) channel.pipeline().get(handlerName);
@@ -315,10 +333,11 @@ public abstract class PacketListener {
     }
 
     /**
-     * Uninjects/removes the given <code>player</code> from this
-     * <code>PacketListener</code>.
+     * Uninjects the channel of the bukkit {@link Player}. This prevents the
+     * {@link PacketInterceptor} from intercepting outgoing packets to that
+     * {@link Player}.
      *
-     * @param player The player to uninject
+     * @param player The non-null {@link Player} to uninject.
      */
     public void uninjectPlayer(@Nonnull Player player) {
         Channel channel = getChannel(player);
@@ -327,12 +346,14 @@ public abstract class PacketListener {
     }
 
     /**
-     * Closes this <code>PacketListener</code>. This changes
-     * the <code>isClosed()</code> state to <code>true</code>,
-     * uninjects all server channels, and uninjects all online
-     * players
+     * Closes this listener, stopping it from intercepting packets. After
+     * calling this method, the result of {@link #isClosed()} will always be
+     * <code>true</code>.
      *
-     * @see PacketListener#uninjectPlayer(Player)
+     * This method uninjects the {@link PacketInterceptor}s from all online
+     * players' channels, as well as the server channels. Note that if a
+     * {@link Player} was injected, logs off, this method is called, then that
+     * {@link Player} logs back on, they create a new {@link Channel}.
      */
     public final void close() {
         if (!isClosed) {
@@ -352,29 +373,24 @@ public abstract class PacketListener {
     }
 
     /**
-     * Gets called when any of the injected <code>Channel</code>'s
-     * <code>PacketInterceptor</code> reads an incoming packet
+     * This method is called when any of the injected {@link Channel}s
+     * intercepts an incoming (client to server) packet. Note that the result
+     * of {@link Packet#getPlayer()} may be <code>null</code>.
      *
-     * Note: This means that any injected server channel may
-     * get this packet, meaning the result of
-     * <code>wrapper#getPlayer</code> may equal <code>null</code>
-     *
-     * @param wrapper The nonnull wrapper containing the packet
+     * @param wrapper The non-null wrapper containing the packet.
      */
     protected abstract void onPacketIn(Packet wrapper);
 
     /**
-     * Gets called when any of the injected <code>Channel</code>'s
-     * <code>PacketInterceptor</code> writes an outgoing packet.
+     * This method is called when any of the injected {@link Channel}s
+     * intercepts an outgoing (server to client) packet. Note that the result
+     * of {@link Packet#getPlayer()} may be <code>null</code>.
      *
-     * @param wrapper The nonnull wrapper containing the packet
+     * @param wrapper The non-null wrapper containing the packet.
      */
     protected abstract void onPacketOut(Packet wrapper);
 
 
-    /**
-     * Intercepts incoming and outgoing packets
-     */
     private final class PacketInterceptor extends ChannelDuplexHandler {
 
         // Set by injectPlayer(Player)
