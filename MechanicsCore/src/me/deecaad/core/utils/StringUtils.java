@@ -1,7 +1,9 @@
 package me.deecaad.core.utils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -9,37 +11,55 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * This utility class contains methods wrapping
- * around the idea of a <code>String</code>.
- *
- * Also contains formatting methods to change
- * the format of a <code>String</code>
+ * This final utility class outlines static methods that operate on or return
+ * a {@link String}. This class also contains methods to help user-end
+ * debugging of {@link me.deecaad.core.file.Configuration}.
  */
-public class StringUtils {
+public final class StringUtils {
 
     public static final String LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
     public static final String VALID_HEX = "0123456789AaBbCcDdEeFf";
     public static final String CODES = VALID_HEX + "KkLlMmNnOoRrXx";
+    private static final String[] SUFFIXES = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
 
-    /**
-     * Don't let anyone instantiate this class
-     */
+    // Don't let anyone instantiate this class
     private StringUtils() {
     }
-    
+
     /**
-     * Counts the number of a given character in a String
+     * Counts the number of occurrences of <code>c</code> in the given
+     * <code>string</code>.
      *
-     * @param c The character to check for
-     * @param string The string to check in
-     * @return How many c's are found in the string
+     * @param c      The character to check for.
+     * @param string The non-null string to search in.
+     * @return The number of occurrences.
      */
     public static int countChars(char c, String string) {
-        return (int) string.chars().filter(character -> character == c).count();
+        int count = 0;
+        for (int i = 0; i < string.length(); i++) {
+            char character = string.charAt(i);
+            if (character == c) {
+                count++;
+            }
+        }
+        return count;
     }
 
+    /**
+     * Matches the first possible string for a given regular expression in the
+     * given <code>string</code>. If the expression's matcher does not match
+     * any string, then this method will return <code>null</code>.
+     *
+     * <p>This method should only be used during data serialization as a
+     * shorthand, since this method has to compile the regular expression for
+     * every usage.
+     *
+     * @param regex The non-null regular expression to match.
+     * @param str   The non-null string to search in.
+     * @return The first found string, or <code>null</code>.
+     */
     @Nullable
-    public static String match(String regex, String str) {
+    public static String match(@Nonnull String regex, @Nonnull String str) {
         Matcher matcher = Pattern.compile(regex).matcher(str);
         if (matcher.find()) {
             return matcher.group();
@@ -47,17 +67,21 @@ public class StringUtils {
             return null;
         }
     }
-    
+
     /**
-     * Colors a given string
+     * Colors a given <code>string</code> by replacing the <code>&</code>
+     * character with <code>§</code>. This method also translates hex strings
+     * formatted by <code>&#000000</code> to a minecraft chat hex string.
      *
-     * @param string String to color
-     * @return Colored String
+     * This method should only be called during data serialization or through
+     * bukkit commands.
+     *
+     * @param string The non-null string to color.
+     * @return The non-null colored string.
      */
     public static String color(String string) {
-        if (string == null) {
-            return null;
-        }
+        if (string == null)
+            throw new IllegalArgumentException("string cannot be null!");
 
         StringBuilder result = new StringBuilder(string.length());
 
@@ -98,13 +122,13 @@ public class StringUtils {
         return result.toString();
     }
 
-    private static final String[] SUFFIXES = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
-
     /**
-     * The ordinal of an integer is a more readable version of an index
+     * Returns the ordinal of an integer. The ordinal is the number + the
+     * english sound it ends with. E.x. 1st, 2nd, 3rd, 4th. Useful for
+     * showing the index of something to the user.
      *
-     * @param i The number to convert to an ordinal
-     * @return The ordinal
+     * @param i The non-negative number to translate.
+     * @return The non-null string ordinal.
      */
     public static String ordinal(int i) {
         switch (i % 100) {
@@ -119,92 +143,89 @@ public class StringUtils {
     }
 
     /**
-     * Example code:
-     * <pre>
-     * String pluginName = "ThisIsMyPluginName";
-     * String[] splittedPluginName = StringUtil.splitCapitalLetters(pluginName);
-     * System.out.println(Arrays.toString(splittedPluginName));
-     * </pre>
-     * Output:
-     * <pre>
-     * [This, Is, My, Plugin, Name]
-     * </pre>
+     * Splits a {@link String} before uppercase letters.
      *
-     * @param from the string to split
-     * @return the given string as array of strings
+     * <blockquote><pre>{@code
+     *     String[] split = StringUtils.splitCapitalLetters("MyPluginName");
+     *     System.out.println(Arrays.toString(split));
+     *     // ["My", "Plugin", "Name"]
+     * }</pre></blockquote>
+     *
+     * @param from The non-null strings to split.
+     * @return The non-null split strings.
      */
     public static String[] splitCapitalLetters(String from) {
         return from.split("(?<=.)(?=\\p{Lu})");
     }
-    
+
     /**
-     * Splits after each word, removing spaces if present.
-     * Example:
+     * Splits a {@link String} at whitespace between words.
+     *
      * <blockquote><pre>{@code
      *     splitAfterWord("Hello"); // ["Hello"]
      *     splitAfterWord("Hello World"); // ["Hello", "World"]
      *     splitAfterWord("^<38 7&*9()"); // ["^<38", "7&*9()"]
      * }</pre></blockquote>
-     * A word being defined as not whitespace, meaning that numbers
-     * and special characters do count as words in this context
      *
-     * @param from the string to split
-     * @return the given string as an array
+     * @param from The non-null string to split.
+     * @return The non-null split strings.
      */
     public static String[] splitAfterWord(String from) {
         return from.split("(?![\\S]+) |(?![\\S]+)");
     }
 
     /**
-     * Splits with whitespaces (" "), minus ("-") and ("~") while allowing negative values also
-     * Example:
-     * <pre>
+     * Splits a {@link String} at common delimiters, including white spaces,
+     * tildes, and dashes. If there is a negative number separated by dashes,
+     * the negative number will be formatted correctly.
+     *
+     * <blockquote><pre>{@code
      *    split("SOUND-1-5"); // ["SOUND", "1", "1"]
      *    split("Value--2-6"); // ["Value", "-2", "6"]
      *    split("Something 22 -634"); // ["Something", "22", "-634"]
      *    split("Yayyy~6423~-2"); // ["Yayyy", "6424", "-2"]
-     * </pre>
+     * }</pre></blockquote>
      *
-     * @param from the string to split
-     * @return the given string as an array
+     * @param from The non-null string to split.
+     * @return The non-null split strings.
      */
     public static String[] split(String from) {
         return from.split("[~ ]+|(?<![~ -])-");
     }
-    
+
     /**
-     * Colors a given Array and returns it as a list.
-     * Useful for TabCompletion stuff.
+     * Returns a list of colored strings from the given array.
      *
-     * Note: Players can NOT use colors in chat/commands
-     *
-     * @param strings Array to convert
-     * @return The list version of the array
+     * @param strings The non-null strings to color and add to a list.
+     * @return The non-null list of colored strings.
      */
     public static List<String> getList(String...strings) {
-        return Arrays.stream(strings).map(StringUtils::color).collect(Collectors.toList());
+        List<String> temp = new ArrayList<>(strings.length);
+        for (String str : strings) {
+            temp.add(StringUtils.color(str));
+        }
+        return temp;
     }
 
     /**
-     * Easy way to display where an error occurred in a file
-     * during data serialization
+     * Returns a {@link String} containing the file path and configuration
+     * path. Should be used to help the user find exactly where in their config
+     * an errors occurs.
      *
-     * @param file Which file the error occurred in
-     * @param path The path of configuration where the error occured
-     * @return User readable location of error
+     * @param file The non-null hard file location.
+     * @param path The non-null path to the exact config key.
+     * @return The non-null user-readable location.
      */
     public static String foundAt(File file, String path) {
         return "Located at file " + file + " in path " + path + " in configurations";
     }
 
     /**
-     * Easy way to display where an error occurred in a file
-     * during data serialization
-     *
-     * @param file Which file the error occurred in
-     * @param path The path of configuration where the error occured
-     * @param specification The specific thing that was wrong
-     * @return User readable location of error
+     * Returns a {@link String} containing the file path and configuration path.
+     * @param file
+     * @param path
+     * @param specification
+     * @return
      */
     public static String foundAt(File file, String path, Object specification) {
         return "Located at file " + file + " in path " + path + " (" + specification.toString() + ") in configurations.";

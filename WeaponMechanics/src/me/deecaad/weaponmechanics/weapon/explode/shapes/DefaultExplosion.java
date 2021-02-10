@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -74,7 +75,7 @@ public class DefaultExplosion implements ExplosionShape {
                         double z = origin.getZ();
 
                         // Slightly randomized intensity, based on the yield of the explosion
-                        float intensity = yield * (0.7F + NumberUtils.random().nextFloat() * 0.6F);
+                        float intensity = yield * (0.7F + ThreadLocalRandom.current().nextFloat() * 0.6F);
 
                         while (intensity > 0.0f) {
                             Block block = world.getBlockAt((int) x, (int) y, (int) z);

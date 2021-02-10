@@ -6,6 +6,8 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static me.deecaad.core.MechanicsCore.debug;
@@ -31,9 +33,9 @@ public class VectorUtils {
      * @return Randomized vector
      */
     public static Vector random(double length) {
-        double x = NumberUtils.random().nextDouble() - NumberUtils.random().nextDouble();
-        double y = NumberUtils.random().nextDouble() - NumberUtils.random().nextDouble();
-        double z = NumberUtils.random().nextDouble() - NumberUtils.random().nextDouble();
+        double x = ThreadLocalRandom.current().nextDouble() - ThreadLocalRandom.current().nextDouble();
+        double y = ThreadLocalRandom.current().nextDouble() - ThreadLocalRandom.current().nextDouble();
+        double z = ThreadLocalRandom.current().nextDouble() - ThreadLocalRandom.current().nextDouble();
 
         return setLength(new Vector(x, y, z), length);
     }

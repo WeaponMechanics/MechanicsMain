@@ -14,7 +14,15 @@ import java.util.Arrays;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class ReflectionUtil {
+/**
+ * This final utility class outlines static methods that operate on or return
+ * members of the {@link java.lang.reflect} package. This class also deals with
+ * version compatibility.
+ *
+ * <p>The methods of this class are threadsafe. For most of the methods, if an
+ * error occurs inside of the method, it will return <code>null</code>.
+ */
+public final class ReflectionUtil {
 
     private static final String versionString;
     private static final String nmsVersion;
@@ -60,25 +68,28 @@ public class ReflectionUtil {
         }
     }
 
-    /**
-     * Don't let anyone instantiate this class
-     */
-    private ReflectionUtil() { }
+    // Don't let anyone instantiate this class
+    private ReflectionUtil() {
+    }
 
     /**
-     * Returns the major java version
+     * Returns the major java version. For java versions that start with a one
+     * (E.x. <samp>1.8</samp>), this method will return 8. For newer java
+     * versions, this method will return the major version.
      *
-     * @return Major java version
+     * @return The non-negative java version.
      */
     public static int getJavaVersion() {
         return javaVersion;
     }
 
     /**
-     * Tries to find class from net.minecraft.server.SERVERVERSION.className
+     * Returns the {@link net.minecraft.server} class with the given name.
+     * Remember that, with Mojang's obfuscator, every class is under the same
+     * package.
      *
-     * @param className the net minecraft server (NMS) class name to search
-     * @return class object or null if not found
+     * @param className The non-null name of the class to get.
+     * @return The NMS class with that name, or <code>null</code>.
      */
     public static Class<?> getNMSClass(@Nonnull String className) {
         try {
@@ -90,10 +101,11 @@ public class ReflectionUtil {
     }
 
     /**
-     * Tries to find class from org.bukkit.craftbukkit.SERVERVERSION.className
+     * Returns the {@link org.bukkit.craftbukkit} class with the given package
+     * and name.
      *
-     * @param className the craftbukkit class name to search
-     * @return class object or null if not found
+     * @param className The non-null name of the class to get.
+     * @return The CB class with that name, or null.
      */
     public static Class<?> getCBClass(@Nonnull String className) {
         try {
@@ -105,13 +117,16 @@ public class ReflectionUtil {
     }
 
     /**
-     * @param classObject the class from where to get constructor
-     * @param parameters the params for constructor
-     * @return the constructor or null if not found
+     * Returns the {@link Constructor} of the given <code>classObject</code>
+     * that matches the given parameters.
+     *
+     * @param clazz      The class to get the constructor from.
+     * @param parameters The types of parameters that the constructor takes.
+     * @return The found constructor, or <code>null</code>.
      */
-    public static Constructor<?> getConstructor(@Nonnull Class<?> classObject, Class<?>... parameters) {
+    public static Constructor<?> getConstructor(@Nonnull Class<?> clazz, Class<?>... parameters) {
         try {
-            return classObject.getConstructor(parameters);
+            return clazz.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
             debug.log(LogLevel.ERROR, "Issue getting constructor!", e);
             return null;
@@ -119,11 +134,13 @@ public class ReflectionUtil {
     }
 
     /**
-     * Instantiates new object with given constructor and params
+     * Instantiates a new {@link Object} using the given
+     * <code>constructor</code> and <code>parameters</code>. If the constructor
+     * is a default constructor, <code>parameters.length</code> should equal 0.
      *
-     * @param constructor the constructor to construct
-     * @param parameters the params for constructor (must match)
-     * @return the new instance as object
+     * @param constructor The constructor to use to instantiate the object.
+     * @param parameters  The parameters that the constructor takes.
+     * @return The new object, or null.
      */
     public static Object newInstance(@Nonnull Constructor<?> constructor, Object... parameters) {
         try {
@@ -135,29 +152,42 @@ public class ReflectionUtil {
     }
 
     /**
-     * Gets a new instance of a class using the default constructor
+     * Instantiates a new {@link Object} of the generic class type using the
+     * default constructor. If the class does not have a default constructor,
+     * this method will return <code>null</code>.
      *
-     * @param clazz The class to instantiate
-     * @return Instantiated object
+     * @param clazz The class to instantiate a new instance from.
+     * @param <T>   The generic type of the class.
+     * @return The new instance, or <code>null</code>.
      */
     public static <T> T newInstance(@Nonnull Class<T> clazz) {
         try {
             Constructor<T> constructor = clazz.getConstructor();
             return constructor.newInstance();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            e.printStackTrace();
+            debug.log(LogLevel.ERROR, "Issue creating new instance!", e);
             return null;
         }
     }
 
     /**
-     * @param classObject the class from where to get field
-     * @param fieldName the field name in class
-     * @return the field or null if not found
+     * Returns the {@link Field} belonging to the <code>classObject</code> with
+     * the given <code>fieldName</code>. If no such field exists, this method
+     * will return <code>null</code>.
+     *
+     * <p>After calling this method, you should cache the returned field to
+     * avoid the overhead of searching for a field every time you want to use
+     * it. If the field you are getting is obfuscated, it is a good practice
+     * to use {@link #getField(Class, Class, int)} instead, which will
+     * likely be more accurate across server versions.
+     *
+     * @param clazz     The non-null class to pull the field from.
+     * @param fieldName The non-null name of the field to pull.
+     * @return The found field, or null.
      */
-    public static Field getField(@Nonnull Class<?> classObject, @Nonnull String fieldName) {
+    public static Field getField(@Nonnull Class<?> clazz, @Nonnull String fieldName) {
         try {
-            Field field = classObject.getDeclaredField(fieldName);
+            Field field = clazz.getDeclaredField(fieldName);
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
@@ -169,68 +199,70 @@ public class ReflectionUtil {
     }
 
     /**
-     * Gets the field by it's datatype instead of it's name. Useful
-     * for obfuscated code where the variable name changes but the
-     * type of the variables does not.
+     * Returns a {@link Field} by it's datatype. This method should be used for
+     * getting obfuscated fields, or if the name of the {@link Field} is
+     * otherwise not guaranteed to stay the same.
      *
-     * @param target The class to pull the field from (Or from any of it's superclasses)
-     * @param name The name of the field, or null for any name
-     * @param type The type the field must have
-     * @return The found field
-     * @throws IllegalArgumentException When no such field exists
+     * If the <code>target</code> does not declare a matching field, this
+     * method will search in the parent class.
+     *
+     * @param target The class to get the field from.
+     * @param type   The non-null datatype of the field.
+     * @return The non-null found field.
+     * @throws IllegalArgumentException If no such field exists.
      */
-    public static Field getField(@Nonnull Class<?> target, @Nullable String name, Class<?> type) {
-        return getField(target, name, type, 0);
+    public static Field getField(@Nonnull Class<?> target, Class<?> type) {
+        return getField(target, type, 0);
     }
 
-    public static Field getField(@Nonnull Class<?> target, @Nullable String name, Class<?> type, int index) {
+    /**
+     * Returns a {@link Field} by it's datatype. This method should be used for
+     * getting obfuscated fields, or if the name of the {@link Field} is
+     * otherwise not guaranteed to stay the same.
+     *
+     * If the <code>target</code> does not declare a matching field, this
+     * method will search in the parent class.
+     *
+     * @param target The class to get the field from.
+     * @param type   The non-null datatype of the field.
+     * @param index  The index of the field. Sometimes this method will match
+     *               multiple fields. For these fields, <code>index</code> is
+     *               required.
+     * @return The non-null found field.
+     * @throws IllegalArgumentException If no such field exists.
+     */
+    public static Field getField(@Nonnull Class<?> target, Class<?> type, int index) {
         for (final Field field : target.getDeclaredFields()) {
 
-            // Check if the name field, if the name is not a wildcard
-            if (name == null || name.equals(field.getName())) {
+            // Type check. Make sure the field's datatype
+            // matches the data type we are trying to find
+            if (!type.isAssignableFrom(field.getType()))
+                continue;
+            else if (index-- > 0)
+                continue;
 
-                // Type check. Make sure the field's datatype
-                // matches the data type we are trying to find
-                if (!type.isAssignableFrom(field.getType()))
-                    continue;
-                else if (index-- > 0)
-                    continue;
+            if (!field.isAccessible())
+                field.setAccessible(true);
 
-                if (!field.isAccessible())
-                    field.setAccessible(true);
-
-                return field;
-            }
+            return field;
         }
 
         // if the class has a superclass, then recursively check
         // the super class for the field
         Class<?> superClass = target.getSuperclass();
         if (superClass != null)
-            return getField(superClass, name, type, index);
+            return getField(superClass, type, index);
 
         throw new IllegalArgumentException("Cannot find field with type " + type);
     }
 
     /**
-     * Sets the field to be a non final field
+     * Returns the value of the <code>field</code>.
      *
-     * @param field The field to set
-     * @return The field
-     */
-    public static Field setFieldModifiable(Field field) {
-        try {
-            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        } catch (IllegalAccessException ex) {
-            debug.log(LogLevel.ERROR, "Issue changing final field to non-final!", ex);
-        }
-        return field;
-    }
-
-    /**
-     * @param field the field to get value from
-     * @param instance the instance holding field (null in static use)
-     * @return the field object or null if not found
+     * @param field    The non-null field that holds the value.
+     * @param instance The instance that holds the field, or <code>null</code>
+     *                 for static fields.
+     * @return The value of the field, or <code>null</code>.
      */
     public static Object invokeField(@Nonnull Field field, @Nullable Object instance) {
         try {
@@ -242,19 +274,27 @@ public class ReflectionUtil {
     }
 
     /**
-     * @param field the field to set new value
-     * @param instance the instance holding field (null in static use)
-     * @param value the new value for field
+     * Sets the value of the <code>field</code> for a given instance. For
+     * static fields, <code>instance</code> should be <code>null</code>. This
+     * method does not work for static final fields.
+     *
+     * @param field    The non-null field to set the value of.
+     * @param instance The object to set the field value to. For static fields,
+     *                 this should be <code>null</code>.
+     * @param value    The value to set to the field.
      */
     public static void setField(@Nonnull Field field, @Nullable Object instance, Object value) {
         try {
+
+            // TODO This does not work yet. static final fields are tough
             if (Modifier.isFinal(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
                 if (javaVersion < 12) {
 
                     // Not sure why, but this does not allow modifying static final fields
                     modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
                 } else {
-                    Object base = unsafe.staticFieldBase(field);;
+                    Object base = unsafe.staticFieldBase(field);
+                    ;
                     long offset = unsafe.staticFieldOffset(field);
                     unsafe.putObject(base, offset, value);
                 }
@@ -262,20 +302,24 @@ public class ReflectionUtil {
 
             field.set(instance, value);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
             debug.log(LogLevel.ERROR, "Issue setting field!", e);
         }
     }
 
     /**
-     * @param classObject the class from where to get method
-     * @param methodName the method name in class
-     * @param parameters the params for method
-     * @return the method or null if not found
+     * Returns the {@link Method} declared in the given <code>clazz</code> with
+     * a signature that matches <code>methodName</code> and
+     * <code>parameters</code>.
+     *
+     * @param clazz      The non-null class that declares the method.
+     * @param methodName The non-null name of the method.
+     * @param parameters The non-null parameters of the method.
+     * @return The method that matches the given signature, or
+     *         <code>null</code>.
      */
-    public static Method getMethod(@Nonnull Class<?> classObject, @Nonnull String methodName, Class<?>... parameters) {
+    public static Method getMethod(@Nonnull Class<?> clazz, @Nonnull String methodName, Class<?>... parameters) {
         try {
-            Method method = classObject.getDeclaredMethod(methodName, parameters);
+            Method method = clazz.getDeclaredMethod(methodName, parameters);
             if (!method.isAccessible()) {
                 method.setAccessible(true);
             }
@@ -286,11 +330,42 @@ public class ReflectionUtil {
         }
     }
 
-    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, Class<?>...params) {
+    /**
+     * Returns a {@link Method} by it's returned datatype and parameters. This
+     * method should be used for getting obfuscated methods, or if the name of
+     * the method is otherwise not guaranteed to stay the same.
+     *
+     * If the <code>target</code> does not declare a matching method, this
+     * method will search in the parent class recursively.
+     *
+     * @param target     The non-null target class that declares the method.
+     * @param returnType The nullable returned type of the method.
+     * @param params     The non-null parameters of of the method.
+     * @return The non-null method that matches the given signature.
+     * @throws IllegalArgumentException If no such method exists.
+     */
+    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, Class<?>... params) {
         return getMethod(target, returnType, 0, params);
     }
 
-    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, int index, Class<?>...params) {
+    /**
+     * Returns a {@link Method} by it's returned datatype and parameters. This
+     * method should be used for getting obfuscated methods, or if the name of
+     * the method is otherwise not guaranteed to stay the same.
+     *
+     * If the <code>target</code> does not declare a matching method, this
+     * method will search in the parent class recursively.
+     *
+     * @param target     The non-null target class that declares the method.
+     * @param returnType The nullable returned type of the method.
+     * @param index      The index of the method. Sometimes this method will
+     *                   match multiple methods. For these methods,
+     *                   <code>index</code> is required.
+     * @param params     The non-null parameters of of the method.
+     * @return The non-null method that matches the given signature.
+     * @throws IllegalArgumentException If no such method exists.
+     */
+    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, int index, Class<?>... params) {
         for (final Method method : target.getDeclaredMethods()) {
             if (returnType != null && !returnType.isAssignableFrom(method.getReturnType()))
                 continue;
@@ -307,17 +382,22 @@ public class ReflectionUtil {
 
         // Recursively check superclasses for the method
         if (target.getSuperclass() != null)
-            return getMethod(target.getSuperclass(), returnType, params);
+            return getMethod(target.getSuperclass(), returnType, index, params);
 
         throw new IllegalArgumentException("Cannot find field with return=" + returnType
                 + ", params=" + Arrays.toString(params));
     }
 
     /**
-     * @param method the method to modify
-     * @param instance the instance used to invoke method (null in static use)
-     * @param parameters the parmas of method
-     * @return the method object or null if not found or null if method is for e.g void
+     * Invokes the given <code>method</code>, running it then returning the
+     * method's returned value. The method is run as a member of
+     * <code>instance</code>, with <code>parameters</code>.
+     *
+     * @param method     The non-null method to run.
+     * @param instance   The instance to run the method as a part of. For
+     *                   static methods, this should be <code>null</code>.
+     * @param parameters The parameters of the method.
+     * @return The returned value from the method, or <code>null</code>.
      */
     public static Object invokeMethod(@Nonnull Method method, Object instance, Object... parameters) {
         try {

@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
@@ -275,7 +276,11 @@ public class CustomProjectile implements ICustomProjectile {
         if (stickedData == null) {
             this.stickedData = null;
             // This basically removes sticky
-            setMotion(new Vector(NumberUtils.random().nextFloat() * 0.2, NumberUtils.random().nextFloat() * 0.2, NumberUtils.random().nextFloat() * 0.2));
+            setMotion(new Vector(
+                    ThreadLocalRandom.current().nextFloat() * 0.2,
+                    ThreadLocalRandom.current().nextFloat() * 0.2,
+                    ThreadLocalRandom.current().nextFloat() * 0.2
+            ));
             return true;
         }
 

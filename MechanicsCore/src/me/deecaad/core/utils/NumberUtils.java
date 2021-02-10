@@ -11,15 +11,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * This final utility class consists of static methods that operate on or
  * return numbers. This class also contains methods for randomization, and for
  * translating <i>complicated</i> numbers into more readable forms.
+ *
+ * The methods of this class are threadsafe.
  */
 public final class NumberUtils {
 
     public static final long HOUR_IN_TICKS = 72000;
-
-    // Generally used for enchantments in lore
     private static final TreeMap<Integer, String> NUMERALS;
-
-    // Used to display the amount of time passed
     private static final TreeMap<Integer, String> TIME;
 
     static {
@@ -47,56 +45,57 @@ public final class NumberUtils {
         TIME.put(1, "s");
     }
 
-    // Don't let anyone instanitate this class.
+    // Don't let anyone instantiate this class.
     private NumberUtils() {
     }
 
-    public static ThreadLocalRandom random() {
-        return ThreadLocalRandom.current();
-    }
-
     /**
-     * Threadsafe method to generate
-     * a random integer [0, length).
-     * Useful for getting random elements
-     * from collections and arrays.
+     * Threadsafe method to get a number <code>[0, length)</code>. Useful for
+     * getting a random index of an ordered data structure.
      *
-     * @param length The upper bound
-     * @return The random number
+     * @param length The upper bound, exclusive.
+     * @return The random index.
+     * @throws IllegalArgumentException If <code>length <= 0</code>.
      */
     public static int random(int length) {
         return ThreadLocalRandom.current().nextInt(length);
     }
 
     /**
-     * Get a random element in the given array
+     * Returns a random element from the array of the array's type. This method
+     * is threadsafe.
      *
-     * @param arr The array to pull from
-     * @param <T> The type of the array
-     * @return Random element from the array
+     * @param arr The non-null array to grab an element from.
+     * @param <T> The generic type of the array.
+     * @return The random element. If the array has no <code>null</code>
+     *         elements, then this method will not return <code>null</code>.
+     * @throws IllegalArgumentException If <code>arr.length == 0</code>.
      */
     public static <T> T random(T[] arr) {
         return arr[random(arr.length)];
     }
 
     /**
-     * Gets a random element from the given list
+     * Returns a random element from the list. The returned element will be of
+     * the list's generic type. This method is threadsafe.
      *
-     * @param list The list to pull from
-     * @param <T>  The type of the array
-     * @return Random element from the list
+     * @param list The non-null list of elements.
+     * @param <T>  The generic type of the list.
+     * @return The random element. If the list has no <code>null</code>
+     *         elements, then this method will not return <code>null</code>.
      */
     public static <T> T random(List<T> list) {
         return list.get(random(list.size()));
     }
 
     /**
-     * Threadsafe method to generate
-     * a random integer [min, max]
+     * Returns a random integer <code>[min, max]</code>. This method is
+     * threadsafe.
      *
-     * @param min minimum size of the number
-     * @param max maximum size of the number
-     * @return random int between min and max
+     * @param min Minimum size of the number, inclusive.
+     * @param max Maximum size of the number, inclusive.
+     * @return Random number between <code>min</code> and <code>max</code>.
+     * @throws IllegalArgumentException If <code>min > max</code>.
      */
     public static int random(int min, int max) {
         if (min == max) return min;
@@ -104,26 +103,25 @@ public final class NumberUtils {
     }
 
     /**
-     * Threadsafe method to generate
-     * a random double [min, max)
+     * Returns a random decimal <code>[min, max)</code>. This method is
+     * threadsafe.
      *
      * @param min minimum size of the number
      * @param max maximum size of the number
      * @return random double between min and max
      */
     public static double random(double min, double max) {
-        if (min <= max) return min;
+        if (min == max) return min;
         return ThreadLocalRandom.current().nextDouble(min, max);
     }
 
     /**
-     * Checks if a chance (Which should be a
-     * number [0, 1]) was "successful". The
-     * behavior of this method will change
-     * because of random number comparison
+     * Returns <code>true</code> if <code>chance</code> is greater than a
+     * randomly generated decimal. If <code>chance</code> not between 0.0
+     * (exclusive) and 1.0 (exclusive), then no random number is generated.
      *
-     * @param chance The percentage chance to be successful
-     * @return If the chance was successful or not
+     * @param chance A decimal between 0.0 (inclusive) and 1.0 (inclusive).
+     * @return <code>true</code> If the chance was <i>successful</i>.
      */
     public static boolean chance(double chance) {
         if (chance <= 0.0) {
@@ -136,13 +134,16 @@ public final class NumberUtils {
     }
 
     /**
-     * Shorthand for calling both <code>Math.min</code> and
-     * <code>Math.max</code>.
+     * Shorthand for using {@link Math#min(int, int)} and
+     * {@link Math#max(int, int)}. The resulting number is less than or equal
+     * to <code>max</code>, and greater than or equal to <code>min</code>.
      *
-     * @param min   The minimum number the value can be
-     * @param value The actual value to compare
-     * @param max   The maximum number the value can be
-     * @return Whichever bound [min, max]
+     * @param min   The minimum number <code>value</code> can be.
+     * @param value The value of the number to check. This is the number that
+     *              is probably between <code>min</code> and <code>max</code>.
+     * @param max   The maximum number <code>value</code> can be.
+     * @return A number <code>[min, max]</code> that is equal to one of the
+     *         method parameters.
      */
     public static int minMax(int min, int value, int max) {
         if (min > value) {
@@ -155,13 +156,17 @@ public final class NumberUtils {
     }
 
     /**
-     * Shorthand for calling both <code>Math.min</code> and
-     * <code>Math.max</code>.
+     * Shorthand for using {@link Math#min(float, float)} and
+     * {@link Math#max(float, float)}. The resulting number is less than or
+     * equal to <code>max</code>, and greater than or equal to
+     * <code>min</code>.
      *
-     * @param min   The minimum number the value can be
-     * @param value The actual value to compare
-     * @param max   The maximum number the value can be
-     * @return Whichever bound [min, max]
+     * @param min   The minimum number <code>value</code> can be.
+     * @param value The value of the number to check. This is the number that
+     *              is probably between <code>min</code> and <code>max</code>.
+     * @param max   The maximum number <code>value</code> can be.
+     * @return A number <code>[min, max]</code> that is equal to one of the
+     *         method parameters.
      */
     public static float minMax(float min, float value, float max) {
         if (min > value) {
@@ -174,13 +179,17 @@ public final class NumberUtils {
     }
 
     /**
-     * Shorthand for calling both <code>Math.min</code> and
-     * <code>Math.max</code>.
+     * Shorthand for using {@link Math#min(double, double)} and
+     * {@link Math#max(double, double)}. The resulting number is less than or
+     * equal to <code>max</code>, and greater than or equal to
+     * <code>min</code>.
      *
-     * @param min   The minimum number the value can be
-     * @param value The actual value to compare
-     * @param max   The maximum number the value can be
-     * @return Whichever bound [min, max]
+     * @param min   The minimum number <code>value</code> can be.
+     * @param value The value of the number to check. This is the number that
+     *              is probably between <code>min</code> and <code>max</code>.
+     * @param max   The maximum number <code>value</code> can be.
+     * @return A number <code>[min, max]</code> that is equal to one of the
+     *         method parameters.
      */
     public static double minMax(double min, double value, double max) {
         if (min > value) {
@@ -193,45 +202,44 @@ public final class NumberUtils {
     }
 
     /**
-     * Determines if two doubles are close enough
-     * in value to be considered equal. This is
-     * important in math with doubles because of
-     * inaccuracies with doubles
+     * Returns <code>true</code> if the 2 given numbers are redundantly similar
+     * (To ~10 decimal places) that they could be considered equal. This is
+     * useful for math with floating point numbers, since binary has a hard
+     * time properly representing certain decimals.
      *
-     * @param a First double
-     * @param b Second double
-     * @return If they are equal
+     * @param a The first number.
+     * @param b The second number.
+     * @return <code>true</code> if the numbers are similar.
      */
     public static boolean equals(double a, double b) {
         return Math.abs(a - b) < 1e-10;
     }
 
     /**
-     * Linear interpolation function. Finds a number between <code>min</code>
-     * and <code>max</code> using <code>factor</code>. <code>Factor</code> should
-     * be a number [0, 1], where values approaching 1 will be closer to the
-     * <code>max</code> and values approaching 0 will be closer to the
+     * Returns a number between <code>[min, max]</code> using
+     * <code>factor</code> to determine which bound the returned value is
+     * approaching. As <code>factor</code> approaches <code>1.0</code>, the
+     * returned value approaches to <code>max</code>. As <code>factor</code>
+     * approaches <code>0.0</code>, the returned value approaches
      * <code>min</code>.
      *
-     * If the factor is 0.50, then lerp will return a number exactly between
-     * min and max.
-     *
-     * @param min Minimum value
-     * @param max Maximum value
-     * @param factor Factor
-     * @return Interpolated number
+     * @param min    The minimum bound to return, inclusive.
+     * @param max    The maximum bound to return, inclusive.
+     * @param factor The factor to apply to the minimum and maximum bounds.
+     *               Should be a number between the 0 (inclusive) and the 1
+     *               (inclusive).
+     * @return The interpolated number.
      */
     public static double lerp(double min, double max, double factor) {
         return min + factor * (max - min);
     }
 
     /**
-     * Recursive function that translates an
-     * <code>int</code> number to a <code>String
-     * </code> roman numeral.
+     * Returns a trimmed {@link String} holding the roman numeral
+     * representation of the given number <code>from</code>.
      *
-     * @param from Integer to translate
-     * @return Roman numeral translation
+     * @param from The non-negative integer to translate to a roman numeral.
+     * @return The non-null, trimmed string containing the roman numeral.
      */
     public static String toRomanNumeral(int from) {
         int numeral = NUMERALS.floorKey(from);
@@ -242,13 +250,11 @@ public final class NumberUtils {
     }
 
     /**
-     * Recursive function that translates an
-     * <code>int</code> amount of seconds into
-     * the smallest possible combination of
-     * years, days, hours, minutes, and seconds
+     * Returns a {@link String} holding the time representation of the given
+     * number of seconds.
      *
-     * @param seconds The number of seconds
-     * @return Simplified number
+     * @param seconds The non-negative integer holding the amount of seconds.
+     * @return The non-null human readable time {@link String}.
      */
     public static String toTime(int seconds) {
         int unit = TIME.floorKey(seconds);
@@ -260,21 +266,27 @@ public final class NumberUtils {
     }
 
     /**
-     * @param lastMillis the last millis something happened
-     * @param amount the amount of millis required to pass since last millis
-     * @return true only if enough millis have passed since last millis
+     * Returns <code>true</code> if an <code>amount</code> of time has passed
+     * since <code>lastMillis</code> was saved.
+     *
+     * @param lastMillis The non-negative time at which the countdown started.
+     *                   This number should be in milliseconds.
+     * @param amount     The non-negative amount of time before returning
+     *                   <code>true</code>. This number should be in
+     *                   milliseconds.
+     * @return <code>true</code> if enough time has passed.
      */
     public static boolean hasMillisPassed(long lastMillis, long amount) {
         return System.currentTimeMillis() - lastMillis > amount;
     }
 
     /**
-     * Rounds the value to given amount of significands.
-     * Will also strip trailing zeros.
+     * Returns a rounded decimal to a given number of significant decimal
+     * places.
      *
-     * @param value the version value to be rounded
-     * @param significands the amount of significands in return value
-     * @return value when rounded to decimals
+     * @param value        The decimal to round.
+     * @param significands The non-negative number of significant digits.
+     * @return The rounded decimal.
      */
     public static double getAsRounded(double value, int significands) {
         if (value % 1 == 0) {
@@ -285,36 +297,5 @@ public final class NumberUtils {
         bigDecimal = bigDecimal.add(new BigDecimal(intValue));
         bigDecimal = bigDecimal.stripTrailingZeros();
         return Double.parseDouble(bigDecimal.toPlainString());
-    }
-
-    /**
-     * Converts the given integer <code>i</code> to binary,
-     * then either cuts off or adds onto the binary string
-     * based on how many <code>bits</code> are needed
-     *
-     * @see Integer#toBinaryString(int) 
-     * 
-     * @param i Integer to translate to binary
-     * @param bits How many bits to show
-     * @return Binary String
-     */
-    public static String toBinary(int i, int bits) {
-        String binary = Integer.toBinaryString(i);
-
-        // If the binary string contains more bits than defined,
-        // then return a substring containing only the asked for bits
-        if (binary.length() > bits) {
-            return binary.substring(binary.length() - bits);
-        }
-
-        // Not enough bits are in the binary string, so we are
-        // going to add zeroes until we have the desired amount
-        StringBuilder builder = new StringBuilder(bits);
-        int bound = bits - binary.length();
-        while (builder.length() < bound) {
-            builder.append(0);
-        }
-
-        return builder.append(binary).toString();
     }
 }

@@ -1,12 +1,14 @@
 package me.deecaad.core.utils;
 
 import javax.annotation.Nonnull;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.SplittableRandom;
-import java.util.TreeSet;
+import java.util.*;
 
+/**
+ * This class outlines a mapping of elements to a weight. This data structure
+ * allows real time getting of random elements with weight.
+ *
+ * @param <E> The type of the element to store.
+ */
 public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
 
     // Every instance of ProbabilityMap has access to the same
@@ -14,25 +16,26 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
     private final SplittableRandom random = new SplittableRandom();
 
     private final Node<E> dummy;
-    private NavigableSet<Node<E>> set;
+    private final NavigableSet<Node<E>> set;
     private double totalProbability;
 
+    /**
+     * Default constructor.
+     */
     public ProbabilityMap() {
-        this.dummy = new Node<>(null, 0.0, 0.0);
+        this.dummy = new Node<>();
         this.set = new TreeSet<>(Comparator.comparingDouble(Node::getOffset));
-        this.totalProbability = 0.0;
     }
 
     /**
-     * Maps the given element <code>e</code> to it's
-     * given probability
+     * Adds an <code>element</code> with the given weight to the map.
      *
-     * @param e The element to add
-     * @param chance The chance of selecting the
-     * @return true if the element was added
+     * @param element The non-null element to add.
+     * @param chance  The non-negative weight to map to the element.
+     * @return <code>true</code> if the element was successfully added.
      */
-    public boolean add(E e, double chance) {
-        Node<E> node = new Node<>(e, chance, totalProbability);
+    public boolean add(E element, double chance) {
+        Node<E> node = new Node<>(element, chance, totalProbability);
         if (set.add(node)) {
             totalProbability += chance;
             return true;
@@ -42,13 +45,13 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
     }
 
     /**
-     * Removes the given element <code>e</code> from this
-     * <code>ProbabilityMap</code>, if present.
+     * Removes the given element, if it is present in the map. This method
+     * has an O notation of O(n) in both best and worst case scenarios.
      *
-     * @param e The object to remove
-     * @return true if the element was present
+     * @param element The element to remove.
+     * @return <code>true</code> if the element was removed.
      */
-    public boolean remove(@Nonnull E e) {
+    public boolean remove(@Nonnull E element) {
         Node<E> removedElement = null;
         Iterator<Node<E>> iterator = iterator();
 
@@ -61,7 +64,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
             // removed element's chance
             if (removedElement != null) {
                 node.offset -= removedElement.chance;
-            } else if (e.equals(node.value)) {
+            } else if (element.equals(node.value)) {
                 iterator.remove();
                 totalProbability -= node.chance;
                 removedElement = node;
@@ -72,26 +75,30 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
     }
 
     /**
-     * Gets a random element based on it's chance from the data structure
+     * Returns a random element based on each element's weight. If there are no
+     * elements in the set, then this method will return <code>null</code>.
      *
-     * @return Randomize element, or null if empty
+     * @return The randomized element.
      */
     public E get() {
         dummy.offset = random.nextDouble(totalProbability);
         Node<E> temp = set.floor(dummy);
-
         return temp == null ? null : temp.value;
     }
 
     /**
-     * @return true if there are no elements in the set
+     * Returns <code>true</code> if there are no elements added to the map.
+     *
+     * @return <code>true</code> if the backing map is empty.
      */
     public boolean isEmpty() {
         return set.isEmpty();
     }
 
     /**
-     * @return The number of elements in the set
+     * Returns the number of elements in the map.
+     *
+     * @return The amount of elements in the map.
      */
     public int size() {
         return set.size();
@@ -108,6 +115,11 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
         private final E value;
         private final double chance;
         private double offset;
+
+        Node() {
+            value = null;
+            chance = 0.0;
+        }
 
         Node(E value, double chance, double offset) {
             this.chance = chance;
