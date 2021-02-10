@@ -10,19 +10,23 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 
-public class DistanceUtils {
+/**
+ * This final utility class outlines static methods involving the visible
+ * distance around a player, as well as methods to send packets to players
+ * so long as the packet's location is within the player's viewing distance.
+ */
+public final class DistanceUtils {
 
-    /**
-     * Don't let anyone instantiate this class
-     */
+    // Don't let anyone instantiate this class
     private DistanceUtils() {
     }
 
     /**
-     * Gets the default viewing distance, in blocks, of the server (Defined
-     * in server.properties)
+     * Returns the default viewing distance of worlds, defined by the vanilla
+     * minecraft server's <code>server.properties</code> file. Generally, this
+     * method should not be used. Use instead: {@link #getRange(World)}
      *
-     * @return The player viewing distance
+     * @return The non-negative viewing distance, in blocks.
      */
     public static int getRange() {
         int distance = Bukkit.getServer().getViewDistance();
@@ -30,11 +34,10 @@ public class DistanceUtils {
     }
 
     /**
-     * Gets the viewing distance, in blocks, for the given <code>world</code>
-     * (Defined in spigot.yml)
+     * Returns the viewing distance of the given world.
      *
-     * @param world The world to pull the viewing distance from
-     * @return The player viewing distance
+     * @param world Which world to pull the viewing distance from.
+     * @return The non-negative viewing distance, in blocks.
      */
     public static int getRange(World world) {
         int distance = world.getViewDistance();
@@ -42,36 +45,39 @@ public class DistanceUtils {
     }
 
     /**
-     * Sends the given <code>packet</code> to all players in viewdistance of the
-     * given location. If there is a loaded paper.yml file, this can use
-     * paper's no-tick-view-distance.
+     * Sends the given packet to all players who can see the given
+     * {@link Location}. The distance that a player can see is defined by
+     * {@link #getRange(World)}.
      *
-     * Note: This while using this method won't cause any notable server side
-     * performance issues, this can cause client sided issues. If a player
-     * is >100 blocks away, they likely don't need to see the packet (Are they
-     * really going to notice that particle? Is it worth the frame drop?)
+     * <p>Note that sending packets with too long of a range can cause client
+     * sided performance issues. This has been a problem for a long time in the
+     * notchian server, so <a href="https://spigotmc.org/">Spigot</a> added
+     * entity tracking range, limiting how far the server would send clients
+     * packets. It is a good practice to limit how far away you send your
+     * packet.
+     * <blockquote><pre><code>
+     *     Location origin = /* not shown *&#47;;
+     *     Object packet = /* not shown *&#47;;
+     *     int distance = Math.min(DistanceUtils.getRange(), 50);
+     *     DistanceUtils.sendPacket(origin, packet, distance)
+     * </code></pre></blockquote>
      *
-     * @see DistanceUtils#sendPacket(Location, Object, double)
-     *
-     * @param origin The location of the packet
-     * @param packet The packet to send
+     * @param origin The coordinates that the packet is being spawned at.
+     * @param packet The packet to send to players in view.
      */
     public static void sendPacket(@Nonnull Location origin, Object packet) {
         sendPacket(origin, packet, getRange(origin.getWorld()));
     }
 
+
     /**
-     * Sends the given <code>packet</code> to all players in range <code>distance</code>
-     * with respect to the <code>origin</code>. All players within a bounding box with
-     * radius <code>distance</code> will be sent the packet.
+     * Sends the given packet to all players whose distance to the given
+     * {@link Location} is les than the given <code>distance</code>.
      *
-     * Note that sending packets with too long of a range can cause client sided performance
-     * issues. Spigot's entity tracking range exists mostly to eliminate client side lag from
-     * rendering entities from too far away.
-     *
-     * @param origin The location of the packet
-     * @param packet The packet to send
-     * @param distance How far away to find players
+     * @param origin   The coordinates that the packet is being spawned at.
+     * @param packet   The packet to send to the players.
+     * @param distance The maximum distance a player can be and still see the
+     *                 packet.
      */
     @SuppressWarnings("unchecked")
     public static void sendPacket(@Nonnull Location origin, Object packet, double distance) {

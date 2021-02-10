@@ -8,48 +8,46 @@ import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * This utility class offers methods useful
- * for manipulating numbers as well as translating
- * larger numbers into more readable forms
+ * This final utility class consists of static methods that operate on or
+ * return numbers. This class also contains methods for randomization, and for
+ * translating <i>complicated</i> numbers into more readable forms.
  */
-public class NumberUtils {
+public final class NumberUtils {
 
     public static final long HOUR_IN_TICKS = 72000;
 
     // Generally used for enchantments in lore
-    private static final TreeMap<Integer, String> numerals;
+    private static final TreeMap<Integer, String> NUMERALS;
 
     // Used to display the amount of time passed
-    private static final TreeMap<Integer, String> time;
+    private static final TreeMap<Integer, String> TIME;
 
     static {
-        numerals = new TreeMap<>();
-        numerals.put(1000, "M");
-        numerals.put(900, "CM");
-        numerals.put(500, "D");
-        numerals.put(400, "CD");
-        numerals.put(100, "C");
-        numerals.put(90, "XC");
-        numerals.put(50, "L");
-        numerals.put(40, "XL");
-        numerals.put(10, "X");
-        numerals.put(9, "IX");
-        numerals.put(5, "V");
-        numerals.put(4, "IV");
-        numerals.put(1, "I");
+        NUMERALS = new TreeMap<>();
+        NUMERALS.put(1000, "M");
+        NUMERALS.put(900, "CM");
+        NUMERALS.put(500, "D");
+        NUMERALS.put(400, "CD");
+        NUMERALS.put(100, "C");
+        NUMERALS.put(90, "XC");
+        NUMERALS.put(50, "L");
+        NUMERALS.put(40, "XL");
+        NUMERALS.put(10, "X");
+        NUMERALS.put(9, "IX");
+        NUMERALS.put(5, "V");
+        NUMERALS.put(4, "IV");
+        NUMERALS.put(1, "I");
 
-        // Each int is the number of seconds in the unit
-        time = new TreeMap<>();
-        time.put(31536000, "y");
-        time.put(86400, "d");
-        time.put(3600, "h");
-        time.put(60, "m");
-        time.put(1, "s");
+        // Each integer is the number of seconds in the unit.
+        TIME = new TreeMap<>();
+        TIME.put(31536000, "y");
+        TIME.put(86400, "d");
+        TIME.put(3600, "h");
+        TIME.put(60, "m");
+        TIME.put(1, "s");
     }
 
-    /**
-     * Don't let anyone instantiate this class
-     */
+    // Don't let anyone instanitate this class.
     private NumberUtils() {
     }
 
@@ -236,11 +234,11 @@ public class NumberUtils {
      * @return Roman numeral translation
      */
     public static String toRomanNumeral(int from) {
-        int numeral = numerals.floorKey(from);
+        int numeral = NUMERALS.floorKey(from);
         if (from == numeral) {
-            return numerals.get(from);
+            return NUMERALS.get(from);
         }
-        return numerals.get(numeral) + toRomanNumeral(from - numeral);
+        return NUMERALS.get(numeral) + toRomanNumeral(from - numeral);
     }
 
     /**
@@ -253,12 +251,12 @@ public class NumberUtils {
      * @return Simplified number
      */
     public static String toTime(int seconds) {
-        int unit = time.floorKey(seconds);
+        int unit = TIME.floorKey(seconds);
         int amount = seconds / unit;
         if (seconds % unit == 0) {
-            return amount + time.get(unit);
+            return amount + TIME.get(unit);
         }
-        return amount + time.get(unit) + " " + toTime(seconds - amount * unit);
+        return amount + TIME.get(unit) + " " + toTime(seconds - amount * unit);
     }
 
     /**

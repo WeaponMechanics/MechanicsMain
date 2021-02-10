@@ -9,11 +9,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Made this into external class in case we decide to use XMaterial resource so its easier to start using it when we only have to modify this class
+ * This final utility class outlines static methods that operate on or return
+ * bukkit materials, blocks, or items. This class also contains methods to
+ * assist in parsing materials from a {@link String} input.
  */
-public class MaterialHelper {
+public final class MaterialHelper {
 
     private static Method getState;
     private static Method getBlock;
@@ -27,32 +30,62 @@ public class MaterialHelper {
         }
     }
 
-    /**
-     * Don't let anyone instantiate this class
-     */
-    private MaterialHelper() { }
-    
-    /**
-     * Simple method to convert string to item stack.
-     *
-     * @param itemstackString the string containing item stack
-     * @return the item stack generated from string
-     */
-    public static ItemStack fromStringToItemStack(String itemstackString) {
-        if (CompatibilityAPI.getVersion() < 1.13) {
-            String[] splitted = itemstackString.split(":");
-            return new ItemStack(Material.valueOf(splitted[0].trim().toUpperCase()), 1, splitted.length > 1 ? Short.parseShort(splitted[1]) : 0);
-        }
-        return new ItemStack(Material.valueOf(itemstackString.trim().toUpperCase()));
+    // Don't let anyone instantiate this class
+    private MaterialHelper() {
     }
 
     /**
-     * Gets any materials associated with <code>input</code>. If the
-     * <code>input</code> contains a '$' character, then all materials
-     * that contain <code>input</code>
+     * Returns a bukkit item based on the input string.
      *
-     * @param input The input to search for materials
-     * @return The found materials
+     * @param itemStackString The non-null formatted string:
+     *                        <code>&lt;material&gt;:&lt;data&gt;</code>
+     * @return The non-null, parsed bukkit item.
+     * @throws NumberFormatException           If data after the ':' was not a
+     *                                         valid short.
+     * @throws StringIndexOutOfBoundsException If there was no number put after
+     *                                         the ':'.
+     * @throws IllegalArgumentException        If there is no {@link Material}
+     *                                         with the provided name.
+     */
+    public static ItemStack fromStringToItemStack(String itemStackString) {
+        itemStackString = itemStackString.trim().toUpperCase();
+
+        int index = itemStackString.lastIndexOf(':');
+        Optional<Material> mat;
+        short data;
+
+        if (index == -1) {
+            mat = Enums.getIfPresent(Material.class, itemStackString);
+            data = 0;
+        } else {
+            mat = Enums.getIfPresent(Material.class, itemStackString.substring(0, index));
+            data = Short.parseShort(itemStackString.substring(index + 1));
+        }
+
+        if (!mat.isPresent()) {
+            throw new IllegalArgumentException("Unknown material for input: " + (index == -1 ? itemStackString : itemStackString.substring(0, index)));
+        }
+
+        if (CompatibilityAPI.getVersion() < 1.13) {
+            return new ItemStack(mat.get(), 1, data);
+        } else {
+            return new ItemStack(mat.get());
+        }
+    }
+
+    /**
+     * Returns an immutable list of bukkit materials that match the input. If
+     * the <code>input</code> starts with a <code>$</code>, all materials that
+     * contain the input are added to the list.
+     *
+     * <p>Otherwise, this method returns an immutable list of 0 or 1 materials.
+     *
+     * @param input The input matcher. If the input starts with a $, it matches
+     *              multiple materials.
+     * @return A non-null, immutable list of all parsed materials.
+     * @see Collections#unmodifiableList(List)
+     * @see Collections#singletonList(Object)
+     * @see Collections#emptyList()
      */
     public static List<Material> parseMaterials(String input) {
         input = input.trim().toUpperCase();
@@ -68,22 +101,21 @@ public class MaterialHelper {
                 }
             }
 
-            return materials;
+            return Collections.unmodifiableList(materials);
 
         } else {
-            return Collections.singletonList(Enums.getIfPresent(Material.class, input).orElse(null));
+            Optional<Material> material = Enums.getIfPresent(Material.class, input);
+            return material.map(Collections::singletonList).orElse(Collections.emptyList());
         }
     }
 
     /**
-     * Checks if the given <code>input</code> would match the given <code>mat</code>,
-     * if it were parsed in <code>parseMaterials</code>
+     * Checks if the given <code>input</code> would match the given
+     * <code>mat</code>, if it were parsed in {@link #parseMaterials(String)}.
      *
-     * @see MaterialHelper#parseMaterials(String)
-     *
-     * @param mat The material
-     * @param input The input
-     * @return True if the arguments match
+     * @param mat   The material to check
+     * @param input The input check against
+     * @return <code>true</code> if the arguments match
      */
     public static boolean matches(Material mat, String input) {
         input = input.trim().toUpperCase();
@@ -98,6 +130,17 @@ public class MaterialHelper {
         }
     }
 
+    /**
+     * Returns a float representing the blast resistance, or the resistance to
+     * explosions, of a specific {@link Material}. In legacy minecraft
+     * versions, we have to rely on version dependant code to get the blast
+     * resistance.
+     *
+     * <p>TODO Add a compatibility method to {@link me.deecaad.compatibility.block.BlockCompatibility}
+     *
+     * @param type
+     * @return
+     */
     public static float getBlastResistance(Material type) {
         if (CompatibilityAPI.getVersion() < 1.13) {
             if (isFluid(type)) {
@@ -115,11 +158,28 @@ public class MaterialHelper {
         }
     }
 
+    /**
+     * Returns <code>true</code> if the given {@link Material} is empty. In
+     * legacy minecraft versions, {@link Material#AIR} was the only air block.
+     * In newer versions, there are multiple air blocks.
+     *
+     * @see Material#CAVE_AIR
+     * @see Material#VOID_AIR
+     *
+     * @param type The material to check.
+     * @return <code>true</code> if the material is air.
+     */
     public static boolean isAir(Material type) {
         if (CompatibilityAPI.getVersion() < 1.13) return type.name().equals("AIR");
         else return type.isAir();
     }
 
+    /**
+     * Returns <code>true</code> if the given {@link Material} is a fluid.
+     *
+     * @param type The material to check.
+     * @return <code>true</code> if the material is fluid.
+     */
     public static boolean isFluid(Material type) {
         String name = type.name();
         return name.equals("WATER")

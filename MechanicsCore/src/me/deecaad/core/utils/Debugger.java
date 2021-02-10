@@ -8,19 +8,28 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.logging.Logger;
 
+/**
+ * This class outlines an easier to use version of a {@link Logger}. Debuggers
+ * have the advantage of only displaying specific messages based on which
+ * {@link LogLevel} is currently being used. This means that debug messages are
+ * only shown when the user wants to see debug messages, and errors are shown
+ * if users want errors to be shown.
+ *
+ * @see LogLevel
+ */
 public class Debugger {
 
     // Which logger to use to log information,
     // no logical reason to be able to change this
     private final Logger logger;
     private int level;
-    private boolean isPrintTraces;
+    private final boolean isPrintTraces;
     private int errors;
 
     public String msg = "MechanicsPlugin had %s error(s) in console.";
     public String permission = "mechanicscore.errorlog";
     public long updateTime = 300L;
-    private BukkitRunnable warningTask;
+    private final BukkitRunnable warningTask;
     private boolean hasStarted;
 
     public Debugger(Logger logger, int level) {
@@ -55,88 +64,94 @@ public class Debugger {
         };
     }
 
+    /**
+     * Returns the backing {@link Logger} that belongs to the plugin that
+     * instantiated this debugger.
+     *
+     * @return The non-null {@link Logger}
+     */
     public Logger getLogger() {
         return logger;
     }
 
     /**
-     * Gets the current logging level
+     * Gets the current numeric logging level that was input by the user.
      *
-     * @return Integer logging level
+     * @return The non-negative numeric logging level.
      */
     public int getLevel() {
         return level;
     }
 
     /**
-     * Sets the logger level, should be called after
-     * reloading the plugin that instantiated this class
+     * Sets the numeric logging that. This level should be set by the user.
      *
-     * @param level The integer level to log at
+     * @param level The non-negative numeric logging level.
      */
     public void setLevel(int level) {
         this.level = level;
     }
 
     /**
-     * Determines if the given level can be logged
+     * Returns <code>true</code> if the given {@link LogLevel} can be logged
+     * based on the currently set numeric logging level.
      *
-     * @param level Level to test for
-     * @return true if can be logged
+     * @param level The non-null {@link LogLevel} to test.
+     * @return <code>true</code> if the <code>level</code> can be logged.
      */
     public boolean canLog(LogLevel level) {
         return level.shouldPrint(this.level);
     }
 
     /**
-     * Shorthand to log at debugging level
+     * Shorthand for using {@link #log(LogLevel, String...)} at debugging
+     * level.
      *
+     * @param msg The non-null messages to log.
      * @see LogLevel#DEBUG
-     * @param msg Messages to log
      */
-    public void debug(String...msg) {
+    public void debug(String... msg) {
         if (canLog(LogLevel.DEBUG)) log(LogLevel.DEBUG, msg);
     }
 
     /**
-     * Shorthand to log at debugging level
+     * Shorthand for using {@link #log(LogLevel, String...)} at information
+     * level.
      *
+     * @param msg The non-null messages to log.
      * @see LogLevel#INFO
-     * @param msg Messages to log
      */
-    public void info(String...msg) {
+    public void info(String... msg) {
         if (canLog(LogLevel.INFO)) log(LogLevel.INFO, msg);
     }
 
     /**
-     * Shorthand to log at debugging level
+     * Shorthand for using {@link #log(LogLevel, String...)} at warning level.
      *
+     * @param msg The non-null messages to log.
      * @see LogLevel#WARN
-     * @param msg Messages to log
      */
-    public void warn(String...msg) {
+    public void warn(String... msg) {
         if (canLog(LogLevel.WARN)) log(LogLevel.WARN, msg);
     }
 
     /**
-     * Shorthand to log at debugging level
+     * Shorthand for using {@link #log(LogLevel, String...)} at error level.
      *
+     * @param msg The non-null messages to log.
      * @see LogLevel#ERROR
-     * @param msg Messages to log
      */
-    public void error(String...msg) {
+    public void error(String... msg) {
         if (canLog(LogLevel.ERROR)) log(LogLevel.ERROR, msg);
     }
 
     /**
-     * Logs all given messaged at the given
-     * <code>LogLevel</code>. Each message is
-     * logged on a new line.
+     * Logs the given messages to console at the given {@link LogLevel}.
      *
-     * @param level The level to log at
-     * @param msg The messages
+     * @param level The non-null level to log the messages.
+     * @param msg   The non-null messages to log.
      */
-    public void log(LogLevel level, String...msg) {
+    public void log(LogLevel level, String... msg) {
         if (!canLog(level)) return;
 
         for (String str : msg) {
@@ -154,11 +169,10 @@ public class Debugger {
     }
 
     /**
-     * Logs an error. Useful for debugging and not showing
-     * users error messages
+     * Logs the given exception to console at the given {@link LogLevel}.
      *
-     * @param level The level to log at
-     * @param error Error
+     * @param level The non-null level to log the messages.
+     * @param error The non-null exception to log.
      */
     public void log(LogLevel level, Throwable error) {
         if (!canLog(level)) return;
@@ -167,12 +181,14 @@ public class Debugger {
     }
 
     /**
-     * Logs the given error and gives the user the
-     * given message.
+     * Logs the given message and the given exception at the given
+     * {@link LogLevel}. If the exception does not have a message, the
+     * <code>msg</code> is used as the message. Otherwise, they are logged
+     * separately.
      *
-     * @param level Level to log at
-     * @param msg Message to send
-     * @param error Error
+     * @param level The non-null level to log the messages.
+     * @param msg   The message to log.
+     * @param error The exception to log.
      */
     public void log(LogLevel level, String msg, Throwable error) {
         if (!canLog(level)) return;
@@ -181,35 +197,40 @@ public class Debugger {
     }
 
     /**
-     * Shorthand for asserting true with an <code>ERROR</code>
-     * <code>LoggingLevel</code>.
+     * Logs the given messages as a {@link LogLevel#ERROR} if the given
+     * <code>bool</code> is <code>false</code>.
      *
-     * @param bool What to assert
-     * @param messages Messages to log if assertion failed
+     * @param bool     The condition to check for. If this is <code>true</code>,
+     *                 the messages are not logged.
+     * @param messages The messages to log as an error.
      */
-    public void validate(boolean bool, String...messages) {
+    public void validate(boolean bool, String... messages) {
         if (!bool) {
             log(LogLevel.ERROR, messages);
         }
     }
 
     /**
-     * Easy way to assert variables cleanly. If <code>bool</code>
-     * is true, than there is no error, the method exits. If it
-     * is false, than there is an error, and the given messages
-     * should be logged at the given level so the user can be
-     * aware of possible errors.
+     * Logs the given messages at the given {@link LogLevel} if the given
+     * <code>bool</code> is <code>false</code>.
      *
-     * @param level Level to log at
-     * @param bool What to assert
-     * @param messages Messages to log if assertion failed
+     * @param level    The logging level to log the messages.
+     * @param bool     The condition to check for. If this is <code>true</code>,
+     *                 the messages are not logged.
+     * @param messages The messages to log.
      */
-    public void validate(LogLevel level, boolean bool, String...messages) {
+    public void validate(LogLevel level, boolean bool, String... messages) {
         if (!bool) {
             log(level, messages);
         }
     }
 
+    /**
+     * Starts the warning runnable which warns opped users if an
+     * error occurs in console.
+     *
+     * @param plugin The plugin to schedule the task.
+     */
     public synchronized void start(Plugin plugin) {
         if (hasStarted) return;
 
