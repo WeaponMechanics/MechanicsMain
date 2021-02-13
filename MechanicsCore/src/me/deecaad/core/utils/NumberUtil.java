@@ -68,7 +68,7 @@ public final class NumberUtil {
      * @param arr The non-null array to grab an element from.
      * @param <T> The generic type of the array.
      * @return The random element. If the array has no <code>null</code>
-     *         elements, then this method will not return <code>null</code>.
+     * elements, then this method will not return <code>null</code>.
      * @throws IllegalArgumentException If <code>arr.length == 0</code>.
      */
     public static <T> T random(T[] arr) {
@@ -82,7 +82,7 @@ public final class NumberUtil {
      * @param list The non-null list of elements.
      * @param <T>  The generic type of the list.
      * @return The random element. If the list has no <code>null</code>
-     *         elements, then this method will not return <code>null</code>.
+     * elements, then this method will not return <code>null</code>.
      */
     public static <T> T random(List<T> list) {
         return list.get(random(list.size()));
@@ -143,7 +143,7 @@ public final class NumberUtil {
      *              is probably between <code>min</code> and <code>max</code>.
      * @param max   The maximum number <code>value</code> can be.
      * @return A number <code>[min, max]</code> that is equal to one of the
-     *         method parameters.
+     * method parameters.
      */
     public static int minMax(int min, int value, int max) {
         if (min > value) {
@@ -166,7 +166,7 @@ public final class NumberUtil {
      *              is probably between <code>min</code> and <code>max</code>.
      * @param max   The maximum number <code>value</code> can be.
      * @return A number <code>[min, max]</code> that is equal to one of the
-     *         method parameters.
+     * method parameters.
      */
     public static float minMax(float min, float value, float max) {
         if (min > value) {
@@ -189,7 +189,7 @@ public final class NumberUtil {
      *              is probably between <code>min</code> and <code>max</code>.
      * @param max   The maximum number <code>value</code> can be.
      * @return A number <code>[min, max]</code> that is equal to one of the
-     *         method parameters.
+     * method parameters.
      */
     public static double minMax(double min, double value, double max) {
         if (min > value) {
@@ -217,11 +217,20 @@ public final class NumberUtil {
 
     /**
      * <a href="https://en.wikipedia.org/wiki/Linear_interpolation">Linear interpolation</a>
-     * implementation.
-     * @param min
-     * @param max
-     * @param factor
-     * @return
+     * implementation. The returned number will be between min inclusively, and
+     * max inclusively.
+     *
+     * <p>The factor decides where, relative to <code>min</code> and
+     * <code>max</code>, the returned point will be. The factor should be a
+     * number between 0 inclusively and 1 inclusively. Values approaching 0.0
+     * will return a point closer to <code>min</code>, while values approaching
+     * 1.0 will return a point closer to <code>max</code>.
+     *
+     * @param min    The minimum value that the function can return.
+     * @param max    The maximum value that the function can return.
+     * @param factor At what point between the minimum and maximum should the
+     *               returned value be.
+     * @return The interpolated number.
      */
     public static double lerp(double min, double max, double factor) {
         if (factor < 0.0 || factor > 1.0)

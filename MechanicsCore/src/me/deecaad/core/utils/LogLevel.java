@@ -8,12 +8,12 @@ import java.util.logging.Level;
  * have smaller numeric levels.
  */
 public enum LogLevel {
-    
+
     INFO(1, Level.INFO),
     ERROR(1, Level.SEVERE),
     WARN(2, Level.WARNING),
     DEBUG(3, Level.INFO);
-    
+
     private final int level;
     private final Level parallel;
 

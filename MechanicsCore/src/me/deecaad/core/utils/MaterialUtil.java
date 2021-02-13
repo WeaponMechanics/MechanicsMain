@@ -163,11 +163,10 @@ public final class MaterialUtil {
      * legacy minecraft versions, {@link Material#AIR} was the only air block.
      * In newer versions, there are multiple air blocks.
      *
-     * @see Material#CAVE_AIR
-     * @see Material#VOID_AIR
-     *
      * @param type The material to check.
      * @return <code>true</code> if the material is air.
+     * @see Material#CAVE_AIR
+     * @see Material#VOID_AIR
      */
     public static boolean isAir(Material type) {
         if (CompatibilityAPI.getVersion() < 1.13) return type.name().equals("AIR");

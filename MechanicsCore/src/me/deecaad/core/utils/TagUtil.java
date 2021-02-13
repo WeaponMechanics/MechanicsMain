@@ -180,9 +180,9 @@ public final class TagUtil {
      * This method keeps other attributes set by for example commands or other plugins, BUT
      * overrides WeaponMechanics old attribute value if found.
      *
-     * @param itemStack the item stack to which attribute will be set
+     * @param itemStack     the item stack to which attribute will be set
      * @param attributeType the attribute type
-     * @param amount the amount for attribute type
+     * @param amount        the amount for attribute type
      * @return the item stack with attribute
      */
     public static ItemStack setAttributeValue(ItemStack itemStack, AttributeType attributeType, double amount) {

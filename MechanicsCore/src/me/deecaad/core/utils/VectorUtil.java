@@ -229,10 +229,9 @@ public final class VectorUtil {
      * (0, 10, 0) -> (0, -0, 10)
      * (10, 0, 10) -> (0, -10, 0)
      *
-     * @throws IllegalArgumentException If the given vector's length is 0
-     *
      * @param vector The vector to use to get a perpendicular
      * @return The perpendicular method
+     * @throws IllegalArgumentException If the given vector's length is 0
      */
     public static Vector getPerpendicular(Vector vector) {
         double x = vector.getX();
@@ -255,11 +254,10 @@ public final class VectorUtil {
     /**
      * Gets the angle, in radians, between the 2 given bukkit vectors.
      *
-     * @see Math#toDegrees(double)
-     *
      * @param a The first vector
      * @param b The second vector
      * @return The angle between the vectors
+     * @see Math#toDegrees(double)
      */
     public static double getAngleBetween(@Nonnull Vector a, @Nonnull Vector b) {
 

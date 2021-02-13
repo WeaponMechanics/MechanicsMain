@@ -1,7 +1,11 @@
 package me.deecaad.core.utils;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NavigableSet;
+import java.util.SplittableRandom;
+import java.util.TreeSet;
 
 /**
  * This class outlines a mapping of elements to a weight. This data structure
