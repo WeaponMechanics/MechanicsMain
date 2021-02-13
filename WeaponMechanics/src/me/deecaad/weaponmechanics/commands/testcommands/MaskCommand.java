@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.core.utils.Enums;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -45,8 +45,8 @@ public class MaskCommand extends SubCommand {
 
         int minX = location.getX() - range;
         int maxX = location.getX() + range;
-        int minY = NumberUtils.minMax(0, location.getY() - range, 255);
-        int maxY = NumberUtils.minMax(0, location.getY() + range, 255);
+        int minY = NumberUtil.minMax(0, location.getY() - range, 255);
+        int maxY = NumberUtil.minMax(0, location.getY() + range, 255);
         int minZ = location.getZ() - range;
         int maxZ = location.getZ() + range;
 
@@ -92,7 +92,7 @@ public class MaskCommand extends SubCommand {
     protected List<String> handleCustomTag(String[] args, String tag) {
         switch (tag) {
             case "<material>":
-                return new ArrayList<>(Enums.getOptions(Material.class));
+                return new ArrayList<>(EnumUtil.getOptions(Material.class));
             case "<range>":
                 return Arrays.asList(tag, "5", "10");
             case "<time>":

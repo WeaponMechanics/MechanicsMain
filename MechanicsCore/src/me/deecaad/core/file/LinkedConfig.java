@@ -1,7 +1,7 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -83,10 +83,10 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         if (value instanceof List<?>) {
             value = ((List<?>) value).stream()
                     .map(Object::toString)
-                    .map(StringUtils::color)
+                    .map(StringUtil::color)
                     .collect(Collectors.toList());
         } else if (value instanceof String) {
-            value = StringUtils.color(value.toString());
+            value = StringUtil.color(value.toString());
         }
 
         return super.put(key, value);
@@ -245,7 +245,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Override
     public void forEach(@Nonnull String basePath, @Nonnull BiConsumer<String, Object> consumer, boolean deep) {
-        int memorySections = StringUtils.countChars('.', basePath);
+        int memorySections = StringUtil.countChars('.', basePath);
         if (basePath.isEmpty()) memorySections--;
 
         // Avoiding lambda for debugging
@@ -255,7 +255,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
             if (!key.startsWith(basePath)) continue;
 
-            int currentMemorySections = StringUtils.countChars('.', key);
+            int currentMemorySections = StringUtil.countChars('.', key);
             if (!deep && currentMemorySections == memorySections + 1) {
                 consumer.accept(key, value);
             } else if (deep && currentMemorySections > memorySections) {

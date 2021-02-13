@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.core.utils.StringUtils;
-import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -61,7 +61,7 @@ public class Spread implements Serializer<Spread> {
     }
 
     private Vector getNormalizedSpreadImageDirection(double startYaw, double startPitch, double yaw, double pitch) {
-        return VectorUtils.getVector(startYaw + yaw, startPitch + pitch).normalize();
+        return VectorUtil.getVector(startYaw + yaw, startPitch + pitch).normalize();
     }
 
     /**
@@ -75,9 +75,9 @@ public class Spread implements Serializer<Spread> {
     private Vector getNormalizedSpreadDirection(double yaw, double pitch, double spread) {
 
         // Create random numbers for horizontal and vertical spread
-        double randomX = NumberUtils.random(-spread, spread),
-                randomY = NumberUtils.random(-spread, spread),
-                randomZ = NumberUtils.random(-spread, spread);
+        double randomX = NumberUtil.random(-spread, spread),
+                randomY = NumberUtil.random(-spread, spread),
+                randomZ = NumberUtil.random(-spread, spread);
 
         // Change yaw and pitch to radians
         double yawToRad = Math.toRadians(yaw);
@@ -105,7 +105,7 @@ public class Spread implements Serializer<Spread> {
         }
         double baseSpread = configurationSection.getDouble(path + ".Base_Spread");
         if (baseSpread <= 0.0) {
-            debug.error("Base_Spread must be greater than 0!", StringUtils.foundAt(file, path + ".Base_Spread"));
+            debug.error("Base_Spread must be greater than 0!", StringUtil.foundAt(file, path + ".Base_Spread"));
             return null;
         }
 

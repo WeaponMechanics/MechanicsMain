@@ -2,8 +2,8 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -53,7 +53,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
 
         List<ExtraRecoilPatternData> recoilPatternList = new ArrayList<>();
         for (Object data : list) {
-            String[] split = StringUtils.split(data.toString());
+            String[] split = StringUtil.split(data.toString());
             if (split.length < 2) {
                 debug.log(LogLevel.ERROR,
                         "Found an invalid recoil pattern format in configurations!",
@@ -132,7 +132,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
          * @return whether to skip this recoil pattern
          */
         public boolean shouldSkip() {
-            return NumberUtils.chance(this.chanceToSkip);
+            return NumberUtil.chance(this.chanceToSkip);
         }
 
         /**

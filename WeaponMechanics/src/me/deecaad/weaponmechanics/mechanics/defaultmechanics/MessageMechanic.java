@@ -4,7 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
@@ -240,11 +240,11 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
             String clickEventString = configurationSection.getString(path + ".Chat.Click");
             if (clickEventString != null) {
-                String[] parsedClickEvent = StringUtils.split(clickEventString);
+                String[] parsedClickEvent = StringUtil.split(clickEventString);
                 if (parsedClickEvent.length != 2) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("parameter length"),
-                            StringUtils.foundAt(file, path + ".Chat.Click"),
+                            StringUtil.foundInvalid("parameter length"),
+                            StringUtil.foundAt(file, path + ".Chat.Click"),
                             "Make sure the format is <ClickEvent.Action>-<value>");
                     return null;
                 }
@@ -253,22 +253,22 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                     clickEventValue = parsedClickEvent[1];
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("ClickEvent.Action"),
-                            StringUtils.foundAt(file, path + ".Chat.Click", parsedClickEvent[0].toUpperCase()),
-                            StringUtils.debugDidYouMean(parsedClickEvent[0].toUpperCase(), ClickEvent.Action.class));
+                            StringUtil.foundInvalid("ClickEvent.Action"),
+                            StringUtil.foundAt(file, path + ".Chat.Click", parsedClickEvent[0].toUpperCase()),
+                            StringUtil.debugDidYouMean(parsedClickEvent[0].toUpperCase(), ClickEvent.Action.class));
                     return null;
                 }
             }
-            chatData = new ChatData(StringUtils.color(chatMessage), clickEventAction, StringUtils.color(clickEventValue), StringUtils.color(hoverEventValue));
+            chatData = new ChatData(StringUtil.color(chatMessage), clickEventAction, StringUtil.color(clickEventValue), StringUtil.color(hoverEventValue));
         }
 
         // ACTION BAR
-        String actionBarMessage = StringUtils.color(configurationSection.getString(path + ".Action_Bar.Message"));
+        String actionBarMessage = StringUtil.color(configurationSection.getString(path + ".Action_Bar.Message"));
         int actionBarTime = configurationSection.getInt(path + ".Action_Bar.Time");
         if (actionBarTime != 0 && actionBarTime < 40) {
             debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("action bar time"),
-                    StringUtils.foundAt(file, path + ".Action_Bar.Time", actionBarTime),
+                    StringUtil.foundInvalid("action bar time"),
+                    StringUtil.foundAt(file, path + ".Action_Bar.Time", actionBarTime),
                     "If action bar time is below 40, don't use it at all!");
             return null;
         }
@@ -281,11 +281,11 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
             int fadeIn = 0, stay = 0, fadeOut = 0;
             String titleTime = configurationSection.getString(path + ".Title.Time");
             if (titleTime != null) {
-                String[] splittedTitleTime = StringUtils.split(titleTime);
+                String[] splittedTitleTime = StringUtil.split(titleTime);
                 if (splittedTitleTime.length != 3) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("parameter length"),
-                            StringUtils.foundAt(file, path + ".Title.Time"),
+                            StringUtil.foundInvalid("parameter length"),
+                            StringUtil.foundAt(file, path + ".Title.Time"),
                             "Make sure the format is <fade in ticks>-<stay ticks>-<fade out ticks>");
                     return null;
                 }
@@ -295,13 +295,13 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                     fadeOut = Integer.parseInt(splittedTitleTime[2]);
                 } catch (NumberFormatException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("number format"),
-                            StringUtils.foundAt(file, path + ".Title.Time", titleTime));
+                            StringUtil.foundInvalid("number format"),
+                            StringUtil.foundAt(file, path + ".Title.Time", titleTime));
                     return null;
                 }
             }
 
-            titleData = new TitleData(StringUtils.color(titleMessage), StringUtils.color(subtitleMessage), fadeIn, stay, fadeOut);
+            titleData = new TitleData(StringUtil.color(titleMessage), StringUtil.color(subtitleMessage), fadeIn, stay, fadeOut);
         }
 
         // BOSS BAR
@@ -318,9 +318,9 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                 barColor = BarColor.valueOf(stringBarColor);
             } catch (IllegalArgumentException e) {
                 debug.log(LogLevel.ERROR,
-                        StringUtils.foundInvalid("bar color"),
-                        StringUtils.foundAt(file, path + ".Boss_Bar.Bar_Color", stringBarColor),
-                        StringUtils.debugDidYouMean(stringBarColor, BarColor.class));
+                        StringUtil.foundInvalid("bar color"),
+                        StringUtil.foundAt(file, path + ".Boss_Bar.Bar_Color", stringBarColor),
+                        StringUtil.debugDidYouMean(stringBarColor, BarColor.class));
                 return null;
             }
             BarStyle barStyle;
@@ -329,13 +329,13 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                 barStyle = BarStyle.valueOf(stringBarStyle);
             } catch (IllegalArgumentException e) {
                 debug.log(LogLevel.ERROR,
-                        StringUtils.foundInvalid("bar style"),
-                        StringUtils.foundAt(file, path + ".Boss_Bar.Bar_Style", stringBarStyle),
-                        StringUtils.debugDidYouMean(stringBarStyle, BarStyle.class));
+                        StringUtil.foundInvalid("bar style"),
+                        StringUtil.foundAt(file, path + ".Boss_Bar.Bar_Style", stringBarStyle),
+                        StringUtil.debugDidYouMean(stringBarStyle, BarStyle.class));
                 return null;
             }
             int time = configurationSection.getInt(path + ".Boss_Bar.Time");
-            bossBarData = new BossBarData(StringUtils.color(bossBarMessage), barColor, barStyle, time);
+            bossBarData = new BossBarData(StringUtil.color(bossBarMessage), barColor, barStyle, time);
         }
 
         if (chatData == null && actionBarMessage == null && titleData == null && bossBarData == null) {

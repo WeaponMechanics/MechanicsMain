@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.MaterialUtil;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -143,12 +142,12 @@ public class Sticky implements Serializer<Sticky> {
             if (blocks) { // blocks
                 ItemStack itemStack;
                 try {
-                    itemStack = MaterialHelper.fromStringToItemStack(dataToUpper);
+                    itemStack = MaterialUtil.fromStringToItemStack(dataToUpper);
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("material"),
-                            StringUtils.foundAt(file, path + ".List", dataToUpper),
-                            StringUtils.debugDidYouMean(dataToUpper.split(":")[0], Material.class));
+                            StringUtil.foundInvalid("material"),
+                            StringUtil.foundAt(file, path + ".List", dataToUpper),
+                            StringUtil.debugDidYouMean(dataToUpper.split(":")[0], Material.class));
                     continue;
                 }
                 if (CompatibilityAPI.getVersion() >= 1.13) {
@@ -162,9 +161,9 @@ public class Sticky implements Serializer<Sticky> {
                     entity = EntityType.valueOf(dataToUpper);
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("entity type"),
-                            StringUtils.foundAt(file, path + ".List", dataToUpper),
-                            StringUtils.debugDidYouMean(dataToUpper, EntityType.class));
+                            StringUtil.foundInvalid("entity type"),
+                            StringUtil.foundAt(file, path + ".List", dataToUpper),
+                            StringUtil.debugDidYouMean(dataToUpper, EntityType.class));
                     continue;
                 }
                 setList.add(entity.name());

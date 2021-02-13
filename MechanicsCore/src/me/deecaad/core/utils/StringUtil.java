@@ -4,26 +4,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * This final utility class outlines static methods that operate on or return
  * a {@link String}. This class also contains methods to help user-end
  * debugging of {@link me.deecaad.core.file.Configuration}.
  */
-public final class StringUtils {
+public final class StringUtil {
 
     public static final String LOWER_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
     public static final String VALID_HEX = "0123456789AaBbCcDdEeFf";
     public static final String CODES = VALID_HEX + "KkLlMmNnOoRrXx";
     private static final String[] SUFFIXES = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
 
-    // Don't let anyone instantiate this class
-    private StringUtils() {
+    // Don't let anyone instantiate this class.
+    private StringUtil() {
     }
 
     /**
@@ -73,7 +71,7 @@ public final class StringUtils {
      * character with <code>§</code>. This method also translates hex strings
      * formatted by <code>&#000000</code> to a minecraft chat hex string.
      *
-     * This method should only be called during data serialization or through
+     * <p>This method should only be called during data serialization or through
      * bukkit commands.
      *
      * @param string The non-null string to color.
@@ -199,10 +197,10 @@ public final class StringUtils {
      * @param strings The non-null strings to color and add to a list.
      * @return The non-null list of colored strings.
      */
-    public static List<String> getList(String...strings) {
+    public static List<String> getList(String... strings) {
         List<String> temp = new ArrayList<>(strings.length);
         for (String str : strings) {
-            temp.add(StringUtils.color(str));
+            temp.add(StringUtil.color(str));
         }
         return temp;
     }
@@ -210,7 +208,7 @@ public final class StringUtils {
     /**
      * Returns a {@link String} containing the file path and configuration
      * path. Should be used to help the user find exactly where in their config
-     * an errors occurs.
+     * an error occurs.
      *
      * @param file The non-null hard file location.
      * @param path The non-null path to the exact config key.
@@ -221,45 +219,50 @@ public final class StringUtils {
     }
 
     /**
-     * Returns a {@link String} containing the file path and configuration path.
-     * @param file
-     * @param path
-     * @param specification
-     * @return
+     * Returns a {@link String} containing the file path, configuration path
+     * and the incorrect value. Should be used to help the user find exactly
+     * where in their config an error occurs.
+     *
+     * @param file  The non-null hard file location.
+     * @param path  The non-null path to the exact config key.
+     * @param value The incorrect value that was input by the user.
+     * @return The non-null user-readable location.
      */
-    public static String foundAt(File file, String path, Object specification) {
-        return "Located at file " + file + " in path " + path + " (" + specification.toString() + ") in configurations.";
+    public static String foundAt(File file, String path, Object value) {
+        return "Located at file " + file + " in path " + path + " (" + value + ") in configurations.";
     }
 
     /**
-     * @param invalid what was invalid
-     * @return general invalid thing notifier for debugger
+     * Returns a formatted {@link String} which explains which configuration
+     * key is incorrect.
+     *
+     * @param invalid The invalid key.
+     * @return The non-null invalid key.
      */
     public static String foundInvalid(String invalid) {
         return "Found an invalid " + invalid + " in configurations!";
     }
 
     /**
-     * A warning message for when somebody uses an absurdly wrong number in configurations
+     * Returns a list of formatted strings that warns the user about a possible
+     * mistake, and where that mistake may be.
      *
+     * @param number The number that is absurdly large.
+     * @param file   The non-null hard file location.
+     * @param path   The non-null path to the exact config key.
+     * @return The non-null warning to the user.
      * @see Debugger#warn(String...)
-     *
-     * @param number The absurd number
-     * @param file The file the number is found in
-     * @param path The path to the number
-     * @return Predetermined warning message
      */
     public static String[] foundLarge(double number, File file, String path) {
         return new String[]{
                 "WARNING: Found a large number in configurations (" + number + ")",
                 "This is not an error, but you should be careful when using large numbers, and this may be a mistake.",
-                StringUtils.foundAt(file, path + ".Airstrike.Maximum_Bombs")
+                StringUtil.foundAt(file, path)
         };
     }
 
     /**
-     * Gets the Minecraft <code>NamespacedKey</code> format
-     * from the given camel case format. See below examples.
+     * Translates a camel case {@link String} to a snake case {@link String}.
      *
      * <blockquote><pre>{@code
      *      camelToKey("iAmBob") // "i_am_bob"
@@ -267,50 +270,31 @@ public final class StringUtils {
      *      camelToKey("hey") // "hey"
      * }</pre></blockquote>
      *
-     * @param camel The camelcase to reformat
-     * @return The reformatted case
+     * @param camel The camel-case formatted {@link String}.
+     * @return The name-spaced-key formatted {@link String}.
      */
-    public static String camelToKey(String camel) {
+    public static String camelToSnake(String camel) {
         return String.join("_", camel.split("(?=[A-Z])")).toLowerCase();
     }
 
     /**
-     * Gets constant format from the given
-     * camel case format. See below examples.
-     *
-     * <blockquote><pre>{@code
-     *      camelToConst("iAmBob") // "I_AM_BOB"
-     *      camelToConst("silkTouch") // "SILK_TOUCH"
-     *      camelToConst("hey") // "HEY"
-     * }</pre></blockquote>
-     *
-     * @param camel The camelcase to reformat
-     * @return The reformatted case
-     */
-    public static String camelToConst(String camel) {
-        return String.join("_", camel.split("(?=[A-Z])")).toUpperCase();
-    }
-
-    /**
-     * Translated a minecraft <code>NamespacedKey</code> formatted
-     * <code>String</code> <i>OR</i> a java constant formatted
-     * <code>String</code> into a more user readable format. See
-     * below examples.
+     * Translates a snake case {@link String} to a user readable
+     * {@link String}.
      *
      * <blockquote><pre>{@code
      *      keyToRead("SILK_TOUCH") // "Silk Touch"
-     *      keyToRead("JAR_OF_DIRT") // "Jar Of Dirt"
+     *      keyToRead("jar_of_dirt") // "Jar Of Dirt"
      *      keyToRead("GOLDEN_SWORD") // "Golden Sword"
      * }</pre></blockquote>
      *
-     * @param key The key to reformat
-     * @return The user readable format
+     * @param key The non-null upper or lower snake-case {@link String}.
+     * @return The non-null user readable format
      */
     public static String keyToRead(String key) {
         String[] split = key.toLowerCase().split("_");
 
         StringBuilder builder = new StringBuilder();
-        for (String s: split) {
+        for (String s : split) {
             builder.append(s.substring(0, 1).toUpperCase());
             builder.append(s.substring(1));
             builder.append(" ");
@@ -319,59 +303,70 @@ public final class StringUtils {
     }
 
     /**
-     * @see #didYouMean(String, Iterable)
+     * Returns the name of the most similar {@link Enum} to the
+     * <code>input</code>.
      *
-     * @return the string in usable format at error debugs
+     * @param input     The non-null mis-spelled input.
+     * @param enumClazz The non-null expected {@link Enum} type.
+     * @param <T>       The <code>enumClazz</code> generic type.
+     * @return The non-null user-readable correction.
      */
     public static <T extends Enum<T>> String debugDidYouMean(String input, Class<T> enumClazz) {
-        return "Did you mean " + didYouMean(input, Enums.getOptions(enumClazz)) + " instead of " + input + "?";
+        return "Did you mean " + didYouMean(input, EnumUtil.getOptions(enumClazz)) + " instead of " + input + "?";
     }
-    
+
     /**
-     * Gets the most similar <code>String</code> to
-     * <code>input</code> found in <code>options</code>
+     * Maps the <code>input</code> to a table, and compares that table to every
+     * {@link String} in <code>options</code>. This method then returns the
+     * option that is most similar to the <code>input</code>.
      *
-     * Example:
+     * <p>This is most useful for spelling mistakes at the user end. By checking
+     * their {@link Enum} inputs, for example, you can help the user debug
+     * their issue automatically.
+     *
      * <blockquote><pre>{@code
      *
      *      // Input:
-     *      String correction = didYouMean("endermen", {"pig", "zombie", "enderman"});
-     *      System.out.println("Unknown mob " + "endermen" + "... Did you mean " + correction + "?")
+     *      List<String> a = Arrays.asList("pig", "zombie", "enderman");
+     *      String correction = didYouMean("endermen", a);
+     *      System.out.println(correction);
      *
-     *      // Output
-     *      [...] Unknown mob endermen... Did you mean enderman?
+     *      // Output:
+     *      enderman
      * }</pre></blockquote>
      *
+     * @param input   The non-null user end input. This is the input that is
+     *                possible misspelled.
+     * @param options All of the possible options that the input could be.
+     * @return The most similar string to <code>input</code>.
      */
     public static String didYouMean(String input, Iterable<String> options) {
         String closest = null;
         int difference = Integer.MAX_VALUE;
         int[] table = mapToCharTable(input.toLowerCase());
-        
+
         for (String str : options) {
             int[] localTable = mapToCharTable(str.toLowerCase());
             int localDifference = 0;
-            
+
             for (int i = 0; i < table.length; i++) {
                 localDifference += Math.abs(table[i] - localTable[i]);
             }
-            
+
             if (localDifference < difference) {
                 closest = str;
                 difference = localDifference;
             }
         }
-        
+
         return closest;
     }
-    
+
     private static int[] mapToCharTable(String str) {
         int[] table = new int[LOWER_ALPHABET.length()];
-    
         for (int i = 0; i < str.length(); i++) {
             table[Character.toLowerCase(str.charAt(i)) - 97]++;
         }
-        
         return table;
     }
 }

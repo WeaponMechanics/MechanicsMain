@@ -1,7 +1,7 @@
 package me.deecaad.core.placeholder;
 
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -84,7 +84,7 @@ public class PlaceholderAPI {
             Class.forName("me.clip.placeholderapi.PlaceholderAPI");
             to = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, to);
         } catch (ClassNotFoundException e) {/**/}
-        return StringUtils.color(to);
+        return StringUtil.color(to);
     }
 
     /**

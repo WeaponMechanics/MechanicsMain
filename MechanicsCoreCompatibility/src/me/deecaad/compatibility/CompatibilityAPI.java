@@ -2,13 +2,16 @@ package me.deecaad.compatibility;
 
 import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
+import me.deecaad.compatibility.item.nbt.INBTCompatibility;
 
 public class CompatibilityAPI {
 
-    private static double version;
-    private static ICompatibility compatibility;
+    private static final double version;
+    private static final ICompatibility compatibility;
 
     static {
+        VersionSetup versionSetup = new VersionSetup();
+        version = versionSetup.getVersionAsNumber(versionSetup.getVersionAsString());
         compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.compatibility");
     }
 
@@ -24,18 +27,9 @@ public class CompatibilityAPI {
      * @return the server version as number
      */
     public static double getVersion() {
-        if (version == 0.0) {
-            VersionSetup versionSetup = new VersionSetup();
-            version = versionSetup.getVersionAsNumber(versionSetup.getVersionAsString());
-        }
         return version;
     }
 
-    /**
-     * If compatibility isn't set up this will automatically set it up
-     *
-     * @return the compatible version as ICompatibility
-     */
     public static ICompatibility getCompatibility() {
         return compatibility;
     }
@@ -46,5 +40,9 @@ public class CompatibilityAPI {
 
     public static BlockCompatibility getBlockCompatibility() {
         return compatibility.getBlockCompatibility();
+    }
+
+    public static INBTCompatibility getNBTCompatibility() {
+        return compatibility.getNBTCompatibility();
     }
 }

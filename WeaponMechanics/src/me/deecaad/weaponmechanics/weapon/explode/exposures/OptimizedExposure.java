@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
@@ -104,7 +104,7 @@ public class OptimizedExposure implements ExplosionExposure {
         for (int x = 0; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
                 for (int z = 0; z <= 1; z++) {
-                    Vector lerp = VectorUtils.lerp(box.min, box.max, x, y, z);
+                    Vector lerp = VectorUtil.lerp(box.min, box.max, x, y, z);
 
                     // Determine if the ray can hit the entity without hitting a block
                     Ray ray = new Ray(world, vec3d, lerp);

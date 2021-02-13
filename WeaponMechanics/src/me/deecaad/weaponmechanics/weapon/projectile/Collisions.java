@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class Collisions {
         while (iterator.hasNext()) {
             CollisionData old = iterator.next();
             if (old.equals(collisionData)) {
-                return !NumberUtils.hasMillisPassed(old.getHitTime(), 500);
+                return !NumberUtil.hasMillisPassed(old.getHitTime(), 500);
             }
         }
         return false;

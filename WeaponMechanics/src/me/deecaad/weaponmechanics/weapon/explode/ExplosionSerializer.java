@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
@@ -57,7 +57,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         } catch (IllegalArgumentException ex) {
             debug.log(LogLevel.ERROR, "The explosion shape \"" + shapeTypeName + "\" is invalid.",
                     "Valid shapes: " + Arrays.toString(ExplosionShapeType.values()),
-                    StringUtils.foundAt(file, path));
+                    StringUtil.foundAt(file, path));
             return null;
         }
 
@@ -68,7 +68,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         } catch (IllegalArgumentException ex) {
             debug.log(LogLevel.ERROR, "The explosion exposure \"" + exposureTypeName + "\" is invalid.",
                     "Valid exposures: " + Arrays.toString(ExplosionExposureType.values()),
-                    StringUtils.foundAt(file, path));
+                    StringUtil.foundAt(file, path));
             return null;
         }
 
@@ -84,7 +84,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         if (depth > 0) depth *= -1;
 
-        String found = StringUtils.foundAt(file, path + ".Explosion_Type_Data.");
+        String found = StringUtil.foundAt(file, path + ".Explosion_Type_Data.");
 
         debug.validate(yield > 0, "Explosion Yield should be a positive number!", found + "Yield");
         debug.validate(angle > 0, "Explosion Angle should be a positive number!", found + "Angle");
@@ -93,12 +93,12 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         debug.validate(radius > 0, "Explosion Radius should be a positive number!", found + "Height");
         debug.validate(rays > 0, "Explosion Rays should be a positive number!", found + "Rays");
 
-        debug.validate(LogLevel.WARN, yield < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
-        debug.validate(LogLevel.WARN, angle < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Angle"));
-        debug.validate(LogLevel.WARN, height < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Height"));
-        debug.validate(LogLevel.WARN, width < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Width"));
-        debug.validate(LogLevel.WARN, radius < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Radius"));
-        debug.validate(LogLevel.WARN, rays < 50, StringUtils.foundLarge(yield, file, path + "Explosion_Type_Data.Rays"));
+        debug.validate(LogLevel.WARN, yield < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
+        debug.validate(LogLevel.WARN, angle < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Angle"));
+        debug.validate(LogLevel.WARN, height < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Height"));
+        debug.validate(LogLevel.WARN, width < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Width"));
+        debug.validate(LogLevel.WARN, radius < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Radius"));
+        debug.validate(LogLevel.WARN, rays < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Rays"));
 
         ExplosionShape shape;
         switch (shapeType) {
@@ -159,7 +159,7 @@ public class ExplosionSerializer implements Serializer<Explosion> {
 
         // Time after the trigger the explosion occurs
         int delay = section.getInt("Detonation.Delay_After_Impact");
-        debug.validate(delay >= 0, "Delay should be positive", StringUtils.foundAt(file, path + ".Detonation.Delay_After_Impact"));
+        debug.validate(delay >= 0, "Delay should be positive", StringUtil.foundAt(file, path + ".Detonation.Delay_After_Impact"));
 
         String weaponTitle;
         try {
@@ -172,12 +172,12 @@ public class ExplosionSerializer implements Serializer<Explosion> {
         double blockChance = section.getDouble("Block_Damage.Spawn_Falling_Block_Chance");
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
         debug.validate(blockChance >= 0.0 && blockChance <= 1.0, "Falling block spawn chance should be [0, 1]",
-                StringUtils.foundAt(file, path + "Block_Damage.Spawn_Falling_Block_Chance"));
+                StringUtil.foundAt(file, path + "Block_Damage.Spawn_Falling_Block_Chance"));
 
         // A weird check, but I (somehow) made this mistake. Thought it was worth checking for
         if ((blockDamage == null || !blockDamage.isBreakBlocks()) && regeneration != null) {
             debug.error("Tried to use block regeneration for an explosion but blocks will not be broken.",
-                    "This is almost certainly a misconfiguration!", StringUtils.foundAt(file, path));
+                    "This is almost certainly a misconfiguration!", StringUtil.foundAt(file, path));
         }
 
         // Finally initialize the explosion
@@ -216,8 +216,8 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             int layers = section.getInt("Airstrike.Layers");
             int interval = section.getInt("Airstrike.Delay_Between_Layers");
 
-            debug.validate(LogLevel.WARN, max < 100, StringUtils.foundLarge(max, file, path + ".Airstrike.Maximum_Bombs"));
-            debug.validate(LogLevel.WARN, layers < 100, StringUtils.foundLarge(max, file, path + ".Airstrike.Layers"));
+            debug.validate(LogLevel.WARN, max < 100, StringUtil.foundLarge(max, file, path + ".Airstrike.Maximum_Bombs"));
+            debug.validate(LogLevel.WARN, layers < 100, StringUtil.foundLarge(max, file, path + ".Airstrike.Layers"));
 
             explosion.new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval);
         }
@@ -227,14 +227,14 @@ public class ExplosionSerializer implements Serializer<Explosion> {
             Mechanics mechanics = section.contains("Flashbang.Mechanics") ? new Mechanics().serialize(file, configurationSection, section + ".Flashbang.Mechanics") : null;
 
             debug.validate(distance > 0.0, "Flashbang Effect_Distance should be a positive number! Found: " + distance,
-                    StringUtils.foundAt(file, path + ".Flashbang.Distance"));
-            debug.validate(LogLevel.WARN, distance < 100.0, StringUtils.foundLarge(distance, file, path + ".Flashbang.Effect_Distance"));
+                    StringUtil.foundAt(file, path + ".Flashbang.Distance"));
+            debug.validate(LogLevel.WARN, distance < 100.0, StringUtil.foundLarge(distance, file, path + ".Flashbang.Effect_Distance"));
 
             // Since the flashbang depends on mechanics for applying blindness to effected
             // entities, not specifying the mechanics is always a mistake
             if (mechanics == null) {
                 debug.error("Flashbang MUST use Mechanics in order to make people blind. You forgot to add Mechanics!",
-                        StringUtils.foundAt(file, path + ".Flashbang.Mechanics"));
+                        StringUtil.foundAt(file, path + ".Flashbang.Mechanics"));
             }
 
             explosion.new Flashbang(distance, mechanics);

@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.reload;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -112,8 +112,8 @@ public class Ammo implements Serializer<Ammo> {
         ItemStack ammoItem = new ItemSerializer().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo");
         if (ammoItem == null) {
             WeaponMechanics.debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("ammo item"),
-                    StringUtils.foundAt(file, path + ".Use_Item_As_Ammo.Ammo"),
+                    StringUtil.foundInvalid("ammo item"),
+                    StringUtil.foundAt(file, path + ".Use_Item_As_Ammo.Ammo"),
                     "When using ammo you have to define at least ammo type.",
                     "Magazines also require this item so they can be filled.");
             return null;

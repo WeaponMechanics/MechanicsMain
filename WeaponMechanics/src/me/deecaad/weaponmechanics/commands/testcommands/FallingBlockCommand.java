@@ -6,7 +6,7 @@ import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.core.utils.Enums;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -68,7 +68,7 @@ public class FallingBlockCommand extends SubCommand {
     protected List<String> handleCustomTag(String[] args, String tag) {
         switch (tag) {
             case "<material>":
-                return new ArrayList<>(Enums.getOptions(Material.class));
+                return new ArrayList<>(EnumUtil.getOptions(Material.class));
             case "<x>":
             case "<y>":
             case "<z>":

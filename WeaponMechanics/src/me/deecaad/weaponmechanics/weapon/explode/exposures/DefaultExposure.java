@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
@@ -123,9 +123,9 @@ public class DefaultExposure implements ExplosionExposure {
         for (double x = 0; x <= 1; x += gridX) {
             for (double y = 0; y <= 1; y += gridY) {
                 for (double z = 0; z <= 1; z += gridZ) {
-                    double a = NumberUtils.lerp(box.min.getX(), box.max.getX(), x);
-                    double b = NumberUtils.lerp(box.min.getY(), box.max.getY(), y);
-                    double c = NumberUtils.lerp(box.min.getZ(), box.max.getZ(), z);
+                    double a = NumberUtil.lerp(box.min.getX(), box.max.getX(), x);
+                    double b = NumberUtil.lerp(box.min.getY(), box.max.getY(), y);
+                    double c = NumberUtil.lerp(box.min.getZ(), box.max.getZ(), z);
 
                     // Calculates a path from the origin of the explosion
                     // (0, 0, 0) to the current grid on the entity's bounding

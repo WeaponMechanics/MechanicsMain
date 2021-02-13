@@ -16,7 +16,7 @@ import java.util.Optional;
  * bukkit materials, blocks, or items. This class also contains methods to
  * assist in parsing materials from a {@link String} input.
  */
-public final class MaterialHelper {
+public final class MaterialUtil {
 
     private static Method getState;
     private static Method getBlock;
@@ -31,7 +31,7 @@ public final class MaterialHelper {
     }
 
     // Don't let anyone instantiate this class
-    private MaterialHelper() {
+    private MaterialUtil() {
     }
 
     /**
@@ -55,10 +55,10 @@ public final class MaterialHelper {
         short data;
 
         if (index == -1) {
-            mat = Enums.getIfPresent(Material.class, itemStackString);
+            mat = EnumUtil.getIfPresent(Material.class, itemStackString);
             data = 0;
         } else {
-            mat = Enums.getIfPresent(Material.class, itemStackString.substring(0, index));
+            mat = EnumUtil.getIfPresent(Material.class, itemStackString.substring(0, index));
             data = Short.parseShort(itemStackString.substring(index + 1));
         }
 
@@ -104,7 +104,7 @@ public final class MaterialHelper {
             return Collections.unmodifiableList(materials);
 
         } else {
-            Optional<Material> material = Enums.getIfPresent(Material.class, input);
+            Optional<Material> material = EnumUtil.getIfPresent(Material.class, input);
             return material.map(Collections::singletonList).orElse(Collections.emptyList());
         }
     }

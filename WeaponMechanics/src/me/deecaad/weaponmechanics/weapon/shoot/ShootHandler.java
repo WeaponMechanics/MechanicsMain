@@ -5,8 +5,8 @@ import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -124,7 +124,7 @@ public class ShootHandler implements IValidator {
         if (isCancelled) {
             Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
             if (obj != null && !obj.toString().isEmpty()) {
-                entityWrapper.getEntity().sendMessage(StringUtils.color(obj.toString()));
+                entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
             }
 
             return false;
@@ -212,7 +212,7 @@ public class ShootHandler implements IValidator {
         // Only check if selective fire doesn't have auto selected
         if (!isSelectiveFireAuto) {
             int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
-            if (delayBetweenShots != 0 && !NumberUtils.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
+            if (delayBetweenShots != 0 && !NumberUtil.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
         }
 
         if (usesSelectiveFire) {
@@ -508,7 +508,7 @@ public class ShootHandler implements IValidator {
             if (isCancelled) {
                 Object obj = worldGuard.getValue(loc, "weapon-explode-message");
                 if (obj != null && !obj.toString().isEmpty()) {
-                    entityWrapper.getEntity().sendMessage(StringUtils.color(obj.toString()));
+                    entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
                 }
             }
 

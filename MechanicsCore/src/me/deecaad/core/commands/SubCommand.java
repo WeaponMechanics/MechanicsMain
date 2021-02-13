@@ -2,7 +2,7 @@ package me.deecaad.core.commands;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -93,7 +93,7 @@ public abstract class SubCommand extends BukkitCommand {
 
         this.prefix = parentPrefix + " " + label;
         this.commands = new SubCommands(this.prefix);
-        this.args = StringUtils.splitAfterWord(usage);
+        this.args = StringUtil.splitAfterWord(usage);
 
         setDescription(desc);
 
@@ -149,10 +149,10 @@ public abstract class SubCommand extends BukkitCommand {
     protected boolean sendHelp(CommandSender sender, String[] args) {
         if (commands.isEmpty()) {
             if (CompatibilityAPI.getVersion() < 1.09 || !(sender instanceof Player)) {
-                sender.sendMessage(StringUtils.color(toString()));
+                sender.sendMessage(StringUtil.color(toString()));
             } else {
                 ComponentBuilder builder = new ComponentBuilder();
-                for (BaseComponent component : TextComponent.fromLegacyText(StringUtils.color(toString()))) {
+                for (BaseComponent component : TextComponent.fromLegacyText(StringUtil.color(toString()))) {
                     component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + prefix));
                     component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to fill command")));
                     builder.append(component);
@@ -187,7 +187,7 @@ public abstract class SubCommand extends BukkitCommand {
                         .map(Player::getName)
                         .collect(Collectors.toList());
             case INTEGERS:
-                return StringUtils.getList("1", "16", "64", "128");
+                return StringUtil.getList("1", "16", "64", "128");
             case SUB_COMMANDS:
                 return new ArrayList<>(commands.keys());
             case "OUT_OF_BOUNDS":
@@ -200,7 +200,7 @@ public abstract class SubCommand extends BukkitCommand {
             default:
                 if (current.contains(",")) {
                     String[] split = current.replaceAll("[<>]", "").split(",");
-                    return StringUtils.getList(split);
+                    return StringUtil.getList(split);
                 } else {
                     return handleCustomTag(args, current);
                 }
@@ -217,7 +217,7 @@ public abstract class SubCommand extends BukkitCommand {
      * @return The tab completions for the custom tag.
      */
     protected List<String> handleCustomTag(String[] args, String tag) {
-        return StringUtils.getList(tag);
+        return StringUtil.getList(tag);
     }
 
     /**
@@ -260,7 +260,7 @@ public abstract class SubCommand extends BukkitCommand {
 
     @Override
     public String toString() {
-        return StringUtils.color("&6/" + prefix + " " + String.join(" ", args) + "&7: " + description);
+        return StringUtil.color("&6/" + prefix + " " + String.join(" ", args) + "&7: " + description);
     }
 
     public void register() {

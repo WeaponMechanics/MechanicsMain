@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.MaterialUtil;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -13,7 +13,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -101,7 +104,7 @@ public class Through implements Serializer<Through> {
 
         Map<String, ExtraThroughData> map = new HashMap<>();
         for (Object data : list) {
-            String[] split = StringUtils.split(data.toString());
+            String[] split = StringUtil.split(data.toString());
 
             double speedModifier = 1.0;
             if (split.length >= 2) {
@@ -139,7 +142,7 @@ public class Through implements Serializer<Through> {
             if (blocks) { // blocks
                 ItemStack itemStack;
                 try {
-                    itemStack = MaterialHelper.fromStringToItemStack(split[0].toUpperCase());
+                    itemStack = MaterialUtil.fromStringToItemStack(split[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid material in configurations!",
@@ -167,7 +170,7 @@ public class Through implements Serializer<Through> {
         if (map.isEmpty()) {
             debug.log(LogLevel.ERROR,
                     "For some reason any value in list wasn't valid!",
-                    StringUtils.foundAt(file, path + ".List"));
+                    StringUtil.foundAt(file, path + ".List"));
             return null;
         }
 

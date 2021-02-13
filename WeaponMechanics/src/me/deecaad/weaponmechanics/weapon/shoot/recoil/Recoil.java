@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -47,8 +47,8 @@ public class Recoil implements Serializer<Recoil> {
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
         if (pushTime == 0 && recoverTime == 0) {
             // No need for task as rotation time and recover time are 0
-            float rotateYaw = randomHorizontal.get(NumberUtils.random(randomHorizontal.size()));
-            float rotatePitch = randomVertical.get(NumberUtils.random(randomVertical.size()));
+            float rotateYaw = randomHorizontal.get(NumberUtil.random(randomHorizontal.size()));
+            float rotatePitch = randomVertical.get(NumberUtil.random(randomVertical.size()));
             shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), rotateYaw, rotatePitch, false);
             return;
         }

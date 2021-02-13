@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import org.bukkit.configuration.ConfigurationSection;
@@ -42,7 +42,7 @@ public class DamageHandler implements IValidator {
 
         // Critical Hit chance
         double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance") / 100;
-        if (NumberUtils.chance(chance)) {
+        if (NumberUtil.chance(chance)) {
             damage += config.getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
         }
 

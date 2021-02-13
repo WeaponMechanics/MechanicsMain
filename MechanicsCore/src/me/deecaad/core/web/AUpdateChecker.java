@@ -1,6 +1,6 @@
 package me.deecaad.core.web;
 
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,7 +39,7 @@ public abstract class AUpdateChecker implements Listener {
                     }.runTask(spigotResource.getPlugin());
                 }
             }
-        }.runTaskTimerAsynchronously(spigotResource.getPlugin(), 0, NumberUtils.HOUR_IN_TICKS);
+        }.runTaskTimerAsynchronously(spigotResource.getPlugin(), 0, NumberUtil.HOUR_IN_TICKS);
     }
 
     /**

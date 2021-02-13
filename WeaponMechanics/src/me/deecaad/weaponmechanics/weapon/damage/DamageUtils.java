@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.MaterialUtil;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -118,7 +118,7 @@ public class DamageUtils {
 
         // Apply any remaining damage to the victim, and handle internals
         double oldHealth = victim.getHealth();
-        victim.setHealth(NumberUtils.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
         WeaponCompatibilityAPI.getShootCompatibility().logDamage(victim, cause, oldHealth, damage, false);
         if (cause.getType() == EntityType.PLAYER) {
             WeaponCompatibilityAPI.getShootCompatibility().setKiller(victim, (Player) cause);
@@ -168,7 +168,7 @@ public class DamageUtils {
         }
     
         for (ItemStack armorSlot : armor) {
-            if (armorSlot == null || MaterialHelper.isAir(armorSlot.getType())) {
+            if (armorSlot == null || MaterialUtil.isAir(armorSlot.getType())) {
                 continue;
             }
 

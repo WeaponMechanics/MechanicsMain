@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.utils;
 
-import me.deecaad.core.utils.TagUtils;
+import me.deecaad.core.utils.TagUtil;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,7 +20,7 @@ public class TagHelper {
      */
     @Nullable
     public static String getStringTag(ItemStack itemStack, CustomTag tag) {
-        return TagUtils.getStringTag(itemStack, tag.getId());
+        return TagUtil.getStringTag(itemStack, tag.getId());
     }
 
     /**
@@ -49,7 +49,7 @@ public class TagHelper {
         if (silently && playerWrapper != null) {
             playerWrapper.setDenyNextSetSlotPacket(true);
         }
-        return TagUtils.setStringTag(itemStack, tag.getId(), value);
+        return TagUtil.setStringTag(itemStack, tag.getId(), value);
     }
 
     /**
@@ -59,7 +59,7 @@ public class TagHelper {
      */
     @Nullable
     public static Integer getIntegerTag(ItemStack itemStack, CustomTag tag) {
-        return TagUtils.getIntegerTag(itemStack, tag.getId());
+        return TagUtil.getIntegerTag(itemStack, tag.getId());
     }
 
     /**
@@ -88,6 +88,6 @@ public class TagHelper {
         if (silently && playerWrapper != null) {
             playerWrapper.setDenyNextSetSlotPacket(true);
         }
-        return TagUtils.setIntegerTag(itemStack, tag.getId(), value);
+        return TagUtil.setIntegerTag(itemStack, tag.getId(), value);
     }
 }

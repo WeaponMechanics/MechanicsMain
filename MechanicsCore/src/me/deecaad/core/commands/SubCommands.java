@@ -1,7 +1,7 @@
 package me.deecaad.core.commands;
 
 import joptsimple.internal.Strings;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -107,7 +107,7 @@ public class SubCommands {
     boolean sendHelp(CommandSender sender, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(StringUtils.color(toString()));
+                sender.sendMessage(StringUtil.color(toString()));
             } else {
 
                 // Create the messages with ho
@@ -168,7 +168,7 @@ public class SubCommands {
         } else if (sender.hasPermission(command.getPermission())) {
             command.execute(sender, args);
         } else {
-            sender.sendMessage(StringUtils.color("&cInvalid permissions."));
+            sender.sendMessage(StringUtil.color("&cInvalid permissions."));
         }
         return true;
     }

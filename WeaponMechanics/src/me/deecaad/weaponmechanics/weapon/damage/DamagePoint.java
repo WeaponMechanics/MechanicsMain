@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 
 /**
  * This class highlights different points in
@@ -49,7 +49,7 @@ public enum DamagePoint {
     private final String readable;
 
     DamagePoint() {
-        readable = StringUtils.keyToRead(name());
+        readable = StringUtil.keyToRead(name());
     }
 
     public String getReadable() {

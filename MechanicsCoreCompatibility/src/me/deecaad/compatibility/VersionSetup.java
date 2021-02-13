@@ -1,6 +1,6 @@
 package me.deecaad.compatibility;
 
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.Bukkit;
 
 public class VersionSetup {
@@ -43,6 +43,6 @@ public class VersionSetup {
         double mainVersion = Double.parseDouble(splitVersion[0]);
         double subVersion = Double.parseDouble(splitVersion[1]) / 100;
         double subSubVersion = Double.parseDouble(splitVersion[2]) / 1000;
-        return NumberUtils.getAsRounded(mainVersion + subVersion + subSubVersion, 3);
+        return NumberUtil.getAsRounded(mainVersion + subVersion + subSubVersion, 3);
     }
 }

@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
-import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
@@ -128,7 +128,7 @@ public class Ray {
         double step = accuracy / directionLength;
         boolean collides = false;
         for (double i = 0; i <= 1; i += step) {
-            Vector point = VectorUtils.lerp(origin, end, i);
+            Vector point = VectorUtil.lerp(origin, end, i);
             Block block = world.getBlockAt(point.getBlockX(), point.getBlockY(), point.getBlockZ());
 
             // We can collide with a block if the collision can actually effect blocks,
@@ -176,8 +176,8 @@ public class Ray {
 
         // 2 is a number chosen by mojang that will most likely
         // contain all entities of a larger hitbox.
-        Vector min = VectorUtils.add(VectorUtils.min(origin, end), -2.0, -2.0, -2.0);
-        Vector max = VectorUtils.add(VectorUtils.max(origin, end), 2.0, 2.0, 2.0);
+        Vector min = VectorUtil.add(VectorUtil.min(origin, end), -2.0, -2.0, -2.0);
+        Vector max = VectorUtil.add(VectorUtil.max(origin, end), 2.0, 2.0, 2.0);
 
         int minChunkX = (int) Math.floor(min.getX() / 16.0);
         int minChunkZ = (int) Math.floor(min.getZ() / 16.0);

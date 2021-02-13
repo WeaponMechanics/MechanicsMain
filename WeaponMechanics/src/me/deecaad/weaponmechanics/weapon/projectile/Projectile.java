@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
@@ -153,9 +153,9 @@ public class Projectile implements Serializer<Projectile> {
                 projectileType = EntityType.valueOf(type);
             } catch (IllegalArgumentException e) {
                 debug.log(LogLevel.ERROR,
-                        StringUtils.foundInvalid("projectile type"),
-                        StringUtils.foundAt(file, path + ".Settings.Type", type),
-                        StringUtils.debugDidYouMean(type, EntityType.class));
+                        StringUtil.foundInvalid("projectile type"),
+                        StringUtil.foundAt(file, path + ".Settings.Type", type),
+                        StringUtil.debugDidYouMean(type, EntityType.class));
                 return null;
             }
             projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");

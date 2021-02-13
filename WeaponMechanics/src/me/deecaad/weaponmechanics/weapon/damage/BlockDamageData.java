@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.block.BlockCompatibility;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -203,7 +203,7 @@ public final class BlockDamageData implements Listener {
                 blockCrack = -1;
             } else {
                 blockCrack = (int) ((1.0 - durability) * MAX_BLOCK_CRACK);
-                blockCrack = NumberUtils.minMax(0, blockCrack, MAX_BLOCK_CRACK);
+                blockCrack = NumberUtil.minMax(0, blockCrack, MAX_BLOCK_CRACK);
             }
 
             BlockCompatibility compatibility = CompatibilityAPI.getCompatibility().getBlockCompatibility();

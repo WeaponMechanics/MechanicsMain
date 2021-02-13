@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.boss.BossBar;
 
 public class MessageHelper {
@@ -23,7 +23,7 @@ public class MessageHelper {
     }
 
     public boolean denyInfoActionBar() {
-        return !NumberUtils.hasMillisPassed(denyActionBarStart, denyActionBarTime);
+        return !NumberUtil.hasMillisPassed(denyActionBarStart, denyActionBarTime);
     }
 
     public void updateTitleTime(int forTicks) {
@@ -32,7 +32,7 @@ public class MessageHelper {
     }
 
     public boolean denyInfoTitle() {
-        return !NumberUtils.hasMillisPassed(denyTitleStart, denyTitleTime);
+        return !NumberUtil.hasMillisPassed(denyTitleStart, denyTitleTime);
     }
 
     public BossBar getCurrentInfoBossBar() {
@@ -60,7 +60,7 @@ public class MessageHelper {
     }
 
     public boolean allowItemUpdate() {
-        return NumberUtils.hasMillisPassed(itemUpdateTime, 5000);
+        return NumberUtil.hasMillisPassed(itemUpdateTime, 5000);
     }
 
     public void updateItemTime() {

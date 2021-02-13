@@ -15,10 +15,10 @@ import java.util.Collection;
  * distance around a player, as well as methods to send packets to players
  * so long as the packet's location is within the player's viewing distance.
  */
-public final class DistanceUtils {
+public final class DistanceUtil {
 
     // Don't let anyone instantiate this class
-    private DistanceUtils() {
+    private DistanceUtil() {
     }
 
     /**

@@ -3,9 +3,8 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.core.utils.StringUtils;
-import org.bukkit.Bukkit;
+import me.deecaad.core.utils.MaterialUtil;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -126,7 +125,7 @@ public class Bouncy implements Serializer<Bouncy> {
 
         Map<String, ExtraBouncyData> map = new HashMap<>();
         for (Object data : list) {
-            String[] split = StringUtils.split(data.toString());
+            String[] split = StringUtil.split(data.toString());
 
             double speedModifier = 1.0;
             if (split.length >= 2) {
@@ -134,8 +133,8 @@ public class Bouncy implements Serializer<Bouncy> {
                     speedModifier = Double.parseDouble(split[1]);
                 } catch (NumberFormatException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("value"),
-                            StringUtils.foundAt(file, path + ".List", data.toString().toUpperCase()),
+                            StringUtil.foundInvalid("value"),
+                            StringUtil.foundAt(file, path + ".List", data.toString().toUpperCase()),
                             "Tried to get get number from " + split[1] + ", but it wasn't a number?");
                     continue;
                 }
@@ -147,8 +146,8 @@ public class Bouncy implements Serializer<Bouncy> {
                     damageModifier = Double.parseDouble(split[2]);
                 } catch (NumberFormatException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("value"),
-                            StringUtils.foundAt(file, path + ".List", data.toString().toUpperCase()),
+                            StringUtil.foundInvalid("value"),
+                            StringUtil.foundAt(file, path + ".List", data.toString().toUpperCase()),
                             "Tried to get get number from " + split[2] + ", but it wasn't a number?");
                     continue;
                 }
@@ -164,12 +163,12 @@ public class Bouncy implements Serializer<Bouncy> {
             if (blocks) { // blocks
                 ItemStack itemStack;
                 try {
-                    itemStack = MaterialHelper.fromStringToItemStack(split[0].toUpperCase());
+                    itemStack = MaterialUtil.fromStringToItemStack(split[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("material"),
-                            StringUtils.foundAt(file, path + ".List", data.toString()),
-                            StringUtils.debugDidYouMean(split[0].toUpperCase(), Material.class));
+                            StringUtil.foundInvalid("material"),
+                            StringUtil.foundAt(file, path + ".List", data.toString()),
+                            StringUtil.debugDidYouMean(split[0].toUpperCase(), Material.class));
                     continue;
                 }
                 if (CompatibilityAPI.getVersion() >= 1.13) {
@@ -183,9 +182,9 @@ public class Bouncy implements Serializer<Bouncy> {
                     entity = EntityType.valueOf(split[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("material"),
-                            StringUtils.foundAt(file, path + ".List", data.toString()),
-                            StringUtils.debugDidYouMean(split[0].toUpperCase(), EntityType.class));
+                            StringUtil.foundInvalid("material"),
+                            StringUtil.foundAt(file, path + ".List", data.toString()),
+                            StringUtil.debugDidYouMean(split[0].toUpperCase(), EntityType.class));
                     continue;
                 }
                 map.put(entity.name(), extraBouncyData);
@@ -194,7 +193,7 @@ public class Bouncy implements Serializer<Bouncy> {
         if (map.isEmpty()) {
             debug.log(LogLevel.ERROR,
                     "For some reason any value in list wasn't valid!",
-                    StringUtils.foundAt(file, path + ".List"));
+                    StringUtil.foundAt(file, path + ".List"));
             return null;
         }
 

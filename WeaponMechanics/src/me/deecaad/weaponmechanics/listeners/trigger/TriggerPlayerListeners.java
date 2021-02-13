@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -128,7 +128,7 @@ public class TriggerPlayerListeners implements Listener {
         boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
         if (rightClick) {
             getPlayerWrapper(player).rightClicked();
-        } else if (CompatibilityAPI.getVersion() >= 1.15 && !NumberUtils.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
+        } else if (CompatibilityAPI.getVersion() >= 1.15 && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
             // Fixes bug where item dropping causes player to left click
             // Basically checks if less than 25 millis has passed since weapon item drop
             return;
@@ -197,7 +197,7 @@ public class TriggerPlayerListeners implements Listener {
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         double version = CompatibilityAPI.getVersion();
-        if (version >= 1.15 && !NumberUtils.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
+        if (version >= 1.15 && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
             e.setCancelled(true);
             return;
         }

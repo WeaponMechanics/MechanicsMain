@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
@@ -58,7 +58,7 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
         for (String stringInList : stringPotionList) {
             for (String stringInLine : stringInList.split(", ?")) {
 
-                String[] potionData = StringUtils.split(stringInLine);
+                String[] potionData = StringUtil.split(stringInLine);
 
                 if (potionData.length < 3) {
                     debug.log(LogLevel.ERROR,

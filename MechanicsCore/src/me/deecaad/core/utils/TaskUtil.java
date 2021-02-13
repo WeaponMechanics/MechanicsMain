@@ -3,32 +3,31 @@ package me.deecaad.core.utils;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class TaskUtil {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+/**
+ * This final utility class outlines static methods that simplify the async
+ * task to sync callback structure.
+ */
+public final class TaskUtil {
     
-    /**
-     * Don't let anyone instantiate this class
-     */
+    // Don't let anyone instantiate this class.
     private TaskUtil() { }
-    
+
     /**
-     * Runs task asynchronously.
+     * Shorthand for using {@link #runAsync(Plugin, IAsync, ICallback)} with a
+     * <code>null</code> callback. Using this method is the same thing has
+     * running a {@link BukkitRunnable} async.
      *
-     * @param plugin the plugin instance used to run task
-     * @param async the async execution
+     * @param plugin The non-null plugin scheduling the async task.
+     * @param async  The non-null task to run async.
      */
-    public static void runAsync(Plugin plugin, IAsync async) {
+    public static void runAsync(@Nonnull Plugin plugin, @Nonnull IAsync async) {
         runAsync(plugin, async, null);
     }
 
-    /**
-     * Runs task asynchronously with callback to synchronized task.
-     * If async value is null, then callback wont be ran
-     *
-     * @param plugin the plugin instance used to run task
-     * @param async the async execution
-     * @param callback the callback ran in sync
-     */
-    public static void runAsync(Plugin plugin, IAsync async, ICallback callback) {
+    public static void runAsync(@Nonnull Plugin plugin, @Nonnull IAsync async, @Nullable ICallback callback) {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -36,6 +35,7 @@ public class TaskUtil {
                 if (callback == null || value == null) {
                     return;
                 }
+
                 new BukkitRunnable() {
                     @Override
                     public void run() {

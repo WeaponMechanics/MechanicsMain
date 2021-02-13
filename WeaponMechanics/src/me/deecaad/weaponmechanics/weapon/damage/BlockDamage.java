@@ -4,7 +4,7 @@ import com.google.common.base.Enums;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -132,23 +132,23 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
         if (damage < 0) {
             debug.error("Block_Damage Damage MUST be positive. Found: " + damage,
-                    StringUtils.foundAt(file, path));
+                    StringUtil.foundAt(file, path));
             return null;
         } else if (defaultBlockDurability < 0) {
             debug.error("Block_Damage Default_Block_Durability MUST be positive. Found: " + defaultBlockDurability,
-                    StringUtils.foundAt(file, path));
+                    StringUtil.foundAt(file, path));
             return null;
         }
 
         List<String> strings = config.getStringList("Block_List");
         if (!isBlacklist && strings.isEmpty()) {
             debug.warn("No blocks can be broken by the Block_Damage!",
-                    "This is most likely a mistake!", StringUtils.foundAt(file, path));
+                    "This is most likely a mistake!", StringUtil.foundAt(file, path));
         }
 
         Map<String, Integer> blockList = new LinkedHashMap<>(strings.size());
         for (String str : strings) {
-            String[] split = StringUtils.split(str);
+            String[] split = StringUtil.split(str);
 
             try {
                 String matAndByte = split[0].toUpperCase();
@@ -161,16 +161,16 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 if (type == null) {
                     debug.error("Unknown Material found in config: " + mat,
                             "You can check full material lists for your server version on the wiki (Use /wm wiki)",
-                            StringUtils.foundAt(file, path));
+                            StringUtil.foundAt(file, path));
                     continue;
                 }
 
                 blockList.put(matAndByte, durability);
             } catch (ArrayIndexOutOfBoundsException ex) {
-                debug.error("Empty string in config Block_List!", StringUtils.foundAt(file, path));
+                debug.error("Empty string in config Block_List!", StringUtil.foundAt(file, path));
                 debug.log(LogLevel.DEBUG, ex);
             } catch (NumberFormatException ex) {
-                debug.error("Invalid integer format: " + ex.getMessage(), StringUtils.foundAt(file, path));
+                debug.error("Invalid integer format: " + ex.getMessage(), StringUtil.foundAt(file, path));
                 debug.log(LogLevel.DEBUG, ex);
             }
         }
@@ -184,7 +184,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
         if (isBlacklist) {
 
             for (String str : strings) {
-                String[] split = StringUtils.split(str);
+                String[] split = StringUtil.split(str);
 
                 try {
                     String matAndByte = split[0].toUpperCase();
@@ -197,24 +197,24 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     if (type == null) {
                         debug.error("Unknown Material found in config: " + mat,
                                 "You can check full material lists for your server version on the wiki (Use /wm wiki)",
-                                StringUtils.foundAt(file, path));
+                                StringUtil.foundAt(file, path));
                         continue;
                     }
 
                     shotsToBreak.put(matAndByte, durability);
 
                 } catch (ArrayIndexOutOfBoundsException ex) {
-                    debug.error("Empty string in config Block_List!", StringUtils.foundAt(file, path));
+                    debug.error("Empty string in config Block_List!", StringUtil.foundAt(file, path));
                     debug.log(LogLevel.DEBUG, ex);
                 } catch (NumberFormatException ex) {
-                    debug.error("Invalid integer format: " + ex.getMessage(), StringUtils.foundAt(file, path));
+                    debug.error("Invalid integer format: " + ex.getMessage(), StringUtil.foundAt(file, path));
                     debug.log(LogLevel.DEBUG, ex);
                 }
             }
         } else {
             debug.error("Error in Block_Damage!", "You tried to use Shots_To_Break_Blocks with Blacklist: true!",
                     "This doesn't make sense, since all materials/durability should be defined in Block_List",
-                    StringUtils.foundAt(file, path));
+                    StringUtil.foundAt(file, path));
         }
 
         return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, blockList, shotsToBreak);

@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -131,11 +131,11 @@ public class RecoilTask extends TimerTask {
 
         List<Float> horizontal = tempRecoil.getRandomHorizontal();
         if (rotateYaw == 0 && horizontal != null) {
-            rotateYaw = horizontal.get(NumberUtils.random(horizontal.size()));
+            rotateYaw = horizontal.get(NumberUtil.random(horizontal.size()));
         }
         List<Float> vertical = tempRecoil.getRandomVertical();
         if (rotatePitch == 0 && vertical != null) {
-            rotatePitch = vertical.get(NumberUtils.random(vertical.size()));
+            rotatePitch = vertical.get(NumberUtil.random(vertical.size()));
         }
 
         if (rotateYaw == 0 && rotatePitch == 0) {

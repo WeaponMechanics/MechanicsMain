@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
@@ -78,7 +78,7 @@ public class HandData {
     }
 
     public boolean shouldReset() {
-        return NumberUtils.hasMillisPassed(lastShotTime, ShootHandler.RESET_MILLIS);
+        return NumberUtil.hasMillisPassed(lastShotTime, ShootHandler.RESET_MILLIS);
     }
 
     public String getLastShotWeaponTitle() {

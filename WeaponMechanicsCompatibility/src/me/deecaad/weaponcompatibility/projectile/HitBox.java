@@ -3,8 +3,8 @@ package me.deecaad.weaponcompatibility.projectile;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
@@ -129,7 +129,7 @@ public class HitBox implements IValidator {
     }
 
     public Vector getCenter() {
-        return VectorUtils.lerp(min, max, 0.5);
+        return VectorUtil.lerp(min, max, 0.5);
     }
 
     /**
@@ -156,9 +156,9 @@ public class HitBox implements IValidator {
 
         Vector point = direction != null ? getCenter().add(direction.clone().multiply(-Math.max(getWidth(), getHeight()))) : getCenter();
 
-        return new Vector(NumberUtils.minMax(other.min.getX(), point.getX(), other.max.getX()),
-                NumberUtils.minMax(other.min.getY(), point.getY(), other.max.getY()),
-                NumberUtils.minMax(other.min.getZ(), point.getZ(), other.max.getZ()));
+        return new Vector(NumberUtil.minMax(other.min.getX(), point.getX(), other.max.getX()),
+                NumberUtil.minMax(other.min.getY(), point.getY(), other.max.getY()),
+                NumberUtil.minMax(other.min.getZ(), point.getZ(), other.max.getZ()));
     }
 
     /**

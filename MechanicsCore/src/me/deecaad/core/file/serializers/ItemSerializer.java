@@ -5,10 +5,10 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
+import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtils;
-import me.deecaad.core.utils.TagUtils;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.TagUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -68,18 +68,18 @@ public class ItemSerializer implements Serializer<ItemStack> {
         type = type.toUpperCase();
         ItemStack itemStack;
         try {
-            itemStack = MaterialHelper.fromStringToItemStack(type);
+            itemStack = MaterialUtil.fromStringToItemStack(type);
         } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("material"),
-                    StringUtils.foundAt(file, path + ".Type", type),
-                    StringUtils.debugDidYouMean(type.split(":")[0], Material.class));
+                    StringUtil.foundInvalid("material"),
+                    StringUtil.foundAt(file, path + ".Type", type),
+                    StringUtil.debugDidYouMean(type.split(":")[0], Material.class));
             return null;
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
         String name = configurationSection.getString(path + ".Name");
         if (name != null) {
-            itemMeta.setDisplayName(StringUtils.color(name));
+            itemMeta.setDisplayName(StringUtil.color(name));
         }
         List<?> lore = configurationSection.getList(path + ".Lore");
         if (lore != null && !lore.isEmpty()) {
@@ -111,7 +111,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         List<?> enchantments = configurationSection.getList(path + ".Enchantments");
         if (enchantments != null) {
             for (Object enchantment : enchantments) {
-                String[] splitted = StringUtils.split(enchantment.toString());
+                String[] splitted = StringUtil.split(enchantment.toString());
                 Enchantment enchant;
                 if (CompatibilityAPI.getVersion() < 1.13) {
                     enchant = Enchantment.getByName(splitted[0]);
@@ -132,7 +132,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         List<?> attributes = configurationSection.getList(path + ".Attributes");
         if (attributes != null) {
             for (Object attributeData : attributes) {
-                String[] splitted = StringUtils.split(attributeData.toString());
+                String[] splitted = StringUtil.split(attributeData.toString());
                 if (splitted.length < 2) {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid configuration format!",
@@ -145,9 +145,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     attribute = AttributeType.valueOf(splitted[0].toUpperCase());
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
-                            StringUtils.foundInvalid("attribute type"),
-                            StringUtils.foundAt(file, path + ".Attributes", splitted[0].toUpperCase()),
-                            StringUtils.debugDidYouMean(splitted[0].toUpperCase(), AttributeType.class));
+                            StringUtil.foundInvalid("attribute type"),
+                            StringUtil.foundAt(file, path + ".Attributes", splitted[0].toUpperCase()),
+                            StringUtil.debugDidYouMean(splitted[0].toUpperCase(), AttributeType.class));
                     continue;
                 }
                 double amount;
@@ -159,7 +159,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                             "Located at file " + file + " in " + path + ".Attributes (" + splitted[1] + ") in configurations");
                     continue;
                 }
-                itemStack = TagUtils.setAttributeValue(itemStack, attribute, amount);
+                itemStack = TagUtil.setAttributeValue(itemStack, attribute, amount);
             }
         }
 
@@ -223,20 +223,20 @@ public class ItemSerializer implements Serializer<ItemStack> {
             try {
                 Color color = new ColorSerializer().serialize(file, configurationSection, path + ".Leather_Color");
                 if (color == null) {
-                    debug.warn("Error occurred while serializing Color", StringUtils.foundAt(file, path + ".Leather_Color"));
+                    debug.warn("Error occurred while serializing Color", StringUtil.foundAt(file, path + ".Leather_Color"));
                     return null;
                 }
 
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
                 if (meta == null) {
-                    debug.error("Somehow itemMeta was null? Is the material type in serializer AIR?", StringUtils.foundAt(file, path + ".Leather_Color"));
+                    debug.error("Somehow itemMeta was null? Is the material type in serializer AIR?", StringUtil.foundAt(file, path + ".Leather_Color"));
                     return null;
                 }
 
                 meta.setColor(color);
 
             } catch (ClassCastException e) {
-                debug.error("You cannot use " + itemStack.getType() + " with leather armor color!", StringUtils.foundAt(file, path + ".Leather_Color"));
+                debug.error("You cannot use " + itemStack.getType() + " with leather armor color!", StringUtil.foundAt(file, path + ".Leather_Color"));
                 return null;
             }
         }
@@ -250,14 +250,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
 
             if (!configurationSection.contains(path + ".Recipe.Shape")) {
-                debug.error("You forgot to specify a shape for your item recipe!", StringUtils.foundAt(file, path + ".Recipe.Shape"));
+                debug.error("You forgot to specify a shape for your item recipe!", StringUtil.foundAt(file, path + ".Recipe.Shape"));
                 return null;
             }
 
             String[] shape = configurationSection.getStringList(path + ".Recipe.Shape").toArray(new String[0]);
             if (shape.length < 1 || shape.length > 3) {
                 debug.error("Your recipe shape must have between 1 and 3 rows! Found " + shape.length,
-                        StringUtils.foundAt(file, path + ".Recipe.Shape"));
+                        StringUtil.foundAt(file, path + ".Recipe.Shape"));
                 return null;
             }
 
@@ -270,7 +270,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             ConfigurationSection config = configurationSection.getConfigurationSection(path + ".Recipe.Ingredients");
 
             if (config == null) {
-                debug.error("You need to specify ingredients for your recipe", StringUtils.foundAt(file, path + ".Recipe.Ingredients"));
+                debug.error("You need to specify ingredients for your recipe", StringUtil.foundAt(file, path + ".Recipe.Ingredients"));
                 return null;
             }
 
@@ -279,7 +279,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 String last = split[split.length - 1];
 
                 if (last.length() != 1) {
-                    debug.error("Recipe ingredients can only be one character!", StringUtils.foundAt(file, path + ".Recipe.Ingredients." + last));
+                    debug.error("Recipe ingredients can only be one character!", StringUtil.foundAt(file, path + ".Recipe.Ingredients." + last));
                     return null;
                 }
 
@@ -288,7 +288,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // (ItemStack). People can mix and match
                 ItemStack item;
                 if (config.isString(last)) {
-                    item = MaterialHelper.fromStringToItemStack(config.getString(last));
+                    item = MaterialUtil.fromStringToItemStack(config.getString(last));
                 } else {
                     item = this.serialize(file, configurationSection, path + ".Recipe.Ingredients." + last);
                 }
@@ -333,7 +333,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private List<String> convertListObject(Object object) {
         List<String> list = new ArrayList<>();
         for (Object obj : (List<?>) object) {
-            list.add(StringUtils.color(obj.toString()));
+            list.add(StringUtil.color(obj.toString()));
         }
         return list;
     }

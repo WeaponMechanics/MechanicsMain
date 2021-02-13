@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.MessageMechanic;
@@ -187,8 +187,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
         if (messageMechanic == null && !updateItemName && !expLevel && !expProgress) {
             debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("weapon info display"),
-                    StringUtils.foundAt(file, path),
+                    StringUtil.foundInvalid("weapon info display"),
+                    StringUtil.foundAt(file, path),
                     "Either message has to be defined, Update_Item_Name true, Exp_Level true OR Exp_Progress true");
             return null;
         }
@@ -196,8 +196,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         boolean bossBarProgress = configurationSection.getBoolean(path + ".Show_Ammo_In.Boss_Bar_Progress");
         if (bossBarProgress && (messageMechanic == null || !messageMechanic.hasBossBar())) {
             debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("boss bar"),
-                    StringUtils.foundAt(file, path),
+                    StringUtil.foundInvalid("boss bar"),
+                    StringUtil.foundAt(file, path),
                     "When using Show_Ammo_In.Boss_Bar_Progress you need properly configured Boss_Bar configuration also");
             return null;
         }

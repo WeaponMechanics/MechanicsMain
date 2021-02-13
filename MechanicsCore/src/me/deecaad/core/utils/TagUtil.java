@@ -12,20 +12,24 @@ import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.bukkit.persistence.PersistentDataType;
 
 /**
- * Class to easily get and set different data types
- * stored in nbt tags
+ * This final utility class outlines static methods that operate on or return
+ * return the values from minecraft NBT tags. Unless otherwise noted, ignoring
+ * the returned value of these methods is a mistake.
  */
-public class TagUtils {
+public final class TagUtil {
+
+    // Don't let anyone instantiate this class.
+    private TagUtil() {
+    }
 
     /**
-     * Don't let anyone instantiate this class
-     */
-    private TagUtils() { }
-
-    /**
-     * @param itemStack the item stack from which to get tag
-     * @param tag the tag name
-     * @return the value of the tag (may be null)
+     * Returns the {@link String} value of an NBT tag with the given name
+     * <code>tag</code>. The tag value is pulled from <code>itemStack</code>.
+     * If no such tag exists, this method will return <code>null</code>.
+     *
+     * @param itemStack The non-null bukkit item where the tag is stored.
+     * @param tag       The non-null name of the nbt tag.
+     * @return The value of the tag or <code>null</code>.
      */
     public static String getStringTag(ItemStack itemStack, String tag) {
 
@@ -34,7 +38,11 @@ public class TagUtils {
             ItemMeta itemMeta = itemStack.getItemMeta();
 
             NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), tag);
-            return itemMeta.getPersistentDataContainer().has(key, PersistentDataType.STRING) ? itemMeta.getPersistentDataContainer().get(key, PersistentDataType.STRING) : null;
+            if (itemMeta.getPersistentDataContainer().has(key, PersistentDataType.STRING)) {
+                return itemMeta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+            } else {
+                return null;
+            }
         }
 
         // 1.13 R2 CustomItemTagContainer
@@ -46,16 +54,20 @@ public class TagUtils {
         }
 
         // 1.13 R1 and lower full NMS
-        return CompatibilityAPI.getCompatibility().getNBTCompatibility().getCustomTag(itemStack, tag);
+        return CompatibilityAPI.getNBTCompatibility().getCustomTag(itemStack, tag);
     }
 
     /**
-     * Set or change tag of item stack with given value.
+     * Sets the {@link String} value of an NBT tag with the given name
+     * <code>tag</code>. For legacy minecraft versions, the returned value will
+     * be a new {@link ItemStack} with the set tag. For new minecraft versions,
+     * the returned value will be a reference to <code>itemStack</code>.
      *
-     * @param itemStack the item stack to modify
-     * @param tag the tag name
-     * @param value the value for tag
-     * @return the item stack with new or modified tag value
+     * @param itemStack The non-null bukkit item which stores the nbt tag.
+     * @param tag       The non-null name of the NBT tag.
+     * @param value     The nullable new value of the tag.
+     * @return The newly instantiated item, or a reference to
+     *         <code>itemStack</code>.
      */
     public static ItemStack setStringTag(ItemStack itemStack, String tag, String value) {
 
@@ -82,15 +94,19 @@ public class TagUtils {
         }
 
         // 1.13 R1 and lower full NMS
-        ItemStack newItemStack = CompatibilityAPI.getCompatibility().getNBTCompatibility().setCustomTag(itemStack, tag, value);
+        ItemStack newItemStack = CompatibilityAPI.getNBTCompatibility().setCustomTag(itemStack, tag, value);
         itemStack.setItemMeta(newItemStack.getItemMeta());
         return itemStack;
     }
 
     /**
-     * @param itemStack the item stack from which to get tag
-     * @param tag the tag name
-     * @return the value of the tag (may be null)
+     * Returns the {@link Integer} value of an NBT tag with the given name
+     * <code>tag</code>. The tag value is pulled from <code>itemStack</code>.
+     * If no such tag exists, this method will return <code>null</code>.
+     *
+     * @param itemStack The non-null bukkit item where the tag is stored.
+     * @param tag       The non-null name of the nbt tag.
+     * @return The value of the tag or <code>null</code>.
      */
     public static Integer getIntegerTag(ItemStack itemStack, String tag) {
 
@@ -117,12 +133,16 @@ public class TagUtils {
     }
 
     /**
-     * Set or change tag of item stack with given value.
+     * Sets the {@link Integer} value of an NBT tag with the given name
+     * <code>tag</code>. For legacy minecraft versions, the returned value will
+     * be a new {@link ItemStack} with the set tag. For new minecraft versions,
+     * the returned value will be a reference to <code>itemStack</code>.
      *
-     * @param itemStack the item stack to modify
-     * @param tag the tag name
-     * @param value the value for tag
-     * @return the item stack with new or modified tag value
+     * @param itemStack The non-null bukkit item which stores the nbt tag.
+     * @param tag       The non-null name of the NBT tag.
+     * @param value     The nullable new value of the tag.
+     * @return The newly instantiated item, or a reference to
+     *         <code>itemStack</code>.
      */
     public static ItemStack setIntegerTag(ItemStack itemStack, String tag, int value) {
 

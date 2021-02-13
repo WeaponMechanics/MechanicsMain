@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.reload;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -405,17 +405,17 @@ public class ReloadHandler implements IValidator {
         Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
         if (trigger == null) {
             debug.log(LogLevel.ERROR, "Tried to use shoot without defining trigger for it.",
-                    StringUtils.foundAt(file, path + ".Trigger"));
+                    StringUtil.foundAt(file, path + ".Trigger"));
         }
 
         int magazineSize = configurationSection.getInt(path + ".Magazine_Size");
-        debug.validate(magazineSize > 0, StringUtils.foundInvalid("magazine size"),
-                StringUtils.foundAt(file, path + ".Magazine_Size", magazineSize),
+        debug.validate(magazineSize > 0, StringUtil.foundInvalid("magazine size"),
+                StringUtil.foundAt(file, path + ".Magazine_Size", magazineSize),
                 "It either didn't exist or it was missing.");
 
         int reloadDuration = configurationSection.getInt(path + ".Reload_Duration");
-        debug.validate(reloadDuration > 0, StringUtils.foundInvalid("reload duration"),
-                StringUtils.foundAt(file, path + ".Reload_Duration", reloadDuration),
+        debug.validate(reloadDuration > 0, StringUtil.foundInvalid("reload duration"),
+                StringUtil.foundAt(file, path + ".Reload_Duration", reloadDuration),
                 "It either didn't exist or it was missing.");
     }
 }

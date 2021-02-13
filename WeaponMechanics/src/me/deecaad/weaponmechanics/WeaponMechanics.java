@@ -15,7 +15,7 @@ import me.deecaad.core.file.LinkedConfig;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
@@ -286,7 +286,7 @@ public class WeaponMechanics extends JavaPlugin {
         debug.start(this);
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
-        double seconds = NumberUtils.getAsRounded(tookMillis * 0.001, 2);
+        double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
         debug.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
     }
 

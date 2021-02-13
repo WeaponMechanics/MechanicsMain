@@ -2,9 +2,9 @@ package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
@@ -155,7 +155,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         for (String stringInList : stringSoundList) {
             for (String stringInLine : stringInList.split(", ?")) {
 
-                String[] soundData = StringUtils.split(stringInLine);
+                String[] soundData = StringUtil.split(stringInLine);
 
                 if (soundData.length < 3) {
                     debug.log(LogLevel.ERROR,
@@ -247,10 +247,10 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         public float getRandomPitch() {
             if (noise == 0.0f) return this.pitch;
 
-            float noise = (float) NumberUtils.random(-this.noise, this.noise);
+            float noise = (float) NumberUtil.random(-this.noise, this.noise);
             float pitch = this.pitch + noise;
 
-            return NumberUtils.minMax(MIN_PITCH, pitch, MAX_PITCH);
+            return NumberUtil.minMax(MIN_PITCH, pitch, MAX_PITCH);
         }
     }
 

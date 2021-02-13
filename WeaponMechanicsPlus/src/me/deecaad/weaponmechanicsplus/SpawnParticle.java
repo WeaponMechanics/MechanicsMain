@@ -4,7 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
+import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -183,7 +183,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
                 }
                 ItemStack type;
                 try {
-                    type = MaterialHelper.fromStringToItemStack(typeString);
+                    type = MaterialUtil.fromStringToItemStack(typeString);
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid material in configurations!",

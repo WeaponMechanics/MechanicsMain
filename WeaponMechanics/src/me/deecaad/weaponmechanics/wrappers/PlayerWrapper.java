@@ -1,10 +1,8 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
 
 public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
 
@@ -62,7 +60,7 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
             return false;
         }
 
-        boolean passedTooMuch = NumberUtils.hasMillisPassed(lastStartSneak, 500);
+        boolean passedTooMuch = NumberUtil.hasMillisPassed(lastStartSneak, 500);
 
         // Reset the timer to 0 meaning again that there hasn't been any last sneak
         lastStartSneak = 0;
@@ -106,9 +104,9 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
         if (ping > 215) {
             // Ping was more than 215 so lets take player's ping in account
             // when checking if it is still right clicking
-            return !NumberUtils.hasMillisPassed(lastRightClick, ping + 15);
+            return !NumberUtil.hasMillisPassed(lastRightClick, ping + 15);
         }
-        return !NumberUtils.hasMillisPassed(lastRightClick, 215);
+        return !NumberUtil.hasMillisPassed(lastRightClick, 215);
     }
 
     @Override
@@ -119,15 +117,5 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     @Override
     public boolean isSprinting() {
         return player.isSprinting();
-    }
-
-    @Override
-    public Map<String, Object> getData() {
-        return null;
-    }
-
-    @Override
-    public String getPath() {
-        return player.getUniqueId().toString();
     }
 }

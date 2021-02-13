@@ -1,8 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.MaterialUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -83,7 +82,7 @@ public class DefaultExplosion implements ExplosionShape {
                             Material type = block.getType();
 
                             if (!block.isEmpty()) {
-                                float resistance = MaterialHelper.getBlastResistance(type);
+                                float resistance = MaterialUtil.getBlastResistance(type);
 
                                 intensity -= (resistance + 0.3F) * ABSORB_RATE;
                             }

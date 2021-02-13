@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.NumberUtils;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -272,7 +272,7 @@ public class ItemAmmo implements IAmmoType {
     private MagazineData getMagazineAmmo(IPlayerWrapper playerWrapper, Inventory inventory, int amount) {
 
         // Allow converting only every 10s
-        boolean shouldTryConverting = ammoConverter != null && NumberUtils.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000);
+        boolean shouldTryConverting = ammoConverter != null && NumberUtil.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000);
         boolean didChanges = false;
         Player player = playerWrapper.getPlayer();
 
@@ -325,7 +325,7 @@ public class ItemAmmo implements IAmmoType {
     private Map<Integer, Integer> getAmmo(IPlayerWrapper playerWrapper, Inventory inventory, int amount) {
 
         // Allow converting only every 10s
-        boolean shouldTryConverting = ammoConverter != null && NumberUtils.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000);
+        boolean shouldTryConverting = ammoConverter != null && NumberUtil.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000);
         boolean didChanges = false;
 
         Map<Integer, Integer> ammoMap = new HashMap<>();

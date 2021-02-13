@@ -4,7 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
@@ -71,16 +71,16 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
             fireworkType = FireworkEffect.Type.valueOf(stringFireworkType);
         } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("firework type"),
-                    StringUtils.foundAt(file, path + ".Type", stringFireworkType));
+                    StringUtil.foundInvalid("firework type"),
+                    StringUtil.foundAt(file, path + ".Type", stringFireworkType));
             return null;
         }
 
         List<Color> colors = convertColorList(file, configurationSection, path + ".Colors");
         if (colors == null) {
             debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("firework color list"),
-                    StringUtils.foundAt(file, path + ".Colors"),
+                    StringUtil.foundInvalid("firework color list"),
+                    StringUtil.foundAt(file, path + ".Colors"),
                     "It either didn't exist or it wasn't properly configured");
             return null;
         }
@@ -94,8 +94,8 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         int flightTime = configurationSection.getInt(path + ".Flight_Time", 0);
         if (flightTime < 0) {
             debug.log(LogLevel.ERROR,
-                    StringUtils.foundInvalid("firework flight time"),
-                    StringUtils.foundAt(file, path + ".Flight_Time", flightTime),
+                    StringUtil.foundInvalid("firework flight time"),
+                    StringUtil.foundAt(file, path + ".Flight_Time", flightTime),
                     "It can't have negative value");
             return null;
         }

@@ -1,7 +1,7 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -108,11 +108,11 @@ public class SeparatedConfig implements Configuration {
         } else if (value instanceof Boolean) {
             return booleans.put(key, (Boolean) value);
         } else if (value instanceof String) {
-            return strings.put(key, StringUtils.color(value.toString()));
+            return strings.put(key, StringUtil.color(value.toString()));
         } else if (value instanceof List<?>) {
             List<String> list = ((List<?>) value).stream()
                     .map(Object::toString)
-                    .map(StringUtils::color)
+                    .map(StringUtil::color)
                     .collect(Collectors.toList());
 
             return lists.put(key, list);
@@ -240,7 +240,7 @@ public class SeparatedConfig implements Configuration {
     }
     
     private void forEach(Map<String, ?> map, String basePath, BiConsumer<String, Object> consumer, boolean deep) {
-        int memorySections = StringUtils.countChars('.', basePath);
+        int memorySections = StringUtil.countChars('.', basePath);
         if (basePath.isEmpty()) memorySections--;
 
         // Avoiding lambda for debugging
@@ -250,7 +250,7 @@ public class SeparatedConfig implements Configuration {
 
             if (!key.startsWith(basePath)) continue;
 
-            int currentMemorySections = StringUtils.countChars('.', key);
+            int currentMemorySections = StringUtil.countChars('.', key);
             if (!deep && currentMemorySections == memorySections + 1) {
                 consumer.accept(key, value);
             } else if (deep && currentMemorySections > memorySections) {

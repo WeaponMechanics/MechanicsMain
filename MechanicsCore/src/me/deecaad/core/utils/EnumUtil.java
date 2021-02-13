@@ -15,12 +15,12 @@ import java.util.Set;
  *
  * <p>The methods in this class are designed to be threadsafe.
  */
-public final class Enums {
+public final class EnumUtil {
 
     private static final Map<Class<? extends Enum<?>>, Map<String, WeakReference<? extends Enum<?>>>> cache = new HashMap<>();
 
     // Don't let anyone instantiate this class
-    private Enums() {
+    private EnumUtil() {
     }
 
     private static <T extends Enum<T>> Map<String, WeakReference<? extends Enum<?>>> getConstants(Class<T> enumClass) {

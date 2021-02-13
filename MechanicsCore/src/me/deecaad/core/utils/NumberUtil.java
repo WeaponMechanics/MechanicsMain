@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * The methods of this class are threadsafe.
  */
-public final class NumberUtils {
+public final class NumberUtil {
 
     public static final long HOUR_IN_TICKS = 72000;
     private static final TreeMap<Integer, String> NUMERALS;
@@ -46,7 +46,7 @@ public final class NumberUtils {
     }
 
     // Don't let anyone instantiate this class.
-    private NumberUtils() {
+    private NumberUtil() {
     }
 
     /**
@@ -216,21 +216,17 @@ public final class NumberUtils {
     }
 
     /**
-     * Returns a number between <code>[min, max]</code> using
-     * <code>factor</code> to determine which bound the returned value is
-     * approaching. As <code>factor</code> approaches <code>1.0</code>, the
-     * returned value approaches to <code>max</code>. As <code>factor</code>
-     * approaches <code>0.0</code>, the returned value approaches
-     * <code>min</code>.
-     *
-     * @param min    The minimum bound to return, inclusive.
-     * @param max    The maximum bound to return, inclusive.
-     * @param factor The factor to apply to the minimum and maximum bounds.
-     *               Should be a number between the 0 (inclusive) and the 1
-     *               (inclusive).
-     * @return The interpolated number.
+     * <a href="https://en.wikipedia.org/wiki/Linear_interpolation">Linear interpolation</a>
+     * implementation.
+     * @param min
+     * @param max
+     * @param factor
+     * @return
      */
     public static double lerp(double min, double max, double factor) {
+        if (factor < 0.0 || factor > 1.0)
+            throw new IllegalArgumentException("Invalid factor: " + factor);
+
         return min + factor * (max - min);
     }
 

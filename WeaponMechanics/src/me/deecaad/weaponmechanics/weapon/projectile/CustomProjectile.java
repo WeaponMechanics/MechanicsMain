@@ -2,9 +2,8 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
-import me.deecaad.core.utils.MaterialHelper;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.core.utils.StringUtils;
+import me.deecaad.core.utils.MaterialUtil;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
@@ -326,12 +325,12 @@ public class CustomProjectile implements ICustomProjectile {
         if (isCancelled) {
             Object obj = worldGuard.getValue(loc, "weapon-explode-message");
             if (obj != null && !obj.toString().isEmpty()) {
-                shooter.sendMessage(StringUtils.color(obj.toString()));
+                shooter.sendMessage(StringUtil.color(obj.toString()));
             }
         } else if (explosion != null) {
             Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
             boolean explosionTriggered = "true".equals(getTag("explosion-detonated"));
-            boolean fluid = MaterialHelper.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
+            boolean fluid = MaterialUtil.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
             boolean solid = collisionData.getBlock().getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
 
             if (!explosionTriggered && (fluid || solid)) {
@@ -378,7 +377,7 @@ public class CustomProjectile implements ICustomProjectile {
         if (isCancelled) {
             Object obj = worldGuard.getValue(loc, "weapon-damage-message");
             if (obj != null && !obj.toString().isEmpty()) {
-                shooter.sendMessage(StringUtils.color(obj.toString()));
+                shooter.sendMessage(StringUtil.color(obj.toString()));
             }
             return true;
         }
@@ -405,7 +404,7 @@ public class CustomProjectile implements ICustomProjectile {
             if (isCancelled) {
                 Object obj = worldGuard.getValue(loc, "weapon-explode-message");
                 if (obj != null && !obj.toString().isEmpty()) {
-                    shooter.sendMessage(StringUtils.color(obj.toString()));
+                    shooter.sendMessage(StringUtil.color(obj.toString()));
                 }
             } else {
                 new BukkitRunnable() {

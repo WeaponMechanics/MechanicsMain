@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.core.utils.Enums;
+import me.deecaad.core.utils.EnumUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -56,7 +56,7 @@ public class FireworkCommand extends SubCommand {
             case "<flight-time>":
                 return Arrays.asList(tag, "10", "40");
             case "<type>":
-                return new ArrayList<>(Enums.getOptions(FireworkEffect.Type.class));
+                return new ArrayList<>(EnumUtil.getOptions(FireworkEffect.Type.class));
             case "<color>":
             case "<fade>":
                 return Arrays.asList(tag, "FFFFFF", "FF0000", "00FF00", "0000FF");

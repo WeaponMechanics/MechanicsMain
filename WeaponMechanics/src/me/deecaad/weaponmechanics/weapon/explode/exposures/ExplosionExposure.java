@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
-import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
@@ -68,7 +68,7 @@ public interface ExplosionExposure {
         Vector end = entity.getEyeLocation().toVector();
         Vector direction = entity.getLocation().getDirection();
         Vector between = origin.clone().subtract(end);
-        double angle = VectorUtils.getAngleBetween(direction, between);
+        double angle = VectorUtil.getAngleBetween(direction, between);
 
         // Check to see if the angle between the 2 vectors is smaller than the
         // entity's field of view. If the point is within the entity's fov,

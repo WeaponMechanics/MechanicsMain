@@ -4,9 +4,9 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtils;
-import me.deecaad.core.utils.StringUtils;
-import me.deecaad.core.utils.VectorUtils;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -258,7 +258,7 @@ public class Explosion {
         for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
             FallingBlockWrapper wrapper = entry.getKey().get();
             Object nms = wrapper.getEntity();
-            int removeTime = NumberUtils.minMax(0, wrapper.getTimeToHitGround(), 200);
+            int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
             Vector velocity = entry.getValue();
 
             if (removeTime == 0) continue;
@@ -299,7 +299,7 @@ public class Explosion {
                     double exposure = entry.getValue();
 
                     // Normalized vector between the explosion and entity involved
-                    Vector between = VectorUtils.setLength(entity.getLocation().toVector().subtract(originVector), exposure);
+                    Vector between = VectorUtil.setLength(entity.getLocation().toVector().subtract(originVector), exposure);
                     Vector motion = entity.getVelocity().add(between);
 
                     entity.setVelocity(motion);
@@ -314,7 +314,7 @@ public class Explosion {
                 LivingEntity entity = entry.getKey();
                 double impact = entry.getValue();
 
-                entity.sendMessage(StringUtils.color("&cYou suffered " + impact * 100 + "% of the impact"));
+                entity.sendMessage(StringUtil.color("&cYou suffered " + impact * 100 + "% of the impact"));
             }
         }
 
@@ -343,7 +343,7 @@ public class Explosion {
             // otherwise we are just getting an air block, which is useless
             BlockState state = block.getState();
 
-            if (blockDamage.damage(block, time) && NumberUtils.chance(blockChance)) {
+            if (blockDamage.damage(block, time) && NumberUtil.chance(blockChance)) {
 
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                 Vector velocity = loc.toVector().subtract(origin.toVector());
@@ -467,7 +467,7 @@ public class Explosion {
             debug.debug("Splitting cluster bomb");
 
             for (int i = 0; i < bombs; i++) {
-                Vector vector = VectorUtils.random(speed);
+                Vector vector = VectorUtil.random(speed);
 
                 // Either use the projectile settings from the "parent" projectile,
                 // or use the projectile settings for this clusterbomb
@@ -620,7 +620,7 @@ public class Explosion {
                 @Override
                 public void run() {
 
-                    int bombs = NumberUtils.random(min, max);
+                    int bombs = NumberUtil.random(min, max);
                     int checks = bombs * bombs;
 
                     // Used to make sure we don't spawn bombs too close to
@@ -630,8 +630,8 @@ public class Explosion {
                     locationFinder:
                     for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
 
-                        double x = flareLocation.getX() + NumberUtils.random(-radius, radius);
-                        double z = flareLocation.getZ() + NumberUtils.random(-radius, radius);
+                        double x = flareLocation.getX() + NumberUtil.random(-radius, radius);
+                        double z = flareLocation.getZ() + NumberUtil.random(-radius, radius);
 
                         Vector2d vector = new Vector2d(x, z);
 
@@ -643,7 +643,7 @@ public class Explosion {
 
                         spawnLocations.add(vector);
 
-                        double y = flareLocation.getY() + height + NumberUtils.random(-yVariation, yVariation);
+                        double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
                         Location location = new Location(flareLocation.getWorld(), x, y, z);
 
                         (getProjectile() == null ? projectile.getProjectileSettings() : getProjectile()).shoot(shooter, location, new Vector(0.0, 0.0, 0.0), projectile.getWeaponStack(), weaponTitle)
