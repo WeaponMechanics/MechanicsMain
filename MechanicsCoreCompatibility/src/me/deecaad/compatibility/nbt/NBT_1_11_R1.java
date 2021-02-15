@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.item.nbt;
+package me.deecaad.compatibility.nbt;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
 
-public class NBT_1_11_R1 implements INBTCompatibility {
+public class NBT_1_11_R1 implements NBTCompatibility {
 
     @Override
     public String getCustomTag(ItemStack itemStack, String tag) {

@@ -2,7 +2,7 @@ package me.deecaad.compatibility;
 
 import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
-import me.deecaad.compatibility.item.nbt.INBTCompatibility;
+import me.deecaad.compatibility.nbt.NBTCompatibility;
 
 public class CompatibilityAPI {
 
@@ -42,7 +42,7 @@ public class CompatibilityAPI {
         return compatibility.getBlockCompatibility();
     }
 
-    public static INBTCompatibility getNBTCompatibility() {
+    public static NBTCompatibility getNBTCompatibility() {
         return compatibility.getNBTCompatibility();
     }
 }

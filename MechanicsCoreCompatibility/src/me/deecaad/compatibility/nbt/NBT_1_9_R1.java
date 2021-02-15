@@ -1,16 +1,16 @@
-package me.deecaad.compatibility.item.nbt;
+package me.deecaad.compatibility.nbt;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
-import net.minecraft.server.v1_13_R1.NBTBase;
-import net.minecraft.server.v1_13_R1.NBTTagCompound;
-import net.minecraft.server.v1_13_R1.NBTTagList;
-import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftItemStack;
+import net.minecraft.server.v1_9_R1.NBTBase;
+import net.minecraft.server.v1_9_R1.NBTTagCompound;
+import net.minecraft.server.v1_9_R1.NBTTagList;
+import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
 
-public class NBT_1_13_R1 implements INBTCompatibility {
+public class NBT_1_9_R1 implements NBTCompatibility {
 
     @Override
     public String getCustomTag(ItemStack itemStack, String tag) {
@@ -19,7 +19,7 @@ public class NBT_1_13_R1 implements INBTCompatibility {
 
     @Override
     public String getCustomTagFromNMSStack(Object nmsStack, String tag) {
-        net.minecraft.server.v1_13_R1.ItemStack itemStack = (net.minecraft.server.v1_13_R1.ItemStack) nmsStack;
+        net.minecraft.server.v1_9_R1.ItemStack itemStack = (net.minecraft.server.v1_9_R1.ItemStack) nmsStack;
 
         NBTTagCompound itemTag = itemStack.getTag();
         if (itemTag == null) return null;
@@ -34,7 +34,7 @@ public class NBT_1_13_R1 implements INBTCompatibility {
 
     @Override
     public ItemStack setCustomTag(ItemStack itemStack, String tag, String value) {
-        net.minecraft.server.v1_13_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+        net.minecraft.server.v1_9_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 
         NBTTagCompound itemTag = nmsStack.getTag();
         if (itemTag == null) {
@@ -57,7 +57,7 @@ public class NBT_1_13_R1 implements INBTCompatibility {
 
     @Override
     public ItemStack setAttributeValue(ItemStack itemStack, AttributeType attributeType, double amount) {
-        net.minecraft.server.v1_13_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+        net.minecraft.server.v1_9_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 
         NBTTagCompound itemTag = nmsStack.getTag();
         if (itemTag == null) {
@@ -70,7 +70,9 @@ public class NBT_1_13_R1 implements INBTCompatibility {
             boolean main = false;
             boolean off = false;
 
-            for (NBTBase nbtBase : nbtTagList) {
+            for (int i = 0; i < nbtTagList.size(); i++) {
+                NBTBase nbtBase = nbtTagList.h(i);
+
                 if (nbtBase.getTypeId() != 10) {
                     continue;
                 }

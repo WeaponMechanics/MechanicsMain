@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,175 +15,241 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
+/**
+ * This interface outlines a version dependant api that return values based on
+ * different {@link org.bukkit.entity.Entity} input. There should be an
+ * implementing class for each minecraft protocol version.
+ *
+ * <p>Some methods of this class require the {@link net.minecraft.server}
+ * entity. Use {@link #getNMSEntity(Entity)} for these methods.
+ *
+ * <p>For methods that return packets, in order for those packets to be visible
+ * to players, the packets need to be sent to the players. See
+ * {@link me.deecaad.compatibility.ICompatibility#sendPackets(Player, Object)}.
+ */
 public interface EntityCompatibility {
 
     /**
-     * Gets the nms entity (handle) associated with the given
-     * bukkit <code>entity</code>
+     * Returns the NMS entity that is wrapped by <code>entity</code>.
      *
-     * @param entity Bukkit (craft) entity
-     * @return NMS entity
+     * @param entity The bukkit entity that wraps the nms entity.
+     * @return The NMS entity.
      */
     Object getNMSEntity(org.bukkit.entity.Entity entity);
 
     /**
-     * Gets the integer id of the given <code>entity</code>
-     * @see net.minecraft.server.v1_15_R1.Entity#getId()
+     * Returns the unique integer id of the given <code>entity</code>. This id
+     * is unique to the entity's {@link World}. To get an {@link Entity} from
+     * an id, use {@link me.deecaad.compatibility.ICompatibility#getEntityById(World, int)}.
      *
-     * @param entity bukkit entity to grab the id from
-     * @return The id of the entity
+     * @param entity The bukkit entity to grab the id of.
+     * @return The unique id of the entity.
      */
     int getId(org.bukkit.entity.Entity entity);
 
     /**
-     * Gets the <code>PacketPlayOutSpawnEntity</code> used
-     * to spawn <code>entity</code>
+     * Returns a spawn packet for the given NMS entity. The returned packet
+     * will make the entity physically spawn for the client, but the entity
+     * will not be visible. To make the entity become visible, a metadata
+     * packet needs to be sent.
      *
-     * @param entity NMS entity to spawn
-     * @return Packet used to spawn <code>entity</code>
-     * @throws IllegalArgumentException If the given object is not an nms entity
+     * @param entity The non-null NMS entity to spawn.
+     * @return The non-null spawn packet.
+     * @see #getMetadataPacket(Object) 
      */
     Object getSpawnPacket(Object entity);
 
     /**
-     * Gets a velocity packet for the given NMS
-     * <code>entity</code> with the given motion
+     * Returns a velocity packet for the given NMS entity. The returned packet
+     * will make the entity <i>appear</i> to be moving with the given
      * <code>velocity</code>.
      *
-     * @param entity The NMS entity to apply the velocity to
-     * @param velocity The velocity
-     * @return PacketPlayOutEntityVelocity
-     * @throws IllegalArgumentException If the given object is not an nms entity
+     * @param entity   The non-null NMS entity to spawn.
+     * @param velocity The non-null direction and magnitude.
+     * @return The non-null velocity packet.
      */
     Object getVelocityPacket(Object entity, Vector velocity);
 
     /**
-     * Gets the <code>PacketPlayOutEntityMetadata</code>
-     * containing the metadata from the <code>DataWatcher</code>
-     * from the NMS Entity <code>entity</code>
+     * Returns a metadata packet for the given NMS entity. This is the default
+     * metadata packet. Entity metadata packets are required to make an entity
+     * visible.
      *
-     * @param entity NMS entity to display
-     * @return Packet used to display <code>entity</code>
-     * @throws IllegalArgumentException If the given object is not an nms entity
+     * @param entity The non-null NMS entity involved.
+     * @return The non-null entity metadata packet.
      */
     Object getMetadataPacket(Object entity);
 
+    /**
+     * Returns a metadata packet for the given NMS entity. This packet takes
+     * flags to determine how the entity appears. If you do not need any flags,
+     * you should use {@link #getMetadataPacket(Object)}.
+     *
+     * @param entity        The non-null NMS entity involved.
+     * @param isEnableFlags If <code>true</code>, the <code>flags</code> will
+     *                      be enabled. Otherwise, they will be disabled.
+     * @param flags         The non-null metadata flags.
+     * @return The non-null entity metadata packet.
+     */
     Object getMetadataPacket(Object entity, boolean isEnableFlags, EntityMeta...flags);
 
+    /**
+     * Sets the metadata for an existing entity metadata packet. If you do not
+     * have a packet yet, you should use
+     * {@link #getMetadataPacket(Object, boolean, EntityMeta...)}.
+     *
+     * @param packet        The non-null entity metadata packet.
+     * @param isEnableFlags If <code>true</code>, the <code>flags</code> will
+     *                      be enabled. Otherwise, they will be disabled.
+     * @param flags         The non-null metadata flags.
+     * @return A reference to <code>packet</code>. This can be ignored.
+     */
     Object setMetadata(Object packet, boolean isEnableFlags, EntityMeta...flags);
 
     /**
-     * Gets the <code>PacketPlayOutEntityDestory</code> used
-     * to destroy <code>entity</code>
+     * Returns a destroy packet for the given NMS entity. The returned packet
+     * will make the entity disappear.
      *
-     * @param entity NMS entity to remove
-     * @return Packet used to remove <code>entity</code>
+     * @param entity The non-null entity involved.
+     * @return The non-null destroy packet.
      */
     Object getDestroyPacket(Object entity);
 
     /**
-     * Spawns an NMS <code>EntityFirework</code> using packets
-     * for the given <code>players</code>. The spawned
-     * <code>EntityFirework</code> will have the given
-     * <code>effects</code> applied to it when it explodes.
+     * Spawns an NMS firework using packets. The firework will be visible to
+     * the given <code>players</code>. When the firework explodes, it will
+     * display the given <code>effects</code>.
      *
-     * The <code>EntityFirework</code> "explodes" aync after
-     * <code>flightTime</code> amount of ticks passes.
+     * <p>The explosion occurs asynchronously, <code>flightTime</code> ticks
+     * after it is launched.
      *
-     * @param loc The bukkit location to spawn the firework at
-     * @param players All of the players that will see the firework
-     * @param flightTime The time before the firework explodes
-     * @param effects The effects that the firework will have
+     * @param loc        The non-null world and coordinates to spawn the
+     *                   firework at.
+     * @param players    The non-null list of non-null players that should see
+     *                   the firework.
+     * @param flightTime The non-negative amount of time, in ticks, before the
+     *                   firework explodes.
+     * @param effects    The non-null effects that should be displayed during
+     *                   the explosion.
      */
     void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects);
 
     /**
-     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
-     * created using the given <code>mat</code> and <code>data</code>. The wrapper will also have
-     * an <code>int</code> which defines how long before the block will hit the ground (With a
-     * maximum of 400 ticks)
+     * Returns an NMS falling block entity wrapper for the given location and
+     * data. This method also calculates the number of ticks it will take for
+     * the block to hit the ground.
      *
-     * @param loc The location to spawn the falling block at
-     * @param mat The material of the falling block
-     * @param data The byte data for the material (Ignored in mc versions 1.13+)
-     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
-     * @return The instantiated <code>FallingBlockWrapper</code>
+     * <p>This method is a shorthand for using
+     * {@link #createFallingBlock(Location, Material, byte, Vector, int)}.
+     *
+     * @param loc    The non-null location that the entity will spawn at.
+     * @param mat    The non-null material of the block to spawn
+     * @param data   The non-negative byte data for legacy materials.
+     * @param motion The velocity to use to calculate the time to hit the
+     *               ground, or <code>null</code> to skip the calculations.
+     * @return The non-null falling block wrapper.
      */
     default FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data, @Nullable Vector motion) {
         return createFallingBlock(loc, mat, data, motion, 400);
     }
 
     /**
-     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
-     * created using the given <code>mat</code> and <code>data</code>. The wrapper will also have
-     * an <code>int</code> which defines how long before the block will hit the ground (With a
-     * maximum of <code>maxTicks</code> ticks)
+     * Returns an NMS falling block entity wrapper for the given location and
+     * data. This method also calculates the number of ticks it will take for
+     * the block to hit the ground.
      *
-     * @param loc The location to spawn the falling block at
-     * @param mat The material of the falling block
-     * @param data The byte data for the material (Ignored in mc versions 1.13+)
-     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
-     * @param maxTicks The maximum number of ticks to check for the block to hit the ground
-     * @return The instantiated <code>FallingBlockWrapper</code>
+     * @param loc      The non-null location that the entity will spawn at.
+     * @param mat      The non-null material of the block to spawn.
+     * @param data     The non-negative byte data for legacy materials.
+     * @param motion   The velocity to use to calculate the time to hit the
+     *                 ground, or <code>null</code> to skip the calculations.
+     * @param maxTicks The maximum number of ticks to check for the time to hit
+     *                 the ground.
+     * @return The non-null falling block wrapper.
      */
     FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull Material mat, byte data, @Nullable Vector motion, int maxTicks);
 
     /**
-     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
-     * created using the given <code>state</code>. The wrapper will also have an <code>int</code>
-     * which defines how long before the block will hit the ground (With a maximum of 400 ticks)
+     * Returns an NMS falling block entity wrapper for the given location and
+     * data. This method also calculates the number of ticks it will take for
+     * the block to hit the ground.
      *
-     * @param loc The location to spawn the block at
-     * @param state The block state to assign to the block
-     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
-     * @return The instantiated <code>FallingBlockWrapper</code>
+     * <p>This method is a shorthand for using
+     * {@link #createFallingBlock(Location, BlockState, Vector, int)}.
+     *
+     * @param loc    The non-null location that the entity will spawn at
+     * @param state  The non-null appearance of the block.
+     * @param motion The velocity to use to calculate the time to hit the
+     *               ground, or <code>null</code> to skip the calculations.
+     * @return The non-null falling block wrapper.
      */
     default FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion) {
         return createFallingBlock(loc, state, motion, 400);
     }
 
     /**
-     * Instantiates a <code>FallingBlockWrapper</code> with a NMS <code>EntityBlockFalling</code>
-     * created using the given <code>state</code>. The wrapper will also have an <code>int</code>
-     * which defines how long before the block will hit the ground (With a maximum of 400 ticks)
+     * Returns an NMS falling block entity wrapper for the given location and
+     * data. This method also calculates the number of ticks it will take for
+     * the block to hit the ground.
      *
-     * @param loc The location to spawn the block at
-     * @param state The block state to assign to the block
-     * @param motion The motion to apply to the falling block, used for ticksAlive calculations, or null
-     * @param maxTicks The maximum number of ticks to check for the block to hit the ground
-     * @return The instantiated <code>FallingBlockWrapper</code>
+     * <p>This method is a shorthand for using.
+     *
+     * @param loc      The non-null location that the entity will spawn at
+     * @param state    The non-null appearance of the block.
+     * @param motion   The velocity to use to calculate the time to hit the
+     *                 ground, or <code>null</code> to skip the calculations.
+     * @param maxTicks The maximum number of ticks to check for the time to hit
+     *                 the ground.
+     * @return The non-null falling block wrapper.
      */
     FallingBlockWrapper createFallingBlock(@Nonnull Location loc, @Nonnull BlockState state, @Nullable Vector motion, int maxTicks);
 
     /**
-     * Gets an NMS <code>EntityItem</code> entity, setting it's
-     * location to the given world and coordinates.
+     * Returns an NMS item entity for the given data and location.
      *
-     * @param item The bukkit itemstack
-     * @param world The bukkit world
-     * @param x The x coordinate
-     * @param y The y coordinate
-     * @param z The z coordinate
-     * @return The NMS item entity
+     * @param item The non-null bukkit item to become an entity.
+     * @param loc  The non-null location that the entity will spawn at.
+     * @return The non-null NMS item entity.
+     */
+    default Object toNMSItemEntity(ItemStack item, Location loc) {
+        return toNMSItemEntity(item, loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+    }
+
+    /**
+     * Returns an NMS item entity for the given data and location.
+     *
+     * @param item  The non-null bukkit item to become an entity.
+     * @param world The non-null world that the entity will exist in.
+     * @param x     The X coordinate to spawn the item at.
+     * @param y     The Y coordinate to spawn the item at.
+     * @param z     The Z coordinate to spawn the item at.
+     * @return The non-null NMS item entity.
      */
     Object toNMSItemEntity(ItemStack item, World world, double x, double y, double z);
 
+    /**
+     * Returns the amount of absorption hearts that the entity currently has.
+     *
+     * @param entity The non-null bukkit entity who has absorption hearts.
+     * @return The amount ob absorption hearts.
+     */
     default double getAbsorption(LivingEntity entity) {
         return entity.getAbsorptionAmount();
     }
 
+    /**
+     * Sets the amount of absorption hearts for a given <code>entity</code>.
+     *
+     * @param entity     The non-null bukkit entity to set the hearts of.
+     * @param absorption The amount of absorption hearts.
+     */
     default void setAbsorption(LivingEntity entity, double absorption) {
         entity.setAbsorptionAmount(absorption);
     }
 
     /**
-     * This enum gives location of a bit of information inside
-     * the byte from <a href="https://wiki.vg/Entity_metadata#Entity">EntityMetaData</a>.
-     *
-     * Note that effects here are visual, and only cause animations and/or effects.
-     *
-     * This is most useful when modifying <code>PacketPlayOutEntityMetadata</code> packets.
-     * @see net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata
+     * This enum outlines the different flags and their byte location for
+     * <a href="https://wiki.vg/Entity_metadata#Entity">EntityMetaData</a>.
      */
     enum EntityMeta {
 
@@ -194,7 +261,6 @@ public interface EntityCompatibility {
         INVISIBLE(5), // If the entity is invisible
         GLOWING(6),   // If the entity is glowing
         GLIDING(7);   // If the entity is gliding using an elytra
-
 
         private final byte mask;
 

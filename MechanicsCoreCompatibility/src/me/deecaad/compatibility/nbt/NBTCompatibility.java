@@ -1,32 +1,24 @@
-package me.deecaad.compatibility.item.nbt;
+package me.deecaad.compatibility.nbt;
 
 import me.deecaad.core.utils.AttributeType;
 import org.bukkit.inventory.ItemStack;
 
-public interface INBTCompatibility {
+/**
+ * This interface outlines a version dependant api that return values based on
+ * different {@link ItemStack} and tag input. There should be an implementing
+ * class for each minecraft protocol version.
+ *
+ * TODO Replace {@link me.deecaad.core.utils.TagUtil} and use this class directly.
+ */
+public interface NBTCompatibility {
 
-    /**
-     * @param itemStack the item stack from which to get tag
-     * @param tag the tag name
-     * @return the value of the tag (may be null)
-     */
+
     String getCustomTag(ItemStack itemStack, String tag);
 
-    /**
-     * @param nmsStack the nms stack from which to get tag
-     * @param tag the tag name
-     * @return the value of the tag (may be null)
-     */
+
     String getCustomTagFromNMSStack(Object nmsStack, String tag);
 
-    /**
-     * Set or change tag of item stack with given value.
-     *
-     * @param itemStack the item stack to modify
-     * @param tag the tag name
-     * @param value the value for tag
-     * @return the item stack with new or modified tag value
-     */
+
     ItemStack setCustomTag(ItemStack itemStack, String tag, String value);
 
     /**

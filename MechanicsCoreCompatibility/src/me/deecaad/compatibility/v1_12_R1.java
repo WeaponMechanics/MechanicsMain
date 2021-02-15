@@ -4,7 +4,8 @@ import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.block.Block_1_12_R1;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.Entity_1_12_R1;
-import me.deecaad.compatibility.item.nbt.INBTCompatibility;
+import me.deecaad.compatibility.nbt.NBTCompatibility;
+import me.deecaad.compatibility.nbt.NBT_1_12_R1;
 import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.Packet;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
@@ -18,12 +19,14 @@ import javax.annotation.Nonnull;
 
 public class v1_12_R1 implements ICompatibility {
 
-    private EntityCompatibility entityCompatibility;
-    private BlockCompatibility blockCompatibility;
+    private final EntityCompatibility entityCompatibility;
+    private final BlockCompatibility blockCompatibility;
+    private final NBTCompatibility nbtCompatibility;
 
     public v1_12_R1() {
         entityCompatibility = new Entity_1_12_R1();
         blockCompatibility = new Block_1_12_R1();
+        nbtCompatibility = new NBT_1_12_R1();
     }
 
     @Override
@@ -38,7 +41,13 @@ public class v1_12_R1 implements ICompatibility {
 
     @Override
     public Entity getEntityById(World world, int entityId) {
-        return ((CraftWorld) world).getHandle().getEntity(entityId).getBukkitEntity();
+        net.minecraft.server.v1_12_R1.Entity e = ((CraftWorld) world).getHandle().getEntity(entityId);
+        return e == null ? null : e.getBukkitEntity();
+    }
+
+    @Override
+    public void sendPackets(Player player, Object packet) {
+        getEntityPlayer(player).playerConnection.sendPacket((Packet<?>) packet);
     }
 
     @Override
@@ -50,8 +59,8 @@ public class v1_12_R1 implements ICompatibility {
     }
 
     @Override
-    public INBTCompatibility getNBTCompatibility() {
-        throw new UnsupportedOperationException("You cannot use NBT in this version");
+    public NBTCompatibility getNBTCompatibility() {
+        return nbtCompatibility;
     }
 
     @Nonnull

@@ -4,8 +4,8 @@ import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.block.BlockReflection;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.EntityReflection;
-import me.deecaad.compatibility.item.nbt.INBTCompatibility;
-import me.deecaad.compatibility.item.nbt.NBT_Reflection;
+import me.deecaad.compatibility.nbt.NBTCompatibility;
+import me.deecaad.compatibility.nbt.NBT_Reflection;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
  */
 public class Reflection implements ICompatibility {
 
-    private INBTCompatibility nbtCompatibility;
+    private NBTCompatibility nbtCompatibility;
     private EntityCompatibility entityCompatibility;
     private BlockCompatibility blockCompatibility;
 
@@ -77,7 +77,7 @@ public class Reflection implements ICompatibility {
     }
 
     @Override
-    public INBTCompatibility getNBTCompatibility() {
+    public NBTCompatibility getNBTCompatibility() {
         return nbtCompatibility;
     }
 

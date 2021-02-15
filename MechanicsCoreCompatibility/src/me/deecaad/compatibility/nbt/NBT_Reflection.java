@@ -1,4 +1,4 @@
-package me.deecaad.compatibility.item.nbt;
+package me.deecaad.compatibility.nbt;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.MechanicsCore;
@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Locale;
 
-public class NBT_Reflection implements INBTCompatibility {
+public class NBT_Reflection implements NBTCompatibility {
 
     private static Method asNMSCopy;
     private static Method asBukkitCopy;

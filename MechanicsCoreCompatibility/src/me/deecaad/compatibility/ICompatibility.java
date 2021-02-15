@@ -2,7 +2,7 @@ package me.deecaad.compatibility;
 
 import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
-import me.deecaad.compatibility.item.nbt.INBTCompatibility;
+import me.deecaad.compatibility.nbt.NBTCompatibility;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -10,54 +10,93 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 
 /**
- * The interface used to add compatibility for multiple versions
+ * This interface outlines a version dependant api, where there is an
+ * implementing class for each minecraft protocol version.
  */
 public interface ICompatibility {
 
     /**
-     * @return true if server version is NOT fully supported
+     * Returns <code>true</code> if the minecraft protocol version that the
+     * server is running is supported by the implementing class.
+     *
+     * @implNote
+     * The default implementation will return <code>true</code> if
+     * {@link Reflection} is used.
+     *
+     * @return <code>true</code> if the version is not fully supported.
      */
     boolean isNotFullySupported();
 
     /**
-     * Simple method to get player's ping.
-     * This is updated automatically and does not require async call.
+     * Returns the player's ping, or the time, in milliseconds, that it takes
+     * for a packet to be sent/received for the <code>player</code>. This
+     * method is most likely spoofable, meaning that hacked clients can
+     * <i>lie</i> about this number.
      *
-     * @param player the player instance
-     * @return the ping of player in ms
+     * @param player The non-null player to get the ping of.
+     * @return The ping, in milliseconds, of the player.
      */
-    int getPing(Player player);
+    int getPing(@Nonnull Player player);
 
     /**
-     * This is very useful method when using packet listeners since most of packets use entity ids
+     * Returns the bukkit {@link Entity} whose handle's unique id matches the
+     * given <code>entityId</code>. Ids are unique to the {@link World}.
      *
-     * @param world the world where entity is
-     * @param entityId the entity's id
-     * @return the entity with that id as bukkit entity or null
+     * @param world    The non-null bukkit world that holds the entity.
+     * @param entityId The unique, numeric id of the entity.
+     * @return The bukkit entity with the id, or <code>null</code>.
      */
-
-    Entity getEntityById(World world, int entityId);
+    Entity getEntityById(@Nonnull World world, int entityId);
 
     /**
-     * Send all given packet objects to player
+     * Overloaded version of {@link #sendPackets(Player, Object...)} which does
+     * not need to instantiate a new array of packets every time 1 packet needs
+     * to be sent.
      *
-     * @param player the player to receive
-     * @param packets the packet objects to send
+     * @param player The non-null player to send the packet to.
+     * @param packet The non-null packet to send to the player.
+     */
+    void sendPackets(Player player, Object packet);
+
+    /**
+     * Sends the given <code>packets</code> to the given <code>player</code>.
+     * This can be run asynchronously
+     *
+     * @param player  The non-null player to send the packet to.
+     * @param packets The non-null array of non-null packets to send to the
+     *                player.
      */
     void sendPackets(Player player, Object... packets);
 
     /**
-     * This will return null ONLY if server versions is 1.13 R2 or above.
-     * This is like this because API was added for item NBT tags also in 1.13 R2.
+     * Returns this version's loaded {@link NBTCompatibility}. The classes for
+     * each version can be found in the nbt package
+     * ({@link me.deecaad.compatibility.nbt}).
      *
-     * @return the NBT compatibility
+     * @return This version's non-null nbt compatibility.
+     * @throws UnsupportedOperationException In minecraft protocol versions
+     *                                       1_13_R2 and higher.
      */
     @Nonnull
-    INBTCompatibility getNBTCompatibility();
+    NBTCompatibility getNBTCompatibility();
 
+    /**
+     * Returns this version's loaded {@link EntityCompatibility}. The classes
+     * for each version can be found in the entity package
+     * ({@link me.deecaad.compatibility.entity}).
+     *
+     * @return This version's non-null entity compatibility.
+     */
     @Nonnull
     EntityCompatibility getEntityCompatibility();
 
+    /**
+     * Returns this version's loaded {@link BlockCompatibility}. The classes
+     * for each version can be found in the block package
+     * ({@link me.deecaad.compatibility.block}).
+     *
+     * @return This version's non-null block compatibility.
+     */
     @Nonnull
     BlockCompatibility getBlockCompatibility();
 }

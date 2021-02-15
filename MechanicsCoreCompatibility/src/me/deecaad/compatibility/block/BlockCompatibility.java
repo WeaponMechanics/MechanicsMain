@@ -5,118 +5,144 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This interface outlines a version dependant api that return values based on
+ * different {@link Block} inputs. There should be an implementing class for
+ * each minecraft protocol version.
+ *
+ * <p>For methods that return packets, in order for those packets to be visible
+ * to players, the packets need to be sent to the players. See
+ * {@link me.deecaad.compatibility.ICompatibility#sendPackets(Player, Object)}.
+ */
 public interface BlockCompatibility {
 
-
+    /**
+     * Threadsafe method to get unique ids for block cracking.
+     *
+     * @see #getCrackPacket(Block, int)
+     */
     AtomicInteger IDS = new AtomicInteger(0);
 
     /**
-     * Gets a <code>PacketPlayOutBlockBreakAnimation</code> packet
-     * for the given block
+     * Returns a block break animation packet for the given <code>block</code>
+     * and <code>crack</code>. This should probably not be used for transparent
+     * blocks. This method is a shorthand for
+     * {@link #getCrackPacket(Block, int, int)}.
      *
-     * https://wiki.vg/Protocol#Block_Break_Animation
+     * <p>For more information, please see the protocol
+     * <a href="https://wiki.vg/Protocol#Block_Break_Animation">wiki</a>.
      *
-     * Crack values [0-9] will show the crack animation, anything
-     * else will remove the animation.
-     *
-     * If this is used on a transparent block, weird graphical effects
-     * may occur
-     *
-     * Note that in order for players to see the changes, you must
-     * send them the returned packet
-     * @see me.deecaad.compatibility.ICompatibility#sendPackets(Player, Object...)
-     *
-     * @param block The block to crack
-     * @param crack The amount to crack
-     * @return The constructed packet
+     * @param block The non-null block to display the cracking animation over.
+     * @param crack The cracking amount, between 0 and 9 inclusively. Higher
+     *              values are more visibly cracked.
+     * @return The non-null animation packet.
      */
+    @Nonnull
     Object getCrackPacket(@Nonnull Block block, int crack);
 
     /**
-     * Gets a <code>PacketPlayOutBlockBreakAnimation</code> packet
-     * for the given block
+     * Returns a block break animation packet for the given <code>block</code>
+     * and <code>crack</code>. This should probably not be used for transparent
+     * blocks. The <code>id</code> is a unique to each packet, and sending a
+     * new packet with the same id will cause the previous one to be
+     * overwritten.
      *
-     * https://wiki.vg/Protocol#Block_Break_Animation
+     * <p>For more information, please see the protocol
+     * <a href="https://wiki.vg/Protocol#Block_Break_Animation">wiki</a>.
      *
-     * Crack values [0-9] will show the crack animation, anything
-     * else will remove the animation.
-     *
-     * If this is used on a transparent block, weird graphical effects
-     * may occur
-     *
-     * Note that in order for players to see the changes, you must
-     * send them the returned packet
-     * @see me.deecaad.compatibility.ICompatibility#sendPackets(Player, Object...)
-     *
-     * @param block The block to crack
-     * @param crack The amount to crack
-     * @param id The id to use for the packet
-     * @return The constructed packet
+     * @param block The non-null block to display the cracking animation over.
+     * @param crack The cracking amount, between 0 and 9 inclusively. Higher
+     *              values are more visibly cracked.
+     * @param id    The unique id. If you do not want to override the previous
+     *              packet, use {@link #getCrackPacket(Block, int)}}.
+     * @return The non-null animation packet.
      */
+    @Nonnull
     Object getCrackPacket(@Nonnull Block block, int crack, int id);
 
     /**
-     * Gets a <code>PacketPlayOutBlockChange</code> packet for the given
-     * <code>bukkitBlock</code> with the given <code>mask</code>. This
-     * effectively masks the block as a different block.
+     * Returns a block change packet for the given <code>bukkitBlock</code>.
+     * This packet will make the block <i>appear</i> as the given
+     * <code>mask</code> and <code>data</code>. The mask is removed if the
+     * player interacts with the block.
      *
-     * Note: You probably want to save the previous block state of the block
-     * so you can tell the client what the block actually is later. This may
-     * cause issues with anti-cheats
+     * <p>For more information, please see the protocol
+     * <a href="https://wiki.vg/Protocol#Block_Change">wiki</a>.
      *
-     * @param bukkitBlock The bukkit block to mask
-     * @param mask The material to change the block to
-     * @param data The data (for legacy minecraft) of the material
-     * @return Instantiated packet
+     * @param bukkitBlock The non-null block to mask.
+     * @param mask        The non-null bukkit material for the mask.
+     * @param data        The non-negative byte data for material for legacy
+     *                    minecraft versions. For newer versions, this data
+     *                    should be ignored.
+     * @return The non-null block mask packet.
      */
-    Object getBlockMaskPacket(Block bukkitBlock, Material mask, byte data);
+    @Nonnull
+    Object getBlockMaskPacket(@Nonnull Block bukkitBlock, @Nonnull Material mask, @Nonnegative byte data);
 
     /**
-     * Gets a <code>PacketPlayOutBlockChange</code> packet for the given
-     * <code>bukkitBlock</code> with the given <code>mask</code>. This
-     * effectively masks the block as a different block.
+     * Returns a block change packet for the given <code>bukkitBlock</code>.
+     * This packet will make the block <i>appear</i> as the given
+     * <code>mask</code>. The mask is removed if the player interacts with the
+     * block.
      *
-     * Note: You probably want to save the previous block state of the block
-     * so you can tell the client what the block actually is later. This may
-     * cause issues with anti-cheats
+     * <p>For more information, please see the protocol
+     * <a href="https://wiki.vg/Protocol#Block_Change">wiki</a>.
      *
-     * @param bukkitBlock The bukkit block to mask
-     * @param mask The state to set the block to
-     * @return Instantiated packet
+     * @param bukkitBlock The non-null block to mask.
+     * @param mask        The non-null state to mask the block as.
+     * @return The non-null block mask packet.
      */
-    Object getBlockMaskPacket(Block bukkitBlock, BlockState mask);
+    @Nonnull
+    Object getBlockMaskPacket(@Nonnull Block bukkitBlock, @Nonnull BlockState mask);
 
     /**
-     * Gets a <code>PacketPlayOutMultiBlockChange</code> packet holding
-     * masks for all of the given <code>blocks</code>. The mask applied
-     * depends on <code>mask</code> and <code>data</code> (Though
-     * <code>data</code> isn't used in legacy (pre1.13) versions)
+     * Returns a list of multi block change packets that masks all of the given
+     * <code>blocks</code>. This packet will make the block <i>appear</i> as
+     * the given <code>mask</code>. The <code>data</code> is used in legacy
+     * minecraft versions, and is ignored in newer versions. The mask for each
+     * individual block is removed if it is interacted with.
      *
-     * Note: You probably want to send this packet twice, once to mask the
-     * blocks and another time (Which different masks) to unmask the blocks
+     * For each {@link org.bukkit.Chunk} that is included in
+     * <code>blocks</code>, there is another packet added. Note that in
+     * version {@link net.minecraft.server.v1_16_R2} and higher, a new packet
+     * is used for each {@link SubChunk}.
      *
-     * @param blocks The blocks to mask
-     * @param mask The material mask
-     * @param data The data (for legacy minecraft) of the material
-     * @return Instantiated packet
+     * <p>For more information, please see the protocol
+     * <a href="https://wiki.vg/Protocol#Multi_Block_Change">wiki</a>.
+     *
+     * @param blocks The non-null list of non-null blocks to mask.
+     * @param mask   The non-null bukkit material for the mask.
+     * @param data   The non-negative byte data for material for legacy
+     *               minecraft versions. For newer versions, this data should
+     *               be ignored.
+     * @return The non-null list of non-null block mask packets.
      */
-    List<Object> getMultiBlockMaskPacket(List<Block> blocks, Material mask, byte data);
+    @Nonnull
+    List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nonnull Material mask, @Nonnegative byte data);
 
     /**
-     * Gets a <code>PacketPlayOutMultiBlockChange</code> packet holding
-     * masks for all of the given <code>blocks</code>. The mask applied
-     * depends on <code>mask</code>.
+     * Returns a list of multi block change packets that masks all of the given
+     * <code>blocks</code>. The packet will make the block <i>appear</i> as the
+     * given <code>mask</code>. The mask for each individual block is removed
+     * if it is interacted with.
      *
-     * Note: You probably want to send this packet twice, once to mask the
-     * blocks and another time (Which different masks) to unmask the blocks
+     * For each {@link org.bukkit.Chunk} that is included in
+     * <code>blocks</code>, there is another packet added. Note that in
+     * version {@link net.minecraft.server.v1_16_R2} and higher, a new packet
+     * is used for each {@link SubChunk}.
      *
-     * @param blocks The blocks to mask
-     * @param mask The state to set as the mask
-     * @return Instantiated packet
+     * <p>For more information, please see the protocol
+     * <a href="https://wiki.vg/Protocol#Multi_Block_Change">wiki</a>.
+     *
+     * @param blocks The non-null list of non-null blocks to mask.
+     * @param mask   The non-null state to mask the block as.
+     * @return The non-null list of non-null block mask packets.
      */
-    List<Object> getMultiBlockMaskPacket(List<Block> blocks, BlockState mask);
+    @Nonnull
+    List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nonnull BlockState mask);
 }
