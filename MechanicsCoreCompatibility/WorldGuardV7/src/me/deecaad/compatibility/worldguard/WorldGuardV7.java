@@ -17,6 +17,7 @@ import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +27,8 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class WorldGuardV7 implements IWorldGuardCompatibility {
 
-    private Map<String, Flag<?>> flags;
-    private FlagRegistry registry;
+    private final Map<String, Flag<?>> flags;
+    private final FlagRegistry registry;
 
     public WorldGuardV7() {
         flags = new HashMap<>();
@@ -44,12 +45,9 @@ public class WorldGuardV7 implements IWorldGuardCompatibility {
         Flag<?> flag = flags.get(flagName);
         if (flag == null) {
             String flagList = "[" + String.join(", ", flags.keySet()) + "]";
-            debug.error("Flag \"" + flagName + "\" does not exist...", "Available flags: " + flagList);
-            return true;
-
+            throw new IllegalArgumentException("Unknown flag: " + flagName + ", Available: " + flagList);
         } else if (!(flag instanceof StateFlag)) {
-            debug.error("Flag \"" + flagName + "\" is not a StateFlag!!!");
-            return true;
+            throw new IllegalArgumentException("Flag: " + flagName + " is not a StateFlag");
         }
 
         StateFlag stateFlag = (StateFlag) flag;
@@ -57,7 +55,7 @@ public class WorldGuardV7 implements IWorldGuardCompatibility {
     }
 
     @Override
-    public Object getValue(Location location, String flagName) {
+    public Object getValue(@Nonnull Location location, @Nonnull String flagName) {
         RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery regionQuery = regionContainer.createQuery();
         ApplicableRegionSet applicableRegionSet = regionQuery.getApplicableRegions(BukkitAdapter.adapt(location));
@@ -65,9 +63,7 @@ public class WorldGuardV7 implements IWorldGuardCompatibility {
         Flag<?> flag = flags.get(flagName);
         if (flag == null) {
             String flagList = "[" + String.join(", ", flags.keySet()) + "]";
-            debug.error("Flag \"" + flagName + "\" does not exist...", "Available flags: " + flagList);
-            return true;
-
+            throw new IllegalArgumentException("Unknown flag: " + flagName + ", Available: " + flagList);
         }
 
         return applicableRegionSet.queryValue(null, flag);

@@ -4,7 +4,7 @@ import me.deecaad.compatibility.block.BlockCompatibility;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.nbt.NBTCompatibility;
 
-public class CompatibilityAPI {
+public final class CompatibilityAPI {
 
     private static final double version;
     private static final ICompatibility compatibility;

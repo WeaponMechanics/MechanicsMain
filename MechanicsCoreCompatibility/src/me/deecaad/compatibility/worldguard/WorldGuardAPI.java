@@ -6,7 +6,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 
-public class WorldGuardAPI {
+public final class WorldGuardAPI {
 
     private static IWorldGuardCompatibility worldGuardCompatibility;
 

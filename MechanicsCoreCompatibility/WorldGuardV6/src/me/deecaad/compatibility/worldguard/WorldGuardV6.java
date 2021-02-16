@@ -14,6 +14,7 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class WorldGuardV6 implements IWorldGuardCompatibility {
     }
 
     @Override
-    public Object getValue(Location location, String flagName) {
+    public Object getValue(@Nonnull Location location, @Nonnull String flagName) {
         RegionManager regionManager = WorldGuardPlugin.inst().getRegionManager(location.getWorld());
         ApplicableRegionSet applicableRegionSet = regionManager.getApplicableRegions(location);
 

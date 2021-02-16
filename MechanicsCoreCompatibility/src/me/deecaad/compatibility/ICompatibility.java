@@ -19,11 +19,9 @@ public interface ICompatibility {
      * Returns <code>true</code> if the minecraft protocol version that the
      * server is running is supported by the implementing class.
      *
-     * @implNote
-     * The default implementation will return <code>true</code> if
-     * {@link Reflection} is used.
-     *
      * @return <code>true</code> if the version is not fully supported.
+     * @implNote The default implementation will return <code>true</code> if
+     * {@link Reflection} is used.
      */
     boolean isNotFullySupported();
 
