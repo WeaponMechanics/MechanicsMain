@@ -81,9 +81,9 @@ public class EntityReflection implements EntityCompatibility {
         dataWatcherClass = getNMSClass("DataWatcher");
         entityFallingBlockClass = getNMSClass("EntityFallingBlock");
 
-        metadataPacketID = getField(getNMSClass("PacketPlayOutEntityMetadata"), null, int.class);
-        metadataPacketWatcher = getField(getNMSClass("PacketPlayOutEntityMetadata"), null, List.class);
-        defaultItemField = getField(getNMSClass("ItemStack"), null, getNMSClass("ItemStack"));
+        metadataPacketID = getField(getNMSClass("PacketPlayOutEntityMetadata"), int.class);
+        metadataPacketWatcher = getField(getNMSClass("PacketPlayOutEntityMetadata"), List.class);
+        defaultItemField = getField(getNMSClass("ItemStack"), getNMSClass("ItemStack"));
         expectedLifeSpanField = getField(getNMSClass("EntityFireworks"), "expectedLifespan");
 
         getId = getMethod(nmsEntityClass, "getId");

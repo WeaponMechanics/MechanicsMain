@@ -1,7 +1,7 @@
 package me.deecaad.core.web;
 
-import me.deecaad.core.utils.TaskUtil;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -26,10 +26,12 @@ public class SpigotUser {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        TaskUtil.runAsync(plugin, () -> {
-            update();
-            return null;
-        });
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                update();
+            }
+        }.runTaskAsynchronously(plugin);
     }
 
     /**

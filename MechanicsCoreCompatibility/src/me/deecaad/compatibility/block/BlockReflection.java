@@ -39,8 +39,8 @@ public class BlockReflection implements BlockCompatibility {
         Class<?> blockPosClass = getNMSClass("BlockPosition");
 
         packetMaskField = getField(getNMSClass("PacketPlayOutBlockChange"), "block");
-        positionsField = getField(getNMSClass("PacketPlayOutMultiBlockChange"), null, short[].class);
-        masksField = getField(getNMSClass("PacketPlayOutMultiBlockChange"), null, Array.newInstance(getNMSClass("IBlockData"), 0).getClass());
+        positionsField = getField(getNMSClass("PacketPlayOutMultiBlockChange"), short[].class);
+        masksField = getField(getNMSClass("PacketPlayOutMultiBlockChange"), Array.newInstance(getNMSClass("IBlockData"), 0).getClass());
 
         getBlockState = getMethod(getCBClass("block.data.CraftBlockData"), "getState");
         getBlockHandle = getMethod(getCBClass("block.CraftBlockState"), "getHandle");

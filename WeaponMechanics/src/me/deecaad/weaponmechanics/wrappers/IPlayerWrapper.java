@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.file.storage.FileSaveable;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -10,7 +9,7 @@ import javax.annotation.Nullable;
  * basic information for this plugin for
  * each Player.
  */
-public interface IPlayerWrapper extends IEntityWrapper, FileSaveable {
+public interface IPlayerWrapper extends IEntityWrapper {
 
     /**
      * This basically does same thing as {@link IEntityWrapper#getEntity()},

@@ -66,16 +66,16 @@ public abstract class PacketListener {
         final Class<?> craftServerClass = ReflectionUtil.getCBClass("CraftServer");
 
         LOGIN_PACKET = ReflectionUtil.getNMSClass("PacketLoginInStart");
-        GAME_PROFILE = ReflectionUtil.getField(LOGIN_PACKET, null, GameProfile.class);
+        GAME_PROFILE = ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
 
         playerConnectionField = ReflectionUtil.getField(entityPlayerClass, "playerConnection");
         networkManagerField = ReflectionUtil.getField(playerConnectionField.getType(), "networkManager");
-        channelField = ReflectionUtil.getField(networkManagerField.getType(), null, Channel.class);
+        channelField = ReflectionUtil.getField(networkManagerField.getType(), Channel.class);
 
         minecraftServerClass = ReflectionUtil.getNMSClass("MinecraftServer");
         serverConnectionClass = ReflectionUtil.getNMSClass("ServerConnection");
-        minecraftServerField = ReflectionUtil.getField(craftServerClass, null, minecraftServerClass);
-        serverConnectionField = ReflectionUtil.getField(minecraftServerClass, null, serverConnectionClass);
+        minecraftServerField = ReflectionUtil.getField(craftServerClass, minecraftServerClass);
+        serverConnectionField = ReflectionUtil.getField(minecraftServerClass, serverConnectionClass);
         networkMarketsMethod = ReflectionUtil.getMethod(serverConnectionClass, Collection.class, serverConnectionClass);
     }
 
@@ -177,7 +177,7 @@ public abstract class PacketListener {
         // list and check if the element is the correct type
         boolean looking = true;
         for (int i = 0; looking; i++) {
-            final Field field = ReflectionUtil.getField(serverConnectionClass, null, List.class, i);
+            final Field field = ReflectionUtil.getField(serverConnectionClass, List.class, i);
             List<Object> channels = (List<Object>) ReflectionUtil.invokeField(field, serverConnection);
 
             for (Object obj : channels) {

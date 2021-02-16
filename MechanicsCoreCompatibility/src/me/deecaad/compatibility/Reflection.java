@@ -20,9 +20,9 @@ import java.lang.reflect.Method;
  */
 public class Reflection implements ICompatibility {
 
-    private NBTCompatibility nbtCompatibility;
-    private EntityCompatibility entityCompatibility;
-    private BlockCompatibility blockCompatibility;
+    private final NBTCompatibility nbtCompatibility;
+    private final EntityCompatibility entityCompatibility;
+    private final BlockCompatibility blockCompatibility;
 
     private final Method playerGetHandle;
     private final Field playerConnection;
@@ -65,6 +65,13 @@ public class Reflection implements ICompatibility {
         Object worldServer = ReflectionUtil.invokeMethod(this.worldGetHandle, world);
         Object entity = ReflectionUtil.invokeMethod(this.getEntityById, worldServer, entityId);
         return (Entity) ReflectionUtil.invokeMethod(this.getAsBukkitEntity, entity);
+    }
+
+    @Override
+    public void sendPackets(Player player, Object packet) {
+        Object entityPlayer = ReflectionUtil.invokeMethod(this.playerGetHandle, player);
+        Object playerConnection = ReflectionUtil.invokeField(this.playerConnection, entityPlayer);
+        ReflectionUtil.invokeMethod(sendPacketMethod, playerConnection, packet);
     }
 
     @Override
