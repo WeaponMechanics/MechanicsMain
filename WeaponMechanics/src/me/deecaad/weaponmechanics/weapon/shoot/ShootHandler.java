@@ -107,7 +107,7 @@ public class ShootHandler implements IValidator {
         Configuration config = getConfigurations();
 
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
-        if (!trigger.check(triggerType, slot, entityWrapper)) return false;
+        if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
 
