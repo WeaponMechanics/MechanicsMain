@@ -115,8 +115,8 @@ public class MoveTask extends BukkitRunnable {
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) {
             if (!player.getAllowFlight() && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
 
-                // Only give double jump ability if been on ground for at least 20 ticks
-                if (this.groundTicks > 20) {
+                // Only give double jump ability if been on ground for at least 3 ticks
+                if (this.groundTicks > 3) {
                     player.setAllowFlight(true);
                 }
             }
