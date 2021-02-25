@@ -39,14 +39,6 @@ Disabled_Trigger_Checks:
   Drop_Item: false
   Swap_Main_And_Hand_Items: false
 
-# This allows to run tasks on different threads on your
-# processor. Basically, the "magic no lag" button. Be warned:
-# This only moves the tasks to a different place then your
-# main server thread.
-Async_Tasks:
-  Packet_Listening: false # Has to do with anything involving packet listeners
-  Projectile_Updates: false # Has to do with ticking projectiles
-
 # Here you can change how smooth the weapon recoil is.
 # Lower values mean more smooth recoil, but more packets sent for players.
 # By default Minecraft would only allow this to be 50, but in WeaponMechanics it can be lower.
