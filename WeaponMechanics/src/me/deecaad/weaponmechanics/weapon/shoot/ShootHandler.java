@@ -500,7 +500,9 @@ public class ShootHandler implements IValidator {
             }
 
             ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
-            bullet.setTag("weapon-title", weaponTitle);
+            WeaponShootEvent shoot = new WeaponShootEvent(bullet);
+            Bukkit.getPluginManager().callEvent(shoot);
+            bullet = shoot.getProjectile();
 
             // Handle worldguard flags
             IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
@@ -522,19 +524,19 @@ public class ShootHandler implements IValidator {
             boolean canExplode = bullet.getTag("explosion-detonation") == null;
             if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.SHOOT)) {
 
+                ICustomProjectile finalBullet = bullet;
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Vector v = bullet.getLocation();
+                        Vector v = finalBullet.getLocation();
                         Location origin = new Location(shootLocation.getWorld(), v.getX(), v.getY(), v.getZ());
-                        explosion.explode(entityWrapper.getEntity(), origin, bullet);
+                        explosion.explode(entityWrapper.getEntity(), origin, finalBullet);
 
-                        bullet.setTag("explosion-detonation", "true");
+                        finalBullet.setTag("explosion-detonation", "true");
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
             }
 
-            Bukkit.getPluginManager().callEvent(new WeaponShootEvent(bullet));
         }
     }
 
