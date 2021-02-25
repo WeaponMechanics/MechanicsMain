@@ -5,7 +5,7 @@ import org.bukkit.Location;
 
 public abstract class ProjectileEvent extends WeaponEvent {
 
-    protected ICustomProjectile projectile;
+    protected final ICustomProjectile projectile;
 
     protected ProjectileEvent(ICustomProjectile projectile) {
         super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter());
@@ -15,10 +15,6 @@ public abstract class ProjectileEvent extends WeaponEvent {
 
     public ICustomProjectile getProjectile() {
         return projectile;
-    }
-
-    public void setProjectile(ICustomProjectile projectile) {
-        this.projectile = projectile;
     }
 
     public Location getLocation() {

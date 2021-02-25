@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -136,6 +137,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
             try {
                 ICustomProjectile projectile = projectilesIterator.next();
                 if (projectile.tick()) {
+                    Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(projectile));
                     projectilesIterator.remove();
                 }
             } catch (Exception e) {

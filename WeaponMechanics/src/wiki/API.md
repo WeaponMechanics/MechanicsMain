@@ -51,9 +51,6 @@ This event is called whenever a project ends. This may be because it hit a block
 entity, or timed out (There could be other reasons for this event to occur).
  
  * `ICustomProjectile getProjectile()` - Gets the custom projectile involved with this event
- * `void setProjectile(ICustomProjectile)` - Sets the projectile
-   * This overrides the projectile
-   * This can be your own implementation of `ICustomProjectile`
  * `Location getLocation()` - Gets the current location of the projectile
  * `Location getLastLocation()` - Gets the previous location the projectile
 
@@ -64,9 +61,6 @@ This event is called right before a projectile explodes.
 * `void setCancelled(boolean)` - Sets the cancellation state of this event
   * It's probably a bad idea to cancel this, but you can
 * `ICustomProjectile getProjectile()` - Gets the custom projectile involved with this event
-* `void setProjectile(ICustomProjectile)` - Sets the projectile
-  * This overrides the projectile
-  * This can be your own implementation of `ICustomProjectile`
 * `Location getLocation()` - Gets the current location of the projectile
 * `Location getLastLocation()` - Gets the previous location the projectile
 * `Explosion getExplosion()` - Gets the explosion that will be used
@@ -77,12 +71,11 @@ This event is called right before a projectile explodes.
 This event is called whenever a projectile hits a block. This event is useful if you
 want to bounce the projectile off of the block or apply changes to the block (Maybe
 your gun is a paintball gun). This event is a subclass of the `ProjectileMoveEvent`,
-but is still called even when `Disable_Projectile_Move_Event: false`
+but is still called even when `Disabled_Events.Projectile_Move_Event: true`
 
+* `boolean isCancelled()` - Returns true if this event has been cancelled
+* `void setCancelled(boolean)` - Sets the cancellation state of this event
 * `ICustomProjectile getProjectile()` - Gets the custom projectile involved with this event
-* `void setProjectile(ICustomProjectile)` - Sets the projectile
-  * This overrides the projectile
-  * This can be your own implementation of `ICustomProjectile`
 * `Location getLocation()` - Gets the current location of the projectile
 * `Location getLastLocation()` - Gets the previous location the projectile
 * `Block getHitBlock()` - Gets the block that was hit
@@ -90,14 +83,12 @@ but is still called even when `Disable_Projectile_Move_Event: false`
 
 ##### ProjectileHitEntityEvent
 This event is called whenever a projectile hits an entity. Not to be confused with
-`ProjectileDamageEntityEvent` (which is called later). This event event is useful if
-you want to, for example, bounce the projectile. Any changes to the projectile should
+`ProjectileDamageEntityEvent` (which is called later). Any changes to the projectile should
 be made here, changes to the entity should be done in the `ProjectileDamageEntityEvent`.
 
+* `boolean isCancelled()` - Returns true if this event has been cancelled
+* `void setCancelled(boolean)` - Sets the cancellation state of this event
 * `ICustomProjectile getProjectile()` - Gets the custom projectile involved with this event
-* `void setProjectile(ICustomProjectile)` - Sets the projectile
-  * This overrides the projectile
-  * This can be your own implementation of `ICustomProjectile`
 * `Location getLocation()` - Gets the current location of the projectile
 * `Location getLastLocation()` - Gets the previous location the projectile
 * `Location getHitLocation()` - Gets the exact location the projectile hits the entity at
@@ -109,24 +100,15 @@ be made here, changes to the entity should be done in the `ProjectileDamageEntit
 * `void setBackStab(boolean)` - Sets the back stab state
 
 ##### ProjectileMoveEvent
-This event is called right before a projectile moves. Be careful with this
+This event is called after a projectile has moved. Be careful with this
 event, it is called once every tick per projectile. If your plugin relies on
 this event, make sure to tell everybody who uses your plugin to make sure that
-in `server > plugins > WeaponMechanics > config.yml`, `Disable_Projectile_Move_Event`
+in `server > plugins > WeaponMechanics > config.yml`, `Disabled_Events.Projectile_Move_Event`
 is set to false (It is false by default, so there should be no worries).
 
-* `boolean isCancelled()` - Returns true if this event has been cancelled
-* `void setCancelled(boolean)` - Sets the cancellation state of this event
-  * It's probably a bad idea to cancel this, but you can
 * `ICustomProjectile getProjectile()` - Gets the custom projectile involved with this event
-* `void setProjectile(ICustomProjectile)` - Sets the projectile
-  * This overrides the projectile
-  * This can be your own implementation of `ICustomProjectile`
 * `Location getLocation()` - Gets the current location of the projectile
 * `Location getLastLocation()` - Gets the previous location the projectile
-* `Vector getPath()` - Gets the vector that projectile will trace through
-* `void setPath(Vector)` - Sets the vector that the projectile will move through
-  * This cannot be null
 
 ##### WeaponDamageEntityEvent
 This event is called before damage is applied to the effected entity.

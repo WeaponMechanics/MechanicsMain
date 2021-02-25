@@ -39,6 +39,9 @@ Disabled_Trigger_Checks:
   Drop_Item: false
   Swap_Main_And_Hand_Items: false
 
+Disabled_Events:
+  Projectile_Move_Event: false
+
 # Here you can change how smooth the weapon recoil is.
 # Lower values mean more smooth recoil, but more packets sent for players.
 # By default Minecraft would only allow this to be 50, but in WeaponMechanics it can be lower.
