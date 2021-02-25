@@ -26,6 +26,8 @@ Damage:
     Chance: <1-100>
     Bonus_Damage: <amount>
     # All registered mechanics for victim and shooter
+  Kill:
+    # All registered mechanics for victim and shooter
   Dropoff:
     - <blocks>~<damage amount>
   Explosion_Damage:

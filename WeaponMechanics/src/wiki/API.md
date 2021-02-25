@@ -64,8 +64,6 @@ This event is called right before a projectile explodes.
 * `Location getLocation()` - Gets the current location of the projectile
 * `Location getLastLocation()` - Gets the previous location the projectile
 * `Explosion getExplosion()` - Gets the explosion that will be used
-* `Explosion setExplosion()` - Sets the explosion that will be used
-  * This can be your own implementations
 
 ##### ProjectileHitBlockEvent
 This event is called whenever a projectile hits a block. This event is useful if you
@@ -123,10 +121,10 @@ This event is called before damage is applied to the effected entity.
   * Using this method will force WM to calculate final damage (Unless
   another plugin already forced it)
 * `void setFinalDamage(double)` - Sets the final damage
-  * If final damage is set to a number greater than or equal to 0, then
-  WM will skip normal damage calculations.
 * `boolean isBackstab()` - Returns true if this is a backstab
 * `void setBackstab(boolean)` - Sets if this is a backstab or not
+* `boolean isCritical()` - Returns true if this is a critical hit
+* `void setCritical(boolean)` - Sets if this is a critical hit or not
 * `DamagePoint getDamagePoint()` - Gets the point where the bullet hit the entity
 * `void setDamagePoint(DamagePoint)` - Sets the point where the bullet hit the entity
   * If you set this to null, no damage based on points will be applied

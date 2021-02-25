@@ -12,13 +12,14 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private double baseDamage;
     private double finalDamage;
     private boolean isBackStab;
+    private boolean isCritical;
     private DamagePoint point;
     private int armorDamage;
     private int fireTicks;
     private boolean isCancelled;
 
     public WeaponDamageEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser,
-                                   LivingEntity victim, double baseDamage, boolean isBackStab,
+                                   LivingEntity victim, double baseDamage, boolean isBackStab, boolean isCritical,
                                    DamagePoint point, int armorDamage, int fireTicks) {
 
         super(weaponTitle, weaponItem, weaponUser);
@@ -27,6 +28,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.baseDamage = baseDamage;
         this.finalDamage = Integer.MIN_VALUE;
         this.isBackStab = isBackStab;
+        this.isCritical = isCritical;
         this.point = point;
         this.armorDamage = armorDamage;
         this.fireTicks = fireTicks;
@@ -50,7 +52,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
     public double getFinalDamage() {
         if (finalDamage == Integer.MIN_VALUE) {
-            finalDamage = DamageUtils.calculateFinalDamage(getShooter(), victim, baseDamage, point, isBackStab);
+            return DamageUtils.calculateFinalDamage(getShooter(), victim, baseDamage, point, isBackStab);
         }
 
         return finalDamage;
@@ -70,6 +72,18 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         }
 
         isBackStab = backStab;
+    }
+
+    public boolean isCritical() {
+        return isCritical;
+    }
+
+    public void setCritical(boolean critical) {
+        if (finalDamage != Integer.MIN_VALUE) {
+            finalDamage = Integer.MIN_VALUE;
+        }
+
+        isCritical = critical;
     }
 
     public DamagePoint getPoint() {

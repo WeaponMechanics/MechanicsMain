@@ -112,9 +112,9 @@ public class ShootHandler implements IValidator {
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
-        WeaponPreShootEvent preShoot = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
-        Bukkit.getPluginManager().callEvent(preShoot);
-        if (preShoot.isCancelled()) return false;
+        WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        Bukkit.getPluginManager().callEvent(preShootEvent);
+        if (preShootEvent.isCancelled()) return false;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
 
@@ -500,9 +500,9 @@ public class ShootHandler implements IValidator {
             }
 
             ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
-            WeaponShootEvent shoot = new WeaponShootEvent(bullet);
-            Bukkit.getPluginManager().callEvent(shoot);
-            bullet = shoot.getProjectile();
+            WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
+            Bukkit.getPluginManager().callEvent(shootEvent);
+            bullet = shootEvent.getProjectile();
 
             // Handle worldguard flags
             IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();

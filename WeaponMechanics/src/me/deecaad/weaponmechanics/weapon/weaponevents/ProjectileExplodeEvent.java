@@ -6,7 +6,7 @@ import org.bukkit.event.Cancellable;
 
 public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellable {
 
-    private Explosion explosion;
+    private final Explosion explosion;
     private boolean isCancelled;
 
     public ProjectileExplodeEvent(ICustomProjectile projectile, Explosion explosion) {
@@ -16,10 +16,6 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
 
     public Explosion getExplosion() {
         return explosion;
-    }
-
-    public void setExplosion(Explosion explosion) {
-        this.explosion = explosion;
     }
 
     @Override

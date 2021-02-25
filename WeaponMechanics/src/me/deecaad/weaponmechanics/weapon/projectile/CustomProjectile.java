@@ -235,7 +235,7 @@ public class CustomProjectile implements ICustomProjectile {
     @Override
     public void remove() {
         this.dead = true;
-        // Remove the disguise in next tick so it doesn't actually get removed before hitting target
+        if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
     }
 
     @Override
@@ -341,16 +341,6 @@ public class CustomProjectile implements ICustomProjectile {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
-
-                            ProjectileExplodeEvent explodeEvent = new ProjectileExplodeEvent(CustomProjectile.this, explosion);
-                            Bukkit.getPluginManager().callEvent(explodeEvent);
-                            if (explodeEvent.isCancelled()) {
-                                setTag("explosion-detonated", "false");
-                                return;
-                            }
-
-                            explosion = explodeEvent.getExplosion();
                             explosion.explode(shooter, loc, CustomProjectile.this);
 
                             if (stickedData != null) {
@@ -359,10 +349,9 @@ public class CustomProjectile implements ICustomProjectile {
                             }
                         }
                     }.runTaskLater(getPlugin(), explosion.getDelay());
+                    setTag("explosion-detonated", "true");
                 }
             }
-
-            setTag("explosion-detonated", "true");
         }
 
         return false;
@@ -423,16 +412,6 @@ public class CustomProjectile implements ICustomProjectile {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
-
-                        ProjectileExplodeEvent explodeEvent = new ProjectileExplodeEvent(CustomProjectile.this, explosion);
-                        Bukkit.getPluginManager().callEvent(explodeEvent);
-                        if (explodeEvent.isCancelled()) {
-                            setTag("explosion-detonated", "false");
-                            return;
-                        }
-
-                        explosion = explodeEvent.getExplosion();
                         explosion.explode(shooter, collisionData, CustomProjectile.this);
 
                         if (stickedData != null) {
@@ -453,7 +432,6 @@ public class CustomProjectile implements ICustomProjectile {
     public boolean tick() {
         if (this.dead) {
             // No need for remove() call as this can only be true if its already been called at least once
-            if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
             return true;
         }
         ++aliveTicks;
