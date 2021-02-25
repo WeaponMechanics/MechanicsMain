@@ -232,7 +232,7 @@ public class CustomProjectile implements ICustomProjectile {
     @Override
     public void remove() {
         this.dead = true;
-        if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
+        // Remove the disguise in next tick so it doesn't actually get removed before hitting target
     }
 
     @Override
@@ -430,7 +430,7 @@ public class CustomProjectile implements ICustomProjectile {
     public boolean tick() {
         if (this.dead) {
             // No need for remove() call as this can only be true if its already been called at least once
-            // This check is here just if some other plugin removes this projectile
+            if (projectileDisguiseId != 0) projectileCompatibility.destroyDisguise(this);
             return true;
         }
         ++aliveTicks;
