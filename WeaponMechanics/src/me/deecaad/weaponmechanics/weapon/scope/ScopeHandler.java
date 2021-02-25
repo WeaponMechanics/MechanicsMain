@@ -74,7 +74,7 @@ public class ScopeHandler implements IValidator {
         if (zoomData.isZooming()) {
 
             Trigger offTrigger = config.getObject(weaponTitle + ".Scope.Zoom_Off.Trigger", Trigger.class);
-            // If off trigger is valid -> zoom out even if stacking has't reached maximum stacks
+            // If off trigger is valid -> zoom out even if stacking hasn't reached maximum stacks
             if (offTrigger != null && offTrigger.check(triggerType, slot, entityWrapper)) {
                 return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData);
             }

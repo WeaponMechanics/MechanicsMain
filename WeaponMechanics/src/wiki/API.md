@@ -178,13 +178,6 @@ This event is called right after the trigger check for reloading is successful.
 * `boolean isCancelled()` - Returns true if this event has been cancelled
 * `void setCancelled(boolean)` - Sets the cancellation state of this event
 
-##### WeaponPreScopeEvent
-This event is called right after an entity attempts to zoom in. This
-is a *pre-event* to [WeaponScopeEvent]().
-
-* `boolean isCancelled()` - Returns true if this event has been cancelled
-* `void setCancelled(boolean)` - Sets the cancellation state of this event
-
 ##### WeaponPreShootEvent
 This event is called right after an entity attempts to shoot. This
 is a *pre-event* to [WeaponShootEvent]()
