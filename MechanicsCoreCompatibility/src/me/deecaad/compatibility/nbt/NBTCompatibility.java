@@ -380,10 +380,8 @@ public interface NBTCompatibility {
         private final String slotName;
 
         AttributeSlot() {
-            this.slot = name().equals("MAIN_HAND") ? EquipmentSlot.HAND : EquipmentSlot.valueOf(name());;
+            this.slot = name().equals("MAIN_HAND") ? EquipmentSlot.HAND : EquipmentSlot.valueOf(name());
             this.slotName = name().replaceAll("_", "").toLowerCase(Locale.ROOT);
-
-            System.out.println("YOOOOOOO, CJ, DELETE THIS: " + toString());
         }
 
         public EquipmentSlot getEquipmentSlot() {
