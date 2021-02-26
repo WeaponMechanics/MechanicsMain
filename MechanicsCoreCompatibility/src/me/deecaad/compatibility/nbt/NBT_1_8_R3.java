@@ -18,8 +18,8 @@ public class NBT_1_8_R3 implements NBTCompatibility {
     }
 
     @Override
-    public String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        return getBukkitCompound(bukkitItem, plugin).getString(getTagName(key));
+    public String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String def) {
+        return hasString(bukkitItem, plugin, key) ? getBukkitCompound(bukkitItem, plugin).getString(getTagName(key)) : def;
     }
 
     @Nonnull
@@ -37,8 +37,8 @@ public class NBT_1_8_R3 implements NBTCompatibility {
     }
 
     @Override
-    public int getInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        return getBukkitCompound(bukkitItem, plugin).getInt(getTagName(key));
+    public int getInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int def) {
+        return hasInt(bukkitItem, plugin, key) ? getBukkitCompound(bukkitItem, plugin).getInt(getTagName(key)) : def;
     }
 
     @Nonnull
@@ -56,8 +56,8 @@ public class NBT_1_8_R3 implements NBTCompatibility {
     }
 
     @Override
-    public double getDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        return getBukkitCompound(bukkitItem, plugin).getDouble(getTagName(key));
+    public double getDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double def) {
+        return hasDouble(bukkitItem, plugin, key) ? getBukkitCompound(bukkitItem, plugin).getDouble(getTagName(key)) : def;
     }
 
     @Nonnull
