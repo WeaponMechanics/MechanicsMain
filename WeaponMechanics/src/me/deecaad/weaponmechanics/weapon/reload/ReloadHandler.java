@@ -15,9 +15,14 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import net.minecraft.server.v1_16_R3.PacketPlayOutSetSlot;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -72,33 +77,98 @@ public class ReloadHandler implements IValidator {
             return false;
         }
 
-        int ammoLeft = getAmmoLeft(weaponStack);
-        if (ammoLeft == -1) return false;
+        WeaponPreReloadEvent preReloadEvent = new WeaponPreReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        Bukkit.getPluginManager().callEvent(preReloadEvent);
+        if (preReloadEvent.isCancelled()) return false;
 
         Configuration config = getConfigurations();
 
+        int ammoLeft = getAmmoLeft(weaponStack);
+        if (ammoLeft == -1) { // This shouldn't be -1, perhaps ammo was added for weapon in configs later in server...
+            if (entityWrapper instanceof IPlayerWrapper) {
+                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0, (IPlayerWrapper) entityWrapper, true);
+            } else {
+                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
+            }
+            ammoLeft = 0;
+        }
+
         boolean mainhand = slot == EquipmentSlot.HAND;
         HandData handData = mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+        int tempMagazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
+        int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
 
-        int magazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
+        FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
+        FirearmState state = null;
+        int firearmOpenTime = 0;
+        int firearmCloseTime = 0;
+
+        if (firearmAction != null) {
+            if (firearmAction.hasShootState(weaponStack)) {
+                // Call this again to make sure firearm actions are running
+                weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+
+                // ... and deny reload while has shoot firearm actions
+                return false;
+            }
+            firearmOpenTime = firearmAction.getOpenTime();
+            firearmCloseTime = firearmAction.getCloseTime();
+            state = firearmAction.getState(weaponStack);
+        }
+
+        boolean isPump = firearmAction != null && firearmAction.getFirearmType() == FirearmType.PUMP;
+        int ammoPerReload = config.getInt(weaponTitle + ".Reload.Ammo_Per_Reload", -1);
+
+        int tempAmmoToAdd;
+        if (ammoPerReload != -1) {
+            tempAmmoToAdd = ammoPerReload;
+            if (ammoLeft + tempAmmoToAdd > tempMagazineSize) {
+                tempAmmoToAdd = tempMagazineSize - ammoLeft;
+            }
+
+        } else {
+            tempAmmoToAdd = tempMagazineSize - ammoLeft;
+        }
+
+        if (state != null) {
+            // Modify reload times based on current firearm state
+            // Since reload will continue from place it left on
+
+            switch (state) {
+                case RELOAD_OPEN:
+                    if (isPump) {
+                        reloadDuration = 0;
+                    }
+                    break;
+                case RELOAD:
+                    if (!isPump) {
+                        firearmOpenTime = 0;
+                    }
+                    break;
+                case RELOAD_CLOSE:
+                    firearmOpenTime = 0;
+                    reloadDuration = 0;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(),
+                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime);
+        Bukkit.getPluginManager().callEvent(reloadEvent);
+
+        reloadDuration = reloadEvent.getReloadTime();
+        tempAmmoToAdd = reloadEvent.getReloadAmount();
+        tempMagazineSize = reloadEvent.getMagazineSize();
+        firearmOpenTime = reloadEvent.getFirearmOpenTime();
+        firearmCloseTime = reloadEvent.getFirearmCloseTime();
+
+        final int finalAmmoToAdd = tempAmmoToAdd;
+        final int magazineSize = tempMagazineSize;
 
         // Don't try to reload if already full
         if (ammoLeft >= magazineSize) return false;
-
-        int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
-        int ammoPerReload = config.getInt(weaponTitle + ".Reload.Ammo_Per_Reload", -1);
-        boolean unloadAmmoOnReload = config.getBool(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
-
-        FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
-
-        if (firearmAction != null && firearmAction.hasShootState(weaponStack)) {
-
-            // Call this again to make sure firearm actions are running
-            weaponHandler.getShootHandler().doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
-
-            // ... and deny reload while has shoot firearm actions
-            return false;
-        }
 
         Ammo ammo = config.getObject(weaponTitle + ".Reload.Ammo", Ammo.class);
         if (ammo != null && !ammo.hasAmmo(entityWrapper)) {
@@ -106,7 +176,10 @@ public class ReloadHandler implements IValidator {
             return false;
         }
 
-        boolean isPump = firearmAction != null && firearmAction.getFirearmType() == FirearmType.PUMP;
+        boolean unloadAmmoOnReload = config.getBool(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
+
+        // This is necessary for events to be used correctly
+        handData.setReloadData(weaponTitle, weaponStack);
 
         ChainTask reloadTask = new ChainTask(reloadDuration) {
 
@@ -115,19 +188,8 @@ public class ReloadHandler implements IValidator {
 
                 int ammoLeft = getAmmoLeft(weaponStack);
 
-                // Variable which decides how much ammo is added
-                int ammoToAdd;
-
-                if (ammoPerReload != -1) {
-
-                    ammoToAdd = ammoPerReload;
-                    if (ammoLeft + ammoToAdd > magazineSize) {
-                        ammoToAdd = magazineSize - ammoLeft;
-                    }
-
-                } else {
-                    ammoToAdd = magazineSize - ammoLeft;
-                }
+                // Here creating this again since this may change if there isn't enough ammo...
+                int ammoToAdd = finalAmmoToAdd;
 
                 if (ammo != null) {
 
@@ -140,6 +202,7 @@ public class ReloadHandler implements IValidator {
                         // Remove next task as reload can't be finished
                         setNextTask(null);
 
+                        handData.stopReloadingTasks();
                         return;
                     }
 
@@ -252,7 +315,7 @@ public class ReloadHandler implements IValidator {
             return true;
         }
 
-        ChainTask closeTask = new ChainTask(firearmAction.getCloseTime()) {
+        ChainTask closeTask = new ChainTask(firearmCloseTime) {
 
             @Override
             public void task() {
@@ -278,7 +341,7 @@ public class ReloadHandler implements IValidator {
             }
         };
 
-        ChainTask openTask = new ChainTask(firearmAction.getOpenTime()) {
+        ChainTask openTask = new ChainTask(firearmOpenTime) {
 
             @Override
             public void task() {
@@ -307,7 +370,6 @@ public class ReloadHandler implements IValidator {
             }
         };
 
-        FirearmState state = firearmAction.getState(weaponStack);
         if (isPump) {
             // reload, open, close
             reloadTask.setNextTask(openTask);
@@ -346,7 +408,8 @@ public class ReloadHandler implements IValidator {
     }
 
     public void finishReload(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData) {
-        handData.stopReloadingTasks();
+
+        handData.finishReload();
 
         Mechanics.use(weaponTitle + ".Reload.Finish", new CastData(entityWrapper, weaponTitle, weaponStack));
 
@@ -393,6 +456,23 @@ public class ReloadHandler implements IValidator {
             }
         }
         return true;
+    }
+
+    /**
+     * @return the amount in ticks required to finish reload, this takes current firearm action to account
+     */
+    public int getReloadFinishTime(FirearmState state, boolean isPump, int reloadTime, int open, int close) {
+        if (state == null) return reloadTime;
+        switch (state) {
+            case RELOAD_OPEN:
+                return isPump ? open + close : open + reloadTime + close;
+            case RELOAD:
+                return isPump ? reloadTime + open + close : reloadTime + close;
+            case RELOAD_CLOSE:
+                return close;
+            default:
+                return open + reloadTime + close;
+        }
     }
 
     @Override

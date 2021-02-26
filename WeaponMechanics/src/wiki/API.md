@@ -170,36 +170,35 @@ This event is called whenever a player cancels a reload. A player can cancel
 a reload by dropping, shooting, or switching their weapon. This event can also
 occur if the entity reloading is killed.
 
-
-* `int getReloadTime()` - Returns the time in ticks the reload should have lasted
 * `int getElapsedTime()` - Returns the amount of time that actually passed
-  * `event.getElapsedTime() < event.getReloadTime()` is always true
-* `double getElapsedPercentage()` - Returns the percentage of "how close" the user was to completing the reload
-  * This will always be a decimal [0, 1)
   
 ##### WeaponReloadCompleteEvent
 This event is called right after a reload is completed. For weapons 
-using `Reload_Bullets_Individually: true`, this event will occur 
-multiple times.
-
-* `int getReloadTime()` - Gets the amount of time, in ticks, it took for the reload to complete
-* `int getReloadAmount()` - Gets the amount of ammunition loaded into the gun
-* `int getMagazineSize()` - Gets the maximum size of the magazine used in the reload
-* `WeaponReloadEvent getReloadEvent()` - Gets the initial event when the shooter started to reload
-* `List<WeaponReloadCancelEvent> getCancelEvents()` - Gets all attempted cancel events involved
-  * This list will be null if there were no attempts to cancel the event
-  * All of these events were cancelled, which is why the WeaponReloadCompleteEvent was still called
+using `Ammo_Per_Reload`, this event will occur multiple times.
 
 ##### WeaponReloadEvent
 This event is called right before a reload begins. Remember that reloads can occur
 if somebody attempts to shoot with a gun but there is no ammo in it, OR if the player
-triggers a reload directly. For weapons using `Reload_Bullets_Individually: true`, this
+triggers a reload directly. For weapons using `Ammo_Per_Reload`, this
 event will occur multiple times.
 
 * `boolean isCancelled()` - Returns true if this event has been cancelled
 * `void setCancelled(boolean)` - Sets the cancellation state of this event
 * `int getReloadTime()` - Gets the time in ticks the reload will occur for
+  * When using firearm action, this will also contain open and close time
 * `void setReloadTime()` - Sets the time in ticks the reload will occur for
+* `int getReloadAmount()` - Gets the reload amount that will be added for weapon
+* `void setReloadAmount()` - Sets the reload amount that will be added for weapon
+* `int getReloadAmount()` - Gets the magazine that will be used with weapon
+* `void setMagazineSize()` - Sets the magazine size that will be used with weapon
+* `int getFirearmOpenTime()` - Gets the firearm open time
+* `void setFirearmOpenTime()` - Sets the firearm open time
+  * Used only if weapon has firearm actions
+* `int getFirearmCloseTime()` - Gets the firearm close time
+* `void setFirearmCloseTime()` - Sets the firearm close time
+  * Used only if weapon has firearm actions
+* `int getReloadCompleteTime()` - Gets the reload complete time
+  * Calculates how long it takes for the reload to complete with firearm actions
 
 ##### WeaponScopeEvent
 This event is called right before an entity zooms in.
@@ -224,20 +223,6 @@ times for every shot).
 * `void setProjectile(ICustomProjectile projectile)` - Sets the nonnull fired projectile
   * This causes WeaponMechanics to forget about the previous projectile and
   instead fire this projectile
-  * You can set your own implementations of `ICustomProjectile`
-
-##### WeaponUnloadEvent
-This event is called right before a weapon unloads it's ammo, generally right before a
-reload.
-
-* `boolean isCancelled()` - Returns true if this event has been cancelled
-* `void setCancelled(boolean)` - Sets the cancellation state of this event
-* `int getUnloadAmount()` - Gets the amount of ammo being unloaded
-* `void setUnloadAmount(int)` - Sets the amount of ammo being unloaded
-  * This ignores the capacity of the weapon
-  * This only effects how much ammo is given back to the player
-* `int getMagazineSize()` - Gets the amount of ammo that can be stored in the weapon
-* `void setMagazineSize(int)` - Sets the amount of ammo that can be stored in the weapon
 
 ## Config Serialization
 The config files are all loaded into 1 `me.deecaad.core.file.Configuration`.

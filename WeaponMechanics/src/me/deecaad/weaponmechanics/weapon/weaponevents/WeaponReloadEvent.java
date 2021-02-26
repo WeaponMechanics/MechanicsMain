@@ -8,12 +8,17 @@ public class WeaponReloadEvent extends WeaponEvent {
     private int reloadTime;
     private int reloadAmount;
     private int magazineSize;
+    private int firearmOpenTime;
+    private int firearmCloseTime;
 
-    public WeaponReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, int reloadTime, int reloadAmount, int magazineSize) {
+    public WeaponReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, int reloadTime, int reloadAmount, int magazineSize,
+                             int firearmOpenTime, int firearmCloseTime) {
         super(weaponTitle, weaponItem, weaponUser);
         this.reloadTime = reloadTime;
         this.reloadAmount = reloadAmount;
         this.magazineSize = magazineSize;
+        this.firearmOpenTime = firearmOpenTime;
+        this.firearmCloseTime = firearmCloseTime;
     }
 
     public int getReloadTime() {
@@ -21,6 +26,7 @@ public class WeaponReloadEvent extends WeaponEvent {
     }
 
     public void setReloadTime(int reloadTime) {
+
         this.reloadTime = reloadTime;
     }
 
@@ -38,5 +44,26 @@ public class WeaponReloadEvent extends WeaponEvent {
 
     public void setMagazineSize(int magazineSize) {
         this.magazineSize = magazineSize;
+    }
+
+    public int getFirearmOpenTime() {
+        return firearmOpenTime;
+    }
+
+    public void setFirearmOpenTime(int firearmOpenTime) {
+        this.firearmOpenTime = firearmOpenTime;
+
+    }
+
+    public int getFirearmCloseTime() {
+        return firearmCloseTime;
+    }
+
+    public void setFirearmCloseTime(int firearmCloseTime) {
+        this.firearmCloseTime = firearmCloseTime;
+    }
+
+    public int getReloadCompleteTime() {
+        return firearmOpenTime + reloadTime + firearmCloseTime;
     }
 }

@@ -4,7 +4,10 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,10 +19,14 @@ public class HandData {
     private int fullAutoTask;
     private int burstTask;
     private long lastShotTime;
-    private String lastShotWeaponTitle;
     private double spreadChange;
     private RecoilTask recoilTask;
+
+    private long reloadStart;
     private final Set<Integer> reloadTasks = new HashSet<>();
+    private ItemStack reloadWeaponStack;
+    private String reloadWeaponTitle;
+
     private ZoomData zoomData;
     private final Set<Integer> firearmActionTasks = new HashSet<>();
 
@@ -81,14 +88,6 @@ public class HandData {
         return NumberUtil.hasMillisPassed(lastShotTime, ShootHandler.RESET_MILLIS);
     }
 
-    public String getLastShotWeaponTitle() {
-        return lastShotWeaponTitle;
-    }
-
-    public void setLastShotWeaponTitle(String lastShotWeaponTitle) {
-        this.lastShotWeaponTitle = lastShotWeaponTitle;
-    }
-
     public double getSpreadChange() {
         return spreadChange;
     }
@@ -106,6 +105,10 @@ public class HandData {
     }
 
     public void addReloadTask(int reloadTask) {
+        if (this.reloadTasks.isEmpty()) {
+            // Reload is starting
+            reloadStart = System.currentTimeMillis();
+        }
         this.reloadTasks.add(reloadTask);
     }
 
@@ -113,11 +116,39 @@ public class HandData {
         return !reloadTasks.isEmpty();
     }
 
+    public int getReloadElapsedTime() {
+        return (int) ((System.currentTimeMillis() - reloadStart) / 50);
+    }
+
+    public void finishReload() {
+        if (!reloadTasks.isEmpty()) {
+            reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
+            reloadTasks.clear();
+
+            Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
+
+            reloadStart = 0;
+            reloadWeaponStack = null;
+            reloadWeaponTitle = null;
+        }
+    }
+
     public void stopReloadingTasks() {
         if (!reloadTasks.isEmpty()) {
             reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
             reloadTasks.clear();
+
+            Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), getReloadElapsedTime()));
+
+            reloadStart = 0;
+            reloadWeaponStack = null;
+            reloadWeaponTitle = null;
         }
+    }
+
+    public void setReloadData(String weaponTitle, ItemStack weaponStack) {
+        this.reloadWeaponTitle = weaponTitle;
+        this.reloadWeaponStack = weaponStack;
     }
 
     public ZoomData getZoomData() {
