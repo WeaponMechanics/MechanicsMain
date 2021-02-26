@@ -331,7 +331,7 @@ public interface NBTCompatibility {
         // If no such container exists, we should create a new one and update
         // the item meta.
         if (nbt == null) {
-            nbt.set(key, PersistentDataType.TAG_CONTAINER, (nbt = createContainer()));
+            meta.getPersistentDataContainer().set(key, PersistentDataType.TAG_CONTAINER, (nbt = createContainer()));
         }
 
         return nbt;

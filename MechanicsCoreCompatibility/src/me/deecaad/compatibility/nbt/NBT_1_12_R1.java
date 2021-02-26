@@ -1,70 +1,70 @@
 package me.deecaad.compatibility.nbt;
 
 import me.deecaad.core.utils.AttributeType;
-import net.minecraft.server.v1_8_R3.NBTTagCompound;
-import net.minecraft.server.v1_8_R3.NBTTagList;
-import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagList;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class NBT_1_8_R3 implements NBTCompatibility {
+public class NBT_1_12_R1 implements NBTCompatibility {
 
     @Override
     public boolean hasString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        return getBukkitCompound(getNMSStack(bukkitItem), plugin).hasKeyOfType(getTagName(key), 8);
+        return getBukkitCompound(bukkitItem, plugin).hasKeyOfType(getTagName(key), 8);
     }
 
     @Override
     public String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String def) {
-        return hasString(bukkitItem, plugin, key) ? getBukkitCompound(getNMSStack(bukkitItem), plugin).getString(getTagName(key)) : def;
+        return hasString(bukkitItem, plugin, key) ? getBukkitCompound(bukkitItem, plugin).getString(getTagName(key)) : def;
     }
 
     @Nonnull
     @Override
     public void setString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String value) {
-        net.minecraft.server.v1_8_R3.ItemStack nmsStack = getNMSStack(bukkitItem);
-        getBukkitCompound(getNMSStack(bukkitItem), plugin).setString(key, value);
+        net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(bukkitItem, plugin).setString(key, value);
 
         bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
     }
 
     @Override
     public boolean hasInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        return getBukkitCompound(getNMSStack(bukkitItem), plugin).hasKeyOfType(getTagName(key), 3);
+        return getBukkitCompound(bukkitItem, plugin).hasKeyOfType(getTagName(key), 3);
     }
 
     @Override
     public int getInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int def) {
-        return hasInt(bukkitItem, plugin, key) ? getBukkitCompound(getNMSStack(bukkitItem), plugin).getInt(getTagName(key)) : def;
+        return hasInt(bukkitItem, plugin, key) ? getBukkitCompound(bukkitItem, plugin).getInt(getTagName(key)) : def;
     }
 
     @Nonnull
     @Override
     public void setInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int value) {
-        net.minecraft.server.v1_8_R3.ItemStack nmsStack = getNMSStack(bukkitItem);
-        getBukkitCompound(getNMSStack(bukkitItem), plugin).setInt(key, value);
+        net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(bukkitItem, plugin).setInt(key, value);
 
         bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
     }
 
     @Override
     public boolean hasDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        return getBukkitCompound(getNMSStack(bukkitItem), plugin).hasKeyOfType(getTagName(key), 6);
+        return getBukkitCompound(bukkitItem, plugin).hasKeyOfType(getTagName(key), 6);
     }
 
     @Override
     public double getDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double def) {
-        return hasDouble(bukkitItem, plugin, key) ? getBukkitCompound(getNMSStack(bukkitItem), plugin).getDouble(getTagName(key)) : def;
+        return hasDouble(bukkitItem, plugin, key) ? getBukkitCompound(bukkitItem, plugin).getDouble(getTagName(key)) : def;
     }
 
     @Nonnull
     @Override
     public void setDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double value) {
-        net.minecraft.server.v1_8_R3.ItemStack nmsStack = getNMSStack(bukkitItem);
-        getBukkitCompound(nmsStack, plugin).setDouble(key, value);
+        net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(bukkitItem, plugin).setDouble(key, value);
 
         bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
     }
@@ -72,7 +72,7 @@ public class NBT_1_8_R3 implements NBTCompatibility {
     @Nonnull
     @Override
     public void setAttribute(@Nonnull ItemStack bukkitItem, @Nonnull AttributeType attribute, @Nullable AttributeSlot slot, double value) {
-        net.minecraft.server.v1_8_R3.ItemStack nmsItem = getNMSStack(bukkitItem);
+        net.minecraft.server.v1_12_R1.ItemStack nmsItem = getNMSStack(bukkitItem);
         if (nmsItem.getTag() == null) {
             nmsItem.setTag(new NBTTagCompound());
         }
@@ -90,11 +90,11 @@ public class NBT_1_8_R3 implements NBTCompatibility {
             for (int i = 0; i < list.size(); i++) {
 
                 // 10 is the id for nbt lists
-                if (list.g(i).getTypeId() != 10) {
+                if (list.get(i).getTypeId() != 10) {
                     continue;
                 }
 
-                NBTTagCompound nbt = (NBTTagCompound) list.g(i);
+                NBTTagCompound nbt = list.get(i);
                 String name = nbt.getString("Name");
                 String attributeName = nbt.getString("AttributeName");
 
@@ -119,11 +119,6 @@ public class NBT_1_8_R3 implements NBTCompatibility {
                 nbt.setLong("UUIDLeast", attribute.getUUID().getLeastSignificantBits());
                 nbt.setLong("UUIDMost", attribute.getUUID().getMostSignificantBits());
 
-                // Slot was added in 1_9_R1. Setting it in 1_8_R3 is probably
-                // always redundant since servers on 1.8 are likely going to
-                // stay on 1.8. The idea is if items are converted from 1.8 to
-                // a higher version, the slot will then automatically work
-                // properly.
                 if (slot != null) {
                     nbt.setString("Slot", slot.getSlotName());
                 }
@@ -135,7 +130,7 @@ public class NBT_1_8_R3 implements NBTCompatibility {
 
     @Nonnull
     @Override
-    public net.minecraft.server.v1_8_R3.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
+    public net.minecraft.server.v1_12_R1.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
@@ -151,7 +146,8 @@ public class NBT_1_8_R3 implements NBTCompatibility {
         return null;
     }
 
-    private NBTTagCompound getBukkitCompound(net.minecraft.server.v1_8_R3.ItemStack nmsStack, String plugin) {
+    private NBTTagCompound getBukkitCompound(ItemStack bukkitStack, String plugin) {
+        net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitStack);
         if (nmsStack.getTag() == null) {
             nmsStack.setTag(new NBTTagCompound());
         }

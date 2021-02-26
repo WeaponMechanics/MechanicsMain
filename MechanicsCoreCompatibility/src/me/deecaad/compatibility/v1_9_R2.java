@@ -5,6 +5,7 @@ import me.deecaad.compatibility.block.Block_1_9_R2;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.Entity_1_9_R2;
 import me.deecaad.compatibility.nbt.NBTCompatibility;
+import me.deecaad.compatibility.nbt.NBT_1_9_R2;
 import net.minecraft.server.v1_9_R2.EntityPlayer;
 import net.minecraft.server.v1_9_R2.Packet;
 import net.minecraft.server.v1_9_R2.PlayerConnection;
@@ -25,7 +26,7 @@ public class v1_9_R2 implements ICompatibility {
     public v1_9_R2() {
         entityCompatibility = new Entity_1_9_R2();
         blockCompatibility = new Block_1_9_R2();
-        nbtCompatibility = null;
+        nbtCompatibility = new NBT_1_9_R2();
     }
 
     @Override
