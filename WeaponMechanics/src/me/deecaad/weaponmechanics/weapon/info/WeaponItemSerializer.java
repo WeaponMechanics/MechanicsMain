@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.info;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
@@ -28,9 +27,10 @@ public class WeaponItemSerializer extends ItemSerializer {
 
         int magazineSize = configurationSection.getInt(weaponTitle + ".Reload.Magazine_Size", -1);
         if (magazineSize != -1) {
-            TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, magazineSize);
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, magazineSize);
         }
 
-        return TagHelper.setStringTag(weaponStack, CustomTag.WEAPON_TITLE, weaponTitle);
+        CustomTag.WEAPON_TITLE.setString(weaponStack, weaponTitle);
+        return weaponStack;
     }
 }

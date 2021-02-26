@@ -5,7 +5,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.Material;
@@ -88,7 +87,8 @@ public class InfoHandler {
     @Nullable
     public String getWeaponTitle(ItemStack weaponStack, boolean autoConvert) {
         if (weaponStack == null || weaponStack.getType() == Material.AIR) return null;
-        String weaponTitle = TagHelper.getStringTag(weaponStack, CustomTag.WEAPON_TITLE);
+
+        String weaponTitle = CustomTag.WEAPON_TITLE.getString(weaponStack);
 
         // If its already weapon item stack
         if (weaponTitle != null) return weaponTitle;

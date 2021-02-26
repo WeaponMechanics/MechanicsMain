@@ -5,11 +5,9 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
-import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -25,6 +23,7 @@ import javax.annotation.Nonnull;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
+import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
 
 /**
  * Class to generally handle weapon functions
@@ -127,31 +126,30 @@ public class WeaponHandler {
             // 1) Single
             // 2) Burst
             // 3) Auto
-
-            Integer currentSelectiveFire = TagHelper.getIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE);
-            if (currentSelectiveFire == null) {
+            if (!CustomTag.SELECTIVE_FIRE.hasInteger(weaponStack)) {
                 if (hasBurst) {
-                    TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.BURST.getId());
+                    CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, BURST.getId());
                 } else if (hasAuto) {
-                    TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.AUTO.getId());
+                    CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, AUTO.getId());
                 }
             } else {
+                int currentSelectiveFire = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
                 switch (currentSelectiveFire) {
                     case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
                         if (hasAuto) {
-                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.AUTO.getId());
+                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, AUTO.getId());
                         } else {
-                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.SINGLE.getId());
+                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, SINGLE.getId());
                         }
                         break;
                     case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
-                        TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.SINGLE.getId());
+                        CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, SINGLE.getId());
                         break;
                     default:
                         if (hasBurst) {
-                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.BURST.getId());
+                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, BURST.getId());
                         } else if (hasAuto) {
-                            TagHelper.setIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE, SelectiveFireState.AUTO.getId());
+                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, AUTO.getId());
                         }
                         break;
                 }

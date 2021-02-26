@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.block.BlockCompatibility;
+import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
+@CommandPermission(permission = "weaponmechanics.commands.test.mask")
 public class MaskCommand extends SubCommand {
 
     public MaskCommand() {

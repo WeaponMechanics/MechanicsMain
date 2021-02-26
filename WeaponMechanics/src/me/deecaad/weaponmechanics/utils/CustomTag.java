@@ -1,5 +1,9 @@
 package me.deecaad.weaponmechanics.utils;
 
+import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.inventory.ItemStack;
+
 /**
  * NBT tags used by WeaponMechanics
  */
@@ -43,7 +47,8 @@ public enum CustomTag {
      */
     FIREARM_ACTION_STATE("firearm-action-state");
 
-    private String id;
+
+    private final String id;
 
     CustomTag(String id) {
         this.id = id;
@@ -54,5 +59,65 @@ public enum CustomTag {
      */
     public String getId() {
         return this.id;
+    }
+
+    public boolean hasString(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().hasString(item, "WeaponMechanics", id);
+    }
+
+    public String getString(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().getString(item, "WeaponMechanics", id);
+    }
+
+    public void setString(ItemStack item, String value) {
+        setString(item, value, null, false);
+    }
+
+    public void setString(ItemStack item, String value, IPlayerWrapper player, boolean silent) {
+        if (silent && player != null) {
+            player.setDenyNextSetSlotPacket(true);
+        }
+
+        CompatibilityAPI.getNBTCompatibility().setString(item, "WeaponMechanics", id, value);
+    }
+
+    public boolean hasInteger(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().hasInt(item, "WeaponMechanics", id);
+    }
+
+    public int getInteger(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().getInt(item, "WeaponMechanics", id);
+    }
+
+    public void setInteger(ItemStack item, int value) {
+        setInteger(item, value, null, false);
+    }
+
+    public void setInteger(ItemStack item, int value, IPlayerWrapper player, boolean silent) {
+        if (silent && player != null) {
+            player.setDenyNextSetSlotPacket(true);
+        }
+
+        CompatibilityAPI.getNBTCompatibility().setInt(item, "WeaponMechanics", id, value);
+    }
+
+    public boolean hasDouble(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().hasDouble(item, "WeaponMechanics", id);
+    }
+
+    public double getDouble(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().getDouble(item, "WeaponMechanics", id);
+    }
+
+    public void setDouble(ItemStack item, double value) {
+        setDouble(item, value, null, false);
+    }
+
+    public void setDouble(ItemStack item, double value, IPlayerWrapper player, boolean silent) {
+        if (silent && player != null) {
+            player.setDenyNextSetSlotPacket(true);
+        }
+
+        CompatibilityAPI.getNBTCompatibility().setDouble(item, "WeaponMechanics", id, value);
     }
 }
