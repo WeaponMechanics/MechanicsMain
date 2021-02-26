@@ -4,7 +4,12 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 
@@ -12,8 +17,6 @@ import java.io.File;
 import java.util.Map;
 
 public class DamageHandler implements IValidator {
-
-    private static final String[] DAMAGE_POINTS = new String[]{"Head", "Body", "Arms", "Legs", "Feet", "Backstab", "Critical_Hit"};
 
     /**
      * @return false if damaging was cancelled
@@ -42,7 +45,8 @@ public class DamageHandler implements IValidator {
 
         // Critical Hit chance
         double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance") / 100;
-        if (NumberUtil.chance(chance)) {
+        boolean isCritical = NumberUtil.chance(chance);
+        if (isCritical) {
             damage += config.getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
         }
 
@@ -51,36 +55,31 @@ public class DamageHandler implements IValidator {
             damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
         }
 
-        double finalDamage = DamageUtils.calculateFinalDamage(shooter, victim, damage, point, isBackstab);
-        DamageUtils.apply(shooter, victim, finalDamage);
-        DamageUtils.damageArmor(victim, config.getInt(weaponTitle + ".Damage.Armor_Damage"), point);
+        int armorDamage = config.getInt(weaponTitle + ".Damage.Armor_Damage");
+        int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
 
-        if (victim.isDead()) {
-            // todo WeaponKillEvent
-        }
+        WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim,
+                damage, isBackstab, isCritical, point, armorDamage, fireTicks);
+        Bukkit.getPluginManager().callEvent(damageEntityEvent);
+
+        if (damageEntityEvent.isCancelled()) return false;
+
+        fireTicks = damageEntityEvent.getFireTicks();
+        isBackstab = damageEntityEvent.isBackStab();
+        point = damageEntityEvent.getPoint();
+        // No need to update damage, armorDamage or finalDamage here
+        // since they're used just once after this (get from event simply)
+
+        DamageUtils.apply(shooter, victim, damageEntityEvent.getFinalDamage());
+        DamageUtils.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
 
         // Fire ticks
-        int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
         if (fireTicks > 0) {
             victim.setFireTicks(fireTicks);
         }
 
-        // Using string builder for minor performance optimization
-        // Since this method may be called >20 times per second,
-        // every bit of optimization is important
-        final StringBuilder builder = new StringBuilder(100);
-
-        for (String str : DAMAGE_POINTS) {
-
-            builder.append(weaponTitle).append(".Damage.").append(str).append('.');
-            final int length = builder.length();
-
-            builder.append("Global_Mechanics_Shooter");
-
-            builder.setLength(length);
-            builder.append("Global_Mechanics_Victim");
-
-            builder.setLength(0);
+        if (victim.isDead()) {
+            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim, damageEntityEvent));
         }
         return true;
     }

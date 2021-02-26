@@ -26,9 +26,12 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreShootEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -107,6 +110,10 @@ public class ShootHandler implements IValidator {
 
         Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
+
+        WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        Bukkit.getPluginManager().callEvent(preShootEvent);
+        if (preShootEvent.isCancelled()) return false;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
 
@@ -492,7 +499,9 @@ public class ShootHandler implements IValidator {
             }
 
             ICustomProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
-            bullet.setTag("weapon-title", weaponTitle);
+            WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
+            Bukkit.getPluginManager().callEvent(shootEvent);
+            bullet = shootEvent.getProjectile();
 
             // Handle worldguard flags
             IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
@@ -514,17 +523,19 @@ public class ShootHandler implements IValidator {
             boolean canExplode = bullet.getTag("explosion-detonation") == null;
             if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.SHOOT)) {
 
+                ICustomProjectile finalBullet = bullet;
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Vector v = bullet.getLocation();
+                        Vector v = finalBullet.getLocation();
                         Location origin = new Location(shootLocation.getWorld(), v.getX(), v.getY(), v.getZ());
-                        explosion.explode(entityWrapper.getEntity(), origin, bullet);
+                        explosion.explode(entityWrapper.getEntity(), origin, finalBullet);
 
-                        bullet.setTag("explosion-detonation", "true");
+                        finalBullet.setTag("explosion-detonation", "true");
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
             }
+
         }
     }
 

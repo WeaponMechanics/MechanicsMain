@@ -5,16 +5,18 @@ import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Cancellable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 
-public class ProjectileHitEntityEvent extends ProjectileEvent {
+public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancellable {
 
     private final LivingEntity entity;
     private final Vector exactLocation;
     private DamagePoint point;
     private boolean isBackStab;
+    private boolean isCancelled;
 
     public ProjectileHitEntityEvent(ICustomProjectile projectile, LivingEntity entity, Vector exactLocation, DamagePoint point, boolean isBackStab) {
         super(projectile);
@@ -50,5 +52,15 @@ public class ProjectileHitEntityEvent extends ProjectileEvent {
 
     public void setBackStab(boolean backStab) {
         isBackStab = backStab;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return isCancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancelled) {
+        isCancelled = cancelled;
     }
 }

@@ -206,9 +206,9 @@ public class Explosion {
                 return;
             }
 
-            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, this);
-            Bukkit.getPluginManager().callEvent(event);
-            if (event.isCancelled()) {
+            ProjectileExplodeEvent explodeEvent = new ProjectileExplodeEvent(projectile, this);
+            Bukkit.getPluginManager().callEvent(explodeEvent);
+            if (explodeEvent.isCancelled()) {
                 return;
             }
         }

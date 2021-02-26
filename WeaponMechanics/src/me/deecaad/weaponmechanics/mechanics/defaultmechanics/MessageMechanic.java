@@ -263,7 +263,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         // ACTION BAR
-        String actionBarMessage = StringUtil.color(configurationSection.getString(path + ".Action_Bar.Message"));
+        String actionBarMessage = configurationSection.getString(path + ".Action_Bar.Message");
+        if (actionBarMessage != null) actionBarMessage = StringUtil.color(actionBarMessage);
         int actionBarTime = configurationSection.getInt(path + ".Action_Bar.Time");
         if (actionBarTime != 0 && actionBarTime < 40) {
             debug.log(LogLevel.ERROR,

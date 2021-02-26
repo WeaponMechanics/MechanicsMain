@@ -7,9 +7,15 @@ import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -43,6 +49,7 @@ public class CustomProjectile implements ICustomProjectile {
 
     private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
     private static final DamageHandler damageHandler = new DamageHandler();
+    private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
 
     // Just to identify CustomProjectile
     private static int ids = 1;
@@ -195,10 +202,6 @@ public class CustomProjectile implements ICustomProjectile {
         this.motionLength = motion.length();
     }
 
-    public void setRawMotion(Vector motion) {
-        this.motion = motion;
-    }
-
     @Override
     public double getDistanceTravelled() {
         return this.distanceTravelled;
@@ -310,24 +313,13 @@ public class CustomProjectile implements ICustomProjectile {
         if (weaponTitle == null) {
             return false;
         }
+
+        ProjectileHitBlockEvent hitBlockEvent = new ProjectileHitBlockEvent(this, collisionData.getBlock(), collisionData.getBlockFace(), collisionData.getHitLocation().clone());
+        Bukkit.getPluginManager().callEvent(hitBlockEvent);
+        if (hitBlockEvent.isCancelled()) return true;
+
         Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
-
-        // Handle worldguard flags
-        IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
-        boolean isCancelled;
-        Location loc = location.toLocation(world);
-        if (shooter instanceof Player) {
-            isCancelled = !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode");
-        } else {
-            isCancelled = !worldGuard.testFlag(loc, null, "weapon-explode");
-        }
-
-        if (isCancelled) {
-            Object obj = worldGuard.getValue(loc, "weapon-explode-message");
-            if (obj != null && !obj.toString().isEmpty()) {
-                shooter.sendMessage(StringUtil.color(obj.toString()));
-            }
-        } else if (explosion != null) {
+        if (explosion != null) {
             Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
             boolean explosionTriggered = "true".equals(getTag("explosion-detonated"));
             boolean fluid = MaterialUtil.isFluid(collisionData.getBlock().getType()) && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
@@ -335,20 +327,31 @@ public class CustomProjectile implements ICustomProjectile {
 
             if (!explosionTriggered && (fluid || solid)) {
 
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        explosion.explode(shooter, loc, CustomProjectile.this);
-
-                        if (stickedData != null) {
-                            // Remove on explosion if sticky data is used
-                            remove();
-                        }
+                // Handle worldguard flags
+                IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
+                Location loc = location.toLocation(world);
+                if (shooter instanceof Player
+                        ? !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode")
+                        : !worldGuard.testFlag(loc, null, "weapon-explode")) {
+                    Object obj = worldGuard.getValue(loc, "weapon-explode-message");
+                    if (obj != null && !obj.toString().isEmpty()) {
+                        shooter.sendMessage(StringUtil.color(obj.toString()));
                     }
-                }.runTaskLater(getPlugin(), explosion.getDelay());
-            }
+                } else {
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            explosion.explode(shooter, loc, CustomProjectile.this);
 
-            setTag("explosion-detonated", "true");
+                            if (stickedData != null) {
+                                // Remove on explosion if sticky data is used
+                                remove();
+                            }
+                        }
+                    }.runTaskLater(getPlugin(), explosion.getDelay());
+                    setTag("explosion-detonated", "true");
+                }
+            }
         }
 
         return false;
@@ -367,14 +370,10 @@ public class CustomProjectile implements ICustomProjectile {
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
         Location loc = location.toLocation(world);
-        boolean isCancelled;
-        if (shooter instanceof Player) {
-            isCancelled = !worldGuard.testFlag(loc, (Player) shooter, "weapon-damage");
-        } else {
-            isCancelled = !worldGuard.testFlag(loc, null, "weapon-damage");
-        }
 
-        if (isCancelled) {
+        if (shooter instanceof Player
+                ? !worldGuard.testFlag(loc, (Player) shooter, "weapon-damage")
+                : !worldGuard.testFlag(loc, null, "weapon-damage")) { // is cancelled check
             Object obj = worldGuard.getValue(loc, "weapon-damage-message");
             if (obj != null && !obj.toString().isEmpty()) {
                 shooter.sendMessage(StringUtil.color(obj.toString()));
@@ -383,10 +382,17 @@ public class CustomProjectile implements ICustomProjectile {
         }
 
         DamagePoint point = collisionData.getHitBox().getDamagePoint(collisionData, normalizedDirection);
-
         LivingEntity victim = collisionData.getLivingEntity();
+        boolean backstab = victim.getLocation().getDirection().dot(motion) > 0.0;
 
-        if (!damageHandler.tryUse(victim, shooter, weaponTitle, this, point, victim.getLocation().getDirection().dot(motion) > 0.0)) {
+        ProjectileHitEntityEvent hitEntityEvent = new ProjectileHitEntityEvent(this, victim, collisionData.getHitLocation().clone(), point, backstab);
+        Bukkit.getPluginManager().callEvent(hitEntityEvent);
+        if (hitEntityEvent.isCancelled()) return true;
+
+        point = hitEntityEvent.getPoint();
+        backstab = hitEntityEvent.isBackStab();
+
+        if (!damageHandler.tryUse(victim, shooter, weaponTitle, this, point, backstab)) {
             // Damage was cancelled
             return true;
         }
@@ -395,13 +401,9 @@ public class CustomProjectile implements ICustomProjectile {
         if (explosion != null && !"true".equals(getTag("explosion-detonated")) && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
             // Handle worldguard flags
-            if (shooter instanceof Player) {
-                isCancelled = !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode");
-            } else {
-                isCancelled = !worldGuard.testFlag(loc, null, "weapon-explode");
-            }
-
-            if (isCancelled) {
+            if (shooter instanceof Player
+                    ? !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode")
+                    : !worldGuard.testFlag(loc, null, "weapon-explode")) { // is cancelled check
                 Object obj = worldGuard.getValue(loc, "weapon-explode-message");
                 if (obj != null && !obj.toString().isEmpty()) {
                     shooter.sendMessage(StringUtil.color(obj.toString()));
@@ -430,7 +432,6 @@ public class CustomProjectile implements ICustomProjectile {
     public boolean tick() {
         if (this.dead) {
             // No need for remove() call as this can only be true if its already been called at least once
-            // This check is here just if some other plugin removes this projectile
             return true;
         }
         ++aliveTicks;
@@ -509,6 +510,8 @@ public class CustomProjectile implements ICustomProjectile {
             motion.setY(motion.getY() - projectileMotion.getGravity());
         }
         motionLength = motion.length();
+
+        if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
 
         return false;
     }
