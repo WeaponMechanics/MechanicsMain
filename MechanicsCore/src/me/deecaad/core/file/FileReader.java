@@ -185,38 +185,23 @@ public class FileReader {
         Configuration filledMap = new LinkedConfig();
 
         // This is used with the serializer's pathTo functionality.
+        // AND
         // If a serializer is found, it's path is saved here. Any
         // variable within a serializer is then "skipped"
         String startsWithDeny = null;
 
-        // If this is used then starts with deny doesn't exactly work.
-        // All keys and serializers expect the ones defined in this set are stored after startsWithDeny keyword.
-        Set<String> allowOtherSerializers = null;
-
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
             if (startsWithDeny != null) {
-                if (allowOtherSerializers != null) {
-                    if (key.startsWith(startsWithDeny)) {
-                        continue;
-                    }
-                    startsWithDeny = null;
-                } else if (!key.startsWith(startsWithDeny)) {
-
-                    // Loop until key start doesn't match the allow other serializer's path
-                    startsWithDeny = null;
-                    allowOtherSerializers = null;
+                if (key.startsWith(startsWithDeny)) {
+                    continue;
                 }
+                startsWithDeny = null;
             }
             String[] keySplit = key.split("\\.");
             if (keySplit.length > 0) {
                 // Get the last "key name" of the key
                 String lastKey = keySplit[keySplit.length - 1].toLowerCase();
-
-                if (allowOtherSerializers != null && allowOtherSerializers.contains(lastKey)) {
-                    // Skip as this should not be stored
-                    continue;
-                }
 
                 IValidator validator = this.validators.get(lastKey);
                 if (validator != null) {
@@ -230,30 +215,16 @@ public class FileReader {
                     if (pathTo != null) {
                         startsWithDeny = key;
                         pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
-                        continue;
-                    }
-                    Object valid;
-                    try {
-                        valid = serializer.serialize(file, configuration, key);
-                    } catch (Exception e) {
-                        debug.log(LogLevel.WARN, "Caught exception from serializer " + serializer.getKeyword() + "!", e);
-                        continue;
-                    }
-                    if (valid != null) {
-
-                        // Only if allow other serializers isn't currently used
-                        // This to avoid serializers within serializer also looping serializers inside serializers...
-                        if (allowOtherSerializers == null) {
-                            Set<String> validAllowOthers = serializer.allowOtherSerializers();
-                            if (validAllowOthers != null) {
-                                allowOtherSerializers = validAllowOthers;
-                            }
+                    } else {
+                        try {
+                            Object valid = serializer.serialize(file, configuration, key);
+                            filledMap.set(key, valid);
                             startsWithDeny = key;
+                        } catch (Exception e) {
+                            debug.log(LogLevel.WARN, "Caught exception from serializer " + serializer.getKeyword() + "!", e);
                         }
-
-                        filledMap.set(key, valid);
-                        continue;
                     }
+                    continue;
                 }
             }
             Object object = configuration.get(key);

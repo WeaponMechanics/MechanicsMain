@@ -240,7 +240,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
             String clickEventString = configurationSection.getString(path + ".Chat.Click");
             if (clickEventString != null) {
-                String[] parsedClickEvent = StringUtil.split(clickEventString);
+                String[] parsedClickEvent = clickEventString.split("-", 2);
                 if (parsedClickEvent.length != 2) {
                     debug.log(LogLevel.ERROR,
                             StringUtil.foundInvalid("parameter length"),
@@ -345,6 +345,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
         boolean sendGlobally = configurationSection.getBoolean(path + ".Send_Globally");
         boolean sendGloballyForWorld = configurationSection.getBoolean(path + ".Send_Globally_For_World");
+
         return new MessageMechanic(sendGlobally, sendGloballyForWorld, chatData, actionBarMessage, actionBarTime, titleData, bossBarData);
     }
 

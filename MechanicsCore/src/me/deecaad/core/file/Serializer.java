@@ -3,9 +3,7 @@ package me.deecaad.core.file;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
-import javax.annotation.Nullable;
 import java.io.File;
-import java.util.Set;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -46,7 +44,7 @@ public interface Serializer<T> {
      * @param pathTo the path where to try to find object from filledMap
      */
     default void tryPathTo(Configuration filledMap, String pathWhereToStore, String pathTo) {
-        Object obj = filledMap.getObject(pathTo, null);
+        Object obj = filledMap.getObject(pathTo);
         if (obj == null || !this.getClass().isInstance(obj.getClass())) {
             String[] splittedWhereToStore = pathWhereToStore.split("\\.");
             debug.log(LogLevel.ERROR, "Tried to use path to, but didn't find correct object.",
@@ -58,18 +56,6 @@ public interface Serializer<T> {
             return;
         }
         filledMap.set(pathWhereToStore, obj);
-    }
-
-    /**
-     * This is used to allow other serializer get data within one serializer.
-     * To avoid storing unnecessary values this returns list of all keys used by THIS serializer.
-     * See FirearmAction class for example.
-     *
-     * @return the list of keys which shouldn't be stored or null if not used
-     */
-    @Nullable
-    default Set<String> allowOtherSerializers() {
-        return null;
     }
 
     /**

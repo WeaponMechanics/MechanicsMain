@@ -5,14 +5,10 @@ import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.DuplicateKeyException;
-import me.deecaad.core.file.FileCopier;
-import me.deecaad.core.file.FileReader;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.JarSerializers;
-import me.deecaad.core.file.LinkedConfig;
+import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
+import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
@@ -58,12 +54,15 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -255,6 +254,22 @@ public class WeaponMechanics extends JavaPlugin {
                     configurations.add(temp);
                 } catch (DuplicateKeyException e) {
                     debug.error("Error loading config: " + e.getMessage());
+                }
+
+                try {
+                    JarSearcher jarSearcher = new JarSearcher(new JarFile(getFile()));
+                    List<Class<PlaceholderHandler>> placeholderHandlers = jarSearcher.findAllSubclasses(PlaceholderHandler.class, false);
+
+                    placeholderHandlers.forEach(handlerClazz -> {
+                        try {
+                            PlaceholderAPI.addPlaceholderHandler(handlerClazz.getConstructor().newInstance());
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
                 // Register events

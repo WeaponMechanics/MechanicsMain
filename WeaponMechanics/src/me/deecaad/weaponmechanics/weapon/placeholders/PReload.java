@@ -20,7 +20,7 @@ public class PReload extends PlaceholderHandler {
         if (player == null) return null;
 
         IPlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
-        if (!playerWrapper.getMainHandData().isReloading() || !playerWrapper.getOffHandData().isReloading()) {
+        if (!playerWrapper.getMainHandData().isReloading() && !playerWrapper.getOffHandData().isReloading()) {
             return "";
         }
 

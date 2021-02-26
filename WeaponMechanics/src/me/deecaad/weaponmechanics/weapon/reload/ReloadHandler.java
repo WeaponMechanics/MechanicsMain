@@ -183,13 +183,15 @@ public class ReloadHandler implements IValidator {
 
         ChainTask reloadTask = new ChainTask(reloadDuration) {
 
+            private int unloadedAmount;
+
             @Override
             public void task() {
 
                 int ammoLeft = getAmmoLeft(weaponStack);
 
                 // Here creating this again since this may change if there isn't enough ammo...
-                int ammoToAdd = finalAmmoToAdd;
+                int ammoToAdd = finalAmmoToAdd + unloadedAmount;
 
                 if (ammo != null) {
 
@@ -288,6 +290,9 @@ public class ReloadHandler implements IValidator {
                     }
 
                     if (ammoLeft > 0) {
+
+                        unloadedAmount = ammoLeft;
+
                         // unload weapon and give ammo back to given entity
                         if (entityWrapper instanceof IPlayerWrapper) {
                             TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0, (IPlayerWrapper) entityWrapper, true);

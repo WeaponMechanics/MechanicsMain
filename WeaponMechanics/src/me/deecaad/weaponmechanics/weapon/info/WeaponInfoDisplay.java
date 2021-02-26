@@ -163,7 +163,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             hasMetaChanges = true;
         }
 
-        if (version >= 1.14 && meta.getCustomModelData() != ogMeta.getCustomModelData()) {
+        if (version >= 1.14 && ogMeta.hasCustomModelData()
+                && (!meta.hasCustomModelData() || meta.getCustomModelData() != ogMeta.getCustomModelData())) {
             meta.setCustomModelData(ogMeta.getCustomModelData());
             hasMetaChanges = true;
         }

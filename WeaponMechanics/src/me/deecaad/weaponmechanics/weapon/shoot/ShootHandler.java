@@ -245,7 +245,6 @@ public class ShootHandler implements IValidator {
 
     private boolean singleShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield) {
         boolean mainhand = slot == EquipmentSlot.HAND;
-        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);
 
         // START RELOAD STUFF
 
@@ -253,6 +252,8 @@ public class ShootHandler implements IValidator {
         reloadHandler.consumeAmmo(entityWrapper, weaponStack, 1);
 
         // END RELOAD STUFF
+
+        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);
 
         doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
 
@@ -275,9 +276,6 @@ public class ShootHandler implements IValidator {
             @Override
             public void run() {
 
-                // Only make the first projectile of burst modify spread change if its used
-                shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, shots == 0);
-
                 // START RELOAD STUFF
 
                 if (!weaponHandler.getReloadHandler().consumeAmmo(entityWrapper, weaponStack, 1)) {
@@ -287,6 +285,9 @@ public class ShootHandler implements IValidator {
                 }
 
                 // END RELOAD STUFF
+
+                // Only make the first projectile of burst modify spread change if its used
+                shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, shots == 0);
 
                 if (++shots >= shotsPerBurst) {
                     handData.setBurstTask(0);

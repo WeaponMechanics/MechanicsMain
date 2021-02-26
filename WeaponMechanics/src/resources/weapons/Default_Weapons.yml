@@ -6,6 +6,10 @@ test:
       Lore:
         - "&6Y"
         - "&6y"
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "%weapon-title% %selective_fire_state%%firearm-state% <%ammo-left%>%reload%"
+        Time: 50
     Cancel:
       Drop_Item: true
       Swap_Hands: true
@@ -46,16 +50,16 @@ test:
       #    Whitelist: false
       #    List:
       #      - "ZOMBIE"
-      Bouncy:
-        Maximum_Bounce_Amount: 1
-        Blocks:
-          Whitelist: false
-          List:
-            - "GLASS"
-        Entities:
-          Whitelist: false
-          List:
-            - "ZOMBIE"
+      #Bouncy:
+      #  Maximum_Bounce_Amount: 1
+      #  Blocks:
+      #    Whitelist: false
+      #    List:
+      #      - "GLASS"
+      #  Entities:
+      #    Whitelist: false
+      #    List:
+      #      - "ZOMBIE"
   Damage:
     Base_Damage: 2
   Scope:
@@ -78,5 +82,5 @@ test:
       Main_Hand: "SWAP_TO_OFF_HAND"
     Magazine_Size: 30
     #Ammo_Per_Reload: 2
-    Unload_Ammo_On_Reload: true
+    #Unload_Ammo_On_Reload: true
     Reload_Duration: 30
