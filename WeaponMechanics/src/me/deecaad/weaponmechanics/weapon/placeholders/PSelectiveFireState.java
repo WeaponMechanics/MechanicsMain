@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.placeholders;
 
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -21,10 +20,11 @@ public class PSelectiveFireState extends PlaceholderHandler {
     public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
         if (itemStack == null) return null;
 
-        Integer selectiveFireState = TagHelper.getIntegerTag(itemStack, CustomTag.SELECTIVE_FIRE);
-        if (selectiveFireState == null) return null;
+        int selectiveFireState = CustomTag.SELECTIVE_FIRE.getInteger(itemStack);
 
         switch (selectiveFireState) {
+            case (0):
+                return null;
             case (1):
                 return getBasicConfigurations().getString("Placeholder_Symbols.Selective_Fire.BURST");
             case (2):
