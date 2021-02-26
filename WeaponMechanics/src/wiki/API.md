@@ -46,6 +46,17 @@ public class MyWeaponMechanicsAddon extends JavaPlugin {
 }
 ```
 
+##### ProjectileMoveEvent
+This event is called after a projectile has moved. Be careful with this
+event, it is called once every tick per projectile. If your plugin relies on
+this event, make sure to tell everybody who uses your plugin to make sure that
+in `server > plugins > WeaponMechanics > config.yml`, `Disabled_Events.Projectile_Move_Event`
+is set to false (It is false by default, so there should be no worries).
+
+* `ICustomProjectile getProjectile()` - Gets the custom projectile involved with this event
+* `Location getLocation()` - Gets the current location of the projectile
+* `Location getLastLocation()` - Gets the previous location the projectile
+
 ##### ProjectileEndEvent
 This event is called whenever a project ends. This may be because it hit a block, hit an
 entity, or timed out (There could be other reasons for this event to occur).
@@ -97,17 +108,6 @@ be made here, changes to the entity should be done in the `ProjectileDamageEntit
 * `boolean isBackStab()` - Returns true if the bullet hit the entity's back
 * `void setBackStab(boolean)` - Sets the back stab state
 
-##### ProjectileMoveEvent
-This event is called after a projectile has moved. Be careful with this
-event, it is called once every tick per projectile. If your plugin relies on
-this event, make sure to tell everybody who uses your plugin to make sure that
-in `server > plugins > WeaponMechanics > config.yml`, `Disabled_Events.Projectile_Move_Event`
-is set to false (It is false by default, so there should be no worries).
-
-* `ICustomProjectile getProjectile()` - Gets the custom projectile involved with this event
-* `Location getLocation()` - Gets the current location of the projectile
-* `Location getLastLocation()` - Gets the previous location the projectile
-
 ##### WeaponDamageEntityEvent
 This event is called before damage is applied to the effected entity.
 
@@ -129,34 +129,12 @@ This event is called before damage is applied to the effected entity.
 * `void setDamagePoint(DamagePoint)` - Sets the point where the bullet hit the entity
   * If you set this to null, no damage based on points will be applied
 
-##### WeaponHeldEvent
-This event is called whenever an entity "holds" a weapon. A weapon can be held
-if it is put in the mainhand/offhand through an open `PlayerInventory`, if a player
-swaps hands, if a weapon is picked up into the main hand, or if they swap hotbar slots to a weapon.
-
-* `boolean isCancelled()` - Returns true if this event has been cancelled
-* `void setCancelled(boolean)` - Sets the cancellation state of this event
-* `int getSlot()` - Gets the inventory slot the weapon is in
-
 ##### WeaponKillEntityEvent
 This event is called after a `WeaponDamageEntityEvent` is fired and the damage
 kills the entity.
 
 * `LivingEntity getVictim()` - Returns the nonnull living entity that is getting damaged
 * `WeaponDamageEntityEvent getDamageEvent()` - Gets the nonnull event from the damage that killed the entity
-
-##### WeaponPickupEvent
-This event is called when a weapon is added to any slot in a player's inventory either by
-picking up the item from the ground, or by getting the item from command.
-
-* `Item getItem()` - Gets the nullable item entity picked up from the ground
-  * If the weapon was picked up off of the ground, this will not be null
-
-##### WeaponPreReloadEvent
-This event is called right after the trigger check for reloading is successful.
-
-* `boolean isCancelled()` - Returns true if this event has been cancelled
-* `void setCancelled(boolean)` - Sets the cancellation state of this event
 
 ##### WeaponPreShootEvent
 This event is called right after an entity attempts to shoot. This
@@ -165,16 +143,21 @@ is a *pre-event* to [WeaponShootEvent]()
 * `boolean isCancelled()` - Returns true if this event has been cancelled
 * `void setCancelled(boolean)` - Sets the cancellation state of this event
 
-##### WeaponReloadCancelEvent
-This event is called whenever a player cancels a reload. A player can cancel
-a reload by dropping, shooting, or switching their weapon. This event can also
-occur if the entity reloading is killed.
+##### WeaponShootEvent
+This event is called right after the projectile launches. This event
+is called for each projectile (So for shotguns, this can be called multiple
+times for every shot).
 
-* `int getElapsedTime()` - Returns the amount of time that actually passed
-  
-##### WeaponReloadCompleteEvent
-This event is called right after a reload is completed. For weapons 
-using `Ammo_Per_Reload`, this event will occur multiple times.
+* `ICustomProjectile getProjectile()` - Gets the nonnull fired projectile
+* `void setProjectile(ICustomProjectile projectile)` - Sets the nonnull fired projectile
+  * This causes WeaponMechanics to forget about the previous projectile and
+    instead fire this projectile
+
+##### WeaponPreReloadEvent
+This event is called right after the trigger check for reloading is successful.
+
+* `boolean isCancelled()` - Returns true if this event has been cancelled
+* `void setCancelled(boolean)` - Sets the cancellation state of this event
 
 ##### WeaponReloadEvent
 This event is called right before a reload begins. Remember that reloads can occur
@@ -200,6 +183,17 @@ event will occur multiple times.
 * `int getReloadCompleteTime()` - Gets the reload complete time
   * Calculates how long it takes for the reload to complete with firearm actions
 
+##### WeaponReloadCancelEvent
+This event is called whenever a player cancels a reload. A player can cancel
+a reload by dropping, shooting, or switching their weapon. This event can also
+occur if the entity reloading is killed.
+
+* `int getElapsedTime()` - Returns the amount of time that actually passed
+  
+##### WeaponReloadCompleteEvent
+This event is called right after a reload is completed. For weapons 
+using `Ammo_Per_Reload`, this event will occur multiple times.
+
 ##### WeaponScopeEvent
 This event is called right before an entity zooms in.
 
@@ -214,15 +208,21 @@ This event is called right before an entity zooms in.
 * `int getStackAmount()` - Returns the [stacky zoom] amount
   * If this is 0, the feature is disabled or it is first stack
 
-##### WeaponShootEvent
-This event is called right after the projectile launches. This event
-is called for each projectile (So for shotguns, this can be called multiple
-times for every shot).
+##### WeaponHeldEvent
+This event is called whenever an entity "holds" a weapon. A weapon can be held
+if it is put in the mainhand/offhand through an open `PlayerInventory`, if a player
+swaps hands, if a weapon is picked up into the main hand, or if they swap hotbar slots to a weapon.
 
-* `ICustomProjectile getProjectile()` - Gets the nonnull fired projectile
-* `void setProjectile(ICustomProjectile projectile)` - Sets the nonnull fired projectile
-  * This causes WeaponMechanics to forget about the previous projectile and
-  instead fire this projectile
+* `boolean isCancelled()` - Returns true if this event has been cancelled
+* `void setCancelled(boolean)` - Sets the cancellation state of this event
+* `int getSlot()` - Gets the inventory slot the weapon is in
+
+##### WeaponPickupEvent
+This event is called when a weapon is added to any slot in a player's inventory either by
+picking up the item from the ground, or by getting the item from command.
+
+* `Item getItem()` - Gets the nullable item entity picked up from the ground
+  * If the weapon was picked up off of the ground, this will not be null
 
 ## Config Serialization
 The config files are all loaded into 1 `me.deecaad.core.file.Configuration`.
