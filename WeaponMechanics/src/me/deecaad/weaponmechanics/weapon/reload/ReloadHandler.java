@@ -85,9 +85,9 @@ public class ReloadHandler implements IValidator {
         int ammoLeft = getAmmoLeft(weaponStack);
         if (ammoLeft == -1) { // This shouldn't be -1, perhaps ammo was added for weapon in configs later in server...
             if (entityWrapper instanceof IPlayerWrapper) {
-                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0, (IPlayerWrapper) entityWrapper, true);
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0, (IPlayerWrapper) entityWrapper, true);
             } else {
-                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             }
             ammoLeft = 0;
         }
