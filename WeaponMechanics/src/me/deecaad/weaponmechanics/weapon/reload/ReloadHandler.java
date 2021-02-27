@@ -15,12 +15,10 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
-import net.minecraft.server.v1_16_R3.PacketPlayOutSetSlot;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
@@ -85,9 +83,9 @@ public class ReloadHandler implements IValidator {
         int ammoLeft = getAmmoLeft(weaponStack);
         if (ammoLeft == -1) { // This shouldn't be -1, perhaps ammo was added for weapon in configs later in server...
             if (entityWrapper instanceof IPlayerWrapper) {
-                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0, (IPlayerWrapper) entityWrapper, true);
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0, (IPlayerWrapper) entityWrapper, true);
             } else {
-                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             }
             ammoLeft = 0;
         }

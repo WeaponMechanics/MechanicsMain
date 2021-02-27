@@ -5,7 +5,6 @@ import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -144,11 +143,6 @@ public class NBT_1_8_R3 implements NBTCompatibility {
     public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : nbt.toString();
-    }
-
-    @Override
-    public PersistentDataContainer createContainer() {
-        return null;
     }
 
     private NBTTagCompound getBukkitCompound(net.minecraft.server.v1_8_R3.ItemStack nmsStack, String plugin) {

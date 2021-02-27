@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
 import org.bukkit.inventory.meta.tags.ItemTagType;
-import org.bukkit.persistence.PersistentDataContainer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -95,11 +94,6 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : nbt.toString();
-    }
-
-    @Override
-    public PersistentDataContainer createContainer() {
-        return null;
     }
 
     private CustomItemTagContainer getBukkitCompound(ItemMeta meta, String plugin) {
