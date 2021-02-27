@@ -32,24 +32,9 @@ public class MechanicsCore extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        reloadSerializers();
-
-        PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-        packetListener.addPacketHandler(new ArmorEquipTrigger(), true);
-    }
-
-    @Override
-    public void onDisable() {
-        PlaceholderAPI.onDisable();
-        plugin = null;
-        serializersList = null;
-        debug = null;
-    }
-
-    @SuppressWarnings("unchecked")
-    public void reloadSerializers() {
         try {
             List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+            //noinspection unchecked
             serializersList = (List<Serializer<?>>) serializers;
             new BukkitRunnable() {
                 @Override
@@ -61,6 +46,17 @@ public class MechanicsCore extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
+        packetListener.addPacketHandler(new ArmorEquipTrigger(), true);
+    }
+
+    @Override
+    public void onDisable() {
+        PlaceholderAPI.onDisable();
+        plugin = null;
+        serializersList = null;
+        debug = null;
     }
 
     /**
