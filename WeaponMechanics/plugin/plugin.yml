@@ -9,7 +9,3 @@ main: 'me.deecaad.weaponmechanics.WeaponMechanics'
 softdepend:
   - 'PlaceholderAPI'
   - 'MechanicsCore'
-permissions:
-  weaponmechanics.admin:
-    description: 'Permission to admin related functions of WeaponMechanics, default false'
-    default: 'op'

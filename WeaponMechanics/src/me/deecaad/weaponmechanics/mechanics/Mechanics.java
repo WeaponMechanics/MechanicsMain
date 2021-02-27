@@ -23,7 +23,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
     private static final Set<String> registeredMechanics = new HashSet<>();
     private static boolean hasClearTask;
-    private static Map<String, IMechanic<?>> mechanicSerializers = new HashMap<>();
+    private static final Map<String, IMechanic<?>> mechanicSerializers = new HashMap<>();
     private List<IMechanic<?>> mechanicList;
 
     /**
@@ -35,7 +35,7 @@ public class Mechanics implements Serializer<Mechanics> {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    mechanicSerializers = null;
+                    mechanicSerializers.clear();
                     hasClearTask = false;
                 }
             }.runTaskLater(WeaponMechanics.getPlugin(), 20);

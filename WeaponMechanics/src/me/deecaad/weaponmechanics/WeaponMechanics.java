@@ -58,10 +58,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -199,7 +196,9 @@ public class WeaponMechanics extends JavaPlugin {
         SimpleCommandMap simpleCommandMap = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
 
         // Register all commands
-        simpleCommandMap.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
+        if (simpleCommandMap.getCommand("weaponmechanics") == null) {
+            simpleCommandMap.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
+        }
 
         // Start update checker task and make the instance
         if (basicConfiguration.getBool("Update_Checker.Enable")) {
@@ -292,9 +291,6 @@ public class WeaponMechanics extends JavaPlugin {
             }
         }.runTask(this);
 
-        debug.info("Loading API");
-        new WeaponMechanicsAPI(this);
-
         debug.start(this);
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
@@ -303,12 +299,31 @@ public class WeaponMechanics extends JavaPlugin {
     }
 
     public void onReload() {
-        // todo, DON'T FILL YET
+        MechanicsCore mechanicsCore = MechanicsCore.getPlugin();
+
+        mechanicsCore.onDisable();
+        this.onDisable();
+
+        mechanicsCore.onLoad();
+        this.onLoad();
+
+        mechanicsCore.onEnable();
+        this.onEnable();
     }
 
     @Override
     public void onDisable() {
         BlockDamageData.regenerateAll();
+
+        // First cancel everything
+        for (IEntityWrapper entityWrapper : entityWrappers.values()) {
+            int oldMoveTask = entityWrapper.getMoveTask();
+            if (oldMoveTask != 0) {
+                Bukkit.getScheduler().cancelTask(oldMoveTask);
+            }
+            entityWrapper.getMainHandData().cancelTasks();
+            entityWrapper.getOffHandData().cancelTasks();
+        }
 
         weaponHandler = null;
         updateChecker = null;
