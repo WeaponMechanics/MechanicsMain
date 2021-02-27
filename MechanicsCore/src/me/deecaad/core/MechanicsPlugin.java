@@ -1,12 +1,7 @@
 package me.deecaad.core;
 
 import me.deecaad.core.commands.MainCommand;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.FileCopier;
-import me.deecaad.core.file.FileReader;
-import me.deecaad.core.file.JarSerializers;
-import me.deecaad.core.file.LinkedConfig;
-import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.*;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
@@ -15,8 +10,10 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.jar.JarFile;
 
 public abstract class MechanicsPlugin extends JavaPlugin {
 
@@ -96,9 +93,16 @@ public abstract class MechanicsPlugin extends JavaPlugin {
         }
 
         new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml");
-        List<Serializer<?>> serializers = new JarSerializers().getAllSerializersInsideJar(this, getFile());
-        FileReader reader = new FileReader(serializers, null);
-        configuration = reader.fillAllFiles(getDataFolder());
+
+        try {
+            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+
+            //noinspection unchecked
+            FileReader reader = new FileReader((List<Serializer<?>>) serializers, null);
+            configuration = reader.fillAllFiles(getDataFolder());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void registerListeners() {

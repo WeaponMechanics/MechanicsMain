@@ -1,22 +1,20 @@
 package me.deecaad.core;
 
 import me.deecaad.core.events.triggers.ArmorEquipTrigger;
-import me.deecaad.core.file.JarSerializers;
+import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.packetlistener.Packet;
-import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 
 public class MechanicsCore extends JavaPlugin {
 
@@ -48,15 +46,21 @@ public class MechanicsCore extends JavaPlugin {
         debug = null;
     }
 
+    @SuppressWarnings("unchecked")
     public void reloadSerializers() {
-        serializersList = new ArrayList<>(new JarSerializers().getAllSerializersInsideJar(this, getFile()));
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                serializersList = null;
-                debug.debug("Cleared serializers list");
-            }
-        }.runTaskLater(this, 5);
+        try {
+            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+            serializersList = (List<Serializer<?>>) serializers;
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    serializersList = null;
+                    debug.debug("Cleared serializers list");
+                }
+            }.runTaskLater(this, 5);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

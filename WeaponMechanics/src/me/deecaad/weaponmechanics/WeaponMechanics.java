@@ -233,7 +233,14 @@ public class WeaponMechanics extends JavaPlugin {
             configurations.clear();
         }
 
-        MechanicsCore.addSerializers(this, new JarSerializers().getAllSerializersInsideJar(this, getFile()));
+        try {
+            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+            //noinspection unchecked
+            MechanicsCore.addSerializers(this, (List<Serializer<?>>) serializers);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         // This is done like this to allow other plugins to add their own serializers
         // before WeaponMechanics starts filling those configuration mappings.
@@ -257,17 +264,7 @@ public class WeaponMechanics extends JavaPlugin {
                 }
 
                 try {
-                    JarSearcher jarSearcher = new JarSearcher(new JarFile(getFile()));
-                    List<Class<PlaceholderHandler>> placeholderHandlers = jarSearcher.findAllSubclasses(PlaceholderHandler.class, false);
-
-                    placeholderHandlers.forEach(handlerClazz -> {
-                        try {
-                            PlaceholderAPI.addPlaceholderHandler(handlerClazz.getConstructor().newInstance());
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                            e.printStackTrace();
-                        }
-                    });
-
+                    new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
