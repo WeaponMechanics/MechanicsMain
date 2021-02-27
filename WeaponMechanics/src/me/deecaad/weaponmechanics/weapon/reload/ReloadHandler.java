@@ -7,7 +7,6 @@ import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
@@ -213,19 +212,19 @@ public class ReloadHandler implements IValidator {
                     ammoToAdd = removedAmount;
 
                     if (ammo.isItemMagazineAmmo()) {
-                        Integer itemMagazineNum = TagHelper.getIntegerTag(weaponStack, CustomTag.HAS_ITEM_MAGAZINE);
+                        int itemMagazineNum = CustomTag.HAS_ITEM_MAGAZINE.getInteger(weaponStack);
                         // 0 = true
                         // 1 = false
 
-                        if (itemMagazineNum == null || itemMagazineNum == 0) {
+                        if (itemMagazineNum == 0) {
                             // give current mag for player (even if there is ammo left)
                             ammo.give(entityWrapper, ammoLeft, magazineSize);
                         } else {
                             // Set to value 0 to indicate that the mag is in again
                             if (entityWrapper instanceof IPlayerWrapper) {
-                                TagHelper.setIntegerTag(weaponStack, CustomTag.HAS_ITEM_MAGAZINE, 0, (IPlayerWrapper) entityWrapper, true);
+                                CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 0, (IPlayerWrapper) entityWrapper, true);
                             } else {
-                                TagHelper.setIntegerTag(weaponStack, CustomTag.HAS_ITEM_MAGAZINE, 0);
+                                CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 0);
                             }
                         }
                     }
@@ -235,9 +234,9 @@ public class ReloadHandler implements IValidator {
 
                 if (entityWrapper instanceof IPlayerWrapper) {
                     // Set the tag silently
-                    TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, finalAmmoSet, (IPlayerWrapper) entityWrapper, true);
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet, (IPlayerWrapper) entityWrapper, true);
                 } else {
-                    TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, finalAmmoSet);
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet);
                 }
 
                 if (firearmAction != null) {
@@ -263,23 +262,22 @@ public class ReloadHandler implements IValidator {
                 if (isPump) {
                     firearmAction.reloadState(weaponStack, entityWrapper);
                 }
-                int ammoLeft = TagHelper.getIntegerTag(weaponStack, CustomTag.AMMO_LEFT);
+                int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
                 if (unloadAmmoOnReload) {
 
                     if (ammo != null) {
 
                         if (ammo.isItemMagazineAmmo()) {
-                            Integer itemMagazineNum = TagHelper.getIntegerTag(weaponStack, CustomTag.HAS_ITEM_MAGAZINE);
-
+                            int itemMagazineNum = CustomTag.HAS_ITEM_MAGAZINE.getInteger(weaponStack);
                             // 0 = true
                             // 1 = false
 
-                            if (itemMagazineNum == null || itemMagazineNum == 0) {
+                            if (itemMagazineNum == 0) {
                                 // Set to value 1 to indicate that the mag is now removed
                                 if (entityWrapper instanceof IPlayerWrapper) {
-                                    TagHelper.setIntegerTag(weaponStack, CustomTag.HAS_ITEM_MAGAZINE, 1, (IPlayerWrapper) entityWrapper, true);
+                                    CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 1, (IPlayerWrapper) entityWrapper, true);
                                 } else {
-                                    TagHelper.setIntegerTag(weaponStack, CustomTag.HAS_ITEM_MAGAZINE, 1);
+                                    CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 1);
                                 }
                                 // give mag back
                                 ammo.give(entityWrapper, ammoLeft, magazineSize);
@@ -295,9 +293,9 @@ public class ReloadHandler implements IValidator {
 
                         // unload weapon and give ammo back to given entity
                         if (entityWrapper instanceof IPlayerWrapper) {
-                            TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0, (IPlayerWrapper) entityWrapper, true);
+                            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0, (IPlayerWrapper) entityWrapper, true);
                         } else {
-                            TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, 0);
+                            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
                         }
                     }
                 }
@@ -430,12 +428,11 @@ public class ReloadHandler implements IValidator {
      * @return -1 if infinity, otherwise current ammo amount
      */
     public int getAmmoLeft(ItemStack weaponStack) {
-        Integer ammoLeft = TagHelper.getIntegerTag(weaponStack, CustomTag.AMMO_LEFT);
-        if (ammoLeft == null) {
-            // -1 means infinity
+        if (CustomTag.AMMO_LEFT.hasInteger(weaponStack)) {
+            return CustomTag.AMMO_LEFT.getInteger(weaponStack);
+        } else {
             return -1;
         }
-        return ammoLeft;
     }
 
     /**
@@ -455,9 +452,9 @@ public class ReloadHandler implements IValidator {
 
             if (entityWrapper instanceof IPlayerWrapper) {
                 // Set the tag silently
-                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet, (IPlayerWrapper) entityWrapper, true);
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet, (IPlayerWrapper) entityWrapper, true);
             } else {
-                TagHelper.setIntegerTag(weaponStack, CustomTag.AMMO_LEFT, ammoToSet);
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
             }
         }
         return true;

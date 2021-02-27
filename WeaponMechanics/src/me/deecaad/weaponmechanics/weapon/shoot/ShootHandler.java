@@ -12,7 +12,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
@@ -208,10 +207,10 @@ public class ShootHandler implements IValidator {
 
         boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
         boolean isSelectiveFireAuto = false;
-        Integer selectiveFire = null;
+        int selectiveFire = 0;
         if (usesSelectiveFire) {
-            selectiveFire = TagHelper.getIntegerTag(weaponStack, CustomTag.SELECTIVE_FIRE);
-            if (selectiveFire != null && selectiveFire == SelectiveFireState.AUTO.getId()) {
+            selectiveFire = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
+            if (CustomTag.SELECTIVE_FIRE.hasInteger(weaponStack) && selectiveFire == SelectiveFireState.AUTO.getId()) {
                 isSelectiveFireAuto = true;
             }
         }
@@ -223,7 +222,7 @@ public class ShootHandler implements IValidator {
         }
 
         if (usesSelectiveFire) {
-            if (selectiveFire == null) {
+            if (CustomTag.SELECTIVE_FIRE.hasInteger(weaponStack)) {
                 return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
             } else {
                 switch (selectiveFire) {

@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics;
 
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -50,7 +49,7 @@ public class WeaponMechanicsAPI implements Listener {
         else if (weapon == null)
             throw new IllegalArgumentException("Weapon cannot be null!");
 
-        return TagHelper.getStringTag(weapon, CustomTag.WEAPON_TITLE);
+        return CustomTag.WEAPON_TITLE.getString(weapon);
     }
 
     /**

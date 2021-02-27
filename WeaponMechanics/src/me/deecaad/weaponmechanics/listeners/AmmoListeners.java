@@ -5,7 +5,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.reload.ItemAmmo;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Material;
@@ -34,22 +33,22 @@ public class AmmoListeners implements Listener {
         ItemStack magazineItem = e.getCurrentItem();
         if (magazineItem.getType() == Material.AIR) return;
 
-        Integer magazineAmmoLeft = TagHelper.getIntegerTag(magazineItem, CustomTag.ITEM_AMMO_LEFT);
+        int magazineAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(magazineItem);
 
         // Check if clicked item is magazine item (so it can be filled)
-        if (magazineAmmoLeft == null) return;
+        //if (magazineAmmoLeft == null) return;
 
-        String magazineName = TagHelper.getStringTag(magazineItem, CustomTag.ITEM_AMMO_NAME);
+        String magazineName = CustomTag.ITEM_AMMO_NAME.getString(magazineItem);
         if (magazineName == null) return; // this shouldn't even be possible, but just quick check
 
         ItemStack ammoItem = e.getCursor();
         if (ammoItem.getType() == Material.AIR) return;
 
-        String ammoName = TagHelper.getStringTag(ammoItem, CustomTag.ITEM_AMMO_NAME);
+        String ammoName = CustomTag.ITEM_AMMO_NAME.getString(ammoItem);
 
         // Check that cursor item is ammo item
         // And that it isn't magazine item
-        if (ammoName == null && TagHelper.getIntegerTag(ammoItem, CustomTag.ITEM_AMMO_LEFT) == null) return;
+        if (ammoName == null && CustomTag.ITEM_AMMO_LEFT.hasInteger(ammoItem)) return;
 
 
         ItemAmmo itemAmmo = ItemAmmo.getByName(magazineName);
@@ -80,10 +79,10 @@ public class AmmoListeners implements Listener {
         int availableAmount = ammoItem.getAmount();
 
         if (maximumFillAmount > availableAmount) {
-            magazineItem = TagHelper.setIntegerTag(magazineItem, CustomTag.ITEM_AMMO_LEFT, magazineAmmoLeft + availableAmount);
+            CustomTag.ITEM_AMMO_LEFT.setInteger(magazineItem, magazineAmmoLeft + availableAmount);
             view.setCursor(null);
         } else {
-            magazineItem = TagHelper.setIntegerTag(magazineItem, CustomTag.ITEM_AMMO_LEFT, magazineAmmoLeft + maximumFillAmount);
+            CustomTag.ITEM_AMMO_LEFT.setInteger(magazineItem, magazineAmmoLeft + maximumFillAmount);
 
             ammoItem.setAmount(availableAmount - maximumFillAmount);
             view.setCursor(ammoItem);

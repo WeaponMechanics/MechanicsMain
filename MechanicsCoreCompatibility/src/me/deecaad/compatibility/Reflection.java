@@ -5,7 +5,6 @@ import me.deecaad.compatibility.block.BlockReflection;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.EntityReflection;
 import me.deecaad.compatibility.nbt.NBTCompatibility;
-import me.deecaad.compatibility.nbt.NBT_Reflection;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -35,7 +34,7 @@ public class Reflection implements ICompatibility {
     private final Method sendPacketMethod;
 
     public Reflection() {
-        nbtCompatibility = new NBT_Reflection();
+        nbtCompatibility = null;
         entityCompatibility = new EntityReflection();
         blockCompatibility = new BlockReflection();
 

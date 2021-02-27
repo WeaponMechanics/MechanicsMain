@@ -5,7 +5,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
@@ -64,9 +63,7 @@ public class FirearmAction implements Serializer<FirearmAction> {
     }
 
     public FirearmState getState(ItemStack weaponStack) {
-        Integer state = TagHelper.getIntegerTag(weaponStack, CustomTag.FIREARM_ACTION_STATE);
-
-        if (state == null) return FirearmState.READY;
+        int state = CustomTag.FIREARM_ACTION_STATE.getInteger(weaponStack);
         switch (state) {
             case 1:
                 return FirearmState.RELOAD_OPEN;
@@ -109,10 +106,10 @@ public class FirearmAction implements Serializer<FirearmAction> {
 
     private void changeState(ItemStack weaponStack, IEntityWrapper entityWrapper, FirearmState state) {
         if (entityWrapper instanceof IPlayerWrapper) {
-            TagHelper.setIntegerTag(weaponStack, CustomTag.FIREARM_ACTION_STATE, state.getId(), (IPlayerWrapper) entityWrapper, true);
+            CustomTag.FIREARM_ACTION_STATE.setInteger(weaponStack, state.getId(), (IPlayerWrapper) entityWrapper, true);
             return;
         }
-        TagHelper.setIntegerTag(weaponStack, CustomTag.FIREARM_ACTION_STATE, state.getId());
+        CustomTag.FIREARM_ACTION_STATE.setInteger(weaponStack, state.getId());
     }
 
     public FirearmType getFirearmType() {

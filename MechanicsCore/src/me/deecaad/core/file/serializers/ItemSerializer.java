@@ -1,14 +1,15 @@
 package me.deecaad.core.file.serializers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.AttributeType;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.core.utils.TagUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -132,34 +134,51 @@ public class ItemSerializer implements Serializer<ItemStack> {
         List<?> attributes = configurationSection.getList(path + ".Attributes");
         if (attributes != null) {
             for (Object attributeData : attributes) {
-                String[] splitted = StringUtil.split(attributeData.toString());
-                if (splitted.length < 2) {
+                String[] split = StringUtil.split(attributeData.toString());
+                if (split.length < 2) {
                     debug.log(LogLevel.ERROR,
                             "Found an invalid configuration format!",
-                            "Located at file " + file + " in " + path + ".Attributes (" + attributeData.toString() + ") in configurations",
-                            "Correct format has at least Attribute and Value defined (Attribute-Value).");
+                            StringUtil.foundAt(file, path + ".Attributes", attributeData),
+                            "Please use the format: <Attribute>-<Value>-<Slot>. Slot is optional.");
                     continue;
                 }
                 AttributeType attribute;
-                try {
-                    attribute = AttributeType.valueOf(splitted[0].toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("attribute type"),
-                            StringUtil.foundAt(file, path + ".Attributes", splitted[0].toUpperCase()),
-                            StringUtil.debugDidYouMean(splitted[0].toUpperCase(), AttributeType.class));
-                    continue;
-                }
+                NBTCompatibility.AttributeSlot slot;
                 double amount;
-                try {
-                    amount = Double.parseDouble(splitted[1]);
-                } catch (NumberFormatException e) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid attribute amount in configurations!",
-                            "Located at file " + file + " in " + path + ".Attributes (" + splitted[1] + ") in configurations");
+
+                Optional<AttributeType> attributeOptional = EnumUtil.getIfPresent(AttributeType.class, split[0]);
+                if (!attributeOptional.isPresent()) {
+                    debug.error("Found an invalid Attribute Type in configurations!",
+                            StringUtil.foundAt(file, path + ".Attributes", split[0]),
+                            StringUtil.debugDidYouMean(split[0], AttributeType.class));
                     continue;
                 }
-                itemStack = TagUtil.setAttributeValue(itemStack, attribute, amount);
+                attribute = attributeOptional.get();
+
+                if (split.length >= 3) {
+                    Optional<NBTCompatibility.AttributeSlot> slotOptional =
+                            EnumUtil.getIfPresent(NBTCompatibility.AttributeSlot.class, split[2]);
+                    if (!slotOptional.isPresent()) {
+                        debug.error("Found an invalid Attribute Slot in configurations!",
+                                StringUtil.foundAt(file, path + ".Attributes", split[2]),
+                                StringUtil.debugDidYouMean(split[2], NBTCompatibility.AttributeSlot.class));
+
+                        continue;
+                    }
+                    slot = slotOptional.get();
+                } else {
+                    slot = null;
+                }
+
+                try {
+                    amount = Double.parseDouble(split[1]);
+                } catch (NumberFormatException e) {
+                    debug.error("Invalid number format for Attribute Amount in configurations! Make sure there are not extra characters/symbols",
+                            StringUtil.foundAt(file, path + ".Attributes", split[1]));
+                    continue;
+                }
+
+                CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, slot, amount);
             }
         }
 

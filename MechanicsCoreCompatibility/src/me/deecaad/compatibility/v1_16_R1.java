@@ -5,6 +5,7 @@ import me.deecaad.compatibility.block.Block_1_16_R1;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.Entity_1_16_R1;
 import me.deecaad.compatibility.nbt.NBTCompatibility;
+import me.deecaad.compatibility.nbt.NBT_1_16_R1;
 import net.minecraft.server.v1_16_R1.EntityPlayer;
 import net.minecraft.server.v1_16_R1.Packet;
 import net.minecraft.server.v1_16_R1.PlayerConnection;
@@ -20,10 +21,12 @@ public class v1_16_R1 implements ICompatibility {
 
     private final EntityCompatibility entityCompatibility;
     private final BlockCompatibility blockCompatibility;
+    private final NBTCompatibility nbtCompatibility;
 
     public v1_16_R1() {
         entityCompatibility = new Entity_1_16_R1();
         blockCompatibility = new Block_1_16_R1();
+        nbtCompatibility = new NBT_1_16_R1();
     }
 
     @Override
@@ -57,7 +60,7 @@ public class v1_16_R1 implements ICompatibility {
 
     @Override
     public NBTCompatibility getNBTCompatibility() {
-        throw new UnsupportedOperationException("You cannot use NBT in this version");
+        return nbtCompatibility;
     }
 
     @Nonnull

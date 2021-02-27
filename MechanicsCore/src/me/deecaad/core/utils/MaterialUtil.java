@@ -2,7 +2,6 @@ package me.deecaad.core.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
@@ -24,9 +23,7 @@ public final class MaterialUtil {
 
     static {
         if (CompatibilityAPI.getVersion() < 1.13) {
-            getState = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("block.data.CraftBlockData"), "getState");
-            getBlock = ReflectionUtil.getMethod(getState.getReturnType(), "getBlock");
-            getDurability = ReflectionUtil.getMethod(getBlock.getReturnType(), "getDurability");
+            // todo
         }
     }
 
@@ -147,12 +144,8 @@ public final class MaterialUtil {
                 return 100.0f;
             }
 
-            BlockData data = type.createBlockData();
-
-            Object nmsData = ReflectionUtil.invokeMethod(getState, data);
-            Object nmsBlock = ReflectionUtil.invokeMethod(getBlock, nmsData);
-
-            return (float) ReflectionUtil.invokeMethod(getDurability, nmsBlock);
+            // todo
+            return 0.0f;
         } else {
             return type.getBlastResistance();
         }

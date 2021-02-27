@@ -5,7 +5,6 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
@@ -74,11 +73,11 @@ public class ItemAmmo implements IAmmoType {
         for (int i = 0; i < inventory.getSize(); ++i) {
             ItemStack itemStack = inventory.getItem(i);
 
-            String itemAmmoName = TagHelper.getStringTag(itemStack, CustomTag.ITEM_AMMO_NAME);
+            String itemAmmoName = CustomTag.ITEM_AMMO_NAME.getString(itemStack);
             if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) continue;
 
             if (magazine != null) {
-                Integer itemAmmoLeft = TagHelper.getIntegerTag(itemStack, CustomTag.ITEM_AMMO_LEFT);
+                Integer itemAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(itemStack);
                 if (itemAmmoLeft != null && itemAmmoLeft > 0) {
                     // has at least one (magazine) ammo
                     return true;
@@ -102,10 +101,10 @@ public class ItemAmmo implements IAmmoType {
         for (int i = 0; i < inventory.getSize(); ++i) {
             ItemStack itemStack = inventory.getItem(i);
 
-            String itemAmmoName = TagHelper.getStringTag(itemStack, CustomTag.ITEM_AMMO_NAME);
+            String itemAmmoName = CustomTag.ITEM_AMMO_NAME.getString(itemStack);
             if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) continue;
 
-            Integer itemAmmoLeft = TagHelper.getIntegerTag(itemStack, CustomTag.ITEM_AMMO_LEFT);
+            Integer itemAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(itemStack);
             if (itemAmmoLeft == null) {
                 // non-magazine
                 foundAmount += itemStack.getAmount();
@@ -138,7 +137,7 @@ public class ItemAmmo implements IAmmoType {
             ItemStack magazineItem = inventory.getItem(magazineData.slotWithMostAmmoMag);
             int magazineItemAmount = magazineItem.getAmount();
 
-            Integer itemAmmoLeft = TagHelper.getIntegerTag(magazineItem, CustomTag.ITEM_AMMO_LEFT);
+            int itemAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(magazineItem);
 
             if (magazineItemAmount > 1) {
                 magazineItem.setAmount(magazineItemAmount - 1);
@@ -197,7 +196,7 @@ public class ItemAmmo implements IAmmoType {
             if (amount == 0) {
                 // To give empty magazine back
 
-                magazineClone = TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, 0);
+                CustomTag.ITEM_AMMO_LEFT.setInteger(magazineClone, 0);
                 ItemMeta magazineMeta = magazineClone.getItemMeta();
                 magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, magazineClone, null));
                 magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, magazineClone, null));
@@ -212,7 +211,7 @@ public class ItemAmmo implements IAmmoType {
             // give magazine items of maximum magazine size UNTIL amount is reached
             while (amount > magazineSize) {
 
-                magazineClone = TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, magazineSize);
+                CustomTag.ITEM_AMMO_LEFT.setInteger(magazineClone, magazineSize);
                 ItemMeta magazineMeta = magazineClone.getItemMeta();
                 magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, magazineClone, null));
                 magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, magazineClone, null));
@@ -226,7 +225,7 @@ public class ItemAmmo implements IAmmoType {
             if (amount > 0) {
                 // give magazine with all amount left
 
-                magazineClone = TagHelper.setIntegerTag(magazineClone, CustomTag.ITEM_AMMO_LEFT, amount);
+                CustomTag.ITEM_AMMO_LEFT.setInteger(magazineClone, amount);
                 ItemMeta magazineMeta = magazineClone.getItemMeta();
                 magazineMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(magazineMeta.getDisplayName(), player, magazineClone, null));
                 magazineMeta.setLore(PlaceholderAPI.applyPlaceholders(magazineMeta.getLore(), player, magazineClone, null));
@@ -282,7 +281,7 @@ public class ItemAmmo implements IAmmoType {
             ItemStack itemStack = inventory.getItem(i);
             if (itemStack.getType() == Material.AIR) continue;
 
-            String itemAmmoName = TagHelper.getStringTag(itemStack, CustomTag.ITEM_AMMO_NAME);
+            String itemAmmoName = CustomTag.ITEM_AMMO_NAME.getString(itemStack);
             if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) {
                 if (!shouldTryConverting) continue;
 
@@ -302,8 +301,9 @@ public class ItemAmmo implements IAmmoType {
                 break;
             }
 
-            Integer itemAmmoLeft = TagHelper.getIntegerTag(itemStack, CustomTag.ITEM_AMMO_LEFT);
-            if (itemAmmoLeft == null || itemAmmoLeft <= 0) continue;
+
+            int itemAmmoLeft;
+            if (CustomTag.ITEM_AMMO_LEFT.hasInteger(itemStack) || (itemAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(itemStack)) <= 0) continue;
 
             if (slotWithMostAmmoMag == -1 || itemAmmoLeft > mostAmmoInSlotMag) {
                 slotWithMostAmmoMag = i;
@@ -333,7 +333,8 @@ public class ItemAmmo implements IAmmoType {
             ItemStack itemStack = inventory.getItem(i);
             if (itemStack.getType() == Material.AIR) continue;
 
-            String itemAmmoName = TagHelper.getStringTag(itemStack, CustomTag.ITEM_AMMO_NAME);
+
+            String itemAmmoName = CustomTag.ITEM_AMMO_NAME.getString(itemStack);
             if (itemAmmoName == null || !itemAmmoName.equals(ammoName)) {
                 if (!shouldTryConverting) continue;
 

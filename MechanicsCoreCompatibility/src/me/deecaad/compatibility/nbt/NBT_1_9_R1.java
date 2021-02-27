@@ -1,134 +1,177 @@
 package me.deecaad.compatibility.nbt;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
-import net.minecraft.server.v1_9_R1.NBTBase;
 import net.minecraft.server.v1_9_R1.NBTTagCompound;
 import net.minecraft.server.v1_9_R1.NBTTagList;
 import org.bukkit.craftbukkit.v1_9_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 
-import java.util.Locale;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class NBT_1_9_R1 implements NBTCompatibility {
 
     @Override
-    public String getCustomTag(ItemStack itemStack, String tag) {
-        return getCustomTagFromNMSStack(CraftItemStack.asNMSCopy(itemStack), tag);
+    public boolean hasString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
+        return getBukkitCompound(getNMSStack(bukkitItem), plugin).hasKeyOfType(getTagName(key), 8);
     }
 
     @Override
-    public String getCustomTagFromNMSStack(Object nmsStack, String tag) {
-        net.minecraft.server.v1_9_R1.ItemStack itemStack = (net.minecraft.server.v1_9_R1.ItemStack) nmsStack;
+    public String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String def) {
+        return hasString(bukkitItem, plugin, key) ? getBukkitCompound(getNMSStack(bukkitItem), plugin).getString(getTagName(key)) : def;
+    }
 
-        NBTTagCompound itemTag = itemStack.getTag();
-        if (itemTag == null) return null;
+    @Nonnull
+    @Override
+    public void setString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String value) {
+        net.minecraft.server.v1_9_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(nmsStack, plugin).setString(key, value);
 
-        NBTTagCompound bukkitTagCompound = itemTag.getCompound("PublicBukkitValues");
-        if (bukkitTagCompound == null) return null;
-
-        String key = MechanicsCore.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
-
-        return bukkitTagCompound.hasKey(key) ? bukkitTagCompound.getString(key) : null;
+        bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
     }
 
     @Override
-    public ItemStack setCustomTag(ItemStack itemStack, String tag, String value) {
-        net.minecraft.server.v1_9_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
-
-        NBTTagCompound itemTag = nmsStack.getTag();
-        if (itemTag == null) {
-            itemTag = new NBTTagCompound();
-            nmsStack.setTag(itemTag);
-        }
-
-        NBTTagCompound bukkitTagCompound = itemTag.getCompound("PublicBukkitValues");
-        if (bukkitTagCompound == null) {
-            bukkitTagCompound = new NBTTagCompound();
-            itemTag.set("PublicBukkitValues", bukkitTagCompound);
-        }
-
-        String key = MechanicsCore.getPlugin().getName().toLowerCase(Locale.ROOT) + ":" + tag.toLowerCase(Locale.ROOT);
-
-        bukkitTagCompound.setString(key, value);
-
-        return CraftItemStack.asBukkitCopy(nmsStack);
+    public boolean hasInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
+        return getBukkitCompound(getNMSStack(bukkitItem), plugin).hasKeyOfType(getTagName(key), 3);
     }
 
     @Override
-    public ItemStack setAttributeValue(ItemStack itemStack, AttributeType attributeType, double amount) {
-        net.minecraft.server.v1_9_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+    public int getInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int def) {
+        return hasInt(bukkitItem, plugin, key) ? getBukkitCompound(getNMSStack(bukkitItem), plugin).getInt(getTagName(key)) : def;
+    }
 
-        NBTTagCompound itemTag = nmsStack.getTag();
-        if (itemTag == null) {
-            itemTag = new NBTTagCompound();
-            nmsStack.setTag(itemTag);
+    @Nonnull
+    @Override
+    public void setInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int value) {
+        net.minecraft.server.v1_9_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(nmsStack, plugin).setInt(key, value);
+
+        bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
+    }
+
+    @Override
+    public boolean hasDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
+        return getBukkitCompound(getNMSStack(bukkitItem), plugin).hasKeyOfType(getTagName(key), 6);
+    }
+
+    @Override
+    public double getDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double def) {
+        return hasDouble(bukkitItem, plugin, key) ? getBukkitCompound(getNMSStack(bukkitItem), plugin).getDouble(getTagName(key)) : def;
+    }
+
+    @Nonnull
+    @Override
+    public void setDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double value) {
+        net.minecraft.server.v1_9_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(nmsStack, plugin).setDouble(key, value);
+
+        bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
+    }
+
+    @Nonnull
+    @Override
+    public void setAttribute(@Nonnull ItemStack bukkitItem, @Nonnull AttributeType attribute, @Nullable AttributeSlot slot, double value) {
+        net.minecraft.server.v1_9_R1.ItemStack nmsItem = getNMSStack(bukkitItem);
+        if (nmsItem.getTag() == null) {
+            nmsItem.setTag(new NBTTagCompound());
         }
 
-        if (itemTag.hasKey("AttributeModifiers")) {
-            NBTTagList nbtTagList = (NBTTagList) itemTag.get("AttributeModifiers");
-            boolean main = false;
-            boolean off = false;
+        NBTTagCompound compound = nmsItem.getTag();
+        if (compound.hasKey("AttributeModifiers")) {
+            NBTTagList list = (NBTTagList) compound.get("AttributeModifiers");
 
-            for (int i = 0; i < nbtTagList.size(); i++) {
-                NBTBase nbtBase = nbtTagList.h(i);
+            // NBT lists don't have an indexOf method, so we need to loop
+            // through each attribute, and determine if it is one we want to
+            // modify. We want to modify an attribute if the attribute was
+            // set using MechanicsCore, and it's attribute type matches the
+            // parameter attribute type.
+            boolean isModifiedAttribute = false;
+            for (int i = 0; i < list.size(); i++) {
 
-                if (nbtBase.getTypeId() != 10) {
-                    continue;
-                }
-                NBTTagCompound nbtTagCompound = (NBTTagCompound) nbtBase;
-                String nbtAttributeName = nbtTagCompound.getString("AttributeName");
-                if (nbtAttributeName == null || nbtAttributeName.isEmpty() || !nbtAttributeName.equals(attributeType.getMinecraftName())) {
-                    continue;
-                }
-                String nbtName = nbtTagCompound.getString("Name");
-                if (nbtName == null || nbtName.isEmpty() || (!nbtName.equals("WM_Main") && !nbtName.equals("WM_Off"))) {
+                // 10 is the id for nbt lists
+                if (list.get(i).getTypeId() != 10) {
                     continue;
                 }
 
-                nbtTagCompound.setDouble("Amount", amount);
+                NBTTagCompound nbt = list.get(i);
+                String name = nbt.getString("Name");
+                String attributeName = nbt.getString("AttributeName");
 
-                String nbtSlot = nbtTagCompound.getString("Slot");
-                if (nbtSlot != null && !nbtSlot.isEmpty()) {
-                    if (nbtSlot.equals("mainHand")) {
-                        main = true;
-                    } else {
-                        off = true;
-                    }
+                // There is no offhand, or slot argument in 1_8_8.
+                if (!"MechanicsCoreAttribute".equals(name) || !attribute.getMinecraftName().equals(attributeName)) {
+                    continue;
+                }
+
+                // Since this attribute already exists, we only need to modify
+                // the existing value. No need to set the name/uuid
+                nbt.setDouble("Amount", value);
+                isModifiedAttribute = true;
+                break;
+            }
+
+            if (!isModifiedAttribute) {
+                NBTTagCompound nbt = new NBTTagCompound();
+                nbt.setString("AttributeName", attribute.getMinecraftName());
+                nbt.setString("Name", "MechanicsCoreAttribute");
+                nbt.setDouble("Amount", value);
+                nbt.setInt("Operation", 0); // 0 == add
+                nbt.setLong("UUIDLeast", attribute.getUUID().getLeastSignificantBits());
+                nbt.setLong("UUIDMost", attribute.getUUID().getMostSignificantBits());
+
+                if (slot != null) {
+                    nbt.setString("Slot", slot.getSlotName());
                 }
             }
-            if (!main) {
-                nbtTagList.add(createAttributeCompound(attributeType, amount, true));
-            }
-            if (!off) {
-                nbtTagList.add(createAttributeCompound(attributeType, amount, false));
-            }
+        }
+
+        bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsItem));
+    }
+
+    @Nonnull
+    @Override
+    public net.minecraft.server.v1_9_R1.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
+        return CraftItemStack.asNMSCopy(bukkitStack);
+    }
+
+    @Nonnull
+    @Override
+    public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
+        NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
+        return nbt == null ? "null" : nbt.toString();
+    }
+
+    @Override
+    public PersistentDataContainer createContainer() {
+        return null;
+    }
+
+    private NBTTagCompound getBukkitCompound(net.minecraft.server.v1_9_R1.ItemStack nmsStack, String plugin) {
+        if (nmsStack.getTag() == null) {
+            nmsStack.setTag(new NBTTagCompound());
+        }
+
+        NBTTagCompound nbt = nmsStack.getTag().getCompound("PublicBukkitValues");
+
+        // If the nbt compound was just created, make sure it is added to the
+        // internal map.
+        if (nbt.isEmpty()) {
+            nmsStack.getTag().set("PublicBukkitValues", nbt);
+        }
+
+        if (plugin == null) {
+            return nbt;
         } else {
-            NBTTagList nbtTagList = new NBTTagList();
-            itemTag.set("AttributeModifiers", nbtTagList);
+            NBTTagCompound pluginCompound = nbt.getCompound(plugin);
+            if (pluginCompound.isEmpty()) {
+                nbt.set(plugin, pluginCompound);
+            }
 
-            nbtTagList.add(createAttributeCompound(attributeType, amount, true));
-            nbtTagList.add(createAttributeCompound(attributeType, amount, false));
+            return pluginCompound;
         }
-
-        return CraftItemStack.asBukkitCopy(nmsStack);
     }
 
-    private NBTTagCompound createAttributeCompound(AttributeType attributeType, double amount, boolean mainhand) {
-        NBTTagCompound nbtTagCompound = new NBTTagCompound();
-        nbtTagCompound.setString("AttributeName", attributeType.getMinecraftName());
-        nbtTagCompound.setString("Name", (mainhand ? "WM_Main" : "WM_Off"));
-        nbtTagCompound.setDouble("Amount", amount);
-        nbtTagCompound.setInt("Operation", 0);
-        if (mainhand) {
-            nbtTagCompound.setLong("UUIDLeast", attributeType.getMainhandUUID().getLeastSignificantBits());
-            nbtTagCompound.setLong("UUIDMost", attributeType.getMainhandUUID().getMostSignificantBits());
-            nbtTagCompound.setString("Slot", "mainhand");
-        } else {
-            nbtTagCompound.setLong("UUIDLeast", attributeType.getOffhandUUID().getLeastSignificantBits());
-            nbtTagCompound.setLong("UUIDMost", attributeType.getOffhandUUID().getMostSignificantBits());
-            nbtTagCompound.setString("Slot", "offhand");
-        }
-        return nbtTagCompound;
+    private String getTagName(String key) {
+        return "MechanicsCore:" + key;
     }
 }

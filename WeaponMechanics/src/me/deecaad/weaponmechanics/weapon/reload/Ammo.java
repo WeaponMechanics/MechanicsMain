@@ -8,7 +8,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.utils.TagHelper;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
@@ -119,9 +118,8 @@ public class Ammo implements Serializer<Ammo> {
             return null;
         }
 
-        magazineItem = TagHelper.setStringTag(magazineItem, CustomTag.ITEM_AMMO_NAME, ammoName);
-        magazineItem = TagHelper.setIntegerTag(magazineItem, CustomTag.ITEM_AMMO_LEFT, 0);
-        ammoItem = TagHelper.setStringTag(ammoItem, CustomTag.ITEM_AMMO_NAME, ammoName);
+        CustomTag.ITEM_AMMO_NAME.setString(magazineItem, ammoName);
+        CustomTag.ITEM_AMMO_LEFT.setInteger(magazineItem, 0);
 
         WeaponConverter ammoConverter = new WeaponConverter().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo_Converter_Check");
 
