@@ -222,17 +222,13 @@ public class ShootHandler implements IValidator {
         }
 
         if (usesSelectiveFire) {
-            if (CustomTag.SELECTIVE_FIRE.hasInteger(weaponStack)) {
-                return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-            } else {
-                switch (selectiveFire) {
-                    case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
-                        return burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-                    case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
-                        return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
-                    default:
-                        return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-                }
+            switch (selectiveFire) {
+                case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
+                    return burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
+                case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
+                    return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
+                default:
+                    return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
             }
         }
 

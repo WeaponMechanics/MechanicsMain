@@ -23,8 +23,6 @@ public class PSelectiveFireState extends PlaceholderHandler {
         int selectiveFireState = CustomTag.SELECTIVE_FIRE.getInteger(itemStack);
 
         switch (selectiveFireState) {
-            case (0):
-                return null;
             case (1):
                 return getBasicConfigurations().getString("Placeholder_Symbols.Selective_Fire.BURST");
             case (2):
