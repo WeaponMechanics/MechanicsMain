@@ -4,10 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
-import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
@@ -28,6 +25,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -199,37 +197,41 @@ public class Explosion implements Serializer<Explosion> {
         damageBlocks(transparent, true, origin, projectile, fallingBlocks);
         damageBlocks(solid, false, origin, projectile, fallingBlocks);
 
-        @SuppressWarnings("unchecked")
-        Iterable<Player> playersInView = (Collection<Player>) (Collection<?>) origin.getWorld().getNearbyEntities(origin, 100, 100, 100, entity -> entity.getType() == EntityType.PLAYER);
+        if (!fallingBlocks.isEmpty()) {
 
-        // Handle falling blocks
-        for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
-            FallingBlockWrapper wrapper = entry.getKey().get();
-            Object nms = wrapper.getEntity();
-            int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
-            Vector velocity = entry.getValue();
+            // Handle falling blocks
+            for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
+                FallingBlockWrapper wrapper = entry.getKey().get();
+                Object nms = wrapper.getEntity();
+                int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
+                Vector velocity = entry.getValue();
 
-            if (removeTime == 0) continue;
+                if (removeTime == 0) continue;
 
-            // All the packets needed to handle showing the falling block
-            // to the player. The destroy packet is sent later, when the block
-            // hits the ground. Sent to every player in view.
-            Object spawn = entityCompatibility.getSpawnPacket(nms);
-            Object meta = entityCompatibility.getMetadataPacket(nms);
-            Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
-            Object destroy = entityCompatibility.getDestroyPacket(nms);
+                // All the packets needed to handle showing the falling block
+                // to the player. The destroy packet is sent later, when the block
+                // hits the ground. Sent to every player in view.
+                Object spawn = entityCompatibility.getSpawnPacket(nms);
+                Object meta = entityCompatibility.getMetadataPacket(nms);
+                Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
+                Object destroy = entityCompatibility.getDestroyPacket(nms);
 
-            for (Player player : playersInView) {
-
-                CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
-
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
+                for (Entity entity : DistanceUtil.getEntitiesInRange(origin)) {
+                    if (entity.getType() != EntityType.PLAYER) {
+                        continue;
                     }
-                }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
+                    Player player = (Player) entity;
+                    CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
+                        }
+                    }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
+                }
             }
+
         }
 
         // Handles damage and knockback to living entities. Knockback

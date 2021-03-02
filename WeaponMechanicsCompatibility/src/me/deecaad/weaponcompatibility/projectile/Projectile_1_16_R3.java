@@ -1,5 +1,6 @@
 package me.deecaad.weaponcompatibility.projectile;
 
+import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
@@ -35,7 +36,7 @@ public class Projectile_1_16_R3 implements IProjectileCompatibility {
                 PacketPlayOutSpawnEntity spawn = new PacketPlayOutSpawnEntity(nmsEntityFallingBlock, net.minecraft.server.v1_16_R3.Block.getCombinedId(nmsIBlockData));
                 PacketPlayOutEntityHeadRotation headRotation = new PacketPlayOutEntityHeadRotation(nmsEntityFallingBlock, convertYawToByte(customProjectile, yaw));
 
-                sendUpdatePackets(customProjectile, 22500, spawn, headRotation);
+                DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, headRotation);
                 customProjectile.projectileDisguiseNMSEntity = nmsEntityFallingBlock;
                 break;
             case DROPPED_ITEM:
@@ -48,7 +49,7 @@ public class Projectile_1_16_R3 implements IProjectileCompatibility {
                 PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(customProjectile.getProjectileDisguiseId(), nmsEntityItem.getDataWatcher(), false);
                 headRotation = new PacketPlayOutEntityHeadRotation(nmsEntityItem, convertYawToByte(customProjectile, yaw));
 
-                sendUpdatePackets(customProjectile, 22500, spawn, metadata, headRotation);
+                DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, metadata, headRotation);
                 customProjectile.projectileDisguiseNMSEntity = nmsEntityItem;
                 break;
             default:
@@ -58,10 +59,10 @@ public class Projectile_1_16_R3 implements IProjectileCompatibility {
                 headRotation = new PacketPlayOutEntityHeadRotation(nmsEntity, convertYawToByte(customProjectile, yaw));
                 if (projectileDisguise.isAlive()) {
                     PacketPlayOutSpawnEntityLiving spawnLiving = new PacketPlayOutSpawnEntityLiving((EntityLiving) nmsEntity);
-                    sendUpdatePackets(customProjectile, 22500, spawnLiving, headRotation);
+                    DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawnLiving, headRotation);
                 } else {
                     spawn = new PacketPlayOutSpawnEntity(nmsEntity, 1);
-                    sendUpdatePackets(customProjectile, 22500, spawn, headRotation);
+                    DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, headRotation);
                 }
                 customProjectile.projectileDisguiseNMSEntity = nmsEntity;
                 break;
@@ -90,7 +91,7 @@ public class Projectile_1_16_R3 implements IProjectileCompatibility {
             nmsEntity.pitch = pitch;
 
             PacketPlayOutEntityTeleport teleport = new PacketPlayOutEntityTeleport(nmsEntity);
-            sendUpdatePackets(customProjectile, 8050, velocity, teleport);
+            DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), velocity, teleport);
 
         } else {
             short x = (short) ((location.getX() * 32 - lastLocation.getX() * 32) * 128);
@@ -98,13 +99,13 @@ public class Projectile_1_16_R3 implements IProjectileCompatibility {
             short z = (short) ((location.getZ() * 32 - lastLocation.getZ() * 32) * 128);
 
             PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(projectileDisguiseId, x, y, z, convertYawToByte(customProjectile, yaw), convertPitchToByte(customProjectile, pitch), false);
-            sendUpdatePackets(customProjectile, 8050, velocity, moveLook);
+            DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), velocity, moveLook);
         }
     }
 
     @Override
     public void destroyDisguise(CustomProjectile customProjectile) {
-        sendUpdatePackets(customProjectile, 22500, new PacketPlayOutEntityDestroy(customProjectile.getProjectileDisguiseId()));
+        DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), new PacketPlayOutEntityDestroy(customProjectile.getProjectileDisguiseId()));
     }
 
     @Override

@@ -45,6 +45,18 @@ public final class DistanceUtil {
     }
 
     /**
+     * Returns the entities withing range
+     *
+     * @param origin The coordinates that from where entities are taken
+     * @return The entities withing range of view distance from origin
+     */
+    public static Collection<Entity> getEntitiesInRange(@Nonnull Location origin) {
+        World world = origin.getWorld();
+        double distance = getRange(world);
+        return world.getNearbyEntities(origin, distance, distance, distance);
+    }
+
+    /**
      * Sends the given packet to all players who can see the given
      * {@link Location}. The distance that a player can see is defined by
      * {@link #getRange(World)}.

@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
@@ -50,11 +51,14 @@ public class Flashbang implements Serializer<Flashbang> {
      * @param origin The center of the flashbang
      */
     public void trigger(ExplosionExposure exposure, ICustomProjectile projectile, Location origin) {
-        @SuppressWarnings("unchecked")
-        Collection<LivingEntity> entities = (Collection<LivingEntity>) (Collection<?>) origin.getWorld().getNearbyEntities(origin, distance, distance, distance, entity -> entity.getType() == EntityType.PLAYER);
-        for (LivingEntity entity : entities) {
-            if (canEffect(exposure, origin, entity)) {
-                effect(projectile, entity);
+        Collection<Entity> entities = origin.getWorld().getNearbyEntities(origin, distance, distance, distance);
+        for (Entity entity : entities) {
+            if (entity.getType() != EntityType.PLAYER) {
+                continue;
+            }
+            LivingEntity livingEntity = (LivingEntity) entity;
+            if (canEffect(exposure, origin, livingEntity)) {
+                effect(projectile, livingEntity);
             }
         }
     }

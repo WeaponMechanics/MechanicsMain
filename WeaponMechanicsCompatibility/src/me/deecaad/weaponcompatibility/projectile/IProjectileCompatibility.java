@@ -1,15 +1,10 @@
 package me.deecaad.weaponcompatibility.projectile;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.ICompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
-import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 public interface IProjectileCompatibility {
@@ -83,32 +78,6 @@ public interface IProjectileCompatibility {
         if (block.isEmpty() || block.isLiquid() || block.isPassable()) return null;
         BoundingBox boundingBox = block.getBoundingBox();
         return new HitBox(boundingBox.getMin(), boundingBox.getMax());
-    }
-
-    /**
-     * Player has to be within distance to receive packet.
-     * This does not use Y axis.
-     *
-     * 8050 = 90 blocks.
-     * 22500 = 150 blocks.
-     *
-     * @param customProjectile the projectile used to fetch all required data
-     * @param distance the distance squared XZ
-     * @param packets the packet to send
-     */
-    default void sendUpdatePackets(CustomProjectile customProjectile, int distance, Object... packets) {
-        ICompatibility compatibility = CompatibilityAPI.getCompatibility();
-        Vector location = customProjectile.getLocation();
-        double x = location.getX();
-        double z = location.getZ();
-        for (Player player : customProjectile.getWorld().getPlayers()) {
-            Location playerLocation = player.getLocation();
-
-            // 22500 = around 150 blocks
-            if (NumberConversions.square(x - playerLocation.getX()) + NumberConversions.square(z - playerLocation.getZ()) < distance) {
-                compatibility.sendPackets(player, packets);
-            }
-        }
     }
 
     /**

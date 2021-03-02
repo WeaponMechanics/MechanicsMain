@@ -11,7 +11,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
@@ -176,6 +175,10 @@ public class CustomProjectile implements ICustomProjectile {
     @Override
     public Vector getLocation() {
         return this.location.clone();
+    }
+
+    public Location getBukkitLocation() {
+        return this.location.toLocation(world, projectileDisguiseYaw, projectileDisguisePitch);
     }
 
     @Override
