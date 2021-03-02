@@ -4,6 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
@@ -18,8 +19,7 @@ import java.util.Collection;
 public final class DistanceUtil {
 
     // Don't let anyone instantiate this class
-    private DistanceUtil() {
-    }
+    private DistanceUtil() { }
 
     /**
      * Returns the default viewing distance of worlds, defined by the vanilla
@@ -63,30 +63,29 @@ public final class DistanceUtil {
      * </code></pre></blockquote>
      *
      * @param origin The coordinates that the packet is being spawned at.
-     * @param packet The packet to send to players in view.
+     * @param packets The packets to send to players in view.
      */
-    public static void sendPacket(@Nonnull Location origin, Object packet) {
-        sendPacket(origin, packet, getRange(origin.getWorld()));
+    public static void sendPacket(@Nonnull Location origin, Object... packets) {
+        sendPacket(origin, getRange(origin.getWorld()), packets);
     }
-
 
     /**
      * Sends the given packet to all players whose distance to the given
      * {@link Location} is les than the given <code>distance</code>.
      *
      * @param origin   The coordinates that the packet is being spawned at.
-     * @param packet   The packet to send to the players.
      * @param distance The maximum distance a player can be and still see the
      *                 packet.
+     * @param packets   The packets to send to the players.
      */
-    @SuppressWarnings("unchecked")
-    public static void sendPacket(@Nonnull Location origin, Object packet, double distance) {
+    public static void sendPacket(@Nonnull Location origin, double distance, Object... packets) {
         World world = origin.getWorld();
-        Collection<Player> players = (Collection<Player>) (Collection<?>)
-                world.getNearbyEntities(origin, distance, distance, distance, e -> e.getType() == EntityType.PLAYER);
-
-        for (Player player : players) {
-            CompatibilityAPI.getCompatibility().sendPackets(player, packet);
+        Collection<Entity> entities = world.getNearbyEntities(origin, distance, distance, distance);
+        for (Entity entity : entities) {
+            if (entity.getType() != EntityType.PLAYER) {
+                continue;
+            }
+            CompatibilityAPI.getCompatibility().sendPackets((Player) entity, packets);
         }
     }
 }

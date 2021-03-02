@@ -716,7 +716,6 @@ public class CustomProjectile implements ICustomProjectile {
             }
         }
 
-        // World.getNearbyEntities() is not allowed in async (entity checks aren't meant to be used async)
         for (Chunk chunk : chunks) {
             for (final Entity entity : chunk.getEntities()) {
                 if (entity.getEntityId() == shooter.getEntityId()) continue;
