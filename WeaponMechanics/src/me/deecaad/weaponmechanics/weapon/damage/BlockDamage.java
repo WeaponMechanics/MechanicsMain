@@ -45,32 +45,16 @@ public class BlockDamage implements Serializer<BlockDamage> {
         return isBreakBlocks;
     }
 
-    public void setBreakBlocks(boolean breakBlocks) {
-        isBreakBlocks = breakBlocks;
-    }
-
     public int getDamage() {
         return damage;
-    }
-
-    public void setDamage(int damage) {
-        this.damage = damage;
     }
 
     public boolean isBlacklist() {
         return isBlacklist;
     }
 
-    public void setBlacklist(boolean blacklist) {
-        isBlacklist = blacklist;
-    }
-
     public Map<String, Integer> getBlockList() {
         return blockList;
-    }
-
-    public void setBlockList(Map<String, Integer> blockList) {
-        this.blockList = blockList;
     }
 
     public boolean isBlacklisted(Block block) {
