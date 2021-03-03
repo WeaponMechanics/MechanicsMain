@@ -67,7 +67,7 @@ public final class EnumUtil {
      * @return An optional of the enum found, or an empty optional.
      */
     public static <T extends Enum<T>> Optional<T> getIfPresent(Class<T> clazz, String name) {
-        WeakReference<? extends Enum<?>> reference = getConstants(clazz).get(name);
+        WeakReference<? extends Enum<?>> reference = getConstants(clazz).get(name.toUpperCase());
         return reference == null ? Optional.empty() : Optional.of(clazz.cast(reference.get()));
     }
 
