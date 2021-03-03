@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.weaponmechanics.utils.ArrayUtils;
+import me.deecaad.weaponmechanics.utils.ArrayUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -54,7 +54,7 @@ public class Sprite {
         
         // Gets the RGB value of every pixel in
         // the given image.
-        pixels = ArrayUtils.split(img.getRGB(0, 0, width, height, null, 0, width), width);
+        pixels = ArrayUtil.split(img.getRGB(0, 0, width, height, null, 0, width), width);
     }
     
     public int[][] getPixels() {

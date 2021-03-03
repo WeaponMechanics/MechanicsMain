@@ -4,7 +4,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ProbabilityMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.ArrayUtils;
+import me.deecaad.weaponmechanics.utils.ArrayUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -47,7 +47,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
         double xMiddle = width / 2.0;
         double yMiddle = height / 2.0;
         
-        int[][] pixels = ArrayUtils.toBlackAndWhite(sprite.getPixels());
+        int[][] pixels = ArrayUtil.toBlackAndWhite(sprite.getPixels());
         for (int y = 0; y < pixels.length; y++) {
             for (int x = 0; x < pixels[y].length; x++) {
                 if (pixels[y][x] != 0) {

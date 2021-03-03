@@ -5,7 +5,7 @@ import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.ArrayUtils;
+import me.deecaad.weaponmechanics.utils.ArrayUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -28,7 +28,7 @@ public class InfoCommand extends SubCommand {
 
         List<String> authors = desc.getAuthors();
         if (!authors.isEmpty()) {
-            sender.sendMessage("§7➢  §6Authors:§7 " + ArrayUtils.toString(authors));
+            sender.sendMessage("§7➢  §6Authors:§7 " + ArrayUtil.toString(authors));
         }
 
         // The main command
@@ -53,6 +53,6 @@ public class InfoCommand extends SubCommand {
         Set<String> softDepencies = new LinkedHashSet<>(desc.getSoftDepend());
         softDepencies.addAll(MechanicsCore.getPlugin().getDescription().getSoftDepend());
         softDepencies.remove("MechanicsCore");
-        sender.sendMessage("§7➢  §6Supported plugins:§7 " + ArrayUtils.toString(softDepencies));
+        sender.sendMessage("§7➢  §6Supported plugins:§7 " + ArrayUtil.toString(softDepencies));
     }
 }

@@ -2,12 +2,12 @@ package me.deecaad.weaponmechanics.utils;
 
 import java.util.Collection;
 
-public class ArrayUtils {
+public class ArrayUtil {
     
     /**
      * Don't let anyone instantiate this class
      */
-    private ArrayUtils() {
+    private ArrayUtil() {
     }
     
     /**
