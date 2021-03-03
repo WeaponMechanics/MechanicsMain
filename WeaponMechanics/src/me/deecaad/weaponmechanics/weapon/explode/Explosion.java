@@ -6,6 +6,8 @@ import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
@@ -56,6 +58,7 @@ public class Explosion implements Serializer<Explosion> {
     private ClusterBomb cluster;
     private AirStrike airStrike;
     private Flashbang flashbang;
+    private Mechanics mechanics;
 
     public Explosion() { }
 
@@ -69,7 +72,8 @@ public class Explosion implements Serializer<Explosion> {
                      boolean isKnockback,
                      @Nullable ClusterBomb clusterBomb,
                      @Nullable AirStrike airStrike,
-                     @Nullable Flashbang flashbang) {
+                     @Nullable Flashbang flashbang,
+                     @Nullable Mechanics mechanics) {
 
         this.shape = shape;
         this.exposure = exposure;
@@ -82,6 +86,7 @@ public class Explosion implements Serializer<Explosion> {
         this.cluster = clusterBomb;
         this.airStrike = airStrike;
         this.flashbang = flashbang;
+        this.mechanics = mechanics;
     }
 
     public ExplosionShape getShape() {
@@ -126,6 +131,10 @@ public class Explosion implements Serializer<Explosion> {
 
     public Flashbang getFlashbang() {
         return flashbang;
+    }
+
+    public Mechanics getMechanics() {
+        return mechanics;
     }
 
     public void explode(LivingEntity cause, CollisionData collision, ICustomProjectile projectile) {
@@ -272,6 +281,7 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (flashbang != null) flashbang.trigger(exposure, projectile, origin);
+        if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(cause), projectile.getWeaponTitle(), projectile.getWeaponStack()));
     }
 
     protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks) {
@@ -446,9 +456,10 @@ public class Explosion implements Serializer<Explosion> {
         ClusterBomb clusterBomb = new ClusterBomb().serialize(file, configurationSection, path + ".Cluster_Bomb");
         AirStrike airStrike = new AirStrike().serialize(file, configurationSection, path + ".Airstrike");
         Flashbang flashbang = new Flashbang().serialize(file, configurationSection, path + ".Flashbang");
+        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics");
 
         return new Explosion(shape, exposure, blockDamage, regeneration, triggers, delay, blockChance, isKnockback,
-                clusterBomb, airStrike, flashbang);
+                clusterBomb, airStrike, flashbang, mechanics);
     }
 
     private static class FallingBlockData implements Supplier<FallingBlockWrapper> {
