@@ -23,7 +23,7 @@ test:
     Selective_Fire:
       Trigger:
         Main_Hand: "SWAP_TO_OFF_HAND"
-        Off_Hand: "SWAP_TO_OFF_HAND"
+        Off_Hand: "SWAP_TO_MAIN_HAND"
     Fully_Automatic_Shots_Per_Second: 60
     Burst:
       Shots_Per_Burst: 3

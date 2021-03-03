@@ -23,18 +23,10 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
-import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
+import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
-import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
-import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
-import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
-import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -54,11 +46,12 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,7 +86,7 @@ public class WeaponMechanics extends JavaPlugin {
                     BufferedInputStream input =
                             new BufferedInputStream(new URL(link).openStream());
                     FileOutputStream output =
-                            new FileOutputStream(directory);
+                            new FileOutputStream(directory)
             ) {
 
                 byte[] data = new byte[1024];
@@ -247,12 +240,13 @@ public class WeaponMechanics extends JavaPlugin {
             @Override
             public void run() {
 
-                List<IValidator> validators = new ArrayList<>();
-                validators.add(new HitBox());
-                validators.add(new ReloadHandler());
-                validators.add(new ScopeHandler());
-                validators.add(new ShootHandler());
-                validators.add(new DamageHandler());
+                List<IValidator> validators = null;
+                try {
+                    // Find all validators in WeaponMechanics
+                    validators = new JarInstancer(new JarFile(getFile())).createAllInstances(IValidator.class, true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 // Fill configuration mappings (except config.yml)
                 Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(WeaponMechanics.this), validators).fillAllFiles(getDataFolder(), "config.yml");
@@ -262,6 +256,7 @@ public class WeaponMechanics extends JavaPlugin {
                     debug.error("Error loading config: " + e.getMessage());
                 }
 
+                // Add PlaceholderHandlers from WeaponMechanics to PlaceholderAPI
                 try {
                     new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
                 } catch (IOException e) {
