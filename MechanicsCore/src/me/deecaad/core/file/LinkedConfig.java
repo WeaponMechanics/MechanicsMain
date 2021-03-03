@@ -131,7 +131,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     public double getDouble(String key, double def) {
         Object value = super.get(key);
         if (!(value instanceof Number)) {
-            return 0.0;
+            return def;
         } else {
             return ((Number) value).doubleValue();
         }
