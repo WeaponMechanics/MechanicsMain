@@ -1,12 +1,7 @@
 package me.deecaad.core.utils;
 
 import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This final utility class outlines static methods that operate on or return
@@ -51,6 +46,39 @@ public final class EnumUtil {
         // don't try to add their own mappings
         cache.put(clazz, Collections.unmodifiableMap(temp));
         return temp;
+    }
+
+    /**
+     * Returns an immutable list of enum values that match the input. If
+     * the <code>input</code> starts with a <code>$</code>, all enum values that
+     * contain the input are added to the list.
+     *
+     * <p>Otherwise, this method returns an immutable list of 0 or 1 enums values.
+     *
+     * @param input The input matcher. If the input starts with a $, it matches
+     *              multiple enum values.
+     * @return A non-null, immutable list of all parsed enum values.
+     * @see Collections#unmodifiableList(List)
+     * @see Collections#singletonList(Object)
+     * @see Collections#emptyList()
+     */
+    public static <T extends Enum<T>> List<T> parseEnums(Class<T> clazz, String input) {
+        input = input.trim().toUpperCase();
+
+        if (input.startsWith("$")) {
+            List<T> list = new ArrayList<>();
+            String base = input.substring(1);
+
+            for (String enumValue : EnumUtil.getOptions(clazz)) {
+                if (enumValue.contains(base)) {
+                    list.add(Enum.valueOf(clazz, enumValue));
+                }
+            }
+            return Collections.unmodifiableList(list);
+        } else {
+            Optional<T> enumValue = EnumUtil.getIfPresent(clazz, input);
+            return enumValue.map(Collections::singletonList).orElse(Collections.emptyList());
+        }
     }
 
     /**
