@@ -9,7 +9,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import me.deecaad.weaponmechanics.utils.SoundHelper;
+import me.deecaad.weaponmechanics.utils.SoundUtil;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadSound;
 import org.bukkit.Location;
@@ -196,9 +196,13 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
                 }
 
                 try {
-                    Sound sound = SoundHelper.fromStringToSound(stringSound);
+                    Sound sound = SoundUtil.fromStringToSound(stringSound);
                     soundList.add(new BukkitSound(sound, volume, pitch, delay, noise));
                 } catch (IllegalArgumentException e) {
+                    debug.log(LogLevel.ERROR,
+                            StringUtil.foundInvalid("bukkit sound"),
+                            StringUtil.foundAt(file, path, stringInLine),
+                            StringUtil.debugDidYouMean(stringSound.toUpperCase(), Sound.class));
                     debug.log(LogLevel.ERROR,
                             "Found an invalid bukkit sound in configurations!",
                             "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations");
