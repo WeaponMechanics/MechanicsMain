@@ -16,12 +16,14 @@ test:
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
     Projectile_Speed: 15
     Projectiles_Per_Shot: 1
     Delay_Between_Shots: 20
     Selective_Fire:
       Trigger:
-        Main_Hand: "DROP_ITEM"
+        Main_Hand: "SWAP_TO_OFF_HAND"
+        Off_Hand: "SWAP_TO_OFF_HAND"
     Fully_Automatic_Shots_Per_Second: 60
     Burst:
       Shots_Per_Burst: 3
@@ -65,6 +67,7 @@ test:
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
     Zoom_Amount: 8
     Night_Vision: true
     Zoom_Stacking:
@@ -79,7 +82,8 @@ test:
       Time: 20
   Reload:
     Trigger:
-      Main_Hand: "SWAP_TO_OFF_HAND"
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
     Magazine_Size: 30
     #Ammo_Per_Reload: 2
     #Unload_Ammo_On_Reload: true

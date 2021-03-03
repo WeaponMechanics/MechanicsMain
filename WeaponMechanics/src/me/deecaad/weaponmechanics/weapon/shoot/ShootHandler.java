@@ -474,7 +474,8 @@ public class ShootHandler implements IValidator {
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastShotTime(System.currentTimeMillis());
 
-        Mechanics.use(weaponTitle + ".Shoot", new CastData(entityWrapper, weaponTitle, weaponStack));
+        Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
+        if (shootMechanics != null) shootMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
