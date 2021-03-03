@@ -601,12 +601,10 @@ public class CustomProjectile implements ICustomProjectile {
             }
 
             // Then try through
-            if (through != null && through.getBlocks() != null) {
-                if (!through.handleThrough(throughCollisions, blockCollision, motion)) {
-                    // Continue since projectile went through this block
-                    // -> No need for bouncy check as this block should be ignored...
-                    continue;
-                }
+            if (through != null && through.hasBlocks() && through.handleThrough(throughCollisions, blockCollision, motion)) {
+                // Continue since projectile went through this block
+                // -> No need for bouncy check as this block should be ignored...
+                continue;
             }
 
             // Then try bouncy
@@ -651,12 +649,10 @@ public class CustomProjectile implements ICustomProjectile {
             }
 
             // Then try through
-            if (through != null && through.getEntities() != null) {
-                if (!through.handleThrough(throughCollisions, entityCollision, motion)) {
-                    // Continue since projectile went through this entity
-                    // -> No need for bouncy check as this entity should be ignored...
-                    continue;
-                }
+            if (through != null && through.hasEntities() && through.handleThrough(throughCollisions, entityCollision, motion)) {
+                // Continue since projectile went through this entity
+                // -> No need for bouncy check as this entity should be ignored...
+                continue;
             }
 
             // Then try bouncy
