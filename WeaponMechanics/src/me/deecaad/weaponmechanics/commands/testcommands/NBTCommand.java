@@ -32,7 +32,7 @@ public class NBTCommand extends SubCommand {
 
         String tags = CompatibilityAPI.getNBTCompatibility().getNBTDebug(item);
 
-        WeaponMechanics.debug.info(tags);
+        WeaponMechanics.debug.debug(tags);
         sender.sendMessage(tags);
     }
 }

@@ -37,6 +37,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -109,6 +110,7 @@ public class WeaponMechanics extends JavaPlugin {
         Logger logger = getLogger();
         int level = getConfig().getInt("Debug_Level", 2);
         debug = new Debugger(logger, level, true);
+        MechanicsCore.debug.setLevel(level);
         debug.permission = "weaponmechanics.errorlog";
         debug.msg = "WeaponMechanics had %s error(s) in console. Check console for instructions on why the error occurred and how to fix it.";
 
@@ -145,7 +147,7 @@ public class WeaponMechanics extends JavaPlugin {
         entityWrappers = new HashMap<>();
 
         // Create files
-        debug.info("Loading config.yml");
+        debug.debug("Loading config.yml");
         new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml", ".png");
 
         // Fill config.yml mappings
@@ -166,7 +168,7 @@ public class WeaponMechanics extends JavaPlugin {
         }
 
         // Register packet listeners
-        debug.info("Creating packet listeners");
+        debug.debug("Creating packet listeners");
         PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
         packetListener.addPacketHandler(new OutSetSlotListener(), true); // reduce/remove weapons from going up and down
         packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
@@ -184,7 +186,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Lets just use command map for all commands.
         // This allows registering new commands from configurations during runtime
-        debug.info("Registering commands");
+        debug.debug("Registering commands");
         Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
         SimpleCommandMap simpleCommandMap = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
 
@@ -196,7 +198,7 @@ public class WeaponMechanics extends JavaPlugin {
         // Start update checker task and make the instance
         if (basicConfiguration.getBool("Update_Checker.Enable")) {
 
-            debug.info("Checking for updates");
+            debug.debug("Checking for updates");
             try {
                 Integer.parseInt("%%__RESOURCE__%%");
 
@@ -217,7 +219,7 @@ public class WeaponMechanics extends JavaPlugin {
             getPlayerWrapper(player);
         }
 
-        debug.info("Serializing config");
+        debug.debug("Serializing config");
 
         if (configurations == null) {
             configurations = new LinkedConfig();
@@ -290,7 +292,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
-        debug.log(LogLevel.INFO, "Enabled WeaponMechanics in " + seconds + "s");
+        debug.debug("Enabled WeaponMechanics in " + seconds + "s");
     }
 
     public void onReload() {
@@ -310,15 +312,8 @@ public class WeaponMechanics extends JavaPlugin {
     public void onDisable() {
         BlockDamageData.regenerateAll();
 
-        // First cancel everything
-        for (IEntityWrapper entityWrapper : entityWrappers.values()) {
-            int oldMoveTask = entityWrapper.getMoveTask();
-            if (oldMoveTask != 0) {
-                Bukkit.getScheduler().cancelTask(oldMoveTask);
-            }
-            entityWrapper.getMainHandData().cancelTasks();
-            entityWrapper.getOffHandData().cancelTasks();
-        }
+        HandlerList.unregisterAll(this);
+        getServer().getScheduler().cancelTasks(this);
 
         weaponHandler = null;
         updateChecker = null;
@@ -326,6 +321,7 @@ public class WeaponMechanics extends JavaPlugin {
         mainCommand = null;
         configurations = null;
         basicConfiguration = null;
+        customProjectilesRunnable = null;
         plugin = null;
         debug = null;
     }

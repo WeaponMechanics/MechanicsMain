@@ -1,6 +1,5 @@
 package me.deecaad.core.packetlistener;
 
-import me.deecaad.core.MechanicsPlugin;
 import me.deecaad.core.utils.Debugger;
 import org.bukkit.plugin.Plugin;
 
@@ -20,16 +19,6 @@ public class PacketHandlerListener extends PacketListener {
 
     private final Map<Class<?>, List<PacketHandler>> inHandlers;
     private final Map<Class<?>, List<PacketHandler>> outHandlers;
-
-    /**
-     * Shorthand implementation for when your plugin is a
-     * {@link MechanicsPlugin}.
-     *
-     * @param plugin The non-null plugin to register this listener to.
-     */
-    public PacketHandlerListener(@Nonnull MechanicsPlugin plugin) {
-        this(plugin, plugin.getDebug());
-    }
 
     /**
      * Default implementation of the super class constructor.

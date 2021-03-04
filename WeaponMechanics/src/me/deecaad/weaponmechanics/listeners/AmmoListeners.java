@@ -33,10 +33,10 @@ public class AmmoListeners implements Listener {
         ItemStack magazineItem = e.getCurrentItem();
         if (magazineItem.getType() == Material.AIR) return;
 
-        int magazineAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(magazineItem);
-
         // Check if clicked item is magazine item (so it can be filled)
-        //if (magazineAmmoLeft == null) return;
+        if (!CustomTag.ITEM_AMMO_LEFT.hasInteger(magazineItem)) return;
+
+        int magazineAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(magazineItem);
 
         String magazineName = CustomTag.ITEM_AMMO_NAME.getString(magazineItem);
         if (magazineName == null) return; // this shouldn't even be possible, but just quick check
@@ -48,8 +48,7 @@ public class AmmoListeners implements Listener {
 
         // Check that cursor item is ammo item
         // And that it isn't magazine item
-        if (ammoName == null && CustomTag.ITEM_AMMO_LEFT.hasInteger(ammoItem)) return;
-
+        if (ammoName == null || CustomTag.ITEM_AMMO_LEFT.hasInteger(ammoItem)) return;
 
         ItemAmmo itemAmmo = ItemAmmo.getByName(magazineName);
         if (itemAmmo == null) {

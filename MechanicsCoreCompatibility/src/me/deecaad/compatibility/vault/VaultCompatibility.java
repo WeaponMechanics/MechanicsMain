@@ -38,11 +38,11 @@ public class VaultCompatibility implements IVaultCompatibility, Listener {
         Economy economy = services.load(Economy.class);
 
         if (this.chat != chat)
-            debug.info("Registered new Vault chat: " + (chat == null ? "null" : chat.getName()));
+            debug.debug("Registered new Vault chat: " + (chat == null ? "null" : chat.getName()));
         if (this.permission != permission)
-            debug.info("Registered new Vault permission: " + (permission == null ? "null" : permission.getName()));
+            debug.debug("Registered new Vault permission: " + (permission == null ? "null" : permission.getName()));
         if (this.economy != economy)
-            debug.info("Registered new Vault economy: " + (economy == null ? "null" : economy.getName()));
+            debug.debug("Registered new Vault economy: " + (economy == null ? "null" : economy.getName()));
 
         this.chat = chat;
         this.permission = permission;

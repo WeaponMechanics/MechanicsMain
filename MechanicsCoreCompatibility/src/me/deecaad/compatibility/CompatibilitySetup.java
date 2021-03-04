@@ -35,7 +35,7 @@ public class CompatibilitySetup {
     public <T> T getCompatibleVersion(Class<T> interfaceClazz, String directory) {
         String version = getVersionAsString();
         try {
-            Class<?> compatibilityClass = Class.forName(directory + "." + version);
+            Class<?> compatibilityClass = Class.forName(directory + "." + version, false, interfaceClazz.getClassLoader());
             Object compatibility = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(compatibilityClass));
             return compatibility != null ? interfaceClazz.cast(compatibility) : getReflectionVersion(directory, interfaceClazz);
         } catch (ClassNotFoundException | ClassCastException e) {
@@ -46,7 +46,7 @@ public class CompatibilitySetup {
 
     private <T> T getReflectionVersion(String directory, Class<T> interfaceClazz) {
         try {
-            Class<?> reflectionCompatibilityClass = Class.forName(directory + ".Reflection");
+            Class<?> reflectionCompatibilityClass = Class.forName(directory + ".Reflection", false, interfaceClazz.getClassLoader());
             Object reflectionCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(reflectionCompatibilityClass));
             if (reflectionCompatibility == null) return null;
             return interfaceClazz.cast(reflectionCompatibility);
