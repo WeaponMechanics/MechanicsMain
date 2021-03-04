@@ -11,7 +11,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
@@ -176,6 +175,10 @@ public class CustomProjectile implements ICustomProjectile {
     @Override
     public Vector getLocation() {
         return this.location.clone();
+    }
+
+    public Location getBukkitLocation() {
+        return this.location.toLocation(world, projectileDisguiseYaw, projectileDisguisePitch);
     }
 
     @Override
@@ -598,12 +601,10 @@ public class CustomProjectile implements ICustomProjectile {
             }
 
             // Then try through
-            if (through != null && through.getBlocks() != null) {
-                if (!through.handleThrough(throughCollisions, blockCollision, motion)) {
-                    // Continue since projectile went through this block
-                    // -> No need for bouncy check as this block should be ignored...
-                    continue;
-                }
+            if (through != null && through.hasBlocks() && through.handleThrough(throughCollisions, blockCollision, motion)) {
+                // Continue since projectile went through this block
+                // -> No need for bouncy check as this block should be ignored...
+                continue;
             }
 
             // Then try bouncy
@@ -648,12 +649,10 @@ public class CustomProjectile implements ICustomProjectile {
             }
 
             // Then try through
-            if (through != null && through.getEntities() != null) {
-                if (!through.handleThrough(throughCollisions, entityCollision, motion)) {
-                    // Continue since projectile went through this entity
-                    // -> No need for bouncy check as this entity should be ignored...
-                    continue;
-                }
+            if (through != null && through.hasEntities() && through.handleThrough(throughCollisions, entityCollision, motion)) {
+                // Continue since projectile went through this entity
+                // -> No need for bouncy check as this entity should be ignored...
+                continue;
             }
 
             // Then try bouncy
@@ -716,7 +715,6 @@ public class CustomProjectile implements ICustomProjectile {
             }
         }
 
-        // World.getNearbyEntities() is not allowed in async (entity checks aren't meant to be used async)
         for (Chunk chunk : chunks) {
             for (final Entity entity : chunk.getEntities()) {
                 if (entity.getEntityId() == shooter.getEntityId()) continue;

@@ -4,7 +4,7 @@ Firearm_Action:
   Firearm_Action_Frequency: <use every x amount of shots>
   Open:
     Time: <ticks>
-    # All registered mechanics
+    Mechanics: <MechanicsSerializer>
   Close:
     Time: <ticks>
-    # All registered mechanics
+    Mechanics: <MechanicsSerializer>

@@ -178,8 +178,8 @@ public class FirearmAction implements Serializer<FirearmAction> {
             return null;
         }
 
-        Mechanics open = new Mechanics().serialize(file, configurationSection, path + ".Open");
-        Mechanics close = new Mechanics().serialize(file, configurationSection, path + ".Close");
+        Mechanics open = new Mechanics().serialize(file, configurationSection, path + ".Open.Mechanics");
+        Mechanics close = new Mechanics().serialize(file, configurationSection, path + ".Close.Mechanics");
 
         return new FirearmAction(type, firearmActionFrequency, openTime, closeTime, open, close);
     }

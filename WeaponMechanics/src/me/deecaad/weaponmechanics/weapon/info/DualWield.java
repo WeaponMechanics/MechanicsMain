@@ -98,7 +98,7 @@ public class DualWield implements Serializer<DualWield> {
             return null;
         }
         boolean whitelist = configurationSection.getBoolean(path + ".Whitelist", false);
-        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path);
+        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics_On_Deny");
         return new DualWield(whitelist, weapons, mechanics);
     }
 }

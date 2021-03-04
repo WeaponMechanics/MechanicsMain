@@ -7,6 +7,7 @@ import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -26,7 +27,7 @@ public class MechanicsCore extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        debug = new Debugger(getLogger(), 3, true);
+        debug = new Debugger(getLogger(), 2, true);
         plugin = this;
     }
 
@@ -53,6 +54,8 @@ public class MechanicsCore extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        HandlerList.unregisterAll(this);
+        getServer().getScheduler().cancelTasks(this);
         PlaceholderAPI.onDisable();
         plugin = null;
         serializersList = null;

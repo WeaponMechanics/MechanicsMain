@@ -4,13 +4,13 @@ Shoot:
   Projectiles_Per_Shot: <amount>
   Selective_Fire:
     Trigger: <trigger serializer>
-    # All registered mechanics
+    Mechanics: <MechanicsSerializer>
   Delay_Between_Shots: <ticks>
   Fully_Automatic_Shots_Per_Second: <amount>
   Burst:
     Shots_Per_Burst: <amount>
     Ticks_Between_Each_Shot: <ticks>
-  # All registered mechanics
+  Mechanics: <MechanicsSerializer>
   Spread: <spread serializer>
   Projectile: <projectile serializer>
   Recoil: <recoil serializer>

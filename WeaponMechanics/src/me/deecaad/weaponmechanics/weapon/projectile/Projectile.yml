@@ -27,50 +27,49 @@ Projectile: <path to another Projectile key>
       When_Raining_Or_Snowing: <multiplier>
   Sticky:
     Blocks:
-      Stick_To_Any_Block: <true/false>
+      Allow_Any_Block: <true/false>
       Whitelist: <true/false>
       List:
         - <Material>:<data>
         - <etc.>
     Entities:
       Allow_Stick_To_Entities_After_Stick_Block: <true/false>
-      Stick_To_Any_Entity: <true/false>
+      Allow_Any_Entity: <true/false>
       Whitelist: <true/false>
       List:
         - <EntityType>
         - <etc.>
   Bouncy:
-    Maximum_Bounce_Amount: <amount>
     Blocks:
-      Bounce_From_Any_Block: <true/false>
+      Maximum_Bounce_Amount: <amount>
+      Allow_Any_Block: <true/false>
       Default_Speed_Modifier: <multiplier>
-      Default_Damage_Modifier: <amount>
       Whitelist: <true/false>
       List:
-        - <Material>:<data>-<speed multiplier>-<damage modifier>
+        - <Material>:<data>-<speed multiplier>
         - <etc.>
     Entities:
-      Bounce_From_Any_Entity: <true/false>
+      Maximum_Bounce_Amount: <amount>
+      Allow_Any_Entity: <true/false>
       Default_Speed_Modifier: <multiplier>
-      Default_Damage_Modifier: <amount>
       Whitelist: <true/false>
       List:
-        - <EntityType>-<speed multiplier>-<damage modifier>
+        - <EntityType>-<speed multiplier>
         - <etc.>
   Through:
     Blocks:
-      Default_Speed_Modifier: <multiplier>
-      Default_Damage_Modifier: <amount>
       Maximum_Pass_Throughs: <maximum block pass throughs>
+      Allow_Any_Block: <true/false>
+      Default_Speed_Modifier: <multiplier>
       Whitelist: <true/false>
       List:
-        - <Material>:<data>-<speed multiplier>-<damage modifier>
+        - <Material>:<data>-<speed multiplier>
         - <etc.>
     Entities:
-      Default_Speed_Modifier: <multiplier>
-      Default_Damage_Modifier: <amount>
       Maximum_Pass_Throughs: <maximum entity pass throughs>
+      Allow_Any_Entity: <true/false>
+      Default_Speed_Modifier: <multiplier>
       Whitelist: <true/false>
       List:
-        - <EntityType>-<speed multiplier>-<damage modifier>
+        - <EntityType>-<speed multiplier>
         - <etc.>

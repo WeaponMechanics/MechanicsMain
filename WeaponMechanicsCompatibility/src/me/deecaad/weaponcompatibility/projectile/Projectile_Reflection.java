@@ -1,6 +1,7 @@
 package me.deecaad.weaponcompatibility.projectile;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
@@ -266,9 +267,9 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         }
 
         if (metadata == null) {
-            sendUpdatePackets(customProjectile, 22500, spawn, headRotation);
+            DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, headRotation);
         } else {
-            sendUpdatePackets(customProjectile, 22500, spawn, metadata, headRotation);
+            DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, metadata, headRotation);
         }
         updateDisguise(customProjectile, location, motion, location);
     }
@@ -290,7 +291,6 @@ public class Projectile_Reflection implements IProjectileCompatibility {
         } else {
             velocity = ReflectionUtil.newInstance(entityVelocityPacket, projectileDisguiseId, ReflectionUtil.newInstance(vec3d, motion.getX(), motion.getY(), motion.getZ()));
         }
-        double motionLength = customProjectile.getMotionLength();
 
         Object move;
         if (version < 1.09) {
@@ -329,14 +329,15 @@ public class Projectile_Reflection implements IProjectileCompatibility {
                 move = ReflectionUtil.newInstance(entityMoveLookPacket, projectileDisguiseId, x, y, z, convertYawToByte(customProjectile, yaw), convertPitchToByte(customProjectile, pitch), false);
             }
         }
-        sendUpdatePackets(customProjectile, 8050, velocity, move);
+        DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), velocity, move);
     }
 
+    @SuppressWarnings("PrimitiveArrayArgumentToVarargsMethod")
     @Override
     public void destroyDisguise(CustomProjectile customProjectile) {
         Object destroy = ReflectionUtil.newInstance(entityDestroyPacket, new int[]{ customProjectile.getProjectileDisguiseId() });
 
-        sendUpdatePackets(customProjectile, 22500, destroy);
+        DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), destroy);
     }
 
     @Override

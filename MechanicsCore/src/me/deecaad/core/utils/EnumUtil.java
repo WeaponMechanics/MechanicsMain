@@ -1,12 +1,7 @@
 package me.deecaad.core.utils;
 
 import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This final utility class outlines static methods that operate on or return
@@ -54,6 +49,39 @@ public final class EnumUtil {
     }
 
     /**
+     * Returns an immutable list of enum values that match the input. If
+     * the <code>input</code> starts with a <code>$</code>, all enum values that
+     * contain the input are added to the list.
+     *
+     * <p>Otherwise, this method returns an immutable list of 0 or 1 enums values.
+     *
+     * @param input The input matcher. If the input starts with a $, it matches
+     *              multiple enum values.
+     * @return A non-null, immutable list of all parsed enum values.
+     * @see Collections#unmodifiableList(List)
+     * @see Collections#singletonList(Object)
+     * @see Collections#emptyList()
+     */
+    public static <T extends Enum<T>> List<T> parseEnums(Class<T> clazz, String input) {
+        input = input.trim().toUpperCase();
+
+        if (input.startsWith("$")) {
+            List<T> list = new ArrayList<>();
+            String base = input.substring(1);
+
+            for (String enumValue : EnumUtil.getOptions(clazz)) {
+                if (enumValue.contains(base)) {
+                    list.add(Enum.valueOf(clazz, enumValue));
+                }
+            }
+            return Collections.unmodifiableList(list);
+        } else {
+            Optional<T> enumValue = EnumUtil.getIfPresent(clazz, input);
+            return enumValue.map(Collections::singletonList).orElse(Collections.emptyList());
+        }
+    }
+
+    /**
      * Returns an {@link Enum} of the given {@link Class} type as an
      * {@link Optional}. The resulting {@link Optional} will be empty if no
      * {@link Enum} with the <code>name</code> exists.
@@ -67,7 +95,7 @@ public final class EnumUtil {
      * @return An optional of the enum found, or an empty optional.
      */
     public static <T extends Enum<T>> Optional<T> getIfPresent(Class<T> clazz, String name) {
-        WeakReference<? extends Enum<?>> reference = getConstants(clazz).get(name);
+        WeakReference<? extends Enum<?>> reference = getConstants(clazz).get(name.toUpperCase());
         return reference == null ? Optional.empty() : Optional.of(clazz.cast(reference.get()));
     }
 

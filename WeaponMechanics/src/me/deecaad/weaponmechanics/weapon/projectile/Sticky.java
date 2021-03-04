@@ -1,54 +1,40 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Sticky implements Serializer<Sticky> {
 
-    private boolean stickToAnyBlock;
-    private boolean stickToAnyEntity;
     private boolean allowStickToEntitiesAfterStickBlock;
-    private StickyData blocks, entities;
+    private ProjectileListData<Material> blocks;
+    private ProjectileListData<EntityType> entities;
 
     /**
      * Empty for serializers
      */
     public Sticky() { }
 
-    public Sticky(boolean stickToAnyBlock, boolean stickToAnyEntity, StickyData blocks, StickyData entities, boolean allowStickToEntitiesAfterStickBlock) {
-        this.stickToAnyBlock = stickToAnyBlock;
-        this.stickToAnyEntity = stickToAnyEntity;
+    public Sticky(boolean allowStickToEntitiesAfterStickBlock,
+                  ProjectileListData<Material> blocks, ProjectileListData<EntityType> entities) {
+        this.allowStickToEntitiesAfterStickBlock = allowStickToEntitiesAfterStickBlock;
         this.blocks = blocks;
         this.entities = entities;
-        this.allowStickToEntitiesAfterStickBlock = allowStickToEntitiesAfterStickBlock;
     }
 
-    public boolean canStick(Material material, byte data) {
-        return stickToAnyBlock
-                || (blocks != null && blocks.canStick((CompatibilityAPI.getVersion() >= 1.13 ? material.name() : material.name() + ":" + data)));
+    public boolean canStick(Material material) {
+        return blocks != null && blocks.isValid(material) != null;
     }
 
     public boolean canStick(EntityType entityType) {
-        return stickToAnyEntity
-                || (entities != null && entities.canStick(entityType.name()));
+        return entities != null && entities.isValid(entityType) != null;
     }
 
     public boolean isAllowStickToEntitiesAfterStickBlock() {
@@ -61,7 +47,7 @@ public class Sticky implements Serializer<Sticky> {
     public boolean handleSticky(CustomProjectile customProjectile, CollisionData collision) {
         Block block = collision.getBlock();
         if (block != null) {
-            return canStick(block.getType(), block.getData())
+            return canStick(block.getType())
                     && customProjectile.setStickedData(new StickedData(block.getLocation(), collision.getHitLocation()));
         }
         LivingEntity livingEntity = collision.getLivingEntity();
@@ -93,7 +79,7 @@ public class Sticky implements Serializer<Sticky> {
 
                 CollisionData entityInBox = projectileBox.getEntityInBox(customProjectile.getWorld(),
                         entity -> entity.getEntityId() == customProjectile.getShooter().getEntityId()
-                                && !projectile.getSticky().canStick(entity.getType()));
+                                || !projectile.getSticky().canStick(entity.getType()));
                 if (entityInBox != null
                         && (throughCollisions == null || !throughCollisions.contains(entityInBox))
                         && (bouncyCollisions == null || !bouncyCollisions.contains(entityInBox))) {
@@ -121,78 +107,14 @@ public class Sticky implements Serializer<Sticky> {
 
     @Override
     public Sticky serialize(File file, ConfigurationSection configurationSection, String path) {
-        StickyData blocks = tryStickyData(file, configurationSection, path + ".Blocks", true);
-        StickyData entities = tryStickyData(file, configurationSection, path + ".Entities", false);
-        boolean stickToAnyBlock = configurationSection.getBoolean(path + ".Blocks.Stick_To_Any_Block", false);
-        boolean stickToAnyEntity = configurationSection.getBoolean(path + ".Entities.Stick_To_Any_Entity", false);
-        if (blocks == null && entities == null && !stickToAnyBlock && !stickToAnyEntity) {
+        ProjectileListData<Material> blocks = new ProjectileListData<Material>().serialize(Material.class, file, configurationSection, path + ".Blocks");
+        ProjectileListData<EntityType> entities = new ProjectileListData<EntityType>().serialize(EntityType.class, file, configurationSection, path + ".Entities");
+
+        if (blocks == null && entities == null) {
             return null;
         }
+
         boolean allowStickToEntitiesAfterStickBlock = configurationSection.getBoolean(path + ".Entities.Allow_Stick_To_Entities_After_Stick_Block", false);
-        return new Sticky(stickToAnyBlock, stickToAnyEntity, blocks, entities, allowStickToEntitiesAfterStickBlock);
-    }
-
-    private StickyData tryStickyData(File file, ConfigurationSection configurationSection, String path, boolean blocks) {
-        List<?> list = configurationSection.getList(path + ".List");
-        if (list == null || list.isEmpty()) return null;
-
-        Set<String> setList = new HashSet<>();
-        for (Object data : list) {
-            String dataToUpper = data.toString().toUpperCase();
-            if (blocks) { // blocks
-                ItemStack itemStack;
-                try {
-                    itemStack = MaterialUtil.fromStringToItemStack(dataToUpper);
-                } catch (IllegalArgumentException e) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("material"),
-                            StringUtil.foundAt(file, path + ".List", dataToUpper),
-                            StringUtil.debugDidYouMean(dataToUpper.split(":")[0], Material.class));
-                    continue;
-                }
-                if (CompatibilityAPI.getVersion() >= 1.13) {
-                    setList.add(itemStack.getType().name());
-                } else {
-                    setList.add(itemStack.getType().name() + ":" + itemStack.getData().getData());
-                }
-            } else { // entities
-                EntityType entity;
-                try {
-                    entity = EntityType.valueOf(dataToUpper);
-                } catch (IllegalArgumentException e) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("entity type"),
-                            StringUtil.foundAt(file, path + ".List", dataToUpper),
-                            StringUtil.debugDidYouMean(dataToUpper, EntityType.class));
-                    continue;
-                }
-                setList.add(entity.name());
-            }
-        }
-        if (setList.isEmpty()) return null;
-        boolean whitelist = configurationSection.getBoolean(path + ".Whitelist", true);
-        return new StickyData(whitelist, setList);
-    }
-
-    public static class StickyData {
-
-        private final boolean whitelist;
-        private final Set<String> list;
-
-        public StickyData(boolean whitelist, Set<String> list) {
-            this.whitelist = whitelist;
-            this.list = list;
-        }
-
-        public boolean canStick(String key) {
-            if (!whitelist) {
-                // If blacklist and list contains key
-                // -> Can't stick
-                return !list.contains(key);
-            }
-            // If whitelist and list DOES NOT contain key
-            // -> Can't stick
-            return list.contains(key);
-        }
+        return new Sticky(allowStickToEntitiesAfterStickBlock, blocks, entities);
     }
 }

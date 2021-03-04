@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +27,7 @@ public final class MaterialUtil {
     }
 
     // Don't let anyone instantiate this class
-    private MaterialUtil() {
-    }
+    private MaterialUtil() { }
 
     /**
      * Returns a bukkit item based on the input string.
@@ -85,25 +83,7 @@ public final class MaterialUtil {
      * @see Collections#emptyList()
      */
     public static List<Material> parseMaterials(String input) {
-        input = input.trim().toUpperCase();
-
-        if (input.startsWith("$")) {
-
-            List<Material> materials = new ArrayList<>();
-            String base = input.substring(1);
-
-            for (Material mat : Material.values()) {
-                if (mat.name().contains(base)) {
-                    materials.add(mat);
-                }
-            }
-
-            return Collections.unmodifiableList(materials);
-
-        } else {
-            Optional<Material> material = EnumUtil.getIfPresent(Material.class, input);
-            return material.map(Collections::singletonList).orElse(Collections.emptyList());
-        }
+        return EnumUtil.parseEnums(Material.class, input);
     }
 
     /**
