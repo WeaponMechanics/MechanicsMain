@@ -7,7 +7,7 @@ import me.deecaad.core.packetlistener.PacketHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
-public class ArmorEquipTrigger extends PacketHandler {
+public class ArmorEquipListener extends PacketHandler {
 
     private static final ArmorEquipEvent.ArmorSlot[] SLOTS = new ArmorEquipEvent.ArmorSlot[] {
             ArmorEquipEvent.ArmorSlot.HEAD,
@@ -16,7 +16,7 @@ public class ArmorEquipTrigger extends PacketHandler {
             ArmorEquipEvent.ArmorSlot.FEET
     };
 
-    public ArmorEquipTrigger() {
+    public ArmorEquipListener() {
         super("PacketPlayOutSetSlot");
     }
 

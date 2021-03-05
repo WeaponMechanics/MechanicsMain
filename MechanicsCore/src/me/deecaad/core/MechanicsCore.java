@@ -1,6 +1,6 @@
 package me.deecaad.core;
 
-import me.deecaad.core.events.triggers.ArmorEquipTrigger;
+import me.deecaad.core.events.triggers.ArmorEquipListener;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
@@ -49,7 +49,7 @@ public class MechanicsCore extends JavaPlugin {
         }
 
         PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-        packetListener.addPacketHandler(new ArmorEquipTrigger(), true);
+        packetListener.addPacketHandler(new ArmorEquipListener(), true);
     }
 
     @Override
