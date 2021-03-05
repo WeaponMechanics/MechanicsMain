@@ -13,6 +13,11 @@ public class OutSetSlotListener extends PacketHandler {
 
     @Override
     public void onPacket(Packet packet) {
+        if (true) {
+            return;
+        }
+
+
         IPlayerWrapper wrapper = WeaponMechanics.getPlayerWrapper(packet.getPlayer());
 
         if (!wrapper.isDenyNextSetSlotPacket()) {

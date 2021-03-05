@@ -44,15 +44,12 @@ public class WeaponListeners implements Listener {
 
     @EventHandler
     public void death(EntityDeathEvent e) {
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getEntity(), true);
-        if (entityWrapper == null) return;
-
-        entityWrapper.getMainHandData().cancelTasks();
-        entityWrapper.getOffHandData().cancelTasks();
+        WeaponMechanics.removeEntityWrapper(e.getEntity());
     }
 
     @EventHandler (ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
+        // todo remove this weapon equip event is made
         if (!(e.getWhoClicked() instanceof Player)) return;
 
         // Off hand is also considered as quickbar slot

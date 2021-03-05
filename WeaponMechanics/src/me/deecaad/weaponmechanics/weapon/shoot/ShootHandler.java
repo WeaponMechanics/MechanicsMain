@@ -250,7 +250,11 @@ public class ShootHandler implements IValidator {
 
         shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true);
 
-        doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+        if (reloadHandler.getAmmoLeft(weaponStack) == 0) {
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+        } else {
+            doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+        }
 
         return true;
     }
@@ -273,9 +277,12 @@ public class ShootHandler implements IValidator {
 
                 // START RELOAD STUFF
 
-                if (!weaponHandler.getReloadHandler().consumeAmmo(entityWrapper, weaponStack, 1)) {
+                ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+                if (!reloadHandler.consumeAmmo(entityWrapper, weaponStack, 1)) {
                     handData.setBurstTask(0);
                     cancel();
+
+                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
                     return;
                 }
 
@@ -288,7 +295,11 @@ public class ShootHandler implements IValidator {
                     handData.setBurstTask(0);
                     cancel();
 
-                    doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+                    if (reloadHandler.getAmmoLeft(weaponStack) == 0) {
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    } else {
+                        doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+                    }
                 }
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, ticksBetweenEachShot).getTaskId());
@@ -317,7 +328,11 @@ public class ShootHandler implements IValidator {
                     handData.setFullAutoTask(0);
                     cancel();
 
-                    doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+                    if (ammoLeft == 0) {
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    } else {
+                        doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+                    }
 
                     return;
                 }
@@ -341,6 +356,8 @@ public class ShootHandler implements IValidator {
                     if (!reloadHandler.consumeAmmo(entityWrapper, weaponStack, shootAmount)) {
                         handData.setFullAutoTask(0);
                         cancel();
+
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
                         return;
                     }
                 }
@@ -381,6 +398,11 @@ public class ShootHandler implements IValidator {
             @Override
             public void run() {
                 firearmAction.readyState(weaponStack, entityWrapper);
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
+
                 handData.stopFirearmActionTasks();
             }
         };

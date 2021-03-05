@@ -1,12 +1,13 @@
 package me.deecaad.core;
 
-import me.deecaad.core.events.triggers.ArmorEquipTrigger;
+import me.deecaad.core.events.triggers.*;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
+import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -49,7 +50,9 @@ public class MechanicsCore extends JavaPlugin {
         }
 
         PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-        packetListener.addPacketHandler(new ArmorEquipTrigger(), true);
+        packetListener.addPacketHandler(new EquipListener(), true);
+
+        Bukkit.getPluginManager().registerEvents(new HandEquipListeners(), this);
     }
 
     @Override

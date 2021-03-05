@@ -16,7 +16,7 @@ import org.bukkit.event.world.ChunkUnloadEvent;
  *
  * It also regenerates blocks if chunks unload
  */
-public class ExplosionInteractionListener implements Listener {
+public class ExplosionInteractionListeners implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent e) {

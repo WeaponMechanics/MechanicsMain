@@ -17,7 +17,7 @@ import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.AmmoListeners;
-import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListener;
+import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
@@ -269,21 +269,21 @@ public class WeaponMechanics extends JavaPlugin {
                 // Registering events after serialization is completed to prevent any errors from happening
 
                 // TRIGGER EVENTS
-                Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
-                Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
+                Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
+                Bukkit.getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
                 if (CompatibilityAPI.getVersion() >= 1.09) {
-                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
-                    Bukkit.getServer().getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                    Bukkit.getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+                    Bukkit.getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
                 }
 
                 // WEAPON EVENTS
-                Bukkit.getServer().getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
+                Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
 
                 // AMMO EVENTS
                 Bukkit.getPluginManager().registerEvents(new AmmoListeners(), WeaponMechanics.this);
 
                 // EXPLOSION EVENT
-                Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListener(), WeaponMechanics.this);
+                Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListeners(), WeaponMechanics.this);
 
             }
         }.runTask(this);
