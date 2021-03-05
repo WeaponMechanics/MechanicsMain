@@ -144,11 +144,14 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         ItemMeta ogMeta = og.getItemMeta();
 
         String ogDisplayName = ogMeta.getDisplayName();
-        if (!meta.getDisplayName().equals(ogDisplayName)) {
+        if (ogMeta.hasDisplayName() != meta.hasDisplayName()
+                || (ogMeta.hasDisplayName() && !ogMeta.getDisplayName().equalsIgnoreCase(meta.getDisplayName()))) {
             meta.setDisplayName(PlaceholderAPI.applyPlaceholders(ogDisplayName, playerWrapper.getPlayer(), weaponStack, weaponTitle));
             hasMetaChanges = true;
         }
-        if (!meta.getLore().equals(ogMeta.getLore())) {
+
+        if (ogMeta.hasLore() != meta.hasLore()
+                || (ogMeta.hasLore() && !ogMeta.getLore().equals(meta.getLore()))) {
             meta.setLore(PlaceholderAPI.applyPlaceholders(ogMeta.getLore(), playerWrapper.getPlayer(), weaponStack, weaponTitle));
             hasMetaChanges = true;
         }
@@ -163,10 +166,12 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             hasMetaChanges = true;
         }
 
-        if (version >= 1.14 && ogMeta.hasCustomModelData()
-                && (!meta.hasCustomModelData() || meta.getCustomModelData() != ogMeta.getCustomModelData())) {
-            meta.setCustomModelData(ogMeta.getCustomModelData());
-            hasMetaChanges = true;
+        if (version >= 1.14) {
+            if (ogMeta.hasCustomModelData() != meta.hasCustomModelData()
+                    || (ogMeta.hasCustomModelData() && meta.getCustomModelData() != ogMeta.getCustomModelData())) {
+                meta.setCustomModelData(ogMeta.getCustomModelData());
+                hasMetaChanges = true;
+            }
         }
 
         if (hasMetaChanges) {

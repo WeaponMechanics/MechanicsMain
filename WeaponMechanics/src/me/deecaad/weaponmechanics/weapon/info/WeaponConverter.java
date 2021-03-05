@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.info;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -53,26 +54,20 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         ItemMeta weaponMeta = weaponStack.getItemMeta();
         ItemMeta otherMeta = other.getItemMeta();
         if (this.name) {
-            if (weaponMeta.hasDisplayName() && !otherMeta.hasDisplayName()
-                    || !weaponMeta.getDisplayName().equalsIgnoreCase(otherMeta.getDisplayName())) {
-                // If weapon would have display name, but other doesn't
-                // OR
-                // If weapon and other display names doesn't match
+            if (weaponMeta.hasDisplayName() != otherMeta.hasDisplayName()
+                    || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equalsIgnoreCase(otherMeta.getDisplayName()))) {
                 return false;
             }
         }
         if (this.lore) {
-            if (weaponMeta.hasLore() && !otherMeta.hasLore()
-                    || !weaponMeta.getLore().equals(otherMeta.getLore())) {
-                // If weapon would have lore, but other doesn't
-                // OR
-                // If weapon and other lore doesn't match
+            if (weaponMeta.hasLore() != otherMeta.hasLore()
+                    || (weaponMeta.hasLore() && !weaponMeta.getLore().equals(otherMeta.getLore()))) {
                 return false;
             }
         }
         if (this.enchantments) {
-            if (weaponMeta.hasEnchants() && !otherMeta.hasEnchants()
-                    || equals(weaponMeta.getEnchants(), otherMeta.getEnchants())) {
+            if (weaponMeta.hasEnchants() != otherMeta.hasEnchants()
+                    || (weaponMeta.hasEnchants() && !equals(weaponMeta.getEnchants(), otherMeta.getEnchants()))) {
                 // If weapon would have enchantments, but other doesn't
                 // OR
                 // If weapon and other enchantments doesn't match

@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -263,12 +264,18 @@ public class TriggerPlayerListeners implements Listener {
 
         if (mainWeapon != null) {
             playerWrapper.droppedWeapon();
-            weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield);
+
+            // This due to sometimes the instance changes in item drop...
+            Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, mainWeapon,
+                    useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand(),
+                    EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield));
         }
 
         // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
-
+        if (offWeapon != null) {
+            playerWrapper.droppedWeapon();
+            weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
+        }
     }
 
     @EventHandler

@@ -2,7 +2,6 @@ package me.deecaad.core.events;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -11,25 +10,15 @@ import org.bukkit.inventory.ItemStack;
  * or removes an item to/from an armor slot. This event is called 1 tick after
  * receiving the packet.
  */
-public class ArmorEquipEvent extends EntityEvent {
+public class ArmorEquipEvent extends EquipEvent {
 
     private static HandlerList handlerList = new HandlerList();
 
-    private final ArmorSlot slot;
-    private final ItemStack armor;
+    private final EquipmentSlot slot;
 
-    /**
-     * The constructor.
-     *
-     * @param what  The bukkit entity that is equipping the armor.
-     * @param slot  Which slot the item is being equipped to.
-     * @param armor The item being equipped, or null if the item is unequipped.
-     */
-    public ArmorEquipEvent(Entity what, ArmorSlot slot, ItemStack armor) {
-        super(what);
-
+    public ArmorEquipEvent(Entity what, ItemStack itemStack, EquipmentSlot slot) {
+        super(what, itemStack);
         this.slot = slot;
-        this.armor = armor;
     }
 
     /**
@@ -38,19 +27,8 @@ public class ArmorEquipEvent extends EntityEvent {
      *
      * @return The slot involved.
      */
-    public ArmorSlot getSlot() {
+    public EquipmentSlot getSlot() {
         return slot;
-    }
-
-    /**
-     * The item being equipped, or <code>null</code> if the item is being
-     * unequipped. The equipped item isn't always armor, as it can be a
-     * player head, a pumpkin, or a block placed there by a plugin.
-     *
-     * @return The item involved.
-     */
-    public ItemStack getArmor() {
-        return armor;
     }
 
     public static HandlerList getHandlerList() {
@@ -60,21 +38,5 @@ public class ArmorEquipEvent extends EntityEvent {
     @Override
     public HandlerList getHandlers() {
         return handlerList;
-    }
-
-    /**
-     * This enum outlines an armor slot belonging to a bukkit living entity.
-     *
-     * @see EquipmentSlot
-     */
-    public enum ArmorSlot {
-        HEAD,
-        CHEST,
-        LEGS,
-        FEET;
-
-        public EquipmentSlot asEquipmentSlot() {
-            return EquipmentSlot.valueOf(name());
-        }
     }
 }
