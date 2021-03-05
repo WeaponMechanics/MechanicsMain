@@ -234,7 +234,7 @@ Example:
 ## Projectile
 This section defines how your projectile moves and interacts with the environment. Remember that your projectiles 
 are not actually entities, this plugin just uses math to determine if a projectile hits something instead of letting
-minecraft handle it (which makes the plugin much faster then other gun plugins!).
+minecraft handle it.
 
 ```yaml
     Projectile: <path to another Projectile key>
