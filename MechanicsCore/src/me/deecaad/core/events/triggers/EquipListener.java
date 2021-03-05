@@ -6,12 +6,14 @@ import me.deecaad.core.events.ArmorEquipEvent;
 import me.deecaad.core.events.HandEquipEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
-import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,18 +23,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EquipListener extends PacketHandler {
+public class EquipListener extends PacketHandler implements Listener {
 
-    public EquipListener() {
+    // Following the singleton design structure to prevent multiple instances
+    // of this class
+    public static final EquipListener SINGLETON = new EquipListener();
+    
+    private final Map<Player, Map<EquipmentSlot, ItemStack>> oldItems;
+    
+    private EquipListener() {
         super("PacketPlayOutSetSlot");
+        
+        this.oldItems = new HashMap<>();
+    }
+    
+    @EventHandler
+    public void onDisable(PluginDisableEvent e) {
+        if (e.getPlugin() == MechanicsCore.getPlugin()) {
+            oldItems.clear();
+        }
     }
 
-    public static Map<EquipmentSlot, ItemStack> test = new HashMap<>();
+    @EventHandler (ignoreCancelled = true)
+    public void itemHeld(PlayerItemHeldEvent e) {
+        ItemStack item = e.getPlayer().getInventory().getItem(e.getNewSlot());
+        Bukkit.getPluginManager().callEvent(new HandEquipEvent(e.getPlayer(), item, EquipmentSlot.HAND));
+        oldItems.computeIfAbsent(e.getPlayer(), k -> new HashMap<>()).put(EquipmentSlot.HAND, item);
+    }
 
     @Override
     public void onPacket(Packet wrapper) {
 
         Player player = wrapper.getPlayer();
+        Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent(player, k -> new HashMap<>());
         int slotNum = (int) wrapper.getFieldValue("b");
 
         EquipmentSlot slot = null;
@@ -63,7 +86,7 @@ public class EquipListener extends PacketHandler {
         if (slot == null) return;
 
         ItemStack item = player.getEquipment().getItem(slot);
-        ItemStack oldItem = test.getOrDefault(slot, item);
+        ItemStack oldItem = items.get(slot);
 
         if (hasChanges(oldItem, item)) {
             EquipmentSlot finalSlot = slot;
@@ -76,7 +99,7 @@ public class EquipListener extends PacketHandler {
             });
         }
 
-        test.put(slot, item);
+        items.put(slot, item);
     }
 
     private boolean hasChanges(ItemStack ogStack, ItemStack other) {

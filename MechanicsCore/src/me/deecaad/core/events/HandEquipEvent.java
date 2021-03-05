@@ -7,8 +7,8 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * This class outlines a bukkit event that occurs when a bukkit player equips
- * or removes an item to/from an main hand or off hand. This event is called 1 tick after
- * receiving the packet.
+ * or removes an item to/from an main hand or off hand. This event is called 1
+ * tick after receiving the packet.
  */
 public class HandEquipEvent extends EquipEvent {
 
@@ -27,5 +27,14 @@ public class HandEquipEvent extends EquipEvent {
 
     public boolean isOffHand() {
         return !mainHand;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlerList;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return handlerList;
     }
 }

@@ -2,15 +2,12 @@ package me.deecaad.core.events;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 
-public class EquipEvent extends EntityEvent {
-
-    private static HandlerList handlerList = new HandlerList();
+public abstract class EquipEvent extends EntityEvent {
 
     private final ItemStack itemStack;
 
@@ -35,14 +32,5 @@ public class EquipEvent extends EntityEvent {
      */
     public boolean isEquipping() {
         return itemStack != null && itemStack.getType() != Material.AIR;
-    }
-
-    public static HandlerList getHandlerList() {
-        return handlerList;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
     }
 }
