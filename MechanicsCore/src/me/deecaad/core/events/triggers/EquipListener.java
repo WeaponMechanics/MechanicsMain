@@ -3,6 +3,7 @@ package me.deecaad.core.events.triggers;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.events.ArmorEquipEvent;
+import me.deecaad.core.events.HandDataUpdateEvent;
 import me.deecaad.core.events.HandEquipEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
@@ -101,8 +102,8 @@ public class EquipListener extends PacketHandler implements Listener {
         ItemStack item = player.getEquipment().getItem(slot);
         ItemStack oldItem = items.get(slot);
 
+        EquipmentSlot finalSlot = slot;
         if (hasChanges(oldItem, item)) {
-            EquipmentSlot finalSlot = slot;
             Bukkit.getScheduler().runTask(MechanicsCore.getPlugin(), () -> {
                 if (finalSlot == EquipmentSlot.HAND || slotNum == 45) {
                     Bukkit.getPluginManager().callEvent(new HandEquipEvent(player, item, finalSlot));
@@ -110,9 +111,32 @@ public class EquipListener extends PacketHandler implements Listener {
                     Bukkit.getPluginManager().callEvent(new ArmorEquipEvent(player, item, finalSlot));
                 }
             });
+        } else if (!hasDurabilityChanges(oldItem, item)) {
+
+            HandDataUpdateEvent dataUpdateEvent = new HandDataUpdateEvent(player, finalSlot, item, oldItem);
+            Bukkit.getPluginManager().callEvent(dataUpdateEvent);
+            if (dataUpdateEvent.isCancelled()) {
+                wrapper.setCancelled(true);
+            }
         }
 
         items.put(slot, item);
+    }
+
+    private boolean hasDurabilityChanges(ItemStack ogStack, ItemStack other) {
+        ItemMeta ogMeta = ogStack.getItemMeta();
+        ItemMeta otherMeta = other.getItemMeta();
+
+        if (CompatibilityAPI.getVersion() >= 1.132) {
+            if (((org.bukkit.inventory.meta.Damageable) otherMeta).getDamage() != ((org.bukkit.inventory.meta.Damageable) ogMeta).getDamage()) {
+                ((org.bukkit.inventory.meta.Damageable) otherMeta).setDamage(((org.bukkit.inventory.meta.Damageable) ogMeta).getDamage());
+                return true;
+            }
+        } else if (other.getDurability() != ogStack.getDurability()) {
+            return true;
+        }
+
+        return false;
     }
 
     private boolean hasChanges(ItemStack ogStack, ItemStack other) {
