@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -44,15 +45,27 @@ public class EquipListener extends PacketHandler implements Listener {
         }
     }
 
+    @EventHandler
+    public void quit(PlayerQuitEvent e) {
+        oldItems.remove(e.getPlayer());
+    }
+
     @EventHandler (ignoreCancelled = true)
     public void itemHeld(PlayerItemHeldEvent e) {
-        ItemStack item = e.getPlayer().getInventory().getItem(e.getNewSlot());
-        Bukkit.getPluginManager().callEvent(new HandEquipEvent(e.getPlayer(), item, EquipmentSlot.HAND));
+        Player player = e.getPlayer();
+        ItemStack item = player.getInventory().getItem(e.getNewSlot());
+        Bukkit.getPluginManager().callEvent(new HandEquipEvent(player, item, EquipmentSlot.HAND));
         oldItems.computeIfAbsent(e.getPlayer(), k -> new HashMap<>()).put(EquipmentSlot.HAND, item);
     }
 
     @Override
     public void onPacket(Packet wrapper) {
+
+        // Check that its hotbar slot edit
+        int windowId = (int) wrapper.getFieldValue("a");
+        if (windowId != 0) {
+            return;
+        }
 
         Player player = wrapper.getPlayer();
         Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent(player, k -> new HashMap<>());
