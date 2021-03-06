@@ -111,6 +111,12 @@ Damage:
     Swimming: -0.05
     Sprinting: 0.05
     In_Midair: 0.03
+  Critical_Points:
+    HEAD: 0.05
+    BODY: 0.0
+    ARMS: 0.0
+    LEGS: 0.0
+    FEET: 0.0
 
 # Configurations for explosions
 #
