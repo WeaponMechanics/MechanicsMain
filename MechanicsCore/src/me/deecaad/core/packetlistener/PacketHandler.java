@@ -47,7 +47,7 @@ public abstract class PacketHandler {
      * The code that should be run whenever a packet whose {@link Class}
      * matches {@link #getPacketClass()}.
      *
-     * @param packet The packet wrapper containing the packet.
+     * @param wrapper The packet wrapper containing the packet.
      */
-    public abstract void onPacket(Packet packet);
+    public abstract void onPacket(Packet wrapper);
 }

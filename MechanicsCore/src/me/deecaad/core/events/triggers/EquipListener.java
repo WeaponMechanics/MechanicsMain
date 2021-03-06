@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -112,7 +113,6 @@ public class EquipListener extends PacketHandler implements Listener {
                 }
             });
         } else if (!hasDurabilityChanges(oldItem, item)) {
-
             HandDataUpdateEvent dataUpdateEvent = new HandDataUpdateEvent(player, finalSlot, item, oldItem);
             Bukkit.getPluginManager().callEvent(dataUpdateEvent);
             if (dataUpdateEvent.isCancelled()) {
@@ -128,8 +128,8 @@ public class EquipListener extends PacketHandler implements Listener {
         ItemMeta otherMeta = other.getItemMeta();
 
         if (CompatibilityAPI.getVersion() >= 1.132) {
-            if (((org.bukkit.inventory.meta.Damageable) otherMeta).getDamage() != ((org.bukkit.inventory.meta.Damageable) ogMeta).getDamage()) {
-                ((org.bukkit.inventory.meta.Damageable) otherMeta).setDamage(((org.bukkit.inventory.meta.Damageable) ogMeta).getDamage());
+            if (((Damageable) otherMeta).getDamage() != ((Damageable) ogMeta).getDamage()) {
+                ((Damageable) otherMeta).setDamage(((Damageable) ogMeta).getDamage());
                 return true;
             }
         } else if (other.getDurability() != ogStack.getDurability()) {

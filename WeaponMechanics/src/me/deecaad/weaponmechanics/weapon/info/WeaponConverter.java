@@ -55,7 +55,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         ItemMeta otherMeta = other.getItemMeta();
         if (this.name) {
             if (weaponMeta.hasDisplayName() != otherMeta.hasDisplayName()
-                    || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equalsIgnoreCase(otherMeta.getDisplayName()))) {
+                    || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equals(otherMeta.getDisplayName()))) {
                 return false;
             }
         }

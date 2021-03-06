@@ -1,10 +1,16 @@
 package me.deecaad.weaponmechanics.listeners;
 
+import me.deecaad.core.events.HandDataUpdateEvent;
+import me.deecaad.core.events.HandEquipEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponEquipEvent;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,21 +31,39 @@ public class WeaponListeners implements Listener {
         this.weaponHandler = weaponHandler;
     }
 
+    @EventHandler
+    public void equip(HandEquipEvent e) {
+        if (!e.getEntityType().isAlive()) return;
+
+        LivingEntity entity = (LivingEntity) e.getEntity();
+        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(entity);
+        ItemStack weaponStack = e.getItemStack();
+
+        // Also try auto converting to weapon
+        String weaponTitle = weaponHandler.getInfoHandler().getWeaponTitle(weaponStack, true);
+
+        if (weaponTitle != null) {
+            if (e.getEntityType() == EntityType.PLAYER) {
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+            }
+            Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.isMainHand()));
+        }
+    }
+
+    @EventHandler (ignoreCancelled = true)
+    public void dataUpdate(HandDataUpdateEvent e) {
+        // This event is ran async
+        if (weaponHandler.getInfoHandler().getWeaponTitle(e.getItemStack(), false) != null) {
+            // Simply cancel all weapon NBT changes from being sent to player
+            e.setCancelled(true);
+        }
+    }
+
     @EventHandler (ignoreCancelled = true)
     public void itemHeld(PlayerItemHeldEvent e) {
-        Player player = e.getPlayer();
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(player);
-        entityWrapper.getMainHandData().cancelTasks();
+        WeaponMechanics.getEntityWrapper(e.getPlayer()).getMainHandData().cancelTasks();
         // No need to cancel off hand tasks since this is only called when changing held slot
-
-        ItemStack itemStackNewSlot = player.getInventory().getItem(e.getNewSlot());
-        String weaponTitle = weaponHandler.getInfoHandler().getWeaponTitle(itemStackNewSlot, false);
-        if (weaponTitle != null) {
-            WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) {
-                weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, itemStackNewSlot);
-            }
-        }
     }
 
     @EventHandler
@@ -49,7 +73,6 @@ public class WeaponListeners implements Listener {
 
     @EventHandler (ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
-        // todo remove this weapon equip event is made
         if (!(e.getWhoClicked() instanceof Player)) return;
 
         // Off hand is also considered as quickbar slot
