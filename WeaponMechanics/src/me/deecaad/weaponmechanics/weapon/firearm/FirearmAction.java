@@ -80,35 +80,31 @@ public class FirearmAction implements Serializer<FirearmAction> {
         }
     }
 
-    public void readyState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, FirearmState.READY);
+    public void readyState(ItemStack weaponStack) {
+        changeState(weaponStack, FirearmState.READY);
     }
 
-    public void openReloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, FirearmState.RELOAD_OPEN);
+    public void openReloadState(ItemStack weaponStack) {
+        changeState(weaponStack, FirearmState.RELOAD_OPEN);
     }
 
-    public void reloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, FirearmState.RELOAD);
+    public void reloadState(ItemStack weaponStack) {
+        changeState(weaponStack, FirearmState.RELOAD);
     }
 
-    public void closeReloadState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, FirearmState.RELOAD_CLOSE);
+    public void closeReloadState(ItemStack weaponStack) {
+        changeState(weaponStack, FirearmState.RELOAD_CLOSE);
     }
 
-    public void openShootState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, FirearmState.SHOOT_OPEN);
+    public void openShootState(ItemStack weaponStack) {
+        changeState(weaponStack, FirearmState.SHOOT_OPEN);
     }
 
-    public void closeShootState(ItemStack weaponStack, IEntityWrapper entityWrapper) {
-        changeState(weaponStack, entityWrapper, FirearmState.SHOOT_CLOSE);
+    public void closeShootState(ItemStack weaponStack) {
+        changeState(weaponStack, FirearmState.SHOOT_CLOSE);
     }
 
-    private void changeState(ItemStack weaponStack, IEntityWrapper entityWrapper, FirearmState state) {
-        if (entityWrapper instanceof IPlayerWrapper) {
-            CustomTag.FIREARM_ACTION_STATE.setInteger(weaponStack, state.getId(), (IPlayerWrapper) entityWrapper, true);
-            return;
-        }
+    private void changeState(ItemStack weaponStack, FirearmState state) {
         CustomTag.FIREARM_ACTION_STATE.setInteger(weaponStack, state.getId());
     }
 

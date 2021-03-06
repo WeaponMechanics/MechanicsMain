@@ -24,7 +24,7 @@ test:
       Trigger:
         Main_Hand: "SWAP_TO_OFF_HAND"
         Off_Hand: "SWAP_TO_MAIN_HAND"
-    Fully_Automatic_Shots_Per_Second: 60
+    Fully_Automatic_Shots_Per_Second: 20
     Burst:
       Shots_Per_Burst: 3
       Ticks_Between_Each_Shot: 2

@@ -152,7 +152,7 @@ public class ShootHandler implements IValidator {
                     // Close if ammo left is more than 0
                     handData.stopReloadingTasks();
 
-                    firearmAction.closeShootState(weaponStack, entityWrapper);
+                    firearmAction.closeShootState(weaponStack);
 
                     CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                     // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
@@ -165,7 +165,7 @@ public class ShootHandler implements IValidator {
                     handData.addFirearmActionTask(new BukkitRunnable() {
                         @Override
                         public void run() {
-                            firearmAction.readyState(weaponStack, entityWrapper);
+                            firearmAction.readyState(weaponStack);
                             handData.stopFirearmActionTasks();
                         }
                     }.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
@@ -397,7 +397,7 @@ public class ShootHandler implements IValidator {
         BukkitRunnable closeRunnable = new BukkitRunnable() {
             @Override
             public void run() {
-                firearmAction.readyState(weaponStack, entityWrapper);
+                firearmAction.readyState(weaponStack);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
@@ -425,7 +425,7 @@ public class ShootHandler implements IValidator {
             return;
         }
 
-        firearmAction.openShootState(weaponStack, entityWrapper);
+        firearmAction.openShootState(weaponStack);
 
         CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
@@ -439,7 +439,7 @@ public class ShootHandler implements IValidator {
             @Override
             public void run() {
 
-                firearmAction.closeShootState(weaponStack, entityWrapper);
+                firearmAction.closeShootState(weaponStack);
 
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks

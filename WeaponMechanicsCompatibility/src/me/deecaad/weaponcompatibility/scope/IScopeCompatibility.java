@@ -44,7 +44,7 @@ public interface IScopeCompatibility {
     void removeNightVision(Player player);
 
     /**
-     * @param packet the remov entity effect packet
+     * @param packet the remove entity effect packet
      * @return true if packet is removing night vision
      */
     boolean isRemoveNightVisionPacket(Packet packet);

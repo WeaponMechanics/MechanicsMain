@@ -170,7 +170,6 @@ public class WeaponMechanics extends JavaPlugin {
         // Register packet listeners
         debug.debug("Creating packet listeners");
         PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-        packetListener.addPacketHandler(new OutSetSlotListener(), true); // reduce/remove weapons from going up and down
         packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
