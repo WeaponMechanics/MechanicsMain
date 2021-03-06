@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.inventory.ItemStack;
 
 /**

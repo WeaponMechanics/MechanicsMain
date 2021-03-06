@@ -5,11 +5,7 @@ import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.Chunk;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -17,12 +13,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Ray {
 

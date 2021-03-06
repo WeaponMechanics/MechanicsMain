@@ -9,7 +9,9 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 

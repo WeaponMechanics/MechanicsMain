@@ -4,8 +4,6 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;

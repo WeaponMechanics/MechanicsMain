@@ -8,9 +8,8 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class PFirearmState extends PlaceholderHandler {
 
