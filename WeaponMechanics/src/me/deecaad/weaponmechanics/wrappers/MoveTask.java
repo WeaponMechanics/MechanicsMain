@@ -113,10 +113,18 @@ public class MoveTask extends BukkitRunnable {
         }
 
         if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) {
-            if (!player.getAllowFlight() && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
+            if (player.getFallDistance() > 3.0) {
+                // https://minecraft.gamepedia.com/Damage#Fall_damage
+                // Fall damage is 1♥ for each block of fall distance after the third. Thus, falling 4 blocks causes 1♥ damage, 2♥ damage for 5 blocks, and so forth.
 
-                // Only give double jump ability if been on ground for at least 3 ticks
-                if (this.groundTicks > 3) {
+                // This enables fall damage for player. Double jump has to be made BEFORE falling more than 3 blocks
+
+                if (player.getAllowFlight()) {
+                    player.setAllowFlight(false);
+                }
+            } else if (!player.getAllowFlight()) {
+                if (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE && this.groundTicks > 3) {
+                    // Only give double jump ability if been on ground for at least 3 ticks
                     player.setAllowFlight(true);
                 }
             }
