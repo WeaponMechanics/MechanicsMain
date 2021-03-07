@@ -50,11 +50,10 @@ This plugin is programmed so people can be creative and design their own weapons
 The default weapons exist to give people inspiration, not for you to build your server around.
 If you do not want to make the weapons yourself, somebody may be willing to commission a weapon pack for you
 
-> **What makes [WeaponMechanics] so special?**  
+> **Why should I be using WeaponMechanics instead of other gun plugins?**  
 
-[WeaponMechanics] is so special compared to other plugins because it is designed
-for the newest versions of minecraft (1.15.2) and has support for all minecraft
-versions from 1.8.8 to latest versions
+There are a multitude of reasons to use [WeaponMechanics] over other gun plugin. One of the larger
+reasons is performance across all minecraft versions. 
 
 
 

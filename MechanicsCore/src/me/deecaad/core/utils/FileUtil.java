@@ -89,7 +89,7 @@ public final class FileUtil {
         ) {
             for (Path p : directories) {
                 String path = p.toString();
-                path = path.substring(path.indexOf('/', 1));
+                path = path.substring(path.lastIndexOf('/'));
 
                 // Handle nested folders
                 File file = new File(output, path);

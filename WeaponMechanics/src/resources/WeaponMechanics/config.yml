@@ -2,30 +2,29 @@
 #   0: No printing
 #   1: Errors/Info
 #   2: Warnings (Suggested)
-#   3: Debug (Only should use when developer asks you to)
+#   3: Debug
 Debug_Level: 2
 
-# How should we store data from players? (Like weapon kill counts)
-#   YAML: Everything is stored in .yml files
-#   JSON: Everything is stored in .json files
-#   MySQL: Everything is stored in a sql database
-#   SQLite: Everything is stored in a lite sql database
-#   None: Nothing is stored (Minor performance boost on startup and on save, only use if you don't need data from players)
-File_Storage_Type: JSON
+# This feature is currently incomplete, and will be added in a future update.
+#
+# Statistic tracking mostly exists for leaderboards. Currently the following
+# statistics are tracked. In the future, more may be tracked.
+#  - kills (per weapon)
+Statistic_Tracker: "INCOMPLETE, DO NOT USE"
 
+# Notifies you when there is an update. Major updates are exactly that: Major
+# changes to the codebase, or a large number of changes. A minor is generally
+# a small number of changes. A patch could be a very specific feature changed
+# or added, or a bugfix to an existing feature.
 Update_Checker:
-  # Whether or not to get update notifications
   Enable: true
-  # Required amount of versions behind to receive update notifications
   Required_Versions_Behind:
-    # Major = really big update, for example recode of plugin
     Major: 1
-    # Minor = contains new feature(s)
-    Minor: 3
-    # Patch = bug fixes
+    Minor: 1
     Patch: 1
 
-# Here you can disable certain trigger checks you know you wont be using
+# If you don't use a specific trigger, it can be disabled here. The performance
+# boost is minor, but it's here if you need it.
 Disabled_Trigger_Checks:
   In_Midair: false
   Standing_And_Walking: false
@@ -39,33 +38,20 @@ Disabled_Trigger_Checks:
   Drop_Item: false
   Swap_Main_And_Hand_Items: false
 
+
+# You can disable certain events to improve performance. Any addons that use
+# these events will break.
 Disabled_Events:
   Projectile_Move_Event: false
 
-# Here you can change how smooth the weapon recoil is.
-# Lower values mean more smooth recoil, but more packets sent for players.
-# By default Minecraft would only allow this to be 50, but in WeaponMechanics it can be lower.
-# It is recommended to use values which are divisible by 5. For example 5, 10, 50.
-#
-# Minecraft base ticking: 50
-# 5x as many as Minecraft base: 10
-# 10x as many as Minecraft base: 5
+
+# This defines how smooth weapon recoil is. Lower values means smoother recoil,
+# but more packets sent. In default minecraft this value would be 50. In WM, it
+# can be lower. It is recommended to use values divisible by 5.
 Recoil_Millis_Between_Rotations: 5
 
-# The global damaging system
-#
-# Every line here is only used if it meets a condition. For example,
-# The value at `Damage.Potions.Slowness` will only be used if the
-# victim is slowed by a slowness potion. The value at
-# `Damage.Armor.Helmet.Diamond` will only be used if the victim is
-# wearing a diamond helmet
-#
-# To use this, know that the default rate starts
-# at `1.0`. Whenever a condition is met, that value
-# is added to the default rate. So if the condition
-# is met for `0.759`, the new rate is `1.759`. If a
-# condition is then met for `-0.5`, the new rate is
-# `1.259`.
+# This is the global damaging system. It defines how bullets damage entities
+# with potion effects, armor, and other statuses.
 Damage:
   Minimum_Rate: 0.5
   Maximum_Rate: 2.0
@@ -112,13 +98,9 @@ Damage:
     Sprinting: 0.05
     In_Midair: 0.03
 
-# Configurations for explosions
-#
-# Noise_Chance is the chance for a random block to be placed around
-# the edge of an explosion
-#
-# Noise distance is the distance from the edge of the explosion to
-# to place blocks
+# These options define how "random" the explosions are. It doesn't effect block
+# regeneration. These effects don't look very pretty on larger explosions, but
+# they improve smaller ones.
 Explosions:
   Cuboid:
     Noise_Chance: 0.20
@@ -133,6 +115,7 @@ Explosions:
     Noise_Distance: 1.0
     No_Block_Damage_In_Liquid: true
 
+# These are the symbols used for various weapon states.
 Placeholder_Symbols:
   REVOLVER:
     Open: "□"
@@ -152,31 +135,11 @@ Placeholder_Symbols:
     BURST: "B"
     AUTO: "A"
 
-# Here you can modify entity hitboxes if you feel like it or some entity is missing.
-# These aren't exactly meant to be changed, but if you feel like some entity's hitbox isn't quite right you can modify it yourself.
+# These values are used internally for figuring out headshots, bodyshots, etc.
+# Changing these values effectively allow you to decide how big a head hitbox
+# (and other hitboxes) are.
 #
-# You can modify any entity's hitbox.
-# Here is list of entity types: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
-#
-# HEAD, BODY, LEGS and FEET are percentages in range of 0 to 1. They MUST equal 1 in order to work.
-# Basically HEAD is some specific amount from top of player, then comes BODY, then LEGS and then FEET.
-# E.x.
-# ZOMBIE:
-#   Horizontal_Entity: false # true mean that entity model is horizontal (head is in front of entity)
-#   HEAD: 0.25 # 25% from top of entity is considered as HEAD
-#   BODY: 0.375 # 37.5% after HEAD is considered as BODY
-#   ARMS: true # true means that entity also has ARMS
-#   LEGS: 0.25 # 25% after HEAD and BODY is considered as LEGS
-#   FEET: 0.125 # 12.5% after HEAD, BODY and LEGS is considered as FEET
-#
-# If Horizontal_Entity is true then HEAD should always be 0.0 because
-# if entity gets hit from front to its BODY then its considered as HEAD, but
-# if it doesn't come from front of it, then hit is BODY. ARMS, LEGS and FEET will
-# still work normally even when using Horizontal_Entity.
-#
-# ARMS is optional hitbox for entities and it only has true / false values.
-# Projectile hit is ARMS if projectile hits BODY from side of entity
-#
+# To see a visual representation of the hitboxes, use /wm test hitbox
 Entity_Hitboxes:
   ELDER_GUARDIAN:
     Horizontal_Entity: true
