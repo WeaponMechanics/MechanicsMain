@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.info;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -55,7 +54,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         ItemMeta otherMeta = other.getItemMeta();
         if (this.name) {
             if (weaponMeta.hasDisplayName() != otherMeta.hasDisplayName()
-                    || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equalsIgnoreCase(otherMeta.getDisplayName()))) {
+                    || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equals(otherMeta.getDisplayName()))) {
                 return false;
             }
         }

@@ -208,21 +208,12 @@ This event is called right before an entity zooms in.
 * `int getStackAmount()` - Returns the [stacky zoom] amount
   * If this is 0, the feature is disabled or it is first stack
 
-##### WeaponHeldEvent
+##### WeaponEquipEvent
 This event is called whenever an entity "holds" a weapon. A weapon can be held
-if it is put in the mainhand/offhand through an open `PlayerInventory`, if a player
-swaps hands, if a weapon is picked up into the main hand, or if they swap hotbar slots to a weapon.
+if it is put in the mainhand/offhand.
 
-* `boolean isCancelled()` - Returns true if this event has been cancelled
-* `void setCancelled(boolean)` - Sets the cancellation state of this event
-* `int getSlot()` - Gets the inventory slot the weapon is in
-
-##### WeaponPickupEvent
-This event is called when a weapon is added to any slot in a player's inventory either by
-picking up the item from the ground, or by getting the item from command.
-
-* `Item getItem()` - Gets the nullable item entity picked up from the ground
-  * If the weapon was picked up off of the ground, this will not be null
+* `boolean isMainHand()` - Returns true if main hand is equipped
+* `boolean isOffHand()` - Returns true if off hand is equipped
 
 ## Config Serialization
 The config files are all loaded into 1 `me.deecaad.core.file.Configuration`.

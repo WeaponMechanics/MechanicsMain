@@ -4,12 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.AttributeType;
-import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialUtil;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -28,12 +23,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static me.deecaad.core.MechanicsCore.debug;
 

@@ -5,18 +5,11 @@ import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.DuplicateKeyException;
-import me.deecaad.core.file.FileReader;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.JarInstancer;
-import me.deecaad.core.file.LinkedConfig;
-import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
-import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -30,11 +23,7 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
-import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotListener;
-import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
+import me.deecaad.weaponmechanics.packetlisteners.*;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
@@ -159,10 +148,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Create files
         debug.debug("Loading config.yml");
-        File[] files = getDataFolder().listFiles();
-        if (!getDataFolder().exists() || files == null || files.length == 0) {
-            FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/WeaponMechanics", getDataFolder());
-        }
+        new FileCopier().createFromJarToDataFolder(this, getFile(), "resources", ".yml", ".png");
 
         // Fill config.yml mappings
         File configyml = new File(getDataFolder(), "config.yml");
@@ -184,7 +170,6 @@ public class WeaponMechanics extends JavaPlugin {
         // Register packet listeners
         debug.debug("Creating packet listeners");
         PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-        packetListener.addPacketHandler(new OutSetSlotListener(), true); // reduce/remove weapons from going up and down
         packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes

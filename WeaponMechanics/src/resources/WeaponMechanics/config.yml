@@ -97,6 +97,12 @@ Damage:
     Swimming: -0.05
     Sprinting: 0.05
     In_Midair: 0.03
+  Critical_Points:
+    HEAD: 0.05
+    BODY: 0.0
+    ARMS: 0.0
+    LEGS: 0.0
+    FEET: 0.0
 
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but

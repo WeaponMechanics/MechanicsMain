@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
 
     private final Player player;
-    private boolean denyNextSetSlotPacket;
     private boolean inventoryOpen;
     private long lastRightClick;
     private long lastStartSneak;
@@ -23,16 +22,6 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     @Override
     public Player getPlayer() {
         return this.player;
-    }
-
-    @Override
-    public boolean isDenyNextSetSlotPacket() {
-        return denyNextSetSlotPacket;
-    }
-
-    @Override
-    public void setDenyNextSetSlotPacket(boolean denyNext) {
-        this.denyNextSetSlotPacket = denyNext;
     }
 
     @Override

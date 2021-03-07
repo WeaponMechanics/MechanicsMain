@@ -93,7 +93,11 @@ public class CastData {
         if (data == null) return null;
         // clazz.cast -> returns the object after casting, or null if obj is null
         Object keyData = data.get(key);
-        return keyData == null ? null : clazz.cast(keyData);
+        if (!clazz.isInstance(keyData)) {
+            return null;
+        } else {
+            return clazz.cast(keyData);
+        }
     }
 
     public enum CommonDataTags {

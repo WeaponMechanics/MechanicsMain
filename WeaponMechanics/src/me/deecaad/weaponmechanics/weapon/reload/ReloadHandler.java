@@ -82,11 +82,7 @@ public class ReloadHandler implements IValidator {
 
         int ammoLeft = getAmmoLeft(weaponStack);
         if (ammoLeft == -1) { // This shouldn't be -1, perhaps ammo was added for weapon in configs later in server...
-            if (entityWrapper instanceof IPlayerWrapper) {
-                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0, (IPlayerWrapper) entityWrapper, true);
-            } else {
-                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-            }
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             ammoLeft = 0;
         }
 
@@ -219,29 +215,20 @@ public class ReloadHandler implements IValidator {
                             ammo.give(entityWrapper, ammoLeft, magazineSize);
                         } else {
                             // Set to value 0 to indicate that the mag is in again
-                            if (entityWrapper instanceof IPlayerWrapper) {
-                                CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 0, (IPlayerWrapper) entityWrapper, true);
-                            } else {
-                                CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 0);
-                            }
+                            CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 0);
                         }
                     }
                 }
 
                 int finalAmmoSet = ammoLeft + ammoToAdd;
 
-                if (entityWrapper instanceof IPlayerWrapper) {
-                    // Set the tag silently
-                    CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet, (IPlayerWrapper) entityWrapper, true);
-                } else {
-                    CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet);
-                }
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet);
 
                 if (firearmAction != null) {
                     if (isPump) {
-                        firearmAction.openReloadState(weaponStack, entityWrapper);
+                        firearmAction.openReloadState(weaponStack);
                     } else {
-                        firearmAction.closeReloadState(weaponStack, entityWrapper);
+                        firearmAction.closeReloadState(weaponStack);
                     }
 
                 } else {
@@ -258,7 +245,7 @@ public class ReloadHandler implements IValidator {
                 handData.addReloadTask(getTaskId());
 
                 if (isPump) {
-                    firearmAction.reloadState(weaponStack, entityWrapper);
+                    firearmAction.reloadState(weaponStack);
                 }
                 int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
                 if (unloadAmmoOnReload) {
@@ -272,11 +259,8 @@ public class ReloadHandler implements IValidator {
 
                             if (itemMagazineNum == 0) {
                                 // Set to value 1 to indicate that the mag is now removed
-                                if (entityWrapper instanceof IPlayerWrapper) {
-                                    CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 1, (IPlayerWrapper) entityWrapper, true);
-                                } else {
-                                    CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 1);
-                                }
+                                CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 1);
+
                                 // give mag back
                                 ammo.give(entityWrapper, ammoLeft, magazineSize);
                             }
@@ -290,11 +274,7 @@ public class ReloadHandler implements IValidator {
                         unloadedAmount = ammoLeft;
 
                         // unload weapon and give ammo back to given entity
-                        if (entityWrapper instanceof IPlayerWrapper) {
-                            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0, (IPlayerWrapper) entityWrapper, true);
-                        } else {
-                            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-                        }
+                        CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
                     }
                 }
 
@@ -320,7 +300,7 @@ public class ReloadHandler implements IValidator {
 
             @Override
             public void task() {
-                firearmAction.readyState(weaponStack, entityWrapper);
+                firearmAction.readyState(weaponStack);
                 finishReload(entityWrapper, weaponTitle, weaponStack, handData);
 
                 if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
@@ -347,9 +327,9 @@ public class ReloadHandler implements IValidator {
             @Override
             public void task() {
                 if (isPump) {
-                    firearmAction.closeReloadState(weaponStack, entityWrapper);
+                    firearmAction.closeReloadState(weaponStack);
                 } else {
-                    firearmAction.reloadState(weaponStack, entityWrapper);
+                    firearmAction.reloadState(weaponStack);
                 }
             }
 
@@ -358,7 +338,7 @@ public class ReloadHandler implements IValidator {
                 handData.addReloadTask(getTaskId());
 
                 if (!isPump) {
-                    firearmAction.openReloadState(weaponStack, entityWrapper);
+                    firearmAction.openReloadState(weaponStack);
                 }
 
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
@@ -448,12 +428,7 @@ public class ReloadHandler implements IValidator {
                 return false;
             }
 
-            if (entityWrapper instanceof IPlayerWrapper) {
-                // Set the tag silently
-                CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet, (IPlayerWrapper) entityWrapper, true);
-            } else {
-                CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
-            }
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
         }
         return true;
     }

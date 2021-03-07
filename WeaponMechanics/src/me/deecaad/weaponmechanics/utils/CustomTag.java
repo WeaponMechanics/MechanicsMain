@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.utils;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -70,14 +69,6 @@ public enum CustomTag {
     }
 
     public void setString(ItemStack item, String value) {
-        setString(item, value, null, false);
-    }
-
-    public void setString(ItemStack item, String value, IPlayerWrapper player, boolean silent) {
-        if (silent && player != null) {
-            player.setDenyNextSetSlotPacket(true);
-        }
-
         CompatibilityAPI.getNBTCompatibility().setString(item, "WeaponMechanics", id, value);
     }
 
@@ -90,14 +81,6 @@ public enum CustomTag {
     }
 
     public void setInteger(ItemStack item, int value) {
-        setInteger(item, value, null, false);
-    }
-
-    public void setInteger(ItemStack item, int value, IPlayerWrapper player, boolean silent) {
-        if (silent && player != null) {
-            player.setDenyNextSetSlotPacket(true);
-        }
-
         CompatibilityAPI.getNBTCompatibility().setInt(item, "WeaponMechanics", id, value);
     }
 
@@ -110,14 +93,6 @@ public enum CustomTag {
     }
 
     public void setDouble(ItemStack item, double value) {
-        setDouble(item, value, null, false);
-    }
-
-    public void setDouble(ItemStack item, double value, IPlayerWrapper player, boolean silent) {
-        if (silent && player != null) {
-            player.setDenyNextSetSlotPacket(true);
-        }
-
         CompatibilityAPI.getNBTCompatibility().setDouble(item, "WeaponMechanics", id, value);
     }
 }
