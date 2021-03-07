@@ -1,6 +1,9 @@
 package me.deecaad.core.utils;
 
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,7 +12,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * This final utility class outlines static methods that work with files,
@@ -55,11 +64,10 @@ public final class FileUtil {
         }
 
         // URIs can point to resources, even if the resources are in a jar file.
-        URI uri;
         URL jar;
         Path pathToJar;
         try {
-            uri = url.toURI();
+            URI uri = url.toURI();
 
             // This method does not support being run from outside of a jar
             // file. Does this method really need to support plugins running
@@ -116,5 +124,38 @@ public final class FileUtil {
         } catch (IOException e) {
             throw new InternalError(e);
         }
+    }
+
+    public static boolean ensureDefaults(ClassLoader loader, String resource, File file) {
+        Yaml yaml = new Yaml();
+        boolean isSetValue = false;
+
+        InputStream input;
+        try {
+            URL url = loader.getResource(resource);
+            if (url == null) {
+                throw new InternalError("Unknown resource: " + resource);
+            }
+
+            input = url.openStream();
+        } catch (IOException e) {
+            throw new InternalError(e);
+        }
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        Map<String, Object> defaults = yaml.load(input);
+
+        for (Map.Entry<String, Object> entry : defaults.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (!config.contains(key)) {
+                isSetValue = true;
+
+                config.set(key, value);
+            }
+        }
+
+        return isSetValue;
     }
 }
