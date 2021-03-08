@@ -159,7 +159,7 @@ public class WeaponMechanics extends JavaPlugin {
         // Create files
         debug.debug("Loading config.yml");
         FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/WeaponMechanics", getDataFolder());
-        FileUtil.ensureDefaults(getClassLoader(), "resources/WeaponMechanics/config.yml", getDataFolder());
+        FileUtil.ensureDefaults(getClassLoader(), "resources/WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
 
         // Fill config.yml mappings
         File configyml = new File(getDataFolder(), "config.yml");

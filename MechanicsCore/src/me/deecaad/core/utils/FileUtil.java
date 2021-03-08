@@ -126,10 +126,18 @@ public final class FileUtil {
         }
     }
 
-    public static boolean ensureDefaults(ClassLoader loader, String resource, File file) {
-        Yaml yaml = new Yaml();
-        boolean isSetValue = false;
+    /**
+     * Ensures that a given <code>file</code> has all of the config options
+     * defined by the <code>resource</code>.
+     *
+     * @param loader   The non-null loading plugin's class loader. Use
+     *                 {@link JavaPlugin#getClassLoader()}.
+     * @param resource The non-null name of the resource to copy.
+     * @param file     The output file that should have the default values.
+     */
+    public static void ensureDefaults(ClassLoader loader, String resource, File file) {
 
+        Yaml yaml = new Yaml();
         InputStream input;
         try {
             URL url = loader.getResource(resource);
@@ -142,6 +150,24 @@ public final class FileUtil {
             throw new InternalError(e);
         }
 
+        // If the file does not exist, just write a new file.
+        if (!file.exists()) {
+
+            try (FileOutputStream output = new FileOutputStream(file)) {
+                if (!file.createNewFile()) {
+                    throw new InternalError("WHAT?!");
+                }
+
+                int data;
+                while ((data = input.read()) != -1) {
+                    output.write(data);
+                }
+            } catch (IOException e) {
+                throw new InternalError(e);
+            }
+            return;
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         Map<String, Object> defaults = yaml.load(input);
 
@@ -150,12 +176,14 @@ public final class FileUtil {
             Object value = entry.getValue();
 
             if (!config.contains(key)) {
-                isSetValue = true;
-
                 config.set(key, value);
             }
         }
 
-        return isSetValue;
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            throw new InternalError(e);
+        }
     }
 }
