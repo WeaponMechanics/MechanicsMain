@@ -38,17 +38,52 @@ Disabled_Trigger_Checks:
   Drop_Item: false
   Swap_Main_And_Hand_Items: false
 
-
 # You can disable certain events to improve performance. Any addons that use
 # these events will break.
 Disabled_Events:
   Projectile_Move_Event: false
 
-
 # This defines how smooth weapon recoil is. Lower values means smoother recoil,
 # but more packets sent. In default minecraft this value would be 50. In WM, it
 # can be lower. It is recommended to use values divisible by 5.
 Recoil_Millis_Between_Rotations: 5
+
+# These options define how "random" the explosions are. It doesn't effect block
+# regeneration. These effects don't look very pretty on larger explosions, but
+# they improve smaller ones.
+Explosions:
+  Cuboid:
+    Noise_Chance: 0.20
+    Noise_Distance: 1.0
+    No_Block_Damage_In_Liquid: true
+  Parabolic:
+    Noise_Chance: 0.25
+    Noise_Distance: 1.25
+    No_Block_Damage_In_Liquid: true
+  Spherical:
+    Noise_Chance: 0.10
+    Noise_Distance: 1.0
+    No_Block_Damage_In_Liquid: true
+
+# These are the symbols used for various weapon states.
+Placeholder_Symbols:
+  REVOLVER:
+    Open: "□"
+    Close: "■"
+    Ready: ""
+  PUMP:
+    Open: "□"
+    Close: "■"
+    Ready: ""
+  LEVER:
+    Open: "□"
+    Close: "■"
+    Ready: ""
+  Reload: "ᴿ"
+  Selective_Fire:
+    SINGLE: "S"
+    BURST: "B"
+    AUTO: "A"
 
 # This is the global damaging system. It defines how bullets damage entities
 # with potion effects, armor, and other statuses.
@@ -100,46 +135,9 @@ Damage:
   Critical_Points:
     HEAD: 0.05
     BODY: 0.0
-    ARMS: 0.0
-    LEGS: 0.0
-    FEET: 0.0
-
-# These options define how "random" the explosions are. It doesn't effect block
-# regeneration. These effects don't look very pretty on larger explosions, but
-# they improve smaller ones.
-Explosions:
-  Cuboid:
-    Noise_Chance: 0.20
-    Noise_Distance: 1.0
-    No_Block_Damage_In_Liquid: true
-  Parabolic:
-    Noise_Chance: 0.25
-    Noise_Distance: 1.25
-    No_Block_Damage_In_Liquid: true
-  Spherical:
-    Noise_Chance: 0.10
-    Noise_Distance: 1.0
-    No_Block_Damage_In_Liquid: true
-
-# These are the symbols used for various weapon states.
-Placeholder_Symbols:
-  REVOLVER:
-    Open: "□"
-    Close: "■"
-    Ready: ""
-  PUMP:
-    Open: "□"
-    Close: "■"
-    Ready: ""
-  LEVER:
-    Open: "□"
-    Close: "■"
-    Ready: ""
-  Reload: "ᴿ"
-  Selective_Fire:
-    SINGLE: "S"
-    BURST: "B"
-    AUTO: "A"
+    ARMS: -0.005
+    LEGS: -0.005
+    FEET: -0.005
 
 # These values are used internally for figuring out headshots, bodyshots, etc.
 # Changing these values effectively allow you to decide how big a head hitbox
