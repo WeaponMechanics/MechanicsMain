@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,7 +12,6 @@ import org.bukkit.entity.LivingEntity;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -26,8 +26,8 @@ public class CuboidExplosion implements ExplosionShape {
 
     // These are set to be half the actual
     // values, kind of like radius
-    private double width;
-    private double height;
+    private final double width;
+    private final double height;
     
     /**
      * Constructs a <code>CuboidExplosion</code> object. The
@@ -59,7 +59,7 @@ public class CuboidExplosion implements ExplosionShape {
     @Nonnull
     @Override
     public List<Block> getBlocks(@Nonnull Location origin) {
-        List<Block> temp = new ArrayList<>();
+        List<Block> temp = new ArrayList<>((int) (2 * width + 2 * height) + 1);
 
         double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.25);
         double noiseChance = config.getDouble("Explosions.Spherical.Noise_Chance", 0.25);
@@ -78,7 +78,7 @@ public class CuboidExplosion implements ExplosionShape {
                 for (int z = (int) -width; z < width; z++) {
 
                     // Noise checker
-                    if (Math.random() < noiseChance && isNearEdge(x, y, z, noiseDistance)) {
+                    if (isNearEdge(x, y, z, noiseDistance) && NumberUtil.chance(noiseChance)) {
                         debug.log(LogLevel.DEBUG, "Skipping block(" + x + ", " + y + ", " + z + ") due to noise.");
                         continue; // outer noise checker
                     }
@@ -112,19 +112,22 @@ public class CuboidExplosion implements ExplosionShape {
         double xMin = origin.getX() - width,  xMax = origin.getX() + width;
         double yMin = origin.getY() - height, yMax = origin.getY() + height;
         double zMin = origin.getZ() - width,  zMax = origin.getZ() + width;
-        
-        return origin.getWorld().getLivingEntities()
-                .stream()
-                .filter(entity -> {
-                    double x = entity.getLocation().getX();
-                    double y = entity.getLocation().getY();
-                    double z = entity.getLocation().getZ();
-                    
-                    return  x >= xMin && x <= xMax &&
-                            y >= yMin && y <= yMax &&
-                            z >= zMin && z <= zMax;
-                })
-                .collect(Collectors.toList());
+
+        List<LivingEntity> all = origin.getWorld().getLivingEntities();
+        List<LivingEntity> temp = new ArrayList<>(all.size());
+        for  (LivingEntity entity : all) {
+            double x = entity.getLocation().getX();
+            double y = entity.getLocation().getY();
+            double z = entity.getLocation().getZ();
+
+            boolean in = x >= xMin && x <= xMax &&
+                    y >= yMin && y <= yMax &&
+                    z >= zMin && z <= zMax;
+
+            if (in)
+                temp.add(entity);
+        }
+        return temp;
     }
 
     @Override

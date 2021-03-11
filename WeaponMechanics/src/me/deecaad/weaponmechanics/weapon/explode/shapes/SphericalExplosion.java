@@ -2,10 +2,12 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.NumberConversions;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -18,10 +20,12 @@ public class SphericalExplosion implements ExplosionShape {
 
     private static final Configuration config = WeaponMechanics.getBasicConfigurations();
 
-    private double radius;
+    private final double radius;
+    private final double radiusSquared;
     
     public SphericalExplosion(double radius) {
         this.radius = radius;
+        this.radiusSquared = radius * radius;
     }
     
     @Nonnull
@@ -32,7 +36,7 @@ public class SphericalExplosion implements ExplosionShape {
         Location pos1 = origin.clone().add(-radius, -radius, -radius);
         Location pos2 = origin.clone().add(+radius, +radius, +radius);
 
-        double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.0);
+        double noiseDistance = NumberConversions.square(config.getDouble("Explosions.Spherical.Noise_Distance", 1.0));
         double noiseChance = config.getDouble("Explosions.Spherical.Noise_Chance", 0.10);
 
         // Loops through a cuboid region between pos1 and pos2
@@ -46,11 +50,11 @@ public class SphericalExplosion implements ExplosionShape {
                     // If the distance between the current iteration
                     // and the origin is less than the radius of the
                     // sphere. This "reshapes" the cube into a sphere
-                    double distance = loc.distance(origin);
-                    if (distance <= radius) {
+                    double distance = loc.distanceSquared(origin);
+                    if (distance <= radiusSquared) {
 
-                        boolean isNearEdge = radius - distance < noiseDistance;
-                        if (isNearEdge && Math.random() < noiseChance) {
+                        boolean isNearEdge = radiusSquared - distance < noiseDistance;
+                        if (isNearEdge && NumberUtil.chance(noiseChance)) {
                             debug.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
                             continue; // outer noise checker
                         }
@@ -66,13 +70,10 @@ public class SphericalExplosion implements ExplosionShape {
     @Nonnull
     @Override
     public List<LivingEntity> getEntities(@Nonnull Location origin) {
-        double radiusSquared = radius * radius;
-
         return origin.getWorld().getLivingEntities()
                 .stream()
                 .filter(entity -> entity.getLocation().distanceSquared(origin) < radiusSquared)
                 .collect(Collectors.toList());
-
     }
 
     @Override

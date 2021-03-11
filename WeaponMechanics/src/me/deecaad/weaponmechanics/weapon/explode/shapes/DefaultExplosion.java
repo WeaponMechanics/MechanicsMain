@@ -11,11 +11,11 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -30,9 +30,9 @@ public class DefaultExplosion implements ExplosionShape {
     private static final double DECAY_RATE = 0.3;
     private static final double ABSORB_RATE = 0.3;
 
-    private float yield;
-    private int gridSize;
-    private int bound;
+    private final float yield;
+    private final int gridSize;
+    private final int bound;
     
     public DefaultExplosion(double yield) {
         this(yield, 16);
@@ -106,6 +106,7 @@ public class DefaultExplosion implements ExplosionShape {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<LivingEntity> getEntities(@Nonnull Location origin) {
 
         // How far away from the explosion to damage players
@@ -119,12 +120,7 @@ public class DefaultExplosion implements ExplosionShape {
             return null;
         }
 
-        // Get all entities within the damageable radius
-        // Only can damage LivingEntities
-        return world.getNearbyEntities(origin, damageRadiusOuter, damageRadiusOuter, damageRadiusOuter, LivingEntity.class::isInstance)
-                .stream()
-                .map(LivingEntity.class::cast)
-                .collect(Collectors.toList());
+        return new ArrayList<>((Collection<? extends LivingEntity>) world.getNearbyEntities(origin, damageRadiusOuter, damageRadiusOuter, damageRadiusOuter, LivingEntity.class::isInstance));
     }
 
     @Override

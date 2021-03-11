@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -10,7 +11,6 @@ import org.bukkit.entity.LivingEntity;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -26,8 +26,8 @@ public class ParabolicExplosion implements ExplosionShape {
 
     private static final Configuration config = WeaponMechanics.getBasicConfigurations();
 
-    private double depth;   // This is assumed to be negative
-    private double angle;
+    private final double depth; // This is assumed to be negative
+    private final double angle;
     
     public ParabolicExplosion(double depth) {
         this(depth, 0.5);
@@ -75,7 +75,7 @@ public class ParabolicExplosion implements ExplosionShape {
                     if (test(x, y, z)) {
 
                         // Checking chance first for resource usage
-                        if (Math.random() < noiseChance && isNearEdge(x, y, z, noiseDistance)) {
+                        if (NumberUtil.chance(noiseChance) && isNearEdge(x, y, z, noiseDistance)) {
                             debug.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
                             continue; // outer noise checker
                         }
@@ -91,11 +91,15 @@ public class ParabolicExplosion implements ExplosionShape {
     @Nonnull
     @Override
     public List<LivingEntity> getEntities(@Nonnull Location origin) {
-        return origin.getWorld().getEntities().stream()
-                .filter(LivingEntity.class::isInstance)
-                .filter(entity -> test(origin, entity.getLocation()))
-                .map(LivingEntity.class::cast)
-                .collect(Collectors.toList());
+        List<LivingEntity> all = origin.getWorld().getLivingEntities();
+        List<LivingEntity> temp = new ArrayList<>(all.size());
+
+        for (LivingEntity entity : all) {
+            if (test(origin, entity.getLocation()))
+                temp.add(entity);
+        }
+
+        return temp;
     }
 
     @Override
