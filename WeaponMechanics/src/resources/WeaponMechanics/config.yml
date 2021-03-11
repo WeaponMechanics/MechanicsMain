@@ -55,15 +55,12 @@ Explosions:
   Cuboid:
     Noise_Chance: 0.20
     Noise_Distance: 1.0
-    No_Block_Damage_In_Liquid: true
   Parabolic:
     Noise_Chance: 0.25
     Noise_Distance: 1.25
-    No_Block_Damage_In_Liquid: true
   Spherical:
     Noise_Chance: 0.10
     Noise_Distance: 1.0
-    No_Block_Damage_In_Liquid: true
 
 # These are the symbols used for various weapon states.
 Placeholder_Symbols:
@@ -97,6 +94,7 @@ Damage:
     HELMET:
       LEATHER: -0.01
       GOLD: -0.02
+      GOLDEN: -0.02
       CHAIN: -0.03
       IRON: -0.04
       DIAMOND: -0.05
@@ -105,6 +103,7 @@ Damage:
     CHESTPLATE:
       LEATHER: -0.01
       GOLD: -0.02
+      GOLDEN: -0.02
       CHAIN: -0.03
       IRON: -0.04
       DIAMOND: -0.05
@@ -112,6 +111,7 @@ Damage:
     LEGGINS:
       LEATHER: -0.01
       GOLD: -0.02
+      GOLDEN: -0.02
       CHAIN: -0.03
       IRON: -0.04
       DIAMOND: -0.05
@@ -119,6 +119,7 @@ Damage:
     BOOTS:
       LEATHER: -0.01
       GOLD: -0.02
+      GOLDEN: -0.02
       CHAIN: -0.03
       IRON: -0.04
       DIAMOND: -0.05
