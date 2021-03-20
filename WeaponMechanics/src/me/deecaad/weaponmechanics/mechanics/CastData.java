@@ -104,7 +104,8 @@ public class CastData {
 
         WEAPON_TITLE,
         WEAPON_STACK,
-        WEAPON_INFO
+        WEAPON_INFO,
+        TARGET_LOCATION
 
     }
 }
