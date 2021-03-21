@@ -38,7 +38,7 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
         Vector direction;
 
         if (towardsTarget) {
-            Location targetLocation = castData.getData(CastData.CommonDataTags.TARGET_LOCATION.name(), Location.class);
+            Location targetLocation = castData.getData(CommonDataTags.TARGET_LOCATION.name(), Location.class);
             if (targetLocation == null) {
                 // There wasn't any target
                 return;

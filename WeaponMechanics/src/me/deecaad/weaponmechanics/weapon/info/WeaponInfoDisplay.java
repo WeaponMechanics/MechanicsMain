@@ -8,6 +8,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.MessageMechanic;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.MessageHelper;
@@ -59,7 +60,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
         if (messageMechanic != null) {
             CastData castData = new CastData(playerWrapper, weaponTitle, weaponStack);
-            castData.setData(CastData.CommonDataTags.WEAPON_INFO.name(), true);
+            castData.setData(CommonDataTags.WEAPON_INFO.name(), true);
             messageMechanic.use(castData);
         }
 
