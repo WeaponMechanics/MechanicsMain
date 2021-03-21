@@ -21,6 +21,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -47,8 +48,9 @@ public class DamageUtils {
         if (isBackStab) rate.addAndGet(config.getDouble("Damage.Back"));
 
         // Apply damage per potion effect
-        victim.getActivePotionEffects().forEach(potion ->
-                rate.addAndGet(config.getDouble("Damage.Potions." + potion.getType().getName())));
+        for (PotionEffect potion : victim.getActivePotionEffects()) {
+            rate.addAndGet(config.getDouble("Damage.Potions." + potion.getType().getName()));
+        }
 
         // Apply damage per armor and attachment
         for (ItemStack armorSlot : victim.getEquipment().getArmorContents()) {
