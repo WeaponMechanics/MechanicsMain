@@ -6,12 +6,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -120,7 +120,14 @@ public class DefaultExplosion implements ExplosionShape {
             return null;
         }
 
-        return new ArrayList<>((Collection<? extends LivingEntity>) world.getNearbyEntities(origin, damageRadiusOuter, damageRadiusOuter, damageRadiusOuter, LivingEntity.class::isInstance));
+        ArrayList<LivingEntity> entities = new ArrayList<>();
+        for (Entity entity : world.getNearbyEntities(origin, damageRadiusOuter, damageRadiusOuter, damageRadiusOuter)) {
+            if (entity.getType().isAlive()) {
+                entities.add((LivingEntity) entity);
+            }
+        }
+
+        return entities;
     }
 
     @Override
