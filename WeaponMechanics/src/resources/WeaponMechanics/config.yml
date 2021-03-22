@@ -67,15 +67,12 @@ Placeholder_Symbols:
   REVOLVER:
     Open: "□"
     Close: "■"
-    Ready: ""
   PUMP:
     Open: "□"
     Close: "■"
-    Ready: ""
   LEVER:
     Open: "□"
     Close: "■"
-    Ready: ""
   Reload: "ᴿ"
   Selective_Fire:
     SINGLE: "S"

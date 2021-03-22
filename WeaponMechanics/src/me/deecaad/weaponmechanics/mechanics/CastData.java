@@ -99,12 +99,4 @@ public class CastData {
             return clazz.cast(keyData);
         }
     }
-
-    public enum CommonDataTags {
-
-        WEAPON_TITLE,
-        WEAPON_STACK,
-        WEAPON_INFO
-
-    }
 }

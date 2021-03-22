@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
+import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -13,8 +14,9 @@ import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.util.NumberConversions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,12 +48,18 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
     public void use(CastData castData) {
         Location location = locationAdjuster != null ? locationAdjuster.getNewLocation(castData.getCastLocation()) : castData.getCastLocation();
 
-        List<Player> players = location.getWorld().getPlayers();
+        List<Player> players = new ArrayList<>();
 
-        // 22500 = around 150 blocks
-        // Does not check Y axis
-        players.removeIf(player -> NumberConversions.square(location.getX() - player.getLocation().getX()) + NumberConversions.square(location.getZ() - player.getLocation().getZ()) > 22500);
+        for (Entity entity : DistanceUtil.getEntitiesInRange(location)) {
+            if (entity.getType() != EntityType.PLAYER) {
+                continue;
+            }
+            players.add((Player) entity);
+        }
 
+        if (players.isEmpty()) {
+            return;
+        }
         CompatibilityAPI.getCompatibility().getEntityCompatibility().spawnFirework(location, players, (byte) flightTime, fireworkEffect);
     }
 
@@ -72,7 +80,8 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR,
                     StringUtil.foundInvalid("firework type"),
-                    StringUtil.foundAt(file, path + ".Type", stringFireworkType));
+                    StringUtil.foundAt(file, path + ".Type", stringFireworkType),
+                    StringUtil.debugDidYouMean(stringFireworkType, FireworkEffect.Type.class));
             return null;
         }
 

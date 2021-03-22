@@ -1,72 +1,60 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
+import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.Vector;
 
-import java.io.File;
+import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class DamageHandler implements IValidator {
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+
+public class DamageHandler {
 
     /**
      * @return false if damaging was cancelled
      */
-    public boolean tryUse(LivingEntity victim, LivingEntity shooter, String weaponTitle, CustomProjectile projectile, DamagePoint point, boolean isBackstab) {
-        Configuration config = WeaponMechanics.getConfigurations();
+    public boolean tryUse(LivingEntity victim, @Nonnull ICustomProjectile projectile, double damage, DamagePoint point, boolean isBackstab) {
+        Configuration config = getConfigurations();
+
+        LivingEntity shooter = projectile.getShooter();
+        String weaponTitle = projectile.getWeaponTitle();
 
         boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
         if (!isFriendlyFire && !DamageUtils.canHarm(shooter, victim)) {
             return false;
         }
 
-        // Base damage amounts
-        double damage = config.getDouble(weaponTitle + ".Damage.Base_Damage");
-
-        if (point != null) {
-            damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
-        }
-
-        // Damage changes based on how far the projectile travelled
-        double distance = projectile.getDistanceTravelled();
-        DamageDropoff dropoff = config.getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
-        if (dropoff != null) {
-            damage += dropoff.getDamage(distance);
+        boolean isOwnerImmune = config.getBool(weaponTitle + ".Damage.Enable_Owner_Immunity");
+        if (isOwnerImmune && victim.equals(shooter)) {
+            return false;
         }
 
         // Critical Hit chance
-        double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance") / 100;
-        boolean isCritical = NumberUtil.chance(chance);
-        if (isCritical) {
-            damage += config.getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
-        }
-
-        // Backstab damage
-        if (isBackstab) {
-            damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
-        }
+        double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance", -1);
+        boolean isCritical = chance != -1 && NumberUtil.chance((chance / 100));
 
         int armorDamage = config.getInt(weaponTitle + ".Damage.Armor_Damage");
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
 
         WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim,
-                damage, isBackstab, isCritical, point, armorDamage, fireTicks);
+                damage, isBackstab, isCritical, point, armorDamage, fireTicks, projectile.getDistanceTravelled());
         Bukkit.getPluginManager().callEvent(damageEntityEvent);
 
         if (damageEntityEvent.isCancelled()) return false;
 
         fireTicks = damageEntityEvent.getFireTicks();
-        isBackstab = damageEntityEvent.isBackStab();
         point = damageEntityEvent.getPoint();
-        // No need to update damage, armorDamage or finalDamage here
-        // since they're used just once after this (get from event simply)
 
         DamageUtils.apply(shooter, victim, damageEntityEvent.getFinalDamage());
         DamageUtils.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
@@ -76,49 +64,63 @@ public class DamageHandler implements IValidator {
             victim.setFireTicks(fireTicks);
         }
 
-        if (victim.isDead()) {
-            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim, damageEntityEvent));
+        CastData shooterCast = new CastData(WeaponMechanics.getEntityWrapper(shooter), projectile.getWeaponTitle(), projectile.getWeaponStack());
+        shooterCast.setData(CommonDataTags.TARGET_LOCATION.name(), victim.getLocation());
+
+        CastData victimCast = new CastData(WeaponMechanics.getEntityWrapper(victim), projectile.getWeaponTitle(), projectile.getWeaponStack());
+        victimCast.setData(CommonDataTags.TARGET_LOCATION.name(), shooter.getLocation());
+
+        // On all damage
+        useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");
+
+        // On point
+        if (point != null) useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage." + point.getReadable());
+
+        // On backstab
+        if (damageEntityEvent.isBackstab()) {
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Backstab");
         }
+
+        // On critical
+        if (damageEntityEvent.isCritical()) {
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Critical_Hit");
+        }
+
+        if (victim.isDead() || victim.getHealth() <= 0.0) {
+            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim, damageEntityEvent));
+
+            // On kill
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Kill");
+        }
+
         return true;
     }
 
-    public void tryUseExplosion(LivingEntity shooter, String weaponTitle, Map<LivingEntity, Double> exposures) {
-        Configuration config = WeaponMechanics.getConfigurations();
-
-        boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
-        boolean isOwnerImmune = config.getBool(weaponTitle + ".Damage.Explosion_Damage.Enable_Owner_Immunity");
-        double baseDamage = config.getDouble(weaponTitle + ".Damage.Explosion_Damage.Damage");
-
-        for (Map.Entry<LivingEntity, Double> entry : exposures.entrySet()) {
-            LivingEntity victim = entry.getKey();
-            double exposure = entry.getValue();
-
-            if (!isFriendlyFire && !DamageUtils.canHarm(shooter, victim)) {
-                continue;
-            } else if (isOwnerImmune && victim.equals(shooter)) {
-                continue;
-            }
-
-            double damage = DamageUtils.calculateFinalDamage(shooter, victim, baseDamage * exposure, null, false);
-
-            DamageUtils.apply(shooter, victim, damage);
-            DamageUtils.damageArmor(victim, config.getInt(weaponTitle + ".Damage.Explosion_Damage.Armor_Damage"));
-
-            // Fire ticks
-            int fireTicks = config.getInt(weaponTitle + ".Damage.Explosion_Damage.Fire_Ticks");
-            if (fireTicks > 0) {
-                victim.setFireTicks(fireTicks);
-            }
+    private void useMechanics(Configuration config, CastData shooter, CastData victim, String path) {
+        Mechanics mechanics = config.getObject(path + ".Shooter_Mechanics", Mechanics.class);
+        if (mechanics != null) {
+            mechanics.use(shooter);
+        }
+        mechanics = config.getObject(path + ".Victim_Mechanics", Mechanics.class);
+        if (mechanics != null) {
+            mechanics.use(victim);
         }
     }
 
-    @Override
-    public String getKeyword() {
-        return "Damage";
-    }
+    public void tryUseExplosion(ICustomProjectile projectile, Location origin, Map<LivingEntity, Double> exposures) {
+        Configuration config = getConfigurations();
 
-    @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        // todo
+        double damage = config.getDouble(projectile.getWeaponTitle() + ".Damage.Base_Damage");
+
+        for (Map.Entry<LivingEntity, Double> entry : exposures.entrySet()) {
+            // Value = exposure
+
+            LivingEntity victim = entry.getKey();
+            Location victimLocation = victim.getLocation();
+            Vector explosionToVictimDirection = victimLocation.toVector().subtract(origin.toVector());
+            boolean backstab = victimLocation.getDirection().dot(explosionToVictimDirection) > 0.0;
+
+            tryUse(victim, projectile, damage * entry.getValue(), null, backstab);
+        }
     }
 }

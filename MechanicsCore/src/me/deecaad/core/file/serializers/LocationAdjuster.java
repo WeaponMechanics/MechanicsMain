@@ -3,7 +3,6 @@ package me.deecaad.core.file.serializers;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -61,8 +60,9 @@ public class LocationAdjuster implements Serializer<LocationAdjuster> {
 
     @Override
     public LocationAdjuster serialize(File file, ConfigurationSection configurationSection, String path) {
-        String[] adjusterData = StringUtil.split(configurationSection.getString(path));
-        if (adjusterData == null) return null;
+        String adjuster = configurationSection.getString(path);
+        if (adjuster == null) return null;
+        String[] adjusterData = adjuster.split("~");
 
         if (adjusterData.length < 3) {
             MechanicsCore.debug.log(LogLevel.ERROR,

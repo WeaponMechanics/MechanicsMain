@@ -91,7 +91,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         MessageHelper messageHelper = WeaponMechanics.getPlayerWrapper(player).getMessageHelper();
 
         // If this would be "boolean" it would throw null pointer
-        Boolean fetchWeaponInfoValue = castData.getData(CastData.CommonDataTags.WEAPON_INFO.name(), Boolean.class);
+        Boolean fetchWeaponInfoValue = castData.getData(CommonDataTags.WEAPON_INFO.name(), Boolean.class);
         boolean isWeaponInfoCast = fetchWeaponInfoValue != null && fetchWeaponInfoValue;
 
         if (chatData != null) {

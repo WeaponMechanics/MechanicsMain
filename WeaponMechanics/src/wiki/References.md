@@ -6,7 +6,6 @@ This page contains useful links and references. Contents:
   * [Entities](#Entities)
   * [Potion Effects](#Potion Effects)
   * [Enchantments](#Enchantments)
-  * [Color Codes](#Color Codes)
   
 
 ## Materials
@@ -89,14 +88,3 @@ particles using the `/minecraft:particle` command (Note, the names will be sligh
 **1.14**: https://helpch.at/docs/1.14/org/bukkit/enchantments/Enchantment.html  
 **1.15**: https://helpch.at/docs/1.15/org/bukkit/enchantments/Enchantment.html  
 **1.16**: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/enchantments/Enchantment.html
-
-## Color Codes
-In minecraft versions under 1.16, you can use basic color codes by using the `&` symbol.
-![](colorcodes.png)
-
-In minecraft versions 1.16 and higher, you can do the above, and have full HEX code support. 
-If you are not familiar with HEX, it's basically just a number format. Here we use hex to
-store colors. You can use HEX format in config by using `&#<code>` where code is your 6 digit
-hex code. You can use an [Online Color Picker](https://htmlcolorcodes.com/color-picker/) to 
-help find the hex code you want.
-

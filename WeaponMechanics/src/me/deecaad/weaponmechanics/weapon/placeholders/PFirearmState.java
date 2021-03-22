@@ -28,8 +28,6 @@ public class PFirearmState extends PlaceholderHandler {
         FirearmState state = firearmAction.getState(itemStack);
 
         switch (state) {
-            case READY:
-                return getBasicConfigurations().getString("Placeholder_Symbols." + firearmAction.getFirearmType().name() + ".Ready");
             case RELOAD_OPEN:
             case SHOOT_OPEN:
             case RELOAD:
