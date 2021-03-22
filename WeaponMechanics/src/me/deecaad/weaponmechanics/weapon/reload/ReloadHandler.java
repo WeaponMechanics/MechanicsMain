@@ -281,7 +281,8 @@ public class ReloadHandler implements IValidator {
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                Mechanics.use(weaponTitle + ".Reload.Start", castData);
+                Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
+                if (reloadStartMechanics != null) reloadStartMechanics.use(castData);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
@@ -392,7 +393,8 @@ public class ReloadHandler implements IValidator {
 
         handData.finishReload();
 
-        Mechanics.use(weaponTitle + ".Reload.Finish", new CastData(entityWrapper, weaponTitle, weaponStack));
+        Mechanics reloadFinishMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Finish_Mechanics", Mechanics.class);
+        if (reloadFinishMechanics != null) reloadFinishMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
@@ -416,7 +418,7 @@ public class ReloadHandler implements IValidator {
     /**
      * @return false if can't consume ammo (no enough ammo left)
      */
-    public boolean consumeAmmo(IEntityWrapper entityWrapper, ItemStack weaponStack, int amount) {
+    public boolean consumeAmmo(ItemStack weaponStack, int amount) {
         int ammoLeft = getAmmoLeft(weaponStack);
 
         // -1 means infinite ammo
@@ -431,23 +433,6 @@ public class ReloadHandler implements IValidator {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
         }
         return true;
-    }
-
-    /**
-     * @return the amount in ticks required to finish reload, this takes current firearm action to account
-     */
-    public int getReloadFinishTime(FirearmState state, boolean isPump, int reloadTime, int open, int close) {
-        if (state == null) return reloadTime;
-        switch (state) {
-            case RELOAD_OPEN:
-                return isPump ? open + close : open + reloadTime + close;
-            case RELOAD:
-                return isPump ? reloadTime + open + close : reloadTime + close;
-            case RELOAD_CLOSE:
-                return close;
-            default:
-                return open + reloadTime + close;
-        }
     }
 
     @Override

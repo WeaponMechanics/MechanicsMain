@@ -1,7 +1,13 @@
-package me.deecaad.weaponmechanics.mechanics;
+package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+
+import me.deecaad.weaponmechanics.mechanics.IMechanic;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 
 import java.util.List;
 
+/**
+ * For damaging
+ */
 public class ShooterMechanics extends Mechanics {
 
     public ShooterMechanics() { }
