@@ -1,23 +1,23 @@
 ```yaml
   Shoot:
-    Trigger: <Trigger>
+    Trigger: <TriggerSerializer>
     Projectile_Speed: <Double>
     Projectiles_Per_Shot: <Integer>
     Selective_Fire:
-      Trigger: <Trigger>
-      Mechanics: <Mechanics>
+      Trigger: <TriggerSerializer>
+      Mechanics: <MechanicsSerializer>
     Delay_Between_Shots: <Integer>
     Fully_Automatic_Shots_Per_Second: <Integer>
     Burst:
       Shots_Per_Burst: <Integer>
       Ticks_Between_Each_Shot: <Integer>
-    Spread: <Spread> # Scroll down for more information
-    Projectile: <Projectile> # Scroll down for more information
-    Recoil: <Recoil> # Scroll down for more information
-    Mechanics:
+    Spread: <SpreadSerializer> # Scroll down for more information
+    Projectile: <ProjectileSerializer> # Scroll down for more information
+    Recoil: <RecoilSerializer> # Scroll down for more information
+    Mechanics: <MechanicsSerializer>
 ```
 #### `Trigger`: \<Trigger\>
-This is the trigger used to actually shoot the gun. See [the wiki for trigger](#todo)
+This is the trigger used to actually shoot the gun. See [the wiki for trigger](General.md#trigger)
 
 #### `Projectile_Speed`: \<Double\>
 This is how fast your projectile moves when it is shot (It will slow down a bit after moving). Note that

@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -12,17 +11,15 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
-public class DamageHandler implements IValidator {
+public class DamageHandler {
 
     /**
      * @return false if damaging was cancelled
@@ -125,15 +122,5 @@ public class DamageHandler implements IValidator {
 
             tryUse(victim, projectile, damage * entry.getValue(), null, backstab);
         }
-    }
-
-    @Override
-    public String getKeyword() {
-        return "Damage";
-    }
-
-    @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        // todo
     }
 }

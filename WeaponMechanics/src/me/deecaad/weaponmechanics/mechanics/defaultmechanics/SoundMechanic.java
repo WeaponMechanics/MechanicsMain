@@ -29,7 +29,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class SoundMechanic implements IMechanic<SoundMechanic> {
 
-    private static final float MIN_PITCH = (float) 0.0;
+    private static final float MIN_PITCH = (float) 0.5;
     private static final float MAX_PITCH = (float) 2.0;
     private static Method worldGetHandle;
     private static Method makeSoundMethod;
@@ -173,6 +173,14 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
                 try {
                     volume = Float.parseFloat(soundData[1]);
                     pitch = Float.parseFloat(soundData[2]);
+
+                    if (pitch < 0.5 || pitch > 2.0) {
+                        debug.log(LogLevel.ERROR,
+                                StringUtil.foundInvalid("pitch"),
+                                StringUtil.foundAt(file, path, stringInLine),
+                                "Make sure that pitch is between 0.5 and 2.0.");
+                        return null;
+                    }
 
                     if (soundData.length > 3) delay = Integer.parseInt(soundData[3]);
                     if (delay > 0) hasDelay = true;
