@@ -248,7 +248,7 @@ public class Explosion implements Serializer<Explosion> {
         // to MC explosion damage (But we can actually use explosions with
         // no damage)
         if (projectile.getWeaponTitle() != null) {
-            damageHandler.tryUseExplosion(cause, projectile.getWeaponTitle(), entities);
+            damageHandler.tryUseExplosion(projectile, entities);
 
             if (isKnockback) {
                 Vector originVector = origin.toVector();

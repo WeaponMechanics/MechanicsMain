@@ -2,6 +2,7 @@ Damage:
   Base_Damage: <amount>
   Fire_Ticks: <ticks>
   Enable_Friendly_Fire: <Boolean>
+  Enable_Owner_Immunity: <Boolean>
   Armor_Damage: <Integer>
   # All registered mechanics for victim and shooter on all damage
   Head:
@@ -30,9 +31,3 @@ Damage:
     # All registered mechanics for victim and shooter
   Dropoff:
     - <blocks>~<damage amount>
-  Explosion_Damage:
-    Damage: <amount> # yield * 7 + 1
-    Armor_Damage: <amount>
-    Fire_Ticks: <Integer>
-    Enable_Owner_Immunity: <Boolean>
-    # All registered mechanics for victim

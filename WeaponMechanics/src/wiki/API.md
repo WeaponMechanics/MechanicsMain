@@ -118,9 +118,9 @@ This event is called before damage is applied to the effected entity.
 * `double getBaseDamage()` - Gets the base damage
 * `void setBaseDamage(double)` - Sets the base damage
 * `double getFinalDamage()` - Gets the final damage dealt to the entity
-  * Using this method will force WM to calculate final damage (Unless
-  another plugin already forced it)
 * `void setFinalDamage(double)` - Sets the final damage
+  * Final damage is reset if `setBaseDamage(boolean)`, `setBackstab(boolean)`, 
+    `setCritical(boolean)` or `setDamagePoint(DamagePoint)` is used
 * `boolean isBackstab()` - Returns true if this is a backstab
 * `void setBackstab(boolean)` - Sets if this is a backstab or not
 * `boolean isCritical()` - Returns true if this is a critical hit

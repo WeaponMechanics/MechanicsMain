@@ -388,7 +388,7 @@ public class CustomProjectile implements ICustomProjectile {
         point = hitEntityEvent.getPoint();
         backstab = hitEntityEvent.isBackStab();
 
-        if (!damageHandler.tryUse(victim, shooter, weaponTitle, this, point, backstab)) {
+        if (!damageHandler.tryUse(victim, this, getConfigurations().getDouble(weaponTitle + ".Damage.Base_Damage"), point, backstab)) {
             // Damage was cancelled
             return true;
         }
@@ -710,7 +710,9 @@ public class CustomProjectile implements ICustomProjectile {
 
         for (Chunk chunk : chunks) {
             for (final Entity entity : chunk.getEntities()) {
-                if (entity.getEntityId() == shooter.getEntityId()) continue;
+
+                // Don't allow self shots withing first 10 ticks
+                if (aliveTicks < 10 && entity.getEntityId() == shooter.getEntityId()) continue;
 
                 HitBox entityBox = projectileCompatibility.getHitBox(entity);
                 if (entityBox == null) continue; // entity is invulnerable, non alive or dead
