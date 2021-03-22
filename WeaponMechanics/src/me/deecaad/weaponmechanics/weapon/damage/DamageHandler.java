@@ -7,8 +7,10 @@ import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -70,16 +72,21 @@ public class DamageHandler implements IValidator {
         return true;
     }
 
-    public void tryUseExplosion(ICustomProjectile projectile, Map<LivingEntity, Double> exposures) {
+    public void tryUseExplosion(ICustomProjectile projectile, Location origin, Map<LivingEntity, Double> exposures) {
         Configuration config = getConfigurations();
 
         String weaponTitle = projectile.getWeaponTitle();
         double damage = config.getDouble(weaponTitle + ".Damage.Base_Damage");
 
         for (Map.Entry<LivingEntity, Double> entry : exposures.entrySet()) {
-            // Key = victim
             // Value = exposure
-            tryUse(entry.getKey(), projectile, damage * entry.getValue(), null, false);
+
+            LivingEntity victim = entry.getKey();
+            Location victimLocation = victim.getLocation();
+            Vector explosionToVictimDirection = victimLocation.toVector().subtract(origin.toVector());
+            boolean backstab = victimLocation.getDirection().dot(explosionToVictimDirection) > 0.0;
+
+            tryUse(entry.getKey(), projectile, damage * entry.getValue(), null, backstab);
         }
     }
 
