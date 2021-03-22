@@ -4,30 +4,39 @@ Damage:
   Enable_Friendly_Fire: <Boolean>
   Enable_Owner_Immunity: <Boolean>
   Armor_Damage: <Integer>
-  # All registered mechanics for victim and shooter on all damage
+  Shooter_Mechanics: <MechanicsSerializer>
+  Victim_Mechanics: <MechanicsSerializer>
   Head:
     Bonus_Damage: <amount>
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Body:
     Bonus_Damage: <amount>
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Arms:
     Bonus_Damage: <amount>
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Legs:
     Bonus_Damage: <amount>
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Feet:
     Bonus_Damage: <amount>
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Backstab:
     Bonus_Damage: <amount>
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Critical_Hit:
     Chance: <1-100>
     Bonus_Damage: <amount>
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Kill:
-    # All registered mechanics for victim and shooter
+    Shooter_Mechanics: <MechanicsSerializer>
+    Victim_Mechanics: <MechanicsSerializer>
   Dropoff:
     - <blocks>~<damage amount>

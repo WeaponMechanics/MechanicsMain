@@ -3,6 +3,10 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
@@ -53,10 +57,7 @@ public class DamageHandler implements IValidator {
         if (damageEntityEvent.isCancelled()) return false;
 
         fireTicks = damageEntityEvent.getFireTicks();
-        isBackstab = damageEntityEvent.isBackstab();
         point = damageEntityEvent.getPoint();
-        // No need to update damage, armorDamage or finalDamage here
-        // since they're used just once after this (get from event simply)
 
         DamageUtils.apply(shooter, victim, damageEntityEvent.getFinalDamage());
         DamageUtils.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
@@ -66,17 +67,53 @@ public class DamageHandler implements IValidator {
             victim.setFireTicks(fireTicks);
         }
 
-        if (victim.isDead()) {
-            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim, damageEntityEvent));
+        CastData shooterCast = new CastData(WeaponMechanics.getEntityWrapper(shooter), projectile.getWeaponTitle(), projectile.getWeaponStack());
+        shooterCast.setData(CommonDataTags.TARGET_LOCATION.name(), victim.getLocation());
+
+        CastData victimCast = new CastData(WeaponMechanics.getEntityWrapper(victim), projectile.getWeaponTitle(), projectile.getWeaponStack());
+        victimCast.setData(CommonDataTags.TARGET_LOCATION.name(), shooter.getLocation());
+
+        // On all damage
+        useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");
+
+        // On point
+        if (point != null) useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage." + point.getReadable());
+
+        // On backstab
+        if (damageEntityEvent.isBackstab()) {
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Backstab");
         }
+
+        // On critical
+        if (damageEntityEvent.isCritical()) {
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Critical_Hit");
+        }
+
+        if (victim.isDead() || victim.getHealth() <= 0.0) {
+            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim, damageEntityEvent));
+
+            // On kill
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Kill");
+        }
+
         return true;
+    }
+
+    private void useMechanics(Configuration config, CastData shooter, CastData victim, String path) {
+        Mechanics mechanics = config.getObject(path + ".Shooter_Mechanics", Mechanics.class);
+        if (mechanics != null) {
+            mechanics.use(shooter);
+        }
+        mechanics = config.getObject(path + ".Victim_Mechanics", Mechanics.class);
+        if (mechanics != null) {
+            mechanics.use(victim);
+        }
     }
 
     public void tryUseExplosion(ICustomProjectile projectile, Location origin, Map<LivingEntity, Double> exposures) {
         Configuration config = getConfigurations();
 
-        String weaponTitle = projectile.getWeaponTitle();
-        double damage = config.getDouble(weaponTitle + ".Damage.Base_Damage");
+        double damage = config.getDouble(projectile.getWeaponTitle() + ".Damage.Base_Damage");
 
         for (Map.Entry<LivingEntity, Double> entry : exposures.entrySet()) {
             // Value = exposure
@@ -86,7 +123,7 @@ public class DamageHandler implements IValidator {
             Vector explosionToVictimDirection = victimLocation.toVector().subtract(origin.toVector());
             boolean backstab = victimLocation.getDirection().dot(explosionToVictimDirection) > 0.0;
 
-            tryUse(entry.getKey(), projectile, damage * entry.getValue(), null, backstab);
+            tryUse(victim, projectile, damage * entry.getValue(), null, backstab);
         }
     }
 
