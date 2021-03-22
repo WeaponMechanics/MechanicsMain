@@ -1,7 +1,15 @@
 package me.deecaad.core.utils;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * This final utility class outlines static methods that operate on or return
@@ -18,11 +26,12 @@ public final class EnumUtil {
     private EnumUtil() {
     }
 
-    private static <T extends Enum<T>> Map<String, WeakReference<? extends Enum<?>>> getConstants(Class<T> enumClass) {
+    @SuppressWarnings("unchecked")
+    private static <T extends Enum<T>> Map<String, WeakReference<T>> getConstants(Class<T> enumClass) {
 
         // Obtaining a lock is probably unavoidable
         synchronized (cache) {
-            Map<String, WeakReference<? extends Enum<?>>> temp = cache.get(enumClass);
+            Map<String, WeakReference<T>> temp = (Map<String, WeakReference<T>>) (Map<?, ?>) cache.get(enumClass);
             if (temp == null)
                 return populateEnum(enumClass);
 
@@ -30,10 +39,11 @@ public final class EnumUtil {
         }
     }
 
-    private static <T extends Enum<T>> Map<String, WeakReference<? extends Enum<?>>> populateEnum(Class<T> clazz) {
+    @SuppressWarnings("unchecked")
+    private static <T extends Enum<T>> Map<String, WeakReference<T>> populateEnum(Class<T> clazz) {
 
         if (cache.containsKey(clazz))
-            return cache.get(clazz);
+            return (Map<String, WeakReference<T>>) (Map<?, ?>) cache.get(clazz);
 
         // Temporary mapping to store the enums
         Map<String, WeakReference<? extends Enum<?>>> temp = new HashMap<>();
@@ -45,7 +55,7 @@ public final class EnumUtil {
         // Make the temporary mappings immutable so people
         // don't try to add their own mappings
         cache.put(clazz, Collections.unmodifiableMap(temp));
-        return temp;
+        return (Map<String, WeakReference<T>>) (Map<?, ?>) temp;
     }
 
     /**
@@ -103,13 +113,28 @@ public final class EnumUtil {
      * Returns an immutable set of the name of every {@link Enum} associated
      * with the given enum class.
      *
-     * @param enumClass Class to grab the enum from
-     * @param <T>       The enum type
-     * @return immutable set of all enums
+     * @param clazz Class to grab the enum from.
+     * @param <T>   The enum type.
+     * @return immutable set of all enums.
      * @see Collections#unmodifiableMap(Map)
      */
-    public static <T extends Enum<T>> Set<String> getOptions(Class<T> enumClass) {
-        Map<String, WeakReference<? extends Enum<?>>> temp = getConstants(enumClass);
+    public static <T extends Enum<T>> Set<String> getOptions(Class<T> clazz) {
+        Map<String, WeakReference<T>> temp = getConstants(clazz);
         return temp.keySet();
+    }
+
+    /**
+     * Returns an immutable collection of the {@link WeakReference} to every
+     * {@link Enum} associated with the given enum class. The references will
+     * only return null if garbage collections has unloaded the enums.
+     *
+     * @param clazz Class to grab the enum from.
+     * @param <T>   The enum type.
+     * @return An immutable set of all enums.
+     * @see Collections#unmodifiableMap(Map) 
+     */
+    public static <T extends Enum<T>> Collection<WeakReference<T>> getValues(Class<T> clazz) {
+        Map<String, WeakReference<T>> temp = getConstants(clazz);
+        return temp.values();
     }
 }
