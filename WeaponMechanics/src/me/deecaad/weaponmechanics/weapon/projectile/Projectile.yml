@@ -30,7 +30,7 @@ Projectile: <path to another Projectile key>
       Allow_Any_Block: <true/false>
       Whitelist: <true/false>
       List:
-        - <Material>:<data>
+        - <Material>
         - <etc.>
     Entities:
       Allow_Stick_To_Entities_After_Stick_Block: <true/false>
@@ -46,7 +46,7 @@ Projectile: <path to another Projectile key>
       Default_Speed_Modifier: <multiplier>
       Whitelist: <true/false>
       List:
-        - <Material>:<data>-<speed multiplier>
+        - <Material>-<speed multiplier>
         - <etc.>
     Entities:
       Maximum_Bounce_Amount: <amount>
@@ -63,7 +63,7 @@ Projectile: <path to another Projectile key>
       Default_Speed_Modifier: <multiplier>
       Whitelist: <true/false>
       List:
-        - <Material>:<data>-<speed multiplier>
+        - <Material>-<speed multiplier>
         - <etc.>
     Entities:
       Maximum_Pass_Throughs: <maximum entity pass throughs>

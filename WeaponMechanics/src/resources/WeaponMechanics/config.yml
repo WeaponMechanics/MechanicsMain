@@ -5,13 +5,6 @@
 #   3: Debug
 Debug_Level: 2
 
-# This feature is currently incomplete, and will be added in a future update.
-#
-# Statistic tracking mostly exists for leaderboards. Currently the following
-# statistics are tracked. In the future, more may be tracked.
-#  - kills (per weapon)
-Statistic_Tracker: "INCOMPLETE, DO NOT USE"
-
 # Notifies you when there is an update. Major updates are exactly that: Major
 # changes to the codebase, or a large number of changes. A minor is generally
 # a small number of changes. A patch could be a very specific feature changed

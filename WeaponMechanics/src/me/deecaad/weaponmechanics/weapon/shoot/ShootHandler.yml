@@ -1,15 +1,15 @@
 Shoot:
   Trigger: <TriggerSerializer>
-  Projectile_Speed: <Double>
-  Projectiles_Per_Shot: <Integer>
+  Projectile_Speed: <speed>
+  Projectiles_Per_Shot: <amount>
   Selective_Fire:
     Trigger: <TriggerSerializer>
     Mechanics: <MechanicsSerializer>
-  Delay_Between_Shots: <Integer>
-  Fully_Automatic_Shots_Per_Second: <Integer>
+  Delay_Between_Shots: <ticks>
+  Fully_Automatic_Shots_Per_Second: <amount>
   Burst:
-    Shots_Per_Burst: <Integer>
-    Ticks_Between_Each_Shot: <Integer>
+    Shots_Per_Burst: <amount>
+    Ticks_Between_Each_Shot: <ticks>
   Spread: <SpreadSerializer>
   Projectile: <ProjectileSerializer>
   Recoil: <RecoilSerializer>

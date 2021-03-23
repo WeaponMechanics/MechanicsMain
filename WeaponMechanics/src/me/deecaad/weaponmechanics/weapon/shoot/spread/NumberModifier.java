@@ -15,7 +15,7 @@ public class NumberModifier {
             // Add 1 to spread to make it so that
             // -> 50% actually decreases 50% and 130% actually increases 30%
             // -> 100% would then mean that no changes are made
-            this.spread = spread * 0.01 + 1.0;
+            this.spread = spread * 0.01;
         } else {
             this.spread = spread * 0.1;
         }
