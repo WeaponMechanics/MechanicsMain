@@ -147,7 +147,7 @@ public class InfoHandler {
         }
         inventory.addItem(weaponStack);
 
-        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Actions", new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, weaponStack));
+        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Mechanics", new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, weaponStack));
     }
 
     /**
