@@ -255,6 +255,9 @@ of these conditions are met, then the trigger does not occur.
   * If the player is gliding using an elytra
 
 ## Mechanics
+Mechanics are widely usable in WeaponMechanics. Using these you can play additional
+effects during certain events.
+
 ```yaml
 Mechanics:
   Message: <MessageSerializer>

@@ -42,6 +42,7 @@ this case, firearm actions wouldn't be triggered.
 * `Time`: \<Integer\>
   * The time in ticks it takes to open weapon
 * `Mechanics`: \<Mechanics\>
+  * Delayed sound plays will be cancelled if firearm actions are cancelled
   * See [the wiki for mechanics](General.md#mechanics)
 
 #### `Close`:
@@ -49,4 +50,5 @@ this case, firearm actions wouldn't be triggered.
 * `Time`: \<Integer\>
   * The time in ticks it takes to close weapon
 * `Mechanics`: \<Mechanics\>
+  * Delayed sound plays will be cancelled if firearm actions are cancelled
   * See [the wiki for mechanics](General.md#mechanics)
