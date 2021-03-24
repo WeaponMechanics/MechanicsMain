@@ -40,4 +40,4 @@ Damage:
     Shooter_Mechanics: <MechanicsSerializer>
     Victim_Mechanics: <MechanicsSerializer>
   Dropoff:
-    - <blocks>~<damage amount>
+    - <travel distance>~<damage amount>
