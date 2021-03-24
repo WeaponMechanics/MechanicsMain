@@ -1,16 +1,16 @@
 ## Modules
-  * [Information]()
-  * [Shooting]()
-  * [Projectile]()
-  * [Damage]()
-  * [Explosion]()
-  * [Hit_Block]()
+  * [Information](Information.md)
+  * [Shooting](Shooting.md)
+  * [Projectile](Projectile.md)
+  * [Damage](Damage.md)
+  * [Explosion](Explosion.md)
+  * [Scoping](Scoping.md)
   
 ## Other
-  * [Permissions]()
-  * [Protections]()
-  * [Developer API]()
-  * [References]()
+  * [Permissions](CommandsPermissions.md)
+  * [Protections](Protections.md)
+  * [Developer API](API.md)
+  * [References](References.md)
   
 ## Tutorials
   * [Installation]()
@@ -41,21 +41,10 @@ If you are still having problems, there are still a few things you can try:
   your config, then click "Validate YAML"
   
 Now that you have tried EVERYTHING possible, you should [get in contact with us]()
-so we can help fix your issue. Please do not leave a 1 star review, get help with us
-first!!!
+so we can help fix your issue.
   
 > **Can you add gun (Insert Gun Here)?**
 
 This plugin is programmed so people can be creative and design their own weapons.
 The default weapons exist to give people inspiration, not for you to build your server around.
 If you do not want to make the weapons yourself, somebody may be willing to commission a weapon pack for you
-
-> **Why should I be using WeaponMechanics instead of other gun plugins?**  
-
-There are a multitude of reasons to use [WeaponMechanics] over other gun plugin. One of the larger
-reasons is performance across all minecraft versions. 
-
-
-
-[WeaponMechanics]: Todo
-[WeaponMechanicsPlus]: Todo

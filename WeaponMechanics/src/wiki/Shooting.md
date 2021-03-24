@@ -137,7 +137,7 @@ You can use any size image with no impact to performance!
 
 Here is a `512 x 512` example of a gear:
 
-![](gear.png)
+![](images/gear.png)
 
 #### `Base_Spread`: \<Double\>
 This is the randomness applied vertically and horizontally.
