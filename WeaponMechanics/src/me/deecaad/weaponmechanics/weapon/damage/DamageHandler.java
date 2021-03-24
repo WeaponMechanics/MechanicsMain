@@ -110,7 +110,7 @@ public class DamageHandler {
     public void tryUseExplosion(ICustomProjectile projectile, Location origin, Map<LivingEntity, Double> exposures) {
         Configuration config = getConfigurations();
 
-        double damage = config.getDouble(projectile.getWeaponTitle() + ".Damage.Base_Damage");
+        double damage = config.getDouble(projectile.getWeaponTitle() + ".Damage.Base_Explosion_Damage");
 
         for (Map.Entry<LivingEntity, Double> entry : exposures.entrySet()) {
             // Value = exposure
