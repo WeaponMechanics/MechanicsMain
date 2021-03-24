@@ -5,7 +5,6 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Material;
@@ -27,9 +26,9 @@ public class ItemAmmo implements IAmmoType {
     private final Mechanics magazineAlreadyFull;
     private final Mechanics magazineFilled;
     private final ItemStack ammo;
-    private final WeaponConverter ammoConverter;
+    private final AmmoConverter ammoConverter;
 
-    public ItemAmmo(String ammoName, int maximumMagazineSize, ItemStack magazine, Mechanics notSameAmmoName, Mechanics magazineAlreadyFull, Mechanics magazineFilled, ItemStack ammo, WeaponConverter ammoConverter) {
+    public ItemAmmo(String ammoName, int maximumMagazineSize, ItemStack magazine, Mechanics notSameAmmoName, Mechanics magazineAlreadyFull, Mechanics magazineFilled, ItemStack ammo, AmmoConverter ammoConverter) {
         this.ammoName = ammoName;
         this.maximumMagazineSize = maximumMagazineSize;
         this.magazine = magazine;
@@ -79,7 +78,7 @@ public class ItemAmmo implements IAmmoType {
             if (magazine != null) {
                 Integer itemAmmoLeft = CustomTag.ITEM_AMMO_LEFT.getInteger(itemStack);
                 if (itemAmmoLeft != null && itemAmmoLeft > 0) {
-                    // has at least one (magazine) ammo
+                    // has at least one (magazine) ammo with more than 0 capacity
                     return true;
                 }
                 continue;

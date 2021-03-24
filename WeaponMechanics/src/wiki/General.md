@@ -105,7 +105,7 @@ The following creates a recipe like an emerald sword
       'e': EMERALD
       's': STICK
 ```
-![](crafting.png)
+![](images/crafting.png)
 ```yaml
   Recipe:
     Shape:
@@ -126,7 +126,7 @@ TODO picture example
 ## Color
 
 In minecraft versions under 1.16, you can use basic color codes by using the `&` symbol.
-![](colorcodes.png)
+![](images/colorcodes.png)
 
 In minecraft versions 1.16 and higher, you can do the above, and have full HEX code support.
 If you are not familiar with HEX, it's basically just a number format. Here we use hex to
@@ -255,6 +255,9 @@ of these conditions are met, then the trigger does not occur.
   * If the player is gliding using an elytra
 
 ## Mechanics
+Mechanics are widely usable in WeaponMechanics. Using these you can play additional
+effects during certain events.
+
 ```yaml
 Mechanics:
   Message: <MessageSerializer>

@@ -1,10 +1,9 @@
 ## Developer API
 This page is for developers. If you are not a Java developer, [click here]() to go back home.
 
-  * [WeaponMechanicsAPI](#WeaponMechanicsAPI)
-  * [Weapon Events](#Events)
-  * [Config Serialization](#Config Serialization)
-  * [Overriding the WeaponHandler](#Overriding the WeaponHandler)
+* [WeaponMechanicsAPI](#WeaponMechanicsAPI)
+* [Weapon Events](#Events)
+* [Config Serialization](#Config Serialization)
 
 Javadocs: <insert link here!>
 

@@ -1,12 +1,11 @@
 ## Reference Page
 This page contains useful links and references. Contents:
-  * [Materials](#Materials)
-  * [Sounds](#Sounds)
-  * [Particles](#Particles)
-  * [Entities](#Entities)
-  * [Potion Effects](#Potion Effects)
-  * [Enchantments](#Enchantments)
-  
+* [Materials](#Materials)
+* [Sounds](#Sounds)
+* [Particles](#Particles)
+* [Entities](#Entities)
+* [Potion Effects](#Potion Effects)
+* [Enchantments](#Enchantments)
 
 ## Materials
 These lists are for all of the different block types. In all versions, you should use the name
