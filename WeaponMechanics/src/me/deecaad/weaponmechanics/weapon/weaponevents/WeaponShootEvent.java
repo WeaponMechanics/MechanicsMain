@@ -4,6 +4,9 @@ import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 
 import javax.annotation.Nonnull;
 
+/**
+ * This class outlines the event of a weapon launching a projectile.
+ */
 public class WeaponShootEvent extends WeaponEvent {
 
     private ICustomProjectile projectile;

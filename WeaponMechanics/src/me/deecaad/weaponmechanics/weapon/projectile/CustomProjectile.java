@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -28,7 +29,14 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -337,11 +345,15 @@ public class CustomProjectile implements ICustomProjectile {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            explosion.explode(shooter, loc, CustomProjectile.this);
+                            ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(CustomProjectile.this, explosion);
+                            Bukkit.getPluginManager().callEvent(event);
+                            if (!event.isCancelled() && event.getExplosion() != null) {
+                                event.getExplosion().explode(shooter, loc, CustomProjectile.this);
 
-                            if (stickedData != null) {
-                                // Remove on explosion if sticky data is used
-                                remove();
+                                if (stickedData != null) {
+                                    // Remove on explosion if sticky data is used
+                                    remove();
+                                }
                             }
                         }
                     }.runTaskLater(getPlugin(), explosion.getDelay());
@@ -433,7 +445,7 @@ public class CustomProjectile implements ICustomProjectile {
         ++aliveTicks;
 
         ProjectileMotion projectileMotion = projectile.getProjectileMotion();
-        if (location.getY() < -32 || location.getY() > 288 || aliveTicks > maximumAliveTicks) {
+        if (location.getY() < -32 || location.getY() > world.getMaxHeight() + 32 || aliveTicks > maximumAliveTicks) {
             remove();
             return true;
         }

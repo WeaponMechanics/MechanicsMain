@@ -9,6 +9,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * This class outlines the event of a weapon damaging a {@link LivingEntity}.
+ */
 public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable {
 
     private static Configuration config = WeaponMechanics.getConfigurations();
@@ -32,7 +35,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
         this.victim = victim;
         this.baseDamage = baseDamage;
-        this.finalDamage = Integer.MIN_VALUE;
+        this.finalDamage = Double.NaN;
         this.isBackstab = isBackstab;
         this.isCritical = isCritical;
         this.point = point;
@@ -50,15 +53,12 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     public void setBaseDamage(double baseDamage) {
-        if (finalDamage != Integer.MIN_VALUE) {
-            finalDamage = Integer.MIN_VALUE;
-        }
-
+        this.finalDamage = Double.NaN;
         this.baseDamage = baseDamage;
     }
 
     public double getFinalDamage() {
-        if (finalDamage == Integer.MIN_VALUE) {
+        if (Double.isNaN(finalDamage)) {
 
             // Calculate the final damage and save its value
             // Final damage value is reset if set point, damage
@@ -101,23 +101,17 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     public void setBackstab(boolean backstab) {
-        if (finalDamage != Integer.MIN_VALUE) {
-            finalDamage = Integer.MIN_VALUE;
-        }
-
-        isBackstab = backstab;
+        this.finalDamage = Double.NaN;
+        this.isBackstab = backstab;
     }
 
     public boolean isCritical() {
         return isCritical;
     }
 
-    public void setCritical(boolean critical) {
-        if (finalDamage != Integer.MIN_VALUE) {
-            finalDamage = Integer.MIN_VALUE;
-        }
-
-        isCritical = critical;
+    public void setCritical(boolean isCritical) {
+        this.finalDamage = Double.NaN;
+        this.isCritical = isCritical;
     }
 
     public DamagePoint getPoint() {
@@ -125,10 +119,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     }
 
     public void setPoint(DamagePoint point) {
-        if (finalDamage != Integer.MIN_VALUE) {
-            finalDamage = Integer.MIN_VALUE;
-        }
-
+        this.finalDamage = Double.NaN;
         this.point = point;
     }
 

@@ -4,7 +4,11 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.DistanceUtil;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -17,11 +21,13 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.VoidExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
-import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -38,7 +44,13 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -154,18 +166,9 @@ public class Explosion implements Serializer<Explosion> {
      * @param origin The center of the explosion
      */
     public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
-
-        if (projectile != null) {
-            if (airStrike != null && !"true".equals(projectile.getTag("airstrike-bomb"))) {
-                airStrike.trigger(origin, cause, projectile);
-                return;
-            }
-
-            ProjectileExplodeEvent explodeEvent = new ProjectileExplodeEvent(projectile, this);
-            Bukkit.getPluginManager().callEvent(explodeEvent);
-            if (explodeEvent.isCancelled()) {
-                return;
-            }
+        if (projectile != null && airStrike != null && !"true".equals(projectile.getTag("airstrike-bomb"))) {
+            airStrike.trigger(origin, cause, projectile);
+            return;
         }
 
         if (debug.canLog(LogLevel.DEBUG)) {

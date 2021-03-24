@@ -10,6 +10,12 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 
+/**
+ * This class outlines the event of a projectile hitting a
+ * {@link LivingEntity}. If this event is cancelled, the projectile will not
+ * <i>interact</i> with the entity (Cancelling damage, explosions, mechanics,
+ * etc.)
+ */
 public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancellable {
 
     private final LivingEntity entity;

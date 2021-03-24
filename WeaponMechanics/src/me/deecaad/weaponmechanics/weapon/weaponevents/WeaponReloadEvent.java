@@ -3,6 +3,9 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * This class outlines the event of an entity starting to reload a weapon.
+ */
 public class WeaponReloadEvent extends WeaponEvent {
 
     private int reloadTime;

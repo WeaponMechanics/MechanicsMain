@@ -4,6 +4,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * This class outlines the event of an entity scoping (zooming in or zooming
+ * out) with their weapon.
+ */
 public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
 
     private final ScopeType scopeType;
