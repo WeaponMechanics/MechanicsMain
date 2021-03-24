@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.damage.BlockDamage;
+import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;

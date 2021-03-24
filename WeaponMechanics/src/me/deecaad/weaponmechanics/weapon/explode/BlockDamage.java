@@ -1,10 +1,11 @@
-package me.deecaad.weaponmechanics.weapon.damage;
+package me.deecaad.weaponmechanics.weapon.explode;
 
 import com.google.common.base.Enums;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
