@@ -37,8 +37,11 @@ First fire mode is always `SINGLE` when weapon is received.
 The order of changing fire modes is `1. SINGLE`, `2. BURST`, `3. AUTO`. 
 The order can also be just `1. SINGLE`, `2. AUTO` if `BURST` isn't enabled for this weapon.
 
+Selective fire current state can be shown [weapon info display](Information.md#weapon_info_display)
+and their symbols can be changed in file `WeaponMechanics/config.yml` at `Placeholder_Symbols` section.
+
 * `Trigger`: \<Trigger\>
-  * The trigger which changes firemode to next one
+  * The trigger which changes fire mode to next one
 * `Mechanics`: \<Mechanics\>
   * See [the wiki for mechanics](General.md#mechanics)
 
