@@ -136,9 +136,17 @@ bombs that explode. This feature can be used to spread out explosions, and make 
 more randomized.
 
   * `Split_Projectile`:
+    * This is the projectile which is spawned from the initial explosion.
+    * If you delete this line, the projectile defaults to the weapon's projectile.
   * `Projectile_Speed`:
+    * The speed to spawn the split projectiles with.
+    * If you use 40, for example, 40 / 10 * 20 = 80 blocks per second.
   * `Number_Of_Bombs`:
+    * The number of projectiles to spawn for every explosion. 
   * `Number_Of_Splits`:
+    * The number of times an explosions should split off into more explosions.
+    * For most uses, this number can be 1.
+    * This can be looked at like recursion. 
 
 #### `Airstrike`:
 An air-strike is a dropping of explosives from the sky. This is generally used for flare guns. For
@@ -147,7 +155,7 @@ carpet bombing, or gas bombing (Mojang does not comply with the Geneva conventio
 
   * `Dropped_Projectile`: 
     * This is the projectile which is dropped from the air.
-    * If you do not use this feature, the projectile defaults to the weapon's projectile.
+    * If you delete this line, the projectile defaults to the weapon's projectile.
     * I strongly recommend using this feature.
       * This is because you want a flare to look 1 way, and a missile/bomb to look another
       * You may also want to change how the missile moves compared to the flare
