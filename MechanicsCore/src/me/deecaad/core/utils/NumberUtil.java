@@ -212,7 +212,7 @@ public final class NumberUtil {
      * @return <code>true</code> if the numbers are similar.
      */
     public static boolean equals(double a, double b) {
-        return Math.abs(a - b) < 1e-10;
+        return a == b || Math.abs(a - b) < 1e-6;
     }
 
     /**
