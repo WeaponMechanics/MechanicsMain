@@ -313,7 +313,6 @@ public class DoubleMap<K> {
             }
             return false;
         }
-
     }
 
     private class EntrySet extends AbstractSet<DoubleEntry<K>> {

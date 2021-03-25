@@ -8,8 +8,8 @@ This page contains useful links and references. Contents:
 * [Enchantments](#Enchantments)
 
 ## Materials
-These lists are for all of the different block types. In all versions, you should use the name
-of the material, e.x.) `stone`. In versions 1.8.8 though 1.12.2, you will have to use a number
+These lists are for all the different block types. In all versions, you should use the name
+of the material, e.x. `stone`. In versions 1.8.8 though 1.12.2, you will have to use a number
 to give the material "more data". For example, granite in 1.13 is `granite`, but in 1.12 it is
 `stone:1`.
 

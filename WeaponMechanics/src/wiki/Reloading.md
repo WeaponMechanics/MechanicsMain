@@ -71,65 +71,65 @@ Ammo:
 ```
 
 #### `Out_Of_Ammo`: \<Mechanics\>
-These mechanics are run when there is attempt to reload without ammo. 
+These mechanics are run when there is an attempt to reload without ammo. 
 See [the wiki for mechanics](General.md#mechanics).
 
 #### `Use_Item_As_Ammo`:
 
 * `Ammo_Name`: \<String\>
-  * The name of ammo items and magazine items
-    * This is only hidden name of items, not visible to players
-  * Many weapons can have same `Ammo_Name` to be able to use same ammo items
+  * The name of ammo items and magazine items.
+    * This name is used internally for identifying which gun can use which ammo.
+  * Many weapons can have same `Ammo_Name` to be able to use same ammo items.
 * `Magazine`
   * Magazines can be filled through inventory. Basically when using magazines
     you'll need both magazine and ammo item. Filling magazines is as easy as opening
     inventory, then taking ammo item to cursor and then clicking magazine item with that ammo item.
   * `Item`: \<Item\>
-    * Defines the magazine item
-    * This uses the [item serializer](General.md#item-serializer)
+    * Defines the magazine item.
+    * This uses the [item serializer](General.md#item-serializer).
   * `Not_Able_To_Fill`:
     * `Not_Same_Ammo_Name`: \<Mechanics\>
-      * These mechanics are run when trying to fill magazine with wrong ammo
-      * See [the wiki for mechanics](General.md#mechanics)
+      * These mechanics are run when trying to fill magazine with wrong ammo.
+      * See [the wiki for mechanics](General.md#mechanics).
     * `Magazine_Already_Full`: \<Mechanics\>
-      * These mechanics are run when trying to fill already full magazine
-      * See [the wiki for mechanics](General.md#mechanics)
+      * These mechanics are run when trying to fill already full magazine.
+      * See [the wiki for mechanics](General.md#mechanics).
   * `Magazine_Filled`: \<Mechanics\>
-    * These mechanics are run when magazine is filled successfully
-    * See [the wiki for mechanics](General.md#mechanics)
+    * These mechanics are run when magazine is filled successfully.
+    * See [the wiki for mechanics](General.md#mechanics).
 * `Ammo`: \<Item\>
-  * Defines the single ammo item
-  * This uses the [item serializer](General.md#item-serializer)
+  * Defines the single ammo item.
+  * This uses the [item serializer](General.md#item-serializer).
 * `Ammo_Converter_Check`:
-  * In order for a normal item to become a "ammo/magazine", the plugin needs to check if the item should become a ammo or magazine. This
-    is the list of checks the plugin goes through to determine if it should convert an item into a ammo or magazine. This is
+  * In order for a normal item to become an "ammo/magazine", the plugin needs to check if the item should become an ammo or magazine. This
+    is the list of checks the plugin goes through to determine if it should convert an item into an ammo or magazine. This is
     especially useful if you want players to be able to get ammo/magazine by vanilla means although using
     recipes is more recommended approach.
   * `Type`: \<Boolean\>
-    * Checks if the material of the item is the same
-    * Material Examples: `stone`, `stick`, `emerald`
+    * Checks if the material of the item is the same.
+    * Material Examples: `stone`, `stick`, `emerald`.
   * `Name`: \<Boolean\>
-    * Checks if the name of the item is the same
+    * Checks if the name of the item is the same.
     * Note: If your ammo name has a color (e.g. `"&eMyAmmo"`), then the item must have that color.
   * `Lore`: \<Boolean\>
     * Checks if the lore of the item is the same.
-    * Enable this if you want *COMPLETE CONTROL* over who gets ammo (normal players cannot give lore to items)
+    * Enable this if you want *COMPLETE CONTROL* over who gets ammo (normal players cannot give lore to items).
   * `Enchants`: \<Boolean\>
     * Checks if the enchantments of the item is the same.
-    * Note: Checks both the enchantments *AND* the levels
+    * Note: Checks both the enchantments *AND* the levels.
 
 #### `Use_Exp_As_Ammo`:
-Using this you can use exp as weapon ammo. Basically this takes exp from player's
+Using this you can use exp as weapon ammo. Basically this takes exp from the player's
 total exp in order to fill weapon's magazine.
 
 * `Exp_Cost`: \<Integer\>
-  * The amount of exp one ammo costs
+  * The amount of exp one ammo costs.
 
 #### `Use_Money_As_Ammo`:
-Using this you can use economy as weapon ammo. Basically this takes money from player's
+Using this you can use economy as weapon ammo. Basically this takes money from the player's
 bank in order to fill weapon's magazine.  
 
 This currently only supports `Vault`. Other economy plugin supports can be added by request.
 
 * `Money_Cost`: \<Double\>
-  * The amount of money one ammo costs
+  * The amount of money one ammo costs.

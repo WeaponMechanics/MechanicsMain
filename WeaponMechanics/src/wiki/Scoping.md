@@ -17,9 +17,8 @@ Scope:
 This is the trigger used to actually use scope. See [the wiki for trigger](General.md#trigger)
 
 #### `Night_Vision`: \<Boolean\>
-Whether to give entity night vision effect during scoping. Night vision
-is given using packets so server doesn't never really know that player has night vision
-enabled, this way it isn't possible for effect to stay even if server happens to crash.
+Whether to give entity night vision effect during scoping. The night vision
+potion is given via packets.
 
 #### `Zoom_Amount`: \<Integer\>
 Defines the zoom amount. The value has to be between `1` and `32`.
@@ -32,25 +31,24 @@ See [the wiki for mechanics](General.md#mechanics)
 #### `Zoom_Off`:
 
 * `Trigger`: \<Trigger\>
-  * Defines the zoom off trigger
-  * It is optional to use this trigger
-    * If this isn't defined then zoom in trigger is used instead
-    * If this is defined and if this trigger is valid, entity zooms off
-  * See [the wiki for trigger](General.md#trigger)
+  * If you want unscoping to use a different trigger, you can define that here.
+  * For most use cases, you can just delete this line.
+  * See [the wiki for trigger](General.md#trigger).
 * `Mechanics`: \<Mechanics\>
-  * These mechanics are run when entity zooms out
-  * See [the wiki for mechanics](General.md#mechanics)
+  * These mechanics are run when entity zooms out.
+  * See [the wiki for mechanics](General.md#mechanics).
 
 #### `Zoom_Stacking`:
-Zoom stacking is triggered using zoom in trigger. Stacking will loop until reaching maximum
-stacks then zooms off. When using zoom stacking scope can be zoomed off prematurely using zoom off trigger.
+Zoom stacking allows you to create multiple "levels" to zoom to. After the stacking reaches
+a maximum value, it will zoom out. Using the `Zoom_Off.Trigger`, you can exit zoom stacking
+prematurely.
 
 * `Maximum_Stacks`: \<Integer\>
-  * Defines how many times zoom can stack
+  * Defines how many times zoom can stack.
 * `Increase_Zoom_Per_Stack`: \<Integer\>
-  * Defines the amount of zoom levels increased per zoom stack
+  * Defines the amount of zoom levels increased per zoom stack.
   * Keep in mind that zoom levels aren't allowed to go below `1` or above `32`.
-    * Meaning make sure that `0` < `maximum stacks * increase zoom per stack + zoom amount` < `33` is valid
+    * Meaning make sure that `0 < maximum stacks * increase zoom per stack + zoom amount < 33` is valid.
 * `Mechanics`: \<Mechanics\>
-  * These mechanics are run when entity stacks zoom
-  * See [the wiki for mechanics](General.md#mechanics)
+  * These mechanics are run when entity stacks zoom.
+  * See [the wiki for mechanics](General.md#mechanics).

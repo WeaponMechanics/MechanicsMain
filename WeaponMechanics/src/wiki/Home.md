@@ -19,14 +19,11 @@
 ## Frequently Asked Questions
 > **There is an error in the console when the plugin starts!**
 
-This may be either because you forgot to install [MechanicsCore], *or* because you made an error in config. 
+This may be either because you forgot to install [MechanicsCore], *or* because you made an error in your config. 
 Make sure to watch [CJCrafter's WeaponMechanics installation tutorial](youtube).
 
-This may also be an issue caused by your formatting. After you've watched the
-video above, look here:
-
-YAML follows a very strict format. Make sure you are using Notepad++ to edit `.yml`
-files! Common issues:
+This may also be a formatting issue. YAML follows a very strict format. 
+Make sure you are using Notepad++ to edit `.yml` files! Common issues:
   * Using tabs instead of spaces
   * Each node is indented correctly
   * All strings are surrounded by quotes
@@ -43,8 +40,13 @@ If you are still having problems, there are still a few things you can try:
 Now that you have tried EVERYTHING possible, you should [get in contact with us]()
 so we can help fix your issue.
   
-> **Can you add gun (Insert Gun Here)?**
+> **Can you add gun (Insert Gun Here)?**  
 
 This plugin is programmed so people can be creative and design their own weapons.
 The default weapons exist to give people inspiration, not for you to build your server around.
 If you do not want to make the weapons yourself, somebody may be willing to commission a weapon pack for you
+
+> **I think I found a bug, where can I report it?**
+
+We prefer you make bug reports on the [github](), so it is easier for everyone to keep track
+of issues and when they are fixed. You can also make feature requests on the github.
