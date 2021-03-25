@@ -248,16 +248,167 @@ It's important to make sure your `Serializer` serializes an `Explosion` or a sub
 `Explosion`. This will ensure that WeaponMechanics can still use the `Explosion` as you
 would expect. This applies to all serializers.
 
+#### Creating serializer
+First you'll have to make class implementing `me.deecaad.core.file.Serializer` and override
+`getKeyword()` and `serializer(...)` methods. As you can see there are generics used in serializer class.
+Nearly always you'll just use the same class there as you can see in this example.
+```java
+import me.deecaad.core.file.Serializer;
+import org.bukkit.configuration.ConfigurationSection;
 
-Hey DeeCaaD, I need your help for the rest of this :p
+import java.io.File;
 
-Config is serialized onEnable in a task, walk through the logic of registering a
-serializer then
+public class ExampleSerializer implements Serializer<ExampleSerializer> {
 
-## Overriding the WeaponHandler
-This will be another one for you deecaad, you know this one inside and out
+    @Override
+    public String getKeyword() {
+        return null;
+    }
 
-[weapon title]: #
-[zoom amount]: #
-[stacky zoom]: #
-[protection checks]: #
+    @Override
+    public ExampleSerializer serialize(File file, ConfigurationSection configurationSection, String path) {
+        return null;
+    }
+}
+```
+
+Next you'll have to add `keyword` and the actual serialization logic.
+Keyword is the key that is used to identify which serializer to use when
+serializing configurations. For example if keyword is `My_Example` then
+WeaponMechanics will try to serialize this object under `My_Example` keyword in configuration.
+```yaml
+Something:
+  Some: 123
+  My_Example: # serialization will happen under this section
+    My_Value: 1 # this value can be serialized
+    Other_Value: true # this value can be serializer
+  Other: "other"
+```
+
+Let's add keyword, and the logic to serialize `yaml` above
+```java
+import me.deecaad.core.file.Serializer;
+import org.bukkit.configuration.ConfigurationSection;
+
+import java.io.File;
+
+public class ExampleSerializer implements Serializer<ExampleSerializer> {
+
+    @Override
+    public String getKeyword() {
+        return "My_Example";
+    }
+
+    @Override
+    public ExampleSerializer serialize(File file, ConfigurationSection configurationSection, String path) {
+        // This would return 1 in this example
+        int value = configurationSection.getInt(path + ".My_Value");
+
+        // This would return true in this example
+        boolean otherValue = configurationSection.getBoolean(path + ".Other_Value");
+
+        return null;
+    }
+}
+```
+
+Now the `serialize(...)` method still returns null. If that method returns null, object
+won't be saved as serialized object. So let's add constructor for the serializer.
+Empty constructor is there to create empty serializer object and the other constructor
+is there for actual use.
+```java
+import me.deecaad.core.file.Serializer;
+import org.bukkit.configuration.ConfigurationSection;
+
+import java.io.File;
+
+public class ExampleSerializer implements Serializer<ExampleSerializer> {
+
+    private int value;
+    private boolean otherValue;
+
+    /**
+     * Empty constructor to be used as serializer
+     */
+    public ExampleSerializer() { }
+
+    public ExampleSerializer(int value, boolean otherValue) {
+        this.value = value;
+        this.otherValue = otherValue;
+    }
+
+    @Override
+    public String getKeyword() {
+        return "My_Example";
+    }
+
+    @Override
+    public ExampleSerializer serialize(File file, ConfigurationSection configurationSection, String path) {
+        // This would return 1 in this example
+        int value = configurationSection.getInt(path + ".My_Value");
+
+        // This would return true in this example
+        boolean otherValue = configurationSection.getBoolean(path + ".Other_Value");
+
+        return new ExampleSerializer(value, otherValue);
+    }
+}
+```
+
+Okay now the serializer is ready and new functions can simply be added there. For example
+```java
+public class ExampleSerializer implements Serializer<ExampleSerializer> {
+
+    // Other methods from example above...
+    
+    public void doSomething() {
+        Bukkit.broadcastMessage(value + " = " + otherValue);
+    }
+
+    // Other methods from example above...
+}
+```
+
+#### Registering serializers
+Now registering **ALL** serializers from your plugin is as simple as doing this.
+WeaponMechanics will handle rest. You can also add individual serializers using
+`MechanicsCore.addSerializer(plugin, serializer)` method.
+```java
+import me.deecaad.core.file.Serializer;
+
+public class MyWeaponMechanicsAddon extends JavaPlugin {
+
+    @Override
+    public void onEnable() {
+        try {
+            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+            MechanicsCore.addSerializers(this, (List<Serializer<?>>) serializers);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+#### Fetching serialized objects
+Fetching serialized objects is also made simple. For this example same yml example
+is used as for serializer creation above.
+
+Basically all you'll have to do is
+
+```java
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+
+public class MyListener implements Listener {
+
+    @EventHandler
+    public void joinEvent(PlayerJoinEvent event) {
+        ExampleSerializer serializedObject = WeaponMechanics.getConfigurations().getObject("Something.My_Example", ExampleSerializer.class);
+        if (serializedObject != null) {
+            serializedObject.doSomething();
+        }
+    }
+}
+```
