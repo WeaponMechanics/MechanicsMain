@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
@@ -12,7 +13,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.BLOCK_OR_ENTITY;
 
@@ -38,7 +38,7 @@ public interface ExplosionExposure {
      * @return The effected players and their impact level
      */
     @Nonnull
-    Map<LivingEntity, Double> mapExposures(@Nonnull Location origin, @Nonnull ExplosionShape shape);
+    DoubleMap<LivingEntity> mapExposures(@Nonnull Location origin, @Nonnull ExplosionShape shape);
 
     /**
      * Determines if the given entity can see the given <code>Location</code>. This

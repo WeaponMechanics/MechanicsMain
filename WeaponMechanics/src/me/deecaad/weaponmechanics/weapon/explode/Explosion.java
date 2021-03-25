@@ -9,6 +9,8 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.primitive.DoubleEntry;
+import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -18,7 +20,6 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DistanceExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.VoidExposure;
-import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
@@ -28,6 +29,7 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -159,103 +161,55 @@ public class Explosion implements Serializer<Explosion> {
         }
     }
 
-    /**
-     * Triggers the explosion at the given location
-     *
-     * @param cause Whoever caused the explosion
-     * @param origin The center of the explosion
-     */
     public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
+
+        // If the projectile uses airstrikes, then the airstrike should be
+        // triggered instead od the explosion.
         if (projectile != null && airStrike != null && !"true".equals(projectile.getTag("airstrike-bomb"))) {
             airStrike.trigger(origin, cause, projectile);
             return;
         }
 
-        if (debug.canLog(LogLevel.DEBUG)) {
-            debug.log(LogLevel.DEBUG, "Generating a " + shape + " explosion at " + origin.getBlock());
-        }
+        // This event is not cancellable. If developers want to cancel
+        // explosions, they should
+        ProjectileExplodeEvent event = new ProjectileExplodeEvent(shape.getBlocks(origin),
+                new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
 
-        EntityCompatibility entityCompatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
+        List<Block> blocks      = event.getBlocks();
+        int initialCapacity     = Math.max(blocks.size() / 2, 10);
+        List<Block> transparent = new ArrayList<>(initialCapacity);
+        List<Block> solid       = new ArrayList<>(initialCapacity);
 
-        List<Block> blocks = blockDamage == null ? new ArrayList<>() : shape.getBlocks(origin);
-        Map<LivingEntity, Double> entities = exposure.mapExposures(origin, shape);
-        BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
-
-        List<Block> transparent = new ArrayList<>();
-        List<Block> solid = new ArrayList<>();
-        Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>();
-
-        // Separate the blocks to destroy into solid blocks (blocks that can be safely
-        // removed without worry) and transparent blocks (blocks that are more likely
-        // to get removed from block updates)
-        // todo Check for redstone contraptions
+        // Sort the blocks into different categories (To make regeneration more
+        // reliable). In the future, this may also be used to filter out
+        // redstone contraptions.
         for (Block block : blocks) {
-            if (block.getType().isSolid()) {
+            if (block.getType().isSolid())
                 solid.add(block);
-            } else if (!block.isEmpty()) {
+            else if (!block.isEmpty())
                 transparent.add(block);
-            }
         }
 
-        // Sorting the blocks to create a satisfying pattern during regeneration.
-        // By default, this sorts from bottom to the top
+        // Sorting the blocks can make regeneration look better
         try {
-            solid.sort(sorter);
-        } catch (IllegalArgumentException ex) {
+            solid.sort(event.getSorter());
+        } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR, "A plugin modified the explosion block sorter with an illegal sorter! " +
-                    "Please report this error to the developers of that plugin. Sorter: " + sorter.getClass(), ex);
+                    "Please report this error to the developers of that plugin. Sorter: " + event.getSorter().getClass(), e);
         }
 
+        Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>((int) (blockChance * 1.1 * blocks.size()));
         damageBlocks(transparent, true, origin, projectile, fallingBlocks);
         damageBlocks(solid, false, origin, projectile, fallingBlocks);
+        spawnFallingBlocks(fallingBlocks, origin);
 
-        if (!fallingBlocks.isEmpty()) {
-
-            // Handle falling blocks
-            for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
-                FallingBlockWrapper wrapper = entry.getKey().get();
-                Object nms = wrapper.getEntity();
-                int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
-                Vector velocity = entry.getValue();
-
-                if (removeTime == 0) continue;
-
-                // All the packets needed to handle showing the falling block
-                // to the player. The destroy packet is sent later, when the block
-                // hits the ground. Sent to every player in view.
-                Object spawn = entityCompatibility.getSpawnPacket(nms);
-                Object meta = entityCompatibility.getMetadataPacket(nms);
-                Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
-                Object destroy = entityCompatibility.getDestroyPacket(nms);
-
-                for (Entity entity : DistanceUtil.getEntitiesInRange(origin)) {
-                    if (entity.getType() != EntityType.PLAYER) {
-                        continue;
-                    }
-                    Player player = (Player) entity;
-                    CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
-
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
-                        }
-                    }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
-                }
-            }
-
-        }
-
-        // Handles damage and knockback to living entities. Knockback
-        // is handled like vanilla knockback, and damage is very similar
-        // to MC explosion damage (But we can actually use explosions with
-        // no damage)
+        DoubleMap<LivingEntity> entities = event.getEntities();
         if (projectile.getWeaponTitle() != null) {
             damageHandler.tryUseExplosion(projectile, origin, entities);
 
             if (isKnockback) {
                 Vector originVector = origin.toVector();
-                for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
+                for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
 
                     LivingEntity entity = entry.getKey();
                     double exposure = entry.getValue();
@@ -275,7 +229,7 @@ public class Explosion implements Serializer<Explosion> {
             // This occurs because of the command /wm test
             // Useful for debugging, and can help users decide which
             // size explosion they may want
-            for (Map.Entry<LivingEntity, Double> entry : entities.entrySet()) {
+            for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
                 LivingEntity entity = entry.getKey();
                 double impact = entry.getValue();
 
@@ -321,6 +275,46 @@ public class Explosion implements Serializer<Explosion> {
                 fallingBlocks.put(data, velocity);
             }
         }
+    }
+
+    protected void spawnFallingBlocks(Map<FallingBlockData, Vector> fallingBlocks, Location origin) {
+        EntityCompatibility entityCompatibility = CompatibilityAPI.getEntityCompatibility();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
+                    FallingBlockWrapper wrapper = entry.getKey().get();
+                    Object nms = wrapper.getEntity();
+                    int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
+                    Vector velocity = entry.getValue();
+
+                    if (removeTime == 0) continue;
+
+                    // All the packets needed to handle showing the falling block
+                    // to the player. The destroy packet is sent later, when the block
+                    // hits the ground. Sent to every player in view.
+                    Object spawn   = entityCompatibility.getSpawnPacket(nms);
+                    Object meta    = entityCompatibility.getMetadataPacket(nms);
+                    Object motion  = entityCompatibility.getVelocityPacket(nms, velocity);
+                    Object destroy = entityCompatibility.getDestroyPacket(nms);
+
+                    for (Entity entity : DistanceUtil.getEntitiesInRange(origin)) {
+                        if (entity.getType() != EntityType.PLAYER) {
+                            continue;
+                        }
+                        Player player = (Player) entity;
+                        CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
+
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
+                            }
+                        }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
+                    }
+                }
+            }
+        }.runTaskAsynchronously(WeaponMechanics.getPlugin());
     }
 
     @Override

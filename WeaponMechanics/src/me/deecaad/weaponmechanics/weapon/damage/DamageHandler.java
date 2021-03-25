@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.primitive.DoubleEntry;
+import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -15,7 +17,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -107,12 +108,12 @@ public class DamageHandler {
         }
     }
 
-    public void tryUseExplosion(ICustomProjectile projectile, Location origin, Map<LivingEntity, Double> exposures) {
+    public void tryUseExplosion(ICustomProjectile projectile, Location origin, DoubleMap<LivingEntity> exposures) {
         Configuration config = getConfigurations();
 
         double damage = config.getDouble(projectile.getWeaponTitle() + ".Damage.Base_Damage");
 
-        for (Map.Entry<LivingEntity, Double> entry : exposures.entrySet()) {
+        for (DoubleEntry<LivingEntity> entry : exposures.entrySet()) {
             // Value = exposure
 
             LivingEntity victim = entry.getKey();

@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
@@ -15,9 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -25,12 +24,12 @@ public class DefaultExposure implements ExplosionExposure {
 
     @Nonnull
     @Override
-    public Map<LivingEntity, Double> mapExposures(@Nonnull Location origin, @Nonnull ExplosionShape shape) {
+    public DoubleMap<LivingEntity> mapExposures(@Nonnull Location origin, @Nonnull ExplosionShape shape) {
 
         List<LivingEntity> entities = shape.getEntities(origin);
 
         // Map to store all the calculated entities in
-        Map<LivingEntity, Double> temp = new HashMap<>();
+        DoubleMap<LivingEntity> temp = new DoubleMap<>(entities.size());
 
         // How far away from the explosion to damage players
         double damageRadius = shape.getMaxDistance() * 2.0F;
