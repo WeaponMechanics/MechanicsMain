@@ -5,6 +5,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
+import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
@@ -21,8 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nonnull;
-
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
 import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
@@ -32,16 +31,18 @@ import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
  */
 public class WeaponHandler {
 
-    private InfoHandler infoHandler;
-    private ShootHandler shootHandler;
-    private ReloadHandler reloadHandler;
-    private ScopeHandler scopeHandler;
+    private final InfoHandler infoHandler;
+    private final ShootHandler shootHandler;
+    private final ReloadHandler reloadHandler;
+    private final ScopeHandler scopeHandler;
+    private final DamageHandler damageHandler;
 
     public WeaponHandler() {
         infoHandler = new InfoHandler(this);
         shootHandler = new ShootHandler(this);
         reloadHandler = new ReloadHandler(this);
         scopeHandler = new ScopeHandler(this);
+        damageHandler = new DamageHandler(this);
     }
 
     /**
@@ -169,98 +170,37 @@ public class WeaponHandler {
     }
 
     /**
-     * @return the current info handler
+     * @return the info handler
      */
     public InfoHandler getInfoHandler() {
         return infoHandler;
     }
 
     /**
-     * Sets new info handler for WeaponMechanics.
-     * It is up to you how you use this. You can override all methods used by
-     * default if you want to or simply some methods you want to modify some.
-     *
-     * WeaponMechanics doesn't notify you about changes in info handler code
-     * so you will have to be careful when using this method. It is recommended
-     * to use super.method() and after that add your new stuff you want to add, this
-     * way the compatibility with WeaponMechanics should stay, but it is still not guaranteed compatibility!
-     *
-     * @param infoHandler the new info handler
-     */
-    public void setInfoHandler(@Nonnull InfoHandler infoHandler) {
-        if (infoHandler == null) throw new NullPointerException("Someone tried to set null info handler...");
-        this.infoHandler = infoHandler;
-    }
-
-    /**
-     * @return the current shoot handler
+     * @return the shoot handler
      */
     public ShootHandler getShootHandler() {
         return shootHandler;
     }
 
     /**
-     * Sets new shoot handler for WeaponMechanics.
-     * It is up to you how you use this. You can override all methods used by
-     * default if you want to or simply some methods you want to modify some.
-     *
-     * WeaponMechanics doesn't notify you about changes in shoot handler code
-     * so you will have to be careful when using this method. It is recommended
-     * to use super.method() and after that add your new stuff you want to add, this
-     * way the compatibility with WeaponMechanics should stay, but it is still not guaranteed compatibility!
-     *
-     * @param shootHandler the new shoot handler
-     */
-    public void setShootHandler(@Nonnull ShootHandler shootHandler) {
-        if (shootHandler == null) throw new NullPointerException("Someone tried to set null shoot handler...");
-        this.shootHandler = shootHandler;
-    }
-
-    /**
-     * @return the current reload handler
+     * @return the reload handler
      */
     public ReloadHandler getReloadHandler() {
         return reloadHandler;
     }
 
     /**
-     * Sets new reload handler for WeaponMechanics.
-     * It is up to you how you use this. You can override all methods used by
-     * default if you want to or simply some methods you want to modify some.
-     *
-     * WeaponMechanics doesn't notify you about changes in reload handler code
-     * so you will have to be careful when using this method. It is recommended
-     * to use super.method() and after that add your new stuff you want to add, this
-     * way the compatibility with WeaponMechanics should stay, but it is still not guaranteed compatibility!
-     *
-     * @param reloadHandler the new reload handler
-     */
-    public void setReloadHandler(@Nonnull ReloadHandler reloadHandler) {
-        if (reloadHandler == null) throw new NullPointerException("Someone tried to set null reload handler...");
-        this.reloadHandler = reloadHandler;
-    }
-
-    /**
-     * @return the current scope handler
+     * @return the scope handler
      */
     public ScopeHandler getScopeHandler() {
         return scopeHandler;
     }
 
     /**
-     * Sets new scope handler for WeaponMechanics.
-     * It is up to you how you use this. You can override all methods used by
-     * default if you want to or simply some methods you want to modify some.
-     *
-     * WeaponMechanics doesn't notify you about changes in scope handler code
-     * so you will have to be careful when using this method. It is recommended
-     * to use super.method() and after that add your new stuff you want to add, this
-     * way the compatibility with WeaponMechanics should stay, but it is still not guaranteed compatibility!
-     *
-     * @param scopeHandler the new scope handler
+     * @return the damage handler
      */
-    public void setScopeHandler(@Nonnull ScopeHandler scopeHandler) {
-        if (scopeHandler == null) throw new NullPointerException("Someone tried to set null scope handler...");
-        this.scopeHandler = scopeHandler;
+    public DamageHandler getDamageHandler() {
+        return damageHandler;
     }
 }

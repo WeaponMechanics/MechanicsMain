@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
+import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
@@ -22,6 +23,14 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class DamageHandler {
 
+    private WeaponHandler weaponHandler;
+
+    public DamageHandler() {}
+
+    public DamageHandler(WeaponHandler weaponHandler) {
+        this.weaponHandler = weaponHandler;
+    }
+
     /**
      * @return false if damaging was cancelled
      */
@@ -32,7 +41,7 @@ public class DamageHandler {
         String weaponTitle = projectile.getWeaponTitle();
 
         boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
-        if (!isFriendlyFire && !DamageUtils.canHarm(shooter, victim)) {
+        if (!isFriendlyFire && !DamageUtil.canHarm(shooter, victim)) {
             return false;
         }
 
@@ -57,8 +66,8 @@ public class DamageHandler {
         fireTicks = damageEntityEvent.getFireTicks();
         point = damageEntityEvent.getPoint();
 
-        DamageUtils.apply(shooter, victim, damageEntityEvent.getFinalDamage());
-        DamageUtils.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
+        DamageUtil.apply(shooter, victim, damageEntityEvent.getFinalDamage());
+        DamageUtil.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
 
         // Fire ticks
         if (fireTicks > 0) {

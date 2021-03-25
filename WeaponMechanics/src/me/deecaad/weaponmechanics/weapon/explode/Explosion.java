@@ -4,11 +4,7 @@ import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.entity.EntityCompatibility;
 import me.deecaad.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
-import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -21,11 +17,7 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.VoidExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
 import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
@@ -45,20 +37,14 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Explosion implements Serializer<Explosion> {
 
-    private static final DamageHandler damageHandler = new DamageHandler();
+    private static final DamageHandler damageHandler = WeaponMechanics.getWeaponHandler().getDamageHandler();;
 
     private ExplosionShape shape;
     private ExplosionExposure exposure;

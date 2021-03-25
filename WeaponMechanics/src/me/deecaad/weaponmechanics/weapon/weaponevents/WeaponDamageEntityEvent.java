@@ -4,7 +4,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
-import me.deecaad.weaponmechanics.weapon.damage.DamageUtils;
+import me.deecaad.weaponmechanics.weapon.damage.DamageUtil;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
@@ -86,7 +86,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
                 damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
             }
 
-            return finalDamage = DamageUtils.calculateFinalDamage(getShooter(), victim, damage, point, isBackstab);
+            return finalDamage = DamageUtil.calculateFinalDamage(getShooter(), victim, damage, point, isBackstab);
         }
 
         return finalDamage;

@@ -29,14 +29,7 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -48,7 +41,7 @@ public class CustomProjectile implements ICustomProjectile {
     private static final int maximumAliveTicks = 600;
 
     private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
-    private static final DamageHandler damageHandler = new DamageHandler();
+    private static final DamageHandler damageHandler = WeaponMechanics.getWeaponHandler().getDamageHandler();
     private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
 
     // Just to identify CustomProjectile

@@ -28,7 +28,7 @@ import org.bukkit.scoreboard.Team;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 
-public class DamageUtils {
+public class DamageUtil {
 
     private static final Field killerField = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityLiving"), "killer");
 
@@ -37,7 +37,7 @@ public class DamageUtils {
     /**
      * Do not let anyone instantiate this class
      */
-    private DamageUtils() {
+    private DamageUtil() {
     }
 
     public static double calculateFinalDamage(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
