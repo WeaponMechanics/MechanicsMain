@@ -10,7 +10,6 @@ Recoil:
     - <etc.>
   Recoil_Pattern:
     Repeat_Pattern: <true/false>
-    Reset_Pattern_After: <ticks>
     List:
       - <horizontal recoil>-<vertical recoil>-<chance to skip>%
       - <etc.>

@@ -8,7 +8,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -106,6 +105,9 @@ public class Ammo implements Serializer<Ammo> {
             notSameAmmoName = new Mechanics().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Magazine.Not_Able_To_Fill.Not_Same_Ammo_Name");
             magazineAlreadyFull = new Mechanics().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Magazine.Not_Able_To_Fill.Magazine_Already_Full");
             magazineFilled = new Mechanics().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Magazine.Magazine_Filled");
+
+            CustomTag.ITEM_AMMO_NAME.setString(magazineItem, ammoName);
+            CustomTag.ITEM_AMMO_LEFT.setInteger(magazineItem, 0);
         }
 
         ItemStack ammoItem = new ItemSerializer().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo");
@@ -118,10 +120,9 @@ public class Ammo implements Serializer<Ammo> {
             return null;
         }
 
-        CustomTag.ITEM_AMMO_NAME.setString(magazineItem, ammoName);
-        CustomTag.ITEM_AMMO_LEFT.setInteger(magazineItem, 0);
+        CustomTag.ITEM_AMMO_NAME.setString(ammoItem, ammoName);
 
-        WeaponConverter ammoConverter = new WeaponConverter().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo_Converter_Check");
+        AmmoConverter ammoConverter = new AmmoConverter().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo_Converter_Check");
 
         // Add required TAGS for item ammo
         // If ItemAmmo -> ItemAmmo.register

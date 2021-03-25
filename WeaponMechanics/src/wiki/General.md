@@ -1,6 +1,5 @@
 ## Item Serializer
 ```yaml
-# me.deecaad.core.file.serializer.ItemSerializer
 Item:
   Type: <Material>:<Data>
   Name: <name>
@@ -106,7 +105,7 @@ The following creates a recipe like an emerald sword
       'e': EMERALD
       's': STICK
 ```
-![](crafting.png)
+![](images/crafting.png)
 ```yaml
   Recipe:
     Shape:
@@ -127,7 +126,7 @@ TODO picture example
 ## Color
 
 In minecraft versions under 1.16, you can use basic color codes by using the `&` symbol.
-![](colorcodes.png)
+![](images/colorcodes.png)
 
 In minecraft versions 1.16 and higher, you can do the above, and have full HEX code support.
 If you are not familiar with HEX, it's basically just a number format. Here we use hex to
@@ -238,16 +237,27 @@ This is a list of things that can stop the plugin from triggering things. Say yo
 don't want people to be able to reload guns in water, you can do that here. If any
 of these conditions are met, then the trigger does not occur.
 
-* `Reloading`: If the player is reloading
-* `Zooming`: If the player is scoping
-* `Sneaking`: If the player is sneaking (holding shift)
-* `Standing`: If the player isn't doing anything
-* `Walking`: If the player is moving
-* `Swimming`: If the player is in water
-* `In_Midair`: If the player is not on the ground
-* `Gliding`: If the player is gliding using an elytra
+* `Reloading`: \<Boolean\>
+  * If the player is reloading
+* `Zooming`: \<Boolean\>
+  * If the player is scoping
+* `Sneaking`: \<Boolean\>
+  * If the player is sneaking (holding shift)
+* `Standing`: \<Boolean\>
+  * If the player isn't doing anything
+* `Walking`: \<Boolean\>
+  * If the player is moving
+* `Swimming`: \<Boolean\>
+  * If the player is in water
+* `In_Midair`: \<Boolean\>
+  * If the player is not on the ground
+* `Gliding`: \<Boolean\>
+  * If the player is gliding using an elytra
 
 ## Mechanics
+Mechanics are widely usable in WeaponMechanics. Using these you can play additional
+effects during certain events.
+
 ```yaml
 Mechanics:
   Message: <MessageSerializer>
@@ -354,7 +364,7 @@ These messages are sent to boss bar. They can stack over each other.
 * `Time`: \<Integer\>
   * Defines the time in ticks boss bar is shown
 
-#### `Sounds`:
+#### `Sounds`: \<String List\>
 ```yaml
 Sounds:
 - <sound>-<volume>-<pitch>,<etc.>
@@ -409,7 +419,7 @@ Sounds:
 - custom:myOtherSound-3-0.5-20 # myOtherSound with volume 3 (48 blocks) and pitch 0.5 (half speed) and delay of 20 ticks
 ```
 
-#### `Potion_Effects`:
+#### `Potion_Effects`: \<String List\>
 ```yaml
 Potion_Effects:
 - <PotionEffectType>-<duration in ticks>-<amplifier>,<etc.>

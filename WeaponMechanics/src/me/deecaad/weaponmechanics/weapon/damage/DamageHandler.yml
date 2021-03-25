@@ -1,5 +1,6 @@
 Damage:
   Base_Damage: <amount>
+  Base_Explosion_Damage: <amount>
   Fire_Ticks: <ticks>
   Enable_Friendly_Fire: <Boolean>
   Enable_Owner_Immunity: <Boolean>
@@ -39,4 +40,4 @@ Damage:
     Shooter_Mechanics: <MechanicsSerializer>
     Victim_Mechanics: <MechanicsSerializer>
   Dropoff:
-    - <blocks>~<damage amount>
+    - <travel distance>~<damage amount>

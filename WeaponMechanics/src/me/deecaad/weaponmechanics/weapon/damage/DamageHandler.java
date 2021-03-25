@@ -111,7 +111,12 @@ public class DamageHandler {
     public void tryUseExplosion(ICustomProjectile projectile, Location origin, DoubleMap<LivingEntity> exposures) {
         Configuration config = getConfigurations();
 
-        double damage = config.getDouble(projectile.getWeaponTitle() + ".Damage.Base_Damage");
+        String weaponTitle = projectile.getWeaponTitle();
+        double damage = config.getDouble(weaponTitle + ".Damage.Base_Explosion_Damage");
+        if (damage == 0) {
+            // If explosion damage isn't used, use Base_Damage
+            damage = config.getDouble(weaponTitle + ".Damage.Base_Damage");
+        }
 
         for (DoubleEntry<LivingEntity> entry : exposures.entrySet()) {
             // Value = exposure

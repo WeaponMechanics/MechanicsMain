@@ -487,10 +487,6 @@ public class ShootHandler implements IValidator {
      */
     private void shoot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange) {
         Configuration config = getConfigurations();
-        Projectile projectile = config.getObject(weaponTitle + ".Shoot.Projectile", Projectile.class);
-        Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
-        Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
-        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         LivingEntity livingEntity = entityWrapper.getEntity();
 
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
@@ -501,6 +497,17 @@ public class ShootHandler implements IValidator {
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
+        Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
+
+        if (projectile == null) {
+            // No projectile defined
+            return;
+        }
+
+        Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
+        Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
+        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
 
         // Handle explosions
         Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
@@ -587,12 +594,6 @@ public class ShootHandler implements IValidator {
         if (trigger == null) {
             debug.log(LogLevel.ERROR, "Tried to use shoot without defining trigger for it.",
                     "Located at file " + file + " in " + path + ".Trigger in configurations.");
-        }
-
-        Projectile projectile = configuration.getObject(path + ".Projectile", Projectile.class);
-        if (projectile == null) {
-            debug.log(LogLevel.ERROR, "Tried to use shoot without defining projectile for it.",
-                    "Located at file " + file + " in " + path + ".Projectile in configurations.");
         }
 
         double projectileSpeed = configuration.getDouble(path + ".Projectile_Speed");
