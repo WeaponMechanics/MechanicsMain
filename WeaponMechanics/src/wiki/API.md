@@ -281,7 +281,7 @@ Something:
   Some: 123
   My_Example: # serialization will happen under this section
     My_Value: 1 # this value can be serialized
-    Other_Value: true # this value can be serializer
+    Other_Value: true # this value can be serialized
   Other: "other"
 ```
 
