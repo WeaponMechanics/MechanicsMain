@@ -18,9 +18,28 @@ Defines the item used as weapon.
 This uses the [item serializer](General.md#item-serializer).
 
 #### `Weapon_Info_Display`:
+This is used to show info like weapon title, ammo left, firearm state and
+whatever info you find useful to give for weapon user.
+It is recommended to take advantage of [placeholders](Placeholders.md) when showing weapon info.  
+
+Messages sent by weapon info display are always overridden by other messages. Meaning somewhere
+`Mechanics` send new action bar message, it replaces weapon info display action bar message
+even if there is time left on showing it.
+
 ```yaml
     Weapon_Info_Display:
-      <MessageMechanicsSerializer>
+      Action_Bar:
+        Message: <message>
+        Time: <ticks>
+      Title:
+        Title: <title>
+        Subtitle: <subtitle>
+        Time: <fade in ticks>-<stay ticks>-<fade out ticks>
+      Boss_Bar:
+        Title: <title>
+        Bar_Color: <BarColor>
+        Bar_Style: <BarStyle>
+        Time: <ticks>
       Update_Item_Name: <true/false>
       Show_Ammo_In:
         Boss_Bar_Progress: <true/false>
@@ -28,9 +47,14 @@ This uses the [item serializer](General.md#item-serializer).
         Exp_Progress: <true/false>
 ```
 
-#### `MessageMechanicsSerializer`:
-You can freely use [MessageMechanics serializer](General.md#message) here.
-It is recommended to take advantage of [placeholders](Placeholders.md).  
+#### `Action_Bar`:
+This message is sent for player in action bar.
+Action bar is the message box right above hotbar.
+
+* `Message`: \<String\>
+  * The message to send.
+* `Time`: \<Integer\>
+  * The time in ticks action bar message is shown.
 
 For example, you can use message like this:
 ```yaml
@@ -40,20 +64,65 @@ For example, you can use message like this:
         Time: 50
 ```
 
-* `Update_Item_Name`: \<Boolean\>
-  * Whether weapon item name should be updated everytime weapon info is displayed.
-  * It is better option to show ammo for example in action bar using `MessageMechanics`.
-* `Show_Ammo_In`:
-  * Defines where ammo should also be shown when displaying weapon info.
-  * `Boss_Bar_Progress`: \<Boolean\>
-    * Whether ammo should be shown as boss bar progress.
-    * Requires valid `Boss_Bar` configuration in `MessageMechanics` at this `Weapon_Info_Display`.
-  * `Exp_Level`: \<Boolean\>
-    * Whether ammo should be shown as exp levels.
-    * This only fakes exp level for players and its reset back to normal after `40` ticks.
-  * `Exp_Progress`: \<Boolean\>
-    * Whether ammo should be shown as exp progress.
-    * This only fakes exp progress for players and its reset back to normal after `40` ticks.
+#### `Title`:
+These messages are sent to either title and/or subtitle
+right into middle of the screen.
+
+* `Title`: \<String\>
+  * The message to send as title, this is shown bigger in player screen than subtitle.
+* `Subtitle`: \<String\>
+  * The message to send as subtitle.
+* `Time`: \<Integer\>-\<Integer\>-\<Integer\>
+  * Defines the fade in, stay and fade out time in ticks.
+  * For example `Time: 5-20-5` would make the title and subtitle fade in for `5` ticks,
+    stay on screen for `20` ticks and then fade out for `5` ticks.
+
+#### `Boss_Bar`:
+These messages are sent to boss bar. When using weapon info display
+boss bars won't stack and old boss bar is replaced by new one
+when new weapon info is sent to player.
+**This feature is only available in 1.9 and newer server versions!**
+
+* `Title`: \<String\>
+  * The boss bar message.
+* `Bar_Color`: \<BarColor\>
+  * Defines the boss bar color.
+  * Available bar colors:
+    * `PINK`
+    * `BLUE`
+    * `RED`
+    * `GREEN`
+    * `YELLOW`
+    * `PURPLE`
+    * `WHITE`
+* `Bar_Style`: \<BarStyle\>
+  * Defines the boss bar style.
+  * Available bar styles:
+    * `SOLID`
+    * `SEGMENTED_6`
+    * `SEGMENTED_10`
+    * `SEGMENTED_12`
+    * `SEGMENTED_20`
+* `Time`: \<Integer\>
+  * Defines the time in ticks boss bar is shown.
+
+#### `Update_Item_Name`: \<Boolean\>
+Whether weapon item name should be updated everytime weapon info is displayed.
+It is better option to show ammo for example in action bar using messages.
+
+#### `Show_Ammo_In`:
+Defines where ammo should also be shown when displaying weapon info.
+It is better option to show ammo for example in action bar using messages.
+
+* `Boss_Bar_Progress`: \<Boolean\>
+  * Whether ammo should be shown as boss bar progress.
+  * Requires valid `Boss_Bar` configuration in `MessageMechanics` at this `Weapon_Info_Display`.
+* `Exp_Level`: \<Boolean\>
+  * Whether ammo should be shown as exp levels.
+  * This only fakes exp level for players and its reset back to normal after `40` ticks.
+* `Exp_Progress`: \<Boolean\>
+  * Whether ammo should be shown as exp progress.
+  * This only fakes exp progress for players and its reset back to normal after `40` ticks.
 
 #### `Dual_Wield`:
 Dual wielding with weapons is always disabled by default. If you want
