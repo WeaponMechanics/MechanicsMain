@@ -12,12 +12,18 @@ My_Weapon:
   Info:
     Weapon_Item: <item serializer>
     Weapon_Info_Display:
-      Mechanics: <MechanicsSerializer>
-      Update_Item_Name: <true/false>
-      Show_Ammo_In:
-        Boss_Bar_Progress: <true/false>
-        Exp_Level: <true/false>
-        Exp_Progress: <true/false>
+      Action_Bar:
+        Message: <message>
+        Time: <ticks>
+      Title:
+        Title: <title>
+        Subtitle: <subtitle>
+        Time: <fade in ticks>-<stay ticks>-<fade out ticks>
+      Boss_Bar:
+        Title: <title>
+        Bar_Color: <BarColor>
+        Bar_Style: <BarStyle>
+        Time: <ticks>
     Dual_Wield:
       Whitelist: <true/false>
       Weapons:
