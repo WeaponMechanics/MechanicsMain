@@ -1,19 +1,19 @@
 ```yaml
-Shoot:
-  Trigger: <TriggerSerializer>
-  Projectile_Speed: <speed>
-  Projectiles_Per_Shot: <amount>
-  Selective_Fire:
+  Shoot:
     Trigger: <TriggerSerializer>
+    Projectile_Speed: <speed>
+    Projectiles_Per_Shot: <amount>
+    Selective_Fire:
+      Trigger: <TriggerSerializer>
+      Mechanics: <MechanicsSerializer>
+    Delay_Between_Shots: <ticks>
+    Fully_Automatic_Shots_Per_Second: <amount>
+    Burst:
+      Shots_Per_Burst: <amount>
+      Ticks_Between_Each_Shot: <ticks>
+    Spread: <SpreadSerializer> # Scroll down for more information
+    Recoil: <RecoilSerializer> # Scroll down for more information
     Mechanics: <MechanicsSerializer>
-  Delay_Between_Shots: <ticks>
-  Fully_Automatic_Shots_Per_Second: <amount>
-  Burst:
-    Shots_Per_Burst: <amount>
-    Ticks_Between_Each_Shot: <ticks>
-  Spread: <SpreadSerializer> # Scroll down for more information
-  Recoil: <RecoilSerializer> # Scroll down for more information
-  Mechanics: <MechanicsSerializer>
 ```
 #### `Trigger`: \<Trigger\>
 This is the trigger used to actually shoot the gun. See [the wiki for trigger](General.md#trigger).
@@ -83,35 +83,35 @@ or you could define exact spread shapes by using images.
 means that if your gun has a *high* spread, it will have a *low* accuracy.
 
 ```yaml
-Spread:
-  Spread_Image:
-    Name: <path>
-    Field_Of_View_Width: <degrees> 
-    Field_Of_View_Height: <degrees> 
-  Base_Spread: <base spread>
-  Modify_Spread_When:
-    Zooming: <amount> or <amount>%
-    Sneaking: <amount> or <amount>%
-    Standing: <amount> or <amount>%
-    Walking: <amount> or <amount>%
-    Swimming: <amount> or <amount>%
-    In_Midair: <amount> or <amount>%
-    Gliding: <amount> or <amount>%
-  Changing_Spread:
-    Starting_Amount: <amount>
-    Increase_Change_When:
-      Always: <amount> or <amount>%
-      Zooming: <amount> or <amount>%
-      Sneaking: <amount> or <amount>%
-      Standing: <amount> or <amount>%
-      Walking: <amount> or <amount>%
-      Swimming: <amount> or <amount>%
-      In_Midair: <amount> or <amount>%
-      Gliding: <amount> or <amount>%
-    Bounds:
-      Reset_After_Reaching_Bound: <true/false>
-      Minimum_Spread: <minimum spread>
-      Maximum_Spread: <maximum spread>
+    Spread:
+      Spread_Image:
+        Name: <path>
+        Field_Of_View_Width: <degrees> 
+        Field_Of_View_Height: <degrees> 
+      Base_Spread: <base spread>
+      Modify_Spread_When:
+        Zooming: <amount> or <amount>%
+        Sneaking: <amount> or <amount>%
+        Standing: <amount> or <amount>%
+        Walking: <amount> or <amount>%
+        Swimming: <amount> or <amount>%
+        In_Midair: <amount> or <amount>%
+        Gliding: <amount> or <amount>%
+      Changing_Spread:
+        Starting_Amount: <amount>
+        Increase_Change_When:
+          Always: <amount> or <amount>%
+          Zooming: <amount> or <amount>%
+          Sneaking: <amount> or <amount>%
+          Standing: <amount> or <amount>%
+          Walking: <amount> or <amount>%
+          Swimming: <amount> or <amount>%
+          In_Midair: <amount> or <amount>%
+          Gliding: <amount> or <amount>%
+        Bounds:
+          Reset_After_Reaching_Bound: <true/false>
+          Minimum_Spread: <minimum spread>
+          Maximum_Spread: <maximum spread>
 ```
 
 #### `Spread_Image`: 
@@ -230,20 +230,20 @@ Recoil moves the player's screen horizontally and/or vertically, then "recovers"
 to the position the player was looking.
 
 ```yaml
-Recoil:
-  Push_Time: <push time in millis>
-  Recover_Time: <recover time in millis>
-  Horizontal:
-    - <horizontal recoil>
-    - <etc.>
-  Vertical:
-    - <vertical recoil>
-    - <etc.>
-  Recoil_Pattern:
-    Repeat_Pattern: <true/false>
-    List:
-      - <horizontal recoil>-<vertical recoil>-<chance to skip>%
-      - <etc.>
+    Recoil:
+      Push_Time: <push time in millis>
+      Recover_Time: <recover time in millis>
+      Horizontal:
+        - <horizontal recoil>
+        - <etc.>
+      Vertical:
+        - <vertical recoil>
+        - <etc.>
+      Recoil_Pattern:
+        Repeat_Pattern: <true/false>
+        List:
+          - <horizontal recoil>-<vertical recoil>-<chance to skip>%
+          - <etc.>
 ```
 #### `Push_Time`: \<Integer\>
 The time in **milliseconds** it takes to reach the full recoil amount.

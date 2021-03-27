@@ -1,16 +1,16 @@
 ```yaml
-Scope:
-  Trigger: <trigger serializer>
-  Night_Vision: <true/false>
-  Zoom_Amount: <1-32>
-  Mechanics: <MechanicsSerializer>
-  Zoom_Off:
+  Scope:
     Trigger: <trigger serializer>
+    Night_Vision: <true/false>
+    Zoom_Amount: <1-32>
     Mechanics: <MechanicsSerializer>
-  Zoom_Stacking:
-    Maximum_Stacks: <maximum zoom stack amount>
-    Increase_Zoom_Per_Stack: <amount>
-    Mechanics: <MechanicsSerializer>
+    Zoom_Off:
+      Trigger: <trigger serializer>
+      Mechanics: <MechanicsSerializer>
+    Zoom_Stacking:
+      Maximum_Stacks: <maximum zoom stack amount>
+      Increase_Zoom_Per_Stack: <amount>
+      Mechanics: <MechanicsSerializer>
 ```
 
 #### `Trigger`: \<Trigger\>

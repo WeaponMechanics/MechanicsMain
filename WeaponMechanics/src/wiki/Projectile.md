@@ -3,80 +3,80 @@ are not actually entities, this plugin just uses math to determine if a projecti
 minecraft handle it.
 
 ```yaml
-Projectile: <path to another Projectile key>
-  Settings:
-    Type: <ProjectileType>
-    Width: <projectile width>
-    Height: <projectile height>
-    Projectile_Item_Or_Block:
-      Type: <Material>:<Data>
-      Durability: <durability>
-      Unbreakable: <true/false>
-      Custom_Model_Data: <custom model data number>
-      Skull:
-        Owning_Player: <UUID of player or name of player>
-      Potion:
-        Color: <ColorType>
-  Projectile_Motion:
-    Gravity: <gravity multiplier>
-    Minimum:
-      Speed: <minimum speed of projectile>
-      Remove_Projectile_On_Speed_Reached: <true/false>
-    Maximum:
-      Speed: <maximum speed of projectile>
-      Remove_Projectile_On_Speed_Reached: <true/false>
-    Decrease_Motion:
-      Base: <multiplier>
-      In_Water: <multiplier>
-      When_Raining_Or_Snowing: <multiplier>
-  Sticky:
-    Blocks:
-      Allow_Any_Block: <true/false>
-      Whitelist: <true/false>
-      List:
-        - <Material>:<data>
-        - <etc.>
-    Entities:
-      Allow_Stick_To_Entities_After_Stick_Block: <true/false>
-      Allow_Any_Entity: <true/false>
-      Whitelist: <true/false>
-      List:
-        - <EntityType>
-        - <etc.>
-  Bouncy:
-    Blocks:
-      Maximum_Bounce_Amount: <amount>
-      Allow_Any_Block: <true/false>
-      Default_Speed_Modifier: <multiplier>
-      Whitelist: <true/false>
-      List:
-        - <Material>:<data>-<speed multiplier>
-        - <etc.>
-    Entities:
-      Maximum_Bounce_Amount: <amount>
-      Allow_Any_Entity: <true/false>
-      Default_Speed_Modifier: <multiplier>
-      Whitelist: <true/false>
-      List:
-        - <EntityType>-<speed multiplier>
-        - <etc.>
-  Through:
-    Blocks:
-      Maximum_Pass_Throughs: <maximum block pass throughs>
-      Allow_Any_Block: <true/false>
-      Default_Speed_Modifier: <multiplier>
-      Whitelist: <true/false>
-      List:
-        - <Material>:<data>-<speed multiplier>
-        - <etc.>
-    Entities:
-      Maximum_Pass_Throughs: <maximum entity pass throughs>
-      Allow_Any_Entity: <true/false>
-      Default_Speed_Modifier: <multiplier>
-      Whitelist: <true/false>
-      List:
-        - <EntityType>-<speed multiplier>
-        - <etc.>
+  Projectile: <path to another Projectile key>
+    Settings:
+      Type: <ProjectileType>
+      Width: <projectile width>
+      Height: <projectile height>
+      Projectile_Item_Or_Block:
+        Type: <Material>:<Data>
+        Durability: <durability>
+        Unbreakable: <true/false>
+        Custom_Model_Data: <custom model data number>
+        Skull:
+          Owning_Player: <UUID of player or name of player>
+        Potion:
+          Color: <ColorType>
+    Projectile_Motion:
+      Gravity: <gravity multiplier>
+      Minimum:
+        Speed: <minimum speed of projectile>
+        Remove_Projectile_On_Speed_Reached: <true/false>
+      Maximum:
+        Speed: <maximum speed of projectile>
+        Remove_Projectile_On_Speed_Reached: <true/false>
+      Decrease_Motion:
+        Base: <multiplier>
+        In_Water: <multiplier>
+        When_Raining_Or_Snowing: <multiplier>
+    Sticky:
+      Blocks:
+        Allow_Any_Block: <true/false>
+        Whitelist: <true/false>
+        List:
+          - <Material>:<data>
+          - <etc.>
+      Entities:
+        Allow_Stick_To_Entities_After_Stick_Block: <true/false>
+        Allow_Any_Entity: <true/false>
+        Whitelist: <true/false>
+        List:
+          - <EntityType>
+          - <etc.>
+    Bouncy:
+      Blocks:
+        Maximum_Bounce_Amount: <amount>
+        Allow_Any_Block: <true/false>
+        Default_Speed_Modifier: <multiplier>
+        Whitelist: <true/false>
+        List:
+          - <Material>:<data>-<speed multiplier>
+          - <etc.>
+      Entities:
+        Maximum_Bounce_Amount: <amount>
+        Allow_Any_Entity: <true/false>
+        Default_Speed_Modifier: <multiplier>
+        Whitelist: <true/false>
+        List:
+          - <EntityType>-<speed multiplier>
+          - <etc.>
+    Through:
+      Blocks:
+        Maximum_Pass_Throughs: <maximum block pass throughs>
+        Allow_Any_Block: <true/false>
+        Default_Speed_Modifier: <multiplier>
+        Whitelist: <true/false>
+        List:
+          - <Material>:<data>-<speed multiplier>
+          - <etc.>
+      Entities:
+        Maximum_Pass_Throughs: <maximum entity pass throughs>
+        Allow_Any_Entity: <true/false>
+        Default_Speed_Modifier: <multiplier>
+        Whitelist: <true/false>
+        List:
+          - <EntityType>-<speed multiplier>
+          - <etc.>
 ```
 
 #### Projectile: \<path to another Projectile key\>

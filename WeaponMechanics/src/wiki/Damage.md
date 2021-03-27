@@ -1,47 +1,47 @@
 ```yaml
-Damage:
-  Base_Damage: <amount>
-  Base_Explosion_Damage: <amount>
-  Fire_Ticks: <ticks>
-  Enable_Friendly_Fire: <Boolean>
-  Enable_Owner_Immunity: <Boolean>
-  Armor_Damage: <Integer>
-  Shooter_Mechanics: <MechanicsSerializer>
-  Victim_Mechanics: <MechanicsSerializer>
-  Head:
-    Bonus_Damage: <amount>
+  Damage:
+    Base_Damage: <amount>
+    Base_Explosion_Damage: <amount>
+    Fire_Ticks: <ticks>
+    Enable_Friendly_Fire: <Boolean>
+    Enable_Owner_Immunity: <Boolean>
+    Armor_Damage: <Integer>
     Shooter_Mechanics: <MechanicsSerializer>
     Victim_Mechanics: <MechanicsSerializer>
-  Body:
-    Bonus_Damage: <amount>
-    Shooter_Mechanics: <MechanicsSerializer>
-    Victim_Mechanics: <MechanicsSerializer>
-  Arms:
-    Bonus_Damage: <amount>
-    Shooter_Mechanics: <MechanicsSerializer>
-    Victim_Mechanics: <MechanicsSerializer>
-  Legs:
-    Bonus_Damage: <amount>
-    Shooter_Mechanics: <MechanicsSerializer>
-    Victim_Mechanics: <MechanicsSerializer>
-  Feet:
-    Bonus_Damage: <amount>
-    Shooter_Mechanics: <MechanicsSerializer>
-    Victim_Mechanics: <MechanicsSerializer>
-  Backstab:
-    Bonus_Damage: <amount>
-    Shooter_Mechanics: <MechanicsSerializer>
-    Victim_Mechanics: <MechanicsSerializer>
-  Critical_Hit:
-    Chance: <1-100>
-    Bonus_Damage: <amount>
-    Shooter_Mechanics: <MechanicsSerializer>
-    Victim_Mechanics: <MechanicsSerializer>
-  Kill:
-    Shooter_Mechanics: <MechanicsSerializer>
-    Victim_Mechanics: <MechanicsSerializer>
-  Dropoff:
-  - <travel distance>~<damage amount>
+    Head:
+      Bonus_Damage: <amount>
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Body:
+      Bonus_Damage: <amount>
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Arms:
+      Bonus_Damage: <amount>
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Legs:
+      Bonus_Damage: <amount>
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Feet:
+      Bonus_Damage: <amount>
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Backstab:
+      Bonus_Damage: <amount>
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Critical_Hit:
+      Chance: <1-100>
+      Bonus_Damage: <amount>
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Kill:
+      Shooter_Mechanics: <MechanicsSerializer>
+      Victim_Mechanics: <MechanicsSerializer>
+    Dropoff:
+    - <travel distance>~<damage amount>
 ```
 
 #### `Base_Damage`: \<Double\>

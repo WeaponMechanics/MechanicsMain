@@ -1,16 +1,16 @@
 ```yaml
-Info:
-  Weapon_Item: <item serializer>
-  Weapon_Info_Display: <weapon info display serializer>
-  Dual_Wield: <dual wield serializer>
-  Weapon_Converter_Check: <weapon converter serializer>
-  Weapon_Get_Actions: <MechanicsSerializer>
-  Cancel:
-    Block_Interactions: <true/false>
-    Item_Interactions: <true/false>
-    Drop_Item: <true/false>
-    Swap_Hands: <true/false>
-    Arm_Swing_Animation: <true/false>
+  Info:
+    Weapon_Item: <item serializer>
+    Weapon_Info_Display: <weapon info display serializer>
+    Dual_Wield: <dual wield serializer>
+    Weapon_Converter_Check: <weapon converter serializer>
+    Weapon_Get_Actions: <MechanicsSerializer>
+    Cancel:
+      Block_Interactions: <true/false>
+      Item_Interactions: <true/false>
+      Drop_Item: <true/false>
+      Swap_Hands: <true/false>
+      Arm_Swing_Animation: <true/false>
 ```
 
 #### `Weapon_Item`:
@@ -19,13 +19,13 @@ This uses the [item serializer](General.md#item-serializer).
 
 #### `Weapon_Info_Display`:
 ```yaml
-Weapon_Info_Display:
-  <MessageMechanicsSerializer>
-  Update_Item_Name: <true/false>
-  Show_Ammo_In:
-    Boss_Bar_Progress: <true/false>
-    Exp_Level: <true/false>
-    Exp_Progress: <true/false>
+    Weapon_Info_Display:
+      <MessageMechanicsSerializer>
+      Update_Item_Name: <true/false>
+      Show_Ammo_In:
+        Boss_Bar_Progress: <true/false>
+        Exp_Level: <true/false>
+        Exp_Progress: <true/false>
 ```
 
 #### `MessageMechanicsSerializer`:
@@ -34,10 +34,10 @@ It is recommended to take advantage of [placeholders](Placeholders.md).
 
 For example, you can use message like this:
 ```yaml
-Weapon_Info_Display:
-  Action_Bar:
-    Message: "%weapon-title% %selective_fire_state%%firearm-state% <%ammo-left%>%reload%"
-    Time: 50
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "%weapon-title% %selective_fire_state%%firearm-state% <%ammo-left%>%reload%"
+        Time: 50
 ```
 
 * `Update_Item_Name`: \<Boolean\>
@@ -64,12 +64,12 @@ Only other hand may reload weapon at time and only other weapon may apply zoomin
 Both weapons can still shoot simultaneously.
 
 ```yaml
-Dual_Wield:
-  Whitelist: <true/false>
-  Weapons:
-  - <weapon title>
-  - <etc.>
-  Mechanics_On_Deny: <MechanicsSerializer>
+    Dual_Wield:
+      Whitelist: <true/false>
+      Weapons:
+      - <weapon title>
+      - <etc.>
+      Mechanics_On_Deny: <MechanicsSerializer>
 ```
 
 * `Whitelist`: \<Boolean\>
@@ -87,11 +87,11 @@ is the list of checks the plugin goes through to determine if it should convert 
 especially useful if you want players to be able to get weapons by vanilla means although using
 recipes is more recommended approach.
 ```yaml
-Weapon_Converter_Check:
-  Type: <true/false>
-  Name: <true/false>
-  Lore: <true/false>
-  Enchants: <true/false>
+    Weapon_Converter_Check:
+      Type: <true/false>
+      Name: <true/false>
+      Lore: <true/false>
+      Enchants: <true/false>
 ```
 
 * `Type`: \<Boolean\>

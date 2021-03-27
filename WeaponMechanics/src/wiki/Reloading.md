@@ -1,13 +1,13 @@
 ```yaml
-Reload:
-  Trigger: <trigger serializer>
-  Magazine_Size: <amount>
-  Ammo_Per_Reload: <amount>
-  Unload_Ammo_On_Reload: <true/false>
-  Reload_Duration: <ticks>
-  Start_Mechanics: <MechanicsSerializer>
-  Finish_Mechanics: <MechanicsSerializer>
-  Ammo: <ammo serializer>
+  Reload:
+    Trigger: <trigger serializer>
+    Magazine_Size: <amount>
+    Ammo_Per_Reload: <amount>
+    Unload_Ammo_On_Reload: <true/false>
+    Reload_Duration: <ticks>
+    Start_Mechanics: <MechanicsSerializer>
+    Finish_Mechanics: <MechanicsSerializer>
+    Ammo: <ammo serializer>
 ```
 
 #### `Trigger`: \<Trigger\>
@@ -48,26 +48,26 @@ they can still need reloading.
 Only one ammo type may be used at time.
 
 ```yaml
-Ammo:
-  Out_Of_Ammo: <MechanicsSerializer>
-  Use_Item_As_Ammo:
-    Ammo_Name: <name of ammo>
-    Magazine:
-      Item: <item serializer>
-      Not_Able_To_Fill:
-        Not_Same_Ammo_Name: <MechanicsSerializer>
-        Magazine_Already_Full: <MechanicsSerializer>
-      Magazine_Filled: <MechanicsSerializer>
-    Ammo: <item serializer>
-    Ammo_Converter_Check:
-      Type: <true/false>
-      Name: <true/false>
-      Lore: <true/false>
-      Enchants: <true/false>
-  Use_Exp_As_Ammo:
-    Exp_Cost: <exp per one ammo>
-  Use_Money_As_Ammo:
-    Money_Cost: <money per one ammo>
+    Ammo:
+      Out_Of_Ammo: <MechanicsSerializer>
+      Use_Item_As_Ammo:
+        Ammo_Name: <name of ammo>
+        Magazine:
+          Item: <item serializer>
+          Not_Able_To_Fill:
+            Not_Same_Ammo_Name: <MechanicsSerializer>
+            Magazine_Already_Full: <MechanicsSerializer>
+          Magazine_Filled: <MechanicsSerializer>
+        Ammo: <item serializer>
+        Ammo_Converter_Check:
+          Type: <true/false>
+          Name: <true/false>
+          Lore: <true/false>
+          Enchants: <true/false>
+      Use_Exp_As_Ammo:
+        Exp_Cost: <exp per one ammo>
+      Use_Money_As_Ammo:
+        Money_Cost: <money per one ammo>
 ```
 
 #### `Out_Of_Ammo`: \<Mechanics\>

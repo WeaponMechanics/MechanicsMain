@@ -1,13 +1,13 @@
 ```yaml
-Firearm_Action:
-  Type: <FirearmType>
-  Firearm_Action_Frequency: <use every x amount of shots>
-  Open:
-    Time: <ticks>
-    Mechanics: <MechanicsSerializer>
-  Close:
-    Time: <ticks>
-    Mechanics: <MechanicsSerializer>
+  Firearm_Action:
+    Type: <FirearmType>
+    Firearm_Action_Frequency: <use every x amount of shots>
+    Open:
+      Time: <ticks>
+      Mechanics: <MechanicsSerializer>
+    Close:
+      Time: <ticks>
+      Mechanics: <MechanicsSerializer>
 ```
 
 #### `Type`: \<FirearmType\>
