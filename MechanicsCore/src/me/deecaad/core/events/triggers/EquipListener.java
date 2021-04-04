@@ -27,7 +27,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,7 +42,7 @@ public class EquipListener extends PacketHandler implements Listener {
     private EquipListener() {
         super("PacketPlayOutSetSlot");
         
-        this.oldItems = new ConcurrentHashMap<>(EquipmentSlot.values().length);
+        this.oldItems = new ConcurrentHashMap<>();
     }
 
     
@@ -64,7 +63,7 @@ public class EquipListener extends PacketHandler implements Listener {
         Player player = e.getPlayer();
         ItemStack item = player.getInventory().getItem(e.getNewSlot());
         Bukkit.getPluginManager().callEvent(new HandEquipEvent(player, item, EquipmentSlot.HAND));
-        oldItems.computeIfAbsent(e.getPlayer(), k -> new HashMap<>()).put(EquipmentSlot.HAND, item);
+        oldItems.computeIfAbsent(e.getPlayer(), k -> new ConcurrentHashMap<>(EquipmentSlot.values().length)).put(EquipmentSlot.HAND, item);
     }
 
     @EventHandler (ignoreCancelled = true)
@@ -85,7 +84,7 @@ public class EquipListener extends PacketHandler implements Listener {
 
         // Simply wait one tick
         Bukkit.getScheduler().runTask(MechanicsCore.getPlugin(), () -> {
-            Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent((Player) player, k -> new HashMap<>());
+            Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent((Player) player, k -> new ConcurrentHashMap<>(EquipmentSlot.values().length));
 
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack item = player.getEquipment().getItem(slot);
@@ -143,7 +142,7 @@ public class EquipListener extends PacketHandler implements Listener {
 
         if (slot == null) return;
 
-        Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent(player, k -> new HashMap<>());
+        Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent(player, k -> new ConcurrentHashMap<>(EquipmentSlot.values().length));
         ItemStack item = player.getEquipment().getItem(slot);
         ItemStack oldItem = items.get(slot);
 
