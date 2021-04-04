@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EquipListener extends PacketHandler implements Listener {
 
@@ -42,7 +43,7 @@ public class EquipListener extends PacketHandler implements Listener {
     private EquipListener() {
         super("PacketPlayOutSetSlot");
         
-        this.oldItems = new HashMap<>();
+        this.oldItems = new ConcurrentHashMap<>(EquipmentSlot.values().length);
     }
 
     
@@ -82,6 +83,7 @@ public class EquipListener extends PacketHandler implements Listener {
         // Set slot handles all creative changes
         if (player.getGameMode() == GameMode.CREATIVE) return;
 
+        // Simply wait one tick
         Bukkit.getScheduler().runTask(MechanicsCore.getPlugin(), () -> {
             Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent((Player) player, k -> new HashMap<>());
 
@@ -155,6 +157,8 @@ public class EquipListener extends PacketHandler implements Listener {
                 }
             });
         } else if ((finalSlot == EquipmentSlot.HAND || slotNum == 45) && !hasDurabilityChanges(oldItem, item)) {
+
+            // This event is used to cancel item popping up and down on NBT data changes
             HandDataUpdateEvent dataUpdateEvent = new HandDataUpdateEvent(player, finalSlot, item, oldItem);
             Bukkit.getPluginManager().callEvent(dataUpdateEvent);
             if (dataUpdateEvent.isCancelled()) {
