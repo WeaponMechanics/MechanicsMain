@@ -9,4 +9,3 @@ permissions. You may also use `/wm help` for detailed information.
 | /wm info                      	    | Displays information about the plugin                         	| weaponmechanics.commands.info   	|
 | /wm help                      	    | Displays all commands and how to use them                     	| weaponmechanics.admin           	|
 | /wm test                      	    | Test commands made for developers, use these at your own risk! 	| weaponmechanics.commands.test   	|
-

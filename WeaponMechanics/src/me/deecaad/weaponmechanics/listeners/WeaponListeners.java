@@ -56,6 +56,7 @@ public class WeaponListeners implements Listener {
         // This event is ran async
         if (weaponHandler.getInfoHandler().getWeaponTitle(e.getItemStack(), false) != null) {
             // Simply cancel all weapon NBT changes from being sent to player
+            // Expect the visual ones (durability, custom model data, type, name, lore, enchantments)
             e.setCancelled(true);
         }
     }

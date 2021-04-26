@@ -24,6 +24,11 @@ My_Weapon:
         Bar_Color: <BarColor>
         Bar_Style: <BarStyle>
         Time: <ticks>
+      Update_Item_Name: <true/false>
+      Show_Ammo_In:
+        Boss_Bar_Progress: <true/false>
+        Exp_Level: <true/false>
+        Exp_Progress: <true/false>
     Dual_Wield:
       Whitelist: <true/false>
       Weapons:
