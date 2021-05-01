@@ -156,7 +156,7 @@ public class SubCommands {
         SubCommand command = commands.get(key);
         if (command == null) {
             return false;
-        } else if (sender.hasPermission(command.getPermission())) {
+        } else if (command.getPermission() == null || sender.hasPermission(command.getPermission())) {
             command.execute(sender, args);
         } else {
             sender.sendMessage(StringUtil.color("&cInvalid permissions."));
