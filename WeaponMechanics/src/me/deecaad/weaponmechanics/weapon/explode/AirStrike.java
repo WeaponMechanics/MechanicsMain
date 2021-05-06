@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -189,5 +190,20 @@ public class AirStrike implements Serializer<AirStrike> {
         debug.validate(LogLevel.WARN, layers < 100, StringUtil.foundLarge(max, file, path + ".Layers"));
 
         return new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval);
+    }
+
+    static class Vector2d {
+
+        private final double x;
+        private final double z;
+
+        Vector2d(double x, double z) {
+            this.x = x;
+            this.z = z;
+        }
+
+        double distanceSquared(Vector2d vector) {
+            return NumberConversions.square(this.x - vector.x) + NumberConversions.square(this.z - vector.z);
+        }
     }
 }

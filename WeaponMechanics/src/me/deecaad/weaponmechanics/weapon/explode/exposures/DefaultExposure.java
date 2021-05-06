@@ -11,11 +11,13 @@ import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -32,7 +34,7 @@ public class DefaultExposure implements ExplosionExposure {
         DoubleMap<LivingEntity> temp = new DoubleMap<>(entities.size());
 
         // How far away from the explosion to damage players
-        double damageRadius = shape.getMaxDistance() * 2.0F;
+        double damageRadius = shape.getMaxDistance() * 2.0;
 
         // Gets data on the location of the explosion
         World world = origin.getWorld();

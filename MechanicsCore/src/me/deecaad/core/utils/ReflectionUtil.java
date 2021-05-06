@@ -120,11 +120,35 @@ public final class ReflectionUtil {
      * @param parameters The types of parameters that the constructor takes.
      * @return The found constructor, or <code>null</code>.
      */
-    public static Constructor<?> getConstructor(@Nonnull Class<?> clazz, Class<?>... parameters) {
+    public static <T> Constructor<T> getConstructor(@Nonnull Class<T> clazz, Class<?>... parameters) {
         try {
             return clazz.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
             debug.log(LogLevel.ERROR, "Issue getting constructor!", e);
+            return null;
+        }
+    }
+
+    /**
+     * Instantiates a new {@link Object} of the generic class time defined by
+     * <code>constructorSupplier</code>.
+     *
+     * @param constructorSupplier The class to instantiate.
+     * @param parameters          The parameters of the constructor to use.
+     * @param <T>                 The generic class type to return.
+     * @return A new object of the given class.
+     * @see #newInstance(Constructor, Object...)
+     */
+    public static <T> T newInstance(@Nonnull Class<T> constructorSupplier, Object... parameters) {
+        Class<?>[] classes = new Class[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            classes[i] = parameters[i].getClass();
+        }
+
+        try {
+            return newInstance(constructorSupplier.getConstructor(classes), parameters);
+        } catch (NoSuchMethodException e) {
+            debug.log(LogLevel.ERROR, "Issue creating new instance!", e);
             return null;
         }
     }
@@ -138,7 +162,7 @@ public final class ReflectionUtil {
      * @param parameters  The parameters that the constructor takes.
      * @return The new object, or null.
      */
-    public static Object newInstance(@Nonnull Constructor<?> constructor, Object... parameters) {
+    public static <T> T newInstance(@Nonnull Constructor<T> constructor, Object... parameters) {
         try {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DistanceExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.VoidExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
@@ -43,8 +44,6 @@ import java.util.function.Supplier;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Explosion implements Serializer<Explosion> {
-
-    private static final DamageHandler damageHandler = WeaponMechanics.getWeaponHandler().getDamageHandler();;
 
     private ExplosionShape shape;
     private ExplosionExposure exposure;
@@ -190,7 +189,7 @@ public class Explosion implements Serializer<Explosion> {
 
         DoubleMap<LivingEntity> entities = event.getEntities();
         if (projectile.getWeaponTitle() != null) {
-            damageHandler.tryUseExplosion(projectile, origin, entities);
+            WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(projectile, origin, entities);
 
             if (isKnockback) {
                 Vector originVector = origin.toVector();
@@ -311,41 +310,20 @@ public class Explosion implements Serializer<Explosion> {
     public Explosion serialize(File file, ConfigurationSection configurationSection, String path) {
         ConfigurationSection section = configurationSection.getConfigurationSection(path);
 
-        // Gets the explosion type from config, warns the user
-        // if the type is invalid
-        String shapeTypeName = section.getString("Explosion_Shape", "DEFAULT").trim().toUpperCase();
-        ExplosionShapeType shapeType;
-        try {
-            shapeType = ExplosionShapeType.valueOf(shapeTypeName);
-        } catch (IllegalArgumentException ex) {
-            debug.log(LogLevel.ERROR, "The explosion shape \"" + shapeTypeName + "\" is invalid.",
-                    "Valid shapes: " + Arrays.toString(ExplosionShapeType.values()),
-                    StringUtil.foundAt(file, path));
-            return null;
-        }
-
-        String exposureTypeName = section.getString("Explosion_Exposure", "DEFAULT").trim().toUpperCase();
-        ExplosionExposureType exposureType;
-        try {
-            exposureType = ExplosionExposureType.valueOf(exposureTypeName);
-        } catch (IllegalArgumentException ex) {
-            debug.log(LogLevel.ERROR, "The explosion exposure \"" + exposureTypeName + "\" is invalid.",
-                    "Valid exposures: " + Arrays.toString(ExplosionExposureType.values()),
-                    StringUtil.foundAt(file, path));
-            return null;
-        }
-
         // Get all possibly applicable data for the explosions,
         // and warn users for "odd" values
-        double yield  = section.getDouble("Explosion_Type_Data.Yield",  3.0);
-        double angle  = section.getDouble("Explosion_Type_Data.Angle",  0.5);
-        double depth  = section.getDouble("Explosion_Type_Data.Depth",  -3.0);
-        double height = section.getDouble("Explosion_Type_Data.Height", 3.0);
-        double width  = section.getDouble("Explosion_Type_Data.Width",  3.0);
-        double radius = section.getDouble("Explosion_Type_Data.Radius", 3.0);
-        int rays = section.getInt("Explosion_Type_Data.Rays", 16);
-
-        if (depth > 0) depth *= -1;
+        ConfigurationSection typeData = section.getConfigurationSection("Explosion_Type_Data");
+        if (typeData == null) {
+            debug.log(LogLevel.ERROR, "Missing Explosion_Type_Data, a required argument.", StringUtil.foundAt(file, path));
+            return null;
+        }
+        double yield  = typeData.getDouble("Yield",  3.0);
+        double angle  = typeData.getDouble("Angle",  0.5);
+        double depth  = typeData.getDouble("Depth",  -3.0);
+        double height = typeData.getDouble("Height", 3.0);
+        double width  = typeData.getDouble("Width",  3.0);
+        double radius = typeData.getDouble("Radius", 3.0);
+        int rays = typeData.getInt("Rays", 16);
 
         String found = StringUtil.foundAt(file, path + ".Explosion_Type_Data.");
 
@@ -363,36 +341,23 @@ public class Explosion implements Serializer<Explosion> {
         debug.validate(LogLevel.WARN, radius < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Radius"));
         debug.validate(LogLevel.WARN, rays < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Rays"));
 
-        ExplosionShape shape;
-        switch (shapeType) {
-            case CUBE:
-                shape = new CuboidExplosion(width, height);
-                break;
-            case SPHERE:
-                shape = new SphericalExplosion(radius);
-                break;
-            case PARABOLA:
-                shape = new ParabolicExplosion(depth, angle);
-                break;
-            case DEFAULT:
-                shape = new DefaultExplosion(yield, rays);
-                break;
-            default:
-                throw new IllegalArgumentException("Something went wrong...");
+        Map<String, Object> temp = typeData.getValues(true);
+        ExplosionExposure exposure = ExposureFactory.getInstance().get(section.getString("Explosion_Exposure", "DEFAULT"), temp);
+        ExplosionShape shape = ShapeFactory.getInstance().get(section.getString("Explosion_Shape", "DEFAULT"), temp);
+
+        if (exposure == null) {
+            debug.error("Invalid explosion exposure \"" + section.getString("Explosion_Exposure") + "\"",
+                    "Did you mean: " + StringUtil.didYouMean(section.getString("Explosion_Exposure"), ExposureFactory.getInstance().getOptions()),
+                    "Valid Options: " + ExposureFactory.getInstance().getOptions(),
+                    "Found at: " + StringUtil.foundAt(file, path + ".Explosion_Exposure"));
+            return null;
         }
-        ExplosionExposure exposure;
-        switch (exposureType) {
-            case DISTANCE:
-                exposure = new DistanceExposure();
-                break;
-            case DEFAULT:
-                exposure = new DefaultExposure();
-                break;
-            case NONE:
-                exposure = new VoidExposure();
-                break;
-            default:
-                throw new IllegalArgumentException("Something went wrong...");
+        if (shape == null) {
+            debug.error("Invalid explosion shape \"" + section.getString("Explosion_Shape") + "\"",
+                    "Did You Mean: " + StringUtil.didYouMean(section.getString("Explosion_Shape"), ShapeFactory.getInstance().getOptions()),
+                    "Valid Options: " + ShapeFactory.getInstance().getOptions(),
+                    "Found at: " + StringUtil.foundAt(file, path + ".Explosion_Shape"));
+            return null;
         }
 
         // Determine which blocks will be broken and how they will be regenerated

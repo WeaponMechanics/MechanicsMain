@@ -106,7 +106,6 @@ public class DefaultExplosion implements ExplosionShape {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<LivingEntity> getEntities(@Nonnull Location origin) {
 
         // How far away from the explosion to damage players
