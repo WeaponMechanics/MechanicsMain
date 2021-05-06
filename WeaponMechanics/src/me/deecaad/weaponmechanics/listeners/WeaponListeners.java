@@ -19,6 +19,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -48,6 +49,8 @@ public class WeaponListeners implements Listener {
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
             Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.isMainHand()));
+
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.isMainHand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
     }
 

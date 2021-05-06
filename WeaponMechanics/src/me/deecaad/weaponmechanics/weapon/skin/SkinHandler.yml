@@ -1,0 +1,17 @@
+Skin:
+  Default:
+    Type: <Material>:<Data>
+    Custom_Model_Data: <Integer>
+    Durability: <Integer>
+  Scope:
+    Type: <Material>:<Data>
+    Custom_Model_Data: <Integer>
+    Durability: <Integer>
+  Reload:
+    Type: <Material>:<Data>
+    Custom_Model_Data: <Integer>
+    Durability: <Integer>
+  Sprint:
+    Type: <Material>:<Data>
+    Custom_Model_Data: <Integer>
+    Durability: <Integer>

@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.packetlisteners;
+package me.deecaad.weaponmechanicsplus;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.serializers.ColorSerializer;

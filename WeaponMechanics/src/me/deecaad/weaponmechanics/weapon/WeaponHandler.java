@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
+import me.deecaad.weaponmechanics.weapon.skin.SkinHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -36,6 +37,7 @@ public class WeaponHandler {
     private final ReloadHandler reloadHandler;
     private final ScopeHandler scopeHandler;
     private final DamageHandler damageHandler;
+    private final SkinHandler skinHandler;
 
     public WeaponHandler() {
         infoHandler = new InfoHandler(this);
@@ -43,6 +45,7 @@ public class WeaponHandler {
         reloadHandler = new ReloadHandler(this);
         scopeHandler = new ScopeHandler(this);
         damageHandler = new DamageHandler(this);
+        skinHandler = new SkinHandler(this);
     }
 
     /**
@@ -166,6 +169,11 @@ public class WeaponHandler {
 
             entityWrapper.getMainHandData().cancelTasks();
             entityWrapper.getOffHandData().cancelTasks();
+            return;
+        }
+
+        if (triggerType == TriggerType.START_SPRINT || triggerType == TriggerType.END_SPRINT) {
+            getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
         }
     }
 
@@ -202,5 +210,12 @@ public class WeaponHandler {
      */
     public DamageHandler getDamageHandler() {
         return damageHandler;
+    }
+
+    /**
+     * @return the skin handler
+     */
+    public SkinHandler getSkinHandler() {
+        return skinHandler;
     }
 }

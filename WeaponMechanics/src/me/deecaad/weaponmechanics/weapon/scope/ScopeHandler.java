@@ -76,7 +76,7 @@ public class ScopeHandler implements IValidator {
             Trigger offTrigger = config.getObject(weaponTitle + ".Scope.Zoom_Off.Trigger", Trigger.class);
             // If off trigger is valid -> zoom out even if stacking hasn't reached maximum stacks
             if (offTrigger != null && offTrigger.check(triggerType, slot, entityWrapper)) {
-                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData);
+                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
             }
 
             // If trigger is valid zoom in or out depending on situation
@@ -85,18 +85,18 @@ public class ScopeHandler implements IValidator {
                 int maximumStacks = config.getInt(weaponTitle + ".Scope.Zoom_Stacking.Maximum_Stacks");
                 if (maximumStacks <= 0) { // meaning that zoom stacking is not used
                     // Should turn off
-                    return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData);
+                    return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
                 }
                 if (zoomData.getZoomStacks() < maximumStacks) { // meaning that zoom stacks have NOT reached maximum stacks
                     // Should not turn off and stack instead
-                    return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData); // Zoom in handles stacking on its own
+                    return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData, slot); // Zoom in handles stacking on its own
                 }
                 // Should turn off (because zoom stacks have reached maximum stacks)
-                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData);
+                return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
             }
         } else if (trigger.check(triggerType, slot, entityWrapper)) {
             // Try zooming in since entity is not zooming
-            return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData);
+            return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
         }
         return false;
     }
@@ -104,7 +104,7 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed in or stacked
      */
-    private boolean zoomIn(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData) {
+    private boolean zoomIn(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         Configuration config = getConfigurations();
         LivingEntity entity = entityWrapper.getEntity();
 
@@ -157,6 +157,8 @@ public class ScopeHandler implements IValidator {
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
+        weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
 
         return true;
@@ -165,7 +167,7 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed out
      */
-    private boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData) {
+    private boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         if (!zoomData.isZooming()) return false;
         LivingEntity entity = entityWrapper.getEntity();
 
@@ -184,6 +186,8 @@ public class ScopeHandler implements IValidator {
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
+        weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
 
