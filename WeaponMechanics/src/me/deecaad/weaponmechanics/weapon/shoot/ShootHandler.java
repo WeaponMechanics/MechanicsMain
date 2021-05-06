@@ -58,7 +58,7 @@ public class ShootHandler implements IValidator {
     /**
      * Hardcoded full auto values
      */
-    private static final int[][] auto = new int[][] {
+    private static final int[][] AUTO = new int[][] {
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 good
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2 good
             {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}, // 3
@@ -339,7 +339,7 @@ public class ShootHandler implements IValidator {
 
                 int shootAmount;
                 if (extra != 0) {
-                    shootAmount = (baseAmountPerTick + auto[extra - 1][tick]);
+                    shootAmount = (baseAmountPerTick + AUTO[extra - 1][tick]);
                 } else {
                     shootAmount = baseAmountPerTick;
                 }

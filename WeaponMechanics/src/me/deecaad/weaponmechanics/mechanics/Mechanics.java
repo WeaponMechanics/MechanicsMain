@@ -126,6 +126,6 @@ public class Mechanics implements Serializer<Mechanics> {
             mechanicsList.add((IMechanic<?>) mechanic);
         }
 
-        return mechanicsList.isEmpty() ? null : new Mechanics(mechanicList);
+        return mechanicsList.isEmpty() ? null : new Mechanics(mechanicsList);
     }
 }
