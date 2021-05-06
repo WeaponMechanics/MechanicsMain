@@ -8,11 +8,16 @@ import me.deecaad.core.events.HandEquipEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -22,9 +27,9 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EquipListener extends PacketHandler implements Listener {
 
@@ -37,8 +42,9 @@ public class EquipListener extends PacketHandler implements Listener {
     private EquipListener() {
         super("PacketPlayOutSetSlot");
         
-        this.oldItems = new HashMap<>();
+        this.oldItems = new ConcurrentHashMap<>();
     }
+
     
     @EventHandler
     public void onDisable(PluginDisableEvent e) {
@@ -57,12 +63,49 @@ public class EquipListener extends PacketHandler implements Listener {
         Player player = e.getPlayer();
         ItemStack item = player.getInventory().getItem(e.getNewSlot());
         Bukkit.getPluginManager().callEvent(new HandEquipEvent(player, item, EquipmentSlot.HAND));
-        oldItems.computeIfAbsent(e.getPlayer(), k -> new HashMap<>()).put(EquipmentSlot.HAND, item);
+        oldItems.computeIfAbsent(e.getPlayer(), k -> new ConcurrentHashMap<>(EquipmentSlot.values().length)).put(EquipmentSlot.HAND, item);
+    }
+
+    @EventHandler (ignoreCancelled = true)
+    public void itemHeld(InventoryClickEvent e) {
+        handleInventory(e);
+    }
+
+    @EventHandler (ignoreCancelled = true)
+    public void itemHeld(InventoryDragEvent e) {
+        handleInventory(e);
+    }
+
+    public void handleInventory(InventoryInteractEvent e) {
+        HumanEntity player = e.getWhoClicked();
+
+        // Set slot handles all creative changes
+        if (player.getGameMode() == GameMode.CREATIVE) return;
+
+        // Simply wait one tick
+        Bukkit.getScheduler().runTask(MechanicsCore.getPlugin(), () -> {
+            Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent((Player) player, k -> new ConcurrentHashMap<>(EquipmentSlot.values().length));
+
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack item = player.getEquipment().getItem(slot);
+                ItemStack oldItem = items.get(slot);
+
+                if (hasChanges(oldItem, item)) {
+                    if (slot == EquipmentSlot.HAND || (CompatibilityAPI.getVersion() >= 1.09 && slot == EquipmentSlot.OFF_HAND)) {
+                        Bukkit.getPluginManager().callEvent(new HandEquipEvent(player, item, slot));
+                    } else {
+                        Bukkit.getPluginManager().callEvent(new ArmorEquipEvent(player, item, slot));
+                    }
+                }
+
+                items.put(slot, item);
+            }
+        });
     }
 
     @Override
     public void onPacket(Packet wrapper) {
-
+        
         // Check that its hotbar slot edit
         int windowId = (int) wrapper.getFieldValue("a");
         if (windowId != 0) {
@@ -70,7 +113,6 @@ public class EquipListener extends PacketHandler implements Listener {
         }
 
         Player player = wrapper.getPlayer();
-        Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent(player, k -> new HashMap<>());
         int slotNum = (int) wrapper.getFieldValue("b");
 
         EquipmentSlot slot = null;
@@ -100,6 +142,7 @@ public class EquipListener extends PacketHandler implements Listener {
 
         if (slot == null) return;
 
+        Map<EquipmentSlot, ItemStack> items = oldItems.computeIfAbsent(player, k -> new ConcurrentHashMap<>(EquipmentSlot.values().length));
         ItemStack item = player.getEquipment().getItem(slot);
         ItemStack oldItem = items.get(slot);
 
@@ -112,7 +155,9 @@ public class EquipListener extends PacketHandler implements Listener {
                     Bukkit.getPluginManager().callEvent(new ArmorEquipEvent(player, item, finalSlot));
                 }
             });
-        } else if (!hasDurabilityChanges(oldItem, item)) {
+        } else if ((finalSlot == EquipmentSlot.HAND || slotNum == 45) && !hasDurabilityChanges(oldItem, item)) {
+
+            // This event is used to cancel item popping up and down on NBT data changes
             HandDataUpdateEvent dataUpdateEvent = new HandDataUpdateEvent(player, finalSlot, item, oldItem);
             Bukkit.getPluginManager().callEvent(dataUpdateEvent);
             if (dataUpdateEvent.isCancelled()) {

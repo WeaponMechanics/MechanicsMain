@@ -247,7 +247,7 @@ public abstract class SubCommand extends BukkitCommand {
     @Override
     @Nonnull
     public List<String> tabComplete(@Nonnull CommandSender sender, @Nonnull String alias, @Nonnull String[] args) {
-        if (!sender.hasPermission(getPermission())) {
+        if (getPermission() != null && !sender.hasPermission(getPermission())) {
             return Collections.emptyList();
         } else {
             return tabCompletions(args);

@@ -1,5 +1,7 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.core.MechanicsCore;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
@@ -188,7 +190,17 @@ public final class StringUtil {
      * @return The non-null split strings.
      */
     public static String[] split(String from) {
-        return from.split("[~ ]+|(?<![~ -])-");
+        boolean addDash = false;
+        if (from.startsWith("-")) {
+            addDash = true;
+            from = from.substring(1);
+        }
+
+        String[] split = from.split("[~ ]+|(?<![~ -])-");
+        if (addDash)
+            split[0] = "-" + split[0];
+
+        return split;
     }
 
     /**
@@ -365,7 +377,11 @@ public final class StringUtil {
     private static int[] mapToCharTable(String str) {
         int[] table = new int[LOWER_ALPHABET.length()];
         for (int i = 0; i < str.length(); i++) {
-            table[Character.toLowerCase(str.charAt(i)) - 97]++;
+            try {
+                table[Character.toLowerCase(str.charAt(i)) - 97]++;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                MechanicsCore.debug.error("Unexpected character: " + str.charAt(i));
+            }
         }
         return table;
     }

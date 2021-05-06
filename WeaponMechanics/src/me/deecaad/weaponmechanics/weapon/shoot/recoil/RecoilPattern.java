@@ -8,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -71,7 +72,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
                 debug.log(LogLevel.ERROR,
                         "Found an invalid value in configurations!",
                         "Located at file " + file + " in " + path + ".List (" + data.toString() + ") in configurations",
-                        "Tried to get get float from " + split[0] + ", but it wasn't float?");
+                        "Tried to get get float from " + split[0] + ", but it wasn't float? Pulled from: " + Arrays.toString(split));
                 continue;
             }
             try {
