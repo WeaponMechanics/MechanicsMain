@@ -97,9 +97,6 @@ public class Mechanics implements Serializer<Mechanics> {
     }
 
     public void use(CastData castData) {
-        if (mechanicList == null)
-            return;
-
         for (IMechanic<?> mechanic : mechanicList) {
             if (mechanic.requireEntity() && castData.getCaster() == null) continue;
             if (mechanic.requirePlayer() && (castData.getCaster() == null || castData.getCaster().getType() != EntityType.PLAYER)) continue;
