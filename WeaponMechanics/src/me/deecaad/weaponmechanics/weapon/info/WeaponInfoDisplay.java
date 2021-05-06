@@ -132,14 +132,6 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
     private void doChangesIfRequired(ItemStack og, IPlayerWrapper playerWrapper, String weaponTitle, ItemStack weaponStack) {
 
-        double version = CompatibilityAPI.getVersion();
-        if (weaponStack.getType() != og.getType()) {
-            weaponStack.setType(og.getType());
-        }
-        if (version < 1.13 && weaponStack.getData().getData() != og.getData().getData()) {
-            weaponStack.getData().setData(og.getData().getData());
-        }
-
         boolean hasMetaChanges = false;
         ItemMeta meta = weaponStack.getItemMeta();
         ItemMeta ogMeta = og.getItemMeta();
@@ -155,24 +147,6 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 || (ogMeta.hasLore() && !ogMeta.getLore().equals(meta.getLore()))) {
             meta.setLore(PlaceholderAPI.applyPlaceholders(ogMeta.getLore(), playerWrapper.getPlayer(), weaponStack, weaponTitle));
             hasMetaChanges = true;
-        }
-
-        if (version >= 1.132) {
-            if (((org.bukkit.inventory.meta.Damageable) meta).getDamage() != ((org.bukkit.inventory.meta.Damageable) ogMeta).getDamage()) {
-                ((org.bukkit.inventory.meta.Damageable) meta).setDamage(((org.bukkit.inventory.meta.Damageable) ogMeta).getDamage());
-                hasMetaChanges = true;
-            }
-        } else if (weaponStack.getDurability() != og.getDurability()) {
-            weaponStack.setDurability(og.getDurability());
-            hasMetaChanges = true;
-        }
-
-        if (version >= 1.14) {
-            if (ogMeta.hasCustomModelData() != meta.hasCustomModelData()
-                    || (ogMeta.hasCustomModelData() && meta.getCustomModelData() != ogMeta.getCustomModelData())) {
-                meta.setCustomModelData(ogMeta.getCustomModelData());
-                hasMetaChanges = true;
-            }
         }
 
         if (hasMetaChanges) {
