@@ -158,7 +158,7 @@ public class Projectile implements Serializer<Projectile> {
                         StringUtil.debugDidYouMean(type, EntityType.class));
                 return null;
             }
-            projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");
+            projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Settings.Projectile_Item_Or_Block");
             if ((projectileType == EntityType.DROPPED_ITEM || projectileType == EntityType.FALLING_BLOCK) && (projectileItem == null || projectileItem.getType() == Material.AIR)) {
                 debug.log(LogLevel.ERROR,
                         "When using " + projectileType + " you need to define valid projectile item or block.",

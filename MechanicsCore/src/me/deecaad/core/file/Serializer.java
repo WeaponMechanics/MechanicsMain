@@ -45,7 +45,7 @@ public interface Serializer<T> {
      */
     default void tryPathTo(Configuration filledMap, String pathWhereToStore, String pathTo) {
         Object obj = filledMap.getObject(pathTo);
-        if (obj == null || !this.getClass().isInstance(obj.getClass())) {
+        if (!this.getClass().isInstance(obj)) {
             String[] splittedWhereToStore = pathWhereToStore.split("\\.");
             debug.log(LogLevel.ERROR, "Tried to use path to, but didn't find correct object.",
                     "1) Make sure that you wrote path to correctly (" + pathTo + ")",

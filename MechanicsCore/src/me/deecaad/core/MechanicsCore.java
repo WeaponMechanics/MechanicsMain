@@ -28,7 +28,7 @@ public class MechanicsCore extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        debug = new Debugger(getLogger(), 2, true);
+        debug = new Debugger(getLogger(), 2, false);
         plugin = this;
     }
 
