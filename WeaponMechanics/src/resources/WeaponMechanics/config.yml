@@ -606,3 +606,45 @@ Entity_Hitboxes:
     ARMS: true
     LEGS: 0.25
     FEET: 0.125
+  ZOMBIFIED_PIGLIN:
+    Horizontal_Entity: false
+    HEAD: 0.25
+    BODY: 0.375
+    ARMS: true
+    LEGS: 0.25
+    FEET: 0.125
+  PIGLIN:
+    Horizontal_Entity: false
+    HEAD: 0.25
+    BODY: 0.375
+    ARMS: true
+    LEGS: 0.25
+    FEET: 0.125
+  STRIDER:
+    Horizontal_Entity: false
+    HEAD: 0.0
+    BODY: 0.5
+    ARMS: false
+    LEGS: 0.3
+    FEET: 0.2
+  HOGLIN:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.6
+    ARMS: false
+    LEGS: 0.35
+    FEET: 0.05
+  ZOGLIN:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.6
+    ARMS: false
+    LEGS: 0.35
+    FEET: 0.05
+  PIGLIN_BRUTE:
+    Horizontal_Entity: false
+    HEAD: 0.25
+    BODY: 0.375
+    ARMS: true
+    LEGS: 0.25
+    FEET: 0.125
