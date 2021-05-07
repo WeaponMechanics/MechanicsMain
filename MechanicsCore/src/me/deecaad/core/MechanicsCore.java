@@ -39,8 +39,8 @@ public class MechanicsCore extends JavaPlugin {
     @Override
     public void onEnable() {
         debug.debug("Loading config.yml");
-        FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/MechanicsMain", getDataFolder());
-        FileUtil.ensureDefaults(getClassLoader(), "resources/MechanicsMain/config.yml", new File(getDataFolder(), "config.yml"));
+        FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/MechanicsCore", getDataFolder());
+        FileUtil.ensureDefaults(getClassLoader(), "resources/MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
 
         try {
             List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
