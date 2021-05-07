@@ -4,6 +4,7 @@
 #   2: Warnings (Suggested)
 #   3: Debug
 Debug_Level: 2
+Print_Traces: false
 
 # Notifies you when there is an update. Major updates are exactly that: Major
 # changes to the codebase, or a large number of changes. A minor is generally

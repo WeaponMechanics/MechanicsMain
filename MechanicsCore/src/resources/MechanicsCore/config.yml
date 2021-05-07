@@ -1,0 +1,7 @@
+# the debug level dictates what is printed to console
+#   0: No printing
+#   1: Errors/Info
+#   2: Warnings (Suggested)
+#   3: Debug
+Debug_Level: 2
+Print_Traces: false
