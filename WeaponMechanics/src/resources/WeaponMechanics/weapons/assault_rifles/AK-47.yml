@@ -9,10 +9,8 @@ AK-47:
       Hide_Flags: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&r%weapon-title% %selective_fire_state%%firearm-state% &e<%ammo-left%>&r%reload%"
+        Message: "&r%weapon-title% %selective_fire_state% &e«%ammo-left%»&r%reload%"
         Time: 40
-    Weapon_Converter_Check:
-      Name: true
     Weapon_Get_Actions:
       Sounds:
         - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
@@ -41,20 +39,20 @@ AK-47:
     Delay_Between_Shots: 1
     Fully_Automatic_Shots_Per_Second: 10 # 9 is more accurate, but 10 is a good number for full auto
     Spread:
-      Base_Spread: 0.5
+      Base_Spread: 0.25
       Modify_Spread_When:
-        Zooming: -0.4
-        Sneaking: -0.05
-        In_Midair: 0.5
-        Gliding: 0.5
+        Zooming: -0.2
+        Sneaking: -0.025
+        In_Midair: 0.25
+        Gliding: 0.25
       Changing_Spread:
         Starting_Amount: 0.0
         Increase_Change_When:
-          Always: 0.1
+          Always: 0.01
         Bounds:
           Reset_After_Reaching_Bound: false
-          Minimum_Spread: 0.05
-          Maximum_Spread: 2.0
+          Minimum_Spread: 0.025
+          Maximum_Spread: 0.4
     Recoil:
       Push_Time: 100
       Recover_Time: 200
@@ -92,3 +90,8 @@ AK-47:
     Mechanics:
       Sounds:
         - ENTITY_ENDER_DRAGON_FLAP-0.5-2.0
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - ENTITY_ENDER_DRAGON_FLAP-0.5-1.75
+

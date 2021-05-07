@@ -63,7 +63,12 @@ public class EquipListener extends PacketHandler implements Listener {
         Player player = e.getPlayer();
         ItemStack item = player.getInventory().getItem(e.getNewSlot());
         Bukkit.getPluginManager().callEvent(new HandEquipEvent(player, item, EquipmentSlot.HAND));
-        oldItems.computeIfAbsent(e.getPlayer(), k -> new ConcurrentHashMap<>(EquipmentSlot.values().length)).put(EquipmentSlot.HAND, item);
+
+        Map<EquipmentSlot, ItemStack> temp = oldItems.computeIfAbsent(e.getPlayer(), k -> new ConcurrentHashMap<>(EquipmentSlot.values().length));
+        if (item == null)
+            temp.remove(EquipmentSlot.HAND);
+        else
+            temp.put(EquipmentSlot.HAND, item);
     }
 
     @EventHandler (ignoreCancelled = true)
@@ -98,7 +103,8 @@ public class EquipListener extends PacketHandler implements Listener {
                     }
                 }
 
-                items.put(slot, item);
+                if (item != null)
+                    items.put(slot, item);
             }
         });
     }
@@ -185,9 +191,16 @@ public class EquipListener extends PacketHandler implements Listener {
     }
 
     private boolean hasChanges(ItemStack ogStack, ItemStack other) {
-        if (ogStack == null || ogStack.getType() == Material.AIR || other == null || other.getType() == Material.AIR) {
+
+        // We need to check if either of the items are null to decide if there
+        // have been changes first. Concurrent hashmaps cannot use null keys or
+        // null values, though, so we have to watch for that.
+        if (ogStack == null && other == null)
+            return false;
+        else if (ogStack == null && other != null)
             return true;
-        }
+        else if (ogStack != null && other == null)
+            return true;
 
         double version = CompatibilityAPI.getVersion();
         if (ogStack.getType() != other.getType()) {
