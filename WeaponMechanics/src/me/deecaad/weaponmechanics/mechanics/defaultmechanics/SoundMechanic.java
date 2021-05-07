@@ -21,16 +21,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
 
 public class SoundMechanic implements IMechanic<SoundMechanic> {
 
-    private static final float MIN_PITCH = (float) 0.5;
-    private static final float MAX_PITCH = (float) 2.0;
+    // While [0, 0.5] is technically a valid range, all of those values are
+    // treated the same as 0.5.
+    private static final float MIN_PITCH = 0.5f;
+    private static final float MAX_PITCH = 2.0f;
     private static Method worldGetHandle;
     private static Method makeSoundMethod;
 
@@ -41,7 +42,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         }
     }
 
-    private boolean hasDelay;
+    private int delayCounter;
     private List<SoundMechanicData> soundList;
 
     /**
@@ -52,14 +53,14 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
-    public SoundMechanic(boolean hasDelay, List<SoundMechanicData> soundList) {
-        this.hasDelay = hasDelay;
+    public SoundMechanic(int delayCounter, List<SoundMechanicData> soundList) {
+        this.delayCounter = delayCounter;
         this.soundList = soundList;
     }
 
     @Override
     public void use(CastData castData) {
-        if (!hasDelay) {
+        if (delayCounter == 0) {
             for (SoundMechanicData soundMechanicData : soundList) {
                 soundMechanicData.play(castData);
             }
@@ -73,15 +74,15 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         
         if (reloadData != null) {
             if (reloadData == ReloadSound.MAIN_HAND.getId()) {
-                castData.getCasterWrapper().getMainHandData().addReloadTask(startWithDelays(castData));
+                castData.getCasterWrapper().getMainHandData().addReloadTasks(startWithDelays(castData));
             } else {
-                castData.getCasterWrapper().getOffHandData().addReloadTask(startWithDelays(castData));
+                castData.getCasterWrapper().getOffHandData().addReloadTasks(startWithDelays(castData));
             }
         } else if (firearmActionData != null) {
             if (firearmActionData == FirearmSound.MAIN_HAND.getId()) {
-                castData.getCasterWrapper().getMainHandData().addFirearmActionTask(startWithDelays(castData));
+                castData.getCasterWrapper().getMainHandData().addFirearmActionTasks(startWithDelays(castData));
             } else {
-                castData.getCasterWrapper().getOffHandData().addFirearmActionTask(startWithDelays(castData));
+                castData.getCasterWrapper().getOffHandData().addFirearmActionTasks(startWithDelays(castData));
             }
         } else {
             startWithDelays(castData);
@@ -93,49 +94,30 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
      * @param castData the cast data
      * @return the task id chain of delayed sound plays and 0 if not used
      */
-    public int startWithDelays(CastData castData) {
-        if (!hasDelay) return 0;
+    public int[] startWithDelays(CastData castData) {
 
-        // Sound list is in order from 0 delay to longest delay
-        Iterator<SoundMechanicData> iterator = soundList.iterator();
+        int[] tasks = new int[delayCounter];
+        int counter = 0;
+        for (SoundMechanicData sound : soundList) {
 
-        // Only play sounds which should be played instantly
-        while (iterator.hasNext()) {
+            // For sounds with 0 delay, it is important that we play them
+            // without using the scheduler, otherwise they will take up
+            // unnecessary resources, and will be played 1 tick late.
+            if (sound.delay == 0) {
+                sound.play(castData);
+            } else {
+                int task = (new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        sound.play(castData);
+                    }
+                }.runTaskLater(getPlugin(), sound.delay).getTaskId());
 
-            SoundMechanicData next = iterator.next();
-
-            // If delay doesn't match 0 -> break
-            if (next.getDelay() != 0) break;
-
-            next.play(castData);
+                tasks[counter++] = task;
+            }
         }
 
-        return new BukkitRunnable() {
-
-            // Since this will be actually ran in the next tick
-            int ticker = 1;
-
-            @Override
-            public void run() {
-
-                while (iterator.hasNext()) {
-
-                    SoundMechanicData next = iterator.next();
-
-                    // If delay doesn't match ticks since start -> break
-                    if (next.getDelay() != ticker) break;
-
-                    next.play(castData);
-                }
-
-                if (!iterator.hasNext()) {
-                    cancel();
-                    return;
-                }
-
-                ++ticker;
-            }
-        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0).getTaskId();
+        return tasks;
     }
 
     @Override
@@ -150,7 +132,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
 
         List<SoundMechanicData> soundList = new ArrayList<>();
 
-        boolean hasDelay = false;
+        int delayedCounter = 0;
 
         for (String stringInList : stringSoundList) {
             for (String stringInLine : stringInList.split(", ?")) {
@@ -183,7 +165,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
                     }
 
                     if (soundData.length > 3) delay = Integer.parseInt(soundData[3]);
-                    if (delay > 0) hasDelay = true;
+                    if (delay > 0) delayedCounter++;
 
                     if (soundData.length > 4) noise = Float.parseFloat(soundData[4]);
                 } catch (NumberFormatException e) {
@@ -219,13 +201,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         }
         if (soundList.isEmpty()) return null;
 
-        if (hasDelay) {
-
-            // Sort list to be from 0 to max
-            soundList.sort(Comparator.comparingInt(SoundMechanicData::getDelay));
-        }
-
-        return new SoundMechanic(hasDelay, soundList);
+        return new SoundMechanic(delayedCounter, soundList);
     }
 
     public static abstract class SoundMechanicData {
@@ -259,6 +235,9 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         public float getRandomPitch() {
             if (noise == 0.0f) return this.pitch;
 
+            // There is no method to generate a random float in a range, so we
+            // take the negligible performance impact for generating twice
+            // the amount of data.
             float noise = (float) NumberUtil.random(-this.noise, this.noise);
             float pitch = this.pitch + noise;
 

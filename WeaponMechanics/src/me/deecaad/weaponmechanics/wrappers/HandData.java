@@ -112,6 +112,14 @@ public class HandData {
         this.reloadTasks.add(reloadTask);
     }
 
+    public void addReloadTasks(int... reloadTasks) {
+        if (this.reloadTasks.isEmpty()) {
+            reloadStart = System.currentTimeMillis();
+        }
+        for (int i : reloadTasks)
+            this.reloadTasks.add(i);
+    }
+
     public boolean isReloading() {
         return !reloadTasks.isEmpty();
     }
@@ -157,6 +165,11 @@ public class HandData {
 
     public void addFirearmActionTask(int firearmTask) {
         firearmActionTasks.add(firearmTask);
+    }
+
+    public void addFirearmActionTasks(int... firearmTask) {
+        for (int i : firearmTask)
+            firearmActionTasks.add(i);
     }
 
     public boolean hasRunningFirearmAction() {
