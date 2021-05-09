@@ -6,6 +6,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
+import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -13,6 +14,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +30,18 @@ public class MechanicsCore extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        debug = new Debugger(getLogger(), 2, false);
+        int level = getConfig().getInt("Debug_Level");
+        boolean printTraces = getConfig().getBoolean("Print_Traces");
+        debug = new Debugger(getLogger(), level, printTraces);
         plugin = this;
     }
 
     @Override
     public void onEnable() {
+        debug.debug("Loading config.yml");
+        FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/MechanicsCore", getDataFolder());
+        FileUtil.ensureDefaults(getClassLoader(), "resources/MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
+
         try {
             List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
             //noinspection unchecked

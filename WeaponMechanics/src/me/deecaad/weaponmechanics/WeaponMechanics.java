@@ -84,42 +84,11 @@ public class WeaponMechanics extends JavaPlugin {
     @Override
     public void onLoad() {
 
-        if (false) {
-            Logger logger = getLogger();
-            logger.log(Level.SEVERE, "----------------------------------------");
-            logger.log(Level.SEVERE, "No MechanicsCore detected...");
-            logger.log(Level.SEVERE, "Attempting to download MechanicsCore from github");
-
-            File directory = new File(getDataFolder().getParentFile(), "MechanicsCore.jar");
-            String link = "link to jar";
-
-            try (
-                    BufferedInputStream input =
-                            new BufferedInputStream(new URL(link).openStream());
-                    FileOutputStream output =
-                            new FileOutputStream(directory)
-            ) {
-
-                byte[] data = new byte[1024];
-                int content;
-
-                while ((content = input.read(data, 0, 1024)) != -1) {
-                    output.write(data, 0, content);
-                }
-
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed to install MechanicsCore.jar automatically!");
-                logger.log(Level.SEVERE, "You'll have to download it yourself by going to the following url:");
-                logger.log(Level.SEVERE, link);
-            }
-
-            logger.log(Level.SEVERE, "----------------------------------------");
-        }
-
         // Setup the debugger
         Logger logger = getLogger();
         int level = getConfig().getInt("Debug_Level", 2);
-        debug = new Debugger(logger, level, true);
+        boolean isPrintTraces = getConfig().getBoolean("Print_Traces", false);
+        debug = new Debugger(logger, level, isPrintTraces);
         MechanicsCore.debug.setLevel(level);
         debug.permission = "weaponmechanics.errorlog";
         debug.msg = "WeaponMechanics had %s error(s) in console. Check console for instructions on why the error occurred and how to fix it.";
@@ -158,7 +127,8 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Create files
         debug.debug("Loading config.yml");
-        FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/WeaponMechanics", getDataFolder());
+        if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0)
+            FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/WeaponMechanics", getDataFolder());
         FileUtil.ensureDefaults(getClassLoader(), "resources/WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
 
         // Fill config.yml mappings
