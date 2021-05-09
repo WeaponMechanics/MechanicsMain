@@ -1,7 +1,11 @@
 package me.deecaad.weaponmechanics.listeners;
 
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.events.HandDataUpdateEvent;
 import me.deecaad.core.events.HandEquipEvent;
+import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponcompatibility.projectile.HitBox;
+import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
@@ -9,14 +13,18 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponEquipEvent;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -27,6 +35,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 public class WeaponListeners implements Listener {
 
     private WeaponHandler weaponHandler;
+    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
 
     public WeaponListeners(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -68,6 +77,38 @@ public class WeaponListeners implements Listener {
     public void itemHeld(PlayerItemHeldEvent e) {
         WeaponMechanics.getEntityWrapper(e.getPlayer()).getMainHandData().cancelTasks();
         // No need to cancel off hand tasks since this is only called when changing held slot
+    }
+
+    @EventHandler
+    public void interactEntity(PlayerInteractEntityEvent e) {
+
+        // RIGHT MELEE
+
+        Entity entityVictim = e.getRightClicked();
+        HitBox victimHitBox = projectileCompatibility.getHitBox(entityVictim);
+
+        if (victimHitBox == null) return; // Invalid entity
+
+        EquipmentSlot hand = e.getHand();
+        Player shooter = e.getPlayer();
+
+        // TODO: melee functions (++ use CollisionData)
+    }
+
+    @EventHandler
+    public void damage(EntityDamageByEntityEvent e) {
+        EntityDamageEvent.DamageCause cause = e.getCause();
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                && (CompatibilityAPI.getVersion() < 1.09 || cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+            return;
+        }
+
+        // LEFT MELEE
+
+        Entity entityVictim = e.getEntity();
+        Entity shooter = e.getDamager();
+
+        // TODO: melee functions (++ use CollisionData)
     }
 
     @EventHandler
