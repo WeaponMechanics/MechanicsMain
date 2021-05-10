@@ -118,7 +118,7 @@ public abstract class MainCommand extends BukkitCommand {
 
             // Should the we follow help command tab completions?
             if (args[0].equals("help")) {
-                if (args.length == 2) temp = new ArrayList<>(commands.keys());
+                if (args.length == 2) temp = commands.keys();
                 else temp = commands.tabCompletions(args[1], Arrays.copyOfRange(args, 2, args.length));
 
                 // Let subcommands handle tab completions
@@ -126,7 +126,7 @@ public abstract class MainCommand extends BukkitCommand {
                 temp = commands.tabCompletions(args[0], Arrays.copyOfRange(args, 1, args.length));
             }
         } else {
-            temp = new ArrayList<>(commands.keys());
+            temp = commands.keys();
         }
 
         return temp.stream().filter(string -> string.startsWith(args[args.length - 1])).collect(Collectors.toList());

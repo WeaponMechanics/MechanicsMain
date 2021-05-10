@@ -5,6 +5,7 @@ import me.deecaad.core.utils.StringUtil;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -13,8 +14,8 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class SubCommands {
 
-    private Map<String, SubCommand> commands;
-    private String parentPrefix;
+    private final Map<String, SubCommand> commands;
+    private final String parentPrefix;
 
     public SubCommands(String parentPrefix) {
         this.commands = new HashMap<>();
@@ -71,13 +72,19 @@ public class SubCommands {
     }
 
     /**
-     * Gets the activation keys from every
-     * sub-command
+     * Gets the label + aliases of every registered {@link SubCommand}.
+     * Modifying the returned list does not modify the registered commands.
      *
-     * @return The activation keys
+     * @return The non-null list of keys.
      */
-    public Set<String> keys() {
-        return commands.keySet();
+    public List<String> keys() {
+        List<String> keys = new ArrayList<>(commands.keySet());
+
+        for (BukkitCommand command : commands.values()) {
+            keys.addAll(command.getAliases());
+        }
+
+        return keys;
     }
 
     /**
@@ -101,7 +108,7 @@ public class SubCommands {
                 sender.sendMessage(StringUtil.color(toString()));
             } else {
 
-                // Create the messages with ho
+                // Create the messages with hover message
                 ComponentBuilder builder = new ComponentBuilder();
                 builder.append("Showing " + commands.size() + " Sub-Commands (" + parentPrefix + ")").color(ChatColor.GOLD).append("\n");
 

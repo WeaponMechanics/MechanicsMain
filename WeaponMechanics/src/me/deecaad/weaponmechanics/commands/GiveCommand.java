@@ -7,6 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
@@ -18,6 +20,8 @@ public class GiveCommand extends SubCommand {
     
     public GiveCommand() {
         super("wm", "give", "Gives a given number of weapons to a given player", "<weapon> <amount> <player>");
+
+        setAliases(Collections.singletonList("get"));
     }
     
     @Override
