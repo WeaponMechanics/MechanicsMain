@@ -9,9 +9,12 @@ import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -163,12 +166,24 @@ public class MoveTask extends BukkitRunnable {
     private boolean isSwimming(LivingEntity livingEntity) {
         if (livingEntity.isInsideVehicle()) return false;
 
-        // Entity must be swimming as swim mode is on
-        if (CompatibilityAPI.getVersion() >= 1.13 && livingEntity.isSwimming()) return true;
+        // 1.13 introduced block data for blocks like stairs and slabs, and can
+        // be waterlogged. 1.13 also introduced the swimming mechanic.
+        if (CompatibilityAPI.getVersion() >= 1.13) {
+            if (livingEntity.isSwimming())
+                return true;
 
-        Block current = livingEntity.getLocation().getBlock();
+            // We only care about the block the entity's head is in, since you
+            // (mostly) fire a gun from the shoulder/upper body.
+            Block block = livingEntity.getEyeLocation().getBlock();
+            BlockData data = block.getBlockData();
+            return block.isLiquid() || (data instanceof Waterlogged && ((Waterlogged) data).isWaterlogged());
+        } else {
 
-        // Current could be stairs, slab or block like that so also check if block above it is liquid
-        return current.isLiquid() || current.getRelative(BlockFace.UP).isLiquid();
+            // In legacy versions, flowing water/lava was a material instead
+            // of a data.
+            Block block = livingEntity.getEyeLocation().getBlock();
+            String mat = block.getType().name();
+            return mat.endsWith("WATER") || mat.endsWith("LAVA");
+        }
     }
 }
