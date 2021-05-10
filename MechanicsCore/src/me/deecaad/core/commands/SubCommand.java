@@ -185,7 +185,7 @@ public abstract class SubCommand extends BukkitCommand {
             case INTEGERS:
                 return StringUtil.getList("1", "16", "64", "128");
             case SUB_COMMANDS:
-                return new ArrayList<>(commands.keys());
+                return commands.keys();
             case "OUT_OF_BOUNDS":
                 int index = ArrayUtils.indexOf(this.args, SUB_COMMANDS);
 
