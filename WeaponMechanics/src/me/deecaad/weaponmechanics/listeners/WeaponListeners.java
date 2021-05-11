@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.events.EquipEvent;
 import me.deecaad.core.events.HandDataUpdateEvent;
-import me.deecaad.core.events.HandEquipEvent;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
@@ -42,12 +42,13 @@ public class WeaponListeners implements Listener {
     }
 
     @EventHandler
-    public void equip(HandEquipEvent e) {
-        if (!e.getEntityType().isAlive()) return;
+    public void equip(EquipEvent e) {
+        if (e.isArmor())
+            return;
 
         LivingEntity entity = (LivingEntity) e.getEntity();
         IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(entity);
-        ItemStack weaponStack = e.getItemStack();
+        ItemStack weaponStack = e.getEquipped();
 
         // Also try auto converting to weapon
         String weaponTitle = weaponHandler.getInfoHandler().getWeaponTitle(weaponStack, true);
@@ -57,9 +58,9 @@ public class WeaponListeners implements Listener {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
-            Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.isMainHand()));
+            Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
 
-            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.isMainHand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());
         }
     }
 

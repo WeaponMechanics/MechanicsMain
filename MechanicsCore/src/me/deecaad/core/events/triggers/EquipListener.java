@@ -2,14 +2,11 @@ package me.deecaad.core.events.triggers;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.events.ArmorEquipEvent;
 import me.deecaad.core.events.HandDataUpdateEvent;
-import me.deecaad.core.events.HandEquipEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
