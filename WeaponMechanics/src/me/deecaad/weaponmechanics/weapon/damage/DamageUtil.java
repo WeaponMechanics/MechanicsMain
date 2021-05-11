@@ -115,8 +115,8 @@ public class DamageUtil {
         // Calculate the amount of damage to absorption hearts, and
         // determine how much damage is left over to deal to the victim
         double absorption = CompatibilityAPI.getEntityCompatibility().getAbsorption(victim);
-        damage = -Math.max(damage - Math.max(damage - absorption, 0), 0);
-        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, damage > 0.0 ? 0.0 : absorption - damage);
+        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, Math.max(0, absorption - damage));
+        damage = Math.max(damage - absorption, 0);
 
         // Apply any remaining damage to the victim, and handle internals
         double oldHealth = victim.getHealth();

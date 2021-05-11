@@ -192,12 +192,14 @@ public class EquipListener extends PacketHandler implements Listener {
         // We need to check if either of the items are null to decide if there
         // have been changes first. Concurrent hashmaps cannot use null keys or
         // null values, though, so we have to watch for that.
-        if (ogStack == null && other == null)
+        int nullCounter = 0;
+        if (ogStack == null || ogStack.getType() == Material.AIR) nullCounter++;
+        if (other == null || other.getType() == Material.AIR) nullCounter++;
+
+        if (nullCounter == 1)
+            return true;
+        else if (nullCounter == 2)
             return false;
-        else if (ogStack == null && other != null)
-            return true;
-        else if (ogStack != null && other == null)
-            return true;
 
         double version = CompatibilityAPI.getVersion();
         if (ogStack.getType() != other.getType()) {

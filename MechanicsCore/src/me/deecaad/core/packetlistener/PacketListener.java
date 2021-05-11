@@ -202,7 +202,7 @@ public abstract class PacketListener {
 
             // Make sure to only inject a player
             // if they have not been denied
-            @EventHandler(priority = EventPriority.LOWEST)
+            @EventHandler(priority = EventPriority.HIGHEST)
             public void onLogin(PlayerLoginEvent e) {
                 if (e.getResult() != PlayerLoginEvent.Result.ALLOWED) {
                     debug.debug("Did not inject player " + e.getPlayer().getName() + " because: " + e.getResult());
