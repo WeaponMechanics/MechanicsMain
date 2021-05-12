@@ -79,6 +79,15 @@ public class HandDataUpdateEvent extends Event implements Cancellable {
     }
 
     @Override
+    public String toString() {
+        return "HandDataUpdateEvent{" +
+                "slot=" + (mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND) +
+                ", equipped=" + itemStack +
+                ", dequipped=" + oldItemStack +
+                '}';
+    }
+
+    @Override
     public HandlerList getHandlers() {
         return HANDLERS;
     }

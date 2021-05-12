@@ -1,11 +1,15 @@
 package me.deecaad.core.events.triggers;
 
+import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.events.EquipEvent;
+import me.deecaad.core.events.HandDataUpdateEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,11 +22,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EquipListener extends PacketHandler implements Listener {
 
@@ -44,9 +52,7 @@ public class EquipListener extends PacketHandler implements Listener {
     public EquipListener() {
         super("PacketPlayOutSetSlot");
 
-        // No need to use a concurrent map since we jump to the main thread to
-        // handle packets.
-        previous = new HashMap<>();
+        previous = new ConcurrentHashMap<>();
 
         // Handle players that are already connected to the server. While this
         // class should always be instantiated before players join, better safe
@@ -69,20 +75,21 @@ public class EquipListener extends PacketHandler implements Listener {
         if (slot == null)
             return;
 
+        // Cancel the packet if the
         new BukkitRunnable() {
             @Override
             public void run() {
-                ItemStack dequipped = getPreviousItem(player, slot);
-                ItemStack equipped = player.getInventory().getItem(slot);
+                boolean isSend = !callEvent(player, slot, true);
 
-                EquipEvent event = new EquipEvent(player, slot, equipped, dequipped);
-                Bukkit.getPluginManager().callEvent(event);
-                equipped = event.getEquipped();
-                player.getInventory().setItem(slot, equipped);
-
-                setPreviousItem(player, slot, equipped);
+                // If the event was not cancelled, we need to resend the packet
+                if (isSend)
+                    CompatibilityAPI.getCompatibility().sendPackets(player, wrapper.getPacket());
             }
         }.runTask(MechanicsCore.getPlugin());
+
+        // Always cancel the task, since we don't know if the event will try
+        // to cancel the packet.
+        wrapper.setCancelled(true);
 
     }
 
@@ -103,18 +110,21 @@ public class EquipListener extends PacketHandler implements Listener {
             return;
 
         int slotNum = e.getSlot();
-        EquipmentSlot slot = null;
+        EquipmentSlot slot;
         if (slotNum == player.getInventory().getHeldItemSlot()) {
-
+            slot = EquipmentSlot.HAND;
+        } else if (slotNum == 40) {
+            slot = EquipmentSlot.OFF_HAND;
         } else {
-            System.out.println("InventoryClickedSlot: " + slotNum);
+            return;
         }
+
+        callEvent(player, slot, false);
     }
 
     @EventHandler
     public void onSwap(PlayerItemHeldEvent e) {
-        int slot = e.getNewSlot();
-        System.out.println("PlayerItemHeldEvent: " + slot);
+        callEvent(e.getPlayer(), EquipmentSlot.HAND, true);
     }
 
     @EventHandler
@@ -125,6 +135,70 @@ public class EquipListener extends PacketHandler implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         remove(e.getPlayer());
+    }
+
+    private boolean callEvent(Player player, EquipmentSlot slot, boolean skipCheck) {
+        ItemStack dequipped = getPreviousItem(player, slot);
+        ItemStack equipped = player.getInventory().getItem(slot);
+
+        if (!skipCheck && !isDifferent(equipped, dequipped)) {
+            if (!Objects.equals(equipped, dequipped)) {
+                HandDataUpdateEvent event = new HandDataUpdateEvent(player, slot, equipped, dequipped);
+                Bukkit.getPluginManager().callEvent(event);
+                return event.isCancelled();
+            }
+            return false;
+        }
+
+        EquipEvent event = new EquipEvent(player, slot, equipped, dequipped);
+        Bukkit.getPluginManager().callEvent(event);
+        equipped = event.getEquipped();
+        player.getInventory().setItem(slot, equipped);
+
+        setPreviousItem(player, slot, equipped);
+        return false;
+    }
+
+    private boolean isDifferent(ItemStack a, ItemStack b) {
+        int nullCounter = 0;
+        if (isEmpty(a)) nullCounter++;
+        if (isEmpty(b)) nullCounter++;
+
+        if (nullCounter == 2)
+            return false;
+        else if (nullCounter == 1)
+            return true;
+
+        if (a.getType() != b.getType())
+            return true;
+        if (a.getAmount() != b.getAmount())
+            return true;
+        if (a.hasItemMeta() != b.hasItemMeta())
+            return true;
+        if (a.hasItemMeta()) {
+            ItemMeta aMeta = a.getItemMeta();
+            ItemMeta bMeta = b.getItemMeta();
+
+            if (!Objects.equals(aMeta.getDisplayName(), bMeta.getDisplayName()))
+                return true;
+            if (!Objects.equals(aMeta.getLore(), bMeta.getLore()))
+                return true;
+            if (!Objects.equals(aMeta.getEnchants(), bMeta.getEnchants()))
+                return true;
+
+            // This durability check will cause minor gun bobbing with skins, and
+            // possibly gun bobbing with block/entity interactions, but without the
+            // check, tools will not appear to lose durability
+            if (CompatibilityAPI.getVersion() < 1.13) {
+                return a.getDurability() != b.getDurability();
+            } else {
+                if (aMeta instanceof Damageable != bMeta instanceof Damageable)
+                    return true;
+                return aMeta instanceof Damageable && ((Damageable) aMeta).getDamage() != ((Damageable) bMeta).getDamage();
+            }
+        }
+
+        return false;
     }
 
     private void insert(Player player) {
@@ -218,5 +292,9 @@ public class EquipListener extends PacketHandler implements Listener {
         }
 
         throw new IllegalArgumentException("Unexpected Slot: " + slot);
+    }
+
+    private static boolean isEmpty(ItemStack item) {
+        return item == null || item.getType() == Material.AIR;
     }
 }

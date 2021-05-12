@@ -5,6 +5,7 @@ import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
+import me.deecaad.core.events.EquipEvent;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.DuplicateKeyException;
 import me.deecaad.core.file.FileReader;
@@ -24,6 +25,7 @@ import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.AmmoListeners;
+import me.deecaad.weaponmechanics.listeners.EquipEventTemp;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
@@ -247,6 +249,7 @@ public class WeaponMechanics extends JavaPlugin {
 
                 // Register events
                 // Registering events after serialization is completed to prevent any errors from happening
+                Bukkit.getPluginManager().registerEvents(new EquipEventTemp(), WeaponMechanics.this); // todo remove
 
                 // TRIGGER EVENTS
                 Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);

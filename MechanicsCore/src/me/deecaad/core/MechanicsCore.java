@@ -39,7 +39,8 @@ public class MechanicsCore extends JavaPlugin {
     @Override
     public void onEnable() {
         debug.debug("Loading config.yml");
-        FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/MechanicsCore", getDataFolder());
+        if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0)
+            FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/MechanicsCore", getDataFolder());
         FileUtil.ensureDefaults(getClassLoader(), "resources/MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
 
         try {

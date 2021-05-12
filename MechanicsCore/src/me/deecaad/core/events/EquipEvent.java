@@ -97,6 +97,15 @@ public class EquipEvent extends EntityEvent {
     }
 
     @Override
+    public String toString() {
+        return "EquipEvent{" +
+                "slot=" + slot +
+                ", dequipped=" + dequipped +
+                ", equipped=" + equipped +
+                '}';
+    }
+
+    @Override
     public HandlerList getHandlers() {
         return HANDLERS;
     }
