@@ -1,6 +1,8 @@
 package me.deecaad.core.packetlistener;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.Debugger;
+import me.deecaad.core.utils.LogLevel;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
@@ -76,7 +78,12 @@ public class PacketHandlerListener extends PacketListener {
         if (handlers == null || handlers.isEmpty())
             return;
 
-        for (PacketHandler handler : handlers)
-            handler.onPacket(wrapper);
+        for (PacketHandler handler : handlers) {
+            try {
+                handler.onPacket(wrapper);
+            } catch (Exception e) {
+                MechanicsCore.debug.log(LogLevel.ERROR, "Unhandled exception", e);
+            }
+        }
     }
 }
