@@ -18,7 +18,7 @@ public class SubCommands {
     private final String parentPrefix;
 
     public SubCommands(String parentPrefix) {
-        this.commands = new HashMap<>();
+        this.commands = new HashMap<>(4); // Smaller then default size for RAM
         this.parentPrefix = parentPrefix;
     }
 
@@ -57,7 +57,19 @@ public class SubCommands {
      * @return The command
      */
     public SubCommand get(String key) {
-        return commands.get(key);
+        SubCommand command = commands.get(key);
+
+        // Disgusting chunk to handle aliases. The first command found with a
+        // matching alias is used. Duplicate aliases are not specifically
+        // handled.
+        if (command == null) {
+            for (SubCommand cmd : commands.values())
+                for (String alias : cmd.getAliases())
+                    if (Objects.equals(key, alias))
+                        return cmd;
+        }
+
+        return command;
     }
 
     /**
@@ -145,7 +157,7 @@ public class SubCommands {
             return true;
         }
 
-        SubCommand command = commands.get(args[0]);
+        SubCommand command = get(args[0]);
         if (command == null) return false;
 
         return command.sendHelp(sender, Arrays.copyOfRange(args, 1, args.length));
@@ -160,7 +172,7 @@ public class SubCommands {
      * @param args What is being typed
      */
     public boolean execute(String key, CommandSender sender, String[] args) {
-        SubCommand command = commands.get(key);
+        SubCommand command = get(key);
         if (command == null) {
             return false;
         } else if (command.getPermission() == null || sender.hasPermission(command.getPermission())) {
@@ -180,7 +192,7 @@ public class SubCommands {
      * @return tab completions
      */
     List<String> tabCompletions(String key, String[] args) {
-        SubCommand command = commands.get(key);
+        SubCommand command = get(key);
         if (command == null) {
             debug.debug("Unknown sub-command: " + key);
             return new ArrayList<>();
