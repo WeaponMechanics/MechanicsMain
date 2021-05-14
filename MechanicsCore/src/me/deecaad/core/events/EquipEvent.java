@@ -24,7 +24,7 @@ public class EquipEvent extends EntityEvent {
 
     private final EquipmentSlot slot;
     private final ItemStack dequipped;
-    private ItemStack equipped;
+    private final ItemStack equipped;
 
     public EquipEvent(Entity what, EquipmentSlot slot, ItemStack dequipped, ItemStack equipped) {
         super(what);
@@ -62,20 +62,6 @@ public class EquipEvent extends EntityEvent {
     @Nullable
     public ItemStack getEquipped() {
         return equipped;
-    }
-
-    /**
-     * Sets the item that is currently being equipped. Note that this method
-     * should probably be avoided, as it will delete the item previously in
-     * the slot.
-     *
-     * @param equipped The nullable item to equip.
-     */
-    public void setEquipped(@Nullable ItemStack equipped) {
-        if (MaterialUtil.isAir(equipped.getType()))
-            this.equipped = null;
-        else
-            this.equipped = equipped;
     }
 
     /**

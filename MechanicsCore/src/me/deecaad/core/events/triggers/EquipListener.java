@@ -79,11 +79,13 @@ public class EquipListener extends PacketHandler implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                boolean isSend = !callEvent(player, slot, true);
+                boolean isSend = callEvent(player, slot, false);
 
                 // If the event was not cancelled, we need to resend the packet
-                if (isSend)
+                if (isSend) {
+                    System.out.println("Sending packet");
                     CompatibilityAPI.getCompatibility().sendPackets(player, wrapper.getPacket());
+                }
             }
         }.runTask(MechanicsCore.getPlugin());
 
@@ -124,7 +126,10 @@ public class EquipListener extends PacketHandler implements Listener {
 
     @EventHandler
     public void onSwap(PlayerItemHeldEvent e) {
-        callEvent(e.getPlayer(), EquipmentSlot.HAND, true);
+        Inventory inv = e.getPlayer().getInventory();
+        if (!isEmpty(inv.getItem(e.getNewSlot())) || !isEmpty(inv.getItem(e.getPreviousSlot()))) {
+            callEvent(e.getPlayer(), EquipmentSlot.HAND, true);
+        }
     }
 
     @EventHandler
@@ -145,18 +150,15 @@ public class EquipListener extends PacketHandler implements Listener {
             if (!Objects.equals(equipped, dequipped)) {
                 HandDataUpdateEvent event = new HandDataUpdateEvent(player, slot, equipped, dequipped);
                 Bukkit.getPluginManager().callEvent(event);
-                return event.isCancelled();
+                return !event.isCancelled();
             }
-            return false;
+            return true;
         }
 
-        EquipEvent event = new EquipEvent(player, slot, equipped, dequipped);
+        EquipEvent event = new EquipEvent(player, slot, dequipped, equipped);
         Bukkit.getPluginManager().callEvent(event);
-        equipped = event.getEquipped();
-        player.getInventory().setItem(slot, equipped);
-
         setPreviousItem(player, slot, equipped);
-        return false;
+        return true;
     }
 
     private boolean isDifferent(ItemStack a, ItemStack b) {
