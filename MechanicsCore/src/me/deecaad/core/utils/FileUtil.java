@@ -87,7 +87,7 @@ public final class FileUtil {
         // jar, and copies files immediately in that file system. For any
         // folders in the file system, this method will be called recursively.
         try (
-                FileSystem fs = FileSystems.newFileSystem(pathToJar, null);
+                FileSystem fs = FileSystems.newFileSystem(pathToJar, (ClassLoader) null);
                 DirectoryStream<Path> directories = Files.newDirectoryStream(fs.getPath(resource));
         ) {
             for (Path p : directories) {
@@ -96,13 +96,12 @@ public final class FileUtil {
 
                 // Handle nested folders
                 File file = new File(output, path);
-                path = p.toString().substring(1);
                 if (path.indexOf('.') == -1) {
                     copyResourcesTo(clazz, loader, path, file);
                     continue;
                 }
 
-                URL streamHolder = loader.getResource(path);
+                URL streamHolder = loader.getResource(p.toString());
                 if (streamHolder == null) {
                     // This should never occur
                     throw new InternalError("Unknown resource: " + p);

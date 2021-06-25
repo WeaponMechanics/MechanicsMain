@@ -83,7 +83,6 @@ public class EquipListener extends PacketHandler implements Listener {
 
                 // If the event was not cancelled, we need to resend the packet
                 if (isSend) {
-                    System.out.println("Sending packet");
                     CompatibilityAPI.getCompatibility().sendPackets(player, wrapper.getPacket());
                 }
             }

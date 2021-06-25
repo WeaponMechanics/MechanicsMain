@@ -1,7 +1,6 @@
 package me.deecaad.core.utils;
 
 import org.bukkit.Bukkit;
-import sun.misc.Unsafe;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +24,6 @@ public final class ReflectionUtil {
     private static final String cbVersion;
 
     private static final Field modifiersField;
-    private static final Unsafe unsafe;
     private static final int javaVersion;
 
     static {
@@ -57,9 +55,8 @@ public final class ReflectionUtil {
 
         if (javaVersion < 12) {
             modifiersField = getField(Field.class, "modifiers");
-            unsafe = null;
         } else {
-            unsafe = (Unsafe) invokeField(getField(Unsafe.class, "theUnsafe"), null);
+            // todo modify final fields post java 12
             modifiersField = null;
         }
     }
@@ -313,10 +310,6 @@ public final class ReflectionUtil {
                     // Not sure why, but this does not allow modifying static final fields
                     modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
                 } else {
-                    Object base = unsafe.staticFieldBase(field);
-                    ;
-                    long offset = unsafe.staticFieldOffset(field);
-                    unsafe.putObject(base, offset, value);
                 }
             }
 
