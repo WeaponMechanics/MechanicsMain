@@ -30,11 +30,6 @@ public class v1_12_R1 implements ICompatibility {
     }
 
     @Override
-    public boolean isNotFullySupported() {
-        return false;
-    }
-
-    @Override
     public int getPing(Player player) {
         return getEntityPlayer(player).ping;
     }
@@ -75,6 +70,7 @@ public class v1_12_R1 implements ICompatibility {
         return blockCompatibility;
     }
 
+    @Override
     public EntityPlayer getEntityPlayer(Player player) {
         return ((CraftPlayer) player).getHandle();
     }

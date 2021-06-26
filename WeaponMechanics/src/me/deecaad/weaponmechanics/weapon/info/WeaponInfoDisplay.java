@@ -33,7 +33,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
     static {
         if (CompatibilityAPI.getVersion() < 1.15) {
-            packetPlayOutExperienceConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("PacketPlayOutExperience"), float.class, int.class, int.class);
+            packetPlayOutExperienceConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getPacketClass("PacketPlayOutExperience"), float.class, int.class, int.class);
         }
     }
 

@@ -11,9 +11,9 @@ import javax.annotation.Nonnull;
 
 public class v1_9_R2 implements IWeaponCompatibility {
 
-    private IScopeCompatibility scopeCompatibility;
-    private IProjectileCompatibility projectileCompatibility;
-    private IShootCompatibility shootCompatibility;
+    private final IScopeCompatibility scopeCompatibility;
+    private final IProjectileCompatibility projectileCompatibility;
+    private final IShootCompatibility shootCompatibility;
 
     public v1_9_R2() {
         this.scopeCompatibility = new Scope_1_9_R2();

@@ -36,7 +36,7 @@ public class Entity_1_9_R2 implements EntityCompatibility {
     private static final Field metaPacketB;
 
     static {
-        metaPacketClass = ReflectionUtil.getNMSClass("PacketPlayOutEntityMetadata");
+        metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
         metaPacketA = ReflectionUtil.getField(metaPacketClass, "a");
         metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
     }

@@ -41,7 +41,7 @@ public class EquipListener extends PacketHandler implements Listener {
     private static final Field slotField;
 
     static {
-        Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutSetSlot");
+        Class<?> packetClass = ReflectionUtil.getPacketClass("PacketPlayOutSetSlot");
         windowField = ReflectionUtil.getField(packetClass, "a");
         slotField = ReflectionUtil.getField(packetClass, "b");
     }

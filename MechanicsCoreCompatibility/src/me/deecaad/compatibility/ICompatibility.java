@@ -16,16 +16,6 @@ import javax.annotation.Nonnull;
 public interface ICompatibility {
 
     /**
-     * Returns <code>true</code> if the minecraft protocol version that the
-     * server is running is supported by the implementing class.
-     *
-     * @return <code>true</code> if the version is not fully supported.
-     * @implNote The default implementation will return <code>true</code> if
-     * {@link Reflection} is used.
-     */
-    boolean isNotFullySupported();
-
-    /**
      * Returns the player's ping, or the time, in milliseconds, that it takes
      * for a packet to be sent/received for the <code>player</code>. This
      * method is most likely spoofable, meaning that hacked clients can
@@ -45,6 +35,16 @@ public interface ICompatibility {
      * @return The bukkit entity with the id, or <code>null</code>.
      */
     Entity getEntityById(@Nonnull World world, int entityId);
+
+    /**
+     * Returns the nms {@link net.minecraft.server.level.EntityPlayer} wrapped
+     * by the given bukkit {@link Player}.
+     *
+     * @param player The non-null bukkit player.
+     * @return The non-null nms player.
+     */
+    @Nonnull
+    Object getEntityPlayer(@Nonnull Player player);
 
     /**
      * Overloaded version of {@link #sendPackets(Player, Object...)} which does

@@ -1,5 +1,6 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
@@ -87,6 +88,26 @@ public final class ReflectionUtil {
     public static Class<?> getNMSClass(@Nonnull String className) {
         try {
             return Class.forName(nmsVersion + className);
+        } catch (ClassNotFoundException e) {
+            debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
+            return null;
+        }
+    }
+
+    /**
+     * Returns the {@link net.minecraft.network.protocol.game} packet for the
+     * given class name in 1.17+, or the {@link net.minecraft.server} packet
+     * for older versions.
+     *
+     * @param className The non-null name of the class to get.
+     * @return The NMS class with that name, or <code>null</code>.
+     */
+    public static Class<?> getPacketClass(@Nonnull String className) {
+        String name = CompatibilityAPI.getVersion() < 1.17 ? nmsVersion + className
+                : "net.minecraft.network.protocol.game." + className;
+
+        try {
+            return Class.forName(name);
         } catch (ClassNotFoundException e) {
             debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
             return null;

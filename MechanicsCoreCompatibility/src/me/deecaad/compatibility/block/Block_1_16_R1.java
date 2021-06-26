@@ -23,7 +23,7 @@ public class Block_1_16_R1 implements BlockCompatibility {
     private static final Field multiBlockChangeB;
 
     static {
-        Class<?> multiBlockChangeClass = ReflectionUtil.getNMSClass("PacketPlayOutMultiBlockChange");
+        Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
     }
 

@@ -29,10 +29,6 @@ public class v1_10_R1 implements ICompatibility {
         nbtCompatibility = new NBT_1_10_R1();
     }
 
-    @Override
-    public boolean isNotFullySupported() {
-        return false;
-    }
 
     @Override
     public int getPing(Player player) {
@@ -75,6 +71,7 @@ public class v1_10_R1 implements ICompatibility {
         return blockCompatibility;
     }
 
+    @Override
     public EntityPlayer getEntityPlayer(Player player) {
         return ((CraftPlayer) player).getHandle();
     }

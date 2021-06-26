@@ -58,7 +58,7 @@ public abstract class PacketListener {
         final Class<?> entityPlayerClass = ReflectionUtil.getNMSClass("EntityPlayer");
         final Class<?> craftServerClass = ReflectionUtil.getCBClass("CraftServer");
 
-        LOGIN_PACKET = ReflectionUtil.getNMSClass("PacketLoginInStart");
+        LOGIN_PACKET = ReflectionUtil.getPacketClass("PacketLoginInStart");
         GAME_PROFILE = ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
 
         playerConnectionField = ReflectionUtil.getField(entityPlayerClass, "playerConnection");

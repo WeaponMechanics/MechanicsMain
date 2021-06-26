@@ -59,7 +59,7 @@ public class MechanicsCore extends JavaPlugin {
         }
 
         //EquipListener equipListener = new EquipListener();
-        //PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
+        PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
         //packetListener.addPacketHandler(equipListener, true);
 
         //Bukkit.getPluginManager().registerEvents(equipListener, this);

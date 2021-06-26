@@ -1,24 +1,24 @@
 package me.deecaad.weaponcompatibility;
 
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponcompatibility.projectile.Projectile_Reflection;
+import me.deecaad.weaponcompatibility.projectile.Projectile_1_17_R1;
 import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
-import me.deecaad.weaponcompatibility.scope.Scope_Reflection;
+import me.deecaad.weaponcompatibility.scope.Scope_1_17_R1;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
-import me.deecaad.weaponcompatibility.shoot.Shoot_Reflection;
+import me.deecaad.weaponcompatibility.shoot.Shoot_1_17_R1;
 
 import javax.annotation.Nonnull;
 
-public class Reflection implements IWeaponCompatibility {
+public class v1_17_R1 implements IWeaponCompatibility {
 
-    private IScopeCompatibility scopeCompatibility;
-    private IProjectileCompatibility projectileCompatibility;
-    private IShootCompatibility shootCompatibility;
+    private final IScopeCompatibility scopeCompatibility;
+    private final IProjectileCompatibility projectileCompatibility;
+    private final IShootCompatibility shootCompatibility;
 
-    public Reflection() {
-        this.scopeCompatibility = new Scope_Reflection();
-        this.projectileCompatibility = new Projectile_Reflection();
-        this.shootCompatibility = new Shoot_Reflection();
+    public v1_17_R1() {
+        this.scopeCompatibility = new Scope_1_17_R1();
+        this.projectileCompatibility = new Projectile_1_17_R1();
+        this.shootCompatibility = new Shoot_1_17_R1();
     }
 
     @Nonnull

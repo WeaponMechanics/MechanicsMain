@@ -20,7 +20,7 @@ public abstract class PacketHandler {
      *                  packets.
      */
     public PacketHandler(@Nullable String className) {
-        this(className == null ? null : ReflectionUtil.getNMSClass(className));
+        this(className == null ? null : ReflectionUtil.getPacketClass(className));
     }
 
     /**

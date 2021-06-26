@@ -53,12 +53,10 @@ import static me.deecaad.core.MechanicsCore.debug;
 public class Entity_1_17_R1 implements EntityCompatibility {
 
     private static final Class<?> metaPacketClass;
-    private static final Field metaPacketA;
     private static final Field metaPacketB;
 
     static {
-        metaPacketClass = ReflectionUtil.getNMSClass("PacketPlayOutEntityMetadata");
-        metaPacketA = ReflectionUtil.getField(metaPacketClass, "a");
+        metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
         metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
     }
 
