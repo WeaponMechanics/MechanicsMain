@@ -78,6 +78,17 @@ public final class ReflectionUtil {
     }
 
     /**
+     * Returns the protocol version of Minecraft as a {@link String}. For
+     * example, v1_17_R1.
+     *
+     * @return The non-null protocol version.
+     */
+    @Nonnull
+    public static String getVersionString() {
+        return versionString;
+    }
+
+    /**
      * Returns the {@link net.minecraft.server} class with the given name.
      * Remember that, with Mojang's obfuscator, every class is under the same
      * package.
