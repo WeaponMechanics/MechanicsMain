@@ -2,12 +2,23 @@ package me.deecaad.weaponmechanics.packetlisteners;
 
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 
+import java.lang.reflect.Field;
+
 public class OutUpdateAttributesListener extends PacketHandler {
+
+    private static final Field idField;
+
+    static {
+        Class<?> attributesPacket = ReflectionUtil.getPacketClass("PacketPlayOutUpdateAttributes");
+
+        idField = ReflectionUtil.getField(attributesPacket, int.class);
+    }
 
     public OutUpdateAttributesListener() {
         super("PacketPlayOutUpdateAttributes");
@@ -16,15 +27,14 @@ public class OutUpdateAttributesListener extends PacketHandler {
     @Override
     public void onPacket(Packet packet) {
 
-        int id = (int) packet.getFieldValue("a");
+        int id = (int) packet.getFieldValue(idField);
 
         if (id > 0) {
             // Was not sent by ScopeCompatibility
             return;
         }
 
-        id *= -1;
-        packet.setFieldValue("a", id, 0);
+        packet.setFieldValue(idField, -id);
 
         // If packet entity id is not player's id
         if (id != packet.getPlayer().getEntityId()) {

@@ -18,7 +18,22 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 // todo: move to WMP
 public class OutEntityMetadataListener extends PacketHandler {
-    
+
+    private static final Field idField;
+    private static final Field metaField;
+
+    private static final Field itemValueField;
+
+    static {
+        Class<?> metaPacket = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
+        Class<?> dataWatcherItem = ReflectionUtil.getNMSClass("network.syncher", "DataWatcher$Item");
+
+        idField = ReflectionUtil.getField(metaPacket, int.class);
+        metaField = ReflectionUtil.getField(metaPacket, List.class);
+
+        itemValueField = ReflectionUtil.getField(dataWatcherItem, Object.class, 1);
+    }
+
     public OutEntityMetadataListener() {
         super("PacketPlayOutEntityMetadata");
     }
@@ -27,14 +42,13 @@ public class OutEntityMetadataListener extends PacketHandler {
     public void onPacket(Packet packet) {
         try {
             // The entity's unique id and metadata
-            int id = (int) packet.getFieldValue("a");
-            List<?> metaData = (List<?>) packet.getFieldValue("b");
+            int id = (int) packet.getFieldValue(idField);
+            List<?> metaData = (List<?>) packet.getFieldValue(metaField);
             
             // Get data if present
             if (metaData == null || metaData.isEmpty()) return;
             Object byteData = metaData.get(0);
-            Field field = ReflectionUtil.getField(byteData.getClass(), "b");
-            Object itemObject = ReflectionUtil.invokeField(field, byteData);
+            Object itemObject = ReflectionUtil.invokeField(itemValueField, byteData);
             if (!(itemObject instanceof Byte)) return;
     
             // Get the color the entity should be glowing (Or null if it should not be glowing)
@@ -47,8 +61,8 @@ public class OutEntityMetadataListener extends PacketHandler {
             byte newValue = -1 /*EntityCompatibility.EntityMeta.GLOWING.setFlag(previousValue, color != null)*/;
     
             // Sets the fields via reflection
-            ReflectionUtil.setField(field, byteData, newValue);
-            ReflectionUtil.setField(packet.getField("b", 0), packet, metaData);
+            ReflectionUtil.setField(itemValueField, byteData, newValue);
+            ReflectionUtil.setField(metaField, packet, metaData);
 
         } catch (Exception ex) {
             debug.log(LogLevel.ERROR, "Error handling ThermalScope. If you see this, please report to dev", ex);

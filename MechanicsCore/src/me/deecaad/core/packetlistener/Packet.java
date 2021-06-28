@@ -71,57 +71,6 @@ public class Packet {
     }
 
     /**
-     * Gets field from some specific super class of this instance's packet instance
-     *
-     * @param fieldName  the field name to search
-     * @param superClass the amount of super class
-     * @return the field from the super class
-     */
-    public Field getField(String fieldName, int superClass) {
-        Class<?> packetClass = this.packet.getClass();
-        if (superClass > 0) {
-            int i = 0;
-            while (i < superClass) {
-                packetClass = packetClass.getSuperclass();
-                ++i;
-            }
-        }
-        return ReflectionUtil.getField(packetClass, fieldName);
-    }
-
-    /**
-     * Gets value from some field from this instance's packet instance
-     *
-     * @param fieldName the field name to search
-     * @return the object of field from the super class
-     */
-    public Object getFieldValue(String fieldName) {
-        return getFieldValue(fieldName, 0);
-    }
-
-    /**
-     * Gets value from some field from specific super class of this instance's packet instance
-     *
-     * @param fieldName  the field name to search
-     * @param superClass the amount of super class
-     * @return the object of field from the super class
-     */
-    public Object getFieldValue(String fieldName, int superClass) {
-        return ReflectionUtil.invokeField(getField(fieldName, superClass), this.packet);
-    }
-
-    /**
-     * Sets new value for field in some specific super class
-     *
-     * @param fieldName  the field name to change
-     * @param value      the new value for the field
-     * @param superClass the amount of super class
-     */
-    public void setFieldValue(String fieldName, Object value, int superClass) {
-        ReflectionUtil.setField(getField(fieldName, superClass), this.packet, value);
-    }
-
-    /**
      * Gets value from some field of this instance's packet instance
      *
      * @param field the field invoked

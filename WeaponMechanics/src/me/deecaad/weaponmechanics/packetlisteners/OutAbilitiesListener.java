@@ -2,12 +2,23 @@ package me.deecaad.weaponmechanics.packetlisteners;
 
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 
+import java.lang.reflect.Field;
+
 public class OutAbilitiesListener extends PacketHandler {
+
+    private static final Field walkSpeedField;
+
+    static {
+        Class<?> abilitiesPacket = ReflectionUtil.getPacketClass("PacketPlayOutAbilities");
+
+        walkSpeedField = ReflectionUtil.getField(abilitiesPacket, float.class, 1);
+    }
 
     public OutAbilitiesListener() {
         super("PacketPlayOutAbilities");
@@ -30,6 +41,6 @@ public class OutAbilitiesListener extends PacketHandler {
 
         // Set the f field to scope level amount.
         // f field means walk speed field
-        packet.setFieldValue("f", ScopeLevel.getScope(zoomAmount), 0);
+        packet.setFieldValue(walkSpeedField, ScopeLevel.getScope(zoomAmount));
     }
 }

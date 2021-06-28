@@ -1,11 +1,13 @@
 package me.deecaad.weaponcompatibility.scope;
 
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +15,16 @@ import java.util.UUID;
 public class Scope_1_8_R3 implements IScopeCompatibility {
 
     private static final MobEffect NIGHT_VISION = new MobEffect(PotionEffectType.NIGHT_VISION.getId(), 6000, 2);
+    private static final Field attributesField;
+    private static final Field effectsField;
+
+    static {
+        Class<?> attributesPacket = ReflectionUtil.getPacketClass("PacketPlayOutUpdateAttributes");
+        Class<?> effectsPacket = ReflectionUtil.getPacketClass("PacketPlayOutRemoveEntityEffect");
+
+        attributesField = ReflectionUtil.getField(attributesPacket, "b");
+        effectsField = ReflectionUtil.getField(effectsPacket, "b");
+    }
 
     @Override
     public void updateAbilities(Player player) {
@@ -34,7 +46,7 @@ public class Scope_1_8_R3 implements IScopeCompatibility {
     public void modifyUpdateAttributesPacket(me.deecaad.core.packetlistener.Packet packet, int zoomAmount) {
 
         //noinspection unchecked
-        List<PacketPlayOutUpdateAttributes.AttributeSnapshot> attributeSnapshots = (List<PacketPlayOutUpdateAttributes.AttributeSnapshot>) packet.getFieldValue("b");
+        List<PacketPlayOutUpdateAttributes.AttributeSnapshot> attributeSnapshots = (List<PacketPlayOutUpdateAttributes.AttributeSnapshot>) packet.getFieldValue(attributesField);
 
         // Since this is always used from OutUpdateAttributesListener class, there can only be one object in this list (which is generic movement speed)
         PacketPlayOutUpdateAttributes.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
@@ -75,6 +87,6 @@ public class Scope_1_8_R3 implements IScopeCompatibility {
 
     @Override
     public boolean isRemoveNightVisionPacket(me.deecaad.core.packetlistener.Packet packet) {
-        return (int) packet.getFieldValue("b") == NIGHT_VISION.getEffectId();
+        return (int) packet.getFieldValue(effectsField) == NIGHT_VISION.getEffectId();
     }
 }

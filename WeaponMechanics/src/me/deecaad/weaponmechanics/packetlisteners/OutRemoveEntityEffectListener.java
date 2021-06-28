@@ -2,11 +2,22 @@ package me.deecaad.weaponmechanics.packetlisteners;
 
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 
+import java.lang.reflect.Field;
+
 public class OutRemoveEntityEffectListener extends PacketHandler {
+
+    private static final Field idField;
+
+    static {
+        Class<?> effectPacket = ReflectionUtil.getPacketClass("PacketPlayOutRemoveEntityEffect");
+
+        idField = ReflectionUtil.getField(effectPacket, int.class);
+    }
 
     public OutRemoveEntityEffectListener() {
         super("PacketPlayOutRemoveEntityEffect");
@@ -15,7 +26,7 @@ public class OutRemoveEntityEffectListener extends PacketHandler {
     @Override
     public void onPacket(Packet packet) {
         // If packet entity id is not player's id
-        if ((int) packet.getFieldValue("a") != packet.getPlayer().getEntityId()) {
+        if ((int) packet.getFieldValue(idField) != packet.getPlayer().getEntityId()) {
             return;
         }
 
