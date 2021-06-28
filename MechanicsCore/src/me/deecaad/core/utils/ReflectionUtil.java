@@ -78,27 +78,44 @@ public final class ReflectionUtil {
     }
 
     /**
-     * Returns the protocol version of Minecraft as a {@link String}. For
-     * example, v1_17_R1.
-     *
-     * @return The non-null protocol version.
-     */
-    @Nonnull
-    public static String getVersionString() {
-        return versionString;
-    }
-
-    /**
      * Returns the {@link net.minecraft.server} class with the given name.
      * Remember that, with Mojang's obfuscator, every class is under the same
      * package.
      *
      * @param className The non-null name of the class to get.
      * @return The NMS class with that name, or <code>null</code>.
+     * @deprecated Use {@link #getNMSClass(String, String)}
      */
+    @Deprecated
     public static Class<?> getNMSClass(@Nonnull String className) {
         try {
             return Class.forName(nmsVersion + className);
+        } catch (ClassNotFoundException e) {
+            debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
+            return null;
+        }
+    }
+
+    /**
+     * Returns the {@link net.minecraft.server} class with the given name.
+     * In mc versions 1.17 and higher, <code>pack</code> is used for the
+     * package the class is in. Previous versions ignore <code>pack</code>.
+     *
+     * @param pack The non-null package name that contains the class defined
+     *             by <code>name</code>. Make sure the string ends with a dot.
+     * @param name The non-null name of the class to find.
+     * @return The NMS class with that name.
+     */
+    public static Class<?> getNMSClass(@Nonnull String pack, @Nonnull String name) {
+        String className;
+
+        if (CompatibilityAPI.getVersion() < 1.17)
+            className = nmsVersion + name;
+        else
+            className = pack + name;
+
+        try {
+            return Class.forName(className);
         } catch (ClassNotFoundException e) {
             debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
             return null;
