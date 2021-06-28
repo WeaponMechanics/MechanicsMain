@@ -55,18 +55,20 @@ public abstract class PacketListener {
     private static final Method networkMarketsMethod;
 
     static {
-        final Class<?> entityPlayerClass = ReflectionUtil.getNMSClass("EntityPlayer");
+        final Class<?> entityPlayerClass = ReflectionUtil.getNMSClass("server.level", "EntityPlayer");
+        final Class<?> playerConnectionClass = ReflectionUtil.getNMSClass("server.network", "PlayerConnection");
+        final Class<?> networkManagerClass = ReflectionUtil.getNMSClass("network", "NetworkManager");
         final Class<?> craftServerClass = ReflectionUtil.getCBClass("CraftServer");
 
         LOGIN_PACKET = ReflectionUtil.getPacketClass("PacketLoginInStart");
         GAME_PROFILE = ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
 
-        playerConnectionField = ReflectionUtil.getField(entityPlayerClass, "playerConnection");
-        networkManagerField = ReflectionUtil.getField(playerConnectionField.getType(), "networkManager");
+        playerConnectionField = ReflectionUtil.getField(entityPlayerClass, playerConnectionClass);
+        networkManagerField = ReflectionUtil.getField(playerConnectionClass, networkManagerClass);
         channelField = ReflectionUtil.getField(networkManagerField.getType(), Channel.class);
 
-        minecraftServerClass = ReflectionUtil.getNMSClass("MinecraftServer");
-        serverConnectionClass = ReflectionUtil.getNMSClass("ServerConnection");
+        minecraftServerClass = ReflectionUtil.getNMSClass("server", "MinecraftServer");
+        serverConnectionClass = ReflectionUtil.getNMSClass("server.connection", "ServerConnection");
         minecraftServerField = ReflectionUtil.getField(craftServerClass, minecraftServerClass);
         serverConnectionField = ReflectionUtil.getField(minecraftServerClass, serverConnectionClass);
         networkMarketsMethod = ReflectionUtil.getMethod(serverConnectionClass, Collection.class, serverConnectionClass);
@@ -275,6 +277,7 @@ public abstract class PacketListener {
         // Channel is not yet cached, so make sure to cache it
         // for fast getting
         if (channel == null) {
+            CompatibilityAPI.getCompatibility().getEntityPlayer(player);
             Object nmsPlayer = CompatibilityAPI.getEntityCompatibility().getNMSEntity(player);
             Object connection = ReflectionUtil.invokeField(playerConnectionField, nmsPlayer);
             Object manager = ReflectionUtil.invokeField(networkManagerField, connection);

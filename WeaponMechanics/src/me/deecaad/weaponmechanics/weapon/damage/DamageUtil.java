@@ -29,10 +29,6 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 
 public class DamageUtil {
-
-    private static final Field killerField = ReflectionUtil.getField(ReflectionUtil.getNMSClass("EntityLiving"), "killer");
-
-    private static Configuration config = WeaponMechanics.getBasicConfigurations();
     
     /**
      * Do not let anyone instantiate this class
@@ -41,6 +37,8 @@ public class DamageUtil {
     }
 
     public static double calculateFinalDamage(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
+        Configuration config = WeaponMechanics.getBasicConfigurations();
+
         AtomicDouble rate = new AtomicDouble(1.0);
         IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
 

@@ -40,8 +40,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
     static {
         if (CompatibilityAPI.getVersion() < 1.09) {
-            packetPlayOutChatConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getPacketClass("PacketPlayOutChat"), ReflectionUtil.getNMSClass("IChatBaseComponent"), byte.class);
-            chatComponentTextConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("ChatComponentText"), String.class);
+            packetPlayOutChatConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getPacketClass("PacketPlayOutChat"), ReflectionUtil.getNMSClass("network.chat", "IChatBaseComponent"), byte.class);
+            chatComponentTextConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("network.chat", "ChatComponentText"), String.class);
         }
     }
 

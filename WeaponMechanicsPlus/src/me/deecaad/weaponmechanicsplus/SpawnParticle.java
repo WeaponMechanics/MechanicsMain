@@ -39,7 +39,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
     public SpawnParticle() {
         if (CompatibilityAPI.getVersion() < 1.09) {
             if (sendParticles == null) {
-                sendParticles = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("WorldServer"), "sendParticles", ReflectionUtil.getNMSClass("EntityPlayer"), ReflectionUtil.getNMSClass("EnumParticle"), boolean.class, double.class, double.class, double.class, int.class, double.class, double.class, double.class, double.class, Array.newInstance(int.class, 0).getClass());
+                sendParticles = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("server.level", "WorldServer"), "sendParticles", ReflectionUtil.getNMSClass("server.level", "EntityPlayer"), ReflectionUtil.getNMSClass("", "EnumParticle"), boolean.class, double.class, double.class, double.class, int.class, double.class, double.class, double.class, double.class, Array.newInstance(int.class, 0).getClass());
             }
             if (worldGetHandle == null) {
                 worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
@@ -110,7 +110,7 @@ public class SpawnParticle implements Serializer<SpawnParticle> {
         Object particle;
         try {
             if (CompatibilityAPI.getVersion() < 1.09) {
-                particle = Enum.valueOf((Class<Enum>) ReflectionUtil.getNMSClass("EnumParticle"), stringParticle);
+                particle = Enum.valueOf((Class<Enum>) ReflectionUtil.getNMSClass("", "EnumParticle"), stringParticle);
             } else {
                 particle = org.bukkit.Particle.valueOf(stringParticle);
             }

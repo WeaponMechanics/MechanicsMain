@@ -27,6 +27,8 @@ public final class ReflectionUtil {
     private static final Field modifiersField;
     private static final int javaVersion;
 
+    private static final String ERR = "This is probably caused by your minecraft server version. Contact a DEV for more help.";
+
     static {
 
         // Occurs when run without a server (e.x. In intellij)
@@ -79,25 +81,6 @@ public final class ReflectionUtil {
 
     /**
      * Returns the {@link net.minecraft.server} class with the given name.
-     * Remember that, with Mojang's obfuscator, every class is under the same
-     * package.
-     *
-     * @param className The non-null name of the class to get.
-     * @return The NMS class with that name, or <code>null</code>.
-     * @deprecated Use {@link #getNMSClass(String, String)}
-     */
-    @Deprecated
-    public static Class<?> getNMSClass(@Nonnull String className) {
-        try {
-            return Class.forName(nmsVersion + className);
-        } catch (ClassNotFoundException e) {
-            debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
-            return null;
-        }
-    }
-
-    /**
-     * Returns the {@link net.minecraft.server} class with the given name.
      * In mc versions 1.17 and higher, <code>pack</code> is used for the
      * package the class is in. Previous versions ignore <code>pack</code>.
      *
@@ -112,12 +95,12 @@ public final class ReflectionUtil {
         if (CompatibilityAPI.getVersion() < 1.17)
             className = nmsVersion + name;
         else
-            className = pack + name;
+            className = "net.minecraft." + pack + '.' + name;
 
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
-            debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
+            debug.log(LogLevel.ERROR, "Failed to get NMS class " + className + ". " + ERR, e);
             return null;
         }
     }
@@ -131,15 +114,7 @@ public final class ReflectionUtil {
      * @return The NMS class with that name, or <code>null</code>.
      */
     public static Class<?> getPacketClass(@Nonnull String className) {
-        String name = CompatibilityAPI.getVersion() < 1.17 ? nmsVersion + className
-                : "net.minecraft.network.protocol.game." + className;
-
-        try {
-            return Class.forName(name);
-        } catch (ClassNotFoundException e) {
-            debug.log(LogLevel.ERROR, "Issue getting NMS class!", e);
-            return null;
-        }
+        return getNMSClass("network.protocol.game", className);
     }
 
     /**
@@ -153,7 +128,7 @@ public final class ReflectionUtil {
         try {
             return Class.forName(cbVersion + className);
         } catch (ClassNotFoundException e) {
-            debug.log(LogLevel.ERROR, "Issue getting CB class!", e);
+            debug.log(LogLevel.ERROR, "Failed to get CB class " + className + ". " + ERR, e);
             return null;
         }
     }
@@ -170,7 +145,7 @@ public final class ReflectionUtil {
         try {
             return clazz.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
-            debug.log(LogLevel.ERROR, "Issue getting constructor!", e);
+            debug.log(LogLevel.ERROR, "Failed to get constructor. " + ERR, e);
             return null;
         }
     }
@@ -187,14 +162,13 @@ public final class ReflectionUtil {
      */
     public static <T> T newInstance(@Nonnull Class<T> constructorSupplier, Object... parameters) {
         Class<?>[] classes = new Class[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
+        for (int i = 0; i < parameters.length; i++)
             classes[i] = parameters[i].getClass();
-        }
 
         try {
             return newInstance(constructorSupplier.getConstructor(classes), parameters);
         } catch (NoSuchMethodException e) {
-            debug.log(LogLevel.ERROR, "Issue creating new instance!", e);
+            debug.log(LogLevel.ERROR, "Failed to instantiate class " + constructorSupplier + ". " + ERR, e);
             return null;
         }
     }
@@ -212,7 +186,7 @@ public final class ReflectionUtil {
         try {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            debug.log(LogLevel.ERROR, "Issue creating new instance!", e);
+            debug.log(LogLevel.ERROR, "Failed to instantiate class " + constructor + ". " + ERR, e);
             return null;
         }
     }
@@ -231,7 +205,7 @@ public final class ReflectionUtil {
             Constructor<T> constructor = clazz.getConstructor();
             return constructor.newInstance();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            debug.log(LogLevel.ERROR, "Issue creating new instance!", e);
+            debug.log(LogLevel.ERROR, "Failed to instantiate class " + clazz + ". " + ERR, e);
             return null;
         }
     }
@@ -259,7 +233,7 @@ public final class ReflectionUtil {
             }
             return field;
         } catch (NoSuchFieldException | SecurityException e) {
-            debug.log(LogLevel.ERROR, "Issue getting field!", e);
+            debug.log(LogLevel.ERROR, "Failed to get field " + fieldName + ". " + ERR, e);
             return null;
         }
     }
@@ -334,7 +308,7 @@ public final class ReflectionUtil {
         try {
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            debug.log(LogLevel.ERROR, "Issue invoking field!", e);
+            debug.log(LogLevel.ERROR, "Failed to invoke field " + field + ". " + ERR, e);
             return null;
         }
     }
@@ -364,7 +338,7 @@ public final class ReflectionUtil {
 
             field.set(instance, value);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            debug.log(LogLevel.ERROR, "Issue setting field!", e);
+            debug.log(LogLevel.ERROR, "Failed to set field " + field + ". " + ERR, e);
         }
     }
 
@@ -387,7 +361,7 @@ public final class ReflectionUtil {
             }
             return method;
         } catch (NoSuchMethodException | SecurityException e) {
-            debug.log(LogLevel.ERROR, "Issue getting method!", e);
+            debug.log(LogLevel.ERROR, "Failed to find method " + methodName + ". " + ERR, e);
             return null;
         }
     }
@@ -465,7 +439,7 @@ public final class ReflectionUtil {
         try {
             return method.invoke(instance, parameters);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            debug.log(LogLevel.ERROR, "Issue invoking method!", e);
+            debug.log(LogLevel.ERROR, "Failed to invoke method " + method + ". " + ERR, e);
             return null;
         }
     }
