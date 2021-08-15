@@ -1,6 +1,6 @@
 package me.deecaad.core.events;
 
-import me.deecaad.core.utils.MaterialUtil;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityEvent;
@@ -42,6 +42,28 @@ public class EquipEvent extends EntityEvent {
     @Nonnull
     public EquipmentSlot getSlot() {
         return slot;
+    }
+
+    /**
+     * Returns <code>true</code> if an item is being removed from the slot.
+     * Note that an item may be dequipped at the same time one is equipped.
+     *
+     * @return <code>true</code> if an item is removed.
+     * @see #isEquipping()
+     */
+    public boolean isDequipping() {
+        return dequipped != null && dequipped.getType() != Material.AIR;
+    }
+
+    /**
+     * Returns <code>true</code> if an item is being equipped to the slot.
+     * Note that an item may equipped at the same time one is dequipped.
+     *
+     * @return <code>true</code>
+     * @see #isDequipping()
+     */
+    public boolean isEquipping() {
+        return equipped != null && equipped.getType() != Material.AIR;
     }
 
     /**

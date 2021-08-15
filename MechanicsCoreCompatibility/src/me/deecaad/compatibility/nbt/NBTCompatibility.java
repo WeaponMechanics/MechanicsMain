@@ -371,6 +371,15 @@ public interface NBTCompatibility {
     Object getNMSStack(@Nonnull ItemStack bukkitStack);
 
     /**
+     * Returns a bukkit item stack based on the given <code>nmsStack</code>.
+     *
+     * @param nmsStack The non-null nms item to convert.
+     * @return The non-null bukkit item.
+     */
+    @Nonnull
+    ItemStack getBukkitStack(@Nonnull Object nmsStack);
+
+    /**
      * Returns the {@link Object#toString()} value of an item's NBT compound,
      * useful for debugging.
      *

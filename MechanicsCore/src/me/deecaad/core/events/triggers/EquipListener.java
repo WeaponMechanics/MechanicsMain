@@ -6,9 +6,11 @@ import me.deecaad.core.events.EquipEvent;
 import me.deecaad.core.events.HandDataUpdateEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
+import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +18,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -39,11 +42,13 @@ public class EquipListener extends PacketHandler implements Listener {
     private static final EquipmentSlot[] SLOTS = EquipmentSlot.values();
     private static final Field windowField;
     private static final Field slotField;
+    private static final Field itemField;
 
     static {
         Class<?> packetClass = ReflectionUtil.getPacketClass("PacketPlayOutSetSlot");
-        windowField = ReflectionUtil.getField(packetClass, "a");
-        slotField = ReflectionUtil.getField(packetClass, "b");
+        windowField = ReflectionUtil.getField(packetClass, int.class, 0);
+        slotField = ReflectionUtil.getField(packetClass, int.class, 1);
+        itemField = ReflectionUtil.getField(packetClass, ReflectionUtil.getNMSClass("world.item", "ItemStack"));
     }
 
     // Order is dictated by the order of SLOTS ^
@@ -71,27 +76,22 @@ public class EquipListener extends PacketHandler implements Listener {
         if (window != 0)
             return;
 
+        // Determine if the packet deals with an item in an EquipmentSlot
         EquipmentSlot slot = getEquipmentSlot(player, slotNum);
         if (slot == null)
             return;
 
-        // Cancel the packet if the
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                boolean isSend = callEvent(player, slot, false);
+        ItemStack dequipped = getPreviousItem(player, slot);
+        Object nmsEquipped = ReflectionUtil.invokeField(itemField, wrapper.getPacket());
+        ItemStack equipped = CompatibilityAPI.getNBTCompatibility().getBukkitStack(nmsEquipped);
 
-                // If the event was not cancelled, we need to resend the packet
-                if (isSend) {
-                    CompatibilityAPI.getCompatibility().sendPackets(player, wrapper.getPacket());
-                }
-            }
-        }.runTask(MechanicsCore.getPlugin());
+        boolean isDifferent = callEvent(player, slot, false, dequipped, equipped);
 
-        // Always cancel the task, since we don't know if the event will try
-        // to cancel the packet.
-        wrapper.setCancelled(true);
-
+        if (!isDifferent && !Objects.equals(dequipped, equipped)) {
+            HandDataUpdateEvent event = new HandDataUpdateEvent(player, slot, equipped, dequipped);
+            Bukkit.getPluginManager().callEvent(event);
+            wrapper.setCancelled(event.isCancelled());
+        }
     }
 
     @EventHandler (priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -120,15 +120,32 @@ public class EquipListener extends PacketHandler implements Listener {
             return;
         }
 
-        callEvent(player, slot, false);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                callEvent(player, slot, false, getPreviousItem(player, slot), inv.getItem(slotNum));
+            }
+        }.runTask(MechanicsCore.getPlugin());
     }
 
     @EventHandler
     public void onSwap(PlayerItemHeldEvent e) {
-        Inventory inv = e.getPlayer().getInventory();
+        Player player = e.getPlayer();
+        Inventory inv = player.getInventory();
         if (!isEmpty(inv.getItem(e.getNewSlot())) || !isEmpty(inv.getItem(e.getPreviousSlot()))) {
-            callEvent(e.getPlayer(), EquipmentSlot.HAND, true);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    callEvent(player, EquipmentSlot.HAND, true, getPreviousItem(player, EquipmentSlot.HAND), inv.getItem(e.getNewSlot()));
+                }
+            }.runTask(MechanicsCore.getPlugin());
         }
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent e) {
+        System.out.println("drop");
+        callEvent(e.getPlayer(), EquipmentSlot.HAND, false, getPreviousItem(e.getPlayer(), EquipmentSlot.HAND), e.getPlayer().getInventory().getItem(e.getPlayer().getInventory().getHeldItemSlot()));
     }
 
     @EventHandler
@@ -141,23 +158,29 @@ public class EquipListener extends PacketHandler implements Listener {
         remove(e.getPlayer());
     }
 
-    private boolean callEvent(Player player, EquipmentSlot slot, boolean skipCheck) {
-        ItemStack dequipped = getPreviousItem(player, slot);
-        ItemStack equipped = player.getInventory().getItem(slot);
-
+    private boolean callEvent(Player player, EquipmentSlot slot, boolean skipCheck, ItemStack dequipped, ItemStack equipped) {
         if (!skipCheck && !isDifferent(equipped, dequipped)) {
-            if (!Objects.equals(equipped, dequipped)) {
-                HandDataUpdateEvent event = new HandDataUpdateEvent(player, slot, equipped, dequipped);
-                Bukkit.getPluginManager().callEvent(event);
-                return !event.isCancelled();
-            }
-            return true;
+            return false;
         }
 
-        EquipEvent event = new EquipEvent(player, slot, dequipped, equipped);
-        Bukkit.getPluginManager().callEvent(event);
+        callEvent0(new EquipEvent(player, slot, dequipped, equipped));
         setPreviousItem(player, slot, equipped);
+        player.getEquipment()
         return true;
+    }
+
+    private void callEvent0(EquipEvent event) {
+        if (!Bukkit.getServer().isPrimaryThread()) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Bukkit.getPluginManager().callEvent(event);
+                }
+            }.runTask(MechanicsCore.getPlugin());
+            return;
+        }
+
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     private boolean isDifferent(ItemStack a, ItemStack b) {
@@ -216,8 +239,6 @@ public class EquipListener extends PacketHandler implements Listener {
 
             EquipEvent event = new EquipEvent(player, slot, null, item);
             Bukkit.getPluginManager().callEvent(event);
-            item = event.getEquipped();
-            player.getInventory().setItem(slot, item);
 
             // Cache the player's equipment so we can check for changes later.
             items[i] = item.clone();
@@ -226,7 +247,7 @@ public class EquipListener extends PacketHandler implements Listener {
 
     private void remove(Player player) {
         if (!previous.containsKey(player))
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Tried to remove a player that was not yet inserted!");
 
         ItemStack[] items = previous.get(player);
 
@@ -239,8 +260,6 @@ public class EquipListener extends PacketHandler implements Listener {
             // Some plugins may need to "clean up".
             EquipEvent event = new EquipEvent(player, slot, item, null);
             Bukkit.getPluginManager().callEvent(event);
-            item = event.getEquipped();
-            player.getInventory().setItem(slot, item);
         }
     }
 

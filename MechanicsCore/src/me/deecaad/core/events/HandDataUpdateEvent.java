@@ -28,6 +28,7 @@ public class HandDataUpdateEvent extends Event implements Cancellable {
 
     public HandDataUpdateEvent(Entity what, EquipmentSlot slot, ItemStack itemStack, ItemStack oldItemStack) {
         super(true);
+
         this.entity = what;
         this.mainHand = slot == EquipmentSlot.HAND;
         this.itemStack = itemStack;

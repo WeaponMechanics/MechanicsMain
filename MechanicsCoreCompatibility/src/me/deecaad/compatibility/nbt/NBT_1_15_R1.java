@@ -16,6 +16,12 @@ public class NBT_1_15_R1 implements NBTCompatibility {
 
     @Nonnull
     @Override
+    public ItemStack getBukkitStack(@Nonnull Object nmsStack) {
+        return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_15_R1.ItemStack) nmsStack);
+    }
+
+    @Nonnull
+    @Override
     public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : nbt.toString();
