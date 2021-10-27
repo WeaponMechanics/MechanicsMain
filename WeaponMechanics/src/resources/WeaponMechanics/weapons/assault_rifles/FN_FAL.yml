@@ -1,0 +1,105 @@
+FN_FAL:
+  Info:
+    Weapon_Item:
+      Type: DIAMOND_HOE
+      Name: "&rFN_FAL"
+      Lore:
+        - "&7Witty info"
+      Unbreakable: true
+      Hide_Flags: true
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "&r%weapon-title% %selective_fire_state% &e«%ammo-left%»&r%reload%"
+        Time: 40
+    Weapon_Get_Actions:
+      Sounds:
+        - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
+    Cancel:
+      Block_Interactions: true
+      Item_Interactions: true
+      Drop_Item: true
+      Swap_Hands: true
+      Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 0
+    Scope:
+      Custom_Model_Data: 0
+    Reload:
+      Custom_Model_Data: 0
+    Sprint:
+      Custom_Model_Data: 0
+  Projectile: "Default-Projectile.Projectile"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 110 # 810 is more accurate
+    Projectiles_Per_Shot: 1
+    Selective_Fire:
+      Trigger:
+        Main_Hand: "SWAP_TO_OFF_HAND"
+        Off_Hand: "SWAP_TO_MAIN_HAND"
+      Mechanics:
+        Sounds:
+          - BLOCK_NOTE_BLOCK_HAT-1-2.0
+    Delay_Between_Shots: 1
+    Fully_Automatic_Shots_Per_Second: 10 # 8 is more accurate
+    Spread:
+      Base_Spread: 0.25
+      Modify_Spread_When:
+        Zooming: -0.2
+        Sneaking: -0.025
+        In_Midair: 0.25
+        Gliding: 0.25
+      Changing_Spread:
+        Starting_Amount: 0.0
+        Increase_Change_When:
+          Always: 0.01
+        Bounds:
+          Reset_After_Reaching_Bound: false
+          Minimum_Spread: 0.025
+          Maximum_Spread: 0.4
+    Recoil:
+      Push_Time: 100
+      Recover_Time: 200
+      Recoil_Pattern:
+        Repeat_Pattern: true
+        List:
+          - "-0.02~0.1"
+          - "0.02~0.1"
+    Mechanics:
+      Sounds:
+        - BLOCK_BASALT_BREAK-4-2.0
+        - BLOCK_BASALT_STEP-4-2.0
+        - BLOCK_SCAFFOLDING_BREAK-2-2.0
+  Reload:
+    Trigger:
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
+    Magazine_Size: 20
+    Ammo_Per_Reload: 20
+    Reload_Duration: 52
+    Start_Mechanics:
+      Sounds:
+        - ITEM_FLINTANDSTEEL_USE-2-2.0-0
+        - ITEM_FLINTANDSTEEL_USE-2-1.7-26
+        - ITEM_FLINTANDSTEEL_USE-2-1.9-28
+        - BLOCK_PISTON_EXTEND-2-1.5-46
+        - BLOCK_PISTON_CONTRACT-2-1.5-50
+  Damage:
+    Base_Damage: 10.6 # 53% of health
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+    Zoom_Amount: 2
+    Mechanics:
+      Sounds:
+        - ENTITY_ENDER_DRAGON_FLAP-0.5-2.0
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - ENTITY_ENDER_DRAGON_FLAP-0.5-1.75
