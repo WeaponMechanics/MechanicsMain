@@ -2,6 +2,8 @@ package me.deecaad.compatibility.entity;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
+import me.deecaad.compatibility.equipevent.TriIntConsumer;
+import me.deecaad.compatibility.equipevent.v1_13_R2_NonNullList;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_13_R2.*;
@@ -273,6 +275,11 @@ public class Entity_1_13_R2 implements EntityCompatibility {
         ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         return new EntityItem(nmsWorld, x, y, z, nmsItem);
+    }
+
+    @Override
+    public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
+        return new v1_13_R2_NonNullList(size, consumer);
     }
 }
 

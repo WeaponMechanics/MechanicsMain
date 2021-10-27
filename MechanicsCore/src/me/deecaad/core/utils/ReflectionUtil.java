@@ -252,7 +252,7 @@ public final class ReflectionUtil {
      * @throws IllegalArgumentException If no such field exists.
      */
     public static Field getField(@Nonnull Class<?> target, Class<?> type) {
-        return getField(target, type, 0);
+        return getField(target, type, 0, false);
     }
 
     /**
@@ -272,13 +272,19 @@ public final class ReflectionUtil {
      * @throws IllegalArgumentException If no such field exists.
      */
     public static Field getField(@Nonnull Class<?> target, Class<?> type, int index) {
+        return getField(target, type, index, false);
+    }
+
+    public static Field getField(@Nonnull Class<?> target, Class<?> type, int index, boolean skipStatic) {
         for (final Field field : target.getDeclaredFields()) {
 
             // Type check. Make sure the field's datatype
             // matches the data type we are trying to find
             if (!type.isAssignableFrom(field.getType()))
                 continue;
-            else if (index-- > 0)
+            if (skipStatic && Modifier.isStatic(field.getModifiers()))
+                continue;
+            if (index-- > 0)
                 continue;
 
             if (!field.isAccessible())

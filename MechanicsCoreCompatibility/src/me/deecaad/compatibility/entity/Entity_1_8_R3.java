@@ -2,6 +2,7 @@ package me.deecaad.compatibility.entity;
 
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.compatibility.ICompatibility;
+import me.deecaad.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_8_R3.*;
@@ -282,5 +283,10 @@ public class Entity_1_8_R3 implements EntityCompatibility {
     @Override
     public void setAbsorption(LivingEntity entity, double absorption) {
         ((CraftLivingEntity) entity).getHandle().setAbsorptionHearts((float) absorption);
+    }
+
+    @Override
+    public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
+        return null;
     }
 }

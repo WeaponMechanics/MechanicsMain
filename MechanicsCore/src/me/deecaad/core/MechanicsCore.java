@@ -1,6 +1,7 @@
 package me.deecaad.core;
 
 import me.deecaad.core.events.triggers.EquipListener;
+import me.deecaad.core.events.triggers.EquipListenerOld;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
@@ -58,11 +59,11 @@ public class MechanicsCore extends JavaPlugin {
             e.printStackTrace();
         }
 
-        EquipListener equipListener = new EquipListener();
-        PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-        packetListener.addPacketHandler(equipListener, true);
-
-        Bukkit.getPluginManager().registerEvents(equipListener, this);
+        //EquipListenerOld equipListener = new EquipListenerOld();
+        //PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
+        //packetListener.addPacketHandler(equipListener, true);
+        //Bukkit.getPluginManager().registerEvents(equipListener, this);
+        Bukkit.getPluginManager().registerEvents(new EquipListener(), this);
     }
 
     @Override

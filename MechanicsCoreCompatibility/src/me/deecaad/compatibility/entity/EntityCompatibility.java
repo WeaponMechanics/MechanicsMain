@@ -1,5 +1,6 @@
 package me.deecaad.compatibility.entity;
 
+import me.deecaad.compatibility.equipevent.TriIntConsumer;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,6 +16,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This interface outlines a version dependant api that return values based on
@@ -267,6 +269,8 @@ public interface EntityCompatibility {
     default void setAbsorption(@Nonnull LivingEntity entity, double absorption) {
         entity.setAbsorptionAmount(absorption);
     }
+
+    List<Object> generateNonNullList(int size, TriIntConsumer<ItemStack, ItemStack> consumer);
 
     /**
      * This enum outlines the different flags and their byte location for
