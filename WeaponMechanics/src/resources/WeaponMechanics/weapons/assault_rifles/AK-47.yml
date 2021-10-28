@@ -2,7 +2,7 @@ AK-47:
   Info:
     Weapon_Item:
       Type: DIAMOND_HOE
-      Name: "&rAK-47"
+      Name: "&r&eAK-47"
       Lore:
         - "&7Russians drink vodka and shoot ak-47s"
       Unbreakable: true
@@ -20,6 +20,11 @@ AK-47:
       Drop_Item: true
       Swap_Hands: true
       Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 1
+    Scope:
+      Custom_Model_Data: 11
   Projectile: "Default-Projectile.Projectile"
   Shoot:
     Trigger:
@@ -89,9 +94,8 @@ AK-47:
     Zoom_Amount: 2
     Mechanics:
       Sounds:
-        - ENTITY_ENDER_DRAGON_FLAP-0.5-2.0
+        - custom:scope.in-0.5-1.0-0-0.05
     Zoom_Off:
       Mechanics:
         Sounds:
-          - ENTITY_ENDER_DRAGON_FLAP-0.5-1.75
-
+          - custom:scope.out-0.5-1.0-0-0.05
