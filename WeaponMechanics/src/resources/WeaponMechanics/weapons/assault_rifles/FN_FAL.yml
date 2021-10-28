@@ -2,7 +2,7 @@ FN_FAL:
   Info:
     Weapon_Item:
       Type: DIAMOND_HOE
-      Name: "&rFN_FAL"
+      Name: "&r&eFN FAL 5000"
       Lore:
         - "&7Witty info"
       Unbreakable: true
@@ -22,13 +22,9 @@ FN_FAL:
       Arm_Swing_Animation: true
   Skin:
     Default:
-      Custom_Model_Data: 0
+      Custom_Model_Data: 161
     Scope:
-      Custom_Model_Data: 0
-    Reload:
-      Custom_Model_Data: 0
-    Sprint:
-      Custom_Model_Data: 0
+      Custom_Model_Data: 171
   Projectile: "Default-Projectile.Projectile"
   Shoot:
     Trigger:
@@ -98,8 +94,8 @@ FN_FAL:
     Zoom_Amount: 2
     Mechanics:
       Sounds:
-        - ENTITY_ENDER_DRAGON_FLAP-0.5-2.0
+        - custom:scope.in-0.5-1.0-0-0.05
     Zoom_Off:
       Mechanics:
         Sounds:
-          - ENTITY_ENDER_DRAGON_FLAP-0.5-1.75
+          - custom:scope.out-0.5-1.0-0-0.05
