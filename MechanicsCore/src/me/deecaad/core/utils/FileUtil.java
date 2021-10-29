@@ -97,7 +97,7 @@ public final class FileUtil {
                 // Handle nested folders
                 File file = new File(output, path);
                 if (path.indexOf('.') == -1) {
-                    copyResourcesTo(clazz, loader, path, file);
+                    copyResourcesTo(clazz, loader, p.toString(), file);
                     continue;
                 }
 
