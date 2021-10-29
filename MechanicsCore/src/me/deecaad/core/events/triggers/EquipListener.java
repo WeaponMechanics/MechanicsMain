@@ -12,7 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -103,6 +102,7 @@ public class EquipListener implements Listener {
     public void onPickup(EntityPickupItemEvent event) {
     }
 
+    @SuppressWarnings("unchecked")
     public void inject(Player player) {
         Object handle = CompatibilityAPI.getCompatibility().getEntityPlayer(player);
         Object playerInventory = ReflectionUtil.invokeField(playerInventoryField, handle);
@@ -145,14 +145,6 @@ public class EquipListener implements Listener {
             Bukkit.getPluginManager().callEvent(new EquipEvent(player, EquipmentSlot.OFF_HAND, old, current));
         });
 
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                Object temp = playerInventory;
-                temp.hashCode();
-            }
-        }.runTaskTimer(MechanicsCore.getPlugin(), 0, 100);
-
         List<Object> oldItems = (List<Object>) ReflectionUtil.invokeField(inventoryField, playerInventory);
         for (int i = 0; i < oldItems.size(); i++) {
             inventory.set(i, oldItems.get(i));
@@ -163,7 +155,6 @@ public class EquipListener implements Listener {
         }
         offhand.set(0, ((List<Object>) ReflectionUtil.invokeField(offHandField, playerInventory)).get(0));
 
-        System.out.println(inventory);
         ReflectionUtil.setField(inventoryField, playerInventory, inventory);
         ReflectionUtil.setField(armorField, playerInventory, armor);
         ReflectionUtil.setField(offHandField, playerInventory, offhand);
