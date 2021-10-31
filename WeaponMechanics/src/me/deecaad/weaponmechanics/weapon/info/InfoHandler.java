@@ -6,6 +6,7 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.skin.Skin;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -137,6 +138,12 @@ public class InfoHandler {
         weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle));
         weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle));
         weaponStack.setItemMeta(weaponMeta);
+
+        // Apply default skin
+        Skin defaultSkin = getConfigurations().getObject(weaponTitle + ".Skin.Default", Skin.class);
+        if (defaultSkin != null) {
+            defaultSkin.apply(weaponStack);
+        }
 
         Inventory inventory = player.getInventory();
 

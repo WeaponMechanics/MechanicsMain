@@ -37,7 +37,7 @@ public class OutUpdateAttributesListener extends PacketHandler {
         packet.setFieldValue(idField, -id);
 
         // If packet entity id is not player's id
-        if (id != packet.getPlayer().getEntityId()) {
+        if (-id != packet.getPlayer().getEntityId()) {
             return;
         }
 
