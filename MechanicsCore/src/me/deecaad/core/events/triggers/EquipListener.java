@@ -10,8 +10,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -22,7 +23,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * This class triggers the {@link me.deecaad.core.events.EquipEvent}. This
@@ -60,22 +64,31 @@ public class EquipListener implements Listener {
 
     private static boolean lock;
 
+    private final Set<Player> dropCancelledPlayers;
+    private final Set<Player> ignoreGiveDropPlayers;
+
     public EquipListener() {
         if (lock)
             throw new IllegalStateException("EquipListener has already been initialized");
         lock = true;
+
+        dropCancelledPlayers = new HashSet<>();
+        ignoreGiveDropPlayers = new HashSet<>();
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
-        inject(e.getPlayer());
+    public void onJoin(PlayerJoinEvent event) {
+        inject(event.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onSwap(PlayerItemHeldEvent e) {
         Player player = e.getPlayer();
         Inventory inv = player.getInventory();
-        if (isNotEmpty(inv.getItem(e.getNewSlot())) || isNotEmpty(inv.getItem(e.getPreviousSlot()))) {
+
+        // Swapping items doesn't cause any changes in the inventory, so it is
+        // not covered by the player injection system.
+        if (!(isEmpty(inv.getItem(e.getNewSlot())) && isEmpty(inv.getItem(e.getPreviousSlot())))) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -87,19 +100,66 @@ public class EquipListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    public void onDrop(PlayerDropItemEvent event) {
-        Player player = event.getPlayer();
-        PlayerInventory inv = player.getInventory();
-        ItemStack item = inv.getItemInMainHand();
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onCommand(PlayerCommandPreprocessEvent event) {
 
-        if (!isNotEmpty(item)) {
-            Bukkit.getPluginManager().callEvent(new EquipEvent(player, EquipmentSlot.HAND, event.getItemDrop().getItemStack(), null));
+        // The command line may look like "/give CJCrafter iron_ingot"
+        String commandLine = event.getMessage().toLowerCase(Locale.ROOT);
+        Player player = event.getPlayer();
+
+        // The VANILLA give command has the unfortunate side effect of causing
+        // a PlayerDropItemEvent (EssentialsX overrides it and fixes it). This
+        // will cause a de-equip event (seemingly randomly depending on hotbar
+        // slot), then an equip event (If the item given to the player goes
+        // into their hand).
+        if (commandLine.startsWith("/give") || commandLine.startsWith("/minecraft:give")) {
+            Listener listener = new Listener() {
+                @EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST)
+                public void onDrop(PlayerDropItemEvent event) {
+                    if (player.equals(event.getPlayer())) {
+                        ignoreGiveDropPlayers.add(player);
+                        // event.setCancelled(true);
+                        Bukkit.broadcastMessage("give command occurred: added " + player.getName() + " to ignore list");
+                    }
+                }
+            };
+
+            // Register, then unregister in 1 tick
+            Bukkit.getPluginManager().registerEvents(listener, MechanicsCore.getPlugin());
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    HandlerList.unregisterAll(listener);
+                }
+            }.runTask(MechanicsCore.getPlugin());
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    public void onPickup(EntityPickupItemEvent event) {
+    @EventHandler (priority = EventPriority.MONITOR)
+    public void onDrop(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+
+        // When a drop event is cancelled, the item is still removed from the
+        // player's inventory, but it is reset later. This causes invalid equip
+        // events. By adding cancelled events into the set, we can then filter
+        // the "false" equip events.
+        if (event.isCancelled()) {
+            dropCancelledPlayers.add(player);
+            Bukkit.broadcastMessage("Drop event is cancelled... adding " + player.getName() + " to the ignore next list");
+            return;
+        } else if (ignoreGiveDropPlayers.remove(player)) {
+            Bukkit.broadcastMessage("drop from /give cancelled, did not add " + player.getName() + " to list.");
+            return;
+        }
+
+        PlayerInventory inv = player.getInventory();
+        ItemStack item = inv.getItemInMainHand();
+
+        // Only call event if the stack was emptied by dropping the last item
+        // in a stack, or dropping an un-stackable item.
+        if (isEmpty(item)) {
+            Bukkit.getPluginManager().callEvent(new EquipEvent(player, EquipmentSlot.HAND, event.getItemDrop().getItemStack(), null));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -108,6 +168,13 @@ public class EquipListener implements Listener {
         Object playerInventory = ReflectionUtil.invokeField(playerInventoryField, handle);
 
         List<Object> inventory = CompatibilityAPI.getEntityCompatibility().generateNonNullList(36, (old, current, index) -> {
+
+            // Filters out cancelled PlayerDropItemEvent
+            if (dropCancelledPlayers.remove(player)) {
+                System.out.println("Reset ignore next for " + player.getName());
+                return;
+            }
+
             int hotBar = (int) ReflectionUtil.invokeField(hotBarSlotField, playerInventory);
 
             // Not sure how important this check is, but the MC code does it.
@@ -161,7 +228,7 @@ public class EquipListener implements Listener {
         ReflectionUtil.setField(combinedField, playerInventory, ImmutableList.of(inventory, armor, offhand));
     }
 
-    private static boolean isNotEmpty(ItemStack item) {
-        return item != null && item.getType() != Material.AIR;
+    private static boolean isEmpty(ItemStack item) {
+        return item == null || item.getType() == Material.AIR;
     }
 }
