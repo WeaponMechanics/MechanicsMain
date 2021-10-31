@@ -133,6 +133,10 @@ public class WeaponMechanics extends JavaPlugin {
             FileUtil.copyResourcesTo(getClass(), getClassLoader(), "resources/WeaponMechanics", getDataFolder());
         FileUtil.ensureDefaults(getClassLoader(), "resources/WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
 
+        // Ensure that the resource pack exists in the folder
+        FileUtil.ensureFile(getClassLoader(), "resources/WeaponMechanics/WeaponMechanicsResourcePack.zip",
+                new File(getDataFolder(), "WeaponMechanicsResourcePack.zip"));
+
         // Fill config.yml mappings
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml != null && configyml.exists()) {

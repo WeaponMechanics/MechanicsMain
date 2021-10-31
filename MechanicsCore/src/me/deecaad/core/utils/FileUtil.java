@@ -185,4 +185,20 @@ public final class FileUtil {
             throw new InternalError(e);
         }
     }
+
+    public static void ensureFile(ClassLoader loader, String resource, File file) {
+        if (!file.exists()) {
+            try (
+                    InputStream in = loader.getResourceAsStream(resource);
+                    FileOutputStream out = new FileOutputStream(file);
+            ) {
+                int data;
+                while ((data = in.read()) != -1) {
+                    out.write(data);
+                }
+            } catch (IOException ex) {
+                throw new InternalError(ex);
+            }
+        }
+    }
 }

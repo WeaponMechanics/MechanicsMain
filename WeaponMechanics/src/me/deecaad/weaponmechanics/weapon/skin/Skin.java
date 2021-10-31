@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.skin;
 
 import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -13,7 +14,7 @@ import java.io.File;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class Skin {
+public class Skin implements Serializer<Skin> {
 
     private Material type;
     private byte data;
@@ -87,6 +88,12 @@ public class Skin {
         }
     }
 
+    @Override
+    public String getKeyword() {
+        return "Skin";
+    }
+
+    @Override
     public Skin serialize(File file, ConfigurationSection configurationSection, String path) {
 
         String type = configurationSection.getString(path + ".Type");
