@@ -13,6 +13,8 @@ import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.LinkedConfig;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.packetlistener.Packet;
+import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
@@ -237,7 +239,7 @@ public class WeaponMechanics extends JavaPlugin {
                 }
 
                 // Fill configuration mappings (except config.yml)
-                Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(WeaponMechanics.this), validators).fillAllFiles(getDataFolder(), "config.yml");
+                Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
                 try {
                     configurations.add(temp);
                 } catch (DuplicateKeyException e) {

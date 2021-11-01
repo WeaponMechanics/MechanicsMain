@@ -62,16 +62,12 @@ public class EquipListener implements Listener {
 
     // * ----- END OF REFLECTIONS ----- * //
 
-    private static boolean lock;
+    public static final EquipListener SINGLETON = new EquipListener();
 
     private final Set<Player> dropCancelledPlayers;
     private final Set<Player> ignoreGiveDropPlayers;
 
-    public EquipListener() {
-        if (lock)
-            throw new IllegalStateException("EquipListener has already been initialized");
-        lock = true;
-
+    private EquipListener() {
         dropCancelledPlayers = new HashSet<>();
         ignoreGiveDropPlayers = new HashSet<>();
     }

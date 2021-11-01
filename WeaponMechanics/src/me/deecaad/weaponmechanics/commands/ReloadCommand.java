@@ -17,6 +17,6 @@ public class ReloadCommand extends SubCommand {
         WeaponMechanics plugin = (WeaponMechanics) WeaponMechanics.getPlugin();
 
         plugin.onReload();
-        sender.sendMessage("§aReloaded configuration. Check console for errors.");
+        sender.sendMessage("§aReloaded configuration.");
     }
 }

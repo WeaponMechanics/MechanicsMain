@@ -48,22 +48,11 @@ public class MechanicsCore extends JavaPlugin {
             List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
             //noinspection unchecked
             serializersList = (List<Serializer<?>>) serializers;
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    serializersList = null;
-                    debug.debug("Cleared serializers list");
-                }
-            }.runTaskLater(this, 5);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        //EquipListenerOld equipListener = new EquipListenerOld();
-        //PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
-        //packetListener.addPacketHandler(equipListener, true);
-        //Bukkit.getPluginManager().registerEvents(equipListener, this);
-        Bukkit.getPluginManager().registerEvents(new EquipListener(), this);
+        Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
     }
 
     @Override
@@ -86,13 +75,7 @@ public class MechanicsCore extends JavaPlugin {
     /**
      * @return the list of all serializers added to core
      */
-    public static List<Serializer<?>> getListOfSerializers(Plugin plugin) {
-        if (serializersList == null) {
-            debug.log(LogLevel.WARN, plugin.getName() + " tried to get serializer list after startup...");
-            return null;
-        }
-
-        // Return copy of list
+    public static List<Serializer<?>> getListOfSerializers() {
         return new ArrayList<>(serializersList);
     }
 
