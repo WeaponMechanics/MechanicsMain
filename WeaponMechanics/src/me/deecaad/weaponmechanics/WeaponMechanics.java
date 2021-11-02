@@ -96,14 +96,14 @@ public class WeaponMechanics extends JavaPlugin {
         debug = new Debugger(logger, level, isPrintTraces);
         MechanicsCore.debug.setLevel(level);
         debug.permission = "weaponmechanics.errorlog";
-        debug.msg = "WeaponMechanics had %s error(s) in console. Check console for instructions on why the error occurred and how to fix it.";
+        debug.msg = "WeaponMechanics had %s error(s) in console.";
 
         // Check Java version and warn users about untested/unsupported versions
         if (ReflectionUtil.getJavaVersion() < 8) {
             debug.error("Detected a JAVA version under java 8. This plugin will NOT work in versions under java 8.");
             debug.error("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
-        } else if (ReflectionUtil.getJavaVersion() > 11) {
-            debug.warn("Detected a JAVA version above java 11. This plugin MAY not work in versions above java 11.");
+        } else if (ReflectionUtil.getJavaVersion() > 16) {
+            debug.warn("Detected a JAVA version above java 16. This plugin MAY not work in versions above java 16.");
             debug.warn("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
         }
 
@@ -165,59 +165,6 @@ public class WeaponMechanics extends JavaPlugin {
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
-
-        /*
-        packetListener.addPacketHandler(new PacketHandler((Class<?>) null) {
-            @Override
-            public void onPacket(Packet wrapper) {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        String name = wrapper.getPacket().getClass().toString();
-
-                        if (name.endsWith("Chat"))
-                            return;
-                        if (name.endsWith("HeadRotation"))
-                            return;
-                        if (name.endsWith("MoveLook"))
-                            return;
-                        if (name.endsWith("Move"))
-                            return;
-                        if (name.endsWith("Metadata"))
-                            return;
-                        if (name.endsWith("Velocity"))
-                            return;
-                        if (name.endsWith("Teleport"))
-                            return;
-                        if (name.endsWith("UpdateTime"))
-                            return;
-                        if (name.endsWith("UpdateAttributes"))
-                            return;
-                        if (name.endsWith("LightUpdate"))
-                            return;
-                        if (name.endsWith("MapChunk"))
-                            return;
-                        if (name.endsWith("UnloadChunk"))
-                            return;
-                        if (name.endsWith("EntityDestroy"))
-                            return;
-                        if (name.endsWith("Look"))
-                            return;
-                        if (name.endsWith("SpawnEntityLiving"))
-                            return;
-                        if (name.endsWith("BlockChange"))
-                            return;
-                        if (name.endsWith("WorldEvent"))
-                            return;
-                        if (name.endsWith("KeepAlive"))
-                            return;
-
-                        Bukkit.broadcastMessage(name);
-                    }
-                }.runTask(WeaponMechanics.this);
-            }
-        }, true);
-        */
 
         weaponHandler = new WeaponHandler();
 
@@ -310,7 +257,6 @@ public class WeaponMechanics extends JavaPlugin {
 
                 // Register events
                 // Registering events after serialization is completed to prevent any errors from happening
-                Bukkit.getPluginManager().registerEvents(new EquipEventTemp(), WeaponMechanics.this); // todo remove
 
                 // TRIGGER EVENTS
                 Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);

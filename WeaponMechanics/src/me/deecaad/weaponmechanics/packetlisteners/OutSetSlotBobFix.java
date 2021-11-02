@@ -8,7 +8,6 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -91,7 +90,8 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
         ItemStack equipped = CompatibilityAPI.getNBTCompatibility().getBukkitStack(nmsEquipped);
         ItemStack dequipped = mainHand ? mainHandItem.get(player) : offHandItem.get(player);
 
-        player.sendMessage(wrapper.toString());
+        if (!equipped.hasItemMeta())
+            return;
 
         // Only check when the item is a weapon stack
         String weaponTitle = CustomTag.WEAPON_TITLE.getString(equipped);
@@ -104,9 +104,7 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
             else
                 offHandItem.put(player, dequipped);
 
-            player.sendMessage(ChatColor.RED + "Packet sent, probably");
         } else if (!Objects.equals(equipped, dequipped)) {
-            player.sendMessage(ChatColor.GREEN + "Cancelled packet");
             wrapper.setCancelled(true);
         }
     }
