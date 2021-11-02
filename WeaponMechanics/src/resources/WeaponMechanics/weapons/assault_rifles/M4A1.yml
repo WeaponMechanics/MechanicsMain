@@ -15,8 +15,8 @@ M4A1:
       Sounds:
         - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
     Cancel:
-      Block_Interactions: true
-      Item_Interactions: true
+      Block_Interactions: false
+      Item_Interactions: false
       Drop_Item: true
       Swap_Hands: true
       Arm_Swing_Animation: true

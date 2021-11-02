@@ -89,4 +89,12 @@ public class Packet {
     public void setFieldValue(Field field, Object value) {
         ReflectionUtil.setField(field, this.packet, value);
     }
+
+    @Override
+    public String toString() {
+        return "Packet{" +
+                "player=" + player +
+                ", packet=" + packet.getClass() +
+                '}';
+    }
 }

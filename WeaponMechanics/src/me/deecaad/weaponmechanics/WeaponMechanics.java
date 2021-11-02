@@ -37,6 +37,7 @@ import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_
 import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
+import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -163,6 +164,60 @@ public class WeaponMechanics extends JavaPlugin {
         packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
+        packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
+
+        /*
+        packetListener.addPacketHandler(new PacketHandler((Class<?>) null) {
+            @Override
+            public void onPacket(Packet wrapper) {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        String name = wrapper.getPacket().getClass().toString();
+
+                        if (name.endsWith("Chat"))
+                            return;
+                        if (name.endsWith("HeadRotation"))
+                            return;
+                        if (name.endsWith("MoveLook"))
+                            return;
+                        if (name.endsWith("Move"))
+                            return;
+                        if (name.endsWith("Metadata"))
+                            return;
+                        if (name.endsWith("Velocity"))
+                            return;
+                        if (name.endsWith("Teleport"))
+                            return;
+                        if (name.endsWith("UpdateTime"))
+                            return;
+                        if (name.endsWith("UpdateAttributes"))
+                            return;
+                        if (name.endsWith("LightUpdate"))
+                            return;
+                        if (name.endsWith("MapChunk"))
+                            return;
+                        if (name.endsWith("UnloadChunk"))
+                            return;
+                        if (name.endsWith("EntityDestroy"))
+                            return;
+                        if (name.endsWith("Look"))
+                            return;
+                        if (name.endsWith("SpawnEntityLiving"))
+                            return;
+                        if (name.endsWith("BlockChange"))
+                            return;
+                        if (name.endsWith("WorldEvent"))
+                            return;
+                        if (name.endsWith("KeepAlive"))
+                            return;
+
+                        Bukkit.broadcastMessage(name);
+                    }
+                }.runTask(WeaponMechanics.this);
+            }
+        }, true);
+        */
 
         weaponHandler = new WeaponHandler();
 
