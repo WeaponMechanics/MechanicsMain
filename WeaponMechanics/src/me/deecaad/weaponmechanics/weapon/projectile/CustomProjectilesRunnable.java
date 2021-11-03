@@ -43,7 +43,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
      */
     public void addProjectile(ICustomProjectile projectile) {
 
-        // If were are on the main server thread, then we know
+        // If we are on the main server thread, then we know
         // that the projectiles aren't currently being ticked
         if (Bukkit.getServer().isPrimaryThread()) {
             projectiles.add(projectile);
@@ -53,7 +53,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
         // We have to do the work over and over again until we
         // successfully set the value. It is highly unlikely that
         // this loop will occur >2 times from any 1 call. Should
-        // still be significantly faster then trying to obtain a lock
+        // still be significantly faster than trying to obtain a lock
         boolean isSuccess = false;
         while (!isSuccess) {
 

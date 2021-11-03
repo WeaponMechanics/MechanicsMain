@@ -119,6 +119,28 @@ public class InfoHandler {
         return null;
     }
 
+    public ItemStack generateWeapon(String weaponTitle, int amount) {
+        ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class).clone();
+        weaponStack.setAmount(amount);
+
+        // Check for weapon title typos silently
+        if (weaponStack == null)
+            return null;
+
+        ItemMeta weaponMeta = weaponStack.getItemMeta();
+        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), null, weaponStack, weaponTitle));
+        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), null, weaponStack, weaponTitle));
+        weaponStack.setItemMeta(weaponMeta);
+
+        // Apply default skin
+        Skin defaultSkin = getConfigurations().getObject(weaponTitle + ".Skin.Default", Skin.class);
+        if (defaultSkin != null) {
+            defaultSkin.apply(weaponStack);
+        }
+
+        return weaponStack;
+    }
+
     /**
      * If weapon title is invalid, its silently ignored.
      * All general weapon get actions are used.
@@ -132,11 +154,12 @@ public class InfoHandler {
         weaponStack.setAmount(amount);
 
         // Check for weapon title typos silently
-        if (weaponStack == null) return;
+        if (weaponStack == null)
+            return;
 
         ItemMeta weaponMeta = weaponStack.getItemMeta();
-        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle));
-        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle));
+        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), null, weaponStack, weaponTitle));
+        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), null, weaponStack, weaponTitle));
         weaponStack.setItemMeta(weaponMeta);
 
         // Apply default skin
