@@ -13,9 +13,11 @@ import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.LinkedConfig;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
+import me.deecaad.core.packetlistener.PacketListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
@@ -48,6 +50,7 @@ import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -68,35 +71,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WeaponMechanics extends JavaPlugin {
 
-    private static Plugin plugin;
-    private static Map<LivingEntity, IEntityWrapper> entityWrappers;
-    private static Configuration configurations;
-    private static Configuration basicConfiguration;
-    private static MainCommand mainCommand;
-    private static WeaponHandler weaponHandler;
-    private static UpdateChecker updateChecker;
-    private static CustomProjectilesRunnable customProjectilesRunnable;
+    private static WeaponMechanics plugin;
+    private Map<LivingEntity, IEntityWrapper> entityWrappers;
+    private Configuration configurations;
+    private Configuration basicConfiguration;
+    private MainCommand mainCommand;
+    private WeaponHandler weaponHandler;
+    private UpdateChecker updateChecker;
+    private CustomProjectilesRunnable customProjectilesRunnable;
+    private PacketHandlerListener packetListener;
 
     // public so people can import a static variable
     public static Debugger debug;
 
     @Override
     public void onLoad() {
-
-        // Setup the debugger
-        Logger logger = getLogger();
-        int level = getConfig().getInt("Debug_Level", 2);
-        boolean isPrintTraces = getConfig().getBoolean("Print_Traces", false);
-        debug = new Debugger(logger, level, isPrintTraces);
-        MechanicsCore.debug.setLevel(level);
-        debug.permission = "weaponmechanics.errorlog";
-        debug.msg = "WeaponMechanics had %s error(s) in console.";
+        setupDebugger();
 
         // Check Java version and warn users about untested/unsupported versions
         if (ReflectionUtil.getJavaVersion() < 8) {
@@ -130,6 +129,65 @@ public class WeaponMechanics extends JavaPlugin {
         plugin = this;
         entityWrappers = new HashMap<>();
 
+        writeFiles();
+        registerPacketListeners();
+
+        weaponHandler = new WeaponHandler();
+
+        // Start custom projectile runnable
+        customProjectilesRunnable = new CustomProjectilesRunnable(this);
+
+        // Set millis between recoil rotations
+        Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 5);
+
+        registerCommands();
+        registerUpdateChecker();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            // Add PlayerWrapper in onEnable in case server is reloaded for example
+            getPlayerWrapper(player);
+        }
+
+        // This is done like this to allow other plugins to add their own serializers
+        // before WeaponMechanics starts filling those configuration mappings.
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+
+                loadConfig();
+
+                // Add PlaceholderHandlers from WeaponMechanics to PlaceholderAPI
+                try {
+                    new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                registerListeners();
+
+            }
+        }.runTask(this);
+
+        debug.start(this);
+
+        long tookMillis = System.currentTimeMillis() - millisCurrent;
+        double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
+        debug.debug("Enabled WeaponMechanics in " + seconds + "s");
+    }
+
+    void setupDebugger() {
+        Logger logger = getLogger();
+        int level = getConfig().getInt("Debug_Level", 2);
+        boolean isPrintTraces = getConfig().getBoolean("Print_Traces", false);
+        debug = new Debugger(logger, level, isPrintTraces);
+        MechanicsCore.debug.setLevel(level);
+        debug.permission = "weaponmechanics.errorlog";
+        debug.msg = "WeaponMechanics had %s error(s) in console.";
+    }
+
+    void writeFiles() {
+        debug.info("Copying files from jar");
+
         // Create files
         debug.debug("Loading config.yml");
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0)
@@ -156,36 +214,96 @@ public class WeaponMechanics extends JavaPlugin {
                     "Could not locate config.yml?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
         }
+    }
 
-        // Register packet listeners
+    void loadConfig() {
+        debug.info("Loading and serializing config");
+
+        try {
+            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+            //noinspection unchecked
+            MechanicsCore.addSerializers(this, (List<Serializer<?>>) serializers);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (configurations == null) {
+            configurations = new LinkedConfig();
+        } else {
+            configurations.clear();
+        }
+
+        List<IValidator> validators = null;
+        try {
+            // Find all validators in WeaponMechanics
+            validators = new JarInstancer(new JarFile(getFile())).createAllInstances(IValidator.class, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Fill configuration mappings (except config.yml)
+        Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
+        try {
+            configurations.add(temp);
+        } catch (DuplicateKeyException e) {
+            debug.error("Error loading config: " + e.getMessage());
+        }
+    }
+
+    void registerListeners() {
+        // Register events
+        // Registering events after serialization is completed to prevent any errors from happening
+        debug.info("Registering listeners");
+
+        // TRIGGER EVENTS
+        Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
+        Bukkit.getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
+        if (CompatibilityAPI.getVersion() >= 1.09) {
+            Bukkit.getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+            Bukkit.getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+        }
+
+        // WEAPON EVENTS
+        Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
+        Bukkit.getPluginManager().registerEvents(new AmmoListeners(), WeaponMechanics.this);
+        Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListeners(), WeaponMechanics.this);
+    }
+
+    void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        PacketHandlerListener packetListener = new PacketHandlerListener(this, debug);
+        packetListener = new PacketHandlerListener(this, debug);
         packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
+    }
 
-        weaponHandler = new WeaponHandler();
-
-        // Start custom projectile runnable
-        customProjectilesRunnable = new CustomProjectilesRunnable(this);
-
-        // Set millis between recoil rotations
-        Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 5);
-
-        // Lets just use command map for all commands.
-        // This allows registering new commands from configurations during runtime
+    void registerCommands() {
         debug.debug("Registering commands");
         Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
-        SimpleCommandMap simpleCommandMap = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
+        SimpleCommandMap commands = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
 
-        // Register all commands
-        if (simpleCommandMap.getCommand("weaponmechanics") == null) {
-            simpleCommandMap.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
+        // This can occur onReload, or if another plugin registered the
+        // command. We use the try-catch to determine if the command was
+        // registered by another plugin.
+        Command registered = commands.getCommand("weaponmechanics");
+        if (registered != null) {
+            try {
+                mainCommand = (MainCommand) registered;
+            } catch (ClassCastException ex) {
+                debug.error("/weaponmechanics command was already registered... does another plugin use /wm?",
+                        "The registered command: " + registered,
+                        "Do not ignore this error! The weapon mechanics commands will not work at all!");
+            }
+        } else {
+            commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
         }
 
-        // Start update checker task and make the instance
+    }
+
+    void registerUpdateChecker() {
         if (basicConfiguration.getBool("Update_Checker.Enable")) {
 
             debug.debug("Checking for updates");
@@ -203,99 +321,40 @@ public class WeaponMechanics extends JavaPlugin {
                 // -> If its not converted its localhost test version most likely
             }
         }
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            // Add PlayerWrapper in onEnable in case server is reloaded for example
-            getPlayerWrapper(player);
-        }
-
-        debug.debug("Serializing config");
-
-        if (configurations == null) {
-            configurations = new LinkedConfig();
-        } else {
-            configurations.clear();
-        }
-
-        try {
-            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
-            //noinspection unchecked
-            MechanicsCore.addSerializers(this, (List<Serializer<?>>) serializers);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // This is done like this to allow other plugins to add their own serializers
-        // before WeaponMechanics starts filling those configuration mappings.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-
-                List<IValidator> validators = null;
-                try {
-                    // Find all validators in WeaponMechanics
-                    validators = new JarInstancer(new JarFile(getFile())).createAllInstances(IValidator.class, true);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                // Fill configuration mappings (except config.yml)
-                Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
-                try {
-                    configurations.add(temp);
-                } catch (DuplicateKeyException e) {
-                    debug.error("Error loading config: " + e.getMessage());
-                }
-
-                // Add PlaceholderHandlers from WeaponMechanics to PlaceholderAPI
-                try {
-                    new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                // Register events
-                // Registering events after serialization is completed to prevent any errors from happening
-
-                // TRIGGER EVENTS
-                Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
-                Bukkit.getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
-                if (CompatibilityAPI.getVersion() >= 1.09) {
-                    Bukkit.getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
-                    Bukkit.getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
-                }
-
-                // WEAPON EVENTS
-                Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
-
-                // AMMO EVENTS
-                Bukkit.getPluginManager().registerEvents(new AmmoListeners(), WeaponMechanics.this);
-
-                // EXPLOSION EVENT
-                Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListeners(), WeaponMechanics.this);
-
-            }
-        }.runTask(this);
-
-        debug.start(this);
-
-        long tookMillis = System.currentTimeMillis() - millisCurrent;
-        double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
-        debug.debug("Enabled WeaponMechanics in " + seconds + "s");
     }
 
-    public void onReload() {
+    public TaskChain onReload() {
         MechanicsCore mechanicsCore = MechanicsCore.getPlugin();
 
-        mechanicsCore.onDisable();
         this.onDisable();
+        mechanicsCore.onDisable();
 
         mechanicsCore.onLoad();
         this.onLoad();
 
         mechanicsCore.onEnable();
-        this.onEnable();
+
+        // Setup the debugger
+        plugin = this;
+        setupDebugger();
+        entityWrappers = new HashMap<>();
+        weaponHandler = new WeaponHandler();
+        customProjectilesRunnable = new CustomProjectilesRunnable(this);
+
+        return new TaskChain(this)
+                .thenRunAsync(this::writeFiles)
+                .thenRunSync(() -> {
+                    loadConfig();
+                    registerPacketListeners();
+                    registerListeners();
+                    registerCommands();
+                    registerUpdateChecker();
+
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        // Add PlayerWrapper in onEnable in case server is reloaded for example
+                        getPlayerWrapper(player);
+                    }
+                });
     }
 
     @Override
@@ -314,20 +373,21 @@ public class WeaponMechanics extends JavaPlugin {
         customProjectilesRunnable = null;
         plugin = null;
         debug = null;
+        packetListener = null;
     }
 
     /**
      * @return The BukkitRunnable holding the projectiles being ticked
      */
     public static CustomProjectilesRunnable getCustomProjectilesRunnable() {
-        return customProjectilesRunnable;
+        return plugin.customProjectilesRunnable;
     }
 
     /**
      * @return the main command instance of WeaponMechanics
      */
     public static MainCommand getMainCommand() {
-        return mainCommand;
+        return plugin.mainCommand;
     }
 
     /**
@@ -360,13 +420,13 @@ public class WeaponMechanics extends JavaPlugin {
      */
     @Nullable
     public static IEntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
-        IEntityWrapper wrapper = entityWrappers.get(entity);
+        IEntityWrapper wrapper = plugin.entityWrappers.get(entity);
         if (wrapper == null) {
             if (noAutoAdd) {
                 return null;
             }
             wrapper = new EntityWrapper(entity);
-            entityWrappers.put(entity, wrapper);
+            plugin.entityWrappers.put(entity, wrapper);
         }
         return wrapper;
     }
@@ -379,10 +439,10 @@ public class WeaponMechanics extends JavaPlugin {
      * @return the player wrapper
      */
     public static IPlayerWrapper getPlayerWrapper(Player player) {
-        IEntityWrapper wrapper = entityWrappers.get(player);
+        IEntityWrapper wrapper = plugin.entityWrappers.get(player);
         if (wrapper == null) {
             wrapper = new PlayerWrapper(player);
-            entityWrappers.put(player, wrapper);
+            plugin.entityWrappers.put(player, wrapper);
         }
         if (!(wrapper instanceof IPlayerWrapper)) {
             // Exception is better in this case as we need to know where this mistake happened
@@ -398,7 +458,7 @@ public class WeaponMechanics extends JavaPlugin {
      * @param entity the entity (or player)
      */
     public static void removeEntityWrapper(LivingEntity entity) {
-        IEntityWrapper oldWrapper = entityWrappers.remove(entity);
+        IEntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
         if (oldWrapper != null) {
             int oldMoveTask = oldWrapper.getMoveTask();
             if (oldMoveTask != 0) {
@@ -415,7 +475,7 @@ public class WeaponMechanics extends JavaPlugin {
      * @return the configurations interface
      */
     public static Configuration getConfigurations() {
-        return configurations;
+        return plugin.configurations;
     }
 
     /**
@@ -424,7 +484,7 @@ public class WeaponMechanics extends JavaPlugin {
      * @return the configurations interface
      */
     public static Configuration getBasicConfigurations() {
-        return basicConfiguration;
+        return plugin.basicConfiguration;
     }
 
     /**
@@ -434,13 +494,13 @@ public class WeaponMechanics extends JavaPlugin {
      */
     @Nullable
     public static UpdateChecker getUpdateChecker() {
-        return updateChecker;
+        return plugin.updateChecker;
     }
 
     /**
      * @return the current weapon handler
      */
     public static WeaponHandler getWeaponHandler() {
-        return weaponHandler;
+        return plugin.weaponHandler;
     }
 }

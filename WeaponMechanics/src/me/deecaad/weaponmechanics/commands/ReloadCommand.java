@@ -16,7 +16,6 @@ public class ReloadCommand extends SubCommand {
     public void execute(CommandSender sender, String[] args) {
         WeaponMechanics plugin = (WeaponMechanics) WeaponMechanics.getPlugin();
 
-        plugin.onReload();
-        sender.sendMessage("§aReloaded configuration.");
+        plugin.onReload().thenRunSync(() -> sender.sendMessage("§aReloaded configuration."));
     }
 }
