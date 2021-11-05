@@ -1,6 +1,7 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -212,6 +213,7 @@ public class FileReader {
                     } else {
                         try {
                             Object valid = serializer.serialize(file, configuration, key);
+                            if (valid == null) debug.warn(serializer + " serializer returned null", StringUtil.foundAt(file, key));
                             filledMap.set(key, valid);
                             startsWithDeny = key;
                         } catch (Exception e) {

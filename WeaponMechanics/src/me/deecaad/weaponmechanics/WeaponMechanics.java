@@ -373,6 +373,7 @@ public class WeaponMechanics extends JavaPlugin {
         customProjectilesRunnable = null;
         plugin = null;
         debug = null;
+        packetListener.close();
         packetListener = null;
     }
 
