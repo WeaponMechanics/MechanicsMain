@@ -95,7 +95,7 @@ public class Skin implements Serializer<Skin>  {
 
     @Override
     public Skin serialize(File file, ConfigurationSection configurationSection, String path) {
-        return null;
+        return this;
     }
 
     public Skin serialize0(File file, ConfigurationSection configurationSection, String path) {

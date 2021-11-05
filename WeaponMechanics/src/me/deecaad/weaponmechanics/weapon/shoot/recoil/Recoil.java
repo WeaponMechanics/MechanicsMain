@@ -100,7 +100,7 @@ public class Recoil implements Serializer<Recoil> {
         List<Float> randomHorizontal = convertToFloatList(file, configurationSection, path + ".Horizontal");
         List<Float> randomVertical = convertToFloatList(file, configurationSection, path + ".Vertical");
 
-        if (recoilPattern != null && randomHorizontal == null && randomVertical == null) {
+        if (recoilPattern == null && randomHorizontal == null && randomVertical == null) {
             return null;
         }
 

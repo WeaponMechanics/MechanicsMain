@@ -155,14 +155,7 @@ public class WeaponMechanics extends JavaPlugin {
             public void run() {
 
                 loadConfig();
-
-                // Add PlaceholderHandlers from WeaponMechanics to PlaceholderAPI
-                try {
-                    new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                registerPlaceholders();
                 registerListeners();
 
             }
@@ -248,6 +241,14 @@ public class WeaponMechanics extends JavaPlugin {
             configurations.add(temp);
         } catch (DuplicateKeyException e) {
             debug.error("Error loading config: " + e.getMessage());
+        }
+    }
+
+    void registerPlaceholders() {
+        try {
+            new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -345,6 +346,7 @@ public class WeaponMechanics extends JavaPlugin {
                 .thenRunAsync(this::writeFiles)
                 .thenRunSync(() -> {
                     loadConfig();
+                    registerPlaceholders();
                     registerPacketListeners();
                     registerListeners();
                     registerCommands();
