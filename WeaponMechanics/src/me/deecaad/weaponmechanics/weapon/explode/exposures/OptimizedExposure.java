@@ -110,7 +110,6 @@ public class OptimizedExposure implements ExplosionExposure {
                     TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
                     if (trace.getBlocks().isEmpty()) {
                         successfulTraces++;
-                        System.out.println("  " + ray);
                     }
 
                     totalTraces++;
