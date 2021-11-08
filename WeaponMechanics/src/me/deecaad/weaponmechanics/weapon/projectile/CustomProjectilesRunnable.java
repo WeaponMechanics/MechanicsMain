@@ -1,116 +1,83 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 /**
- * Class to handle all projectiles ticking
+ * This class is run once for every Minecraft Server tick (ideally 20 ticks per
+ * second). This class stores the entities we need to tick, and the methods of
+ * this class are thread safe. The order in which the projectiles are ticked
+ * is undefined, but every projectile is guaranteed to tick once for every MC
+ * server tick.
  */
 public class CustomProjectilesRunnable extends BukkitRunnable {
 
-    // Linked list for O(1) Iterator#remove, and #add
-    private LinkedList<ICustomProjectile> projectiles;
-    private AtomicReference<ICustomProjectile[]> asyncProjectiles;
+    private final LinkedList<ICustomProjectile> projectiles;
+    private final LinkedBlockingQueue<ICustomProjectile> asyncProjectiles;
 
     /**
-     * Initializes custom projectiles runnable
+     * Initializes and registers this runnable. This runnable can be cancelled
+     * using {@link #cancel()} or by cancelling all tasks for code>plugin</code>
+     * using <code>Bukkit.getScheduler().cancelTasks(plugin)</code>.
      *
-     * @param plugin the plugin used to run task
+     * <p> WeaponMechanics initializes one of these by default. You probably
+     * do not want to instantiate this class unless you know what you are
+     * doing. Use {@link WeaponMechanics#getCustomProjectilesRunnable()}.
+     *
+     * @param plugin The non-null plugin
      */
     public CustomProjectilesRunnable(Plugin plugin) {
         projectiles = new LinkedList<>();
-        asyncProjectiles = new AtomicReference<>(new ICustomProjectile[0]);
+        asyncProjectiles = new LinkedBlockingQueue<>();
 
         runTaskTimer(plugin, 0, 0);
     }
 
     /**
-     * Adds the given <code>projectile</code> to the list of <code>projectiles</code>
-     * that are currently being ticked. This method should be threadsafe.
+     * Adds the given projectile to be ticked starting during the next tick.
+     * This method is threadsafe, and you may call this method async.
      *
-     * @param projectile The projectile to add
+     * @param projectile The non-null projectile to tick.
      */
     public void addProjectile(ICustomProjectile projectile) {
+        if (projectile == null)
+            throw new IllegalArgumentException("Cannot add null projectile!");
 
-        // If we are on the main server thread, then we know
-        // that the projectiles aren't currently being ticked
         if (Bukkit.getServer().isPrimaryThread()) {
             projectiles.add(projectile);
             return;
         }
 
-        // We have to do the work over and over again until we
-        // successfully set the value. It is highly unlikely that
-        // this loop will occur >2 times from any 1 call. Should
-        // still be significantly faster than trying to obtain a lock
-        boolean isSuccess = false;
-        while (!isSuccess) {
-
-            // AtomicReferences work with immutable objects. Here, we
-            // "fake" this immutability by creating a new array and copying
-            // the elements every time we want to add a new element
-            ICustomProjectile[] immutableArr = asyncProjectiles.get();
-            ICustomProjectile[] copy = new ICustomProjectile[immutableArr.length + 1];
-            System.arraycopy(immutableArr, 0, copy, 0, immutableArr.length);
-
-            // Add the new projectile
-            copy[immutableArr.length] = projectile;
-
-            // Try to set the reference, and determine if we are successful
-            isSuccess = asyncProjectiles.compareAndSet(immutableArr, copy);
-        }
+        asyncProjectiles.add(projectile);
     }
 
     /**
-     * Adds all of the given <code>projectiles</code> to the internal list of
-     * <code>projectiles</code> that are currently being ticked. This method
-     * should be threadsafe.
+     * Adds the given projectiles to be ticked starting during the next tick.
+     * This method is threadsafe, and you may call this method async.
      *
-     * @param projectiles The projectiles to add
+     * @param projectiles The non-null collection of non-null projectiles.
      */
-    public void addProjectiles(List<ICustomProjectile> projectiles) {
+    public void addProjectiles(Collection<? extends ICustomProjectile> projectiles) {
+        if (projectiles.contains(null))
+            throw new IllegalArgumentException("Cannot add null projectiles");
 
-        // If were are on the main server thread, then we know
-        // that the projectiles aren't currently being ticked
         if (Bukkit.getServer().isPrimaryThread()) {
             this.projectiles.addAll(projectiles);
             return;
         }
 
-        // We have to do the work over and over again until we
-        // successfully set the value. It is highly unlikely that
-        // this loop will occur >2 times from any 1 call. Should
-        // still be significantly faster then trying to obtain a lock
-        boolean isSuccess = false;
-        while (!isSuccess) {
-
-            // AtomicReferences work with immutable objects. Here, we
-            // "fake" this immutability by creating a new array and copying
-            // the elements every time we want to add a new element
-            ICustomProjectile[] immutableArr = asyncProjectiles.get();
-            ICustomProjectile[] copy = new ICustomProjectile[immutableArr.length + projectiles.size()];
-            System.arraycopy(immutableArr, 0, copy, 0, immutableArr.length);
-
-            // Add the new projectiles
-            for (int i = 0; i < projectiles.size(); i++) {
-                copy[immutableArr.length + i] = projectiles.get(i);
-            }
-
-            // Try to set the reference, and determine if we are successful
-            isSuccess = asyncProjectiles.compareAndSet(immutableArr, copy);
-        }
-
+        asyncProjectiles.addAll(projectiles);
     }
 
     /**
@@ -119,30 +86,28 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
     @Override
     public void run() {
 
-        boolean isSuccess = false;
-        while (!isSuccess) {
+        // Extra check in case somebody runs this method by their own call.
+        if (!Bukkit.getServer().isPrimaryThread())
+            throw new IllegalStateException("Cannot tick projectiles asynchronously!");
 
-            // Get the projectiles that were added async, and add
-            // all of them to the sync projectile list
-            ICustomProjectile[] immutableArr = asyncProjectiles.get();
-            projectiles.addAll(Arrays.asList(immutableArr));
-
-            // Attempt to empty the asyncProjectiles list
-            isSuccess = asyncProjectiles.compareAndSet(immutableArr, new ICustomProjectile[0]);
+        // Clears the async projectiles WHILE adding them to the normal projectiles
+        while (!asyncProjectiles.isEmpty()) {
+            projectiles.add(asyncProjectiles.remove());
         }
 
         Iterator<ICustomProjectile> projectilesIterator = projectiles.iterator();
 
         while (projectilesIterator.hasNext()) {
+            ICustomProjectile projectile = projectilesIterator.next();
             try {
-                ICustomProjectile projectile = projectilesIterator.next();
                 if (projectile.tick()) {
                     Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(projectile));
                     projectilesIterator.remove();
                 }
             } catch (Exception e) {
                 projectilesIterator.remove();
-                debug.log(LogLevel.WARN, "Unhandled exception while ticking projectiles", e);
+                debug.log(LogLevel.WARN, "Unhandled exception while ticking projectiles! Removing projectile");
+                debug.log(LogLevel.WARN, "Removed Projectile: " + projectile, e);
             }
         }
     }
