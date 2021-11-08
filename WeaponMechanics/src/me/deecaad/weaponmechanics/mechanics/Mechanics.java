@@ -17,7 +17,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 public class Mechanics implements Serializer<Mechanics> {
 
     private static final Set<String> registeredMechanics = new HashSet<>();
-    private static boolean hasClearTask;
     private static final Map<String, IMechanic<?>> mechanicSerializers = new HashMap<>();
     private List<IMechanic<?>> mechanicList;
 
@@ -25,16 +24,6 @@ public class Mechanics implements Serializer<Mechanics> {
      * Empty constructor to be used as serializer
      */
     public Mechanics() {
-        if (!hasClearTask) {
-            hasClearTask = true;
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    mechanicSerializers.clear();
-                    hasClearTask = false;
-                }
-            }.runTaskLater(WeaponMechanics.getPlugin(), 20);
-        }
     }
 
     public Mechanics(List<IMechanic<?>> mechanicList) {

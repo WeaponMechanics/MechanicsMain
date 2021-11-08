@@ -14,7 +14,7 @@ import java.io.File;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class Skin implements Serializer<Skin> {
+public class Skin implements Serializer<Skin>  {
 
     private Material type;
     private byte data;
@@ -95,6 +95,10 @@ public class Skin implements Serializer<Skin> {
 
     @Override
     public Skin serialize(File file, ConfigurationSection configurationSection, String path) {
+        return this;
+    }
+
+    public Skin serialize0(File file, ConfigurationSection configurationSection, String path) {
 
         String type = configurationSection.getString(path + ".Type");
         Material material = null;

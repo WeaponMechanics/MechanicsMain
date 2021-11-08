@@ -160,7 +160,7 @@ public class Explosion implements Serializer<Explosion> {
                 new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
 
         List<Block> blocks      = event.getBlocks();
-        int initialCapacity     = Math.max(blocks.size() / 2, 10);
+        int initialCapacity     = Math.max(blocks.size(), 10);
         List<Block> transparent = new ArrayList<>(initialCapacity);
         List<Block> solid       = new ArrayList<>(initialCapacity);
 
@@ -176,19 +176,26 @@ public class Explosion implements Serializer<Explosion> {
 
         // Sorting the blocks can make regeneration look better
         try {
-            solid.sort(event.getSorter());
+
+            // Not an error, BUT probably not intentional
+            if (event.getSorter() == null) {
+                debug.debug("Null sorter used while regenerating explosion... Was this intentional?");
+            } else {
+                solid.sort(event.getSorter());
+            }
         } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR, "A plugin modified the explosion block sorter with an illegal sorter! " +
                     "Please report this error to the developers of that plugin. Sorter: " + event.getSorter().getClass(), e);
         }
 
         Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>((int) (blockChance * 1.1 * blocks.size()));
-        damageBlocks(transparent, true, origin, projectile, fallingBlocks);
-        damageBlocks(solid, false, origin, projectile, fallingBlocks);
+        int timeOffset = regeneration == null ? -1 : solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate();
+        damageBlocks(transparent, true, origin, projectile, fallingBlocks, timeOffset);
+        damageBlocks(solid, false, origin, projectile, fallingBlocks, 0);
         spawnFallingBlocks(fallingBlocks, origin);
 
         DoubleMap<LivingEntity> entities = event.getEntities();
-        if (projectile.getWeaponTitle() != null) {
+        if (projectile != null && projectile.getWeaponTitle() != null) {
             WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(projectile, origin, entities);
 
             if (isKnockback) {
@@ -225,9 +232,10 @@ public class Explosion implements Serializer<Explosion> {
         if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(cause), projectile.getWeaponTitle(), projectile.getWeaponStack()));
     }
 
-    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks) {
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks, int timeOffset) {
 
-        int timeOffset = regeneration == null ? -1 : regeneration.getTicksBeforeStart();
+        if (regeneration != null)
+            timeOffset += regeneration.getTicksBeforeStart();
 
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
@@ -245,7 +253,7 @@ public class Explosion implements Serializer<Explosion> {
             if (blockDamage.damage(block, time) && NumberUtil.chance(blockChance)) {
 
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-                Vector velocity = loc.toVector().subtract(origin.toVector());
+                Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 
                 if (projectile != null) {
                     Vector motion = projectile.getMotion().multiply(-1).normalize();
@@ -263,42 +271,39 @@ public class Explosion implements Serializer<Explosion> {
 
     protected void spawnFallingBlocks(Map<FallingBlockData, Vector> fallingBlocks, Location origin) {
         EntityCompatibility entityCompatibility = CompatibilityAPI.getEntityCompatibility();
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
-                    FallingBlockWrapper wrapper = entry.getKey().get();
-                    Object nms = wrapper.getEntity();
-                    int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
-                    Vector velocity = entry.getValue();
 
-                    if (removeTime == 0) continue;
+        // We cannot do this async, unfortunately
+        for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
+            FallingBlockWrapper wrapper = entry.getKey().get();
+            Object nms = wrapper.getEntity();
+            int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
+            Vector velocity = entry.getValue();
 
-                    // All the packets needed to handle showing the falling block
-                    // to the player. The destroy packet is sent later, when the block
-                    // hits the ground. Sent to every player in view.
-                    Object spawn   = entityCompatibility.getSpawnPacket(nms);
-                    Object meta    = entityCompatibility.getMetadataPacket(nms);
-                    Object motion  = entityCompatibility.getVelocityPacket(nms, velocity);
-                    Object destroy = entityCompatibility.getDestroyPacket(nms);
+            if (removeTime == 0) continue;
 
-                    for (Entity entity : DistanceUtil.getEntitiesInRange(origin)) {
-                        if (entity.getType() != EntityType.PLAYER) {
-                            continue;
-                        }
-                        Player player = (Player) entity;
-                        CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
+            // All the packets needed to handle showing the falling block
+            // to the player. The destroy packet is sent later, when the block
+            // hits the ground. Sent to every player in view.
+            Object spawn = entityCompatibility.getSpawnPacket(nms);
+            Object meta = entityCompatibility.getMetadataPacket(nms);
+            Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
+            Object destroy = entityCompatibility.getDestroyPacket(nms);
 
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
-                            }
-                        }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
-                    }
+            for (Entity entity : DistanceUtil.getEntitiesInRange(origin)) {
+                if (entity.getType() != EntityType.PLAYER) {
+                    continue;
                 }
+                Player player = (Player) entity;
+                CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
+                    }
+                }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
             }
-        }.runTaskAsynchronously(WeaponMechanics.getPlugin());
+        }
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Useful commands for testing different explosion
@@ -54,7 +55,7 @@ public class ExplosionCommand extends SubCommand {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
-                BlockDamage blockDamage = null;//new BlockDamage(true, 1, 1, true, new HashMap<>(), new HashMap<>());
+                BlockDamage blockDamage = new BlockDamage(true, 1, 1, true, new HashMap<>(), new HashMap<>());
                 Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0, 0.9, true,
                         null, null, new Flashbang(10.0, null), null);
                 explosion.explode(player, loc, null);

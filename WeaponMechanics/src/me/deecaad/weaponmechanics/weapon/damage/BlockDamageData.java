@@ -41,7 +41,7 @@ public final class BlockDamageData implements Listener {
         Map<Block, DamageData> chunkData = BLOCK_DAMAGE_MAP.putIfAbsent(block.getChunk(), new HashMap<>());
         DamageData blockData = chunkData.computeIfAbsent(block, DamageData::new);
 
-        blockData.damage(amount, maxDurability);
+        blockData.damage(amount, maxDurability, isBreak);
         if (blockData.isDestroyed()) {
             if (isBreak) blockData.destroy();
 
@@ -139,10 +139,15 @@ public final class BlockDamageData implements Listener {
          * @param damageAmount The amount of damage, should be lower then maxDamage
          * @param maxDamage The maximum amount of damage this weapon can deal to a block
          */
-        public void damage(int damageAmount, int maxDamage) {
+        public void damage(int damageAmount, int maxDamage, boolean isBreak) {
             this.durability -= ((double) damageAmount) / ((double) maxDamage);
 
-            update();
+            if (isBreak) {
+                if (!isDestroyed())
+                    update();
+            } else {
+                update();
+            }
         }
 
         /**
