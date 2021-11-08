@@ -81,14 +81,14 @@ import java.util.logging.Logger;
 public class WeaponMechanics extends JavaPlugin {
 
     private static WeaponMechanics plugin;
-    private Map<LivingEntity, IEntityWrapper> entityWrappers;
-    private Configuration configurations;
-    private Configuration basicConfiguration;
-    private MainCommand mainCommand;
-    private WeaponHandler weaponHandler;
-    private UpdateChecker updateChecker;
-    private CustomProjectilesRunnable customProjectilesRunnable;
-    private PacketHandlerListener packetListener;
+    Map<LivingEntity, IEntityWrapper> entityWrappers;
+    Configuration configurations;
+    Configuration basicConfiguration;
+    MainCommand mainCommand;
+    WeaponHandler weaponHandler;
+    UpdateChecker updateChecker;
+    CustomProjectilesRunnable customProjectilesRunnable;
+    PacketHandlerListener packetListener;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -161,11 +161,12 @@ public class WeaponMechanics extends JavaPlugin {
             }
         }.runTask(this);
 
+        WeaponMechanicsAPI.setInstance(this);
         debug.start(this);
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
-        debug.debug("Enabled WeaponMechanics in " + seconds + "s");
+        debug.info("Enabled WeaponMechanics in " + seconds + "s");
     }
 
     void setupDebugger() {
@@ -356,6 +357,7 @@ public class WeaponMechanics extends JavaPlugin {
                         // Add PlayerWrapper in onEnable in case server is reloaded for example
                         getPlayerWrapper(player);
                     }
+                    WeaponMechanicsAPI.setInstance(this);
                 });
     }
 
@@ -377,6 +379,7 @@ public class WeaponMechanics extends JavaPlugin {
         debug = null;
         packetListener.close();
         packetListener = null;
+        WeaponMechanicsAPI.setInstance(null);
     }
 
     /**
