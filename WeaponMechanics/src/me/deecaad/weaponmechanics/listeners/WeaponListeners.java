@@ -1,8 +1,7 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.events.EquipEvent;
-import me.deecaad.core.events.HandDataUpdateEvent;
+import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.projectile.HitBox;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
@@ -42,7 +41,7 @@ public class WeaponListeners implements Listener {
     }
 
     @EventHandler
-    public void equip(EquipEvent e) {
+    public void equip(EntityEquipmentEvent e) {
         if (e.isArmor())
             return;
 
@@ -61,16 +60,6 @@ public class WeaponListeners implements Listener {
             Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());
-        }
-    }
-
-    @EventHandler (ignoreCancelled = true)
-    public void dataUpdate(HandDataUpdateEvent e) {
-        // This event is ran async
-        if (weaponHandler.getInfoHandler().getWeaponTitle(e.getItemStack(), false) != null) {
-            // Simply cancel all weapon NBT changes from being sent to player
-            // Expect the visual ones (durability, custom model data, type, name, lore, enchantments)
-            e.setCancelled(true);
         }
     }
 

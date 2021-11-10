@@ -2,11 +2,14 @@ package me.deecaad.core.events;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -18,7 +21,7 @@ import javax.annotation.Nullable;
  * <p>As of writing this comment, this event is only fired for bukkit
  * {@link org.bukkit.entity.Player}s. This is subject to change.
  */
-public class EquipEvent extends EntityEvent {
+public class EntityEquipmentEvent extends EntityEvent {
 
     public static final HandlerList HANDLERS = new HandlerList();
 
@@ -26,8 +29,9 @@ public class EquipEvent extends EntityEvent {
     private final ItemStack dequipped;
     private final ItemStack equipped;
 
-    public EquipEvent(Entity what, EquipmentSlot slot, ItemStack dequipped, ItemStack equipped) {
+    public EntityEquipmentEvent(Entity what, EquipmentSlot slot, ItemStack dequipped, ItemStack equipped) {
         super(what);
+
         this.slot = slot;
         this.dequipped = dequipped;
         this.equipped = equipped;
@@ -42,6 +46,22 @@ public class EquipEvent extends EntityEvent {
     @Nonnull
     public EquipmentSlot getSlot() {
         return slot;
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Nonnegative
+    public int getInventorySlot() {
+        if (getEntityType() != EntityType.PLAYER)
+            throw new IllegalStateException("Cannot get inventory slot from non-player " + getEntity());
+
+        Player player = (Player) getEntity();
+        switch (slot) {
+            case FEET:
+                player.
+        }
     }
 
     /**

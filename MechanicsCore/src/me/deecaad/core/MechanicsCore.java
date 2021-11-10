@@ -1,10 +1,8 @@
 package me.deecaad.core;
 
 import me.deecaad.core.events.triggers.EquipListener;
-import me.deecaad.core.events.triggers.EquipListenerOld;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
@@ -13,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;

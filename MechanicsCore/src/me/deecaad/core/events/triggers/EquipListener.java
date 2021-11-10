@@ -3,7 +3,7 @@ package me.deecaad.core.events.triggers;
 import com.google.common.collect.ImmutableList;
 import me.deecaad.compatibility.CompatibilityAPI;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.events.EquipEvent;
+import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * This class triggers the {@link me.deecaad.core.events.EquipEvent}. This
+ * This class triggers the {@link EntityEquipmentEvent}. This
  * event occurs when an {@link org.bukkit.inventory.EntityEquipment} is
  * changed.
  */
@@ -90,7 +90,7 @@ public class EquipListener implements Listener {
                 public void run() {
                     ItemStack old = inv.getItem(e.getPreviousSlot());
                     ItemStack current = inv.getItem(e.getNewSlot());
-                    Bukkit.getPluginManager().callEvent(new EquipEvent(player, EquipmentSlot.HAND, old, current));
+                    Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.HAND, old, current));
                 }
             }.runTask(MechanicsCore.getPlugin());
         }
@@ -154,7 +154,7 @@ public class EquipListener implements Listener {
         // Only call event if the stack was emptied by dropping the last item
         // in a stack, or dropping an un-stackable item.
         if (isEmpty(item)) {
-            Bukkit.getPluginManager().callEvent(new EquipEvent(player, EquipmentSlot.HAND, event.getItemDrop().getItemStack(), null));
+            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.HAND, event.getItemDrop().getItemStack(), null));
         }
     }
 
@@ -179,7 +179,7 @@ public class EquipListener implements Listener {
             // var is changed... We must use an event for that.
             if (hotBar >= 0 && hotBar < 9) {
                 if (hotBar == index) {
-                    Bukkit.getPluginManager().callEvent(new EquipEvent(player, EquipmentSlot.HAND, old, current));
+                    Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.HAND, old, current));
                 }
             }
         });
@@ -202,10 +202,10 @@ public class EquipListener implements Listener {
                     throw new IndexOutOfBoundsException("Index out of bounds: " + index + ", for list " + this);
             }
 
-            Bukkit.getPluginManager().callEvent(new EquipEvent(player, slot, old, current));
+            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, slot, old, current));
         });
         List<Object> offhand = CompatibilityAPI.getEntityCompatibility().generateNonNullList(1, (old, current, index) -> {
-            Bukkit.getPluginManager().callEvent(new EquipEvent(player, EquipmentSlot.OFF_HAND, old, current));
+            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.OFF_HAND, old, current));
         });
 
         List<Object> oldItems = (List<Object>) ReflectionUtil.invokeField(inventoryField, playerInventory);

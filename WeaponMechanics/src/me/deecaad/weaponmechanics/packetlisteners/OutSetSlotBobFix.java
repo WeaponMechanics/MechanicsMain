@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
 import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.core.events.EquipEvent;
+import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -59,7 +59,7 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
     }
 
     @EventHandler
-    public void onEquip(EquipEvent event) {
+    public void onEquip(EntityEquipmentEvent event) {
         if (event.getEntityType() != EntityType.PLAYER)
             return;
 
