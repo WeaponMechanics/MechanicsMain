@@ -1,9 +1,13 @@
 package me.deecaad.weaponmechanics;
 
 import me.deecaad.weaponmechanics.utils.CustomTag;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +20,9 @@ import javax.annotation.Nullable;
  * This class outlines static utility methods to help developers find functions
  * of WeaponMechanics wrapped in one place. The following method's
  * implementations exclusively call "internal" methods to handle the function.
+ *
+ * <p>WeaponMechanics should never use these methods, instead use internal
+ * methods.
  */
 public final class WeaponMechanicsAPI {
 
@@ -34,7 +41,7 @@ public final class WeaponMechanicsAPI {
      * @return The non-negative zoom amount.
      */
     @Nonnegative
-    public int getScopeLevel(@Nonnull LivingEntity entity) {
+    public static int getScopeLevel(@Nonnull LivingEntity entity) {
         checkState();
         notNull(entity);
 
@@ -57,7 +64,7 @@ public final class WeaponMechanicsAPI {
      * @param entity The non-null living entity to check the scope state of.
      * @return <code>true</code> if the entity is scoping.
      */
-    public boolean isScoping(@Nonnull LivingEntity entity) {
+    public static boolean isScoping(@Nonnull LivingEntity entity) {
         return getScopeLevel(entity) != 0;
     }
 
@@ -68,7 +75,7 @@ public final class WeaponMechanicsAPI {
      * @param entity The non-null living entity to check the reload state of.
      * @return <code>true</code> if the entity is reloading.
      */
-    public boolean isReloading(@Nonnull LivingEntity entity) {
+    public static boolean isReloading(@Nonnull LivingEntity entity) {
         checkState();
         notNull(entity);
 
@@ -87,7 +94,7 @@ public final class WeaponMechanicsAPI {
      * @return The non-null weapon item.
      */
     @Nonnull
-    public ItemStack generateWeapon(@Nonnull String weaponTitle) {
+    public static ItemStack generateWeapon(@Nonnull String weaponTitle) {
         checkState();
         return plugin.weaponHandler.getInfoHandler().generateWeapon(weaponTitle, 1);
     }
@@ -100,30 +107,76 @@ public final class WeaponMechanicsAPI {
      * @param weaponTitle The non-null weapon-title of the weapon to generate.
      * @param player The non-null weapon item.
      */
-    public void giveWeapon(String weaponTitle, Player player) {
+    public static void giveWeapon(String weaponTitle, Player player) {
         checkState();
         plugin.weaponHandler.getInfoHandler().giveOrDropWeapon(weaponTitle, player, 1);
     }
 
     /**
-     * Adds the given projectile to the {@link me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable}.
+     * Adds the given projectile to the {@link CustomProjectilesRunnable}.
      * Can be run async.
      *
      * @param projectile The non-null projectile to add.
+     * @see CustomProjectilesRunnable
      */
-    public void addProjectile(@Nonnull ICustomProjectile projectile) {
+    public static void addProjectile(@Nonnull ICustomProjectile projectile) {
         checkState();
-        plugin.customProjectilesRunnable.addProjectile(projectile);
+        CustomProjectilesRunnable runnable = plugin.customProjectilesRunnable;
+        runnable.addProjectile(projectile);
     }
 
+    /**
+     * Returns <code>true</code> if the block at the given location is broken
+     * by an explosion, block damage, or otherwise.
+     *
+     * @param block The non-null block to check.
+     * @return <code>true</code> if the block is broken.
+     * @see BlockDamageData
+     */
+    public static boolean isBroken(@Nonnull Block block) {
+        checkState();
+        notNull(block);
+        return BlockDamageData.isBroken(block);
+    }
+
+    /**
+     * Regenerates all blocks broken by this plugin. This is a "dangerous"
+     * method to call because this may cause players/entities to get stuck
+     * underground, and may cause lag spikes if there are many blocks to
+     * regenerate. Consider regenerating a few chunks instead of all blocks
+     * {@link BlockDamageData#regenerate(Chunk)}.
+     */
+    public static void regenerateAllBlocks() {
+        checkState();
+        BlockDamageData.regenerateAll();
+    }
+
+    /**
+     * Returns the weapon-title associated with the given item. If the given
+     * item is not a WeaponMechanics weapon, this method will return
+     * <code>null</code>.
+     *
+     * <p>Note that a weapon-title is the config name of a weapon, and you can
+     * use a weapon-title to pull values from config easily.
+     *
+     * @param item The non-null item to get the weapon title from.
+     * @return The item's weapon title, or null.
+     */
     @Nullable
-    public String getWeaponTitle(@Nonnull ItemStack item) {
+    public static String getWeaponTitle(@Nonnull ItemStack item) {
         if (!item.hasItemMeta())
             return null;
         else
             return CustomTag.WEAPON_TITLE.getString(item);
     }
 
+    /**
+     * Returns the current WeaponMechanics main plugin instance. If the plugin
+     * has not been loaded, or is current reloading, this method will return
+     * <code>null</code>.
+     *
+     * @return The nullable plugin instance.
+     */
     public static WeaponMechanics getInstance() {
         return plugin;
     }
@@ -133,12 +186,12 @@ public final class WeaponMechanicsAPI {
         plugin = INSTANCE;
     }
 
-    private void notNull(Object obj) {
+    private static void notNull(Object obj) {
         if (obj == null)
             throw new IllegalArgumentException("Expected a value, got null");
     }
 
-    private void checkState() {
+    private static void checkState() {
         if (plugin == null)
             throw new IllegalStateException("Tried to use WeaponMechanics API before it was setup, OR during a reload!");
     }
