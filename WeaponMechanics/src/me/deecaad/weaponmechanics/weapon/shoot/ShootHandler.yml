@@ -2,6 +2,7 @@ Shoot:
   Trigger: <TriggerSerializer>
   Projectile_Speed: <speed>
   Projectiles_Per_Shot: <amount>
+  Only_Shoot_While_Scoped: <true/false>
   Selective_Fire:
     Trigger: <TriggerSerializer>
     Mechanics: <MechanicsSerializer>

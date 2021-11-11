@@ -9,6 +9,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -114,6 +115,9 @@ public class ShootHandler implements IValidator {
         WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
         Bukkit.getPluginManager().callEvent(preShootEvent);
         if (preShootEvent.isCancelled()) return false;
+
+        // Cancel shooting if we can only shoot while scoped.
+        if (config.getBool(weaponTitle + ".Shoot.Only_Shoot_While_Scoped") && !handData.getZoomData().isZooming()) return false;
 
         boolean mainhand = slot == EquipmentSlot.HAND;
 
