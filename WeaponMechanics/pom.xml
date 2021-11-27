@@ -13,24 +13,7 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
-    <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
-        <!--This adds the Spigot API artifact to the build -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This adds MechanicsCore to the build -->
         <dependency>
             <groupId>me.deecaad.core</groupId>
             <artifactId>MechanicsCore</artifactId>

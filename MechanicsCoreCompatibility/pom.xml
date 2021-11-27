@@ -14,13 +14,7 @@
     </properties>
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-
-        <!-- This adds the Vault Maven repository to the build -->
+        <!-- Adds VaultAPI -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -28,15 +22,6 @@
     </repositories>
 
     <dependencies>
-        <!-- This adds the Spigot API artifact to the build -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This adds the VaultAPI artifact to the build -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
@@ -50,7 +35,7 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!-- This adds the Minecraft NMS versions to the build -->
+        <!-- NMS Versions -->
         <dependency>
             <groupId>net.minecraft</groupId>
             <artifactId>1_8_R3</artifactId>
@@ -141,12 +126,6 @@
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/../lib/nms/S1_16_R3.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>1.3.9</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
