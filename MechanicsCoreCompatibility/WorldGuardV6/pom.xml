@@ -14,13 +14,7 @@
     </properties>
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-
-        <!-- This adds the WorldGuard Maven repository to the build -->
+        <!-- Adds WorldGuard -->
         <repository>
             <id>sk89q-repo</id>
             <url>http://maven.sk89q.com/repo/</url>
@@ -28,22 +22,13 @@
     </repositories>
 
     <dependencies>
-        <!-- This adds the Spigot API artifact to the build -->
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- This adds the MechanicsCoreCompatibility module to the build -->
         <dependency>
             <groupId>me.deecaad.core.compatibility</groupId>
             <artifactId>MechanicsCoreCompatibility</artifactId>
             <version>1.0.0</version>
         </dependency>
 
-        <!-- This adds the WorldGuard API artifact to the build -->
+        <!-- Adds WorldGuard -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-legacy</artifactId>
@@ -51,20 +36,13 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- This adds the WorldEdit API artifacts to the build -->
+        <!-- Adds WorldEdit -->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
             <version>6.1.5</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>1.3.9</version>
-            <scope>compile</scope>
-        </dependency>
-
     </dependencies>
 
 </project>
