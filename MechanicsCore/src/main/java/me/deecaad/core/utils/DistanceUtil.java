@@ -1,6 +1,6 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

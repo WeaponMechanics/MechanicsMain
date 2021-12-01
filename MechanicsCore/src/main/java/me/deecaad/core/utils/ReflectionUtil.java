@@ -1,6 +1,6 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
@@ -106,7 +106,7 @@ public final class ReflectionUtil {
     }
 
     /**
-     * Returns the {@link net.minecraft.network.protocol.game} packet for the
+     * Returns the net.minecraft.network.protocol.game packet for the
      * given class name in 1.17+, or the {@link net.minecraft.server} packet
      * for older versions.
      *

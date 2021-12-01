@@ -1,6 +1,6 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -112,8 +112,6 @@ public final class MaterialUtil {
      * explosions, of a specific {@link Material}. In legacy minecraft
      * versions, we have to rely on version dependant code to get the blast
      * resistance.
-     *
-     * <p>TODO Add a compatibility method to {@link me.deecaad.compatibility.block.BlockCompatibility}
      *
      * @param type
      * @return
