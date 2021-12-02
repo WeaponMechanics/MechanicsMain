@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;

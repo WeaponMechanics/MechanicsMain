@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;

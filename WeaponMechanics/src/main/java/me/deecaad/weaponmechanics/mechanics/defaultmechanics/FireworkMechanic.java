@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.utils.DistanceUtil;

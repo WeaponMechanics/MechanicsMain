@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.entity.EntityCompatibility;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.EnumUtil;
 import org.bukkit.ChatColor;

@@ -42,13 +42,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- This adds the VaultAPI artifact to the build -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
@@ -60,7 +53,7 @@
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
-            <version>LATEST</version>
+            <version>2.10.10</version>
             <scope>provided</scope>
         </dependency>
 
@@ -161,6 +154,20 @@
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/../lib/nms/S1_16_R3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>net.minecraft</groupId>
+            <artifactId>1_17_R1</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../lib/nms/S1_17_R1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.bukkit.craftbukkit</groupId>
+            <artifactId>libs</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../lib/nms/CraftBukkitLib.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>

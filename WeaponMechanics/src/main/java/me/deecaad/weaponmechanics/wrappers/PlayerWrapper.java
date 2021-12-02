@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.entity.Player;
 

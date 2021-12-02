@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
+import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;

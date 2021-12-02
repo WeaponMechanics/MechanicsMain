@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.entity.EntityCompatibility;
-import me.deecaad.compatibility.entity.FallingBlockWrapper;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.EntityCompatibility;
+import me.deecaad.core.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.primitive.DoubleEntry;

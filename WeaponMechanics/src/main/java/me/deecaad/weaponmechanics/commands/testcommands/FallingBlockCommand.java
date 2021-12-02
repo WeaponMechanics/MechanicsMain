@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.ICompatibility;
-import me.deecaad.compatibility.entity.EntityCompatibility;
-import me.deecaad.compatibility.entity.FallingBlockWrapper;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.ICompatibility;
+import me.deecaad.core.compatibility.entity.EntityCompatibility;
+import me.deecaad.core.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.EnumUtil;
@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.FIRE;
-import static me.deecaad.compatibility.entity.EntityCompatibility.EntityMeta.GLOWING;
+import static me.deecaad.core.compatibility.entity.EntityCompatibility.EntityMeta.FIRE;
+import static me.deecaad.core.compatibility.entity.EntityCompatibility.EntityMeta.GLOWING;
 
 @CommandPermission(permission = "weaponmechanics.commands.test.fallingblock")
 public class FallingBlockCommand extends SubCommand {

@@ -14,35 +14,49 @@
     </properties>
 
     <repositories>
+        <!-- This adds the Spigot Maven repository to the build -->
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
         <!-- Adds WorldGuard -->
         <repository>
-            <id>sk89q-repo</id>
-            <url>http://maven.sk89q.com/repo/</url>
+            <id>enginehub-maven</id>
+            <url>https://maven.enginehub.org/repo/</url>
         </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>me.deecaad.core.compatibility</groupId>
             <artifactId>MechanicsCoreCompatibility</artifactId>
             <version>1.0.0</version>
         </dependency>
 
-        <!-- Adds WorldGuard -->
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-legacy</artifactId>
-            <version>6.2</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Adds WorldEdit -->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-bukkit</artifactId>
-            <version>6.1.5</version>
-            <scope>provided</scope>
+            <artifactId>worldedit</artifactId>
+            <version>6.1.9</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../../lib/worldguard/worldedit-bukkit-6.1.9.jar</systemPath>
+        </dependency>
+
+        <!-- Adds WorldGuard -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard</artifactId>
+            <version>6.2.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../../lib/worldguard/worldguard-bukkit-6.2.2.jar</systemPath>
         </dependency>
     </dependencies>
-
 </project>

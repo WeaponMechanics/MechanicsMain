@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
-import me.deecaad.compatibility.vault.IVaultCompatibility;
-import me.deecaad.compatibility.vault.VaultAPI;
+import me.deecaad.core.compatibility.vault.IVaultCompatibility;
+import me.deecaad.core.compatibility.vault.VaultAPI;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.entity.Player;

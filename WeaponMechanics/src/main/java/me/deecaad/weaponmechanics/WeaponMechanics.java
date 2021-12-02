@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
+import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.Configuration;

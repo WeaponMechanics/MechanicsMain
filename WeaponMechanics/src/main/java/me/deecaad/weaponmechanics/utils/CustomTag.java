@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.utils;
 
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.inventory.ItemStack;
 
 /**

@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
-import me.deecaad.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
+import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;

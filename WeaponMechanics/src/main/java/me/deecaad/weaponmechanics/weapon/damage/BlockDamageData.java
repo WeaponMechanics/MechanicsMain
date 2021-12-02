@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import me.deecaad.compatibility.CompatibilityAPI;
-import me.deecaad.compatibility.block.BlockCompatibility;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;

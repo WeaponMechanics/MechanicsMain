@@ -1,6 +1,6 @@
 package me.deecaad.weaponcompatibility;
 
-import me.deecaad.compatibility.CompatibilitySetup;
+import me.deecaad.core.compatibility.CompatibilitySetup;
 import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponcompatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;

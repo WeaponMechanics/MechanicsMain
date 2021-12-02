@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import me.deecaad.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.NumberUtil;
