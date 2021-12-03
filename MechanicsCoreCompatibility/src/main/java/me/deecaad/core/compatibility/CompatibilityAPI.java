@@ -12,7 +12,7 @@ public final class CompatibilityAPI {
     static {
         VersionSetup versionSetup = new VersionSetup();
         version = versionSetup.getVersionAsNumber(versionSetup.getVersionAsString());
-        compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.compatibility");
+        compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.core.compatibility");
     }
 
     /**

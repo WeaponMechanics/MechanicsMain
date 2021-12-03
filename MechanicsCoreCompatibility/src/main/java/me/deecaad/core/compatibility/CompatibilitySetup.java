@@ -51,6 +51,7 @@ public class CompatibilitySetup {
             if (reflectionCompatibility == null) return null;
             return interfaceClazz.cast(reflectionCompatibility);
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             return null;
         }
     }
