@@ -2,7 +2,6 @@ package me.deecaad.weaponcompatibility.shoot;
 
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.EntityDamageSourceIndirect;
 import net.minecraft.world.entity.EntityLiving;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;

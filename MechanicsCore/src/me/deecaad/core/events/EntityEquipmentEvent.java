@@ -57,11 +57,13 @@ public class EntityEquipmentEvent extends EntityEvent {
         if (getEntityType() != EntityType.PLAYER)
             throw new IllegalStateException("Cannot get inventory slot from non-player " + getEntity());
 
-        Player player = (Player) getEntity();
+        // todo ?
+        /*Player player = (Player) getEntity();
         switch (slot) {
             case FEET:
                 player.
-        }
+        }*/
+        return 0;
     }
 
     /**
