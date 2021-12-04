@@ -8,11 +8,20 @@ public final class CompatibilityAPI {
 
     private static final double version;
     private static final ICompatibility compatibility;
+    private static final boolean isPaper;
 
     static {
+        boolean isPaper1;
         VersionSetup versionSetup = new VersionSetup();
         version = versionSetup.getVersionAsNumber(versionSetup.getVersionAsString());
         compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.core.compatibility");
+
+        try {
+            isPaper1 = Class.forName("com.desktroystokyo.paper.VersionHistoryManager$VersionData") != null;
+        } catch (ClassNotFoundException ex) {
+            isPaper1 = false;
+        }
+        isPaper = isPaper1;
     }
 
     /**
@@ -28,6 +37,10 @@ public final class CompatibilityAPI {
      */
     public static double getVersion() {
         return version;
+    }
+
+    public static boolean isPaper() {
+        return isPaper;
     }
 
     public static ICompatibility getCompatibility() {

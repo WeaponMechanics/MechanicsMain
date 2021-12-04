@@ -92,16 +92,17 @@ public final class FileUtil {
         ) {
             for (Path p : directories) {
                 String path = p.toString();
+                String fullPath = path.startsWith("/") ? path.substring(1) : path;
                 path = path.substring(path.lastIndexOf('/'));
 
                 // Handle nested folders
                 File file = new File(output, path);
                 if (path.indexOf('.') == -1) {
-                    copyResourcesTo(clazz, loader, p.toString(), file);
+                    copyResourcesTo(clazz, loader, fullPath, file);
                     continue;
                 }
 
-                URL streamHolder = loader.getResource(p.toString());
+                URL streamHolder = loader.getResource(fullPath);
                 if (streamHolder == null) {
                     // This should never occur
                     throw new InternalError("Unknown resource: " + p);

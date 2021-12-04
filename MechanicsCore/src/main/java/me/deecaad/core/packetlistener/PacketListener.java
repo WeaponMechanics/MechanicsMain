@@ -52,7 +52,7 @@ public abstract class PacketListener {
     private static final Class<?> serverConnectionClass;
     private static final Field minecraftServerField;
     private static final Field serverConnectionField;
-    private static final Method networkMarketsMethod;
+    private static final Field networkMarkersField;
 
     static {
         final Class<?> entityPlayerClass = ReflectionUtil.getNMSClass("server.level", "EntityPlayer");
@@ -71,7 +71,8 @@ public abstract class PacketListener {
         serverConnectionClass = ReflectionUtil.getNMSClass("server.connection", "ServerConnection");
         minecraftServerField = ReflectionUtil.getField(craftServerClass, minecraftServerClass);
         serverConnectionField = ReflectionUtil.getField(minecraftServerClass, serverConnectionClass);
-        networkMarketsMethod = ReflectionUtil.getMethod(serverConnectionClass, Collection.class, serverConnectionClass);
+        networkMarkersField = ReflectionUtil.getField(serverConnectionClass, "pending");
+        System.out.println("We got our network markers field! " + networkMarkersField);
     }
 
     // Simple way to get unique handlerNames if one plugin
@@ -90,9 +91,6 @@ public abstract class PacketListener {
     private boolean isClosed;
     private Listener listener;
 
-    // Lock from that stops the main thread from changing
-    // the List (or Queue in Paper) in the ServerConnection
-    // while we are injecting server channels
     private final Collection<Object> lock;
 
     // Minecraft Server Channels
@@ -126,21 +124,21 @@ public abstract class PacketListener {
         Object mcServer = ReflectionUtil.invokeField(minecraftServerField, plugin.getServer());
         Object serverConnection = ReflectionUtil.invokeField(serverConnectionField, mcServer);
 
-        this.lock = (Collection<Object>) ReflectionUtil.invokeMethod(networkMarketsMethod, null, serverConnection);
+        this.lock = (Collection<Object>) ReflectionUtil.invokeField(networkMarkersField, serverConnection);
 
         endInitProtocol = new ChannelInitializer<Channel>() {
             @Override
             protected void initChannel(Channel channel) {
+
+                // No need to keep adding channels if
+                // this listener is already closed
+                if (isClosed) return;
+
                 try {
 
-                    // We need to make sure the main thread doesn't
-                    // interfere with the lock while we are injecting
-                    // incoming channels
+                    // We cannot allow new channels to be added to the manager while we
+                    // are submitting our own.
                     synchronized (PacketListener.this.lock) {
-
-                        // No need to keep adding channels if
-                        // this listener is already closed
-                        if (isClosed) return;
 
                         channel.eventLoop().submit(() -> injectChannel(channel));
                     }
