@@ -7,6 +7,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import net.minecraft.server.network.ServerConnection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -60,7 +61,7 @@ public abstract class PacketListener {
         final Class<?> networkManagerClass = ReflectionUtil.getNMSClass("network", "NetworkManager");
         final Class<?> craftServerClass = ReflectionUtil.getCBClass("CraftServer");
 
-        LOGIN_PACKET = ReflectionUtil.getPacketClass("PacketLoginInStart");
+        LOGIN_PACKET = ReflectionUtil.getNMSClass("network.protocol.login", "PacketLoginInStart");
         GAME_PROFILE = ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
 
         playerConnectionField = ReflectionUtil.getField(entityPlayerClass, playerConnectionClass);
@@ -68,7 +69,7 @@ public abstract class PacketListener {
         channelField = ReflectionUtil.getField(networkManagerField.getType(), Channel.class);
 
         minecraftServerClass = ReflectionUtil.getNMSClass("server", "MinecraftServer");
-        serverConnectionClass = ReflectionUtil.getNMSClass("server.connection", "ServerConnection");
+        serverConnectionClass = ReflectionUtil.getNMSClass("server.network", "ServerConnection");
         minecraftServerField = ReflectionUtil.getField(craftServerClass, minecraftServerClass);
         serverConnectionField = ReflectionUtil.getField(minecraftServerClass, serverConnectionClass);
         networkMarkersField = ReflectionUtil.getField(serverConnectionClass, "pending");
