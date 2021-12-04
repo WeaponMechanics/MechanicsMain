@@ -265,7 +265,10 @@ public final class VectorUtil {
         double magnitudeB = b.length();
 
         double dot = a.dot(b);
-        return Math.acos(dot / (magnitudeA * magnitudeB));
+
+        // This Math.min is requires for parallel vectors, as floating point
+        // issues often cause numbers like 1.002
+        return Math.acos(Math.min(1.0, dot / (magnitudeA * magnitudeB)));
     }
 
     /**
@@ -277,6 +280,8 @@ public final class VectorUtil {
      * @return true if the vector has no magnitude
      */
     public static boolean isEmpty(Vector vector) {
-        return NumberUtil.equals(vector.getX() + vector.getY() + vector.getZ(), 0.0);
+        return NumberUtil.equals(vector.getX(), 0.0) &&
+                NumberUtil.equals(vector.getY(), 0.0) &&
+                NumberUtil.equals(vector.getZ(), 0.0);
     }
 }
