@@ -1,0 +1,14 @@
+# me.deecaad.weaponmechanics.particles.SpawnParticle
+Particle:
+  1_Particle_Spawn:
+    Location_Finder:
+      X: <sideways>
+      Y: <upwards>
+      Z: <forwards>
+    Particle: <Particle>
+    Particle_Amount: <amount>
+    Particle_Speed: <speed>
+    Extra_Data:
+      Type: <Material>-<Data>
+      Color: <ColorType>
+  2_Particle_Spawn: <etc.>

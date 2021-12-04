@@ -1,0 +1,9 @@
+Reload:
+  Trigger: <trigger serializer>
+  Magazine_Size: <amount>
+  Ammo_Per_Reload: <amount>
+  Unload_Ammo_On_Reload: <true/false>
+  Reload_Duration: <ticks>
+  Start_Mechanics: <MechanicsSerializer>
+  Finish_Mechanics: <MechanicsSerializer>
+  Ammo: <ammo serializer>

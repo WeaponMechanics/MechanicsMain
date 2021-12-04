@@ -1,0 +1,5 @@
+# me.deecaad.weaponmechanics.mechanics.defaultmechanics.MovementMechanic
+Movement:
+  Movement_Speed: <speed>
+  Towards_Target: <true/false>
+  Vertical_Modifier: <multiplier>

@@ -1,0 +1,31 @@
+Default-Projectile:
+  Projectile:
+    Settings:
+      Type: "DROPPED_ITEM"
+      Width: 0.25
+      Height: 0.25
+      Projectile_Item_Or_Block:
+        Type: IRON_NUGGET
+    Projectile_Motion:
+      Gravity: 0.05
+      Minimum:
+        Speed: 40
+        Remove_Projectile_On_Speed_Reached: true
+      Maximum:
+        Speed: 160
+        Remove_Projectile_On_Speed_Reached: false
+      Decrease_Motion:
+        Base: 0.95
+        In_Water: 0.60
+        When_Raining_Or_Snowing: 0.9
+    Through:
+      Blocks:
+        Maximum_Pass_Throughs: 2
+        Default_Speed_Modifier: 0.80
+        Whitelist: true
+        List:
+          - $GLASS
+      Entities:
+        Maximum_Pass_Throughs: 1
+        Allow_Any_Entity: true
+        Default_Speed_Modifier: 0.55

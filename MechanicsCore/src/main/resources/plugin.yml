@@ -1,0 +1,12 @@
+name: 'MechanicsCore'
+author: 'DeeCaaD'
+authors:
+- 'CJCrafter'
+version: '1.0.0'
+api-version: '1.13' # DO NOT SET HIGHER OR LOWER THAN THIS
+description: 'Core containing many useful methods'
+main: 'me.deecaad.core.MechanicsCore'
+softdepend:
+- 'PlaceholderAPI'
+- 'WorldGuard'
+- 'WorldEdit'

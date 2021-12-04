@@ -1,9 +1,0 @@
-# me.deecaad.weaponmechanics.weapon.shoot.spread.ModifySpreadWhen
-Modify_Spread_When:
-  Zooming: <amount> or <amount>%
-  Sneaking: <amount> or <amount>%
-  Standing: <amount> or <amount>%
-  Walking: <amount> or <amount>%
-  Swimming: <amount> or <amount>%
-  In_Midair: <amount> or <amount>%
-  Gliding: <amount> or <amount>%

@@ -1,0 +1,7 @@
+# me.deecaad.weaponmechanics.weapon.info.DualWield
+Dual_Wield:
+  Whitelist: <true/false>
+  Weapons:
+  - <weapon title>
+  - <etc.>
+  Mechanics_On_Deny: <MechanicsSerializer>

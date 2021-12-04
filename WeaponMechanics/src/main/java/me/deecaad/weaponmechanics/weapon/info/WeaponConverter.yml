@@ -1,0 +1,6 @@
+# me.deecaad.weaponmechanics.weapon.info.WeaponConverter
+Weapon_Converter_Check:
+  Type: <true/false>
+  Name: <true/false>
+  Lore: <true/false>
+  Enchants: <true/false>

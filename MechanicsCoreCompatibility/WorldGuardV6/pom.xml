@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>me.deecaad.core.compatibility.worldguard</groupId>
+    <artifactId>WorldGuardV6</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <repositories>
+        <!-- This adds the Spigot Maven repository to the build -->
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
+        <!-- Adds WorldGuard -->
+        <repository>
+            <id>enginehub-maven</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>me.deecaad.core.compatibility</groupId>
+            <artifactId>MechanicsCoreCompatibility</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!-- Adds WorldEdit -->
+        <dependency>
+            <groupId>com.sk89q.worldedit</groupId>
+            <artifactId>worldedit</artifactId>
+            <version>6.1.9</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../../lib/worldguard/worldedit-bukkit-6.1.9.jar</systemPath>
+        </dependency>
+
+        <!-- Adds WorldGuard -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard</artifactId>
+            <version>6.2.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../../lib/worldguard/worldguard-bukkit-6.2.2.jar</systemPath>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,5 @@
+# me.deecaad.weaponmechanics.weapon.shoot.spread.SpreadImage
+Spread_Image:
+  Name: <path>
+  Field_Of_View_Width: <degrees> # 45 by default
+  Field_Of_View_Height: <degrees> # 45 by default
