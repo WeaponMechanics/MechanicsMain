@@ -251,6 +251,13 @@ public class TriggerPlayerListeners implements Listener {
 
         if (mainWeapon == null && offWeapon == null) return;
 
+        if (playerWrapper.getMainHandData().isReloading() || playerWrapper.getOffHandData().isReloading()) {
+            // Cancel reload (and other tasks) since drop item will most of the time cause
+            // itemstack reference change which will cause other bugs (e.g. infinite reload bug)
+            playerWrapper.getMainHandData().cancelTasks();
+            playerWrapper.getOffHandData().cancelTasks();
+        }
+
         if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item", true)
                 || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item", true)) {
 
@@ -266,6 +273,8 @@ public class TriggerPlayerListeners implements Listener {
             playerWrapper.droppedWeapon();
 
             // This due to sometimes the instance changes in item drop...
+            // - 1 item in slot when dropping -> reference changes
+            // - 2 items or more in slot when dropping -> reference stays same
             Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, mainWeapon,
                     useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand(),
                     EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield));
