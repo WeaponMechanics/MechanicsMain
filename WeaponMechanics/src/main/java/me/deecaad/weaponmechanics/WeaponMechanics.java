@@ -263,12 +263,17 @@ public class WeaponMechanics extends JavaPlugin {
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        packetListener = new PacketHandlerListener(this, debug);
-        packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
+        try {
+            packetListener = new PacketHandlerListener(this, debug);
+            packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
+            packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
+            packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
+            packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
+            packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
+        } catch (NullPointerException e) {
+            // TODO remove this when packet listeners are fixed for 1.17
+            debug.error("TODO REMOVE THIS ::Failed to register packet listeners:: TODO REMOVE THIS");
+        }
     }
 
     void registerCommands() {
