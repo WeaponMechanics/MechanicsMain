@@ -6,7 +6,7 @@
 
     <groupId>me.deecaad.core.compatibility.worldguard</groupId>
     <artifactId>WorldGuardV6</artifactId>
-    <version>1.0.0</version>
+    <version>Unknown</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -20,18 +20,20 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
 
-        <!-- Adds WorldGuard -->
+        <!-- Adds WorldGuard and WorldEdit -->
         <repository>
-            <id>enginehub-maven</id>
+            <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
     </repositories>
 
     <dependencies>
+
+        <!-- 1.12 since WG and WE v6 is for 1.12 and before  -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -41,7 +43,6 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!-- Adds WorldEdit -->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit</artifactId>
@@ -50,7 +51,6 @@
             <systemPath>${basedir}/../../lib/worldguard/worldedit-bukkit-6.1.9.jar</systemPath>
         </dependency>
 
-        <!-- Adds WorldGuard -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard</artifactId>
