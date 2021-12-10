@@ -44,7 +44,6 @@ import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
-import net.minecraft.server.network.ServerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
@@ -55,6 +54,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -175,7 +175,12 @@ public class WeaponMechanics extends JavaPlugin {
         debug.debug("Loading config.yml");
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0)
             FileUtil.copyResourcesTo(getClass(), getClassLoader(), "WeaponMechanics", getDataFolder());
-        FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
+
+        try {
+            FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
+        } catch (YAMLException e) {
+            debug.error("WeaponMechanics jar corruption... This is most likely caused by using /reload after building jar!");
+        }
 
         // Ensure that the resource pack exists in the folder
         FileUtil.ensureFile(getClassLoader(), "WeaponMechanics/WeaponMechanicsResourcePack.zip",
