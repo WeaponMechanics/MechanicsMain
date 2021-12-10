@@ -16,4 +16,4 @@ What to exactly test from this feature?
 **Can you think of ways to break this feature?**
 If you can think of anything that might break this feature, let us know.
 
-## When posting testing results, make sure to include configurations used!
+## When posting testing results, make sure to include configurations used! Also post benchmark using nano (convert to millis)
