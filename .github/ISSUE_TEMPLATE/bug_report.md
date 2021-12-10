@@ -16,6 +16,9 @@ What you saw.
 **Steps to Reproduce**
 How to reproduce this bug step by step. Include configuration of weapon.
 
+**Frequency**
+How often this bug occurs?
+
 **Version**
 What is your server, WeaponMechanics and MechanicsCore version? Do ```/wm info``` command in-game to see them easily.
 
