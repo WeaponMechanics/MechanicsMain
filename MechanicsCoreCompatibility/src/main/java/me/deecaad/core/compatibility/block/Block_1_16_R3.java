@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,10 +27,13 @@ public class Block_1_16_R3 implements BlockCompatibility {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
         multiBlockChangeC = ReflectionUtil.getField(multiBlockChangeClass, "c");
+
+        assert multiBlockChangeB != null;
+        assert multiBlockChangeC != null;
     }
 
     @Override
-    public Object getCrackPacket(Block block, int crack) {
+    public @NotNull Object getCrackPacket(@NotNull Block block, int crack) {
 
         int id = IDS.incrementAndGet();
         if (id == Integer.MAX_VALUE) {
@@ -40,18 +44,18 @@ public class Block_1_16_R3 implements BlockCompatibility {
     }
 
     @Override
-    public Object getCrackPacket(@Nonnull Block block, int crack, int id) {
+    public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
     }
 
     @Override
-    public Object getBlockMaskPacket(Block bukkitBlock, org.bukkit.Material mask, byte data) {
+    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, org.bukkit.Material mask, byte data) {
         return getBlockMaskPacket(bukkitBlock, ((CraftBlockData) mask.createBlockData()).getState());
     }
 
     @Override
-    public Object getBlockMaskPacket(Block bukkitBlock, BlockState mask) {
+    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, @NotNull BlockState mask) {
         return getBlockMaskPacket(bukkitBlock, ((CraftBlockState) mask).getHandle());
     }
 
@@ -71,7 +75,7 @@ public class Block_1_16_R3 implements BlockCompatibility {
     }
 
     @Override
-    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable org.bukkit.Material mask, byte data) {
+    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable org.bukkit.Material mask, byte data) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -93,7 +97,7 @@ public class Block_1_16_R3 implements BlockCompatibility {
     }
 
     @Override
-    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
+    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable BlockState mask) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -105,7 +109,7 @@ public class Block_1_16_R3 implements BlockCompatibility {
         }
 
         List<Object> packets = new ArrayList<>(sortedBlocks.size());
-        IBlockData theMask = ((CraftBlockState) mask).getHandle();
+        IBlockData theMask = mask == null ? null : ((CraftBlockState) mask).getHandle();
 
         for (List<Block> entry : sortedBlocks.values()) {
             packets.add(getMultiBlockMaskPacket(entry, theMask));

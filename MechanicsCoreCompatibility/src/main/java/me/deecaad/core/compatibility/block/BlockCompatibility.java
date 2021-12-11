@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -127,7 +128,7 @@ public interface BlockCompatibility {
     List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nonnull Material mask, @Nonnegative byte data);
 
     /**
-     * Returns a list of multi block change packets that masks all of the given
+     * Returns a list of multi block change packets that masks all given
      * <code>blocks</code>. The packet will make the block <i>appear</i> as the
      * given <code>mask</code>. The mask for each individual block is removed
      * if it is interacted with.
@@ -145,5 +146,17 @@ public interface BlockCompatibility {
      * @return The non-null list of non-null block mask packets.
      */
     @Nonnull
-    List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nonnull BlockState mask);
+    List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nullable BlockState mask);
+
+    /**
+     * Returns a positive float representing the blast material of a given
+     * block. Materials with a higher blast resistance are less likely to
+     * be destroyed by explosions.
+     *
+     * @param block The non-null bukkit block.
+     * @return Positive float representing the blast resistance.
+     */
+    default float getBlastResistance(Block block) {
+        return block.getType().getBlastResistance();
+    }
 }

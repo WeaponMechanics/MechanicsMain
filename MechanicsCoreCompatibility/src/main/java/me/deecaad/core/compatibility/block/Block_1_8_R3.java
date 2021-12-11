@@ -9,6 +9,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.block.CraftBlock;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,14 +22,18 @@ import java.util.Map;
 public class Block_1_8_R3 implements BlockCompatibility {
 
     private static final Field multiBlockChangeB;
+    private static final Field durabilityField;
 
     static {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
+
+        Class<?> blockClass = ReflectionUtil.getNMSClass("", "Block");
+        durabilityField = ReflectionUtil.getField(blockClass, "durability");
     }
 
     @Override
-    public Object getCrackPacket(Block block, int crack) {
+    public @NotNull Object getCrackPacket(@NotNull Block block, int crack) {
 
         int id = IDS.incrementAndGet();
         if (id == Integer.MAX_VALUE) {
@@ -39,20 +44,21 @@ public class Block_1_8_R3 implements BlockCompatibility {
     }
 
     @Override
-    public Object getCrackPacket(@Nonnull Block block, int crack, int id) {
+    public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public Object getBlockMaskPacket(Block bukkitBlock, Material mask, byte data) {
+    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, Material mask, byte data) {
         IBlockData blockData = net.minecraft.server.v1_8_R3.Block.getByCombinedId(mask.getId() | data << 12);
 
         return getBlockMaskPacket(bukkitBlock, blockData);
     }
 
     @Override
-    public Object getBlockMaskPacket(Block bukkitBlock, BlockState mask) {
+    public @NotNull Object getBlockMaskPacket(Block bukkitBlock, @NotNull BlockState mask) {
         WorldServer world = ((CraftWorld) bukkitBlock.getWorld()).getHandle();
         BlockPosition pos = new BlockPosition(bukkitBlock.getX(), bukkitBlock.getY(), bukkitBlock.getZ());
         IBlockData blockData = world.c(pos).getBlockData();
@@ -72,8 +78,9 @@ public class Block_1_8_R3 implements BlockCompatibility {
         return packet;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable Material mask, byte data) {
+    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable Material mask, byte data) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -95,7 +102,7 @@ public class Block_1_8_R3 implements BlockCompatibility {
     }
 
     @Override
-    public List<Object> getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
+    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable BlockState mask) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -108,9 +115,12 @@ public class Block_1_8_R3 implements BlockCompatibility {
 
         List<Object> packets = new ArrayList<>(sortedBlocks.size());
 
-        WorldServer world = ((CraftWorld) mask.getWorld()).getHandle();
-        BlockPosition pos = new BlockPosition(mask.getX(), mask.getY(), mask.getZ());
-        IBlockData blockData = world.c(pos).getBlockData();
+        IBlockData blockData = null;
+        if (mask != null) {
+            WorldServer world = ((CraftWorld) mask.getWorld()).getHandle();
+            BlockPosition pos = new BlockPosition(mask.getX(), mask.getY(), mask.getZ());
+            blockData = world.c(pos).getBlockData();
+        }
 
         for (List<Block> entry : sortedBlocks.values()) {
             packets.add(getMultiBlockMaskPacket(entry, blockData));
@@ -149,5 +159,14 @@ public class Block_1_8_R3 implements BlockCompatibility {
 
         ReflectionUtil.setField(multiBlockChangeB, packet, changes);
         return packet;
+    }
+
+    @Override
+    public float getBlastResistance(Block block) {
+        WorldServer world = ((CraftWorld) block.getWorld()).getHandle();
+        BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
+        net.minecraft.server.v1_8_R3.Block nmsBlock = world.c(pos).getBlockData().getBlock();
+
+        return (float) ReflectionUtil.invokeField(durabilityField, nmsBlock) / 5.0f;
     }
 }

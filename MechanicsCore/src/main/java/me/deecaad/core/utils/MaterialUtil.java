@@ -2,8 +2,10 @@ package me.deecaad.core.utils;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -15,16 +17,6 @@ import java.util.Optional;
  * assist in parsing materials from a {@link String} input.
  */
 public final class MaterialUtil {
-
-    private static Method getState;
-    private static Method getBlock;
-    private static Method getDurability;
-
-    static {
-        if (CompatibilityAPI.getVersion() < 1.13) {
-            // todo
-        }
-    }
 
     // Don't let anyone instantiate this class
     private MaterialUtil() { }
@@ -69,64 +61,16 @@ public final class MaterialUtil {
     }
 
     /**
-     * Returns an immutable list of bukkit materials that match the input. If
-     * the <code>input</code> starts with a <code>$</code>, all materials that
-     * contain the input are added to the list.
-     *
-     * <p>Otherwise, this method returns an immutable list of 0 or 1 materials.
-     *
-     * @param input The input matcher. If the input starts with a $, it matches
-     *              multiple materials.
-     * @return A non-null, immutable list of all parsed materials.
-     * @see Collections#unmodifiableList(List)
-     * @see Collections#singletonList(Object)
-     * @see Collections#emptyList()
-     */
-    public static List<Material> parseMaterials(String input) {
-        return EnumUtil.parseEnums(Material.class, input);
-    }
-
-    /**
-     * Checks if the given <code>input</code> would match the given
-     * <code>mat</code>, if it were parsed in {@link #parseMaterials(String)}.
-     *
-     * @param mat   The material to check
-     * @param input The input check against
-     * @return <code>true</code> if the arguments match
-     */
-    public static boolean matches(Material mat, String input) {
-        input = input.trim().toUpperCase();
-
-        if (input.startsWith("$")) {
-
-            String base = input.substring(1);
-            return mat.name().contains(base);
-
-        } else {
-            return mat.name().equals(input.trim().toUpperCase());
-        }
-    }
-
-    /**
      * Returns a float representing the blast resistance, or the resistance to
      * explosions, of a specific {@link Material}. In legacy minecraft
      * versions, we have to rely on version dependant code to get the blast
      * resistance.
      *
-     * @param type
-     * @return
+     * @param type The non-null bukkit block.
+     * @return The positive resistance to explosions.
      */
-    public static float getBlastResistance(Material type) {
-        if (CompatibilityAPI.getVersion() < 1.13) {
-            if (isFluid(type)) {
-                return 100.0f;
-            }
-
-            // todo
-            return 0.0f;
-        } else {
-            return type.getBlastResistance();
-        }
+    public static float getBlastResistance(@Nonnull Block type) {
+        return CompatibilityAPI.getBlockCompatibility().getBlastResistance(type);
     }
 
     /**

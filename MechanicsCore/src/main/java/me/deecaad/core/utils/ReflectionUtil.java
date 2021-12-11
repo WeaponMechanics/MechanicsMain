@@ -18,6 +18,7 @@ import static me.deecaad.core.MechanicsCore.debug;
  * <p>The methods of this class are threadsafe. For most of the methods, if an
  * error occurs inside of the method, it will return <code>null</code>.
  */
+@SuppressWarnings("unused")
 public final class ReflectionUtil {
 
     private static final String versionString;
@@ -32,6 +33,7 @@ public final class ReflectionUtil {
     static {
 
         // Occurs when run without a server (e.x. In intellij)
+        //noinspection ConstantConditions
         if (Bukkit.getServer() == null) {
             versionString = "TESTING";
         } else {
@@ -101,7 +103,7 @@ public final class ReflectionUtil {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
             debug.log(LogLevel.ERROR, "Failed to get NMS class " + className + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -129,7 +131,7 @@ public final class ReflectionUtil {
             return Class.forName(cbVersion + className);
         } catch (ClassNotFoundException e) {
             debug.log(LogLevel.ERROR, "Failed to get CB class " + className + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -146,7 +148,7 @@ public final class ReflectionUtil {
             return clazz.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
             debug.log(LogLevel.ERROR, "Failed to get constructor. " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -169,7 +171,7 @@ public final class ReflectionUtil {
             return newInstance(constructorSupplier.getConstructor(classes), parameters);
         } catch (NoSuchMethodException e) {
             debug.log(LogLevel.ERROR, "Failed to instantiate class " + constructorSupplier + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -187,7 +189,7 @@ public final class ReflectionUtil {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             debug.log(LogLevel.ERROR, "Failed to instantiate class " + constructor + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -206,7 +208,7 @@ public final class ReflectionUtil {
             return constructor.newInstance();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             debug.log(LogLevel.ERROR, "Failed to instantiate class " + clazz + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -228,13 +230,15 @@ public final class ReflectionUtil {
     public static Field getField(@Nonnull Class<?> clazz, @Nonnull String fieldName) {
         try {
             Field field = clazz.getDeclaredField(fieldName);
+
+            //noinspection deprecation
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
             return field;
         } catch (NoSuchFieldException | SecurityException e) {
             debug.log(LogLevel.ERROR, "Failed to get field " + fieldName + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -287,6 +291,7 @@ public final class ReflectionUtil {
             if (index-- > 0)
                 continue;
 
+            //noinspection deprecation
             if (!field.isAccessible())
                 field.setAccessible(true);
 
@@ -315,7 +320,7 @@ public final class ReflectionUtil {
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             debug.log(LogLevel.ERROR, "Failed to invoke field " + field + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -338,7 +343,6 @@ public final class ReflectionUtil {
 
                     // Not sure why, but this does not allow modifying static final fields
                     modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-                } else {
                 }
             }
 
@@ -362,13 +366,15 @@ public final class ReflectionUtil {
     public static Method getMethod(@Nonnull Class<?> clazz, @Nonnull String methodName, Class<?>... parameters) {
         try {
             Method method = clazz.getDeclaredMethod(methodName, parameters);
+
+            //noinspection deprecation
             if (!method.isAccessible()) {
                 method.setAccessible(true);
             }
             return method;
         } catch (NoSuchMethodException | SecurityException e) {
             debug.log(LogLevel.ERROR, "Failed to find method " + methodName + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 
@@ -416,6 +422,7 @@ public final class ReflectionUtil {
             else if (index-- > 0)
                 continue;
 
+            //noinspection deprecation
             if (!method.isAccessible())
                 method.setAccessible(true);
 
@@ -446,7 +453,7 @@ public final class ReflectionUtil {
             return method.invoke(instance, parameters);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             debug.log(LogLevel.ERROR, "Failed to invoke method " + method + ". " + ERR, e);
-            return null;
+            throw new InternalError(e);
         }
     }
 }

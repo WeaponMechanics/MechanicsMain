@@ -58,7 +58,7 @@ class VectorUtilTest {
     private static Stream<Arguments> provide_min() {
         return Stream.of(
                 Arguments.of(new Vector(30, 40, 50), new Vector(20, 70, 50), new Vector(20, 40, 50)),
-                Arguments.of(new Vector(-5, -3, 70), new Vector(10, -5, 0), new Vector(-5, -5, 00))
+                Arguments.of(new Vector(-5, -3, 70), new Vector(10, -5, 0), new Vector(-5, -5, 0))
         );
     }
 

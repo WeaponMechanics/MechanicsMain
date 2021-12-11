@@ -79,10 +79,9 @@ public class DefaultExplosion implements ExplosionShape {
                         while (intensity > 0.0f) {
                             Block block = world.getBlockAt((int) x, (int) y, (int) z);
 
-                            Material type = block.getType();
 
                             if (!block.isEmpty()) {
-                                float resistance = MaterialUtil.getBlastResistance(type);
+                                float resistance = MaterialUtil.getBlastResistance(block);
 
                                 intensity -= (resistance + 0.3F) * ABSORB_RATE;
                             }
