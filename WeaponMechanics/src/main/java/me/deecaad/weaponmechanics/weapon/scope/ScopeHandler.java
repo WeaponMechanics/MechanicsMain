@@ -123,6 +123,8 @@ public class ScopeHandler implements IValidator {
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
 
+                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+
                 Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
                 if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 

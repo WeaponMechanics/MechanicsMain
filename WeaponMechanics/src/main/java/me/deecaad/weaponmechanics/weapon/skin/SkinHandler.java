@@ -25,8 +25,15 @@ public class SkinHandler implements IValidator {
 
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
         HandData hand = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+
         if (hand.getZoomData().isZooming()) {
             Skin zoomSkin = getConfigurations().getObject(weaponTitle + ".Skin.Scope", Skin.class);
+
+            Skin stackySkin = getConfigurations().getObject(weaponTitle + ".Skin.Scope_" + hand.getZoomData().getZoomStacks(), Skin.class);
+            if (stackySkin != null) {
+                zoomSkin = stackySkin;
+            }
+
             if (zoomSkin != null) {
                 zoomSkin.apply(weaponStack);
                 return true;
