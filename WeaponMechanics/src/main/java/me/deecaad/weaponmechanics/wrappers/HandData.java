@@ -60,6 +60,12 @@ public class HandData {
         }
     }
 
+    public void ifZoomingForceZoomOut() {
+        if (getZoomData().isZooming()) {
+            WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
+        }
+    }
+
     public boolean isUsingFullAuto() {
         return fullAutoTask != 0;
     }

@@ -53,6 +53,11 @@ public class ScopeHandler implements IValidator {
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
 
+        // Don't try to scope if either one of the hands is reloading
+        if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+            return false;
+        }
+
         ZoomData zoomData;
         // Only allow using zoom at one hand at time
         if (slot == EquipmentSlot.HAND) {

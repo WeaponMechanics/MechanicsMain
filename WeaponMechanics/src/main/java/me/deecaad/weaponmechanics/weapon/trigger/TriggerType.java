@@ -33,5 +33,9 @@ public enum TriggerType {
     END_IN_MIDAIR,
 
     START_STAND,
-    END_STAND
+    END_STAND;
+
+    public boolean isSprintType() {
+        return this == TriggerType.START_SPRINT || this == TriggerType.END_SPRINT;
+    }
 }

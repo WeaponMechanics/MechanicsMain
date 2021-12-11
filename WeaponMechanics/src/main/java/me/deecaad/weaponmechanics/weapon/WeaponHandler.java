@@ -123,13 +123,24 @@ public class WeaponHandler {
     public void tryUses(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
 
         // Try shooting
-        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) return;
+        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
+            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+            return;
+        }
 
         // Shooting wasn't valid, try reloading
-        if (reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) return;
+        if (reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
+            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+            return;
+        }
 
         // Reloading wasn't valid, try scoping
-        if (scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) return;
+        if (scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
+            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+            return;
+        }
+
+        if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
 
         // Scoping wasn't valid, try selective fire
         Configuration config = getConfigurations();
@@ -179,11 +190,6 @@ public class WeaponHandler {
 
             entityWrapper.getMainHandData().cancelTasks();
             entityWrapper.getOffHandData().cancelTasks();
-            return;
-        }
-
-        if (triggerType == TriggerType.START_SPRINT || triggerType == TriggerType.END_SPRINT) {
-            getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
         }
     }
 
