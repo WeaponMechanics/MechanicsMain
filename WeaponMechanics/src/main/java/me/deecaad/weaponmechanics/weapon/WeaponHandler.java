@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon;
 
+import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -68,6 +70,9 @@ public class WeaponHandler {
 
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
 
+        MCTiming timings = WeaponMechanics.timing("Weapon Handlers");
+        timings.startTiming();
+
         // getItemInMainHand didn't exist in 1.8
         ItemStack mainStack = useOffHand ? livingEntity.getEquipment().getItemInMainHand() : livingEntity.getEquipment().getItemInHand();
 
@@ -81,7 +86,10 @@ public class WeaponHandler {
             offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
         }
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null) {
+            timings.stopTiming();
+            return;
+        }
 
         // Only do dual wield check if server is 1.9 or newer
         if (useOffHand && infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
@@ -92,6 +100,8 @@ public class WeaponHandler {
 
         // Off weapon is automatically null at this point if server is using 1.8
         if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
+
+        timings.stopTiming();
     }
 
     /**

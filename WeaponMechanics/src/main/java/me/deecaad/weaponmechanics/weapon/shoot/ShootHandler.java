@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
+import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Configuration;
@@ -119,6 +120,8 @@ public class ShootHandler implements IValidator {
         // Cancel shooting if we can only shoot while scoped.
         if (config.getBool(weaponTitle + ".Shoot.Only_Shoot_While_Scoped") && !handData.getZoomData().isZooming()) return false;
 
+        MCTiming timings = WeaponMechanics.timing("Shoot Handler").startTiming();
+
         boolean mainhand = slot == EquipmentSlot.HAND;
 
         // Handle worldguard flags
@@ -137,6 +140,7 @@ public class ShootHandler implements IValidator {
                 entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
             }
 
+            timings.stopTiming();
             return false;
         }
 
@@ -183,8 +187,11 @@ public class ShootHandler implements IValidator {
                 doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
             }
 
+            timings.stopTiming();
             return false;
         }
+
+        timings.stopTiming();
 
         // FIREARM END
 

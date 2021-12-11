@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.utils.MaterialUtil;
@@ -315,6 +316,9 @@ public class CustomProjectile implements ICustomProjectile {
         Bukkit.getPluginManager().callEvent(hitBlockEvent);
         if (hitBlockEvent.isCancelled()) return true;
 
+        MCTiming explosionTimer = WeaponMechanics.timing("Explosions");
+        explosionTimer.startTiming();
+
         Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
         if (explosion != null) {
             Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
@@ -330,6 +334,7 @@ public class CustomProjectile implements ICustomProjectile {
                 if (shooter instanceof Player
                         ? !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode")
                         : !worldGuard.testFlag(loc, null, "weapon-explode")) {
+
                     Object obj = worldGuard.getValue(loc, "weapon-explode-message");
                     if (obj != null && !obj.toString().isEmpty()) {
                         shooter.sendMessage(StringUtil.color(obj.toString()));
@@ -354,6 +359,7 @@ public class CustomProjectile implements ICustomProjectile {
                 }
             }
         }
+        explosionTimer.stopTiming();
 
         return false;
     }
@@ -398,6 +404,9 @@ public class CustomProjectile implements ICustomProjectile {
             return true;
         }
 
+        MCTiming explosionTimer = WeaponMechanics.timing("Explosions");
+        explosionTimer.startTiming();
+
         Explosion explosion = getConfigurations().getObject(weaponTitle + ".Explosion", Explosion.class);
         if (explosion != null && !"true".equals(getTag("explosion-detonated")) && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
 
@@ -425,6 +434,7 @@ public class CustomProjectile implements ICustomProjectile {
                 setTag("explosion-detonated", "true");
             }
         }
+        explosionTimer.stopTiming();
 
         return false;
     }

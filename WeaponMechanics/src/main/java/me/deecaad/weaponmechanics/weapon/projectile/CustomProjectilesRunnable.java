@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
@@ -97,9 +98,16 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
 
         Iterator<ICustomProjectile> projectilesIterator = projectiles.iterator();
 
+        // Start timings for general projectile ticking. We may consider
+        // separating projectiles by weapon-title, but that would require more
+        // resources
+        MCTiming timing = WeaponMechanics.timing("Scheduled Projectiles");
+        timing.startTiming();
+
         while (projectilesIterator.hasNext()) {
             ICustomProjectile projectile = projectilesIterator.next();
             try {
+
                 if (projectile.tick()) {
                     Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(projectile));
                     projectilesIterator.remove();
@@ -110,5 +118,8 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
                 debug.log(LogLevel.WARN, "Removed Projectile: " + projectile, e);
             }
         }
+
+        // End timings for projectile ticking
+        timing.stopTiming();
     }
 }

@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics;
 
+import co.aikar.timings.lib.MCTiming;
+import co.aikar.timings.lib.TimingManager;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
@@ -78,6 +80,7 @@ public class WeaponMechanics extends JavaPlugin {
     UpdateChecker updateChecker;
     CustomProjectilesRunnable customProjectilesRunnable;
     PacketHandlerListener packetListener;
+    TimingManager timingManager;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -117,6 +120,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         plugin = this;
         entityWrappers = new HashMap<>();
+        timingManager = TimingManager.of(this);
 
         writeFiles();
         registerPacketListeners();
@@ -507,5 +511,9 @@ public class WeaponMechanics extends JavaPlugin {
      */
     public static WeaponHandler getWeaponHandler() {
         return plugin.weaponHandler;
+    }
+
+    public static MCTiming timing(String name) {
+        return plugin.timingManager.of(name);
     }
 }
