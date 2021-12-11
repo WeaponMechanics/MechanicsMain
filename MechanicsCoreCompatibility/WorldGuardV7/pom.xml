@@ -4,7 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.deecaad.core.compatibility.worldguard</groupId>
+    <parent>
+        <artifactId>MechanicsMain</artifactId>
+        <groupId>me.deecaad</groupId>
+        <version>0.0-FINAL</version>
+    </parent>
+
     <artifactId>WorldGuardV7</artifactId>
     <version>Unknown</version>
 
@@ -14,11 +19,6 @@
     </properties>
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
 
         <!-- Adds WorldGuard and WorldEdit -->
         <repository>
@@ -29,7 +29,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>me.deecaad.core.compatibility</groupId>
+            <groupId>me.deecaad</groupId>
             <artifactId>MechanicsCoreCompatibility</artifactId>
             <version>1.0.0</version>
         </dependency>

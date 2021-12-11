@@ -6,7 +6,7 @@
 
     <groupId>me.deecaad</groupId>
     <artifactId>MechanicsMain</artifactId>
-    <version>Unknown</version> <!-- No need for version -->
+    <version>0.0-FINAL</version> <!-- No need for version -->
 
     <packaging>pom</packaging>
     <modules>
@@ -23,4 +23,20 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.18-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

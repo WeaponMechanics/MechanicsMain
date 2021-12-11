@@ -4,7 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.deecaad.core</groupId>
+    <parent>
+        <artifactId>MechanicsMain</artifactId>
+        <groupId>me.deecaad</groupId>
+        <version>0.0-FINAL</version>
+    </parent>
+
     <artifactId>MechanicsCore</artifactId>
     <version>1.0.0</version>
 
@@ -14,12 +19,6 @@
     </properties>
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-
         <!-- Adds Mojang GameProfile -->
         <repository>
             <id>minecraft-repo</id>
@@ -35,13 +34,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.18-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.mojang</groupId>
             <artifactId>authlib</artifactId>
             <version>1.5.21</version>
@@ -49,7 +41,7 @@
         </dependency>
 
         <dependency>
-            <groupId>me.deecaad.core.compatibility</groupId>
+            <groupId>me.deecaad</groupId>
             <artifactId>MechanicsCoreCompatibility</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -74,7 +66,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
