@@ -3,7 +3,7 @@ Info:
   Weapon_Info_Display: <weapon info display serializer>
   Dual_Wield: <dual wield serializer>
   Weapon_Converter_Check: <weapon converter serializer>
-  Weapon_Get_Actions: <MechanicsSerializer>
+  Weapon_Get_Mechanics: <MechanicsSerializer>
   Melee:
     Enable_Left_Click: <true/false>
     Enable_Right_Click: <true/false>

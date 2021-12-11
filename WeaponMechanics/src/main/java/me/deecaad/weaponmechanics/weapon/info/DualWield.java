@@ -42,15 +42,15 @@ public class DualWield implements Serializer<DualWield> {
      * @param weaponTitle the other weapon title
      * @return true only if dual wielding is allowed
      */
-    public boolean denyDualWieldingWith(@Nullable String weaponTitle) {
+    public boolean denyDualWieldingWith(String weaponTitle) {
         if (!whitelist) {
             // If blacklist and list contains weapon title
             // -> dual wield is not allowed
-            return weaponTitle != null || weapons.contains(weaponTitle.toLowerCase());
+            return weapons.contains(weaponTitle.toLowerCase());
         }
         // If whitelist and list DOES not contains weapon title
         // -> dual wield is not allowed
-        return weaponTitle == null || !weapons.contains(weaponTitle.toLowerCase());
+        return !weapons.contains(weaponTitle.toLowerCase());
     }
 
     /**
