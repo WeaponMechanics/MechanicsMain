@@ -90,7 +90,7 @@ public final class StringUtil {
 
             if (c != '&') {
                 result.append(c);
-            } else if (i != 0 && string.charAt(i - 1) == '/') {
+            } else if (i != 0 && string.charAt(i - 1) == '\\') {
                 result.setCharAt(result.length() - 1, '&');
             } else if (i + 1 != string.length()) {
                 if (CODES.indexOf(string.charAt(i + 1)) != -1) {
@@ -115,7 +115,11 @@ public final class StringUtil {
 
                         i--;
                     }
+                } else {
+                    result.append('&');
                 }
+            } else {
+                result.append('&');
             }
         }
 
@@ -155,7 +159,7 @@ public final class StringUtil {
      * @return The non-null split strings.
      */
     public static String[] splitCapitalLetters(String from) {
-        return from.split("(?<=.)(?=\\p{Lu})");
+        return from.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
     }
 
     /**
