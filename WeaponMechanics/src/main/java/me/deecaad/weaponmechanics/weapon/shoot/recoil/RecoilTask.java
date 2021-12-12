@@ -5,6 +5,7 @@ import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -68,15 +69,18 @@ public class RecoilTask extends TimerTask {
         // If this returns true, that means task is terminated
         if (handleNewRecoil()) return;
 
-        if (isRotating) {
-            Location location = playerWrapper.getPlayer().getLocation();
-            float pitch = location.getPitch() < -80 ? 0 : pitchPerIteration;
-            shouldBeLastPitch -= pitch;
-            shouldBeLastYaw += yawPerIteration;
-            shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitch, false);
-        } else if (counter >= waitRotations) {
-            // Let recovering happen normally without checking any maximum pitch changes
-            shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitchPerIteration, false);
+        // This first check in case non-repeating pattern is used, and it has reached its end -> don't send unnecessary packets
+        if (!(yawPerIteration == 0 && pitchPerIteration == 0)) {
+            if (isRotating) {
+                Location location = playerWrapper.getPlayer().getLocation();
+                float pitch = location.getPitch() < -80 ? 0 : pitchPerIteration;
+                shouldBeLastPitch -= pitch;
+                shouldBeLastYaw += yawPerIteration;
+                shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitch, false);
+            } else if (counter >= waitRotations) {
+                // Let recovering happen normally without checking any maximum pitch changes
+                shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitchPerIteration, false);
+            }
         }
 
         if (++counter >= rotations) {
@@ -100,11 +104,17 @@ public class RecoilTask extends TimerTask {
             float yaw = location.getYaw();
             float pitch = location.getPitch();
 
-            // If user input changed yaw more than 45 deg
-            // -> don't recover yaw
-            yawPerIteration = Math.abs(calculateYawUserInput(yaw)) > 45 ? 0 : calculateYawDifference(yaw) / rotations;
+            if (yawPerIteration == 0 && pitchPerIteration == 0) {
+                // Non-repeating pattern which reached its end was used, meaning we don't really want to do recovery anymore
+                yawPerIteration = 0;
+                pitchPerIteration = 0;
+            } else {
+                // If user input changed yaw more than 45 deg
+                // -> don't recover yaw
+                yawPerIteration = Math.abs(calculateYawUserInput(yaw)) > 45 ? 0 : calculateYawDifference(yaw) / rotations;
 
-            pitchPerIteration = calculatePitchUserInput(pitch) > 45 ? 0 : calculatePitchDifference(pitch) / rotations * -1;
+                pitchPerIteration = calculatePitchUserInput(pitch) > 45 ? 0 : calculatePitchDifference(pitch) / rotations * -1;
+            }
 
             // Last add that wait time for rotations
             rotations += waitRotations;
@@ -125,12 +135,15 @@ public class RecoilTask extends TimerTask {
         float rotateYaw = 0;
         float rotatePitch = 0;
 
+        boolean nonRepeatingPatternReachedEnd = false;
         RecoilPattern pattern = tempRecoil.getRecoilPattern();
         if (pattern != null) {
             RecoilPattern.ExtraRecoilPatternData nextData = getNext(pattern);
             if (nextData != null) {
                 rotateYaw = nextData.getHorizontalRecoil();
                 rotatePitch = nextData.getVerticalRecoil();
+            } else {
+                nonRepeatingPatternReachedEnd = true;
             }
         }
 
@@ -143,7 +156,8 @@ public class RecoilTask extends TimerTask {
             rotatePitch = vertical.get(NumberUtil.random(vertical.size()));
         }
 
-        if (rotateYaw == 0 && rotatePitch == 0) {
+        // If its non-repeating pattern which reached end these would be 0
+        if (!nonRepeatingPatternReachedEnd && rotateYaw == 0 && rotatePitch == 0) {
             // Neither one wasn't used?
             // Terminate this task...
             handData.setRecoilTask(null);
@@ -158,6 +172,11 @@ public class RecoilTask extends TimerTask {
             rotations = 1;
             yawPerIteration = rotateYaw;
             pitchPerIteration = rotatePitch;
+        } else if (nonRepeatingPatternReachedEnd) {
+            // We don't want to do anything when its non-repeating pattern
+            rotations = (int) (pushTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
+            yawPerIteration = 0;
+            pitchPerIteration = 0;
         } else {
             rotations = (int) (pushTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
             yawPerIteration = rotateYaw / rotations;
@@ -169,7 +188,6 @@ public class RecoilTask extends TimerTask {
         Location playerLocation = playerWrapper.getPlayer().getLocation();
 
         // Calculate where last yaw spot should be
-        //shouldBeLastYaw = shouldBeLastYaw == -361 ? playerLocation.getYaw() + rotateYaw : shouldBeLastYaw + rotateYaw;
         if (shouldBeLastYaw == -361) {
             shouldBeLastYaw = playerLocation.getYaw();
         }
