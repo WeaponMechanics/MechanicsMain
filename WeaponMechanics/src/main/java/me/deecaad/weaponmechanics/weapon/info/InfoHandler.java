@@ -150,16 +150,14 @@ public class InfoHandler {
      * @param amount the amount of weapons to give
      */
     public void giveOrDropWeapon(String weaponTitle, Player player, int amount) {
-        ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class).clone();
+        ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class);
+        if (weaponStack == null) return;
+        weaponStack = weaponStack.clone();
         weaponStack.setAmount(amount);
 
-        // Check for weapon title typos silently
-        if (weaponStack == null)
-            return;
-
         ItemMeta weaponMeta = weaponStack.getItemMeta();
-        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), null, weaponStack, weaponTitle));
-        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), null, weaponStack, weaponTitle));
+        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle));
+        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle));
         weaponStack.setItemMeta(weaponMeta);
 
         // Apply default skin
@@ -189,36 +187,40 @@ public class InfoHandler {
      * @return whether or not dual wielding is allowed
      */
     public boolean denyDualWielding(TriggerType checkCause, @Nullable Player player, @Nullable String mainWeaponTitle, @Nullable String offWeaponTitle) {
-        DualWield mainDualWield = null;
+
+        // Just simple check whether other hand is empty anyway
+        if (mainWeaponTitle == null && offWeaponTitle != null || offWeaponTitle == null && mainWeaponTitle != null) return false;
 
         // Check that main hand weapon allows
         if (mainWeaponTitle != null) {
-            mainDualWield = getConfigurations().getObject(mainWeaponTitle + ".Info.Dual_Wield", DualWield.class);
+            DualWield mainDualWield = getConfigurations().getObject(mainWeaponTitle + ".Info.Dual_Wield", DualWield.class);
+            if (mainDualWield == null) {
+                // Doesn't allow since its null
+                return true;
+            }
 
             // Check if works with off hand weapon
-            if (mainDualWield != null && mainDualWield.denyDualWieldingWith(offWeaponTitle)) {
+            if (mainDualWield.denyDualWieldingWith(offWeaponTitle)) {
                 mainDualWield.sendDeniedMessage(checkCause, player, mainWeaponTitle);
                 return true;
             }
         }
 
-        DualWield offDualWield = null;
-
         // Check that off hand weapon allows
         if (offWeaponTitle != null) {
-            offDualWield = getConfigurations().getObject(offWeaponTitle + ".Info.Dual_Wield", DualWield.class);
+            DualWield offDualWield = getConfigurations().getObject(offWeaponTitle + ".Info.Dual_Wield", DualWield.class);
+            if (offDualWield == null) {
+                // Doesn't allow since its null
+                return true;
+            }
 
             // Check if works with main hand weapon
-            if (offDualWield != null && offDualWield.denyDualWieldingWith(mainWeaponTitle)) {
+            if (offDualWield.denyDualWieldingWith(mainWeaponTitle)) {
                 offDualWield.sendDeniedMessage(checkCause, player, offWeaponTitle);
                 return true;
             }
         }
 
-        // Dual wield option wasn't used and both hands had weapons
-        // -> disable dual wielding by default
-        // If this is false, then dual wielding is allowed
-        return mainWeaponTitle != null && offWeaponTitle != null
-                && mainDualWield == null && offDualWield == null;
+        return false;
     }
 }

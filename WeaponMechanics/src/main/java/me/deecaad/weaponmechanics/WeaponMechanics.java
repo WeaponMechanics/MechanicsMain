@@ -279,7 +279,7 @@ public class WeaponMechanics extends JavaPlugin {
             packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
             packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
             packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
-        } catch (NullPointerException e) {
+        } catch (Throwable e) {
             // TODO remove this when packet listeners are fixed for 1.17
             debug.error("TODO REMOVE THIS ::Failed to register packet listeners:: TODO REMOVE THIS");
         }

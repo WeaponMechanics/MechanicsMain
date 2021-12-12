@@ -11,7 +11,7 @@ FN_FAL:
       Action_Bar:
         Message: "&r%weapon-title% %selective_fire_state% &e«%ammo-left%»&r%reload%"
         Time: 40
-    Weapon_Get_Actions:
+    Weapon_Get_Mechanics:
       Sounds:
         - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
     Cancel:

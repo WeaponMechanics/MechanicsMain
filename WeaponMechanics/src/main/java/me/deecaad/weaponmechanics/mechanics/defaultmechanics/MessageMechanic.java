@@ -237,6 +237,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
             ClickEvent.Action clickEventAction = null;
             String clickEventValue = null;
             String hoverEventValue = configurationSection.getString(path + ".Chat.Hover_Text");
+            if (hoverEventValue != null) hoverEventValue = StringUtil.color(hoverEventValue);
 
             String clickEventString = configurationSection.getString(path + ".Chat.Click");
             if (clickEventString != null) {
@@ -250,7 +251,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                 }
                 try {
                     clickEventAction = ClickEvent.Action.valueOf(parsedClickEvent[0].toUpperCase());
-                    clickEventValue = parsedClickEvent[1];
+                    clickEventValue = StringUtil.color(parsedClickEvent[1]);
+
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
                             StringUtil.foundInvalid("ClickEvent.Action"),
@@ -259,7 +261,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                     return null;
                 }
             }
-            chatData = new ChatData(StringUtil.color(chatMessage), clickEventAction, StringUtil.color(clickEventValue), StringUtil.color(hoverEventValue));
+            chatData = new ChatData(StringUtil.color(chatMessage), clickEventAction, clickEventValue, hoverEventValue);
         }
 
         // ACTION BAR

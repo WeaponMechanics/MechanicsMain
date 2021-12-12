@@ -3,8 +3,10 @@ package me.deecaad.weaponmechanics.weapon.skin;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -24,6 +26,10 @@ public class SkinHandler implements IValidator {
     }
 
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
+        return tryUse(null, entityWrapper, weaponTitle, weaponStack, slot);
+    }
+
+    public boolean tryUse(TriggerType triggerType, IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
         HandData hand = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         if (hand.getZoomData().isZooming()) {
@@ -48,7 +54,10 @@ public class SkinHandler implements IValidator {
             }
         }
 
-        if (entityWrapper.isSprinting()) {
+        // Checks are like this due to when PlayerToggleSprintEvent is called player isn't yet actually sprinting
+        // since the event is also cancellable. This ignores the cancelling of sprint event,
+        // it doesn't do anything if its cancelled anyway :p
+        if (triggerType == TriggerType.START_SPRINT || triggerType == null && entityWrapper.isSprinting()) {
             Skin sprintSkin = getConfigurations().getObject(weaponTitle + ".Skin.Sprint", Skin.class);
             if (sprintSkin != null) {
                 sprintSkin.apply(weaponStack);

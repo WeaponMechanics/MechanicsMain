@@ -86,6 +86,10 @@ public class ReloadHandler implements IValidator {
             ammoLeft = 0;
         }
 
+        // On reload force zoom out
+        entityWrapper.getMainHandData().ifZoomingForceZoomOut();
+        entityWrapper.getOffHandData().ifZoomingForceZoomOut();
+
         boolean mainhand = slot == EquipmentSlot.HAND;
         HandData handData = mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         int tempMagazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
