@@ -37,8 +37,7 @@ public interface ICompatibility {
     Entity getEntityById(@Nonnull World world, int entityId);
 
     /**
-     * Returns the nms {@link net.minecraft.server.level.EntityPlayer} wrapped
-     * by the given bukkit {@link Player}.
+     * Returns the nms EntityPlayer wrapped by the given bukkit {@link Player}.
      *
      * @param player The non-null bukkit player.
      * @return The non-null nms player.
@@ -68,8 +67,7 @@ public interface ICompatibility {
 
     /**
      * Returns this version's loaded {@link NBTCompatibility}. The classes for
-     * each version can be found in the nbt package
-     * ({@link me.deecaad.compatibility.nbt}).
+     * each version can be found in the nbt package.
      *
      * @return This version's non-null nbt compatibility.
      * @throws UnsupportedOperationException In minecraft protocol versions
@@ -80,8 +78,7 @@ public interface ICompatibility {
 
     /**
      * Returns this version's loaded {@link EntityCompatibility}. The classes
-     * for each version can be found in the entity package
-     * ({@link me.deecaad.compatibility.entity}).
+     * for each version can be found in the entity package.
      *
      * @return This version's non-null entity compatibility.
      */
@@ -90,8 +87,7 @@ public interface ICompatibility {
 
     /**
      * Returns this version's loaded {@link BlockCompatibility}. The classes
-     * for each version can be found in the block package
-     * ({@link me.deecaad.compatibility.block}).
+     * for each version can be found in the block package.
      *
      * @return This version's non-null block compatibility.
      */

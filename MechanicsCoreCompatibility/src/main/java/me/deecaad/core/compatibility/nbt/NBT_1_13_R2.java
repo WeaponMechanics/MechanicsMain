@@ -1,6 +1,5 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.MechanicsCore;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftCustomTagTypeRegistry;
@@ -107,7 +106,7 @@ public class NBT_1_13_R2 implements NBTCompatibility {
             meta.getCustomTagContainer();
         }
 
-        NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), plugin);
+        NamespacedKey key = new NamespacedKey(PLUGIN_NO_USE, plugin);
         CustomItemTagContainer nbt = meta.getCustomTagContainer().getCustomTag(key, ItemTagType.TAG_CONTAINER);
 
         if (nbt == null) {
@@ -119,6 +118,6 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     private NamespacedKey getKey(String key) {
-        return new NamespacedKey(MechanicsCore.getPlugin(), "MechanicsCore:" + key);
+        return new NamespacedKey(PLUGIN_NO_USE, "MechanicsCore:" + key);
     }
 }

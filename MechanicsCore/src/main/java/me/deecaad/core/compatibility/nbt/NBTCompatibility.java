@@ -1,7 +1,7 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -10,10 +10,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * This interface outlines a version dependant api that return values based on
@@ -23,6 +25,8 @@ import java.util.Locale;
  * <p>NBT stands for Named Binary Tag.
  */
 public interface NBTCompatibility {
+
+    Plugin PLUGIN_NO_USE = Objects.requireNonNull(Bukkit.getPluginManager().getPlugin("MechanicsCore"));
 
     /**
      * Returns <code>true</code> if the given <code>bukkitItem</code>'s NBT
@@ -38,7 +42,7 @@ public interface NBTCompatibility {
      */
     default boolean hasString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
 
         return getCompound(meta, plugin).has(tag, PersistentDataType.STRING);
     }
@@ -76,7 +80,7 @@ public interface NBTCompatibility {
      */
     default String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String def) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
         PersistentDataContainer nbt = getCompound(meta, plugin);
 
         if (nbt.has(tag, PersistentDataType.STRING)) {
@@ -103,7 +107,7 @@ public interface NBTCompatibility {
      */
     default void setString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String value) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
         PersistentDataContainer nbt = getCompound(meta, plugin);
 
         nbt.set(tag, PersistentDataType.STRING, value);
@@ -125,7 +129,7 @@ public interface NBTCompatibility {
      */
     default boolean hasInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
 
         return getCompound(meta, plugin).has(tag, PersistentDataType.INTEGER);
     }
@@ -163,7 +167,7 @@ public interface NBTCompatibility {
      */
     default int getInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int def) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
         PersistentDataContainer nbt = getCompound(meta, plugin);
 
         if (nbt.has(tag, PersistentDataType.INTEGER)) {
@@ -190,7 +194,7 @@ public interface NBTCompatibility {
      */
     default void setInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int value) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
         PersistentDataContainer nbt = getCompound(meta, plugin);
 
         nbt.set(tag, PersistentDataType.INTEGER, value);
@@ -212,7 +216,7 @@ public interface NBTCompatibility {
      */
     default boolean hasDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
 
         return getCompound(meta, plugin).has(tag, PersistentDataType.DOUBLE);
     }
@@ -250,7 +254,7 @@ public interface NBTCompatibility {
      */
     default double getDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double def) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
         PersistentDataContainer nbt = getCompound(meta, plugin);
 
         if (nbt.has(tag, PersistentDataType.DOUBLE)) {
@@ -277,7 +281,7 @@ public interface NBTCompatibility {
      */
     default void setDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double value) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
+        NamespacedKey tag = new NamespacedKey(PLUGIN_NO_USE, key);
         PersistentDataContainer nbt = getCompound(meta, plugin);
 
         nbt.set(tag, PersistentDataType.DOUBLE, value);
@@ -331,7 +335,7 @@ public interface NBTCompatibility {
             return bukkitCompound;
         }
 
-        NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), plugin);
+        NamespacedKey key = new NamespacedKey(PLUGIN_NO_USE, plugin);
         PersistentDataContainer nbt = bukkitCompound.get(key, PersistentDataType.TAG_CONTAINER);
 
         // If no such container exists, we should create a new one and update
@@ -356,7 +360,7 @@ public interface NBTCompatibility {
      */
     default void setCompound(@Nonnull ItemMeta meta, @Nullable String plugin, PersistentDataContainer nbt) {
         if (plugin != null) {
-            NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), plugin);
+            NamespacedKey key = new NamespacedKey(PLUGIN_NO_USE, plugin);
             meta.getPersistentDataContainer().set(key, PersistentDataType.TAG_CONTAINER, nbt);
         }
     }

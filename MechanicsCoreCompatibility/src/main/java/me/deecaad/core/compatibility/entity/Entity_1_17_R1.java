@@ -4,7 +4,6 @@ import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.compatibility.equipevent.v1_17_R1_NonNullList;
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
@@ -42,6 +41,7 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -49,8 +49,6 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static me.deecaad.core.MechanicsCore.debug;
 
 public class Entity_1_17_R1 implements EntityCompatibility {
 
@@ -123,7 +121,6 @@ public class Entity_1_17_R1 implements EntityCompatibility {
         // I don't think this should happen, at least not often. Make
         // sure to return some packet though
         if (items == null || items.isEmpty()) {
-            debug.debug("Entity " + entity + " does not have metadata");
             return new PacketPlayOutEntityMetadata(nmsEntity.getId(), dataWatcher, true);
         }
 
@@ -182,7 +179,7 @@ public class Entity_1_17_R1 implements EntityCompatibility {
     }
 
     @Override
-    public void spawnFirework(Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects) {
+    public void spawnFirework(Plugin plugin, Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects) {
         if (loc.getWorld() == null) {
             throw new IllegalArgumentException("Location#getWorld must not return null!");
         }
@@ -219,7 +216,7 @@ public class Entity_1_17_R1 implements EntityCompatibility {
                     compatibility.sendPackets(player, statusPacket, destroyPacket);
                 }
             }
-        }.runTaskLaterAsynchronously(MechanicsCore.getPlugin(), flightTime);
+        }.runTaskLaterAsynchronously(plugin, flightTime);
     }
 
     @Override

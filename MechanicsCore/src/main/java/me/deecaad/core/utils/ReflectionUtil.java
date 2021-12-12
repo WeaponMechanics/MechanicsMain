@@ -1,14 +1,15 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
-
-import static me.deecaad.core.MechanicsCore.debug;
 
 /**
  * This final utility class outlines static methods that operate on or return
@@ -27,6 +28,7 @@ public final class ReflectionUtil {
 
     private static final Field modifiersField;
     private static final int javaVersion;
+    private static final int mcVersion;
 
     private static final String ERR = "This is probably caused by your minecraft server version. Contact a DEV for more help.";
 
@@ -36,8 +38,10 @@ public final class ReflectionUtil {
         //noinspection ConstantConditions
         if (Bukkit.getServer() == null) {
             versionString = "TESTING";
+            mcVersion = -1;
         } else {
             versionString = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+            mcVersion = Integer.parseInt(versionString.split("_")[1]);
         }
 
         nmsVersion = "net.minecraft.server." + versionString + '.';
@@ -70,6 +74,10 @@ public final class ReflectionUtil {
     private ReflectionUtil() {
     }
 
+    public static int getMCVersion() {
+        return mcVersion;
+    }
+
     /**
      * Returns the major java version. For java versions that start with a one
      * (E.x. <samp>1.8</samp>), this method will return 8. For newer java
@@ -94,7 +102,7 @@ public final class ReflectionUtil {
     public static Class<?> getNMSClass(@Nonnull String pack, @Nonnull String name) {
         String className;
 
-        if (CompatibilityAPI.getVersion() < 1.17)
+        if (getMCVersion() < 17)
             className = nmsVersion + name;
         else
             className = "net.minecraft." + pack + '.' + name;
@@ -102,8 +110,7 @@ public final class ReflectionUtil {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
-            debug.log(LogLevel.ERROR, "Failed to get NMS class " + className + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to get NMS class " + className + ". " + ERR, e);
         }
     }
 
@@ -130,8 +137,7 @@ public final class ReflectionUtil {
         try {
             return Class.forName(cbVersion + className);
         } catch (ClassNotFoundException e) {
-            debug.log(LogLevel.ERROR, "Failed to get CB class " + className + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to get CB class " + className + ". " + ERR, e);
         }
     }
 
@@ -147,8 +153,7 @@ public final class ReflectionUtil {
         try {
             return clazz.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
-            debug.log(LogLevel.ERROR, "Failed to get constructor. " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to get constructor. " + ERR, e);
         }
     }
 
@@ -170,8 +175,7 @@ public final class ReflectionUtil {
         try {
             return newInstance(constructorSupplier.getConstructor(classes), parameters);
         } catch (NoSuchMethodException e) {
-            debug.log(LogLevel.ERROR, "Failed to instantiate class " + constructorSupplier + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to instantiate class " + constructorSupplier + ". " + ERR, e);
         }
     }
 
@@ -188,8 +192,16 @@ public final class ReflectionUtil {
         try {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            debug.log(LogLevel.ERROR, "Failed to instantiate class " + constructor + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to instantiate class " + constructor + ". " + ERR, e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getClass(@Nonnull String className) {
+        try {
+            return (Class<T>) Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new InternalError("Failed to find class with name " + className + ". " + ERR, e);
         }
     }
 
@@ -207,8 +219,7 @@ public final class ReflectionUtil {
             Constructor<T> constructor = clazz.getConstructor();
             return constructor.newInstance();
         } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            debug.log(LogLevel.ERROR, "Failed to instantiate class " + clazz + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to instantiate class " + clazz + ". " + ERR, e);
         }
     }
 
@@ -237,8 +248,7 @@ public final class ReflectionUtil {
             }
             return field;
         } catch (NoSuchFieldException | SecurityException e) {
-            debug.log(LogLevel.ERROR, "Failed to get field " + fieldName + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to get field " + fieldName + ". " + ERR, e);
         }
     }
 
@@ -319,8 +329,7 @@ public final class ReflectionUtil {
         try {
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            debug.log(LogLevel.ERROR, "Failed to invoke field " + field + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to invoke field " + field + ". " + ERR, e);
         }
     }
 
@@ -348,7 +357,7 @@ public final class ReflectionUtil {
 
             field.set(instance, value);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            debug.log(LogLevel.ERROR, "Failed to set field " + field + ". " + ERR, e);
+            throw new InternalError("Failed to set field " + field + ". " + ERR, e);
         }
     }
 
@@ -373,8 +382,7 @@ public final class ReflectionUtil {
             }
             return method;
         } catch (NoSuchMethodException | SecurityException e) {
-            debug.log(LogLevel.ERROR, "Failed to find method " + methodName + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to find  method " + methodName + ". " + ERR, e);
         }
     }
 
@@ -452,8 +460,7 @@ public final class ReflectionUtil {
         try {
             return method.invoke(instance, parameters);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            debug.log(LogLevel.ERROR, "Failed to invoke method " + method + ". " + ERR, e);
-            throw new InternalError(e);
+            throw new InternalError("Failed to invoke method " + method + ". " + ERR, e);
         }
     }
 }

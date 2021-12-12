@@ -1,7 +1,5 @@
 package me.deecaad.core.compatibility.vault;
 
-import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.utils.Debugger;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -23,26 +21,17 @@ public class VaultCompatibility implements IVaultCompatibility, Listener {
     public VaultCompatibility() {
         refreshVault();
 
-        Bukkit.getPluginManager().registerEvents(this, MechanicsCore.getPlugin());
+        Bukkit.getPluginManager().registerEvents(this, Bukkit.getPluginManager().getPlugin("MechanicsCore"));
     }
 
     private void refreshVault() {
         if (Bukkit.getPluginManager().getPlugin("Vault") == null)
             throw new IllegalStateException("Vault is not installed or is not loaded. Instead use NoVaultCompatibility");
 
-        Debugger debug = MechanicsCore.debug;
-
         ServicesManager services = Bukkit.getServicesManager();
         Chat chat = services.load(Chat.class);
         Permission permission = services.load(Permission.class);
         Economy economy = services.load(Economy.class);
-
-        if (this.chat != chat)
-            debug.debug("Registered new Vault chat: " + (chat == null ? "null" : chat.getName()));
-        if (this.permission != permission)
-            debug.debug("Registered new Vault permission: " + (permission == null ? "null" : permission.getName()));
-        if (this.economy != economy)
-            debug.debug("Registered new Vault economy: " + (economy == null ? "null" : economy.getName()));
 
         this.chat = chat;
         this.permission = permission;

@@ -94,12 +94,12 @@ public final class StringUtil {
                 result.setCharAt(result.length() - 1, '&');
             } else if (i + 1 != string.length()) {
                 if (CODES.indexOf(string.charAt(i + 1)) != -1) {
-                    result.append('§');
+                    result.append('\u00a7');
                 } else if (string.charAt(i + 1) == '#') {
                     int bound = i + 7;
                     if (bound <= string.length()) {
 
-                        result.append('§').append('x');
+                        result.append('\u00a7').append('x');
 
                         // We have to skip forward 2 for the color code and hex symbol
                         i += 2;
@@ -110,7 +110,7 @@ public final class StringUtil {
                         // should have no problem checking their hex.
 
                         for (; i <= bound; i++) {
-                            result.append('§').append(string.charAt(i));
+                            result.append('\u00a7').append(string.charAt(i));
                         }
 
                         i--;

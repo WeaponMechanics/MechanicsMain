@@ -7,7 +7,6 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.network.ServerConnection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

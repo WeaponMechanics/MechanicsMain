@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
@@ -21,7 +22,7 @@ import java.util.List;
 
 /**
  * This interface outlines a version dependant api that return values based on
- * different {@link org.bukkit.entity.Entity} input. There should be an
+ * different {@link Entity} input. There should be an
  * implementing class for each minecraft protocol version.
  *
  * <p>Some methods of this class require the {@link net.minecraft.server}
@@ -40,7 +41,7 @@ public interface EntityCompatibility {
      * @return The non-null NMS entity.
      */
     @Nonnull
-    Object getNMSEntity(@Nonnull org.bukkit.entity.Entity entity);
+    Object getNMSEntity(@Nonnull Entity entity);
 
     /**
      * Returns the unique integer id of the given <code>entity</code>. This id
@@ -50,7 +51,7 @@ public interface EntityCompatibility {
      * @param entity The non-null bukkit entity to grab the id of.
      * @return The unique id of the entity.
      */
-    int getId(@Nonnull org.bukkit.entity.Entity entity);
+    int getId(@Nonnull Entity entity);
 
     /**
      * Returns a spawn packet for the given NMS entity. The returned packet
@@ -137,6 +138,7 @@ public interface EntityCompatibility {
      * <p>The explosion occurs asynchronously, <code>flightTime</code> ticks
      * after it is launched.
      *
+     * @param plugin     The non-null plugin to hold the task.
      * @param loc        The non-null world and coordinates to spawn the
      *                   firework at.
      * @param players    The non-null list of non-null players that should see
@@ -146,7 +148,7 @@ public interface EntityCompatibility {
      * @param effects    The non-null effects that should be displayed during
      *                   the explosion.
      */
-    void spawnFirework(@Nonnull Location loc, @Nonnull Collection<? extends Player> players,
+    void spawnFirework(@Nonnull Plugin plugin, @Nonnull Location loc, @Nonnull Collection<? extends Player> players,
                        @Nonnegative byte flightTime, @Nonnull FireworkEffect... effects);
 
     /**

@@ -1,7 +1,10 @@
 package me.deecaad.core.compatibility;
 
-import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.Bukkit;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 public class VersionSetup {
 
@@ -43,6 +46,16 @@ public class VersionSetup {
         double mainVersion = Double.parseDouble(splitVersion[0]);
         double subVersion = Double.parseDouble(splitVersion[1]) / 100;
         double subSubVersion = Double.parseDouble(splitVersion[2]) / 1000;
-        return NumberUtil.getAsRounded(mainVersion + subVersion + subSubVersion, 3);
+
+        double value = mainVersion + subVersion + subSubVersion;
+        if (value % 1 == 0) {
+            return (int) value;
+        }
+        int intValue = (int) value;
+        BigDecimal bigDecimal = new BigDecimal(value - intValue, new MathContext(3, RoundingMode.HALF_UP));
+        bigDecimal = bigDecimal.add(new BigDecimal(intValue));
+        bigDecimal = bigDecimal.stripTrailingZeros();
+        return Double.parseDouble(bigDecimal.toPlainString());
+
     }
 }

@@ -1,8 +1,0 @@
-name: 'WeaponMechanicsPlus'
-author: 'DeeCaaD'
-version: '1.00'
-description: 'Must have addon for WeaponMechanics!'
-main: 'me.deecaad.weaponmechanicsplus.WeaponMechanicsPlus'
-api-version: '1.15'
-depend:
-  - WeaponMechanics

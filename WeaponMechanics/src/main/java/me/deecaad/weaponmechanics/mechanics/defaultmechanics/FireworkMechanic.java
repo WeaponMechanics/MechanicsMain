@@ -60,7 +60,7 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         if (players.isEmpty()) {
             return;
         }
-        CompatibilityAPI.getCompatibility().getEntityCompatibility().spawnFirework(location, players, (byte) flightTime, fireworkEffect);
+        CompatibilityAPI.getCompatibility().getEntityCompatibility().spawnFirework(WeaponMechanics.getPlugin(), location, players, (byte) flightTime, fireworkEffect);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
-
 import java.util.UUID;
 
 /**
@@ -9,10 +7,10 @@ import java.util.UUID;
  */
 public enum AttributeType {
 
-    GENERIC_MOVEMENT_SPEED(new UUID(2872L, 894653L), CompatibilityAPI.getVersion() < 1.16 ? "generic.movementSpeed" : "generic.movement_speed"),
-    GENERIC_MAX_HEALTH(new UUID(2872L, 894652L), CompatibilityAPI.getVersion() < 1.16 ? "generic.maxHealth" : "generic.max_health"),
-    GENERIC_ATTACK_DAMAGE(new UUID(2872L, 894651L), CompatibilityAPI.getVersion() < 1.16 ? "generic.attackDamage" : "generic.attack_damage"),
-    GENERIC_ATTACK_SPEED(new UUID(2872L, 894650L), CompatibilityAPI.getVersion() < 1.16 ? "generic.attackSpeed" : "generic.attack_speed");
+    GENERIC_MOVEMENT_SPEED(new UUID(2872L, 894653L), ReflectionUtil.getMCVersion() < 16 ? "generic.movementSpeed" : "generic.movement_speed"),
+    GENERIC_MAX_HEALTH(new UUID(2872L, 894652L), ReflectionUtil.getMCVersion() < 16 ? "generic.maxHealth" : "generic.max_health"),
+    GENERIC_ATTACK_DAMAGE(new UUID(2872L, 894651L), ReflectionUtil.getMCVersion() < 16 ? "generic.attackDamage" : "generic.attack_damage"),
+    GENERIC_ATTACK_SPEED(new UUID(2872L, 894650L), ReflectionUtil.getMCVersion() < 16 ? "generic.attackSpeed" : "generic.attack_speed");
 
     private final UUID uuid;
     private final String minecraftName;
@@ -35,5 +33,4 @@ public enum AttributeType {
     public String getMinecraftName() {
         return this.minecraftName;
     }
-
 }

@@ -4,6 +4,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -47,7 +48,7 @@ public class FireworkCommand extends SubCommand {
                 .build();
 
         EntityCompatibility compatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
-        compatibility.spawnFirework(player.getLocation(), Collections.singleton(player), flightTime, effect);
+        compatibility.spawnFirework(WeaponMechanics.getPlugin(), player.getLocation(), Collections.singleton(player), flightTime, effect);
     }
 
     @Override

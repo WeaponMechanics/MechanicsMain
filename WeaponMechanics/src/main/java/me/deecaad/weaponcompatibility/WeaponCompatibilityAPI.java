@@ -7,9 +7,9 @@ import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
 
 public class WeaponCompatibilityAPI {
 
-    private static IWeaponCompatibility weaponCompatibility;
+    private static me.deecaad.weaponcompatibility.IWeaponCompatibility weaponCompatibility;
 
-    public static IWeaponCompatibility getWeaponCompatibility() {
+    public static me.deecaad.weaponcompatibility.IWeaponCompatibility getWeaponCompatibility() {
         if (weaponCompatibility == null) {
             weaponCompatibility = new CompatibilitySetup().getCompatibleVersion(IWeaponCompatibility.class, "me.deecaad.weaponcompatibility");
         }

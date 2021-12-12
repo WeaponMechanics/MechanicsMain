@@ -19,11 +19,11 @@ public final class WorldGuardAPI {
             // I couldn't compile the code because of odd BukkitAdapter thing
             if (CompatibilityAPI.getVersion() < 1.13) {
                 // V6
-                Constructor<?> worldGuardV6Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.compatibility.worldguard.WorldGuardV6"));
+                Constructor<?> worldGuardV6Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV6"));
                 worldGuardCompatibility = (IWorldGuardCompatibility) ReflectionUtil.newInstance(worldGuardV6Constructor);
             } else {
                 // V7
-                Constructor<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.compatibility.worldguard.WorldGuardV7"));
+                Constructor<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV7"));
                 worldGuardCompatibility = (IWorldGuardCompatibility) ReflectionUtil.newInstance(worldGuardV7Constructor);
             }
         } catch (ClassNotFoundException e) {

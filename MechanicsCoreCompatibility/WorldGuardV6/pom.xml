@@ -8,6 +8,7 @@
         <artifactId>MechanicsMain</artifactId>
         <groupId>me.deecaad</groupId>
         <version>0.0-FINAL</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>WorldGuardV6</artifactId>
