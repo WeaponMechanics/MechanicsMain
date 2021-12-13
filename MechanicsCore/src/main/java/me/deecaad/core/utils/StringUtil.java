@@ -352,8 +352,8 @@ public final class StringUtil {
      * }</pre></blockquote>
      *
      * @param input   The non-null user end input. This is the input that is
-     *                possible misspelled.
-     * @param options All of the possible options that the input could be.
+     *                possibly misspelled.
+     * @param options All possible options that the input could be.
      * @return The most similar string to <code>input</code>.
      */
     public static String didYouMean(String input, Iterable<String> options) {
@@ -383,8 +383,10 @@ public final class StringUtil {
         for (int i = 0; i < str.length(); i++) {
             try {
                 table[Character.toLowerCase(str.charAt(i)) - 97]++;
-            } catch (ArrayIndexOutOfBoundsException e) {
-                MechanicsCore.debug.error("Unexpected character: " + str.charAt(i));
+            } catch (ArrayIndexOutOfBoundsException ignore) {
+                // Sometimes a string will contain something like an underscore.
+                // We can safely ignore those characters and count the ones that
+                // matter.
             }
         }
         return table;

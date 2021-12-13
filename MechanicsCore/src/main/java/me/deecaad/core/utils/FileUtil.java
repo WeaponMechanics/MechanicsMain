@@ -38,8 +38,7 @@ public final class FileUtil {
      * copied.
      *
      * @param clazz    The non-null loading plugin class.
-     * @param loader   The non-null loading plugin's class loader. Use
-     *                 {@link JavaPlugin#getClassLoader()}.
+     * @param loader   The non-null loading plugin's class loader.
      * @param resource The non-null name of the resource to copy.
      * @param output   The non-null directory. It is important that
      *                 {@link File#isDirectory()} returns true for this file.
@@ -130,8 +129,7 @@ public final class FileUtil {
      * Ensures that a given <code>file</code> has all of the config options
      * defined by the <code>resource</code>.
      *
-     * @param loader   The non-null loading plugin's class loader. Use
-     *                 {@link JavaPlugin#getClassLoader()}.
+     * @param loader   The non-null loading plugin's class loader.
      * @param resource The non-null name of the resource to copy.
      * @param file     The output file that should have the default values.
      */

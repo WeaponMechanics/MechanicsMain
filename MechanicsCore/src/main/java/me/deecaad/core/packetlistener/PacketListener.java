@@ -52,6 +52,8 @@ public abstract class PacketListener {
     private static final Class<?> serverConnectionClass;
     private static final Field minecraftServerField;
     private static final Field serverConnectionField;
+
+    private static final Method networkMarkersMethod;
     private static final Field networkMarkersField;
 
     static {
@@ -71,8 +73,14 @@ public abstract class PacketListener {
         serverConnectionClass = ReflectionUtil.getNMSClass("server.network", "ServerConnection");
         minecraftServerField = ReflectionUtil.getField(craftServerClass, minecraftServerClass);
         serverConnectionField = ReflectionUtil.getField(minecraftServerClass, serverConnectionClass);
-        networkMarkersField = ReflectionUtil.getField(serverConnectionClass, "pending");
-        System.out.println("We got our network markers field! " + networkMarkersField);
+
+        if (ReflectionUtil.getMCVersion() <= 16) {
+            networkMarkersMethod = ReflectionUtil.getMethod(serverConnectionClass, Collection.class, serverConnectionClass);
+            networkMarkersField = null;
+        } else {
+            networkMarkersMethod = null;
+            networkMarkersField = ReflectionUtil.getField(serverConnectionClass, Collection.class, 2);
+        }
     }
 
     // Simple way to get unique handlerNames if one plugin
@@ -124,7 +132,11 @@ public abstract class PacketListener {
         Object mcServer = ReflectionUtil.invokeField(minecraftServerField, plugin.getServer());
         Object serverConnection = ReflectionUtil.invokeField(serverConnectionField, mcServer);
 
-        this.lock = (Collection<Object>) ReflectionUtil.invokeField(networkMarkersField, serverConnection);
+        if (ReflectionUtil.getMCVersion() <= 16) {
+            this.lock = (Collection<Object>) ReflectionUtil.invokeMethod(networkMarkersMethod, null, serverConnection);
+        } else {
+            this.lock = (Collection<Object>) ReflectionUtil.invokeField(networkMarkersField, serverConnection);
+        }
 
         endInitProtocol = new ChannelInitializer<Channel>() {
             @Override

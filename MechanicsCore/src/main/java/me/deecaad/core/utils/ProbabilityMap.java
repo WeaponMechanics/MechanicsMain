@@ -2,6 +2,7 @@ package me.deecaad.core.utils;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * This class outlines a mapping of elements to a weight. This data structure
@@ -10,10 +11,6 @@ import java.util.*;
  * @param <E> The type of the element to store.
  */
 public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
-
-    // Every instance of ProbabilityMap has access to the same
-    // instance of Random
-    private final SplittableRandom random = new SplittableRandom();
 
     private final Node<E> dummy;
     private final NavigableSet<Node<E>> set;
@@ -81,7 +78,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
      * @return The randomized element.
      */
     public E get() {
-        dummy.offset = random.nextDouble(totalProbability);
+        dummy.offset = ThreadLocalRandom.current().nextDouble(totalProbability);
         Node<E> temp = set.floor(dummy);
         return temp == null ? null : temp.value;
     }
