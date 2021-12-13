@@ -79,7 +79,7 @@ public abstract class PacketListener {
             networkMarkersField = null;
         } else {
             networkMarkersMethod = null;
-            networkMarkersField = ReflectionUtil.getField(serverConnectionClass, Collection.class, 2);
+            networkMarkersField = ReflectionUtil.getField(serverConnectionClass, List.class, 1);
         }
     }
 
