@@ -126,7 +126,7 @@ public final class FileUtil {
     }
 
     /**
-     * Ensures that a given <code>file</code> has all of the config options
+     * Ensures that a given <code>file</code> has all config options
      * defined by the <code>resource</code>.
      *
      * @param loader   The non-null loading plugin's class loader.
@@ -153,7 +153,7 @@ public final class FileUtil {
 
             try (FileOutputStream output = new FileOutputStream(file)) {
                 if (!file.createNewFile()) {
-                    throw new InternalError("WHAT?!");
+                    throw new InternalError("Failed to create new file " + file);
                 }
 
                 int data;

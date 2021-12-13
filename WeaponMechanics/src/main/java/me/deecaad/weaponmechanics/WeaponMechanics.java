@@ -91,10 +91,10 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Check Java version and warn users about untested/unsupported versions
         if (ReflectionUtil.getJavaVersion() < 8) {
-            debug.error("Detected a JAVA version under java 8. This plugin will NOT work in versions under java 8.");
+            debug.error("Detected a JAVA version under java 1.8. This plugin will NOT work in versions under java 1.8.");
             debug.error("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
-        } else if (ReflectionUtil.getJavaVersion() > 16) {
-            debug.warn("Detected a JAVA version above java 16. This plugin MAY not work in versions above java 16.");
+        } else if (ReflectionUtil.getJavaVersion() > 17) {
+            debug.warn("Detected a JAVA version above java 17. This plugin has not been tested in versions above java 17.");
             debug.warn("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
         }
 
@@ -173,12 +173,12 @@ public class WeaponMechanics extends JavaPlugin {
     }
 
     void writeFiles() {
-        debug.info("Copying files from jar");
 
         // Create files
-        debug.debug("Loading config.yml");
-        if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0)
+        if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
+            debug.info("Copying files from jar (This process may take between 10 and 30 seconds during the first load!)");
             FileUtil.copyResourcesTo(getClass(), getClassLoader(), "WeaponMechanics", getDataFolder());
+        }
 
         try {
             FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
@@ -192,7 +192,7 @@ public class WeaponMechanics extends JavaPlugin {
 
         // Fill config.yml mappings
         File configyml = new File(getDataFolder(), "config.yml");
-        if (configyml != null && configyml.exists()) {
+        if (configyml.exists()) {
             List<IValidator> validators = new ArrayList<>();
             validators.add(new HitBox()); // No need for other validators here as this is only for config.yml
 
