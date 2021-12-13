@@ -437,8 +437,9 @@ public class ReloadHandler implements IValidator {
         if (ammoLeft != -1) {
             int ammoToSet = ammoLeft - amount;
 
-            if (ammoToSet <= -1) {
+            if (ammoLeft == 0 || ammoToSet <= -1) {
                 // Can't consume more ammo
+
                 return false;
             }
 
