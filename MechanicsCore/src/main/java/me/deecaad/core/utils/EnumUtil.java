@@ -133,8 +133,14 @@ public final class EnumUtil {
      * @return An immutable set of all enums.
      * @see Collections#unmodifiableMap(Map) 
      */
-    public static <T extends Enum<T>> Collection<WeakReference<T>> getValues(Class<T> clazz) {
+    public static <T extends Enum<T>> List<T> getValues(Class<T> clazz) {
         Map<String, WeakReference<T>> temp = getConstants(clazz);
-        return temp.values();
+
+        List<T> list = new ArrayList<>(temp.size());
+        for (WeakReference<T> reference : temp.values()) {
+            list.add(reference.get());
+        }
+
+        return list;
     }
 }

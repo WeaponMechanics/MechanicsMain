@@ -32,3 +32,4 @@ tasks.named("assemble").configure {
 }
 
 description = "BuildWeaponMechanics"
+version = "0.2.0"

@@ -32,3 +32,4 @@ tasks.named("assemble").configure {
 }
 
 description = "BuildMechanicsCore"
+version = "0.1.0"
