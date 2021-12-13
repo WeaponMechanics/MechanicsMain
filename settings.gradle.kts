@@ -10,6 +10,9 @@ include(":MechanicsCore")
 include(":MechanicsCoreCompatibility")
 include(":WeaponMechanicsPlus")
 include(":WeaponMechanicsCompatibility")
+include(":BuildMechanicsCore")
+include(":BuildWeaponMechanics")
+
 project(":WorldGuardV7").projectDir = file("MechanicsCoreCompatibility/WorldGuardV7")
 project(":WorldGuardV6").projectDir = file("MechanicsCoreCompatibility/WorldGuardV6")
 
