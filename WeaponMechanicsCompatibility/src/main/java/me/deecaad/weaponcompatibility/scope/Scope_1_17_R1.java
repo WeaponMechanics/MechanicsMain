@@ -13,6 +13,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifiable;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.player.PlayerAbilities;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_17_R1.attribute.CraftAttributeMap;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
@@ -20,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +40,7 @@ public class Scope_1_17_R1 implements IScopeCompatibility {
         list.add(entityPlayer.getAttributeMap().a(CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)));
 
         // Negative entity id for identifying packet
-        entityPlayer.b.sendPacket(new PacketPlayOutUpdateAttributes(-entityPlayer.getId(), list));
+        entityPlayer.b.sendPacket(new PacketPlayOutUpdateAttributes(entityPlayer.getId(), list));
     }
 
     @Override
@@ -46,7 +48,15 @@ public class Scope_1_17_R1 implements IScopeCompatibility {
 
         List<PacketPlayOutUpdateAttributes.AttributeSnapshot> attributeSnapshots = ((PacketPlayOutUpdateAttributes) packet.getPacket()).c();
 
-        // Since this is always used from OutUpdateAttributesListener class, there can only be one object in this list (which is generic movement speed)
+        if (attributeSnapshots.size() > 1) {
+            // Don't let external things such as sprint modify movement speed
+            attributeSnapshots.removeIf(next -> next.a() == CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED));
+            return;
+        }
+
+        // Don't modify other attributes than movement speed
+        if (attributeSnapshots.get(0).a() != CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)) return;
+
         PacketPlayOutUpdateAttributes.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
 
         List<AttributeModifier> list = new ArrayList<>();

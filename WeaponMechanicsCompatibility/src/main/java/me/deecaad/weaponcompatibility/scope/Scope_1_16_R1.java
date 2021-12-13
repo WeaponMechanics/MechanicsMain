@@ -40,7 +40,7 @@ public class Scope_1_16_R1 implements IScopeCompatibility {
         list.add(entityPlayer.getAttributeMap().a(CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)));
 
         // Negative entity id for identifying packet
-        entityPlayer.playerConnection.sendPacket(new PacketPlayOutUpdateAttributes(-entityPlayer.getId(), list));
+        entityPlayer.playerConnection.sendPacket(new PacketPlayOutUpdateAttributes(entityPlayer.getId(), list));
     }
 
     @Override
@@ -49,7 +49,15 @@ public class Scope_1_16_R1 implements IScopeCompatibility {
         //noinspection unchecked
         List<PacketPlayOutUpdateAttributes.AttributeSnapshot> attributeSnapshots = (List<PacketPlayOutUpdateAttributes.AttributeSnapshot>) packet.getFieldValue(attributesField);
 
-        // Since this is always used from OutUpdateAttributesListener class, there can only be one object in this list (which is generic movement speed)
+        if (attributeSnapshots.size() > 1) {
+            // Don't let external things such as sprint modify movement speed
+            attributeSnapshots.removeIf(next -> next.a() == CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED));
+            return;
+        }
+
+        // Don't modify other attributes than movement speed
+        if (attributeSnapshots.get(0).a() != CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)) return;
+
         PacketPlayOutUpdateAttributes.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
 
         List<AttributeModifier> list = new ArrayList<>();

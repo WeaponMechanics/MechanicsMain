@@ -39,7 +39,7 @@ public class Scope_1_8_R3 implements IScopeCompatibility {
         list.add(entityPlayer.getAttributeMap().a("generic.movementSpeed"));
 
         // Negative entity id for identifying packet
-        entityPlayer.playerConnection.sendPacket(new PacketPlayOutUpdateAttributes(-entityPlayer.getId(), list));
+        entityPlayer.playerConnection.sendPacket(new PacketPlayOutUpdateAttributes(entityPlayer.getId(), list));
     }
 
     @Override
@@ -48,7 +48,15 @@ public class Scope_1_8_R3 implements IScopeCompatibility {
         //noinspection unchecked
         List<PacketPlayOutUpdateAttributes.AttributeSnapshot> attributeSnapshots = (List<PacketPlayOutUpdateAttributes.AttributeSnapshot>) packet.getFieldValue(attributesField);
 
-        // Since this is always used from OutUpdateAttributesListener class, there can only be one object in this list (which is generic movement speed)
+        if (attributeSnapshots.size() > 1) {
+            // Don't let external things such as sprint modify movement speed
+            attributeSnapshots.removeIf(next -> next.a().equals("generic.movement_speed"));
+            return;
+        }
+
+        // Don't modify other attributes than movement speed
+        if (!attributeSnapshots.get(0).a().equals("generic.movement_speed")) return;
+
         PacketPlayOutUpdateAttributes.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
 
         List<AttributeModifier> list = new ArrayList<>();

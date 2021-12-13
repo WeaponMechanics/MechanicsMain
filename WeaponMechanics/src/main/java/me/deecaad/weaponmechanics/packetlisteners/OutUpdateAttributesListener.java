@@ -29,15 +29,8 @@ public class OutUpdateAttributesListener extends PacketHandler {
 
         int id = (int) packet.getFieldValue(idField);
 
-        if (id > 0) {
-            // Was not sent by ScopeCompatibility
-            return;
-        }
-
-        packet.setFieldValue(idField, -id);
-
         // If packet entity id is not player's id
-        if (-id != packet.getPlayer().getEntityId()) {
+        if (id != packet.getPlayer().getEntityId()) {
             return;
         }
 
