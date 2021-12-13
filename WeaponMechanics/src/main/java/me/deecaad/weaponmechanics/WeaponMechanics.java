@@ -244,6 +244,7 @@ public class WeaponMechanics extends JavaPlugin {
     }
 
     void registerPlaceholders() {
+        debug.info("Registering placeholders");
         try {
             new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
         } catch (IOException e) {
@@ -272,17 +273,12 @@ public class WeaponMechanics extends JavaPlugin {
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        try {
-            packetListener = new PacketHandlerListener(this, debug);
-            packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
-            packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
-            packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
-            packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
-            packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
-        } catch (Throwable e) {
-            // TODO remove this when packet listeners are fixed for 1.17
-            debug.error("TODO REMOVE THIS ::Failed to register packet listeners:: TODO REMOVE THIS");
-        }
+        packetListener = new PacketHandlerListener(this, debug);
+        packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
+        packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
+        packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
+        packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
+        packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
     }
 
     void registerCommands() {
