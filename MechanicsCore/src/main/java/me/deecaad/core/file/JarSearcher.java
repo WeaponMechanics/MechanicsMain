@@ -45,6 +45,7 @@ public class JarSearcher {
      *
      * @param clazz            The class that the subclasses inherit from. This
      *                         is generally an abstract class/interface.
+     * @param clazzLoader      The class that is used to load classes
      * @param isIgnoreAbstract If this is <code>true</code>, then any subclass
      *                         that is an interface or is an abstract class
      *                         will not be included in the returned list.
@@ -55,7 +56,7 @@ public class JarSearcher {
      * @return A {@link List} of every subclass.
      */
     @SuppressWarnings("unchecked")
-    public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, boolean isIgnoreAbstract, Class<?>... classes) {
+    public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, ClassLoader clazzLoader, boolean isIgnoreAbstract, Class<?>... classes) {
 
         if (clazz == null) throw new IllegalArgumentException("clazz cannot be null");
 
@@ -87,7 +88,7 @@ public class JarSearcher {
             String name = entryName.replaceAll("/", "\\.").replace(".class", "");
             Class<?> subclass;
             try {
-                subclass = Class.forName(name, false, getClass().getClassLoader());
+                subclass = Class.forName(name, false, clazzLoader);
             } catch (ClassNotFoundException | NoClassDefFoundError ex) {
                 continue;
             }

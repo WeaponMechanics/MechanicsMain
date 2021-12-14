@@ -247,7 +247,7 @@ public class WeaponMechanics extends JavaPlugin {
         debug.info("Loading and serializing config");
 
         try {
-            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, getClassLoader(), true);
             //noinspection unchecked
             MechanicsCore.addSerializers(this, (List<Serializer<?>>) serializers);
         } catch (IOException e) {
@@ -264,7 +264,7 @@ public class WeaponMechanics extends JavaPlugin {
         List<IValidator> validators = null;
         try {
             // Find all validators in WeaponMechanics
-            validators = new JarInstancer(new JarFile(getFile())).createAllInstances(IValidator.class, true);
+            validators = new JarInstancer(new JarFile(getFile())).createAllInstances(IValidator.class, getClassLoader(), true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -281,7 +281,7 @@ public class WeaponMechanics extends JavaPlugin {
     void registerPlaceholders() {
         debug.info("Registering placeholders");
         try {
-            new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, true).forEach(PlaceholderAPI::addPlaceholderHandler);
+            new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, getClassLoader(), true).forEach(PlaceholderAPI::addPlaceholderHandler);
         } catch (IOException e) {
             e.printStackTrace();
         }

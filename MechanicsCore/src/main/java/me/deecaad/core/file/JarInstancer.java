@@ -17,8 +17,8 @@ public class JarInstancer extends JarSearcher {
         super(jar);
     }
 
-    public <T> List<T> createAllInstances(Class<T> clazz, boolean isIgnoreAbstract, Class<?>... classes) {
-        List<Class<T>> validClasses = findAllSubclasses(clazz, isIgnoreAbstract, classes);
+    public <T> List<T> createAllInstances(Class<T> clazz, ClassLoader classLoader, boolean isIgnoreAbstract, Class<?>... classes) {
+        List<Class<T>> validClasses = findAllSubclasses(clazz, classLoader, isIgnoreAbstract, classes);
 
         List<T> instances = new ArrayList<>();
         for (Class<T> validClass : validClasses) {

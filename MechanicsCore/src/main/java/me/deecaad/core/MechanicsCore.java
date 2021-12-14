@@ -42,7 +42,7 @@ public class MechanicsCore extends JavaPlugin {
         FileUtil.ensureDefaults(getClassLoader(), "MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
 
         try {
-            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, true);
+            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, getClassLoader(), true);
             //noinspection unchecked
             serializersList = (List<Serializer<?>>) serializers;
         } catch (IOException e) {
