@@ -20,7 +20,7 @@ public class WeaponItemSerializer extends ItemSerializer {
 
     @Override
     public ItemStack serialize(File file, ConfigurationSection configurationSection, String path) {
-        ItemStack weaponStack = super.serialize(file, configurationSection, path);
+        ItemStack weaponStack = super.serializeWithoutRecipe(file, configurationSection, path);
         if (weaponStack == null) return null;
         String weaponTitle = path.split("\\.")[0];
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
@@ -31,6 +31,7 @@ public class WeaponItemSerializer extends ItemSerializer {
         }
 
         CustomTag.WEAPON_TITLE.setString(weaponStack, weaponTitle);
+        weaponStack = super.serializeRecipe(file, configurationSection, path, weaponStack);
         return weaponStack;
     }
 }

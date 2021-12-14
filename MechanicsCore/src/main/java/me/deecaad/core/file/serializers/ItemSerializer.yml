@@ -11,10 +11,8 @@ Item:
   Hide_Flags: <true/false>
   Enchantments:
   - <Enchantment>-<Level>
-  Skull:
-    Owning_Player: <UUID of player or name of player>
-  Potion:
-    Color: <ColorType>
+  Skull_Owning_Player: <UUID of player or name of player>
+  Potion_Color: <ColorSerializer>
   Attributes:
   - <Attribute>-<Amount>
   Leather_Color: <ColorSerializer>

@@ -99,7 +99,7 @@ public class Ammo implements Serializer<Ammo> {
         String ammoName = configurationSection.getString(path + ".Use_Item_As_Ammo.Ammo_Name");
         if (ammoName == null) return null;
 
-        ItemStack magazineItem = new ItemSerializer().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Magazine.Item");
+        ItemStack magazineItem = new ItemSerializer().serializeWithoutRecipe(file, configurationSection, path + ".Use_Item_As_Ammo.Magazine.Item");
         Mechanics notSameAmmoName = null, magazineAlreadyFull = null, magazineFilled = null;
         if (magazineItem != null) {
             notSameAmmoName = new Mechanics().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Magazine.Not_Able_To_Fill.Not_Same_Ammo_Name");
@@ -108,9 +108,10 @@ public class Ammo implements Serializer<Ammo> {
 
             CustomTag.ITEM_AMMO_NAME.setString(magazineItem, ammoName);
             CustomTag.ITEM_AMMO_LEFT.setInteger(magazineItem, 0);
+            magazineItem = new ItemSerializer().serializeRecipe(file, configurationSection, path + ".Use_Item_As_Ammo.Magazine.Item", magazineItem);
         }
 
-        ItemStack ammoItem = new ItemSerializer().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo");
+        ItemStack ammoItem = new ItemSerializer().serializeWithoutRecipe(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo");
         if (ammoItem == null) {
             WeaponMechanics.debug.log(LogLevel.ERROR,
                     StringUtil.foundInvalid("ammo item"),
@@ -121,6 +122,7 @@ public class Ammo implements Serializer<Ammo> {
         }
 
         CustomTag.ITEM_AMMO_NAME.setString(ammoItem, ammoName);
+        ammoItem = new ItemSerializer().serializeRecipe(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo", ammoItem);
 
         AmmoConverter ammoConverter = new AmmoConverter().serialize(file, configurationSection, path + ".Use_Item_As_Ammo.Ammo_Converter_Check");
 

@@ -307,7 +307,7 @@ public interface NBTCompatibility {
         ItemMeta itemMeta = bukkitItem.getItemMeta();
         Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
 
-        AttributeModifier hand = new AttributeModifier(attribute.getUUID(), "MechanicsCoreAttribute", value, AttributeModifier.Operation.ADD_NUMBER, slot.getEquipmentSlot());
+        AttributeModifier hand = new AttributeModifier(attribute.getUUID(), "MechanicsCoreAttribute", value, AttributeModifier.Operation.ADD_NUMBER, slot == null ? null : slot.getEquipmentSlot());
 
         // API doesn't allow modifying AttributeModifiers so I have to delete old ones based on their UUIDs
         // and add these new AttributeModifiers which contain new amount for the Attribute
