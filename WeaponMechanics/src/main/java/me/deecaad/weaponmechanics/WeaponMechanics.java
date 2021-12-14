@@ -129,14 +129,14 @@ public class WeaponMechanics extends JavaPlugin {
             debug.error("Detected a JAVA version under java 1.8. This plugin will NOT work in versions under java 1.8.");
             debug.error("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
         } else if (ReflectionUtil.getJavaVersion() > 17) {
-            debug.warn("Detected a JAVA version above java 17. This plugin has not been tested in versions above java 17.");
-            debug.warn("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
+            debug.debug("Detected a JAVA version above java 17. This plugin has not been tested in versions above java 17.");
+            debug.debug("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
         }
 
         // Register all WorldGuard flags
         IWorldGuardCompatibility guard = WorldGuardAPI.getWorldGuardCompatibility();
         if (guard.isInstalled()) {
-            debug.log(LogLevel.INFO, "Detected WorldGuard, registering flags");
+            debug.info("Detected WorldGuard, registering flags");
             guard.registerFlag("weapon-shoot", IWorldGuardCompatibility.FlagType.STATE_FLAG);
             guard.registerFlag("weapon-shoot-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
             guard.registerFlag("weapon-explode", IWorldGuardCompatibility.FlagType.STATE_FLAG);
@@ -145,7 +145,7 @@ public class WeaponMechanics extends JavaPlugin {
             guard.registerFlag("weapon-damage", IWorldGuardCompatibility.FlagType.STATE_FLAG);
             guard.registerFlag("weapon-damage-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
         } else {
-            debug.log(LogLevel.DEBUG, "No WorldGuard detected!");
+            debug.debug("No WorldGuard detected!");
         }
     }
 
@@ -244,7 +244,7 @@ public class WeaponMechanics extends JavaPlugin {
     }
 
     void loadConfig() {
-        debug.info("Loading and serializing config");
+        debug.debug("Loading and serializing config");
 
         try {
             List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, getClassLoader(), true);
@@ -279,7 +279,7 @@ public class WeaponMechanics extends JavaPlugin {
     }
 
     void registerPlaceholders() {
-        debug.info("Registering placeholders");
+        debug.debug("Registering placeholders");
         try {
             new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, getClassLoader(), true).forEach(PlaceholderAPI::addPlaceholderHandler);
         } catch (IOException e) {
@@ -290,7 +290,7 @@ public class WeaponMechanics extends JavaPlugin {
     void registerListeners() {
         // Register events
         // Registering events after serialization is completed to prevent any errors from happening
-        debug.info("Registering listeners");
+        debug.debug("Registering listeners");
 
         // TRIGGER EVENTS
         Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
