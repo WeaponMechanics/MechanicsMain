@@ -4,7 +4,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.Material;

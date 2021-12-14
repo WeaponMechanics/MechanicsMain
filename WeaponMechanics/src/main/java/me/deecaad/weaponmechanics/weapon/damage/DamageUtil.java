@@ -5,8 +5,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Bukkit;
@@ -26,7 +25,6 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 
 public class DamageUtil {
     

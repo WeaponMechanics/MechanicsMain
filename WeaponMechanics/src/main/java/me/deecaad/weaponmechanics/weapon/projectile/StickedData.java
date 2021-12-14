@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;

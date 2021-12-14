@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.weaponcompatibility.projectile.HitBox;
+import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;

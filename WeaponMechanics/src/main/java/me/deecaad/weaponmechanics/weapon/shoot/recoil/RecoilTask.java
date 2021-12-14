@@ -1,11 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponcompatibility.shoot.IShootCompatibility;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

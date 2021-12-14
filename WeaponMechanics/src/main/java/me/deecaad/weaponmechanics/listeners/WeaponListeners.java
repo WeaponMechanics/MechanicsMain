@@ -2,9 +2,9 @@ package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.events.EntityEquipmentEvent;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponcompatibility.projectile.HitBox;
-import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
+import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;

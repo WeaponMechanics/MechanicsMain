@@ -24,7 +24,7 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
-import me.deecaad.weaponcompatibility.projectile.HitBox;
+import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.AmmoListeners;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
@@ -67,6 +67,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WeaponMechanics extends JavaPlugin {
@@ -87,6 +88,40 @@ public class WeaponMechanics extends JavaPlugin {
 
     @Override
     public void onLoad() {
+
+        // WeaponMechanics NEEDS MechanicsCore to run, however, people have the
+        // incredible ability of having 0 abilities. AKA, they cannot read
+        // "UnknownDependencyException". Instead of writing out a stacktrace
+        // and having some people ask for help, we should:
+        //      A. Try to download/copy/install MechanicsCore for them
+        //      B. Disable the plugin
+        if (Bukkit.getPluginManager().getPlugin("MechanicsCore") == null) {
+            // TODO  install plugin from jar? Maybe include MechanicsCore.jar
+            // TODO  in the WeaponMechanics.jar and copy it over? Possibly
+            // TODO  host MechanicsCore.jar online and download using URL?
+
+            getLogger().log(Level.WARNING, "");
+            boolean installed = false;
+
+            // try to install
+
+            if (installed) {
+                getLogger().log(Level.INFO, "Installed MechanicsCore.jar successfully!");
+                return;
+            }
+
+            // Debugger has not been setup yet, use logger manually
+            getLogger().log(Level.SEVERE, " !!!");
+            getLogger().log(Level.SEVERE, "WeaponMechanics requires MechanicsCore in order to run!");
+            getLogger().log(Level.SEVERE, "You should have gotten a 'MechanicsCore.jar' file along");
+            getLogger().log(Level.SEVERE, "with 'WeaponMechanics.jar' in the zip file! Make sure you");
+            getLogger().log(Level.SEVERE, "put BOTH files in the plugins folder!");
+            getLogger().log(Level.SEVERE, "Disabling WeaponMechanics to avoid error.");
+
+            getPluginLoader().disablePlugin(this);
+            return;
+        }
+
         setupDebugger();
 
         // Check Java version and warn users about untested/unsupported versions

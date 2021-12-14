@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponcompatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponcompatibility.projectile.HitBox;
-import me.deecaad.weaponcompatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
+import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.*;
 import org.bukkit.block.Block;

@@ -1,5 +1,9 @@
 package me.deecaad.weaponmechanics;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.ICompatibility;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
@@ -23,8 +27,6 @@ import javax.annotation.Nullable;
  *
  * <p>WeaponMechanics should never use these methods, instead use internal
  * methods.
- *
- * MAVEN TEST
  */
 public final class WeaponMechanicsAPI {
 
@@ -170,6 +172,26 @@ public final class WeaponMechanicsAPI {
             return null;
         else
             return CustomTag.WEAPON_TITLE.getString(item);
+    }
+
+    /**
+     * Returns MechanicsCore's compatibility version. Useful for dealing with
+     * NMS code or otherwise version dependent code.
+     *
+     * @return The non-null compatibility version.
+     */
+    public static ICompatibility getCompatibility() {
+        return CompatibilityAPI.getCompatibility();
+    }
+
+    /**
+     * Returns WeaponMechanics' compatibility version. Useful for dealing with
+     * NMS code or otherwise version dependent code.
+     *
+     * @return The non-null weapon compatibility version.
+     */
+    public static IWeaponCompatibility getWeaponCompatibility() {
+        return WeaponCompatibilityAPI.getWeaponCompatibility();
     }
 
     /**
