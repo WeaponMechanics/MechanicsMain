@@ -9,6 +9,7 @@ import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,6 +17,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.HashMap;
+
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GRAY;
 
 /**
  * Useful commands for testing different explosion
@@ -75,7 +79,8 @@ public class ExplosionCommand extends SubCommand {
             Player player = (Player) sender;
             
             double radius = args.length > 0 ? Double.parseDouble(args[0]) : 5.0;
-            player.sendMessage("§6Causing a §7sphere§6 shaped explosion with a radius of §7" + radius);
+            player.sendMessage(GOLD + "Causing a " + GRAY + "sphere" + GOLD +
+                    " shaped explosion with a radius of " + GRAY + radius);
 
             explode(new SphericalExplosion(radius), player, player.getLocation());
         }
@@ -94,7 +99,8 @@ public class ExplosionCommand extends SubCommand {
             
             int width  = (int)(args.length > 0 ? Double.parseDouble(args[0]) : 5.0);
             int height = (int)(args.length > 1 ? Double.parseDouble(args[1]) : 5.0);
-            player.sendMessage("§6Causing a §7cube§6 shaped explosion with a width of §7" + width + "§6 and a height of §7" + height);
+            player.sendMessage(GOLD + "Causing a " + GRAY + "cube" + GOLD + " shaped explosion with a width of "
+                    + GRAY + width + GOLD + " and a height of " + GRAY + height);
             
             explode(new CuboidExplosion(width, height), player, player.getLocation());
         }
@@ -113,7 +119,8 @@ public class ExplosionCommand extends SubCommand {
             
             double angle = args.length > 0 ? Double.parseDouble(args[0]) : 0.5;
             double depth = args.length > 1 ? Double.parseDouble(args[1]) : -3.0;
-            player.sendMessage("§6Causing a §7parabola§6 shaped explosion with an angle of §7" + angle + "§6 and a depth of §7" + depth);
+            player.sendMessage(GOLD + "Causing a " + GRAY + "parabola" + GOLD + " shaped explosion with an angle of "
+                    + GRAY + angle + GOLD + " and a depth of " + GRAY + depth);
 
             explode(new ParabolicExplosion(depth, angle), player, player.getLocation());
         }
@@ -131,7 +138,7 @@ public class ExplosionCommand extends SubCommand {
             Player player = (Player) sender;
 
             double yield = args.length > 0 ? Double.parseDouble(args[0]) : 5;
-            player.sendMessage("§6Causing a §7Minecraft§6 shaped explosion with an yield of §7" + yield);
+            player.sendMessage(GOLD + "Causing a " + GRAY + "Minecraft" + GOLD + " shaped explosion with an yield of " + GRAY + yield);
 
             explode(new DefaultExplosion(yield), player, player.getLocation());
         }

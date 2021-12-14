@@ -5,6 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,7 +38,7 @@ public class RecoilCommand extends SubCommand {
 
         int fireRate = Integer.parseInt(args[4]);
         if (fireRate < 1 || fireRate > 20) {
-            sender.sendMessage("With this test command only fire rates between 1-20 are allowed.");
+            sender.sendMessage(ChatColor.RED + "Only fire rates between 1-20 are allowed for testing.");
             return;
         }
 

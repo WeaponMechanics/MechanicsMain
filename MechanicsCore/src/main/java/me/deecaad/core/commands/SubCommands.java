@@ -1,6 +1,5 @@
 package me.deecaad.core.commands;
 
-import com.google.common.base.Strings;
 import me.deecaad.core.utils.StringUtil;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
@@ -18,7 +17,7 @@ public class SubCommands {
     private final String parentPrefix;
 
     public SubCommands(String parentPrefix) {
-        this.commands = new HashMap<>(4); // Smaller then default size for RAM
+        this.commands = new HashMap<>(8); // Half of default size to save RAM
         this.parentPrefix = parentPrefix;
     }
 
@@ -178,7 +177,7 @@ public class SubCommands {
         } else if (command.getPermission() == null || sender.hasPermission(command.getPermission())) {
             command.execute(sender, args);
         } else {
-            sender.sendMessage(StringUtil.color("&cInvalid permissions."));
+            sender.sendMessage(ChatColor.RED + "Invalid permissions");
         }
         return true;
     }

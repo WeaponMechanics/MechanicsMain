@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -175,8 +176,6 @@ public abstract class SubCommand extends BukkitCommand {
         // past what the command will take in
         String current = this.args.length >= args.length ? this.args[args.length - 1] : "OUT_OF_BOUNDS";
 
-        debug.debug("TabCompleting: " + current);
-
         switch (current) {
             case PLAYERS:
                 return Bukkit.getOnlinePlayers().stream()
@@ -227,7 +226,7 @@ public abstract class SubCommand extends BukkitCommand {
     @Override
     public boolean execute(@Nonnull CommandSender sender, @Nonnull String label, @Nonnull String[] args) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
-            sender.sendMessage(getPermissionMessage());
+            sender.sendMessage(getPermissionMessage() == null ? ChatColor.RED + "Invalid Permissions" : getPermissionMessage());
             return false;
         }
 
@@ -256,7 +255,7 @@ public abstract class SubCommand extends BukkitCommand {
 
     @Override
     public String toString() {
-        return StringUtil.color("&6/" + prefix + " " + String.join(" ", args) + "&7: " + description);
+        return ChatColor.GOLD + "/" + prefix + " " + String.join(" ", args) + ChatColor.GRAY + ": " + description;
     }
 
     public void register() {

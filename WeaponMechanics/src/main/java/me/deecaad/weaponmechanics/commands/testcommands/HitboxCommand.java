@@ -6,6 +6,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -31,7 +32,7 @@ public class HitboxCommand extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("This command is only available for players.");
+            sender.sendMessage(ChatColor.RED + "This command is only available for players.");
             return;
         }
         Player player = (Player) sender;
