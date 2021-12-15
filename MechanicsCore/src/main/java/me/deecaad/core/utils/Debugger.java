@@ -159,7 +159,7 @@ public class Debugger {
         }
 
         // Used if we want to find the origin of an error
-        if (level == LogLevel.ERROR) {
+        if (level == LogLevel.ERROR || level == LogLevel.WARN) {
             if (isPrintTraces) {
                 log(level, new Throwable());
             }

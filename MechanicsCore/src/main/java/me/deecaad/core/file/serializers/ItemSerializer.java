@@ -53,6 +53,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
     @Override
     public ItemStack serialize(File file, ConfigurationSection configurationSection, String path) {
+        ItemStack itemStack = serializeWithoutRecipe(file, configurationSection, path);
+        itemStack = serializeRecipe(file, configurationSection, path, itemStack);
+        return itemStack;
+    }
+
+    public ItemStack serializeWithoutRecipe(File file, ConfigurationSection configurationSection, String path) {
         String type = configurationSection.getString(path + ".Type");
         if (type == null) {
             return null;
@@ -121,6 +127,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
+        itemStack.setItemMeta(itemMeta);
+
         List<?> attributes = configurationSection.getList(path + ".Attributes");
         if (attributes != null) {
             for (Object attributeData : attributes) {
@@ -172,9 +180,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        itemStack.setItemMeta(itemMeta);
-
-        String owningPlayer = configurationSection.getString(path + ".Skull.Owning_Player");
+        String owningPlayer = configurationSection.getString(path + ".Skull_Owning_Player");
         if (owningPlayer != null) {
             try {
                 SkullMeta skullMeta = (SkullMeta) itemStack.getItemMeta();
@@ -197,33 +203,31 @@ public class ItemSerializer implements Serializer<ItemStack> {
             } catch (ClassCastException e) {
                 debug.log(LogLevel.ERROR,
                         "Found an invalid cast in configurations!",
-                        "Located at file " + file + " in " + path + ".Skull.Owning_Player in configurations",
+                        "Located at file " + file + " in " + path + ".Skull_Owning_Player in configurations",
                         "Tried to modify skull when the item wasn't skull (" + type + ")");
                 return null;
             }
         }
-        if (CompatibilityAPI.getVersion() >= 1.11) {
+        if (CompatibilityAPI.getVersion() >= 1.11 && configurationSection.contains(path + ".Potion_Color")) {
             try {
-                String colorString = configurationSection.getString(path + ".Potion.Color");
-                if (colorString != null) {
-                    colorString = colorString.toUpperCase();
-
-                    Color color = ColorSerializer.ColorType.fromString(colorString);
-                    if (color == null) {
-                        debug.log(LogLevel.ERROR,
-                                "Found an invalid color type in configurations!",
-                                "Located at file " + file + " in " + path + ".Potion.Color (" + colorString + ") in configurations");
-                        return null;
-                    }
-
-                    PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-                    potionMeta.setColor(color);
-                    itemStack.setItemMeta(potionMeta);
+                Color color = new ColorSerializer().serialize(file, configurationSection, path + ".Potion_Color");
+                if (color == null) {
+                    debug.warn("Error occurred while serializing Color", StringUtil.foundAt(file, path + ".Potion_Color"));
+                    return null;
                 }
+
+                PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
+                if (potionMeta == null) {
+                    debug.error("Somehow itemMeta was null? Is the material type in serializer AIR?", StringUtil.foundAt(file, path + ".Potion"));
+                    return null;
+                }
+
+                potionMeta.setColor(color);
+                itemStack.setItemMeta(potionMeta);
             } catch (ClassCastException e) {
                 debug.log(LogLevel.ERROR,
                         "Found an invalid cast in configurations!",
-                        "Located at file " + file + " in " + path + ".Potion.Color in configurations",
+                        "Located at file " + file + " in " + path + ".Potion_Color in configurations",
                         "Tried to modify potion when the item wasn't potion (" + type + ")");
                 return null;
             }
@@ -243,13 +247,16 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
 
                 meta.setColor(color);
-
+                itemStack.setItemMeta(meta);
             } catch (ClassCastException e) {
                 debug.error("You cannot use " + itemStack.getType() + " with leather armor color!", StringUtil.foundAt(file, path + ".Leather_Color"));
                 return null;
             }
         }
+        return itemStack;
+    }
 
+    public ItemStack serializeRecipe(File file, ConfigurationSection configurationSection, String path, ItemStack itemStack) {
         if (configurationSection.contains(path + ".Recipe")) {
             ShapedRecipe recipe;
             if (CompatibilityAPI.getVersion() < 1.13) {
@@ -315,7 +322,6 @@ public class ItemSerializer implements Serializer<ItemStack> {
             // Register the recipe to bukkit
             Bukkit.addRecipe(recipe);
         }
-
         return itemStack;
     }
 
