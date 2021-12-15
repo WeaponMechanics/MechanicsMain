@@ -7,14 +7,14 @@ public final class ShapeFactory extends Factory<ExplosionShape> {
     private static final ShapeFactory INSTANCE = new ShapeFactory();
 
     static {
-        INSTANCE.set("default", DefaultExplosion.class, "yield");
-        INSTANCE.set("cuboid", CuboidExplosion.class, "width", "height");
-        INSTANCE.set("parabolic", ParabolicExplosion.class, "depth", "angle");
-        INSTANCE.set("spherical", SphericalExplosion.class, "radius");
+        INSTANCE.set("default", DefaultExplosion.class, "Yield");
+        INSTANCE.set("cuboid", CuboidExplosion.class, "Width", "Height");
+        INSTANCE.set("parabolic", ParabolicExplosion.class, "Depth", "Angle");
+        INSTANCE.set("spherical", SphericalExplosion.class, "Radius");
     }
 
     private ShapeFactory() {
-        super(4);
+        super(8);
     }
 
     public static ShapeFactory getInstance() {

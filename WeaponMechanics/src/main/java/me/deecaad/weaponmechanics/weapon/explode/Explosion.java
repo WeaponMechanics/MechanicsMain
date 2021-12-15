@@ -314,6 +314,7 @@ public class Explosion implements Serializer<Explosion> {
     @Override
     public Explosion serialize(File file, ConfigurationSection configurationSection, String path) {
         ConfigurationSection section = configurationSection.getConfigurationSection(path);
+        assert section != null;
 
         // Get all possibly applicable data for the explosions,
         // and warn users for "odd" values
@@ -339,27 +340,48 @@ public class Explosion implements Serializer<Explosion> {
         debug.validate(radius > 0, "Explosion Radius should be a positive number!", found + "Height");
         debug.validate(rays > 0, "Explosion Rays should be a positive number!", found + "Rays");
 
-        debug.validate(LogLevel.WARN, yield < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
-        debug.validate(LogLevel.WARN, angle < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Angle"));
-        debug.validate(LogLevel.WARN, height < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Height"));
-        debug.validate(LogLevel.WARN, width < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Width"));
-        debug.validate(LogLevel.WARN, radius < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Radius"));
-        debug.validate(LogLevel.WARN, rays < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Rays"));
+        // We only want to turn users about big numbers, since users MIGHT
+        // want to use these numbers.
+        debug.validate(LogLevel.WARN, yield < 50,  StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
+        debug.validate(LogLevel.WARN, angle < 50,  StringUtil.foundLarge(angle, file, path + "Explosion_Type_Data.Angle"));
+        debug.validate(LogLevel.WARN, height < 50, StringUtil.foundLarge(height, file, path + "Explosion_Type_Data.Height"));
+        debug.validate(LogLevel.WARN, width < 50,  StringUtil.foundLarge(width, file, path + "Explosion_Type_Data.Width"));
+        debug.validate(LogLevel.WARN, radius < 50, StringUtil.foundLarge(radius, file, path + "Explosion_Type_Data.Radius"));
+        debug.validate(LogLevel.WARN, rays < 50,   StringUtil.foundLarge(rays, file, path + "Explosion_Type_Data.Rays"));
+
+        // We want to ensure each value in the section is their expected type.
+        // For example, sometimes a configuration section will hold a value as
+        // an int when we would expect it to be a double.
+        if (typeData.contains("Yield", true))  typeData.set("Yield", yield);
+        if (typeData.contains("Angle", true))  typeData.set("Angle", angle);
+        if (typeData.contains("Depth", true))  typeData.set("Depth", depth);
+        if (typeData.contains("Height", true)) typeData.set("Height", height);
+        if (typeData.contains("Width", true))  typeData.set("Width", width);
+        if (typeData.contains("Radius", true)) typeData.set("Radius", radius);
+        if (typeData.contains("Rays", true))   typeData.set("Rays", rays);
 
         Map<String, Object> temp = typeData.getValues(true);
-        ExplosionExposure exposure = ExposureFactory.getInstance().get(section.getString("Explosion_Exposure", "DEFAULT"), temp);
-        ExplosionShape shape = ShapeFactory.getInstance().get(section.getString("Explosion_Shape", "DEFAULT"), temp);
+        ExplosionExposure exposure;
+        ExplosionShape shape;
+
+        try {
+            exposure = ExposureFactory.getInstance().get(section.getString("Explosion_Exposure", "DEFAULT"), temp);
+            shape = ShapeFactory.getInstance().get(section.getString("Explosion_Shape", "DEFAULT"), temp);
+        } catch (Factory.FactoryException e) {
+            debug.error(e.getMessage(), "You failed to specify the " + e.getMissingArgument(),
+                    "You instead specified: " + e.getValues(), StringUtil.foundAt(file, path + ".Explosion_type_Data"));
+            return null;
+        }
 
         if (exposure == null) {
-            debug.error("Invalid explosion exposure \"" + section.getString("Explosion_Exposure") + "\"",
-                    "Did you mean: " + StringUtil.didYouMean(section.getString("Explosion_Exposure"), ExposureFactory.getInstance().getOptions()),
+            debug.error("Invalid explosion exposure \"" + section.getString("Explosion_Exposure", "DEFAULT") + "\"",
+                    "Did you mean: " + StringUtil.didYouMean(section.getString("Explosion_Exposure", "DEFAULT"), ExposureFactory.getInstance().getOptions()),
                     "Valid Options: " + ExposureFactory.getInstance().getOptions(),
                     "Found at: " + StringUtil.foundAt(file, path + ".Explosion_Exposure"));
             return null;
-        }
-        if (shape == null) {
+        } else if (shape == null) {
             debug.error("Invalid explosion shape \"" + section.getString("Explosion_Shape") + "\"",
-                    "Did You Mean: " + StringUtil.didYouMean(section.getString("Explosion_Shape"), ShapeFactory.getInstance().getOptions()),
+                    "Did You Mean: " + StringUtil.didYouMean(section.getString("Explosion_Shape", "DEFAULT"), ShapeFactory.getInstance().getOptions()),
                     "Valid Options: " + ShapeFactory.getInstance().getOptions(),
                     "Found at: " + StringUtil.foundAt(file, path + ".Explosion_Shape"));
             return null;
@@ -377,7 +399,13 @@ public class Explosion implements Serializer<Explosion> {
 
         // Determine when the projectile should explode
         ConfigurationSection impactWhenSection = section.getConfigurationSection("Detonation.Impact_When");
-        Set<Explosion.ExplosionTrigger> triggers = new HashSet<>(4);
+        if (impactWhenSection == null) {
+            debug.error("Missing \"Detonation.Impact_When\" section.",
+                    "We need it to determine when the projectile explodes.");
+            return null;
+        }
+
+        Set<Explosion.ExplosionTrigger> triggers = new HashSet<>(4, 1.0f);
         for (String key : impactWhenSection.getKeys(false)) {
             try {
                 Explosion.ExplosionTrigger trigger = Explosion.ExplosionTrigger.valueOf(key.toUpperCase());

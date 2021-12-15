@@ -24,7 +24,7 @@ public class Factory<T> {
         Arguments args = map.get(key);
 
         if (args == null)
-            throw new IllegalArgumentException("Unexpected input: " + key);
+            return null;
 
         // Pull only the values that we need from the mapped arguments. The
         // order of the arguments will match the order defined by the
@@ -34,7 +34,7 @@ public class Factory<T> {
             String argument = args.arguments[i];
 
             if (!arguments.containsKey(argument))
-                throw new IllegalArgumentException("Map does not contain data: " + argument);
+                throw new FactoryException(this, key, argument, arguments);
 
             objects[i] = arguments.get(argument);
         }
@@ -52,13 +52,43 @@ public class Factory<T> {
         return map.keySet();
     }
 
+
     private class Arguments {
+
         private final Class<T> manufacturedType;
         private final String[] arguments;
 
         public Arguments(Class<T> manufacturedType, String[] arguments) {
             this.manufacturedType = manufacturedType;
             this.arguments = arguments;
+        }
+    }
+
+
+    public static class FactoryException extends RuntimeException {
+
+        private final String key;
+        private final String missingArgument;
+        private final Map<String, Object> values;
+
+        public FactoryException(Factory<?> factory, String key, String missingArgument, Map<String, Object> values) {
+            super("Failure to initialize " + key + "(" + factory.map.get(key).manufacturedType + "), missing: " + missingArgument);
+
+            this.key = key;
+            this.missingArgument = missingArgument;
+            this.values = values;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getMissingArgument() {
+            return missingArgument;
+        }
+
+        public Map<String, Object> getValues() {
+            return values;
         }
     }
 }

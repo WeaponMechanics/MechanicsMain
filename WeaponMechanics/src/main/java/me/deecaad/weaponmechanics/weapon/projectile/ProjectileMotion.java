@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.utils.Debugger;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -109,6 +112,15 @@ public class ProjectileMotion implements Serializer<ProjectileMotion> {
         double decrease = configurationSection.getDouble(path + ".Decrease_Motion.Base", 0.99);
         double decreaseInWater = configurationSection.getDouble(path + ".Decrease_Motion.In_Water", 0.96);
         double decreaseWhenRainingOrSnowing = configurationSection.getDouble(path + ".Decrease_Motion.When_Raining_Or_Snowing", 0.98);
+
+        Debugger debug = WeaponMechanics.debug;
+        debug.validate(decrease >= 0.0, "Motion multiplier MUST be positive",
+                "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.Base"));
+        debug.validate(decreaseInWater >= 0.0, "Motion multiplier MUST be positive",
+                "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.In_Water"));
+        debug.validate(decreaseWhenRainingOrSnowing >= 0.0, "Motion multiplier MUST be positive",
+                "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.When_Raining_Or_Snowing"));
+
         return new ProjectileMotion(gravity, minimumSpeed, removeAtMinimumSpeed, maximumSpeed, removeAtMaximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing);
     }
 }

@@ -140,6 +140,7 @@ public class Projectile implements Serializer<Projectile> {
     public Projectile serialize(File file, ConfigurationSection configurationSection, String path) {
         String type = configurationSection.getString(path + ".Settings.Type");
         if (type == null) {
+            debug.error("You failed to specify projectile type!", StringUtil.foundAt(file, path + ".Settings.Type"));
             return null;
         }
         type = type.trim().toUpperCase();

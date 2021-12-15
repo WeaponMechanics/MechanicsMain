@@ -1,0 +1,142 @@
+/RPG-7:
+  Info:
+    Weapon_Item:
+      Type: DIAMOND_HOE
+      Name: "&r&eRPG-7"
+      Lore:
+        - "&7For when bullets just don't get the job done"
+      Unbreakable: true
+      Hide_Flags: true
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "&r%weapon-title% %selective_fire_state% &e«%ammo-left%»&r%reload%"
+        Time: 40
+    Weapon_Get_Mechanics:
+      Sounds:
+        - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
+    Cancel:
+      Block_Interactions: false
+      Item_Interactions: false
+      Drop_Item: true
+      Swap_Hands: true
+      Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 341
+    Scope:
+      Custom_Model_Data: 351
+  Projectile:
+    Settings:
+      Type: SNOWBALL
+      Width: 0.15
+      Height: 0.15
+    Projectile_Motion:
+      Gravity: 0.0
+      Minimum:
+        Speed: 10.0
+        Remove_Projectile_On_Speed_Reached: true
+      Maximum:
+        Speed: 30.0
+        Remove_Projectile_On_Speed_Reached: false
+      Decrease_Motion:
+        Base: 1.25
+        In_Water: 0.75
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 15
+    Projectiles_Per_Shot: 1
+    Spread:
+      Base_Spread: 0.25
+      Modify_Spread_When:
+        Zooming: -0.2
+        Sneaking: -0.025
+        In_Midair: 0.25
+        Gliding: 0.25
+    Recoil:
+      Push_Time: 100
+      Recover_Time: 250
+      Recoil_Pattern:
+        Repeat_Pattern: true
+        List:
+          - "-0.02~0.5"
+          - "0.02~0.5"
+    Mechanics:
+      Sounds:
+        - BLOCK_BASALT_BREAK-4-2.0
+        - BLOCK_BASALT_STEP-4-2.0
+        - BLOCK_SCAFFOLDING_BREAK-2-2.0
+  Reload:
+    Trigger:
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
+    Magazine_Size: 30
+    Ammo_Per_Reload: 30
+    Reload_Duration: 44
+    Start_Mechanics:
+      Sounds:
+        - ITEM_FLINTANDSTEEL_USE-2-2.0-0
+        - ITEM_FLINTANDSTEEL_USE-2-1.7-18
+        - ITEM_FLINTANDSTEEL_USE-2-1.9-20
+        - BLOCK_PISTON_EXTEND-2-1.5-34
+        - BLOCK_PISTON_CONTRACT-2-1.5-42
+  Damage:
+    Base_Damage: 1.0
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+    Zoom_Amount: 2
+    Mechanics:
+      Sounds:
+        - custom:scope.in-0.5-1.0-0-0.05
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - custom:scope.out-0.5-1.0-0-0.05
+  Explosion:
+    Explosion_Type_Data:
+      Yield: 5
+    Detonation:
+      Impact_When:
+        Entity: true
+        Block: true
+#    Cluster_Bomb:
+#      Split_Projectile: <ProjectileSerializer>
+#      Projectile_Speed: <Double>
+#      Number_Of_Bombs: <Integer>
+#      Number_Of_Splits: <Integer>
+#    Airstrike:
+#      Dropped_Projectile: <ProjectileSerializer>
+#      Minimum_Bombs: <Integer>
+#      Maximum_Bombs: <Integer>
+#      Height: <Double>
+#      Vertical_Randomness: <Double>
+#      Distance_Between_Bombs: <Double>
+#      Maximum_Distance_From_Center: <Double>
+#      Layers: <Integer>
+#      Delay_Between_Layers: <Integer>
+    Block_Damage:
+      Break_Blocks: true
+      Blacklist: true
+    Regeneration:
+      Ticks_Before_Start: 1200
+      Max_Blocks_Per_Update: 2
+      Ticks_Between_Updates: 5
+    Flashbang:
+      Effect_Distance: 10
+      Mechanics:
+        Potion_Effects:
+          - BLINDNESS-100-1-false
+    Mechanics:
+      Firework:
+        Firework_Type: BURST
+        Flight_Time: 0
+        Flicker: false
+        Colors:
+          - BLACK
+        Fade_Colors:
+          - BLACK
