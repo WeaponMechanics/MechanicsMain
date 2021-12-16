@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -19,6 +21,24 @@ public class Factory<T> {
         map = new HashMap<>(initialSize);
     }
 
+    /**
+     * Returns a constructed object of who inherits from <code>T</code>,
+     * constructed from the given <code>arguments</code>. In order to add a
+     * new type, use {@link #set(String, Arguments)}.
+     *
+     * <p>The given <code>arguments</code> <i>MUST</i> explicitly contain
+     * <i>ALL</i> objects defined by the {@link Arguments#arguments}. If an
+     * argument is missing, a {@link FactoryException} is thrown. The given
+     * objects are type-casted to their expected type. Ensure that the
+     * constructors for your defined arguments exist.
+     *
+     * @param key The non-null, non-case-sensitive name of the class to instantiate.
+     * @param arguments The non-null map of arguments.
+     * @return Instantiated object.
+     * @throws InternalError If no "good" constructor exists.
+     * @throws FactoryException If there were missing arguments.
+     * @throws ClassCastException If a given argument is an invalid type.
+     */
     public final T get(String key, Map<String, Object> arguments) {
         key = key.trim().toUpperCase(Locale.ROOT);
         Arguments args = map.get(key);
@@ -32,19 +52,20 @@ public class Factory<T> {
         Object[] objects = new Object[args.arguments.length];
         for (int i = 0; i < args.arguments.length; i++) {
             String argument = args.arguments[i];
+            Class<?> clazz = args.argumentTypes[i];
 
             if (!arguments.containsKey(argument))
                 throw new FactoryException(this, key, argument, arguments);
 
-            objects[i] = arguments.get(argument);
+            objects[i] = clazz == null
+                    ? arguments.get(argument)
+                    : clazz.cast(arguments.get(argument));
         }
 
         return ReflectionUtil.newInstance(args.manufacturedType, objects);
     }
 
-    @SuppressWarnings("unchecked")
-    public final void set(String key, Class<? extends T> manufacturedType, String... arguments) {
-        Arguments args = new Arguments((Class<T>) manufacturedType, arguments);
+    public final void set(String key, Arguments args) {
         map.put(key.trim().toUpperCase(Locale.ROOT), args);
     }
 
@@ -53,14 +74,24 @@ public class Factory<T> {
     }
 
 
-    private class Arguments {
+    public class Arguments {
 
         private final Class<T> manufacturedType;
         private final String[] arguments;
+        private final Class<?>[] argumentTypes;
 
-        public Arguments(Class<T> manufacturedType, String[] arguments) {
-            this.manufacturedType = manufacturedType;
+        @SuppressWarnings("unchecked")
+        public Arguments(Class<? extends T> manufacturedType, String[] arguments) {
+            this.manufacturedType = (Class<T>) manufacturedType;
             this.arguments = arguments;
+            this.argumentTypes = new Class[arguments.length];
+        }
+
+        @SuppressWarnings("unchecked")
+        public Arguments(Class<? extends T> manufacturedType, String[] arguments, Class<?>[] argumentTypes) {
+            this.manufacturedType = (Class<T>) manufacturedType;
+            this.arguments = arguments;
+            this.argumentTypes = argumentTypes;
         }
     }
 

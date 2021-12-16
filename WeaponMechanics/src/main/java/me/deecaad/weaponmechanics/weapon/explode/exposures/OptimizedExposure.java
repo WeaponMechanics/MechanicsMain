@@ -48,7 +48,7 @@ public class OptimizedExposure implements ExplosionExposure {
             Vector entityLocation = entity.getLocation().toVector();
 
             // Gets the "rate" or percentage of how far the entity
-            // is from the explosion. For example, it the distance
+            // is from the explosion. For example, if the distance
             // is 8 and explosion radius is 10, the rate will be 1/5
             Vector between = entityLocation.subtract(vector);
             double distance = between.length();
@@ -77,14 +77,17 @@ public class OptimizedExposure implements ExplosionExposure {
     }
 
     /**
-     * Gets a double [0, 1] representing how exposed the entity is to the explosion.
+     * Gets a double [0.0, 1.0] representing how exposed the entity is to the explosion.
      * Exposure is determined by 8 rays, 1 ray for each corner of an entity's
      * bounding box. The returned exposure is equal to the number of rays that hit
-     * the entity divided by 8
+     * the entity divided by 8.
      *
-     * @param vec3d Vector between explosion and entity
+     * <p>There is also one ray going to the center of the entity hit-box that
+     * has the power of 4 rays.
+     *
+     * @param vec3d The origin point
      * @param entity The entity exposed to the explosion
-     * @return The level of exposure of the entity to the epxlosion
+     * @return The level of exposure of the entity to the explosion
      */
     private static double getExposure(Vector vec3d, Entity entity) {
         HitBox box = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(entity);
@@ -115,6 +118,16 @@ public class OptimizedExposure implements ExplosionExposure {
                     totalTraces++;
                 }
             }
+        }
+
+        // Add one more ray pointing to the center of the bound box. If this
+        // ray hits the entity, it has the power of 4 rays. If this ray does
+        // not hit the entity, it has the power of 0 rays
+        Ray ray = new Ray(world, vec3d, VectorUtil.lerp(box.min, box.max, 0.5));
+        TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
+        if (trace.getBlocks().isEmpty()) {
+            successfulTraces += 4;
+            totalTraces += 4;
         }
 
         // The percentage of successful traces

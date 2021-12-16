@@ -5,21 +5,43 @@ import me.deecaad.weaponmechanics.weapon.explode.Factory;
 /**
  * Factory class to provide explosion exposures to the
  * {@link me.deecaad.weaponmechanics.weapon.explode.Explosion}'s serializer.
- * In order to add your own exposure, use {@link #set(String, Class, String...)}.
+ * In order to add your own exposure, use
+ * {@link #set(String, me.deecaad.weaponmechanics.weapon.explode.Factory.Arguments)}.
  */
 public final class ExposureFactory extends Factory<ExplosionExposure> {
 
-    private static final ExposureFactory INSTANCE = new ExposureFactory();
+    private static final ExposureFactory INSTANCE;
 
     static {
-        INSTANCE.set("default", DefaultExposure.class);
-        INSTANCE.set("distance", DistanceExposure.class);
-        INSTANCE.set("optimized", OptimizedExposure.class);
-        INSTANCE.set("void", VoidExposure.class);
+        INSTANCE = new ExposureFactory();
+
+        INSTANCE.set("DEFAULT", INSTANCE.new Arguments(
+                DefaultExposure.class,
+                new String[]{  },
+                new Class[]{  }
+        ));
+
+        INSTANCE.set("DISTANCE", INSTANCE.new Arguments(
+                DistanceExposure.class,
+                new String[]{  },
+                new Class[]{  }
+        ));
+
+        INSTANCE.set("OPTIMIZED", INSTANCE.new Arguments(
+                OptimizedExposure.class,
+                new String[]{  },
+                new Class[]{  }
+        ));
+
+        INSTANCE.set("VOID", INSTANCE.new Arguments(
+                VoidExposure.class,
+                new String[]{  },
+                new Class[]{  }
+        ));
     }
 
     private ExposureFactory() {
-        super(4);
+        super(8);
     }
 
     public static ExposureFactory getInstance() {

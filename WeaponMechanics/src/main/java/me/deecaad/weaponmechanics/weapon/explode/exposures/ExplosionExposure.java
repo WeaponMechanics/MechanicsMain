@@ -83,10 +83,6 @@ public interface ExplosionExposure {
             public boolean canHit(Block block) {
                 String name = block.getType().name();
 
-                if (originLoc.getBlock().equals(block)) {
-                    return false;
-                }
-
                 // THIN_GLASS
                 // STAINED_GLASS_PANE
                 // GLASS

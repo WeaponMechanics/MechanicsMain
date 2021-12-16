@@ -82,7 +82,7 @@ public class DefaultExposure implements ExplosionExposure {
     /**
      * Gets a double [0, 1] representing how exposed the entity is to the explosion
      *
-     * @param vec3d Vector between explosion and entity
+     * @param vec3d The origin of the explosion
      * @param entity The entity exposed to the explosion
      * @return The level of exposure of the entity to the epxlosion
      */
@@ -106,8 +106,9 @@ public class DefaultExposure implements ExplosionExposure {
         double gridY = 1.0 / stepY;
         double gridZ = 1.0 / stepZ;
 
-        // Outside of the grid
-        if (gridX < 0.0 || gridY < 0.0 || gridZ < 0.0) return 0.0;
+        // Outside the grid
+        if (gridX < 0.0 || gridY < 0.0 || gridZ < 0.0)
+            return 0.0;
 
         double d3 = (1.0 - Math.floor(stepX) * gridX) / 2.0;
         double d4 = (1.0 - Math.floor(stepZ) * gridZ) / 2.0;
@@ -122,6 +123,7 @@ public class DefaultExposure implements ExplosionExposure {
         for (double x = 0; x <= 1; x += gridX) {
             for (double y = 0; y <= 1; y += gridY) {
                 for (double z = 0; z <= 1; z += gridZ) {
+
                     double a = NumberUtil.lerp(box.min.getX(), box.max.getX(), x);
                     double b = NumberUtil.lerp(box.min.getY(), box.max.getY(), y);
                     double c = NumberUtil.lerp(box.min.getZ(), box.max.getZ(), z);
