@@ -103,7 +103,7 @@ public class Factory<T> {
         private final Map<String, Object> values;
 
         public FactoryException(Factory<?> factory, String key, String missingArgument, Map<String, Object> values) {
-            super("Failure to initialize " + key + "(" + factory.map.get(key).manufacturedType + "), missing: " + missingArgument);
+            super("Failure to initialize " + key + "(" + factory.map.get(key).manufacturedType.getSimpleName() + "), missing: " + missingArgument);
 
             this.key = key;
             this.missingArgument = missingArgument;
