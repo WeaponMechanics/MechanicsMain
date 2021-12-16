@@ -607,6 +607,9 @@ public class ShootHandler implements IValidator {
         }
 
         double projectileSpeed = configuration.getDouble(path + ".Projectile_Speed");
+        debug.validate(projectileSpeed >= 0, "Projectile_Speed must be a positive number!",
+                StringUtil.foundAt(file, path + ".Projectile_Speed"));
+
         if (projectileSpeed == 0) {
             debug.log(LogLevel.ERROR, "Tried to use shoot without defining projectile speed or it was 0.",
                     "Located at file " + file + " in " + path + ".Projectile_Speed in configurations.");

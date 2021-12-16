@@ -213,11 +213,15 @@ public class FileReader {
                     } else {
                         try {
                             Object valid = serializer.serialize(file, configuration, key);
-                            if (valid == null) debug.warn(serializer + " serializer returned null", StringUtil.foundAt(file, key));
+                            if (valid == null)
+                                debug.warn(serializer.getKeyword() + " serializer returned null",
+                                    "This is probably due to a configuration error! The error(s) should be above this message",
+                                    StringUtil.foundAt(file, key));
+
                             filledMap.set(key, valid);
                             startsWithDeny = key;
                         } catch (Exception e) {
-                            debug.log(LogLevel.WARN, "Caught exception from serializer " + serializer.getKeyword() + "!", e);
+                            debug.log(LogLevel.WARN, "Unhandled caught exception from serializer " + serializer.getKeyword() + "!", e);
                         }
                     }
                     continue;

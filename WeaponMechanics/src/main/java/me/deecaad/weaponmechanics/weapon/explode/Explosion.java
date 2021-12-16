@@ -358,7 +358,9 @@ public class Explosion implements Serializer<Explosion> {
         if (typeData.contains("Height", true)) typeData.set("Height", height);
         if (typeData.contains("Width", true))  typeData.set("Width", width);
         if (typeData.contains("Radius", true)) typeData.set("Radius", radius);
-        if (typeData.contains("Rays", true))   typeData.set("Rays", rays);
+
+        // Rays is a default value, so we don't need to check if typeData.contains("Rays").
+        typeData.set("Rays", rays);
 
         Map<String, Object> temp = typeData.getValues(true);
         ExplosionExposure exposure;
