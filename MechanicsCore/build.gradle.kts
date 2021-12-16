@@ -14,4 +14,8 @@ dependencies {
     compileOnly("io.netty:netty-all:4.0.23.Final")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 description = "MechanicsCore"

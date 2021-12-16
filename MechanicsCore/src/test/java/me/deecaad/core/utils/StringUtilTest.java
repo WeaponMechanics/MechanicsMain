@@ -29,12 +29,12 @@ class StringUtilTest {
 
     @ParameterizedTest
     @CsvSource({
-            "&eBasic test,§eBasic test",
-            "&f&lSome more,§f§lSome more",
-            "\\&fake &oout,&fake §oout",
-            "&#feab45Hex test,§x§f§e§a§b§4§5Hex test",
-            "&#ABCDEFhEX AgAIN,§x§A§B§C§D§E§FhEX AgAIN",
-            "&fone last &rtest &ocombining \\&ea few features&,§fone last §rtest §ocombining &ea few features&"
+            "&eBasic test,\u00A7eBasic test",
+            "&f&lSome more,\u00A7f\u00A7lSome more",
+            "\\&fake &oout,&fake \u00A7oout",
+            "&#feab45Hex test,\u00A7x\u00A7f\u00A7e\u00A7a\u00A7b\u00A74\u00A75Hex test",
+            "&#ABCDEFhEX AgAIN,\u00A7x\u00A7A\u00A7B\u00A7C\u00A7D\u00A7E\u00A7FhEX AgAIN",
+            "&fone last &rtest &ocombining \\&ea few features&,\u00A7fone last \u00A7rtest \u00A7ocombining &ea few features&"
     })
     void test_color(String str, String expected) {
         assertEquals(expected, StringUtil.color(str));

@@ -247,6 +247,9 @@ public final class NumberUtil {
      * @return The non-null, trimmed string containing the roman numeral.
      */
     public static String toRomanNumeral(int from) {
+        if (from <= 0)
+            return "nulla"; // nulla, sometimes used for 0
+
         int numeral = NUMERALS.floorKey(from);
         if (from == numeral) {
             return NUMERALS.get(from);
@@ -259,7 +262,7 @@ public final class NumberUtil {
      * number of seconds.
      *
      * @param seconds The non-negative integer holding the amount of seconds.
-     * @return The non-null human readable time {@link String}.
+     * @return The non-null human-readable time {@link String}.
      */
     public static String toTime(int seconds) {
         int unit = TIME.floorKey(seconds);

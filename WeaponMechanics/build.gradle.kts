@@ -11,4 +11,8 @@ dependencies {
     implementation("co.aikar:minecraft-timings:1.0.4")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 description = "WeaponMechanics"
