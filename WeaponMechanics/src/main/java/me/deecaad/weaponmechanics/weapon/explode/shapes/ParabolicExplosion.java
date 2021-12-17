@@ -34,7 +34,7 @@ public class ParabolicExplosion implements ExplosionShape {
     }
     
     public ParabolicExplosion(double depth, double angle) {
-        this.depth = depth;
+        this.depth = -Math.abs(depth); // this check is also done by serializer, but add it here for devs
         this.angle = angle;
     }
     
