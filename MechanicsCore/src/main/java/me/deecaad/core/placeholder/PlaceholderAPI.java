@@ -88,6 +88,11 @@ public class PlaceholderAPI {
      * @see PlaceholderAPI#applyPlaceholders(String, Player, ItemStack, String)
      */
     public static List<String> applyPlaceholders(Collection<String> to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
+        if (to == null)
+            return null;
+        else if (to.isEmpty())
+            return new ArrayList<>(1);
+
         Iterator<String> iterator = to.iterator();
 
         List<String> tempList = new ArrayList<>();
