@@ -22,7 +22,7 @@ public final class ShapeFactory extends Factory<ExplosionShape> {
         INSTANCE.set("PARABOLIC", INSTANCE.new Arguments(
                 ParabolicExplosion.class,
                 new String[]{ "Depth", "Angle" },
-                new Class[]{ Double.class }
+                new Class[]{ Double.class, Double.class }
         ));
 
         INSTANCE.set("SPHERICAL", INSTANCE.new Arguments(

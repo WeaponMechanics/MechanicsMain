@@ -354,7 +354,7 @@ public class Explosion implements Serializer<Explosion> {
         // an int when we would expect it to be a double.
         if (typeData.contains("Yield", true))  typeData.set("Yield", yield);
         if (typeData.contains("Angle", true))  typeData.set("Angle", angle);
-        if (typeData.contains("Depth", true))  typeData.set("Depth", depth);
+        if (typeData.contains("Depth", true))  typeData.set("Depth", -Math.abs(depth));
         if (typeData.contains("Height", true)) typeData.set("Height", height);
         if (typeData.contains("Width", true))  typeData.set("Width", width);
         if (typeData.contains("Radius", true)) typeData.set("Radius", radius);
