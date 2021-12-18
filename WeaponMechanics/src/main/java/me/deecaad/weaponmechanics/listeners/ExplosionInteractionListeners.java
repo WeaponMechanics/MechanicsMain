@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.listeners;
 
-import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageDataOld;
 import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -21,8 +21,8 @@ public class ExplosionInteractionListeners implements Listener {
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent e) {
         Chunk chunk = e.getChunk();
-        BlockDamageData.regenerate(chunk);
-        BlockDamageData.getBlockDamageMap().remove(chunk);
+        BlockDamageDataOld.regenerate(chunk);
+        BlockDamageDataOld.getBlockDamageMap().remove(chunk);
     }
 
     @EventHandler
@@ -32,6 +32,6 @@ public class ExplosionInteractionListeners implements Listener {
 
         Block attachedTo = in.getRelative(attachment);
 
-        e.setCancelled(BlockDamageData.isBroken(attachedTo));
+        e.setCancelled(BlockDamageDataOld.isBroken(attachedTo));
     }
 }

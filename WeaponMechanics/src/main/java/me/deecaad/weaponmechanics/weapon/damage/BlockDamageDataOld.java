@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public final class BlockDamageData implements Listener {
+public final class BlockDamageDataOld implements Listener {
 
     private static final Map<Chunk, Map<Block, DamageData>> BLOCK_DAMAGE_MAP = new HashMap<>(1000);
     private static final int MAX_BLOCK_CRACK = 9;
@@ -28,7 +28,7 @@ public final class BlockDamageData implements Listener {
     /**
      * Don't let anyone instantiate this class
      */
-    private BlockDamageData() {
+    private BlockDamageDataOld() {
     }
 
     public static Map<Chunk, Map<Block, DamageData>> getBlockDamageMap() {
@@ -159,17 +159,17 @@ public final class BlockDamageData implements Listener {
             // Clear the contents of the inventory, if present
             // to avoid spawning dropped items
             if (state instanceof InventoryHolder) {
+                Inventory inv;
                 if (state instanceof Chest) {
-                    Inventory inv = ((Chest) state).getBlockInventory();
-                    inv.clear();
+                    inv = ((Chest) state).getBlockInventory();
                 } else {
-                    Inventory inv = ((InventoryHolder) state).getInventory();
-                    inv.clear();
+                    inv = ((InventoryHolder) state).getInventory();
                 }
+                inv.clear();
             }
 
             // Set the type to AIR and do not apply physics
-            block.setType(AIR, false);
+
         }
 
         /**

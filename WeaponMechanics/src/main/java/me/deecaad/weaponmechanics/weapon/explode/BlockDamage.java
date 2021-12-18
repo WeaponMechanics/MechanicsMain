@@ -5,7 +5,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageDataOld;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -91,11 +91,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     public boolean damage(Block block, int regenTicks) {
-        if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
+        if (!isBlacklisted(block) && !BlockDamageDataOld.isBroken(block)) {
             int max = getMaxDurability(block);
-            BlockDamageData.damageBlock(block, damage, max, isBreakBlocks, regenTicks);
+            BlockDamageDataOld.damageBlock(block, damage, max, isBreakBlocks, regenTicks);
 
-            return BlockDamageData.isBroken(block);
+            return BlockDamageDataOld.isBroken(block);
         }
 
         return false;
