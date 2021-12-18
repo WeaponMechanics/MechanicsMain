@@ -37,6 +37,8 @@ public class Block_1_17_R1  implements BlockCompatibility {
     @Override
     public @NotNull Object getCrackPacket(@NotNull Block block, int crack) {
 
+        // TODO: change usage to player.sendBlockDamage(location, float) <- since 1_16_R3
+
         int id = IDS.incrementAndGet();
         if (id == Integer.MAX_VALUE) {
             IDS.set(0);
@@ -47,21 +49,38 @@ public class Block_1_17_R1  implements BlockCompatibility {
 
     @Override
     public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
+
+        // TODO: change usage to player.sendBlockDamage(location, float) <- since 1_16_R3
+
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
     }
 
     @Override
     public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, org.bukkit.Material mask, byte data) {
+
+        // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
+        // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
+        // Actually this wont even need to be used through compatibility, simple version check while calling those methods is enough
+
         return getBlockMaskPacket(bukkitBlock, ((CraftBlockData) mask.createBlockData()).getState());
     }
 
     @Override
     public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, @NotNull BlockState mask) {
+
+        // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
+        // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
+        // Actually this wont even need to be used through compatibility, simple version check while calling those methods is enough
+
         return getBlockMaskPacket(bukkitBlock, ((CraftBlockState) mask).getHandle());
     }
 
     private PacketPlayOutBlockChange getBlockMaskPacket(Block bukkitBlock, IBlockData mask) {
+
+        // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
+        // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
+        // Actually this wont even need to be used through compatibility, simple version check while calling those methods is enough
 
         CraftBlock block = ((CraftBlock) bukkitBlock);
         BlockPosition position = block.getPosition();

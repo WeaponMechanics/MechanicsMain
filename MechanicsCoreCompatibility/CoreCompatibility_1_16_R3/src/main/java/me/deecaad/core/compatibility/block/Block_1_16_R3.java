@@ -35,6 +35,8 @@ public class Block_1_16_R3 implements BlockCompatibility {
     @Override
     public @NotNull Object getCrackPacket(@NotNull Block block, int crack) {
 
+        // TODO: change usage to player.sendBlockDamage(location, float) <- since 1_16_R3
+
         int id = IDS.incrementAndGet();
         if (id == Integer.MAX_VALUE) {
             IDS.set(0);
@@ -45,6 +47,9 @@ public class Block_1_16_R3 implements BlockCompatibility {
 
     @Override
     public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
+
+        // TODO: change usage to player.sendBlockDamage(location, float) <- since 1_16_R3
+
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
     }
