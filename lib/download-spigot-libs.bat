@@ -20,14 +20,6 @@ cd 1_8_R3
 java -jar ../BuildTools.jar --rev 1.8.8 --output-dir ../../nms
 
 
-:: 1_9_R1
-IF NOT EXIST "../1_9_R1" (
-    mkdir "../1_9_R1"
-)
-cd "../1_9_R1"
-java -jar ../BuildTools.jar --rev 1.9.2 --output-dir ../../nms
-
-
 :: 1_9_R2
 IF NOT EXIST "../1_9_R2" (
     mkdir "../1_9_R2"
@@ -60,14 +52,6 @@ cd "../1_12_R1"
 java -jar ../BuildTools.jar --rev 1.12.2 --output-dir ../../nms
 
 
-:: 1_13_R1
-IF NOT EXIST "../1_13_R1" (
-    mkdir "../1_13_R1"
-)
-cd "../1_13_R1"
-java -jar ../BuildTools.jar --rev 1.13 --output-dir ../../nms
-
-
 :: 1_13_R2
 IF NOT EXIST "../1_13_R2" (
     mkdir "../1_13_R2"
@@ -90,22 +74,6 @@ IF NOT EXIST "../1_15_R1" (
 )
 cd "../1_15_R1"
 java -jar ../BuildTools.jar --rev 1.15.2 --output-dir ../../nms
-
-
-:: 1_16_R1
-IF NOT EXIST "../1_16_R1" (
-    mkdir "../1_16_R1"
-)
-cd "../1_16_R1"
-java -jar ../BuildTools.jar --rev 1.16.1 --output-dir ../../nms
-
-
-:: 1_16_R2
-IF NOT EXIST "../1_16_R2" (
-    mkdir "../1_16_R2"
-)
-cd "../1_16_R2"
-java -jar ../BuildTools.jar --rev 1.16.3 --output-dir ../../nms
 
 
 :: 1_16_R3

@@ -15,6 +15,18 @@ dependencies {
     implementation(project(":MechanicsCoreCompatibility"))
     implementation(project(":WorldGuardV6"))
     implementation(project(":WorldGuardV7"))
+
+    implementation(project(":CoreCompatibility_1_8_R3" ))
+    implementation(project(":CoreCompatibility_1_9_R2" ))
+    implementation(project(":CoreCompatibility_1_10_R1"))
+    implementation(project(":CoreCompatibility_1_11_R1"))
+    implementation(project(":CoreCompatibility_1_12_R1"))
+    implementation(project(":CoreCompatibility_1_13_R2"))
+    implementation(project(":CoreCompatibility_1_14_R1"))
+    implementation(project(":CoreCompatibility_1_15_R1"))
+    implementation(project(":CoreCompatibility_1_16_R3"))
+    implementation(project(":CoreCompatibility_1_17_R1"))
+    implementation(project(":CoreCompatibility_1_18_R1"))
 }
 
 // See https://github.com/Minecrell/plugin-yml
@@ -37,6 +49,18 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":MechanicsCoreCompatibility"))
         include(project(":WorldGuardV6"))
         include(project(":WorldGuardV7"))
+
+        include(project(":CoreCompatibility_1_8_R3" ))
+        include(project(":CoreCompatibility_1_9_R2" ))
+        include(project(":CoreCompatibility_1_10_R1"))
+        include(project(":CoreCompatibility_1_11_R1"))
+        include(project(":CoreCompatibility_1_12_R1"))
+        include(project(":CoreCompatibility_1_13_R2"))
+        include(project(":CoreCompatibility_1_14_R1"))
+        include(project(":CoreCompatibility_1_15_R1"))
+        include(project(":CoreCompatibility_1_16_R3"))
+        include(project(":CoreCompatibility_1_17_R1"))
+        include(project(":CoreCompatibility_1_18_R1"))
     }
 }
 

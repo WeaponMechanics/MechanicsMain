@@ -38,6 +38,10 @@ repositories {
     }
 }
 
+dependencies {
+    compileOnly("org.jetbrains:annotations:23.0.0")
+}
+
 group = "me.deecaad"
 version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8

@@ -13,6 +13,18 @@ configurations {
 dependencies {
     implementation(project(":WeaponMechanics"))
     implementation(project(":WeaponMechanicsCompatibility"))
+
+    implementation(project(":WeaponCompatibility_1_8_R3" ))
+    implementation(project(":WeaponCompatibility_1_9_R2" ))
+    implementation(project(":WeaponCompatibility_1_10_R1"))
+    implementation(project(":WeaponCompatibility_1_11_R1"))
+    implementation(project(":WeaponCompatibility_1_12_R1"))
+    implementation(project(":WeaponCompatibility_1_13_R2"))
+    implementation(project(":WeaponCompatibility_1_14_R1"))
+    implementation(project(":WeaponCompatibility_1_15_R1"))
+    implementation(project(":WeaponCompatibility_1_16_R3"))
+    implementation(project(":WeaponCompatibility_1_17_R1"))
+    implementation(project(":WeaponCompatibility_1_18_R1"))
 }
 
 // See https://github.com/Minecrell/plugin-yml
@@ -33,6 +45,18 @@ tasks.named<ShadowJar>("shadowJar") {
     dependencies {
         include(project(":WeaponMechanics"))
         include(project(":WeaponMechanicsCompatibility"))
+
+        include(project(":WeaponCompatibility_1_8_R3" ))
+        include(project(":WeaponCompatibility_1_9_R2" ))
+        include(project(":WeaponCompatibility_1_10_R1"))
+        include(project(":WeaponCompatibility_1_11_R1"))
+        include(project(":WeaponCompatibility_1_12_R1"))
+        include(project(":WeaponCompatibility_1_13_R2"))
+        include(project(":WeaponCompatibility_1_14_R1"))
+        include(project(":WeaponCompatibility_1_15_R1"))
+        include(project(":WeaponCompatibility_1_16_R3"))
+        include(project(":WeaponCompatibility_1_17_R1"))
+        include(project(":WeaponCompatibility_1_18_R1"))
 
         relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.timingslib") {
             include(dependency("co.aikar:minecraft-timings"))
