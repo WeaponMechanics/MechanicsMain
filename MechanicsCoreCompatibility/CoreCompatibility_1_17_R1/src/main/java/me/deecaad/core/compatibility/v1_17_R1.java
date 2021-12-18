@@ -31,11 +31,6 @@ public class v1_17_R1 implements ICompatibility {
     }
 
     @Override
-    public int getPing(Player player) {
-        return player.getPing();
-    }
-
-    @Override
     public Entity getEntityById(World world, int entityId) {
         net.minecraft.world.entity.Entity e = ((CraftWorld) world).getHandle().getEntity(entityId);
         return e == null ? null : e.getBukkitEntity();
