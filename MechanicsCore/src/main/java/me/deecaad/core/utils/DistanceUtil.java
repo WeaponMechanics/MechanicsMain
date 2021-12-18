@@ -91,6 +91,9 @@ public final class DistanceUtil {
      * @param packets   The packets to send to the players.
      */
     public static void sendPacket(@Nonnull Location origin, double distance, Object... packets) {
+        if (origin.getWorld() == null)
+            throw new IllegalArgumentException("Cannot have null world");
+
         World world = origin.getWorld();
         Collection<Entity> entities = world.getNearbyEntities(origin, distance, distance, distance);
         for (Entity entity : entities) {
