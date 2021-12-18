@@ -24,7 +24,10 @@ public interface ICompatibility {
      * @param player The non-null player to get the ping of.
      * @return The ping, in milliseconds, of the player.
      */
-    int getPing(@Nonnull Player player);
+    default int getPing(@Nonnull Player player) {
+        // Since 1.16 R3
+        return player.getPing();
+    }
 
     /**
      * Returns the bukkit {@link Entity} whose handle's unique id matches the

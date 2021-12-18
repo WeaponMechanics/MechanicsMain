@@ -32,7 +32,7 @@ public class v1_17_R1 implements ICompatibility {
 
     @Override
     public int getPing(Player player) {
-        return 50; // todo
+        return player.getPing();
     }
 
     @Override

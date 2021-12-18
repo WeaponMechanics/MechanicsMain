@@ -31,7 +31,7 @@ public class v1_16_R3 implements ICompatibility {
 
     @Override
     public int getPing(Player player) {
-        return getEntityPlayer(player).ping;
+        return player.getPing();
     }
 
     @Override
