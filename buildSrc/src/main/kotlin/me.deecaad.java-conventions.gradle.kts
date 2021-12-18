@@ -38,10 +38,6 @@ repositories {
     }
 }
 
-dependencies {
-    api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
-}
-
 group = "me.deecaad"
 version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8

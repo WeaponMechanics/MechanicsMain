@@ -7,6 +7,7 @@ plugins {
 }
 
 dependencies {
+    api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
     implementation("co.aikar:minecraft-timings:1.0.4")
 }

@@ -26,3 +26,7 @@ build/
 # Maven
 log/
 target/
+
+# Spigot depends
+lib/nms
+lib/BuildTools

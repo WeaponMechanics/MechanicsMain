@@ -7,6 +7,7 @@ plugins {
 }
 
 dependencies {
+    api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.7")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.6")

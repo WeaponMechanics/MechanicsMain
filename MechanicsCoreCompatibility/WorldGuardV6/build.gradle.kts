@@ -7,6 +7,7 @@ plugins {
 }
 
 dependencies {
+    api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
     compileOnly(files(file("../../lib/worldguard/worldedit-bukkit-6.1.9.jar")))
     compileOnly(files(file("../../lib/worldguard/worldguard-bukkit-6.2.2.jar")))

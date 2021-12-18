@@ -7,6 +7,7 @@ plugins {
 }
 
 dependencies {
+    api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
     compileOnly("me.clip:placeholderapi:2.10.10")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
