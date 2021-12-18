@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
@@ -74,26 +75,28 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     }
 
     private Bounds getBounds(ConfigurationSection configurationSection, String path) {
-        double min = configurationSection.getDouble(path + ".Minimum_Spread") * 0.1;
-        double max = configurationSection.getDouble(path + ".Maximum_Spread") * 0.1;
+        double min = configurationSection.getDouble(path + ".Minimum_Spread", -1);
+        double max = configurationSection.getDouble(path + ".Maximum_Spread", -1);
 
-        if (min == 0.0 && max == 0.0) {
+        if (min == -1 && max == -1) {
             return null;
         }
 
         // Just giving default values to avoid confusions when checking if value was ever even used
-        if (min != 0.0 && max == 0.0) {
+        if (max == -1) {
             max = 50;
-        } else if (max != 0.0 && min == 0.0) {
-            min = 0.00001;
+        }
+
+        if (min == -1) {
+            min = 0;
         }
 
         if (min < 0.0) {
-            min = 0.00001;
+            min = 0.0;
         }
 
         boolean resetAfterReachingBound = configurationSection.getBoolean(path + ".Reset_After_Reaching_Bound");
-        return new Bounds(resetAfterReachingBound, min, max);
+        return new Bounds(resetAfterReachingBound, min * 0.1, max * 0.1);
     }
 
     public static class Bounds {
