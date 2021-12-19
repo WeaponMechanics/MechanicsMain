@@ -476,10 +476,11 @@ public class ReloadHandler implements IValidator {
             debug.validate(ammoPerReload > 0, StringUtil.foundInvalid("ammo per reload"),
                     StringUtil.foundAt(file, path + ".Ammo_Per_Reload", ammoPerReload),
                     "Can't use negative value here.");
-
-            boolean unloadAmmoOnReload = configurationSection.getBoolean(path + ".Unload_Ammo_On_Reload");
+        }
+        boolean unloadAmmoOnReload = configurationSection.getBoolean(path + ".Unload_Ammo_On_Reload");
+        if (unloadAmmoOnReload && ammoPerReload != -99) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
-            debug.validate(unloadAmmoOnReload, StringUtil.foundInvalid("logic"),
+            debug.error(StringUtil.foundInvalid("logic"),
                     StringUtil.foundAt(file, path + ".Unload_Ammo_On_Reload", unloadAmmoOnReload),
                     "Can't use Ammo_Per_Reload and Unload_Ammo_On_Reload at same time!");
         }
