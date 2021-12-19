@@ -464,11 +464,25 @@ public class ReloadHandler implements IValidator {
         int magazineSize = configurationSection.getInt(path + ".Magazine_Size");
         debug.validate(magazineSize > 0, StringUtil.foundInvalid("magazine size"),
                 StringUtil.foundAt(file, path + ".Magazine_Size", magazineSize),
-                "It either didn't exist or it was missing.");
+                "It either didn't exist or it was given negative value.");
 
         int reloadDuration = configurationSection.getInt(path + ".Reload_Duration");
         debug.validate(reloadDuration > 0, StringUtil.foundInvalid("reload duration"),
                 StringUtil.foundAt(file, path + ".Reload_Duration", reloadDuration),
-                "It either didn't exist or it was missing.");
+                "It either didn't exist or it was given negative value.");
+
+        int ammoPerReload = configurationSection.getInt(path + ".Ammo_Per_Reload", -99);
+        if (ammoPerReload != -99) {
+            debug.validate(ammoPerReload > 0, StringUtil.foundInvalid("ammo per reload"),
+                    StringUtil.foundAt(file, path + ".Ammo_Per_Reload", ammoPerReload),
+                    "Can't use negative value here.");
+        }
+        boolean unloadAmmoOnReload = configurationSection.getBoolean(path + ".Unload_Ammo_On_Reload");
+        if (unloadAmmoOnReload && ammoPerReload != -99) {
+            // Using ammo per reload and unload ammo on reload at same time is considered as error
+            debug.error(StringUtil.foundInvalid("logic"),
+                    StringUtil.foundAt(file, path + ".Unload_Ammo_On_Reload", unloadAmmoOnReload),
+                    "Can't use Ammo_Per_Reload and Unload_Ammo_On_Reload at same time!");
+        }
     }
 }

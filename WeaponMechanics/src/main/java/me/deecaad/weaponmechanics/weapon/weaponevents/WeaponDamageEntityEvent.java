@@ -86,6 +86,10 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
                 damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
             }
 
+            if (damage < 0) {
+                damage = 0;
+            }
+
             return finalDamage = DamageUtil.calculateFinalDamage(getShooter(), victim, damage, point, isBackstab);
         }
 
