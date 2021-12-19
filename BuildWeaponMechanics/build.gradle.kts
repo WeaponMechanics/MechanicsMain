@@ -12,7 +12,7 @@ configurations {
 
 dependencies {
     implementation(project(":WeaponMechanics"))
-    implementation(project(":WeaponMechanicsCompatibility"))
+    implementation(project(":WeaponCompatibility"))
 
     implementation(project(":WeaponCompatibility_1_8_R3" ))
     implementation(project(":WeaponCompatibility_1_9_R2" ))
@@ -44,7 +44,7 @@ tasks.named<ShadowJar>("shadowJar") {
 
     dependencies {
         include(project(":WeaponMechanics"))
-        include(project(":WeaponMechanicsCompatibility"))
+        include(project(":WeaponCompatibility"))
 
         include(project(":WeaponCompatibility_1_8_R3" ))
         include(project(":WeaponCompatibility_1_9_R2" ))

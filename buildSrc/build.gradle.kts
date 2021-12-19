@@ -8,6 +8,14 @@ plugins {
 }
 
 repositories {
-    // Use the plugin portal to apply community plugins in convention plugins.
+    mavenLocal()
     gradlePluginPortal()
+
+    maven {
+        url = uri("https://papermc.io/repo/repository/maven-public/")
+    }
+}
+
+dependencies {
+    implementation("io.papermc.paperweight.userdev:io.papermc.paperweight.userdev.gradle.plugin:1.3.2")
 }
