@@ -102,6 +102,10 @@ public class DamageUtil {
             }
         }
 
+        if (damage < 0) {
+            damage = 0;
+        }
+
         EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
         Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
         if (entityDamageByEntityEvent.isCancelled()) {
