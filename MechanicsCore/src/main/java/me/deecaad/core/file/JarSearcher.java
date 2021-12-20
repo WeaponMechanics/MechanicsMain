@@ -93,7 +93,7 @@ public class JarSearcher {
             if (true) {
 
                 if (name.contains("compatibility")) {
-                    System.out.println("hihihi");
+                    //System.out.println("hihihi");
                 }
 
                 // matches a string like me.deecaad.weaponmechanics.compatibility.nbt.NBT_1_16_R3
