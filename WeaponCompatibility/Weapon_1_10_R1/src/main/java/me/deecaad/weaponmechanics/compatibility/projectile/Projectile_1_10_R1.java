@@ -1,8 +1,12 @@
 package me.deecaad.weaponmechanics.compatibility.projectile;
 
 import me.deecaad.core.utils.DistanceUtil;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
+import me.deecaad.weaponmechanics.compatibility.v1_10_R1;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.Bukkit;
@@ -16,6 +20,16 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 
 public class Projectile_1_10_R1 implements IProjectileCompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 10) {
+            WeaponMechanics.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + v1_10_R1.class + " when not using Minecraft 10",
+                    new InternalError()
+            );
+        }
+    }
 
     @Override
     public void spawnDisguise(CustomProjectile customProjectile, Vector location, Vector motion) {

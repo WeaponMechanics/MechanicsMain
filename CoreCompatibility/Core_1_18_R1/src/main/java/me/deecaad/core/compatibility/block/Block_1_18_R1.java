@@ -1,6 +1,9 @@
 package me.deecaad.core.compatibility.block;
 
 import it.unimi.dsi.fastutil.shorts.ShortArraySet;
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.compatibility.v1_18_R1;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -32,6 +35,14 @@ public class Block_1_18_R1 implements BlockCompatibility {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
         multiBlockChangeC = ReflectionUtil.getField(multiBlockChangeClass, "c");
+
+        if (ReflectionUtil.getMCVersion() != 18) {
+            MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Block_1_18_R1.class + " when not using Minecraft 18",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

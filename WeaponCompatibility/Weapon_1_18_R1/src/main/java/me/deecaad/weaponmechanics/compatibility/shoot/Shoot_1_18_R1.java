@@ -1,5 +1,9 @@
 package me.deecaad.weaponmechanics.compatibility.shoot;
 
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_18_R1;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,6 +16,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Shoot_1_18_R1 implements IShootCompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 18) {
+            WeaponMechanics.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Shoot_1_18_R1.class + " when not using Minecraft 18",
+                    new InternalError()
+            );
+        }
+    }
 
     private final Set<ClientboundPlayerPositionPacket.RelativeArgument> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(
             ClientboundPlayerPositionPacket.RelativeArgument.X,

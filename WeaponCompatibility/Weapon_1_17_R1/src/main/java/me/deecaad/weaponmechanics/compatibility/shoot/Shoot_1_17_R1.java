@@ -1,5 +1,9 @@
 package me.deecaad.weaponmechanics.compatibility.shoot;
 
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_17_R1;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityLiving;
@@ -13,6 +17,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Shoot_1_17_R1 implements IShootCompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 17) {
+            WeaponMechanics.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Shoot_1_17_R1.class + " when not using Minecraft 17",
+                    new InternalError()
+            );
+        }
+    }
 
     private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(
             PacketPlayOutPosition.EnumPlayerTeleportFlags.a,

@@ -1,9 +1,12 @@
 package me.deecaad.core.compatibility.entity;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.compatibility.equipevent.v1_18_R1_NonNullList;
+import me.deecaad.core.compatibility.v1_18_R1;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -57,6 +60,14 @@ public class Entity_1_18_R1 implements EntityCompatibility {
     static {
         metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
         metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
+
+        if (ReflectionUtil.getMCVersion() != 18) {
+            MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Entity_1_18_R1.class + " when not using Minecraft 18",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

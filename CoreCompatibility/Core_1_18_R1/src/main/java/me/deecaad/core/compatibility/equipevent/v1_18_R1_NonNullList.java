@@ -1,5 +1,9 @@
 package me.deecaad.core.compatibility.equipevent;
 
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.compatibility.v1_18_R1;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.NonNullList;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
@@ -9,6 +13,16 @@ import java.util.List;
 
 // https://nms.screamingsandals.org/1.18.1/
 public class v1_18_R1_NonNullList extends NonNullList<ItemStack> {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 18) {
+            MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + v1_18_R1_NonNullList.class + " when not using Minecraft 18",
+                    new InternalError()
+            );
+        }
+    }
 
     private final TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer;
 

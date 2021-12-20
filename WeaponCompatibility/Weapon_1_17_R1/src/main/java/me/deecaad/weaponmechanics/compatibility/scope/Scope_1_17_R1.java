@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.compatibility.scope;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.network.protocol.game.PacketPlayOutAbilities;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityEffect;
@@ -24,6 +26,16 @@ import java.util.List;
 import java.util.UUID;
 
 public class Scope_1_17_R1 implements IScopeCompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 17) {
+            WeaponMechanics.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Scope_1_17_R1.class + " when not using Minecraft 17",
+                    new InternalError()
+            );
+        }
+    }
 
     @Override
     public void updateAbilities(Player player) {

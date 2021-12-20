@@ -43,7 +43,8 @@ public final class BlockDamageDataOld implements Listener {
 
         blockData.damage(amount, maxDurability, isBreak);
         if (blockData.isDestroyed()) {
-            if (isBreak) blockData.destroy();
+            if (isBreak)
+                blockData.destroy();
 
             if (regenTime >= 0) {
                 new BukkitRunnable() {
@@ -169,7 +170,7 @@ public final class BlockDamageDataOld implements Listener {
             }
 
             // Set the type to AIR and do not apply physics
-
+            block.setType(AIR, false);
         }
 
         /**

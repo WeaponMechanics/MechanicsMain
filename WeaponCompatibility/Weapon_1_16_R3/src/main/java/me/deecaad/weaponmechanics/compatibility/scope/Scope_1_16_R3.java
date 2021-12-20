@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.compatibility.scope;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.v1_16_R3;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.attribute.Attribute;
@@ -25,6 +28,14 @@ public class Scope_1_16_R3 implements IScopeCompatibility {
 
         attributesField = ReflectionUtil.getField(attributesPacket, "b");
         effectsField = ReflectionUtil.getField(effectsPacket, "b");
+
+        if (ReflectionUtil.getMCVersion() != 16) {
+            WeaponMechanics.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Scope_1_16_R3.class + " when not using Minecraft 16",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

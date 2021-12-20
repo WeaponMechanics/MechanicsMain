@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.compatibility.block.Block_1_18_R1;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
@@ -7,6 +8,8 @@ import me.deecaad.core.compatibility.entity.Entity_1_18_R1;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.nbt.NBT_1_18_R1;
 
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.protocol.Packet;
@@ -19,6 +22,16 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 
 public class v1_18_R1 implements ICompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 18) {
+            MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + v1_18_R1.class + " when not using Minecraft 18",
+                    new InternalError()
+            );
+        }
+    }
 
     private final EntityCompatibility entityCompatibility;
     private final BlockCompatibility blockCompatibility;

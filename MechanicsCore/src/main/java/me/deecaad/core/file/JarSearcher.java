@@ -1,6 +1,7 @@
 package me.deecaad.core.file;
 
 
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
@@ -86,6 +87,22 @@ public class JarSearcher {
             }
 
             String name = entryName.replaceAll("/", "\\.").replace(".class", "");
+
+            // TODO
+            // Find better way to address loading compatibility versions
+            if (true) {
+
+                if (name.contains("compatibility")) {
+                    System.out.println("hihihi");
+                }
+
+                // matches a string like me.deecaad.weaponmechanics.compatibility.nbt.NBT_1_16_R3
+                String regex = ".+compatibility.+_?\\d_\\d+_R\\d";
+                if (StringUtil.match(regex, name) != null) {
+                    continue;
+                }
+            }
+
             Class<?> subclass;
             try {
                 subclass = Class.forName(name, false, clazzLoader);
