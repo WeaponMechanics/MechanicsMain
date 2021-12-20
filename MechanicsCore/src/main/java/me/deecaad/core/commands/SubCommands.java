@@ -13,6 +13,7 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class SubCommands {
 
+    public static char SYM = '\u27A2';
     private final Map<String, SubCommand> commands;
     private final String parentPrefix;
 
@@ -136,7 +137,7 @@ public class SubCommands {
                             .append(command.getPermission() == null ? "N/A" : command.getPermission()).color(ChatColor.GRAY)
                             .append("\n\n").append("Click to auto-complete.").color(ChatColor.GRAY).create();
 
-                    builder.append("➢ ").color(ChatColor.GRAY);
+                    builder.append(SYM + " ").color(ChatColor.GRAY);
                     BaseComponent component = new TextComponent("/" + command.getPrefix());
                     component.setColor(ChatColor.GOLD);
                     component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
