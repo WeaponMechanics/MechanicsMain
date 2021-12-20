@@ -111,7 +111,7 @@ public interface BlockCompatibility {
      *
      * For each {@link org.bukkit.Chunk} that is included in
      * <code>blocks</code>, there is another packet added. Note that in
-     * version {@link net.minecraft.server.v1_16_R2} and higher, a new packet
+     * version v1_16_R2 and higher, a new packet
      * is used for each {@link SubChunk}.
      *
      * <p>For more information, please see the protocol
@@ -135,7 +135,7 @@ public interface BlockCompatibility {
      *
      * For each {@link org.bukkit.Chunk} that is included in
      * <code>blocks</code>, there is another packet added. Note that in
-     * version {@link net.minecraft.server.v1_16_R2} and higher, a new packet
+     * version v1_16_R2 and higher, a new packet
      * is used for each {@link SubChunk}.
      *
      * <p>For more information, please see the protocol

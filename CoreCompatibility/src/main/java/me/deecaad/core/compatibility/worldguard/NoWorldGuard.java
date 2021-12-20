@@ -2,6 +2,7 @@ package me.deecaad.core.compatibility.worldguard;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,7 +34,7 @@ public class NoWorldGuard implements IWorldGuardCompatibility {
     }
 
     @Override
-    public Set<String> getRegisteredFlags() {
+    public @NotNull Set<String> getRegisteredFlags() {
         return Collections.emptySet();
     }
 }

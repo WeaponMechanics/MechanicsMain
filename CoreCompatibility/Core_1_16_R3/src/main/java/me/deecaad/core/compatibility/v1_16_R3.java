@@ -16,6 +16,7 @@ import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +43,7 @@ public class v1_16_R3 implements ICompatibility {
     }
 
     @Override
-    public Entity getEntityById(World world, int entityId) {
+    public Entity getEntityById(@NotNull World world, int entityId) {
         net.minecraft.server.v1_16_R3.Entity e = ((CraftWorld) world).getHandle().getEntity(entityId);
         return e == null ? null : e.getBukkitEntity();
     }
@@ -61,7 +62,7 @@ public class v1_16_R3 implements ICompatibility {
     }
 
     @Override
-    public NBTCompatibility getNBTCompatibility() {
+    public @NotNull NBTCompatibility getNBTCompatibility() {
         return nbtCompatibility;
     }
 
@@ -78,7 +79,7 @@ public class v1_16_R3 implements ICompatibility {
     }
 
     @Override
-    public EntityPlayer getEntityPlayer(Player player) {
+    public @NotNull EntityPlayer getEntityPlayer(@NotNull Player player) {
         return ((CraftPlayer) player).getHandle();
     }
 }

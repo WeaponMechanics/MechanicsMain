@@ -24,6 +24,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -51,16 +52,16 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public Object getNMSEntity(org.bukkit.entity.Entity entity) {
+    public @NotNull Object getNMSEntity(org.bukkit.entity.@NotNull Entity entity) {
         return ((CraftEntity) entity).getHandle();
     }
 
-    public int getId(org.bukkit.entity.Entity entity) {
+    public int getId(org.bukkit.entity.@NotNull Entity entity) {
         return ((CraftEntity) entity).getHandle().getId();
     }
 
     @Override
-    public Object getSpawnPacket(Object entity) {
+    public @NotNull Object getSpawnPacket(@NotNull Object entity) {
         if (!(entity instanceof Entity)) {
             throw new IllegalArgumentException("Given Object must be 1_14_R1 Entity!");
         }
@@ -74,13 +75,13 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public Object getVelocityPacket(Object entity, Vector velocity) {
+    public @NotNull Object getVelocityPacket(@NotNull Object entity, Vector velocity) {
         return new PacketPlayOutEntityVelocity(((Entity) entity).getId(),
                 new Vec3D(velocity.getX(), velocity.getY(), velocity.getZ()));
     }
 
     @Override
-    public Object getMetadataPacket(Object entity) {
+    public @NotNull Object getMetadataPacket(@NotNull Object entity) {
         if (!(entity instanceof Entity)) {
             throw new IllegalArgumentException("Given Object must be 1_14_R1 Entity!");
         }
@@ -90,7 +91,7 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public Object getMetadataPacket(Object entity, boolean isEnableFlags, EntityMeta... flags) {
+    public @NotNull Object getMetadataPacket(@NotNull Object entity, boolean isEnableFlags, EntityMeta @NotNull ... flags) {
 
         // Make sure the given object is an entity
         if (!(entity instanceof Entity)) {
@@ -133,7 +134,7 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public Object setMetadata(Object packet, boolean isEnableFlags, EntityMeta... flags) {
+    public Object setMetadata(@NotNull Object packet, boolean isEnableFlags, EntityMeta... flags) {
 
         // Setup the byte data
         byte mask = 0;
@@ -157,7 +158,7 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public Object getDestroyPacket(Object entity) {
+    public @NotNull Object getDestroyPacket(@NotNull Object entity) {
         if (!(entity instanceof Entity)) {
             throw new IllegalArgumentException("Given Object must be 1_14_R1 Entity!");
         }
@@ -166,7 +167,7 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public void spawnFirework(Plugin plugin, Location loc, Collection<? extends Player> players, byte flightTime, FireworkEffect...effects) {
+    public void spawnFirework(@NotNull Plugin plugin, Location loc, @NotNull Collection<? extends Player> players, byte flightTime, FireworkEffect @NotNull ...effects) {
         if (loc.getWorld() == null) {
             throw new IllegalArgumentException("Location#getWorld must not return null!");
         }
@@ -207,14 +208,14 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(Location loc, Material mat, byte data, Vector motion, int maxTicks) {
+    public @NotNull FallingBlockWrapper createFallingBlock(@NotNull Location loc, Material mat, byte data, Vector motion, int maxTicks) {
 
         IBlockData blockData = ((CraftBlockData) mat.createBlockData()).getState();
         return createFallingBlock(loc, blockData, motion, maxTicks);
     }
 
     @Override
-    public FallingBlockWrapper createFallingBlock(Location loc, BlockState state, Vector motion, int maxTicks) {
+    public @NotNull FallingBlockWrapper createFallingBlock(Location loc, @NotNull BlockState state, Vector motion, int maxTicks) {
         if (loc.getWorld() == null) {
             throw new IllegalArgumentException("World cannot be null");
         }
@@ -320,7 +321,7 @@ public class Entity_1_14_R1 implements EntityCompatibility {
     }
 
     @Override
-    public Object toNMSItemEntity(org.bukkit.inventory.ItemStack item, org.bukkit.World world, double x, double y, double z) {
+    public @NotNull Object toNMSItemEntity(org.bukkit.inventory.@NotNull ItemStack item, org.bukkit.@NotNull World world, double x, double y, double z) {
         World nmsWorld = ((CraftWorld) world).getHandle();
         ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 

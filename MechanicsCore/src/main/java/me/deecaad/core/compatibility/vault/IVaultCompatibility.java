@@ -74,7 +74,7 @@ public interface IVaultCompatibility {
     String getSuffix(Player player);
 
     /**
-     * Gets all of the registered groups from the permissions
+     * Gets all registered groups from the registered permission
      * plugin. Useful for determining if player input for group
      * is valid.
      *
