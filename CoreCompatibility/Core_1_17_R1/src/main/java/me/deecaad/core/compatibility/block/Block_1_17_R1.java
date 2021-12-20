@@ -1,5 +1,7 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.compatibility.v1_17_R1;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.SectionPosition;
@@ -32,6 +34,14 @@ public class Block_1_17_R1  implements BlockCompatibility {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
         multiBlockChangeC = ReflectionUtil.getField(multiBlockChangeClass, "c");
+
+        if (ReflectionUtil.getMCVersion() != 17) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Block_1_17_R1.class + " when not using Minecraft 17",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

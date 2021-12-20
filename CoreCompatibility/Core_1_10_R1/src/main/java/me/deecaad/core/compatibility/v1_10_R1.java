@@ -6,6 +6,8 @@ import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.Entity_1_10_R1;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.nbt.NBT_1_10_R1;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_10_R1.EntityPlayer;
 import net.minecraft.server.v1_10_R1.Packet;
 import net.minecraft.server.v1_10_R1.PlayerConnection;
@@ -18,6 +20,16 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 
 public class v1_10_R1 implements ICompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 10) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + v1_10_R1.class + " when not using Minecraft 10",
+                    new InternalError()
+            );
+        }
+    }
 
     private final EntityCompatibility entityCompatibility;
     private final BlockCompatibility blockCompatibility;

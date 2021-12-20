@@ -7,6 +7,8 @@ import me.deecaad.core.compatibility.entity.Entity_1_17_R1;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.nbt.NBT_1_17_R1;
 
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.network.protocol.Packet;
@@ -19,6 +21,16 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 
 public class v1_17_R1 implements ICompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 17) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + v1_17_R1.class + " when not using Minecraft 17",
+                    new InternalError()
+            );
+        }
+    }
 
     private final EntityCompatibility entityCompatibility;
     private final BlockCompatibility blockCompatibility;

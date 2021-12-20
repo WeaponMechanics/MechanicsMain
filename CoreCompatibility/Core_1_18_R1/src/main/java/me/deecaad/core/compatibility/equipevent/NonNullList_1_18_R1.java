@@ -1,7 +1,6 @@
 package me.deecaad.core.compatibility.equipevent;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.compatibility.v1_18_R1;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.world.item.ItemStack;
@@ -12,13 +11,13 @@ import java.util.Arrays;
 import java.util.List;
 
 // https://nms.screamingsandals.org/1.18.1/
-public class v1_18_R1_NonNullList extends NonNullList<ItemStack> {
+public class NonNullList_1_18_R1 extends NonNullList<ItemStack> {
 
     static {
         if (ReflectionUtil.getMCVersion() != 18) {
             MechanicsCore.debug.log(
                     LogLevel.ERROR,
-                    "Loaded " + v1_18_R1_NonNullList.class + " when not using Minecraft 18",
+                    "Loaded " + NonNullList_1_18_R1.class + " when not using Minecraft 18",
                     new InternalError()
             );
         }
@@ -26,7 +25,7 @@ public class v1_18_R1_NonNullList extends NonNullList<ItemStack> {
 
     private final TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer;
 
-    public v1_18_R1_NonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
+    public NonNullList_1_18_R1(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
         super(generate(size), ItemStack.EMPTY);
 
         this.consumer = consumer;

@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.equipevent;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.Item;
 import net.minecraft.server.v1_16_R3.ItemStack;
@@ -10,13 +11,23 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-public class v1_16_R3_NonNullList extends NonNullList<ItemStack> {
+public class NonNullList_1_16_R3 extends NonNullList<ItemStack> {
 
     private static final Field itemField = ReflectionUtil.getField(ItemStack.class, Item.class);
 
+    static {
+        if (ReflectionUtil.getMCVersion() != 16) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + NonNullList_1_16_R3.class + " when not using Minecraft 16",
+                    new InternalError()
+            );
+        }
+    }
+
     private final TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer;
 
-    public v1_16_R3_NonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
+    public NonNullList_1_16_R3(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
         super(generate(size), ItemStack.b);
 
         this.consumer = consumer;

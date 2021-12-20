@@ -3,7 +3,9 @@ package me.deecaad.core.compatibility.entity;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.compatibility.equipevent.v1_17_R1_NonNullList;
+import me.deecaad.core.compatibility.equipevent.NonNullList_1_17_R1;
+import me.deecaad.core.compatibility.v1_17_R1;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
@@ -58,6 +60,14 @@ public class Entity_1_17_R1 implements EntityCompatibility {
     static {
         metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
         metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
+
+        if (ReflectionUtil.getMCVersion() != 17) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Entity_1_17_R1.class + " when not using Minecraft 17",
+                    new InternalError()
+            );
+        }
     }
 
     @Override
@@ -344,6 +354,6 @@ public class Entity_1_17_R1 implements EntityCompatibility {
 
     @Override
     public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
-        return new v1_17_R1_NonNullList(size, consumer);
+        return new NonNullList_1_17_R1(size, consumer);
     }
 }

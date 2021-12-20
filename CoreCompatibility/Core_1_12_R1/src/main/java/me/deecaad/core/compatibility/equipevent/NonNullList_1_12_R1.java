@@ -1,5 +1,8 @@
 package me.deecaad.core.compatibility.equipevent;
 
+import me.deecaad.core.compatibility.v1_12_R1;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_12_R1.ItemStack;
 import net.minecraft.server.v1_12_R1.NonNullList;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
@@ -7,11 +10,21 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import java.util.Arrays;
 import java.util.List;
 
-public class v1_12_R1_NonNullList extends NonNullList<ItemStack> {
+public class NonNullList_1_12_R1 extends NonNullList<ItemStack> {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 12) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + NonNullList_1_12_R1.class + " when not using Minecraft 12",
+                    new InternalError()
+            );
+        }
+    }
 
     private final TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer;
 
-    public v1_12_R1_NonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
+    public NonNullList_1_12_R1(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
         super(generate(size), ItemStack.a);
 
         this.consumer = consumer;

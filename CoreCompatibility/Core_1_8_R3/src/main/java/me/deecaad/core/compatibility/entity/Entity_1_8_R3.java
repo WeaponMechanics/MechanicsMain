@@ -3,6 +3,7 @@ package me.deecaad.core.compatibility.entity;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.FireworkEffect;
@@ -38,6 +39,14 @@ public class Entity_1_8_R3 implements EntityCompatibility {
         metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
         metaPacketA = ReflectionUtil.getField(metaPacketClass, "a");
         metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
+
+        if (ReflectionUtil.getMCVersion() != 8) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Entity_1_8_R3.class + " when not using Minecraft 8",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

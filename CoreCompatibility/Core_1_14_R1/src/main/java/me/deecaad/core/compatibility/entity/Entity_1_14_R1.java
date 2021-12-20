@@ -4,7 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.compatibility.equipevent.v1_14_R1_NonNullList;
+import me.deecaad.core.compatibility.equipevent.NonNullList_1_14_R1;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_14_R1.*;
 import org.bukkit.FireworkEffect;
@@ -39,6 +40,14 @@ public class Entity_1_14_R1 implements EntityCompatibility {
         metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
         metaPacketA = ReflectionUtil.getField(metaPacketClass, "a");
         metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
+
+        if (ReflectionUtil.getMCVersion() != 14) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Entity_1_14_R1.class + " when not using Minecraft 14",
+                    new InternalError()
+            );
+        }
     }
 
     @Override
@@ -320,6 +329,6 @@ public class Entity_1_14_R1 implements EntityCompatibility {
 
     @Override
     public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
-        return new v1_14_R1_NonNullList(size, consumer);
+        return new NonNullList_1_14_R1(size, consumer);
     }
 }

@@ -4,8 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
-import me.deecaad.core.compatibility.equipevent.v1_18_R1_NonNullList;
-import me.deecaad.core.compatibility.v1_18_R1;
+import me.deecaad.core.compatibility.equipevent.NonNullList_1_18_R1;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
@@ -22,15 +21,11 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
@@ -49,7 +44,6 @@ import org.bukkit.util.Vector;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 // https://nms.screamingsandals.org/1.18.1/
 public class Entity_1_18_R1 implements EntityCompatibility {
@@ -348,6 +342,6 @@ public class Entity_1_18_R1 implements EntityCompatibility {
 
     @Override
     public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
-        return new v1_18_R1_NonNullList(size, consumer);
+        return new NonNullList_1_18_R1(size, consumer);
     }
 }

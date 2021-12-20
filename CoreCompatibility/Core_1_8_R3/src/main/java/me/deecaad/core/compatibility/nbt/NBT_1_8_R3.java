@@ -1,6 +1,9 @@
 package me.deecaad.core.compatibility.nbt;
 
+import me.deecaad.core.compatibility.v1_8_R3;
 import me.deecaad.core.utils.AttributeType;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
@@ -10,6 +13,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class NBT_1_8_R3 implements NBTCompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 8) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + NBT_1_8_R3.class + " when not using Minecraft 8",
+                    new InternalError()
+            );
+        }
+    }
 
     @Override
     public boolean hasString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {

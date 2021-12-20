@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_9_R2.*;
 import org.bukkit.FireworkEffect;
@@ -38,6 +39,14 @@ public class Entity_1_9_R2 implements EntityCompatibility {
         metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
         metaPacketA = ReflectionUtil.getField(metaPacketClass, "a");
         metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
+
+        if (ReflectionUtil.getMCVersion() != 9) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Entity_1_9_R2.class + " when not using Minecraft 9",
+                    new InternalError()
+            );
+        }
     }
 
     @Override
