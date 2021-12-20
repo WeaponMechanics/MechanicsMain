@@ -15,7 +15,7 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
 
     private double movementSpeed;
     private boolean towardsTarget;
-    private double verticalModifier;
+    private double verticalSpeed;
 
     /**
      * Empty constructor to be used as serializer
@@ -25,10 +25,10 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
         Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
-    public MovementMechanic(double movementSpeed, boolean towardsTarget, double verticalModifier) {
+    public MovementMechanic(double movementSpeed, boolean towardsTarget, double verticalSpeed) {
         this.movementSpeed = movementSpeed;
         this.towardsTarget = towardsTarget;
-        this.verticalModifier = verticalModifier;
+        this.verticalSpeed = verticalSpeed;
     }
 
     @Override
@@ -48,15 +48,17 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
                 return;
             }
 
-            direction = targetLocation.toVector().subtract(casterLocation.toVector());
+            direction = targetLocation.toVector().subtract(casterLocation.toVector()).normalize();
         } else {
             direction = livingEntity.getLocation().getDirection();
         }
-        if (verticalModifier != -99) {
-            direction.setY(direction.getY() * verticalModifier);
-        }
 
-        livingEntity.setVelocity(direction.normalize().multiply(movementSpeed));
+        // These are normalized at this point
+        if (verticalSpeed != -9.9) {
+            livingEntity.setVelocity(direction.multiply(movementSpeed).setY(verticalSpeed));
+        } else {
+            livingEntity.setVelocity(direction.multiply(movementSpeed));
+        }
     }
 
     @Override
@@ -79,8 +81,11 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
         movementSpeed /= 10.0;
 
         boolean towardsTarget = configurationSection.getBoolean(path + ".Towards_Target");
-        double verticalModifier = configurationSection.getDouble(path + ".Vertical_Modifier", -99);
+        double verticalSpeed = configurationSection.getDouble(path + ".Vertical_Speed", -99);
 
-        return new MovementMechanic(movementSpeed, towardsTarget, verticalModifier);
+        // Better for configs
+        verticalSpeed /= 10.0;
+
+        return new MovementMechanic(movementSpeed, towardsTarget, verticalSpeed);
     }
 }
