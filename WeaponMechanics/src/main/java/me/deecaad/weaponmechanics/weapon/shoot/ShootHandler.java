@@ -154,7 +154,9 @@ public class ShootHandler implements IValidator {
             // Don't let shoot if they aren't ready
 
             if (firearmAction.hasReloadState(weaponStack)) {
-                if (ammoLeft > 0) {
+
+                // If its revolver
+                if (ammoLeft > 0 && firearmAction.getFirearmType() != FirearmType.REVOLVER) {
 
                     // Close if ammo left is more than 0
                     handData.stopReloadingTasks();

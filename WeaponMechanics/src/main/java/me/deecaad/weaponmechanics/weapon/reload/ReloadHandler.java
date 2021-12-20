@@ -165,7 +165,34 @@ public class ReloadHandler implements IValidator {
         final int magazineSize = tempMagazineSize;
 
         // Don't try to reload if already full
-        if (ammoLeft >= magazineSize) return false;
+        if (ammoLeft >= magazineSize) {
+
+            if (firearmAction != null && state != FirearmState.READY) {
+
+                // Lets still check if we need to complete firearm actions (if they were cancelled)
+                if (isPump) {
+                    // If pump it can be either open or close state at this point since
+                    // shoot firearm actions can't reach this point and weapon is full
+                    if (state == FirearmState.RELOAD_OPEN) {
+                        ChainTask openTask = getOpenTask(firearmOpenTime, isPump, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot);
+                        openTask.setNextTask(getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, ammoPerReload, magazineSize, dualWield));
+                        openTask.startChain();
+                    } else if (state == FirearmState.RELOAD_CLOSE) {
+                        getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, ammoPerReload, magazineSize, dualWield).startChain();
+                    }
+                } else {
+                    // If LEVER or REVOLVER it can only be close state at this point since
+                    // shoot firearm actions can't reach this point and weapon is full
+
+                    getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, ammoPerReload, magazineSize, dualWield).startChain();
+                }
+
+                // Return true since reload continues...
+                return true;
+            }
+
+            return false;
+        }
 
         Ammo ammo = config.getObject(weaponTitle + ".Reload.Ammo", Ammo.class);
         if (ammo != null && !ammo.hasAmmo(entityWrapper)) {
@@ -297,71 +324,14 @@ public class ReloadHandler implements IValidator {
 
         if (firearmAction == null) {
 
-            // Doesn't run any chain in this case as there isn't next task
+            // Doesn't run any chain since in this case as there isn't next task
             reloadTask.startChain();
 
             return true;
         }
 
-        ChainTask closeTask = new ChainTask(firearmCloseTime) {
-
-            @Override
-            public void task() {
-                firearmAction.readyState(weaponStack);
-                finishReload(entityWrapper, weaponTitle, weaponStack, handData, slot);
-
-                if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
-                    startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
-                }
-            }
-
-            @Override
-            public void setup() {
-                handData.addReloadTask(getTaskId());
-
-                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
-                // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
-                castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                firearmAction.useMechanics(castData, false);
-
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
-
-                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
-            }
-        };
-
-        ChainTask openTask = new ChainTask(firearmOpenTime) {
-
-            @Override
-            public void task() {
-                if (isPump) {
-                    firearmAction.closeReloadState(weaponStack);
-                } else {
-                    firearmAction.reloadState(weaponStack);
-                }
-            }
-
-            @Override
-            public void setup() {
-                handData.addReloadTask(getTaskId());
-
-                if (!isPump) {
-                    firearmAction.openReloadState(weaponStack);
-                }
-
-                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
-                // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
-                castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                firearmAction.useMechanics(castData, true);
-
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
-
-                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
-            }
-        };
-
+        ChainTask openTask = getOpenTask(firearmOpenTime, isPump, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot);
+        ChainTask closeTask = getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, ammoPerReload, magazineSize, dualWield);
         if (isPump) {
             // reload, open, close
             reloadTask.setNextTask(openTask);
@@ -446,6 +416,71 @@ public class ReloadHandler implements IValidator {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
         }
         return true;
+    }
+
+    private ChainTask getOpenTask(int firearmOpenTime, boolean isPump, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,
+                                  IEntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
+        return new ChainTask(firearmOpenTime) {
+
+            @Override
+            public void task() {
+                if (isPump) {
+                    firearmAction.closeReloadState(weaponStack);
+                } else {
+                    firearmAction.reloadState(weaponStack);
+                }
+            }
+
+            @Override
+            public void setup() {
+                handData.addReloadTask(getTaskId());
+
+                if (!isPump) {
+                    firearmAction.openReloadState(weaponStack);
+                }
+
+                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
+                // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
+                castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
+                firearmAction.useMechanics(castData, true);
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
+                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+            }
+        };
+    }
+
+    private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, IEntityWrapper entityWrapper,
+                                   String weaponTitle, boolean mainhand, EquipmentSlot slot, int ammoPerReload, int magazineSize, boolean dualWield) {
+        return new ChainTask(firearmCloseTime) {
+
+            @Override
+            public void task() {
+                firearmAction.readyState(weaponStack);
+                finishReload(entityWrapper, weaponTitle, weaponStack, handData, slot);
+
+                if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
+                    startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                }
+            }
+
+            @Override
+            public void setup() {
+                handData.addReloadTask(getTaskId());
+
+                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
+                // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
+                castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
+                firearmAction.useMechanics(castData, false);
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
+                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+            }
+        };
     }
 
     @Override
