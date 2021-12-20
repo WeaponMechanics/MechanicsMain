@@ -88,7 +88,7 @@ public interface IProjectileCompatibility {
     default byte convertPitchToByte(CustomProjectile customProjectile, float degrees) {
         byte byteValue = convertDegreesToByte(degrees);
         EntityType type = customProjectile.projectile.getProjectileDisguise();
-        if (!type.isAlive() || type == EntityType.WITHER_SKULL) {
+        if (!type.isAlive() && type != EntityType.WITHER_SKULL) {
             return (byte) -byteValue;
         }
         return byteValue;
