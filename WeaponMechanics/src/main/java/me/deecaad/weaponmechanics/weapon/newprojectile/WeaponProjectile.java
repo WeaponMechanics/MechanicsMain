@@ -7,18 +7,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class WeaponProjectile extends AProjectile {
-
-    /**
-     * If projectile box is null, that means
-     */
-    @Nullable
-    private HitBox projectileBox;
 
     protected WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location, Vector motion) {
         super(projectileSettings, shooter, location, motion);
