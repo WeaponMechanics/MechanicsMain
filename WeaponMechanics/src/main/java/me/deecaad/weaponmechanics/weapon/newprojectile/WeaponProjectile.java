@@ -13,6 +13,8 @@ import java.util.function.Predicate;
 
 public class WeaponProjectile extends AProjectile {
 
+    private static final double STEP = 0.25;
+
     protected WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location, Vector motion) {
         super(projectileSettings, shooter, location, motion);
     }
@@ -33,10 +35,17 @@ public class WeaponProjectile extends AProjectile {
     }
 
     public List<Block> getPossibleBlocks(Predicate<Block> filter) {
-        // Get all blocks within start - motion LINE (if box to box
+
+        List<Block> blocks = new ArrayList<>();
+
+        for (double i = 0; i <= motionLength; i += STEP) {
+
+
+        }
 
         return null;
     }
+
 
 
     private List<LivingEntity> getPossibleEntities() {

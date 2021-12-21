@@ -61,17 +61,18 @@ public abstract class AProjectile {
             // If projectile is marked for removal, but hasn't yet been removed
             return true;
         }
-
-        double locationY = location.getY();
-        if (aliveTicks >= MAXIMUM_ALIVE_TICKS || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
-            remove();
-            return true;
-        }
+        ++aliveTicks;
 
         lastLocation = location.clone();
 
         // Handle collisions will update location
         if (handleCollisions()) {
+            remove();
+            return true;
+        }
+
+        double locationY = location.getY();
+        if (aliveTicks >= MAXIMUM_ALIVE_TICKS || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
             remove();
             return true;
         }
