@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import com.google.common.base.Enums;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageDataOld;
@@ -10,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -24,8 +26,8 @@ public class BlockDamage implements Serializer<BlockDamage> {
     private int damage;
     private int defaultBlockDurability;
     private boolean isBlacklist;
-    private Map<String, Integer> blockList;
-    private Map<String, Integer> shotsToBreak;
+    private Map<Material, Integer> blockList;
+    private Map<Material, Integer> shotsToBreak;
 
     /**
      * Default constructor for serializers
@@ -33,7 +35,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
     public BlockDamage() {
     }
 
-    public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, Map<String, Integer> blockList, Map<String, Integer> shotsToBreak) {
+    public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, Map<Material, Integer> blockList, Map<Material, Integer> shotsToBreak) {
         this.isBreakBlocks = isBreakBlocks;
         this.damage = damage;
         this.defaultBlockDurability = defaultBlockDurability;
@@ -46,47 +48,53 @@ public class BlockDamage implements Serializer<BlockDamage> {
         return isBreakBlocks;
     }
 
+    public void setBreakBlocks(boolean breakBlocks) {
+        isBreakBlocks = breakBlocks;
+    }
+
     public int getDamage() {
         return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public int getDefaultBlockDurability() {
+        return defaultBlockDurability;
+    }
+
+    public void setDefaultBlockDurability(int defaultBlockDurability) {
+        this.defaultBlockDurability = defaultBlockDurability;
     }
 
     public boolean isBlacklist() {
         return isBlacklist;
     }
 
-    public Map<String, Integer> getBlockList() {
+    public void setBlacklist(boolean blacklist) {
+        isBlacklist = blacklist;
+    }
+
+    @Nonnull
+    public Map<Material, Integer> getBlockList() {
         return blockList;
     }
 
-    public boolean isBlacklisted(Block block) {
-        if (CompatibilityAPI.getVersion() < 1.13) {
-            String mat = block.getType().name();
-            byte data = block.getData();
+    @Nonnull
+    public Map<Material, Integer> getShotsToBreak() {
+        return shotsToBreak;
+    }
 
-            return isBlacklist == (blockList.containsKey(mat) || blockList.containsKey(mat + ":" + data));
-        } else {
-            return isBlacklist == blockList.containsKey(block.getType().name());
-        }
+    public boolean isBlacklisted(Block block) {
+        return isBlacklist == blockList.containsKey(block.getType());
     }
 
     public int getMaxDurability(Block block) {
-        if (CompatibilityAPI.getVersion() < 1.13) {
-            String mat = block.getType().name();
-            byte data = block.getData();
-
-            if (isBlacklist) {
-                Integer i = shotsToBreak.get(mat + ":" + data);
-                return i == null ? shotsToBreak.getOrDefault(mat, defaultBlockDurability) : i;
-            } else {
-                Integer i = blockList.get(mat + ":" + data);
-                return i == null ? blockList.getOrDefault(mat, defaultBlockDurability) : i;
-            }
+        if (isBlacklist) {
+            return shotsToBreak.getOrDefault(block.getType(), defaultBlockDurability);
         } else {
-            if (isBlacklist) {
-                return shotsToBreak.getOrDefault(block.getType().name(), defaultBlockDurability);
-            } else {
-                return blockList.getOrDefault(block.getType().name(), defaultBlockDurability);
-            }
+            return blockList.getOrDefault(block.getType(), defaultBlockDurability);
         }
     }
 
@@ -119,7 +127,9 @@ public class BlockDamage implements Serializer<BlockDamage> {
             debug.error("Block_Damage Damage MUST be positive. Found: " + damage,
                     StringUtil.foundAt(file, path));
             return null;
-        } else if (defaultBlockDurability < 0) {
+        }
+
+        if (defaultBlockDurability < 0) {
             debug.error("Block_Damage Default_Block_Durability MUST be positive. Found: " + defaultBlockDurability,
                     StringUtil.foundAt(file, path));
             return null;
@@ -131,70 +141,90 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     "This is most likely a mistake!", StringUtil.foundAt(file, path));
         }
 
-        Map<String, Integer> blockList = new LinkedHashMap<>(strings.size());
+        Map<Material, Integer> blockList = new HashMap<>(strings.size());
         for (String str : strings) {
+
+            // Easy to forget to remove whitespace (or extra blank values). It
+            // is not a fatal error, so we can ignore it.
+            if (str == null || str.trim().isEmpty()) {
+                debug.warn("Found an empty string in Block_List", StringUtil.foundAt(file, path + ".Block_List"));
+                continue;
+            }
+
             String[] split = StringUtil.split(str);
 
-            try {
-                String matAndByte = split[0].toUpperCase();
-                int durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
-
-                // We don't need to save this information, just validate that
-                // the user input is correct for this bukkit version
-                String mat = matAndByte.split(":")[0];
-                Material type = Enums.getIfPresent(Material.class, mat).orNull();
-                if (type == null) {
-                    debug.error("Unknown Material found in config: " + mat,
-                            "You can check full material lists for your server version on the wiki (Use /wm wiki)",
-                            StringUtil.foundAt(file, path));
-                    continue;
-                }
-
-                blockList.put(matAndByte, durability);
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                debug.error("Empty string in config Block_List!", StringUtil.foundAt(file, path));
-                debug.log(LogLevel.DEBUG, ex);
-            } catch (NumberFormatException ex) {
-                debug.error("Invalid integer format: " + ex.getMessage(), StringUtil.foundAt(file, path));
-                debug.log(LogLevel.DEBUG, ex);
+            // Will rarely happen, but sometimes people may add extra data. It
+            // is not a fatal error, so we can ignore it.
+            if (split.length > 2) {
+                debug.warn("Found extra data for Block_List in \"" + str + "\". Expected <Material>-<Shots_To_Break>",
+                        StringUtil.foundAt(file, path + ".Block_List"));
             }
+
+            List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
+            int durability;
+
+            try {
+                durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
+            } catch (NumberFormatException ex) {
+                debug.error("Expected an Integer, Got: " + split[1], StringUtil.foundAt(file, path + ".Block_List"));
+                continue;
+            }
+
+            // When the list is empty, the parseEnums method failed to
+            // find any kind of match for the given material.
+            if (materials.isEmpty()) {
+                debug.error("Could not find any materials that matched \"" + split[0] + "\"",
+                        "Remember that you may use '$' as a wildcard (Try $GLASS)",
+                        StringUtil.debugDidYouMean(split[0], Material.class),
+                        StringUtil.foundAt(file, path + ".Block_List"));
+                continue;
+            }
+
+            materials.forEach(material -> blockList.put(material, durability));
         }
 
         strings = config.getStringList("Shots_To_Break_Blocks");
-        Map<String, Integer> shotsToBreak = new HashMap<>(strings.size());
-
-        // Shots_To_Break_Blocks should only be used alongside Blacklist: true
-        // This is because you cannot define blocks to be broken inside of a blacklist,
-        // so all blocks will have the same durability
+        Map<Material, Integer> shotsToBreak = new HashMap<>(strings.size());
         if (isBlacklist) {
-
             for (String str : strings) {
+
+                // Easy to forget to remove whitespace (or extra blank values). It
+                // is not a fatal error, so we can ignore it.
+                if (str == null || str.trim().isEmpty()) {
+                    debug.warn("Found an empty string in Shots_To_Break_Blocks", StringUtil.foundAt(file, path + ".Shots_To_Break_Blocks"));
+                    continue;
+                }
+
                 String[] split = StringUtil.split(str);
 
-                try {
-                    String matAndByte = split[0].toUpperCase();
-                    int durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
-
-                    // We don't need to save this information, just validate that
-                    // the user input is correct for this bukkit version
-                    String mat = matAndByte.split(":")[0];
-                    Material type = Enums.getIfPresent(Material.class, mat).orNull();
-                    if (type == null) {
-                        debug.error("Unknown Material found in config: " + mat,
-                                "You can check full material lists for your server version on the wiki (Use /wm wiki)",
-                                StringUtil.foundAt(file, path));
-                        continue;
-                    }
-
-                    shotsToBreak.put(matAndByte, durability);
-
-                } catch (ArrayIndexOutOfBoundsException ex) {
-                    debug.error("Empty string in config Block_List!", StringUtil.foundAt(file, path));
-                    debug.log(LogLevel.DEBUG, ex);
-                } catch (NumberFormatException ex) {
-                    debug.error("Invalid integer format: " + ex.getMessage(), StringUtil.foundAt(file, path));
-                    debug.log(LogLevel.DEBUG, ex);
+                // Will rarely happen, but sometimes people may add extra data. It
+                // is not a fatal error, so we can ignore it.
+                if (split.length > 2) {
+                    debug.warn("Found extra data for Block_List in \"" + str + "\". Expected <Material>-<Shots_To_Break>",
+                            StringUtil.foundAt(file, path + ".Shots_To_Break_Blocks"));
                 }
+
+                List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
+                int durability;
+
+                try {
+                    durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
+                } catch (NumberFormatException ex) {
+                    debug.error("Expected an Integer, Got: " + split[1], StringUtil.foundAt(file, path + ".Shots_To_Break_Blocks"));
+                    continue;
+                }
+
+                // When the list is empty, the parseEnums method failed to
+                // find any kind of match for the given material.
+                if (materials.isEmpty()) {
+                    debug.error("Could not find any materials that matched \"" + split[0] + "\"",
+                            "Remember that you may use '$' as a wildcard (Try using $GLASS)",
+                            StringUtil.debugDidYouMean(split[0], Material.class),
+                            StringUtil.foundAt(file, path + ".Block_List"));
+                    continue;
+                }
+
+                materials.forEach(material -> shotsToBreak.put(material, durability));
             }
         } else {
             debug.error("Error in Block_Damage!", "You tried to use Shots_To_Break_Blocks with Blacklist: true!",
