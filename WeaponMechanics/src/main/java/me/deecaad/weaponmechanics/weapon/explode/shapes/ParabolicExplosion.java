@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class ParabolicExplosion implements ExplosionShape {
         List<LivingEntity> temp = new ArrayList<>(all.size());
 
         for (LivingEntity entity : all) {
-            if (test(origin, entity.getLocation()))
+            if (isContained(origin, entity.getLocation()))
                 temp.add(entity);
         }
 
@@ -119,6 +120,18 @@ public class ParabolicExplosion implements ExplosionShape {
     public boolean test(Location origin, Location loc) {
         loc.subtract(origin);
         return test(loc.getX(), loc.getY(), loc.getZ());
+    }
+
+    @Override
+    public boolean isContained(@NotNull Location origin, @NotNull Location point) {
+        return test(point.getX() - origin.getX(), point.getY() - origin.getY(), point.getZ() - origin.getZ());
+    }
+
+    @Override
+    public double getArea() {
+
+        // We need some calculus to accurately determine the area.
+        return (3.0 * Math.PI * depth * depth) / angle;
     }
 
     public boolean test(double x, double y, double z) {

@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -132,7 +133,30 @@ public class CuboidExplosion implements ExplosionShape {
 
     @Override
     public double getMaxDistance() {
+
+        // Return a triangle to the furthest corner
         return Math.sqrt(width * width + height * height);
+    }
+
+    @Override
+    public double getArea() {
+
+        // Simple cube area, length * width * height
+        return width * width * height;
+    }
+
+    @Override
+    public boolean isContained(@NotNull Location origin, @NotNull Location point) {
+        double x1 = origin.getX() - width;
+        double y1 = origin.getY() - height;
+        double z1 = origin.getZ() - width;
+        double x2 = origin.getX() + width;
+        double y2 = origin.getY() + height;
+        double z2 = origin.getZ() + width;
+
+        return point.getX() > x1 && point.getX() < x2 &&
+                point.getY() > y1 && point.getY() < y2 &&
+                point.getZ() > z1 && point.getZ() < z2;
     }
 
     public boolean isNearEdge(double x, double y, double z, double distance) {
