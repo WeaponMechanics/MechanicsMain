@@ -40,7 +40,8 @@ public abstract class AProjectile {
     private int aliveTicks;
     private double distanceTravelled;
     private boolean dead;
-    private Map<String, String> tags;
+    private Map<String, String> stringTags;
+    private Map<String, Integer> integerTags;
 
     protected AProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location, Vector motion) {
         this.projectileSettings = projectileSettings;
@@ -147,7 +148,7 @@ public abstract class AProjectile {
      * @return the value of key or null if not found
      */
     public String getTag(String key) {
-        return tags == null || tags.isEmpty() ? null : this.tags.get(key);
+        return stringTags == null || stringTags.isEmpty() ? null : this.stringTags.get(key);
     }
 
     /**
@@ -159,10 +160,34 @@ public abstract class AProjectile {
     public void setTag(String key, String value) {
         if (key == null) throw new IllegalArgumentException("Key can't be null");
         if (value == null) throw new IllegalArgumentException("Value can't be null");
-        if (this.tags == null) {
-            this.tags = new HashMap<>();
+        if (this.stringTags == null) {
+            this.stringTags = new HashMap<>();
         }
-        this.tags.put(key, value);
+        this.stringTags.put(key, value);
+    }
+
+    /**
+     * Used to fetch any temporary data from projectiles
+     *
+     * @param key the key to fetch
+     * @return the value of key or 0 if not found
+     */
+    public int getIntTag(String key) {
+        return integerTags == null || integerTags.isEmpty() ? 0 : this.integerTags.get(key);
+    }
+
+    /**
+     * This can store temporary data for projectiles
+     *
+     * @param key the key to use
+     * @param value the value for key
+     */
+    public void setIntTag(String key, int value) {
+        if (key == null) throw new IllegalArgumentException("Key can't be null");
+        if (this.integerTags == null) {
+            this.integerTags = new HashMap<>();
+        }
+        this.integerTags.put(key, value);
     }
 
     /**

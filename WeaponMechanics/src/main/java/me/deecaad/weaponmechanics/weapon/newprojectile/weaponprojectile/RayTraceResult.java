@@ -58,18 +58,26 @@ public class RayTraceResult {
         return hitPoint;
     }
 
-    public boolean handleHit(WeaponProjectile weaponProjectile) {
-        return this.block != null ? handleBlockHit(weaponProjectile) : handleEntityHit(weaponProjectile);
+    public boolean isEntity() {
+        return livingEntity != null;
     }
 
-    private boolean handleBlockHit(WeaponProjectile weaponProjectile) {
+    public boolean isBlock() {
+        return block != null;
+    }
+
+    public boolean handleHit(WeaponProjectile projectile) {
+        return this.block != null ? handleBlockHit(projectile) : handleEntityHit(projectile);
+    }
+
+    private boolean handleBlockHit(WeaponProjectile projectile) {
 
         // todo
 
         return false;
     }
 
-    private boolean handleEntityHit(WeaponProjectile weaponProjectile) {
+    private boolean handleEntityHit(WeaponProjectile projectile) {
 
         // todo
 

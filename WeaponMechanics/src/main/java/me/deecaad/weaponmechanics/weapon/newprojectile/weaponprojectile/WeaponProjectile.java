@@ -13,11 +13,16 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class WeaponProjectile extends AProjectile {
 
     private ItemStack weaponStack;
     private String weaponTitle;
+
+    private StickedData stickedData;
+    private int throughAmount;
+    private int bounces;
 
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
                                Vector motion, ItemStack weaponStack, String weaponTitle) {
@@ -40,8 +45,76 @@ public class WeaponProjectile extends AProjectile {
         return weaponTitle;
     }
 
+    /**
+     * @return the sticked data if this projectile is sticked to some entity or block
+     */
+    public StickedData getStickedData() {
+        return stickedData;
+    }
+
+    /**
+     * Set new sticked data. If new sticked data is null, sticked data is removed
+     *
+     * @param stickedData the new sticked data
+     */
+    public boolean setStickedData(StickedData stickedData) {
+        if (stickedData == null) {
+            this.stickedData = null;
+            // This basically removes sticky
+            setMotion(new Vector(
+                    ThreadLocalRandom.current().nextFloat() * 0.2,
+                    ThreadLocalRandom.current().nextFloat() * 0.2,
+                    ThreadLocalRandom.current().nextFloat() * 0.2
+            ));
+            return true;
+        }
+
+        // Just extra check if entity happens to die or block disappear
+        if (stickedData.isBlockStick()) {
+            if (stickedData.getBlock() == null) {
+                return false;
+            }
+        } else if (stickedData.getLivingEntity() == null) {
+            return false;
+        }
+
+        // Now we can safely set the sticked data and other required values
+
+        this.stickedData = stickedData;
+        setLocation(stickedData.getNewLocation());
+        setMotion(new Vector(0, 0, 0));
+        return true;
+    }
+
+    /**
+     * @return the amount of hit boxes this projectile has gone through using through feature
+     */
+    public int getThroughAmount() {
+        return throughAmount;
+    }
+
+    /**
+     * @return the amount of hit boxes this projectile has bounced off using bouncy feature
+     */
+    public int getBounces() {
+        return bounces;
+    }
+
     @Override
     public boolean handleCollisions() {
+
+        if (stickedData != null) {
+            Vector newLocation = stickedData.getNewLocation();
+            if (newLocation == null) {
+                // If this happens, either entity is dead or block isn't there anymore
+                setStickedData(null);
+            } else if (!stickedData.isBlockStick()) {
+                // Update location and update distance travelled if living entity
+                addDistanceTravelled(getLastLocation().distance(newLocation));
+                setLocation(newLocation);
+            }
+            return false;
+        }
 
         List<RayTraceResult> hits = getHits();
         if (hits == null) return false;
@@ -58,10 +131,27 @@ public class WeaponProjectile extends AProjectile {
             if (hit.handleHit(this)) continue;
 
             // Sticky
+            Sticky sticky = null; // todo
+            if (sticky != null && sticky.handleSticking(this, hit)) {
+                // Break since projectile sticked to entity or block
+                break;
+            }
 
             // Through
+            Through through = null; // todo
+            if (through != null && through.handleThrough(this, hit)) {
+                // Continue since projectile went through
+                ++throughAmount;
+                continue;
+            }
 
             // Bouncy
+            Bouncy bouncy = null; // todo
+            if (bouncy != null && bouncy.handleBounce(this, hit)) {
+                // Break since projectile bounced to different direction
+                ++bounces;
+                break;
+            }
 
             // Projectile should die if code reaches this point
             return true;
