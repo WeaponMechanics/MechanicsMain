@@ -279,6 +279,8 @@ public class Explosion implements Serializer<Explosion> {
                     // blocks to regenerate to the list.
                     brokenBlocks.clear();
                 }
+            } else if (data.isBroken()) {
+                data.remove();
             }
 
             // Handling falling blocks super expensive on the CPU... TODO
