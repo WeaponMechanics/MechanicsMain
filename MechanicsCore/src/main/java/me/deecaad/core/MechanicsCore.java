@@ -7,6 +7,7 @@ import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
@@ -49,7 +50,11 @@ public class MechanicsCore extends JavaPlugin {
             e.printStackTrace();
         }
 
-        Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
+        // The methods we use that allow EntityEquipmentEvent to trigger simply
+        // don't exist in 1.10 and lower.
+        if (ReflectionUtil.getMCVersion() >= 11) {
+            Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
+        }
     }
 
     @Override

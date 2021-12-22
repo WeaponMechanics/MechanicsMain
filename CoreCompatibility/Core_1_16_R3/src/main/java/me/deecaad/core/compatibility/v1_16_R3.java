@@ -6,6 +6,8 @@ import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.Entity_1_16_R3;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.nbt.NBT_1_16_R3;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.Packet;
 import net.minecraft.server.v1_16_R3.PlayerConnection;
@@ -14,10 +16,21 @@ import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
 public class v1_16_R3 implements ICompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 16) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + v1_16_R3.class + " when not using Minecraft 16",
+                    new InternalError()
+            );
+        }
+    }
 
     private final EntityCompatibility entityCompatibility;
     private final BlockCompatibility blockCompatibility;
@@ -30,7 +43,7 @@ public class v1_16_R3 implements ICompatibility {
     }
 
     @Override
-    public Entity getEntityById(World world, int entityId) {
+    public Entity getEntityById(@NotNull World world, int entityId) {
         net.minecraft.server.v1_16_R3.Entity e = ((CraftWorld) world).getHandle().getEntity(entityId);
         return e == null ? null : e.getBukkitEntity();
     }
@@ -49,7 +62,7 @@ public class v1_16_R3 implements ICompatibility {
     }
 
     @Override
-    public NBTCompatibility getNBTCompatibility() {
+    public @NotNull NBTCompatibility getNBTCompatibility() {
         return nbtCompatibility;
     }
 
@@ -66,7 +79,7 @@ public class v1_16_R3 implements ICompatibility {
     }
 
     @Override
-    public EntityPlayer getEntityPlayer(Player player) {
+    public @NotNull EntityPlayer getEntityPlayer(@NotNull Player player) {
         return ((CraftPlayer) player).getHandle();
     }
 }

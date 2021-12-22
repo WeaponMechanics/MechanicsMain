@@ -237,6 +237,9 @@ public interface EntityCompatibility {
      */
     @Nonnull
     default Object toNMSItemEntity(@Nonnull ItemStack item, @Nonnull Location loc) {
+        if (loc.getWorld() == null)
+            throw new IllegalArgumentException("world is null");
+
         return toNMSItemEntity(item, loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
     }
 

@@ -5,7 +5,7 @@ import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.weapon.damage.BlockDamageDataOld;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -135,12 +135,12 @@ public final class WeaponMechanicsAPI {
      *
      * @param block The non-null block to check.
      * @return <code>true</code> if the block is broken.
-     * @see BlockDamageDataOld
+     * @see BlockDamageData
      */
     public static boolean isBroken(@Nonnull Block block) {
         checkState();
         notNull(block);
-        return BlockDamageDataOld.isBroken(block);
+        return BlockDamageData.isBroken(block);
     }
 
     /**
@@ -148,11 +148,11 @@ public final class WeaponMechanicsAPI {
      * method to call because this may cause players/entities to get stuck
      * underground, and may cause lag spikes if there are many blocks to
      * regenerate. Consider regenerating a few chunks instead of all blocks
-     * {@link BlockDamageDataOld#regenerate(Chunk)}.
+     * {@link BlockDamageData#regenerate(Chunk)}.
      */
     public static void regenerateAllBlocks() {
         checkState();
-        BlockDamageDataOld.regenerateAll();
+        BlockDamageData.regenerateAll();
     }
 
     /**

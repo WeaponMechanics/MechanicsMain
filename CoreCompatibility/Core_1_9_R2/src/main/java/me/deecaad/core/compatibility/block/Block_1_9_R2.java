@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_9_R2.*;
 import org.bukkit.Chunk;
@@ -30,6 +31,14 @@ public class Block_1_9_R2 implements BlockCompatibility {
 
         Class<?> blockClass = ReflectionUtil.getNMSClass("", "Block");
         durabilityField = ReflectionUtil.getField(blockClass, "durability");
+
+        if (ReflectionUtil.getMCVersion() != 9) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Block_1_9_R2.class + " when not using Minecraft 9",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

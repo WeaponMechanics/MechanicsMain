@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Chunk;
@@ -27,6 +28,14 @@ public class Block_1_13_R2 implements BlockCompatibility {
     static {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
+
+        if (ReflectionUtil.getMCVersion() != 13) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Block_1_13_R2.class + " when not using Minecraft 13",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

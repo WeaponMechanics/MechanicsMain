@@ -1,5 +1,9 @@
 package me.deecaad.core.compatibility.nbt;
 
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.compatibility.v1_13_R2;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftCustomTagTypeRegistry;
@@ -15,6 +19,16 @@ import javax.annotation.Nullable;
 
 @SuppressWarnings("deprecation")
 public class NBT_1_13_R2 implements NBTCompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 13) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + NBT_1_13_R2.class + " when not using Minecraft 13",
+                    new InternalError()
+            );
+        }
+    }
 
     @Override
     public boolean hasString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
@@ -106,7 +120,7 @@ public class NBT_1_13_R2 implements NBTCompatibility {
             meta.getCustomTagContainer();
         }
 
-        NamespacedKey key = new NamespacedKey(PLUGIN_NO_USE, plugin);
+        NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), plugin);
         CustomItemTagContainer nbt = meta.getCustomTagContainer().getCustomTag(key, ItemTagType.TAG_CONTAINER);
 
         if (nbt == null) {
@@ -118,6 +132,6 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     private NamespacedKey getKey(String key) {
-        return new NamespacedKey(PLUGIN_NO_USE, "MechanicsCore:" + key);
+        return new NamespacedKey(MechanicsCore.getPlugin(), "MechanicsCore:" + key);
     }
 }

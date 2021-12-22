@@ -6,6 +6,8 @@ import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.Entity_1_8_R3;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.nbt.NBT_1_8_R3;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.Packet;
 import net.minecraft.server.v1_8_R3.PlayerConnection;
@@ -14,10 +16,21 @@ import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
 public class v1_8_R3 implements ICompatibility {
+
+    static {
+        if (ReflectionUtil.getMCVersion() != 8) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + v1_8_R3.class + " when not using Minecraft 8",
+                    new InternalError()
+            );
+        }
+    }
 
     private final EntityCompatibility entityCompatibility;
     private final BlockCompatibility blockCompatibility;
@@ -30,12 +43,12 @@ public class v1_8_R3 implements ICompatibility {
     }
 
     @Override
-    public int getPing(Player player) {
+    public int getPing(@NotNull Player player) {
         return getEntityPlayer(player).ping;
     }
 
     @Override
-    public Entity getEntityById(World bukkitWorld, int entityId) {
+    public Entity getEntityById(@NotNull World bukkitWorld, int entityId) {
         net.minecraft.server.v1_8_R3.World world = ((CraftWorld) bukkitWorld).getHandle();
         net.minecraft.server.v1_8_R3.Entity entity = world.a(entityId);
         return entity == null ? null : entity.getBukkitEntity();
@@ -55,7 +68,7 @@ public class v1_8_R3 implements ICompatibility {
     }
 
     @Override
-    public NBTCompatibility getNBTCompatibility() {
+    public @NotNull NBTCompatibility getNBTCompatibility() {
         return nbtCompatibility;
     }
 
@@ -72,7 +85,7 @@ public class v1_8_R3 implements ICompatibility {
     }
 
     @Override
-    public EntityPlayer getEntityPlayer(Player player) {
+    public @NotNull EntityPlayer getEntityPlayer(@NotNull Player player) {
         return ((CraftPlayer) player).getHandle();
     }
 }

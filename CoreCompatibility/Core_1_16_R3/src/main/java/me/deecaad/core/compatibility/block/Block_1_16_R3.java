@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.block.Block;
@@ -28,8 +29,13 @@ public class Block_1_16_R3 implements BlockCompatibility {
         multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
         multiBlockChangeC = ReflectionUtil.getField(multiBlockChangeClass, "c");
 
-        assert multiBlockChangeB != null;
-        assert multiBlockChangeC != null;
+        if (ReflectionUtil.getMCVersion() != 16) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Block_1_16_R3.class + " when not using Minecraft 16",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

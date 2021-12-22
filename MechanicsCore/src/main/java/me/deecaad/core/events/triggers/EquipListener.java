@@ -114,8 +114,6 @@ public class EquipListener implements Listener {
                 public void onDrop(PlayerDropItemEvent event) {
                     if (player.equals(event.getPlayer())) {
                         ignoreGiveDropPlayers.add(player);
-                        // event.setCancelled(true);
-                        Bukkit.broadcastMessage("give command occurred: added " + player.getName() + " to ignore list");
                     }
                 }
             };
@@ -141,10 +139,8 @@ public class EquipListener implements Listener {
         // the "false" equip events.
         if (event.isCancelled()) {
             dropCancelledPlayers.add(player);
-            Bukkit.broadcastMessage("Drop event is cancelled... adding " + player.getName() + " to the ignore next list");
             return;
         } else if (ignoreGiveDropPlayers.remove(player)) {
-            Bukkit.broadcastMessage("drop from /give cancelled, did not add " + player.getName() + " to list.");
             return;
         }
 

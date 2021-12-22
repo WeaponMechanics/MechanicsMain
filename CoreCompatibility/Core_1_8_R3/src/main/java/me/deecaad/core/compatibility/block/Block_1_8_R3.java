@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Chunk;
@@ -30,6 +31,14 @@ public class Block_1_8_R3 implements BlockCompatibility {
 
         Class<?> blockClass = ReflectionUtil.getNMSClass("", "Block");
         durabilityField = ReflectionUtil.getField(blockClass, "durability");
+
+        if (ReflectionUtil.getMCVersion() != 8) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Block_1_8_R3.class + " when not using Minecraft 8",
+                    new InternalError()
+            );
+        }
     }
 
     @Override

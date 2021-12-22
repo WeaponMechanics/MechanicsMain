@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.Chunk;
@@ -29,6 +30,14 @@ public class Block_1_10_R1 implements BlockCompatibility {
 
         Class<?> blockClass = ReflectionUtil.getNMSClass("", "Block");
         durabilityField = ReflectionUtil.getField(blockClass, "durability");
+
+        if (ReflectionUtil.getMCVersion() != 10) {
+            me.deecaad.core.MechanicsCore.debug.log(
+                    LogLevel.ERROR,
+                    "Loaded " + Block_1_10_R1.class + " when not using Minecraft 10",
+                    new InternalError()
+            );
+        }
     }
 
     @Override
