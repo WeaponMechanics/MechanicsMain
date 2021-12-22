@@ -221,7 +221,6 @@ public class CustomProjectile implements ICustomProjectile {
         if (this.tags == null) {
             this.tags = new HashMap<>();
         }
-
         this.tags.put(key, value);
     }
 

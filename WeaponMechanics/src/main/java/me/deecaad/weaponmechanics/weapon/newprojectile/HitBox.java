@@ -4,6 +4,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
+import me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile.RayTraceResult;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
@@ -14,6 +15,11 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class HitBox {
 
+    /**
+     * Simple final modifier for front hit adjusting.
+     * Basically -0.2 means that 20% of hit box's front
+     */
+    private static final double FRONT_HIT = -0.2;
     private static final Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
 
     private Block block;
@@ -76,6 +82,104 @@ public class HitBox {
         return maxZ;
     }
 
+    public double getWidthX() {
+        return this.maxX - this.minX;
+    }
+
+    public double getWidthZ() {
+        return this.maxZ - this.minZ;
+    }
+
+    public double getHeight() {
+        return this.maxY - this.minY;
+    }
+
+    public double getCenterX() {
+        return this.minX + this.getWidthX() * 0.5D;
+    }
+
+    public double getCenterY() {
+        return this.minY + this.getHeight() * 0.5D;
+    }
+
+    public double getCenterZ() {
+        return this.minZ + this.getWidthZ() * 0.5D;
+    }
+
+    /**
+     * @param hitLocation the entity hit location
+     * @param normalizedMotion the normalized direction
+     * @return the damage point or null if tried to cast when living entity was not defined
+     */
+    public DamagePoint getDamagePoint(Vector hitLocation, Vector normalizedMotion) {
+        if (this.livingEntity == null) return null;
+
+        EntityType type = livingEntity.getType();
+        double entityHeight = maxY - minY;
+
+        double hitY = hitLocation.getY();
+
+        // Check HEAD
+        double head = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.HEAD.name());
+        if (head > 0.0 && maxY - (entityHeight * head) < hitY) {
+            return DamagePoint.HEAD;
+        }
+
+        // Check BODY
+        double body = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.BODY.name());
+        if (body >= 1.0 || body > 0.0 && maxY - (entityHeight * (head + body)) < hitY) {
+
+            boolean horizontalEntity = basicConfiguration.getBool("Entity_Hitboxes." + type.name() + ".Horizontal_Entity", false);
+            boolean arms = basicConfiguration.getBool("Entity_Hitboxes." + type.name() + "." + DamagePoint.ARMS.name(), false);
+            if (horizontalEntity || arms) {
+                Vector normalizedEntityDirection = livingEntity.getLocation().getDirection();
+
+                if (horizontalEntity && new HitBox(minX, minY, minZ, maxX, maxY, maxZ).expand(normalizedEntityDirection, FRONT_HIT).collides(hitLocation)) {
+                    // Basically removes directionally 0.2 from this entity hitbox and check if the hit location is still in the hitbox
+                    return DamagePoint.HEAD;
+                }
+
+                if (arms && Math.abs(normalizedMotion.clone().setY(0).dot(normalizedEntityDirection.setY(0))) < 0.5) {
+                    return DamagePoint.ARMS;
+                }
+            }
+
+            return DamagePoint.BODY;
+        }
+
+        // Check LEGS
+        double legs = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.LEGS.name());
+        if (legs > 0.0 && maxY - (entityHeight * (head + body + legs)) < hitY) {
+            return DamagePoint.LEGS;
+        }
+
+        // Check FEET
+        double feet = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.FEET.name());
+        if (feet > 0.0) { // No need for actual check since it can't be HEAD, BODY or LEGS anymore so only option left is FEET
+            return DamagePoint.FEET;
+        }
+
+        debug.log(LogLevel.WARN, "Something unexpected happened and HEAD, BODY, LEGS or FEET wasn't valid",
+                "This should never happen. Using BODY as default value...",
+                "This happened with entity type " + type + ".");
+        return DamagePoint.BODY;
+    }
+
+    /**
+     * Check whether point collides with this hitbox
+     *
+     * @param point the point to check
+     * @return true if collides
+     */
+    public boolean collides(Vector point) {
+        return point.getX() >= minX
+                && point.getX() <= maxX
+                && point.getY() >= minY
+                && point.getY() <= maxY
+                && point.getZ() >= minZ
+                && point.getZ() <= maxZ;
+    }
+
     /**
      * Uses BoundingBox class method rayTrace(Vector, Vector, double) with slight modifications. Easier backwards compatibility this way.
      * https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#rayTrace(org.bukkit.util.Vector,org.bukkit.util.Vector,double)
@@ -84,7 +188,7 @@ public class HitBox {
      * @param normalizedMotion the normalized direction
      * @return the ray trace result or null if there is no hit
      */
-    private RayTraceResult rayTrace(Vector location, Vector normalizedMotion) {
+    public RayTraceResult rayTrace(Vector location, Vector normalizedMotion) {
 
         double startX = location.getX();
         double startY = location.getY();
@@ -177,73 +281,81 @@ public class HitBox {
         }
 
         if (this.block != null) {
-            return new RayTraceResult(normalizedMotion.clone().multiply(t).add(location), hitBlockFace, this.block);
+            return new RayTraceResult(normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace, this.block);
         }
 
         Vector hitLocation = normalizedMotion.clone().multiply(t).add(location);
-        return new RayTraceResult(hitLocation, hitBlockFace, this.livingEntity, getDamagePoint(hitLocation, normalizedMotion));
+        return new RayTraceResult(hitLocation, t, hitBlockFace, this.livingEntity, getDamagePoint(hitLocation, normalizedMotion));
     }
 
-    /**
-     * @param hitLocation the entity hit location
-     * @param normalizedMotion the normalized direction
-     * @return the damage point or null if tried to cast when living entity was not defined
+    /** Uses BoundingBox class method expand(double, double, double, double, double, double). Easier backwards compatibility this way.
+     * https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(double,double,double,double,double,double)
+     *
+     * @return this hit box with expansion
      */
-    public DamagePoint getDamagePoint(Vector hitLocation, Vector normalizedMotion) {
-        if (this.livingEntity == null) return null;
-
-        EntityType type = livingEntity.getType();
-        double entityHeight = maxY - minY;
-
-        double hitY = hitLocation.getY();
-
-        // Check HEAD
-        double head = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.HEAD.name());
-        if (head > 0.0 && maxY - (entityHeight * head) < hitY) {
-            return DamagePoint.HEAD;
-        }
-
-        // Check BODY
-        double body = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.BODY.name());
-        if (body >= 1.0 || body > 0.0 && maxY - (entityHeight * (head + body)) < hitY) {
-
-            boolean horizontalEntity = basicConfiguration.getBool("Entity_Hitboxes." + type.name() + ".Horizontal_Entity", false);
-            boolean arms = basicConfiguration.getBool("Entity_Hitboxes." + type.name() + "." + DamagePoint.ARMS.name(), false);
-            if (horizontalEntity || arms) {
-                Vector normalizedEntityDirection = livingEntity.getLocation().getDirection();
-
-                if (horizontalEntity && collidesFront()) {
-                    return DamagePoint.HEAD;
-                }
-
-                if (arms && Math.abs(normalizedMotion.clone().setY(0).dot(normalizedEntityDirection.setY(0))) < 0.5) {
-                    return DamagePoint.ARMS;
-                }
+    public HitBox expand(double negativeX, double negativeY, double negativeZ, double positiveX, double positiveY, double positiveZ) {
+        double newMinX = this.minX - negativeX;
+        double newMinY = this.minY - negativeY;
+        double newMinZ = this.minZ - negativeZ;
+        double newMaxX = this.maxX + positiveX;
+        double newMaxY = this.maxY + positiveY;
+        double newMaxZ = this.maxZ + positiveZ;
+        double centerZ;
+        if (newMinX > newMaxX) {
+            centerZ = this.getCenterX();
+            if (newMaxX >= centerZ) {
+                newMinX = newMaxX;
+            } else if (newMinX <= centerZ) {
+                newMaxX = newMinX;
+            } else {
+                newMinX = centerZ;
+                newMaxX = centerZ;
             }
-
-            return DamagePoint.BODY;
         }
 
-        // Check LEGS
-        double legs = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.LEGS.name());
-        if (legs > 0.0 && maxY - (entityHeight * (head + body + legs)) < hitY) {
-            return DamagePoint.LEGS;
+        if (newMinY > newMaxY) {
+            centerZ = this.getCenterY();
+            if (newMaxY >= centerZ) {
+                newMinY = newMaxY;
+            } else if (newMinY <= centerZ) {
+                newMaxY = newMinY;
+            } else {
+                newMinY = centerZ;
+                newMaxY = centerZ;
+            }
         }
 
-        // Check FEET
-        double feet = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.FEET.name());
-        if (feet > 0.0) { // No need for actual check since it can't be HEAD, BODY or LEGS anymore so only option left is FEET
-            return DamagePoint.FEET;
+        if (newMinZ > newMaxZ) {
+            centerZ = this.getCenterZ();
+            if (newMaxZ >= centerZ) {
+                newMinZ = newMaxZ;
+            } else if (newMinZ <= centerZ) {
+                newMaxZ = newMinZ;
+            } else {
+                newMinZ = centerZ;
+                newMaxZ = centerZ;
+            }
         }
 
-        debug.log(LogLevel.WARN, "Something unexpected happened and HEAD, BODY, LEGS or FEET wasn't valid",
-                "This should never happen. Using BODY as default value...",
-                "This happened with entity type " + type + ".");
-        return DamagePoint.BODY;
+        return this.modify(newMinX, newMinY, newMinZ, newMaxX, newMaxY, newMaxZ);
     }
 
-    private boolean collidesFront() {
-        // todo
-        return false;
+
+    /** Uses BoundingBox class method expand(Vector, double). Easier backwards compatibility this way.
+     * https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(org.bukkit.util.Vector,double)
+     *
+     * @param direction the direction to expand
+     * @param expansion the amount to expand
+     * @return this hit box with expansion
+     */
+    public HitBox expand(Vector direction, double expansion) {
+        double dirX = direction.getX(), dirY = direction.getY(), dirZ = direction.getZ();
+        double negativeX = dirX < 0.0D ? -dirX * expansion : 0.0D;
+        double negativeY = dirY < 0.0D ? -dirY * expansion : 0.0D;
+        double negativeZ = dirZ < 0.0D ? -dirZ * expansion : 0.0D;
+        double positiveX = dirX > 0.0D ? dirX * expansion : 0.0D;
+        double positiveY = dirY > 0.0D ? dirY * expansion : 0.0D;
+        double positiveZ = dirZ > 0.0D ? dirZ * expansion : 0.0D;
+        return this.expand(negativeX, negativeY, negativeZ, positiveX, positiveY, positiveZ);
     }
 }
