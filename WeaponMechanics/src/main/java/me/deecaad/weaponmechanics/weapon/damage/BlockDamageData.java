@@ -16,6 +16,7 @@ import org.bukkit.inventory.InventoryHolder;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public final class BlockDamageData {
      * @param isBreak Whether the block will break or not.
      * @return <code>true</code> if the block was broken.
      */
-    public static DamageData damage(@Nonnull Block block, float damage, boolean isBreak) {
+    public static DamageData damage(@Nonnull Block block, double damage, boolean isBreak) {
         ChunkPos pos = new ChunkPos(block);
 
         // Get the DamageData for the given block, or create a new one if needed
@@ -78,19 +79,16 @@ public final class BlockDamageData {
      * and removes it from the damage map.
      *
      * @param block The non-null block to regenerate
-     * @return true if the block was regenerated.
      */
-    public static boolean regenerate(@Nonnull Block block) {
+    public static void regenerate(@Nonnull Block block) {
         Map<Block, DamageData> data = DAMAGE_MAP.get(new ChunkPos(block));
 
-        if (data == null) {
-            return false;
-        }
+        if (data == null)
+            return;
 
         DamageData damage = data.get(block);
         damage.regenerate();
         data.remove(block);
-        return false;
     }
 
     /**
@@ -101,11 +99,13 @@ public final class BlockDamageData {
      * <p>After regeneration, the chunk will be removed from the cache.
      *
      * @param chunk The non-null chunk to regenerate all blocks.
-     * @return true if at least 1 block was regenerated.
      * @see #regenerate(Block)
      */
-    public static boolean regenerate(@Nonnull Chunk chunk) {
-        return regenerate(new ChunkPos(chunk));
+    public static void regenerate(@Nonnull Chunk chunk) {
+        ChunkPos pos = new ChunkPos(chunk);
+
+        regenerate(pos);
+        DAMAGE_MAP.remove(pos);
     }
 
     /**
@@ -115,50 +115,40 @@ public final class BlockDamageData {
      * the cache.
      *
      * @param world The non-null world to regenerate all blocks.
-     * @return true if at least 1 block was regenerated.
      * @see #regenerate(Block)
      */
-    public static boolean regenerate(@Nonnull World world) {
-        boolean regeneratedOne = false;
+    public static void regenerate(@Nonnull World world) {
+        Iterator<ChunkPos> iterator = DAMAGE_MAP.keySet().iterator();
 
-        for (ChunkPos pos : DAMAGE_MAP.keySet()) {
+        while (iterator.hasNext()) {
+            ChunkPos pos = iterator.next();
+
             if (pos.world.equals(world)) {
-                regeneratedOne |= regenerate(pos);
+                regenerate(pos);
+                iterator.remove();
             }
         }
-
-        return regeneratedOne;
     }
 
-    /**
-     * Completely regenerates and clears all cache.
-     *
-     * @return true if at least 1 block was regenerated.
-     */
-    public static boolean regenerateAll() {
-        boolean regeneratedOne = false;
+    public static void regenerateAll() {
+        Iterator<ChunkPos> iterator = DAMAGE_MAP.keySet().iterator();
 
-        for (ChunkPos pos : DAMAGE_MAP.keySet()) {
-            regeneratedOne |= regenerate(pos);
+        while (iterator.hasNext()) {
+            ChunkPos pos = iterator.next();
+            regenerate(pos);
+            iterator.remove();
         }
-
-        return regeneratedOne;
     }
 
-    public static boolean regenerate(@Nonnull ChunkPos pos) {
+    private static void regenerate(@Nonnull ChunkPos pos) {
         Map<Block, DamageData> blocks = DAMAGE_MAP.get(pos);
 
-        if (blocks == null) {
-            return false;
-        }
+        if (blocks == null)
+            return;
 
-        boolean regeneratedOne = !blocks.isEmpty();
- 
         blocks.forEach((block, damage) -> {
             damage.regenerate();
         });
-
-        return regeneratedOne;
     }
 
     /**
@@ -207,7 +197,7 @@ public final class BlockDamageData {
             this.block = block;
         }
 
-        public void damage(float amount, boolean isBreak) {
+        public void damage(double amount, boolean isBreak) {
             durability -= amount;
 
             // Either break the block or send a crack packet
@@ -267,7 +257,7 @@ public final class BlockDamageData {
                     : (int) NumberUtil.lerp(0, MAX_BLOCK_CRACK, durability);
 
             Object packet = CompatibilityAPI.getBlockCompatibility().getCrackPacket(block, crack, packetId);
-            DistanceUtil.sendPacket(block.getLocation(), 45.0, packet);
+            DistanceUtil.sendPacket(block.getLocation(), 45.0, new Object[]{packet});
         }
     }
 }

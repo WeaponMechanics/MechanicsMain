@@ -39,7 +39,7 @@ import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.damage.BlockDamageDataOld;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -397,7 +397,7 @@ public class WeaponMechanics extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        BlockDamageDataOld.regenerateAll();
+        BlockDamageData.regenerateAll();
 
         HandlerList.unregisterAll(this);
         getServer().getScheduler().cancelTasks(this);

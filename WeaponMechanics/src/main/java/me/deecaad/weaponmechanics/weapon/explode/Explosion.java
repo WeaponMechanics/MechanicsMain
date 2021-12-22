@@ -10,6 +10,7 @@ import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.DistanceExposure;
@@ -189,9 +190,10 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>((int) (blockChance * 1.1 * blocks.size()));
-        int timeOffset = regeneration == null ? -1 : solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate();
+        int timeOffset = solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate();
+
         damageBlocks(transparent, true, origin, projectile, fallingBlocks, timeOffset);
-        damageBlocks(solid, false, origin, projectile, fallingBlocks, regeneration == null ? -1 : 0);
+        damageBlocks(solid, false, origin, projectile, fallingBlocks, 0);
         spawnFallingBlocks(fallingBlocks, origin);
 
         DoubleMap<LivingEntity> entities = event.getEntities();
@@ -233,24 +235,54 @@ public class Explosion implements Serializer<Explosion> {
     }
 
     protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks, int timeOffset) {
+        boolean isRegenerate = regeneration != null;
 
-        if (regeneration != null)
+
+        if (isRegenerate)
             timeOffset += regeneration.getTicksBeforeStart();
+
+        List<BlockDamageData.DamageData> brokenBlocks = isRegenerate ? new ArrayList<>(regeneration.getMaxBlocksPerUpdate()) : null;
 
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
             Block block = blocks.get(i);
-            int time = timeOffset;
-
-            if (regeneration != null) {
-                time += (isAtOnce ? size : i) / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval();
-            }
 
             // Getting the state of the block BEFORE the block is broken is important,
             // otherwise we are just getting an air block, which is useless
             BlockState state = block.getState();
+            BlockDamageData.DamageData data = blockDamage.damage(block);
 
-            if (blockDamage.damage(block, time) && NumberUtil.chance(blockChance)) {
+            // Group blocks together to reduce task scheduling (#28). After
+            // reaching the bound, we can schedule a task to generate later.
+            if (isRegenerate) {
+                brokenBlocks.add(data);
+
+                if (brokenBlocks.size() == regeneration.getMaxBlocksPerUpdate() || i == size - 1) {
+                    int time = timeOffset + ((isAtOnce ? size : i) / regeneration.getMaxBlocksPerUpdate() * regeneration.getInterval());
+
+                    List<BlockDamageData.DamageData> finalBrokenBlocks = new ArrayList<>(brokenBlocks);
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            for (BlockDamageData.DamageData block : finalBrokenBlocks) {
+
+                                // The blocks may have been regenerated already
+                                if (block.isBroken()) {
+                                    block.regenerate();
+                                    block.remove();
+                                }
+                            }
+                        }
+                    }.runTaskLater(WeaponMechanics.getPlugin(), time);
+
+                    // Reset back to 0 elements, so we can continue adding
+                    // blocks to regenerate to the list.
+                    brokenBlocks.clear();
+                }
+            }
+
+            // Handling falling blocks super expensive on the CPU... TODO
+            if (data.isBroken() && NumberUtil.chance(blockChance)) {
 
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                 Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
@@ -263,8 +295,8 @@ public class Explosion implements Serializer<Explosion> {
                 // We want to store the data, and calculate the falling blocks later
                 // so the falling blocks don't interact with blocks that are going to be
                 // blown up (but aren't blown up yet by this explosion)
-                FallingBlockData data = new FallingBlockData(velocity, state, loc);
-                fallingBlocks.put(data, velocity);
+                FallingBlockData falling = new FallingBlockData(velocity, state, loc);
+                fallingBlocks.put(falling, velocity);
             }
         }
     }

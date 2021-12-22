@@ -1,12 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
-import com.google.common.base.Enums;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponmechanics.weapon.damage.BlockDamageDataOld;
+import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,7 +11,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,15 +94,14 @@ public class BlockDamage implements Serializer<BlockDamage> {
         }
     }
 
-    public boolean damage(Block block, int regenTicks) {
-        if (!isBlacklisted(block) && !BlockDamageDataOld.isBroken(block)) {
+    public BlockDamageData.DamageData damage(Block block) {
+        if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
             int max = getMaxDurability(block);
-            BlockDamageDataOld.damageBlock(block, damage, max, isBreakBlocks, regenTicks);
 
-            return BlockDamageDataOld.isBroken(block);
+            return BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
         }
 
-        return false;
+        return null;
     }
 
     @Override
