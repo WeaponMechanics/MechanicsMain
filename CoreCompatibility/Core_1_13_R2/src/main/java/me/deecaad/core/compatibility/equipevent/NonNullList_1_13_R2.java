@@ -3,14 +3,18 @@ package me.deecaad.core.compatibility.equipevent;
 import me.deecaad.core.compatibility.v1_13_R2;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import net.minecraft.server.v1_13_R2.Item;
 import net.minecraft.server.v1_13_R2.ItemStack;
 import net.minecraft.server.v1_13_R2.NonNullList;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
 public class NonNullList_1_13_R2 extends NonNullList<ItemStack> {
+
+    private static final Field itemField = ReflectionUtil.getField(ItemStack.class, Item.class);
 
     static {
         if (ReflectionUtil.getMCVersion() != 13) {
@@ -33,9 +37,13 @@ public class NonNullList_1_13_R2 extends NonNullList<ItemStack> {
     @Override
     public ItemStack set(int index, ItemStack newItem) {
         ItemStack oldItem = get(index);
+        Item item = (Item) ReflectionUtil.invokeField(itemField, newItem);
 
-        // Extra check
-        if (!ItemStack.matches(oldItem, newItem)) {
+        if (newItem.getCount() == 0 && item != null) {
+            newItem.setCount(1);
+            consumer.accept(CraftItemStack.asBukkitCopy(oldItem), CraftItemStack.asBukkitCopy(newItem), index);
+            newItem.setCount(0);
+        } else if (!ItemStack.matches(oldItem, newItem)) {
             consumer.accept(CraftItemStack.asBukkitCopy(oldItem), CraftItemStack.asBukkitCopy(newItem), index);
         }
 

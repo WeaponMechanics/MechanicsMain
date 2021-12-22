@@ -190,7 +190,7 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>((int) (blockChance * 1.1 * blocks.size()));
-        int timeOffset = solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate();
+        int timeOffset = regeneration == null ? -1 : (solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate());
 
         damageBlocks(transparent, true, origin, projectile, fallingBlocks, timeOffset);
         damageBlocks(solid, false, origin, projectile, fallingBlocks, 0);
