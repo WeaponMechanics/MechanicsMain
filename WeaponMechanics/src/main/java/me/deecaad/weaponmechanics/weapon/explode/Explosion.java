@@ -59,8 +59,36 @@ public class Explosion implements Serializer<Explosion> {
     private Flashbang flashbang;
     private Mechanics mechanics;
 
-    public Explosion() { }
+    /**
+     * Default constructor for serializer.
+     */
+    public Explosion() {
+    }
 
+    /**
+     * The main constructor for explosions. See parameters.
+     *
+     * @param shape        The non-null shape that determines the pattern in
+     *                     which all blocks are destroyed.
+     * @param exposure     The non-null method to determine how exposed each
+     *                     entity is to the origin of this explosion.
+     * @param blockDamage  The nullable data to determine how each block is
+     *                     damaged. If null is used, blocks will not be damaged.
+     * @param regeneration The nullable data to determine how blocks are
+     *                     regenerated after being broken by {@link BlockDamage}.
+     * @param triggers     The non-null possible triggers that may cause this
+     *                     explosion to occur (e.x. When projectiles hit a block).
+     * @param delay        The delay after <code>trigger</code> before the
+     *                     explosion actually occurs.
+     * @param blockChance  The chance [0, 1] for block from {@link BlockDamage}
+     *                     to spawn a packet based falling block.
+     * @param isKnockback  Use true to enable vanilla MC explosion knockback.
+     * @param clusterBomb  The nullable cluster bomb (Children explosions).
+     * @param airStrike    The nullable airstrike (Explosions from the air).
+     * @param flashbang    The nullable flashbang (To blind players).
+     * @param mechanics    The nullable mechanics, spawned at the origin of the
+     *                     explosion.
+     */
     public Explosion(@Nonnull ExplosionShape shape,
                      @Nonnull ExplosionExposure exposure,
                      @Nullable BlockDamage blockDamage,
@@ -92,48 +120,96 @@ public class Explosion implements Serializer<Explosion> {
         return shape;
     }
 
+    public void setShape(ExplosionShape shape) {
+        this.shape = shape;
+    }
+
     public ExplosionExposure getExposure() {
         return exposure;
+    }
+
+    public void setExposure(ExplosionExposure exposure) {
+        this.exposure = exposure;
     }
 
     public BlockDamage getBlockDamage() {
         return blockDamage;
     }
 
+    public void setBlockDamage(BlockDamage blockDamage) {
+        this.blockDamage = blockDamage;
+    }
+
     public RegenerationData getRegeneration() {
         return regeneration;
+    }
+
+    public void setRegeneration(RegenerationData regeneration) {
+        this.regeneration = regeneration;
     }
 
     public Set<ExplosionTrigger> getTriggers() {
         return triggers;
     }
 
+    public void setTriggers(Set<ExplosionTrigger> triggers) {
+        this.triggers = triggers;
+    }
+
     public int getDelay() {
         return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     public double getBlockChance() {
         return blockChance;
     }
 
+    public void setBlockChance(double blockChance) {
+        this.blockChance = blockChance;
+    }
+
     public boolean isKnockback() {
         return isKnockback;
+    }
+
+    public void setKnockback(boolean knockback) {
+        isKnockback = knockback;
     }
 
     public ClusterBomb getCluster() {
         return cluster;
     }
 
+    public void setCluster(ClusterBomb cluster) {
+        this.cluster = cluster;
+    }
+
     public AirStrike getAirStrike() {
         return airStrike;
+    }
+
+    public void setAirStrike(AirStrike airStrike) {
+        this.airStrike = airStrike;
     }
 
     public Flashbang getFlashbang() {
         return flashbang;
     }
 
+    public void setFlashbang(Flashbang flashbang) {
+        this.flashbang = flashbang;
+    }
+
     public Mechanics getMechanics() {
         return mechanics;
+    }
+
+    public void setMechanics(Mechanics mechanics) {
+        this.mechanics = mechanics;
     }
 
     public void explode(LivingEntity cause, CollisionData collision, ICustomProjectile projectile) {
@@ -156,14 +232,14 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         // This event is not cancellable. If developers want to cancel
-        // explosions, they should
+        // explosions, they should use ProjectilePreExplodeEvent
         ProjectileExplodeEvent event = new ProjectileExplodeEvent(shape.getBlocks(origin),
                 new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
 
-        List<Block> blocks      = event.getBlocks();
-        int initialCapacity     = Math.max(blocks.size(), 10);
+        List<Block> blocks = event.getBlocks();
+        int initialCapacity = Math.max(blocks.size(), 10);
         List<Block> transparent = new ArrayList<>(initialCapacity);
-        List<Block> solid       = new ArrayList<>(initialCapacity);
+        List<Block> solid = new ArrayList<>(initialCapacity);
 
         // Sort the blocks into different categories (To make regeneration more
         // reliable). In the future, this may also be used to filter out
@@ -175,10 +251,12 @@ public class Explosion implements Serializer<Explosion> {
                 transparent.add(block);
         }
 
-        // Sorting the blocks can make regeneration look better
+        // Sorting the blocks is crucial to making block regeneration look
+        // good. Generally, sorters should generate lower blocks before higher
+        // blocks, and outer blocks before inner blocks. If the sorter is null,
+        // the sorting stage will be skipped, but this will cause blocks to
+        // regenerate in a random order.
         try {
-
-            // Not an error, BUT probably not intentional
             if (event.getSorter() == null) {
                 debug.debug("Null sorter used while regenerating explosion... Was this intentional?");
             } else {
@@ -189,17 +267,23 @@ public class Explosion implements Serializer<Explosion> {
                     "Please report this error to the developers of that plugin. Sorter: " + event.getSorter().getClass(), e);
         }
 
-        Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>((int) (blockChance * 1.1 * blocks.size()));
-        int timeOffset = regeneration == null ? -1 : (solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate());
+        // When blockDamage is null, we should not attempt to damage blocks or
+        // spawn falling blocks. We also don't need to worry about regeneration.
+        if (blockDamage != null) {
+            Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>((int) (blockChance * 1.1 * blocks.size()));
+            int timeOffset = regeneration == null ? -1 : (solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate());
 
-        damageBlocks(transparent, true, origin, projectile, fallingBlocks, timeOffset);
-        damageBlocks(solid, false, origin, projectile, fallingBlocks, 0);
-        spawnFallingBlocks(fallingBlocks, origin);
+            damageBlocks(transparent, true, origin, projectile, fallingBlocks, timeOffset);
+            damageBlocks(solid, false, origin, projectile, fallingBlocks, 0);
+            spawnFallingBlocks(fallingBlocks, origin);
+        }
 
         DoubleMap<LivingEntity> entities = event.getEntities();
         if (projectile != null && projectile.getWeaponTitle() != null) {
             WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(projectile, origin, entities);
 
+            // isKnockback will cause vanilla-like explosion knockback. The
+            // higher your exposure, the greater the knockback.
             if (isKnockback) {
                 Vector originVector = origin.toVector();
                 for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
@@ -231,12 +315,12 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (flashbang != null) flashbang.trigger(exposure, projectile, origin);
-        if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(cause), projectile.getWeaponTitle(), projectile.getWeaponStack()));
+        if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(cause), origin,
+                projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
     }
 
     protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks, int timeOffset) {
         boolean isRegenerate = regeneration != null;
-
 
         if (isRegenerate)
             timeOffset += regeneration.getTicksBeforeStart();
@@ -357,11 +441,11 @@ public class Explosion implements Serializer<Explosion> {
             debug.log(LogLevel.ERROR, "Missing Explosion_Type_Data, a required argument.", StringUtil.foundAt(file, path));
             return null;
         }
-        double yield  = typeData.getDouble("Yield",  3.0);
-        double angle  = typeData.getDouble("Angle",  0.5);
-        double depth  = typeData.getDouble("Depth",  -3.0);
+        double yield = typeData.getDouble("Yield", 3.0);
+        double angle = typeData.getDouble("Angle", 0.5);
+        double depth = typeData.getDouble("Depth", -3.0);
         double height = typeData.getDouble("Height", 3.0);
-        double width  = typeData.getDouble("Width",  3.0);
+        double width = typeData.getDouble("Width", 3.0);
         double radius = typeData.getDouble("Radius", 3.0);
         int rays = typeData.getInt("Rays", 16);
 
@@ -376,21 +460,21 @@ public class Explosion implements Serializer<Explosion> {
 
         // We only want to turn users about big numbers, since users MIGHT
         // want to use these numbers.
-        debug.validate(LogLevel.WARN, yield < 50,  StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
-        debug.validate(LogLevel.WARN, angle < 50,  StringUtil.foundLarge(angle, file, path + "Explosion_Type_Data.Angle"));
+        debug.validate(LogLevel.WARN, yield < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
+        debug.validate(LogLevel.WARN, angle < 50, StringUtil.foundLarge(angle, file, path + "Explosion_Type_Data.Angle"));
         debug.validate(LogLevel.WARN, height < 50, StringUtil.foundLarge(height, file, path + "Explosion_Type_Data.Height"));
-        debug.validate(LogLevel.WARN, width < 50,  StringUtil.foundLarge(width, file, path + "Explosion_Type_Data.Width"));
+        debug.validate(LogLevel.WARN, width < 50, StringUtil.foundLarge(width, file, path + "Explosion_Type_Data.Width"));
         debug.validate(LogLevel.WARN, radius < 50, StringUtil.foundLarge(radius, file, path + "Explosion_Type_Data.Radius"));
-        debug.validate(LogLevel.WARN, rays < 50,   StringUtil.foundLarge(rays, file, path + "Explosion_Type_Data.Rays"));
+        debug.validate(LogLevel.WARN, rays < 50, StringUtil.foundLarge(rays, file, path + "Explosion_Type_Data.Rays"));
 
         // We want to ensure each value in the section is their expected type.
         // For example, sometimes a configuration section will hold a value as
         // an int when we would expect it to be a double.
-        if (typeData.contains("Yield", true))  typeData.set("Yield", yield);
-        if (typeData.contains("Angle", true))  typeData.set("Angle", angle);
-        if (typeData.contains("Depth", true))  typeData.set("Depth", -Math.abs(depth));
+        if (typeData.contains("Yield", true)) typeData.set("Yield", yield);
+        if (typeData.contains("Angle", true)) typeData.set("Angle", angle);
+        if (typeData.contains("Depth", true)) typeData.set("Depth", -Math.abs(depth));
         if (typeData.contains("Height", true)) typeData.set("Height", height);
-        if (typeData.contains("Width", true))  typeData.set("Width", width);
+        if (typeData.contains("Width", true)) typeData.set("Width", width);
         if (typeData.contains("Radius", true)) typeData.set("Radius", radius);
 
         // Rays is a default value, so we don't need to check if typeData.contains("Rays").
