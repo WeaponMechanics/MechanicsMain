@@ -38,8 +38,17 @@ public class Flashbang implements Serializer<Flashbang> {
         return distance;
     }
 
+    public void setDistance(double distance) {
+        this.distance = distance;
+        this.distanceSquared = distance * distance;
+    }
+
     public Mechanics getMechanics() {
         return mechanics;
+    }
+
+    public void setMechanics(Mechanics mechanics) {
+        this.mechanics = mechanics;
     }
 
     /**

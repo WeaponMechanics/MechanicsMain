@@ -33,16 +33,32 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         return projectile;
     }
 
+    public void setProjectile(Projectile projectile) {
+        this.projectile = projectile;
+    }
+
     public double getSpeed() {
         return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
     }
 
     public int getSplits() {
         return splits;
     }
 
+    public void setSplits(int splits) {
+        this.splits = splits;
+    }
+
     public int getBombs() {
         return bombs;
+    }
+
+    public void setBombs(int bombs) {
+        this.bombs = bombs;
     }
 
     public void trigger(ICustomProjectile projectile, LivingEntity shooter, Location splitLocation) {
@@ -83,9 +99,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     public ClusterBomb serialize(File file, ConfigurationSection configurationSection, String path) {
         int bombs = configurationSection.getInt(path + ".Number_Of_Bombs", -1);
 
-        if (bombs == -1) {
-            return null;
-        }
+        debug.validate(bombs > 0, "Number_Of_Bombs must be a positive number!");
 
         Projectile projectileSettings = new Projectile().serialize(file, configurationSection, path + ".Split_Projectile");
         double speed = configurationSection.getDouble(path + ".Projectile_Speed", 15);
