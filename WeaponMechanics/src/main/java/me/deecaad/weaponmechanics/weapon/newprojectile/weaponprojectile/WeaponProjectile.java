@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile;
 
+import me.deecaad.core.file.Configuration;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.newprojectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.newprojectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.newprojectile.ProjectileSettings;
@@ -20,6 +22,10 @@ public class WeaponProjectile extends AProjectile {
     private ItemStack weaponStack;
     private String weaponTitle;
 
+    private Sticky sticky;
+    private Through through;
+    private Bouncy bouncy;
+
     private StickedData stickedData;
     private int throughAmount;
     private int bounces;
@@ -29,6 +35,11 @@ public class WeaponProjectile extends AProjectile {
         super(projectileSettings, shooter, location, motion);
         this.weaponStack = weaponStack;
         this.weaponTitle = weaponTitle;
+
+        Configuration config = WeaponMechanics.getConfigurations();
+        sticky = config.getObject(weaponTitle + ".Projectile.Sticky", Sticky.class);
+        through = config.getObject(weaponTitle + ".Projectile.Through", Through.class);
+        bouncy = config.getObject(weaponTitle + ".Projectile.Bouncy", Bouncy.class);
     }
 
     /**
@@ -116,6 +127,7 @@ public class WeaponProjectile extends AProjectile {
             return false;
         }
 
+        // Returns sorted list of hits
         List<RayTraceResult> hits = getHits();
         if (hits == null) return false;
 
@@ -131,22 +143,20 @@ public class WeaponProjectile extends AProjectile {
             if (hit.handleHit(this)) continue;
 
             // Sticky
-            Sticky sticky = null; // todo
             if (sticky != null && sticky.handleSticking(this, hit)) {
                 // Break since projectile sticked to entity or block
                 break;
             }
 
             // Through
-            Through through = null; // todo
             if (through != null && through.handleThrough(this, hit)) {
-                // Continue since projectile went through
+                // Continue since projectile went through.
+                // We still need to check that other collisions also allows this
                 ++throughAmount;
                 continue;
             }
 
             // Bouncy
-            Bouncy bouncy = null; // todo
             if (bouncy != null && bouncy.handleBounce(this, hit)) {
                 // Break since projectile bounced to different direction
                 ++bounces;
@@ -196,7 +206,7 @@ public class WeaponProjectile extends AProjectile {
             }
         }
 
-        // Sort based on distance to location
+        // Sort based on distance to location if more than 1 hits
         if (hits != null && hits.size() > 1) hits.sort((hit1, hit2) -> (int) (hit1.getHitLocation().distanceSquared(location) - hit2.getHitLocation().distanceSquared(location)));
 
         return hits;
@@ -206,6 +216,8 @@ public class WeaponProjectile extends AProjectile {
 
         List<Block> blocks = new ArrayList<>();
         // todo
+
+        // If through is used -> only get Maximum_Through_Amount - throughAmount + 1 blocks
 
         return blocks.isEmpty() ? null : blocks;
     }

@@ -1,16 +1,31 @@
 package me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile;
 
+import me.deecaad.core.file.Serializer;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 
-public class Bouncy {
+import java.io.File;
+
+public class Bouncy implements Serializer<Bouncy> {
 
     public static final double REQUIRED_MOTION_TO_BOUNCE = 0.3;
 
     private int maximumBounceAmount;
     private ListHolder<Material> blocks;
     private ListHolder<EntityType> entities;
+
+    /**
+     * Empty for serializers
+     */
+    public Bouncy() { }
+
+    public Bouncy(int maximumBounceAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities) {
+        this.maximumBounceAmount = maximumBounceAmount;
+        this.blocks = blocks;
+        this.entities = entities;
+    }
 
     /**
      * @param projectile the projectile
@@ -48,5 +63,23 @@ public class Bouncy {
         projectile.setMotion(motion);
 
         return true;
+    }
+
+
+    @Override
+    public String getKeyword() {
+        return "Bouncy";
+    }
+
+    @Override
+    public Bouncy serialize(File file, ConfigurationSection configurationSection, String path) {
+        ListHolder<Material> blocks = new ListHolder<Material>().serialize(file, configurationSection, path + ".Blocks", Material.class);
+        ListHolder<EntityType> entities = new ListHolder<EntityType>().serialize(file, configurationSection, path + ".Entities", EntityType.class);
+
+        if (blocks == null && entities == null) return null;
+
+        int maximumBounceAmount = configurationSection.getInt(path + ".Maximum_Bounce_Amount", 1);
+
+        return new Bouncy(maximumBounceAmount, blocks, entities);
     }
 }

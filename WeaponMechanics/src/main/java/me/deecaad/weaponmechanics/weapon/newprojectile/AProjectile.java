@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.newprojectile;
 
-
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -22,10 +21,6 @@ public abstract class AProjectile {
     // Store this references here for easier usage
     protected static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
     private static final double version = CompatibilityAPI.getVersion();
-
-    // NMS entity if used as disguise
-    public Object nmsEntity;
-    private int nmsEntityId;
 
     private final LivingEntity shooter;
     private final World world;
