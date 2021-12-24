@@ -1,7 +1,6 @@
 # Weapon Mechanics [![Discord](https://img.shields.io/discord/306158221473742848.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://google.com)
 
-High performance, fully featured gun plugin for newer Minecraft versions that makes
-older gun plugins look like children's toys.
+High performance, fully featured gun plugin for newer Minecraft versions.
 
 ## Quick Links
 * [Wiki](Wiki)
