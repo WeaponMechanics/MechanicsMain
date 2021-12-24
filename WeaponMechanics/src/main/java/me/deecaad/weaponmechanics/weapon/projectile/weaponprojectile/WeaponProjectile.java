@@ -42,6 +42,8 @@ public class WeaponProjectile extends AProjectile {
         this.weaponTitle = weaponTitle;
 
         Configuration config = WeaponMechanics.getConfigurations();
+
+        // Todo projectile wrapper / allow these projectiles to be serialized elsewhere
         sticky = config.getObject(weaponTitle + ".Projectile.Sticky", Sticky.class);
         through = config.getObject(weaponTitle + ".Projectile.Through", Through.class);
         bouncy = config.getObject(weaponTitle + ".Projectile.Bouncy", Bouncy.class);
@@ -203,7 +205,7 @@ public class WeaponProjectile extends AProjectile {
 
         while (blocks.hasNext()) {
             Block block = blocks.next();
-            HitBox blockBox = new HitBox(null, null); //projectileCompatibility.getHitBox(block);
+            HitBox blockBox = projectileCompatibility.getHitBox(block);
             if (blockBox == null) continue;
 
             blockBox.setBlockHitBox(block);
@@ -227,7 +229,7 @@ public class WeaponProjectile extends AProjectile {
         List<LivingEntity> entities = getPossibleEntities();
         if (entities != null && !entities.isEmpty()) {
             for (LivingEntity entity : entities) {
-                HitBox entityBox = new HitBox(null, null); //projectileCompatibility.getHitBox(entity);
+                HitBox entityBox = projectileCompatibility.getHitBox(entity);
                 if (entityBox == null) continue;
 
                 entityBox.setLivingEntity(entity);

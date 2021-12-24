@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.compatibility.projectile;
 
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -13,17 +14,17 @@ public interface IProjectileCompatibility {
      * Spawns projectile disguise for all players within 150 blocks.
      * This is only ran if disguises are used.
      *
-     * @param customProjectile the projectile used to fetch all required data
+     * @param projectile the projectile used to fetch all required data
      * @param location the location vector of projectile
      * @param motion the motion vector projectile
      */
-    void spawnDisguise(CustomProjectile customProjectile, Vector location, Vector motion);
+    void spawnDisguise(WeaponProjectile projectile, Vector location, Vector motion);
 
     /**
      * Updates projectile velocity and location for all players within 90 blocks.
      * This is only ran if disguises are used.
      *
-     * @param customProjectile the projectile used to fetch all required data
+     * @param projectile the projectile used to fetch all required data
      * @param location the location vector of projectile
      * @param motion the motion vector projectile
      * @param lastLocation the last location vector of projectile
@@ -34,18 +35,9 @@ public interface IProjectileCompatibility {
      * Destroys disguise from all players within 150 blocks.
      * This is only ran if disguises are used.
      *
-     * @param customProjectile the projectile used to fetch all required data
+     * @param projectile the projectile used to fetch all required data
      */
     void destroyDisguise(CustomProjectile customProjectile);
-
-    /**
-     * Get DEFAULT entity width and height.
-     * This will return double array where 0 is width and 1 is height.
-     *
-     * @param entityType the entity type which width and height to get
-     * @return the default width[0] and height[1] of entity type
-     */
-    double[] getDefaultWidthAndHeight(EntityType entityType);
 
     /**
      * If entity is invulnerable or non alive this will always return null.
@@ -81,7 +73,7 @@ public interface IProjectileCompatibility {
     }
 
     /**
-     * @param customProjectile the projectile used to fetch all required data
+     * @param projectile the projectile used to fetch all required data
      * @param degrees the pitch degrees to convert to byte
      * @return the byte value of pitch
      */
@@ -95,7 +87,7 @@ public interface IProjectileCompatibility {
     }
 
     /**
-     * @param customProjectile the projectile used to fetch all required data
+     * @param projectile the projectile used to fetch all required data
      * @param degrees the yaw degrees to convert to byte
      * @return the byte value of yaw
      */
