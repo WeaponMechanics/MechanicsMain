@@ -31,6 +31,13 @@ public class CastData {
         this.casterLocation = casterLocation;
     }
 
+    public CastData(IEntityWrapper caster, Location casterLocation, String weaponTitle, ItemStack weaponStack) {
+        this.caster = caster;
+        this.casterLocation = casterLocation;
+        this.weaponTitle = weaponTitle;
+        this.weaponStack = weaponStack;
+    }
+
     /**
      * @return the wrapped caster of this cast, null if only location is used
      */

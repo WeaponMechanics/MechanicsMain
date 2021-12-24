@@ -1,8 +1,6 @@
 # Weapon Mechanics [![Discord](https://img.shields.io/discord/306158221473742848.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://google.com)
 
----
-High performance, fully featured gun plugin for newer Minecraft versions that makes
-older gun plugins look like children's toys.
+High performance, fully featured gun plugin for newer Minecraft versions.
 
 ## Quick Links
 * [Wiki](Wiki)
@@ -11,7 +9,6 @@ older gun plugins look like children's toys.
 * [Bug report](github bug report)
 * [Donate](#Donate)
 
----
 ## How to (Server Owners)
 See the [Getting Started]() section on the wiki.
 
@@ -21,14 +18,21 @@ See [Hooking into WeaponMechanics]() page on the wiki.
 Maven Repository:
 ```xml
     <repository>
-        <id>papermc</id>
-        <url>https://papermc.io/repo/repository/maven-public/</url>
+        <id>fixme</id>
+        <url>fixme</url>
     </repository>
 
     <dependency>
-        <groupId>io.papermc.paper</groupId>
-        <artifactId>paper-api</artifactId>
-        <version>1.18.1-R0.1-SNAPSHOT</version>
+        <groupId>me.deecaad</groupId>
+        <artifactId>MechanicsCore</artifactId>
+        <version>1.0.0</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>me.deecaad</groupId>
+        <artifactId>WeaponMechanics</artifactId>
+        <version>1.0.0</version>
         <scope>provided</scope>
     </dependency>
 ```
@@ -37,16 +41,14 @@ Using Gradle:
 ```kotlin
 repositories {
     maven {
-        url = uri("https://papermc.io/repo/repository/maven-public/")
+        url = uri("fix me")
     }
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT")
+    compileOnly("fix me")
 }
 ```
-
----
 
 ## Donate
 WeaponMechanics is a free to use software, and the combination of hundreds

@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.NumberConversions;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -79,6 +80,16 @@ public class SphericalExplosion implements ExplosionShape {
     @Override
     public double getMaxDistance() {
         return radius;
+    }
+
+    @Override
+    public boolean isContained(@NotNull Location origin, @NotNull Location point) {
+        return origin.distanceSquared(point) < radiusSquared;
+    }
+
+    @Override
+    public double getArea() {
+        return 4.0 / 3.0 * Math.PI * radius * radius * radius;
     }
 
     @Override
