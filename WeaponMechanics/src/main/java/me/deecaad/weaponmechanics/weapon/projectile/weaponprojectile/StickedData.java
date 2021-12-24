@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import org.bukkit.Location;

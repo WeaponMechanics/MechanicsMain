@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
@@ -59,7 +60,7 @@ public class Flashbang implements Serializer<Flashbang> {
      * @param projectile The projectile used
      * @param origin The center of the flashbang
      */
-    public void trigger(ExplosionExposure exposure, ICustomProjectile projectile, Location origin) {
+    public void trigger(ExplosionExposure exposure, WeaponProjectile projectile, Location origin) {
         Collection<Entity> entities = origin.getWorld().getNearbyEntities(origin, distance, distance, distance);
         for (Entity entity : entities) {
             if (entity.getType() != EntityType.PLAYER) {
@@ -92,7 +93,7 @@ public class Flashbang implements Serializer<Flashbang> {
         return exposure.canSee(origin, entity);
     }
 
-    public void effect(ICustomProjectile projectile, LivingEntity entity) {
+    public void effect(WeaponProjectile projectile, LivingEntity entity) {
         if (mechanics != null) {
             IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity);
             mechanics.use(new CastData(wrapper, projectile.getWeaponTitle(), projectile.getWeaponStack()));

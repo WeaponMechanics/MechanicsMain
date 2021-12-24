@@ -1,16 +1,19 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.newprojectile.AProjectile;
-import me.deecaad.weaponmechanics.weapon.newprojectile.HitBox;
-import me.deecaad.weaponmechanics.weapon.newprojectile.ProjectileSettings;
+import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WeaponProjectile extends AProjectile {
+
+    private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
 
     private ItemStack weaponStack;
     private String weaponTitle;
@@ -123,13 +128,24 @@ public class WeaponProjectile extends AProjectile {
                 // Update location and update distance travelled if living entity
                 addDistanceTravelled(getLastLocation().distance(newLocation));
                 setLocation(newLocation);
+
+                // Only call if projectile is sticked to entity since entity may move
+                if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
             }
             return false;
         }
 
         // Returns sorted list of hits
         List<RayTraceResult> hits = getHits();
-        if (hits == null) return false;
+        if (hits == null) {
+
+            // No hits, simply update location and distance travelled
+            setLocation(getLocation().add(getMotion()));
+            addDistanceTravelled(getMotionLength());
+
+            if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
+            return false;
+        }
 
         double distanceAlreadyAdded = 0;
 
@@ -163,10 +179,15 @@ public class WeaponProjectile extends AProjectile {
                 break;
             }
 
+            // We only want to call projectile move event once if it dies
+            if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
+
             // Projectile should die if code reaches this point
             return true;
         }
 
+        // Projectile didn't die, call move event
+        if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
         return false;
     }
 
@@ -176,19 +197,31 @@ public class WeaponProjectile extends AProjectile {
         Vector normalizedMotion = getNormalizedMotion();
         Vector location = getLocation();
 
-        List<Block> blocks = getPossibleBlocks();
-        if (blocks != null && !blocks.isEmpty()) {
-            for (Block block : blocks) {
-                HitBox blockBox = new HitBox(null, null); //projectileCompatibility.getHitBox(block);
-                if (blockBox == null) continue;
+        // Rounding might cause 0.5 "extra" movement, but it doesn't really matter
+        BlockIterator blocks = new BlockIterator(getWorld(), location, normalizedMotion, 0.0, (int) Math.round(getMotionLength()));
+        int maximumBlockHits = through == null ? 1 : through.getMaximumThroughAmount() - getThroughAmount() + 1;
 
-                blockBox.setBlockHitBox(block);
-                RayTraceResult rayTraceResult = blockBox.rayTrace(location, normalizedMotion);
-                if (rayTraceResult == null) continue; // Didn't hit
+        while (blocks.hasNext()) {
+            Block block = blocks.next();
+            HitBox blockBox = new HitBox(null, null); //projectileCompatibility.getHitBox(block);
+            if (blockBox == null) continue;
 
-                if (hits == null) hits = new ArrayList<>();
-                hits.add(rayTraceResult);
-            }
+            blockBox.setBlockHitBox(block);
+            RayTraceResult rayTraceResult = blockBox.rayTrace(location, normalizedMotion);
+            if (rayTraceResult == null) continue; // Didn't hit
+
+            if (hits == null) hits = new ArrayList<>();
+            hits.add(rayTraceResult);
+
+            // If through isn't used, it is enough to get one block hit
+            if (through == null) break;
+
+            // If it now reached maximum block hits, simply break since we know
+            // projectile can't go through blocks anymore after this one.
+            if (--maximumBlockHits == 0) break;
+
+            // If it isn't valid it can't go through
+            if (!through.quickValidCheck(block.getType())) break;
         }
 
         List<LivingEntity> entities = getPossibleEntities();
@@ -210,16 +243,6 @@ public class WeaponProjectile extends AProjectile {
         if (hits != null && hits.size() > 1) hits.sort((hit1, hit2) -> (int) (hit1.getHitLocation().distanceSquared(location) - hit2.getHitLocation().distanceSquared(location)));
 
         return hits;
-    }
-
-    private List<Block> getPossibleBlocks() {
-
-        List<Block> blocks = new ArrayList<>();
-        // todo
-
-        // If through is used -> only get Maximum_Through_Amount - throughAmount + 1 blocks
-
-        return blocks.isEmpty() ? null : blocks;
     }
 
     private List<LivingEntity> getPossibleEntities() {

@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.EnumUtil;

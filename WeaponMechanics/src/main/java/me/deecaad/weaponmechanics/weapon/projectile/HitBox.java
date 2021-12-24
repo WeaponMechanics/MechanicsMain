@@ -1,10 +1,10 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
-import me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile.RayTraceResult;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;

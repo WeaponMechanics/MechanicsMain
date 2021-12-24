@@ -1,17 +1,17 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 
 /**
  * This class outlines convenient methods for any {@link WeaponEvent} that
- * involves an {@link ICustomProjectile}.
+ * involves an {@link WeaponProjectile}.
  */
 public abstract class ProjectileEvent extends WeaponEvent {
 
-    protected final ICustomProjectile projectile;
+    protected final WeaponProjectile projectile;
 
-    protected ProjectileEvent(ICustomProjectile projectile) {
+    protected ProjectileEvent(WeaponProjectile projectile) {
         super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter());
 
         this.projectile = projectile;
@@ -22,7 +22,7 @@ public abstract class ProjectileEvent extends WeaponEvent {
      *
      * @return The non-null projectile.
      */
-    public ICustomProjectile getProjectile() {
+    public WeaponProjectile getProjectile() {
         return projectile;
     }
 

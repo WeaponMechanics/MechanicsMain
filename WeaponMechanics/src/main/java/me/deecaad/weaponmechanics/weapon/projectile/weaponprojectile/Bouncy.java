@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.file.Serializer;
 import org.bukkit.Material;
@@ -35,7 +35,8 @@ public class Bouncy implements Serializer<Bouncy> {
     public boolean handleBounce(WeaponProjectile projectile, RayTraceResult hit) {
         if (projectile.getMotionLength() < REQUIRED_MOTION_TO_BOUNCE) return false;
 
-        Double speedModifier = hit.isBlock() ? blocks.isValid(hit.getBlock().getType()) : entities.isValid(hit.getLivingEntity().getType());
+        Double speedModifier = hit.isBlock() && blocks != null ? blocks.isValid(hit.getBlock().getType()) :
+                entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
 
         // Speed modifier null would mean that it wasn't valid material or entity type
         if (speedModifier == null || maximumBounceAmount - projectile.getBounces() < 0) {

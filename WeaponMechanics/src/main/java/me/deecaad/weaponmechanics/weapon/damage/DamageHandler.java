@@ -9,6 +9,7 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
@@ -34,7 +35,7 @@ public class DamageHandler {
     /**
      * @return false if damaging was cancelled
      */
-    public boolean tryUse(LivingEntity victim, @Nonnull ICustomProjectile projectile, double damage, DamagePoint point, boolean isBackstab) {
+    public boolean tryUse(LivingEntity victim, @Nonnull WeaponProjectile projectile, double damage, DamagePoint point, boolean isBackstab) {
         Configuration config = getConfigurations();
 
         LivingEntity shooter = projectile.getShooter();
@@ -117,7 +118,7 @@ public class DamageHandler {
         }
     }
 
-    public void tryUseExplosion(ICustomProjectile projectile, Location origin, DoubleMap<LivingEntity> exposures) {
+    public void tryUseExplosion(WeaponProjectile projectile, Location origin, DoubleMap<LivingEntity> exposures) {
         Configuration config = getConfigurations();
 
         String weaponTitle = projectile.getWeaponTitle();

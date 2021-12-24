@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.VectorUtil;
@@ -168,7 +168,7 @@ public abstract class AProjectile {
      * @return the value of key or 0 if not found
      */
     public int getIntTag(String key) {
-        return integerTags == null || integerTags.isEmpty() ? 0 : this.integerTags.get(key);
+        return integerTags == null || integerTags.isEmpty() ? 0 : this.integerTags.getOrDefault(key, 0);
     }
 
     /**
@@ -199,6 +199,30 @@ public abstract class AProjectile {
     public void remove() {
         this.dead = true;
     }
+
+    /*
+    /**
+     * Calculates new yaw and pitch based on the projectile motion.
+     */
+    /*
+    public void calculateYawAndPitch() {
+        if (projectileDisguiseId != 0) return;
+
+        double x = motion.getX();
+        double z = motion.getZ();
+
+        double PIx2 = 6.283185307179;
+        projectileDisguiseYaw = (float) Math.toDegrees((Math.atan2(-x, z) + PIx2) % PIx2);
+        projectileDisguiseYaw %= 360.0F;
+        if (projectileDisguiseYaw >= 180.0F) {
+            projectileDisguiseYaw -= 360.0F;
+        } else if (projectileDisguiseYaw < -180.0F) {
+            projectileDisguiseYaw += 360.0F;
+        }
+
+        projectileDisguisePitch = (float) Math.toDegrees(Math.atan(-motion.getY() / Math.sqrt(NumberConversions.square(x) + NumberConversions.square(z))));
+    }
+    */
 
     /**
      * Projectile base tick

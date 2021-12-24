@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile.weaponprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.file.Serializer;
 import org.bukkit.Material;
@@ -24,6 +24,10 @@ public class Through implements Serializer<Through> {
         this.entities = entities;
     }
 
+    public int getMaximumThroughAmount() {
+        return maximumThroughAmount;
+    }
+
     /**
      * @param projectile the projectile
      * @param hit the hit entity or block
@@ -31,7 +35,8 @@ public class Through implements Serializer<Through> {
      */
     public boolean handleThrough(WeaponProjectile projectile, RayTraceResult hit) {
 
-        Double speedModifier = hit.isBlock() ? blocks.isValid(hit.getBlock().getType()) : entities.isValid(hit.getLivingEntity().getType());
+        Double speedModifier = hit.isBlock() && blocks != null ? blocks.isValid(hit.getBlock().getType()) :
+                entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
 
         // Speed modifier null would mean that it wasn't valid material or entity type
         if (speedModifier == null || maximumThroughAmount - projectile.getThroughAmount() < 0) {
@@ -42,6 +47,10 @@ public class Through implements Serializer<Through> {
         if (speedModifier != 1.0) projectile.setMotion(projectile.getMotion().multiply(speedModifier));
 
         return true;
+    }
+
+    public boolean quickValidCheck(Material material) {
+        return blocks != null && blocks.isValid(material) != null;
     }
 
     @Override

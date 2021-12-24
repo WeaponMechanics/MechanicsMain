@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.newprojectile;
+package me.deecaad.weaponmechanics.weapon.projectile;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
