@@ -2,9 +2,8 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;

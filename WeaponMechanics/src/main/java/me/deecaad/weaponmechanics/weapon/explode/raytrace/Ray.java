@@ -1,10 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -13,7 +13,10 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 public class Ray {
 

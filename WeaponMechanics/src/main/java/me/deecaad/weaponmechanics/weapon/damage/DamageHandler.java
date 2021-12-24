@@ -10,7 +10,6 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
 import org.bukkit.Bukkit;

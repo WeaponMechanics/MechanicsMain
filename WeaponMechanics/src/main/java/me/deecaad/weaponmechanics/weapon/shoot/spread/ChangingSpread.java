@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;

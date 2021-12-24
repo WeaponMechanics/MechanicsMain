@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import org.bukkit.event.Cancellable;
 
 /**

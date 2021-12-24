@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

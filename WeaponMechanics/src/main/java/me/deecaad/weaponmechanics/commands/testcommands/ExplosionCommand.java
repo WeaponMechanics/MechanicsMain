@@ -9,7 +9,6 @@ import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

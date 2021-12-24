@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;

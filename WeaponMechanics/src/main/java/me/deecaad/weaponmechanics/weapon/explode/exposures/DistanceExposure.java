@@ -3,12 +3,10 @@ package me.deecaad.weaponmechanics.weapon.explode.exposures;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.List;
 
 public class DistanceExposure implements ExplosionExposure {
