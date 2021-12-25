@@ -41,8 +41,6 @@ public class WeaponHandler {
     private final DamageHandler damageHandler;
     private final SkinHandler skinHandler;
 
-    //
-
     public WeaponHandler() {
         infoHandler = new InfoHandler(this);
         shootHandler = new ShootHandler(this);
