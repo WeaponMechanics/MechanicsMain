@@ -24,7 +24,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
-import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.AmmoListeners;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
@@ -40,7 +39,8 @@ import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
@@ -78,7 +78,7 @@ public class WeaponMechanics {
     MainCommand mainCommand;
     WeaponHandler weaponHandler;
     UpdateChecker updateChecker;
-    CustomProjectilesRunnable customProjectilesRunnable;
+    ProjectilesRunnable projectilesRunnable;
     PacketHandlerListener packetListener;
     TimingManager timingManager;
 
@@ -150,7 +150,7 @@ public class WeaponMechanics {
         weaponHandler = new WeaponHandler();
 
         // Start custom projectile runnable
-        customProjectilesRunnable = new CustomProjectilesRunnable(getPlugin());
+        projectilesRunnable = new ProjectilesRunnable(getPlugin());
 
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 5);
@@ -362,7 +362,7 @@ public class WeaponMechanics {
         setupDebugger();
         entityWrappers = new HashMap<>();
         weaponHandler = new WeaponHandler();
-        customProjectilesRunnable = new CustomProjectilesRunnable(getPlugin());
+        projectilesRunnable = new ProjectilesRunnable(getPlugin());
 
         return new TaskChain(getPlugin())
                 .thenRunAsync(this::writeFiles)
@@ -394,7 +394,7 @@ public class WeaponMechanics {
         mainCommand = null;
         configurations = null;
         basicConfiguration = null;
-        customProjectilesRunnable = null;
+        projectilesRunnable = null;
         plugin = null;
         debug = null;
         packetListener.close();
@@ -405,8 +405,8 @@ public class WeaponMechanics {
     /**
      * @return The BukkitRunnable holding the projectiles being ticked
      */
-    public static CustomProjectilesRunnable getCustomProjectilesRunnable() {
-        return plugin.customProjectilesRunnable;
+    public static ProjectilesRunnable getProjectilesRunnable() {
+        return plugin.projectilesRunnable;
     }
 
     /**
