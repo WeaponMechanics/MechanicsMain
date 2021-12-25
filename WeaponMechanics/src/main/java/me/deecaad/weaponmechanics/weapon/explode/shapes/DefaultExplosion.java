@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -46,6 +47,8 @@ public class DefaultExplosion implements ExplosionShape {
     @Nonnull
     @Override
     public List<Block> getBlocks(@Nonnull Location origin) {
+        if (origin.getWorld() == null)
+            throw new IllegalArgumentException("origin is null");
 
         // If the explosion is too small, then no blocks are destroyed
         if (yield < 0.1F) {
@@ -130,6 +133,21 @@ public class DefaultExplosion implements ExplosionShape {
     @Override
     public double getMaxDistance() {
         return yield * 2f;
+    }
+
+    @Override
+    public boolean isContained(@NotNull Location origin, @NotNull Location point) {
+
+        // During explosions, yield is randomly multiplied by numbers [0.7, 1.3],
+        // so using yield is a fairly accurate estimate on the radius.
+        return origin.distanceSquared(point) < (yield * yield);
+    }
+
+    @Override
+    public double getArea() {
+
+        // Sphere volume estimate, 4/3 * PI * r^3
+        return 4.0 / 3.0 * Math.PI * yield * yield * yield;
     }
 
     @Override

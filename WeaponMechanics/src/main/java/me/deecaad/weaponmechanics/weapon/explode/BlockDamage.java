@@ -31,6 +31,25 @@ public class BlockDamage implements Serializer<BlockDamage> {
     public BlockDamage() {
     }
 
+    /**
+     * See parameters.
+     *
+     * @param isBreakBlocks          <code>true</code> for broken blocks to be
+     *                               replaced with air, <code>false</code> for
+     *                               broken blocks to appear cracked.
+     * @param damage                 The amount of damage to apply to a block.
+     *                               Total damage is calculated using
+     *                               <code>damage / blockDurability</code>.
+     * @param defaultBlockDurability The default durability of each block that
+     *                               is not specified in <code>blockList</code>
+     *                               or <code>shotsToBreak</code>.
+     * @param isBlacklist            <code>true</code> to turn <code>blockList</code>
+     *                               into a blacklist, meaning all blocks on the list
+     *                               will not be broken.
+     * @param blockList              The blacklist or whitelist of blocks.
+     * @param shotsToBreak           When <code>blacklist == true</code>, then use
+     *                               this parameter to specify block durability.
+     */
     public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, Map<Material, Integer> blockList, Map<Material, Integer> shotsToBreak) {
         this.isBreakBlocks = isBreakBlocks;
         this.damage = damage;
@@ -94,6 +113,35 @@ public class BlockDamage implements Serializer<BlockDamage> {
         }
     }
 
+    /**
+     * Damages the given <code>block</code>. The amount of damage dealt is
+     * calculated as a percentage (e.x. 15% damage per hit, 7 hits to break).
+     * This damage (obviously) stacks with previously dealt damage.
+     *
+     * <p>The returned data should be checked to determine if the block was
+     * broken, and users of this method MUST handle block regeneration.
+     *
+     * <blockquote><pre>{@code
+     *      BlockDamageData.DamageData data = blockDamage.damage(block);
+     *      boolean regenerate = true;
+     *
+     *      if (regenerate) {
+     *          if (blockDamage.isBreak() && data.isBroken()) {
+     *              new BukkitRunnable() {
+     *                  public void run() {
+     *                      data.regenerate();
+     *                      data.remove();
+     *                  }
+     *              }.runTaskLater(plugin, 200L); // 10 seconds
+     *          }
+     *      } else if (data.isBroken()) {
+     *          data.remove();
+     *      }
+     * }</pre></blockquote>
+     *
+     * @param block The non-null block to damage.
+     * @return The DamageData associated with the block.
+     */
     public BlockDamageData.DamageData damage(Block block) {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
             int max = getMaxDurability(block);

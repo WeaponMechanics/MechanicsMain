@@ -5,7 +5,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_18_R1;
 import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;

@@ -22,57 +22,48 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class AirStrike implements Serializer<AirStrike> {
 
-    /**
-     * The settings of the bomb that is dropped.
-     */
     private Projectile projectile;
 
-    /**
-     * Minimum/Maximum number of bombs dropped
-     */
     private int min;
     private int max;
-
-    /**
-     * The height to drop the bomb from, defaults to 150
-     */
     private double height;
-
-    /**
-     * The randomness/noise to add to the y position of the bomb
-     */
     private double yVariation;
-
-    /**
-     * The minimum horizontal distance between bombs
-     */
     private double distanceBetweenSquared;
-
-    /**
-     * The maximum horizontal distance away from the origin of the explosion
-     * that a bomb can be dropped.
-     */
     private double radius;
-
-    /**
-     * How many times to spawn in a volley of airstrikes
-     */
     private int loops;
-
-    /**
-     * Delay between volleys (Defined by <code>loops</code>)
-     */
     private int delay;
 
-    public AirStrike() { }
+    /**
+     * Default constructor for serializer
+     */
+    public AirStrike() {
+    }
 
-    public AirStrike(Projectile projectile, int min, int max, double height, double yVariation, double distanceBetween, double radius, int loops, int delay) {
+    /**
+     * See arguments.
+     *
+     * @param projectile The non-null projectile to spawn for each bomb.
+     * @param min        The minimum number of bombs to spawn (per layer). min < max.
+     * @param max        The maximum number of bombs to spawn (per layer). max > min.
+     * @param height     The vertical distance above the initial projectile to
+     *                   spawn the layers.
+     * @param yVariation The random variations in the <code>height</code> parameter.
+     * @param distance   The minimum distance between bombs.
+     * @param radius     The maximum horizontal distance away from the initial
+     *                   projectile that a bomb is allowed to spawn. Larger numbers
+     *                   means higher spread.
+     * @param loops      The number of layers of bombs to spawn.
+     * @param delay      The amount of time (in ticks) between each layer of bombs.
+     */
+    public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
+                     double distance, double radius, int loops, int delay) {
+
         this.projectile = projectile;
         this.min = min;
         this.max = max;
         this.height = height;
         this.yVariation = yVariation;
-        this.distanceBetweenSquared = distanceBetween * distanceBetween;
+        this.distanceBetweenSquared = distance * distance;
         this.radius = radius;
         this.loops = loops;
         this.delay = delay;
@@ -82,36 +73,72 @@ public class AirStrike implements Serializer<AirStrike> {
         return projectile;
     }
 
+    public void setProjectile(Projectile projectile) {
+        this.projectile = projectile;
+    }
+
     public int getMin() {
         return min;
+    }
+
+    public void setMin(int min) {
+        this.min = min;
     }
 
     public int getMax() {
         return max;
     }
 
+    public void setMax(int max) {
+        this.max = max;
+    }
+
     public double getHeight() {
         return height;
     }
 
-    public double getYVariation() {
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public double getyVariation() {
         return yVariation;
+    }
+
+    public void setyVariation(double yVariation) {
+        this.yVariation = yVariation;
     }
 
     public double getDistanceBetweenSquared() {
         return distanceBetweenSquared;
     }
 
+    public void setDistanceBetweenSquared(double distanceBetweenSquared) {
+        this.distanceBetweenSquared = distanceBetweenSquared;
+    }
+
     public double getRadius() {
         return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 
     public int getLoops() {
         return loops;
     }
 
+    public void setLoops(int loops) {
+        this.loops = loops;
+    }
+
     public int getDelay() {
         return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     public void trigger(Location flareLocation, LivingEntity shooter, ICustomProjectile projectile) {

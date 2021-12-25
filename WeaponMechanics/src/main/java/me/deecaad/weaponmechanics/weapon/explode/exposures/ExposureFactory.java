@@ -33,7 +33,7 @@ public final class ExposureFactory extends Factory<ExplosionExposure> {
                 new Class[]{  }
         ));
 
-        INSTANCE.set("VOID", INSTANCE.new Arguments(
+        INSTANCE.set("VOID,NONE", INSTANCE.new Arguments(
                 VoidExposure.class,
                 new String[]{  },
                 new Class[]{  }
@@ -41,7 +41,6 @@ public final class ExposureFactory extends Factory<ExplosionExposure> {
     }
 
     private ExposureFactory() {
-        super(8);
     }
 
     public static ExposureFactory getInstance() {

@@ -17,8 +17,8 @@ public class Factory<T> {
      * Only subclasses should be able to instantiate this class. It does not
      * make sense to instantiate a factory otherwise.
      */
-    protected Factory(int initialSize) {
-        map = new HashMap<>(initialSize);
+    protected Factory() {
+        map = new HashMap<>();
     }
 
     /**
@@ -66,7 +66,9 @@ public class Factory<T> {
     }
 
     public final void set(String key, Arguments args) {
-        map.put(key.trim().toUpperCase(Locale.ROOT), args);
+        for (String str : key.split(", ?")) {
+            map.put(str.trim().toUpperCase(Locale.ROOT), args);
+        }
     }
 
     public Set<String> getOptions() {

@@ -13,19 +13,19 @@ public final class ShapeFactory extends Factory<ExplosionShape> {
                 new Class[]{ Double.class, Integer.class }
         ));
 
-        INSTANCE.set("CUBOID", INSTANCE.new Arguments(
+        INSTANCE.set("CUBE,CUBOID", INSTANCE.new Arguments(
                 CuboidExplosion.class,
                 new String[]{ "Width", "Height" },
                 new Class[]{ Double.class, Double.class }
         ));
 
-        INSTANCE.set("PARABOLIC", INSTANCE.new Arguments(
+        INSTANCE.set("PARABOLA,PARABOLIC", INSTANCE.new Arguments(
                 ParabolicExplosion.class,
                 new String[]{ "Depth", "Angle" },
                 new Class[]{ Double.class, Double.class }
         ));
 
-        INSTANCE.set("SPHERICAL", INSTANCE.new Arguments(
+        INSTANCE.set("SPHERE,SPHERICAL", INSTANCE.new Arguments(
                 SphericalExplosion.class,
                 new String[]{ "Radius" },
                 new Class[]{ Double.class }
@@ -33,7 +33,6 @@ public final class ShapeFactory extends Factory<ExplosionShape> {
     }
 
     private ShapeFactory() {
-        super(8);
     }
 
     public static ShapeFactory getInstance() {
