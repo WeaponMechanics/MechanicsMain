@@ -1,7 +1,6 @@
 package me.deecaad.core.commands;
 
 import me.deecaad.core.utils.StringUtil;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -10,6 +9,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 import static me.deecaad.core.MechanicsCore.debug;
+import static net.md_5.bungee.api.ChatColor.*;
 
 public class SubCommands {
 
@@ -23,8 +23,8 @@ public class SubCommands {
     }
 
     /**
-     * Registers a given sub-command with it's
-     * label as it it's key (for execution)
+     * Registers a given sub-command with its
+     * label as if it's key (for execution)
      *
      * @param command to register
      */
@@ -122,24 +122,28 @@ public class SubCommands {
 
                 // Create the messages with hover message
                 ComponentBuilder builder = new ComponentBuilder();
-                builder.append("Showing " + commands.size() + " Sub-Commands (" + parentPrefix + ")").color(ChatColor.GOLD).append("\n");
+                builder.append("Showing ").color(GOLD).bold(true)
+                        .append(parentPrefix).color(GRAY).bold(true)
+                        .append(" Help ").color(GOLD).bold(true)
+                        .append("(" + commands.size() + " Commands)").reset().color(GRAY).italic(true)
+                        .append("\n");
 
                 for (SubCommand command : commands.values()) {
 
                     // Create a hoverable for the command
-                    BaseComponent[] hover = new ComponentBuilder("Command: ").color(ChatColor.GOLD)
-                            .append(command.getLabel()).color(ChatColor.GRAY)
-                            .append("\n").append("Description: ").color(ChatColor.GOLD)
-                            .append(command.getDescription()).color(ChatColor.GRAY)
-                            .append("\n").append("Usage: ").color(ChatColor.GOLD)
-                            .append("/" + command.getPrefix() + " " + String.join("" , command.getArgs())).color(ChatColor.GRAY)
-                            .append("\n").append("Permission: ").color(ChatColor.GOLD)
-                            .append(command.getPermission() == null ? "N/A" : command.getPermission()).color(ChatColor.GRAY)
-                            .append("\n\n").append("Click to auto-complete.").color(ChatColor.GRAY).create();
+                    BaseComponent[] hover = new ComponentBuilder("Command: ").color(GOLD)
+                            .append(command.getLabel()).color(GRAY)
+                            .append("\n").append("Description: ").color(GOLD)
+                            .append(command.getDescription()).color(GRAY)
+                            .append("\n").append("Usage: ").color(GOLD)
+                            .append("/" + command.getPrefix() + " " + String.join("" , command.getArgs())).color(GRAY)
+                            .append("\n").append("Permission: ").color(GOLD)
+                            .append(command.getPermission() == null ? "N/A" : command.getPermission()).color(GRAY)
+                            .append("\n\n").append("Click to auto-complete.").color(GRAY).create();
 
-                    builder.append(SYM + " ").color(ChatColor.GRAY);
+                    builder.append("  " + SYM + " ").reset().color(GRAY);
                     BaseComponent component = new TextComponent("/" + command.getPrefix());
-                    component.setColor(ChatColor.GOLD);
+                    component.setColor(GOLD);
                     component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
                     component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
                     builder.append(component);
@@ -178,7 +182,7 @@ public class SubCommands {
         } else if (command.getPermission() == null || sender.hasPermission(command.getPermission())) {
             command.execute(sender, args);
         } else {
-            sender.sendMessage(ChatColor.RED + "Invalid permissions");
+            sender.sendMessage(RED + "Invalid permissions");
         }
         return true;
     }

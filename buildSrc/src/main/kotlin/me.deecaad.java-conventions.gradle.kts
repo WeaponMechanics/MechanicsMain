@@ -43,6 +43,19 @@ dependencies {
     compileOnly("org.jetbrains:annotations:23.0.0")
 }
 
+tasks {
+    compileJava {
+        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
+    }
+    javadoc {
+        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
+    }
+    processResources {
+        filteringCharset = Charsets.UTF_8.name() // We want UTF-8 for everything
+    }
+}
+
+
 group = "me.deecaad"
 version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
