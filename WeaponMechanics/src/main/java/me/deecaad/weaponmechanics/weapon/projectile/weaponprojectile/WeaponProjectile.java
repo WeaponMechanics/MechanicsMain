@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
@@ -36,17 +35,14 @@ public class WeaponProjectile extends AProjectile {
     private int bounces;
 
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
-                               Vector motion, ItemStack weaponStack, String weaponTitle) {
+                            Vector motion, ItemStack weaponStack, String weaponTitle,
+                            Sticky sticky, Through through, Bouncy bouncy) {
         super(projectileSettings, shooter, location, motion);
         this.weaponStack = weaponStack;
         this.weaponTitle = weaponTitle;
-
-        Configuration config = WeaponMechanics.getConfigurations();
-
-        // Todo projectile wrapper / allow these projectiles to be serialized elsewhere
-        sticky = config.getObject(weaponTitle + ".Projectile.Sticky", Sticky.class);
-        through = config.getObject(weaponTitle + ".Projectile.Through", Through.class);
-        bouncy = config.getObject(weaponTitle + ".Projectile.Bouncy", Bouncy.class);
+        this.sticky = sticky;
+        this.through = through;
+        this.bouncy = bouncy;
     }
 
     /**
@@ -75,7 +71,7 @@ public class WeaponProjectile extends AProjectile {
      *
      * @param stickedData the new sticked data
      */
-    public boolean setStickedData(StickedData stickedData) {
+    public void setStickedData(StickedData stickedData) {
         if (stickedData == null) {
             this.stickedData = null;
             // This basically removes sticky
@@ -84,16 +80,16 @@ public class WeaponProjectile extends AProjectile {
                     ThreadLocalRandom.current().nextFloat() * 0.2,
                     ThreadLocalRandom.current().nextFloat() * 0.2
             ));
-            return true;
+            return;
         }
 
         // Just extra check if entity happens to die or block disappear
         if (stickedData.isBlockStick()) {
             if (stickedData.getBlock() == null) {
-                return false;
+                return;
             }
         } else if (stickedData.getLivingEntity() == null) {
-            return false;
+            return;
         }
 
         // Now we can safely set the sticked data and other required values
@@ -101,7 +97,6 @@ public class WeaponProjectile extends AProjectile {
         this.stickedData = stickedData;
         setLocation(stickedData.getNewLocation());
         setMotion(new Vector(0, 0, 0));
-        return true;
     }
 
     /**
