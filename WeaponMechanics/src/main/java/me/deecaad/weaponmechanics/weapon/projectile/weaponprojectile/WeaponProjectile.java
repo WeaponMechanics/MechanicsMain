@@ -128,8 +128,8 @@ public class WeaponProjectile extends AProjectile {
                 setStickedData(null);
             } else if (!stickedData.isBlockStick()) {
                 // Update location and update distance travelled if living entity
+                setRawLocation(newLocation);
                 addDistanceTravelled(getLastLocation().distance(newLocation));
-                setLocation(newLocation);
 
                 // Only call if projectile is sticked to entity since entity may move
                 if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
@@ -142,7 +142,7 @@ public class WeaponProjectile extends AProjectile {
         if (hits == null) {
 
             // No hits, simply update location and distance travelled
-            setLocation(getLocation().add(getMotion()));
+            setRawLocation(getLocation().add(getMotion()));
             addDistanceTravelled(getMotionLength());
 
             if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
@@ -153,7 +153,7 @@ public class WeaponProjectile extends AProjectile {
 
         for (RayTraceResult hit : hits) {
 
-            setLocation(hit.getHitLocation());
+            setRawLocation(hit.getHitLocation());
             double add = hit.getDistanceTravelled() - distanceAlreadyAdded;
             addDistanceTravelled(distanceAlreadyAdded += add);
 
@@ -208,7 +208,6 @@ public class WeaponProjectile extends AProjectile {
             HitBox blockBox = projectileCompatibility.getHitBox(block);
             if (blockBox == null) continue;
 
-            blockBox.setBlockHitBox(block);
             RayTraceResult rayTraceResult = blockBox.rayTrace(location, normalizedMotion);
             if (rayTraceResult == null) continue; // Didn't hit
 
@@ -232,7 +231,6 @@ public class WeaponProjectile extends AProjectile {
                 HitBox entityBox = projectileCompatibility.getHitBox(entity);
                 if (entityBox == null) continue;
 
-                entityBox.setLivingEntity(entity);
                 RayTraceResult rayTraceResult = entityBox.rayTrace(location, normalizedMotion);
                 if (rayTraceResult == null) continue; // Didn't hit
 

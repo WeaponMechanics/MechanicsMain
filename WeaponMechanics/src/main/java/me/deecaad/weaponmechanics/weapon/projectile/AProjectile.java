@@ -46,6 +46,14 @@ public abstract class AProjectile {
         this.lastLocation = this.location.clone();
         this.motion = motion;
         this.motionLength = motion.length();
+        projectileCompatibility.disguise(this);
+    }
+
+    /**
+     * @return the base projectile settings of this projectile
+     */
+    public ProjectileSettings getProjectileSettings() {
+        return projectileSettings;
     }
 
     /**
@@ -82,6 +90,17 @@ public abstract class AProjectile {
     public void setLocation(Vector location) {
         if (location == null) throw new IllegalArgumentException("Location can't be null");
         this.lastLocation = this.location.clone();
+        this.location = location;
+    }
+
+    /**
+     * Main difference compared to {@link #setLocation(Vector)} is that this
+     * doesn't update projectile last location.
+     *
+     * @param location the new location for projectile
+     */
+    public void setRawLocation(Vector location) {
+        if (location == null) throw new IllegalArgumentException("Location can't be null");
         this.location = location;
     }
 
@@ -200,30 +219,6 @@ public abstract class AProjectile {
         this.dead = true;
     }
 
-    /*
-    /**
-     * Calculates new yaw and pitch based on the projectile motion.
-     */
-    /*
-    public void calculateYawAndPitch() {
-        if (projectileDisguiseId != 0) return;
-
-        double x = motion.getX();
-        double z = motion.getZ();
-
-        double PIx2 = 6.283185307179;
-        projectileDisguiseYaw = (float) Math.toDegrees((Math.atan2(-x, z) + PIx2) % PIx2);
-        projectileDisguiseYaw %= 360.0F;
-        if (projectileDisguiseYaw >= 180.0F) {
-            projectileDisguiseYaw -= 360.0F;
-        } else if (projectileDisguiseYaw < -180.0F) {
-            projectileDisguiseYaw += 360.0F;
-        }
-
-        projectileDisguisePitch = (float) Math.toDegrees(Math.atan(-motion.getY() / Math.sqrt(NumberConversions.square(x) + NumberConversions.square(z))));
-    }
-    */
-
     /**
      * Projectile base tick
      *
@@ -240,6 +235,7 @@ public abstract class AProjectile {
             return true;
         }
 
+        // Update last location here since handle collisions will change the location
         lastLocation = location.clone();
 
         // Handle collisions will update location and distance travelled

@@ -1,43 +1,27 @@
 package me.deecaad.weaponmechanics.compatibility.projectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 public interface IProjectileCompatibility {
 
     /**
-     * Spawns projectile disguise for all players within 150 blocks.
-     * This is only ran if disguises are used.
+     * Spawns projectile disguise for all players within view distance.
+     * Keeps updating projectile velocity and location for all players within view distance.
+     * Destroys disguise if projectile gets marked for removal.
      *
-     * @param projectile the projectile used to fetch all required data
-     * @param location the location vector of projectile
-     * @param motion the motion vector projectile
+     * @param projectile the projectile used for handling disguise
      */
-    void spawnDisguise(WeaponProjectile projectile, Vector location, Vector motion);
-
-    /**
-     * Updates projectile velocity and location for all players within 90 blocks.
-     * This is only ran if disguises are used.
-     *
-     * @param projectile the projectile used to fetch all required data
-     * @param location the location vector of projectile
-     * @param motion the motion vector projectile
-     * @param lastLocation the last location vector of projectile
-     */
-    void updateDisguise(CustomProjectile customProjectile, Vector location, Vector motion, Vector lastLocation);
-
-    /**
-     * Destroys disguise from all players within 150 blocks.
-     * This is only ran if disguises are used.
-     *
-     * @param projectile the projectile used to fetch all required data
-     */
-    void destroyDisguise(CustomProjectile customProjectile);
+    void disguise(AProjectile projectile);
 
     /**
      * If entity is invulnerable or non alive this will always return null.
@@ -52,7 +36,9 @@ public interface IProjectileCompatibility {
         // This default should only be used after 1.13 R2
 
         BoundingBox boundingBox = entity.getBoundingBox();
-        return new HitBox(boundingBox.getMin(), boundingBox.getMax());
+        HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        hitBox.setLivingEntity((LivingEntity) entity);
+        return hitBox;
     }
 
     /**
@@ -69,43 +55,62 @@ public interface IProjectileCompatibility {
 
         if (block.isEmpty() || block.isLiquid() || block.isPassable()) return null;
         BoundingBox boundingBox = block.getBoundingBox();
-        return new HitBox(boundingBox.getMin(), boundingBox.getMax());
+        HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        hitBox.setBlockHitBox(block);
+        return hitBox;
     }
 
     /**
-     * @param projectile the projectile used to fetch all required data
+     * @param entityType the entity type
      * @param degrees the pitch degrees to convert to byte
      * @return the byte value of pitch
      */
-    default byte convertPitchToByte(CustomProjectile customProjectile, float degrees) {
+    default byte convertPitchToByte(EntityType entityType, float degrees) {
         byte byteValue = convertDegreesToByte(degrees);
-        EntityType type = customProjectile.projectile.getProjectileDisguise();
-        if (!type.isAlive() && type != EntityType.WITHER_SKULL) {
+        if (!entityType.isAlive() && entityType != EntityType.WITHER_SKULL) {
             return (byte) -byteValue;
         }
         return byteValue;
     }
 
     /**
-     * @param projectile the projectile used to fetch all required data
+     * @param entityType the entity type
      * @param degrees the yaw degrees to convert to byte
      * @return the byte value of yaw
      */
-    default byte convertYawToByte(CustomProjectile customProjectile, float degrees) {
+    default byte convertYawToByte(EntityType entityType, float degrees) {
         byte byteValue = convertDegreesToByte(degrees);
-        EntityType type = customProjectile.projectile.getProjectileDisguise();
-        switch (type) {
+        if (CompatibilityAPI.getVersion() >= 1.09 && entityType == EntityType.SPECTRAL_ARROW) {
+            return (byte) -byteValue;
+        }
+        switch (entityType) {
             case ARROW:
                 return (byte) -byteValue;
             case WITHER_SKULL:
-            case ENDER_DRAGON:
                 return (byte) (byteValue - 128);
             default:
-                if (!type.isAlive() && type != EntityType.ARMOR_STAND) {
+                if (!entityType.isAlive() && entityType != EntityType.ARMOR_STAND) {
                     return (byte) (byteValue - 64);
                 }
                 return byteValue;
         }
+    }
+
+    /**
+     * @param normalizedMotion the normalized motion
+     * @return the yaw in degrees
+     */
+    default float calculateYaw(Vector normalizedMotion) {
+        double PI_2 = VectorUtil.PI_2;
+        return (float) Math.toDegrees((Math.atan2(-normalizedMotion.getX(), normalizedMotion.getZ()) + PI_2) % PI_2);
+    }
+
+    /**
+     * @param normalizedMotion the normalized motion
+     * @return the pitch in degrees
+     */
+    default float calculatePitch(Vector normalizedMotion) {
+        return (float) Math.toDegrees(Math.atan(-normalizedMotion.getY() / Math.sqrt(NumberConversions.square(normalizedMotion.getX()) + NumberConversions.square(normalizedMotion.getZ()))));
     }
 
     /**
@@ -114,16 +119,5 @@ public interface IProjectileCompatibility {
      */
     default byte convertDegreesToByte(float degrees) {
         return (byte) (degrees * 256.0F / 360.0F);
-    }
-
-    /**
-     * Simple flooring method used in NMS
-     *
-     * @param toFloor value to be floored
-     * @return the floored value
-     */
-    default int floor(double toFloor) {
-        int flooredValue = (int) toFloor;
-        return toFloor < (double) flooredValue ? flooredValue - 1 : flooredValue;
     }
 }
