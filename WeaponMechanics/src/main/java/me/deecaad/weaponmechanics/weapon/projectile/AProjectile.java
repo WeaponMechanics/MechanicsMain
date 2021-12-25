@@ -38,6 +38,10 @@ public abstract class AProjectile {
     private Map<String, String> stringTags;
     private Map<String, Integer> integerTags;
 
+    protected AProjectile(ProjectileSettings projectileSettings, Location location, Vector motion) {
+        this(projectileSettings, null, location, motion);
+    }
+
     protected AProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location, Vector motion) {
         this.projectileSettings = projectileSettings;
         this.shooter = shooter;
