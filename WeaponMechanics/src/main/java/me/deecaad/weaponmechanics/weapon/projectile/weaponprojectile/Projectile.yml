@@ -1,0 +1,6 @@
+# me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile
+Projectile:
+  Projectile_Settings: <ProjectileSettingsSerializer>
+  Sticky: <StickySerializer>
+  Through: <ThroughSerializer>
+  Bouncy: <BouncySerializer>
