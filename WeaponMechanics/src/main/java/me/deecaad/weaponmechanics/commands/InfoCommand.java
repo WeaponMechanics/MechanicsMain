@@ -11,7 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.bukkit.ChatColor.*;
@@ -28,16 +27,11 @@ public class InfoCommand extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         PluginDescriptionFile desc = WeaponMechanics.getPlugin().getDescription();
-        sender.sendMessage("" + GRAY + SYM + GOLD + BOLD + "  Weapon" + GRAY + BOLD + "Mechanics"
+        sender.sendMessage("" + GRAY + GOLD + BOLD + "Weapon" + GRAY + BOLD + "Mechanics"
                 + GRAY + ", v" + ITALIC + desc.getVersion());
 
-        List<String> authors = desc.getAuthors();
-        if (!authors.isEmpty()) {
-            sender.sendMessage("" + GRAY + SYM + GOLD + "  Authors: " + GRAY + ArrayUtil.toString(authors));
-        }
-
-        // The main command
-        sender.sendMessage("" + GRAY + SYM + GOLD +"  Command:" + GRAY + " /weaponmechanics");
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " Authors: " + GRAY + ArrayUtil.toString(desc.getAuthors()));
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " Command:" + GRAY + " /weaponmechanics");
 
         // Informs the user about any updates
         UpdateChecker updateChecker = WeaponMechanics.getUpdateChecker();
@@ -46,18 +40,18 @@ public class InfoCommand extends SubCommand {
         }
 
         // Sends information about the server version
-        sender.sendMessage("" + GRAY + SYM + GOLD + "  Server: " + GRAY + Bukkit.getName() + " " + Bukkit.getVersion());
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " Server: " + GRAY + Bukkit.getName() + " " + Bukkit.getVersion());
 
         // Information about MechanicsCore
-        sender.sendMessage("" + GRAY + SYM + GOLD + "  MechanicsCore: " + GRAY + MechanicsCore.getPlugin().getDescription().getVersion());
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " MechanicsCore: " + GRAY + MechanicsCore.getPlugin().getDescription().getVersion());
 
         // Information about java
-        sender.sendMessage("" + GRAY + SYM + GOLD + "  Java: " + GRAY + System.getProperty("java.version"));
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " Java: " + GRAY + System.getProperty("java.version"));
 
         // Gets all supported plugins
         Set<String> softDepencies = new LinkedHashSet<>(desc.getSoftDepend());
         softDepencies.addAll(MechanicsCore.getPlugin().getDescription().getSoftDepend());
         softDepencies.remove("MechanicsCore");
-        sender.sendMessage("" + GRAY + SYM + GOLD + "  Supported plugins: " + GRAY + ArrayUtil.toString(softDepencies));
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " Supported plugins: " + GRAY + ArrayUtil.toString(softDepencies));
     }
 }

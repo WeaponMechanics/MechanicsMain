@@ -17,6 +17,12 @@ Update_Checker:
     Minor: 1
     Patch: 1
 
+# Automatically download MechanicsCore when not already installed.
+Mechanics_Core_Download:
+  Enabled: true
+  Connection_Timeout: 10
+  Read_Timeout: 30
+
 # If you don't use a specific trigger, it can be disabled here. The performance
 # boost is minor, but it's here if you need it.
 Disabled_Trigger_Checks:

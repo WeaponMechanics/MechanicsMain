@@ -12,7 +12,7 @@ import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
 public class WikiCommand extends SubCommand {
 
     public static char SYM = '\u27A2';
-    public static String WIKI = "https://github.com/DeeCaaD/WeaponMechanics-wiki/wiki";
+    public static String WIKI = "https://github.com/DeeCaaD/MechanicsMain/wiki";
 
     public WikiCommand() {
         super("wm", "wiki", "Shows links to the Wiki");
@@ -24,10 +24,11 @@ public class WikiCommand extends SubCommand {
         ComponentBuilder builder = new ComponentBuilder();
         builder.append("Weapon").color(GOLD).bold(true)
                 .append("Mechanics").color(GRAY).bold(true)
-                .append(" Wiki (Click an option)").color(GRAY).italic(true).append("\n");
+                .append(" Wiki (Click an option)").bold(false).color(GRAY).italic(true)
+                .append("\n").italic(false);
 
         BaseComponent[] hover = new ComponentBuilder()
-                .append("Click to go to Wiki.").italic(true)
+                .append("Click to go to Wiki.").color(GRAY).italic(true)
                 .create();
 
         builder.append("  " + SYM + " ").color(GRAY).append(build("Information", hover)).append("\n");
@@ -38,8 +39,9 @@ public class WikiCommand extends SubCommand {
         builder.append("  " + SYM + " ").color(GRAY).append(build("Damage", hover)).append("\n");
         builder.append("  " + SYM + " ").color(GRAY).append(build("Explosion", hover)).append("\n");
         builder.append("  " + SYM + " ").color(GRAY).append(build("Scoping", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(GRAY).append(build("Firearms", hover)).append("\n");
+        builder.append("  " + SYM + " ").color(GRAY).append(build("Firearms", hover));
 
+        sender.spigot().sendMessage(builder.create());
     }
 
     private BaseComponent build(String name, BaseComponent[] hover) {

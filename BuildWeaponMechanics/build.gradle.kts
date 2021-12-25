@@ -29,7 +29,7 @@ dependencies {
 
 // See https://github.com/Minecrell/plugin-yml
 bukkit {
-    main = "me.deecaad.weaponmechanics.WeaponMechanics"
+    main = "me.deecaad.weaponmechanics.WeaponMechanicsLoader"
     name = "WeaponMechanics" // Since we don't want to use "BuildWeaponMechanics"
     apiVersion = "1.13"
 
