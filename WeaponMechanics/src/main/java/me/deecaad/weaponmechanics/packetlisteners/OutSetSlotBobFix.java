@@ -17,6 +17,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
     private final Map<Player, ItemStack> mainHandItem;
     private final Map<Player, ItemStack> offHandItem;
 
-    public OutSetSlotBobFix(WeaponMechanics plugin) {
+    public OutSetSlotBobFix(Plugin plugin) {
         super("PacketPlayOutSetSlot");
 
         mainHandItem = new HashMap<>();

@@ -54,7 +54,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -67,12 +66,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WeaponMechanics extends JavaPlugin {
+public class WeaponMechanics {
 
     private static WeaponMechanics plugin;
+    WeaponMechanicsLoader javaPlugin;
     Map<LivingEntity, IEntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
@@ -86,42 +85,31 @@ public class WeaponMechanics extends JavaPlugin {
     // public so people can import a static variable
     public static Debugger debug;
 
-    @Override
+    public WeaponMechanics(WeaponMechanicsLoader javaPlugin) {
+        this.javaPlugin = javaPlugin;
+    }
+
+    public org.bukkit.configuration.Configuration getConfig() {
+        return javaPlugin.getConfig();
+    }
+
+    public Logger getLogger() {
+        return javaPlugin.getLogger();
+    }
+
+    public File getDataFolder() {
+        return javaPlugin.getDataFolder();
+    }
+
+    public ClassLoader getClassLoader() {
+        return javaPlugin.getClassLoader0();
+    }
+
+    public File getFile() {
+        return javaPlugin.getFile0();
+    }
+
     public void onLoad() {
-
-        // WeaponMechanics NEEDS MechanicsCore to run, however, people have the
-        // incredible ability of having 0 abilities. AKA, they cannot read
-        // "UnknownDependencyException". Instead of writing out a stacktrace
-        // and having some people ask for help, we should:
-        //      A. Try to download/copy/install MechanicsCore for them
-        //      B. Disable the plugin
-        if (Bukkit.getPluginManager().getPlugin("MechanicsCore") == null) {
-            // TODO  install plugin from jar? Maybe include MechanicsCore.jar
-            // TODO  in the WeaponMechanics.jar and copy it over? Possibly
-            // TODO  host MechanicsCore.jar online and download using URL?
-
-            getLogger().log(Level.WARNING, "");
-            boolean installed = false;
-
-            // try to install
-
-            if (installed) {
-                getLogger().log(Level.INFO, "Installed MechanicsCore.jar successfully!");
-                return;
-            }
-
-            // Debugger has not been setup yet, use logger manually
-            getLogger().log(Level.SEVERE, " !!!");
-            getLogger().log(Level.SEVERE, "WeaponMechanics requires MechanicsCore in order to run!");
-            getLogger().log(Level.SEVERE, "You should have gotten a 'MechanicsCore.jar' file along");
-            getLogger().log(Level.SEVERE, "with 'WeaponMechanics.jar' in the zip file! Make sure you");
-            getLogger().log(Level.SEVERE, "put BOTH files in the plugins folder!");
-            getLogger().log(Level.SEVERE, "Disabling WeaponMechanics to avoid error.");
-
-            getPluginLoader().disablePlugin(this);
-            return;
-        }
-
         setupDebugger();
 
         // Check Java version and warn users about untested/unsupported versions
@@ -149,13 +137,12 @@ public class WeaponMechanics extends JavaPlugin {
         }
     }
 
-    @Override
     public void onEnable() {
         long millisCurrent = System.currentTimeMillis();
 
         plugin = this;
         entityWrappers = new HashMap<>();
-        timingManager = TimingManager.of(this);
+        timingManager = TimingManager.of(getPlugin());
 
         writeFiles();
         registerPacketListeners();
@@ -163,7 +150,7 @@ public class WeaponMechanics extends JavaPlugin {
         weaponHandler = new WeaponHandler();
 
         // Start custom projectile runnable
-        customProjectilesRunnable = new CustomProjectilesRunnable(this);
+        customProjectilesRunnable = new CustomProjectilesRunnable(getPlugin());
 
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 5);
@@ -187,10 +174,10 @@ public class WeaponMechanics extends JavaPlugin {
                 registerListeners();
 
             }
-        }.runTask(this);
+        }.runTask(getPlugin());
 
         WeaponMechanicsAPI.setInstance(this);
-        debug.start(this);
+        debug.start(getPlugin());
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
@@ -249,7 +236,7 @@ public class WeaponMechanics extends JavaPlugin {
         try {
             List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, getClassLoader(), true);
             //noinspection unchecked
-            MechanicsCore.addSerializers(this, (List<Serializer<?>>) serializers);
+            MechanicsCore.addSerializers(getPlugin(), (List<Serializer<?>>) serializers);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -293,27 +280,27 @@ public class WeaponMechanics extends JavaPlugin {
         debug.debug("Registering listeners");
 
         // TRIGGER EVENTS
-        Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), WeaponMechanics.this);
-        Bukkit.getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), WeaponMechanics.this);
+        Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), getPlugin());
         if (CompatibilityAPI.getVersion() >= 1.09) {
-            Bukkit.getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
-            Bukkit.getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), WeaponMechanics.this);
+            Bukkit.getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), getPlugin());
+            Bukkit.getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), getPlugin());
         }
 
         // WEAPON EVENTS
-        Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), WeaponMechanics.this);
-        Bukkit.getPluginManager().registerEvents(new AmmoListeners(), WeaponMechanics.this);
-        Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListeners(), WeaponMechanics.this);
+        Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new AmmoListeners(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListeners(), getPlugin());
     }
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        packetListener = new PacketHandlerListener(this, debug);
+        packetListener = new PacketHandlerListener(getPlugin(), debug);
         packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutSetSlotBobFix(this), true);
+        packetListener.addPacketHandler(new OutSetSlotBobFix(getPlugin()), true);
     }
 
     void registerCommands() {
@@ -349,7 +336,7 @@ public class WeaponMechanics extends JavaPlugin {
                 int majorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Major", 1);
                 int minorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Minor", 3);
                 int patchesBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Patch", 1);
-                SpigotResource spigotResource = new SpigotResource(this, "%%__RESOURCE__%%");
+                SpigotResource spigotResource = new SpigotResource(getPlugin(), "%%__RESOURCE__%%");
                 updateChecker = new UpdateChecker(spigotResource, majorsBehind, minorsBehind, patchesBehind);
             } catch (NumberFormatException e) {
                 // %%__RESOURCE__%% is converted to resource ID on download (only in premium resources)
@@ -375,9 +362,9 @@ public class WeaponMechanics extends JavaPlugin {
         setupDebugger();
         entityWrappers = new HashMap<>();
         weaponHandler = new WeaponHandler();
-        customProjectilesRunnable = new CustomProjectilesRunnable(this);
+        customProjectilesRunnable = new CustomProjectilesRunnable(getPlugin());
 
-        return new TaskChain(this)
+        return new TaskChain(getPlugin())
                 .thenRunAsync(this::writeFiles)
                 .thenRunSync(() -> {
                     loadConfig();
@@ -395,12 +382,11 @@ public class WeaponMechanics extends JavaPlugin {
                 });
     }
 
-    @Override
     public void onDisable() {
         BlockDamageData.regenerateAll();
 
-        HandlerList.unregisterAll(this);
-        getServer().getScheduler().cancelTasks(this);
+        HandlerList.unregisterAll(getPlugin());
+        Bukkit.getServer().getScheduler().cancelTasks(getPlugin());
 
         weaponHandler = null;
         updateChecker = null;
@@ -424,17 +410,10 @@ public class WeaponMechanics extends JavaPlugin {
     }
 
     /**
-     * @return the main command instance of WeaponMechanics
-     */
-    public static MainCommand getMainCommand() {
-        return plugin.mainCommand;
-    }
-
-    /**
      * @return the WeaponMechanics plugin instance
      */
     public static Plugin getPlugin() {
-        return plugin;
+        return plugin.javaPlugin;
     }
 
     /**
@@ -525,6 +504,13 @@ public class WeaponMechanics extends JavaPlugin {
      */
     public static Configuration getBasicConfigurations() {
         return plugin.basicConfiguration;
+    }
+
+    /**
+     * @return the main command instance of WeaponMechanics
+     */
+    public static MainCommand getMainCommand() {
+        return plugin.mainCommand;
     }
 
     /**
