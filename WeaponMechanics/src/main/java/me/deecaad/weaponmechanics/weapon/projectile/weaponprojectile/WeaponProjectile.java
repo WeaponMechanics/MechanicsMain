@@ -245,8 +245,8 @@ public class WeaponProjectile extends AProjectile {
             }
         }
 
-        // Sort based on distance to location if more than 1 hits
-        if (hits != null && hits.size() > 1) hits.sort((hit1, hit2) -> (int) (hit1.getHitLocation().distanceSquared(location) - hit2.getHitLocation().distanceSquared(location)));
+        // Sort based on the distance travelled before hit if there is more than 1 hits
+        if (hits != null && hits.size() > 1) hits.sort((hit1, hit2) -> (int) (hit1.getDistanceTravelled() - hit2.getDistanceTravelled()));
 
         return hits;
     }
