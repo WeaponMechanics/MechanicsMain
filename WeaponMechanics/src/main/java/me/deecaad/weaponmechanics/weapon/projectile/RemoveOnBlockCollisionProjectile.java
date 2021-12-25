@@ -30,6 +30,7 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
 
             // Only update location and not distance travelled
             setRawLocation(block.getLocation().toVector());
+            onCollide(block);
 
             // Block was not air, remove
             return true;

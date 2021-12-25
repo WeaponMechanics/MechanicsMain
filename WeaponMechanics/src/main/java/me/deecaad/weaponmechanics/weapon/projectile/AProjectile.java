@@ -51,6 +51,7 @@ public abstract class AProjectile {
         this.motion = motion;
         this.motionLength = motion.length();
         projectileCompatibility.disguise(this);
+        onStart();
     }
 
     /**
@@ -221,6 +222,11 @@ public abstract class AProjectile {
      */
     public void remove() {
         this.dead = true;
+
+        // Call one last time on move
+        onMove();
+
+        onEnd();
     }
 
     /**
@@ -297,7 +303,7 @@ public abstract class AProjectile {
         }
 
         ++aliveTicks;
-
+        onMove();
         return false;
     }
 
@@ -308,4 +314,33 @@ public abstract class AProjectile {
      * @return true if projectile should be removed from projectile runnable
      */
     public abstract boolean handleCollisions();
+
+    /**
+     * Override this method to do something on start
+     */
+    public void onStart() {}
+
+    /**
+     * Override this method to do something on end
+     */
+    public void onEnd() {}
+
+    /**
+     * Override this method to do something when projectile moves
+     */
+    public void onMove() {}
+
+    /**
+     * Override this method to do something when projectile collides with block
+     *
+     * @param block the collided block
+     */
+    public void onCollide(Block block) {}
+
+    /**
+     * Override this method to do something when projectile collides with entity
+     *
+     * @param entity the collided entity
+     */
+    public void onCollide(LivingEntity entity) {}
 }
