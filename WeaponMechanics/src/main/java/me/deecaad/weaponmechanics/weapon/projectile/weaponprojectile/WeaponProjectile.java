@@ -46,6 +46,20 @@ public class WeaponProjectile extends AProjectile {
     }
 
     /**
+     * Clones the settings of this weapon projectile and shoots again with
+     * different location and motion.
+     *
+     * @param location the cloned projectile's start location
+     * @param motion the cloned projectile's motion
+     * @return the cloned projectile
+     */
+    public WeaponProjectile cloneSettingsAndShoot(Location location, Vector motion) {
+        WeaponProjectile projectile = new WeaponProjectile(getProjectileSettings(), getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
+        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
+        return projectile;
+    }
+
+    /**
      * @return the item stack used to shoot this projectile
      */
     public ItemStack getWeaponStack() {
@@ -125,9 +139,6 @@ public class WeaponProjectile extends AProjectile {
                 // Update location and update distance travelled if living entity
                 setRawLocation(newLocation);
                 addDistanceTravelled(getLastLocation().distance(newLocation));
-
-                // Only call if projectile is sticked to entity since entity may move
-                if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
             }
             return false;
         }
@@ -140,7 +151,6 @@ public class WeaponProjectile extends AProjectile {
             setRawLocation(getLocation().add(getMotion()));
             addDistanceTravelled(getMotionLength());
 
-            if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
             return false;
         }
 
@@ -151,6 +161,12 @@ public class WeaponProjectile extends AProjectile {
             setRawLocation(hit.getHitLocation());
             double add = hit.getDistanceTravelled() - distanceAlreadyAdded;
             addDistanceTravelled(distanceAlreadyAdded += add);
+
+            if (hit.isBlock()) {
+                onCollide(hit.getBlock());
+            } else {
+                onCollide(hit.getLivingEntity());
+            }
 
             // Returned true and that most likely means that block hit was cancelled, skipping...
             if (hit.handleHit(this)) continue;
@@ -176,15 +192,10 @@ public class WeaponProjectile extends AProjectile {
                 break;
             }
 
-            // We only want to call projectile move event once if it dies
-            if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
-
             // Projectile should die if code reaches this point
             return true;
         }
 
-        // Projectile didn't die, call move event
-        if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
         return false;
     }
 
@@ -270,5 +281,10 @@ public class WeaponProjectile extends AProjectile {
     private int floor(double toFloor) {
         int flooredValue = (int) toFloor;
         return toFloor < flooredValue ? flooredValue - 1 : flooredValue;
+    }
+
+    @Override
+    public void onMove() {
+        if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
     }
 }

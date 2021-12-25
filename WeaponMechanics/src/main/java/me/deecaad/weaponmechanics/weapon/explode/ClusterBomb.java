@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -77,9 +77,8 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
 
             // Either use the projectile settings from the "parent" projectile,
             // or use the projectile settings for this clusterbomb
-            (this.projectile == null ? projectile.getProjectileSettings() : this.projectile)
-                    .shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle())
-                    .setIntTag("cluster-split-level", currentDepth + 1);
+            (this.projectile == null ? projectile.cloneSettingsAndShoot(splitLocation, vector) :
+                    this.projectile.shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("cluster-split-level", currentDepth + 1);
         }
 
         // Remove the parent split

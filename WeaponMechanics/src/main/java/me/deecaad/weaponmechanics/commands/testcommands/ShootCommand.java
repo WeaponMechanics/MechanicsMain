@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
-import me.deecaad.weaponmechanics.weapon.projectile.ProjectileMotion;
+import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
@@ -27,17 +27,14 @@ public class ShootCommand extends SubCommand implements Listener {
     public void execute(CommandSender sender, String[] args) {
 
         Player player = (Player) sender;
-
-        ProjectileMotion projectileMotion = new ProjectileMotion(0.05, -1, false, -1, false, 0.99, 0.96, 0.98);
         double speed = Double.parseDouble(args[0]) * 0.1;
+        EntityType entityType = null;
         if (args.length > 1) {
-            EntityType entityType = EntityType.valueOf(args[1].toUpperCase());
-            Projectile projectile = new Projectile(projectileMotion, entityType, 0.25f, 0.25f, null, null, null, null);
-            projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed), null, null);
-            return;
+            entityType = EntityType.valueOf(args[1].toUpperCase());
         }
 
-        Projectile projectile = new Projectile(projectileMotion, null, 0.25f, 0.25f, null, null, null, null);
+        ProjectileSettings projectileSettings = new ProjectileSettings(entityType, null, 0.05, false, -1, false, -1, 0.99, 0.96, 0.98);
+        Projectile projectile = new Projectile(projectileSettings, null, null, null);
         projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed), null, null);
     }
 

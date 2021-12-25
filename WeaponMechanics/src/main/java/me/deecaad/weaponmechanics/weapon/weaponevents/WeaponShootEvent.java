@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 
 import javax.annotation.Nonnull;
 
@@ -9,19 +9,19 @@ import javax.annotation.Nonnull;
  */
 public class WeaponShootEvent extends WeaponEvent {
 
-    private ICustomProjectile projectile;
+    private WeaponProjectile projectile;
 
-    public WeaponShootEvent(ICustomProjectile projectile) {
+    public WeaponShootEvent(WeaponProjectile projectile) {
         super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter());
 
         this.projectile = projectile;
     }
 
-    public ICustomProjectile getProjectile() {
+    public WeaponProjectile getProjectile() {
         return projectile;
     }
 
-    public void setProjectile(@Nonnull ICustomProjectile projectile) {
+    public void setProjectile(@Nonnull WeaponProjectile projectile) {
         if (projectile == null)
             throw new IllegalArgumentException("projectile cannot be null");
 
