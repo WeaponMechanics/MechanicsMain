@@ -217,7 +217,7 @@ public class WeaponProjectile extends AProjectile {
             RayTraceResult rayTraceResult = blockBox.rayTrace(location, normalizedMotion);
             if (rayTraceResult == null) continue; // Didn't hit
 
-            if (hits == null) hits = new ArrayList<>();
+            if (hits == null) hits = new ArrayList<>(1);
             hits.add(rayTraceResult);
 
             // If through isn't used, it is enough to get one block hit
@@ -240,7 +240,7 @@ public class WeaponProjectile extends AProjectile {
                 RayTraceResult rayTraceResult = entityBox.rayTrace(location, normalizedMotion);
                 if (rayTraceResult == null) continue; // Didn't hit
 
-                if (hits == null) hits = new ArrayList<>();
+                if (hits == null) hits = new ArrayList<>(1);
                 hits.add(rayTraceResult);
             }
         }
@@ -261,7 +261,7 @@ public class WeaponProjectile extends AProjectile {
         int minZ = floor((hitBox.getMinZ() - 2.0D) / 16.0D);
         int maxZ = floor((hitBox.getMaxZ() + 2.0D) / 16.0D);
 
-        List<LivingEntity> entities = new ArrayList<>();
+        List<LivingEntity> entities = new ArrayList<>(8);
 
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {
