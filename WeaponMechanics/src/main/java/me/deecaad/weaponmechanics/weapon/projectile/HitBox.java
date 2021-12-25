@@ -1,19 +1,23 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
+import java.io.File;
+
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class HitBox {
+public class HitBox implements IValidator {
 
     /**
      * Simple final modifier for front hit adjusting.
@@ -31,6 +35,11 @@ public class HitBox {
     private double maxX;
     private double maxY;
     private double maxZ;
+
+    /**
+     * Empty constructor be used as validator
+     */
+    public HitBox() { }
 
     public HitBox(Vector start, Vector end) {
         this(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
@@ -288,7 +297,8 @@ public class HitBox {
         return new RayTraceResult(hitLocation, t, hitBlockFace, this.livingEntity, getDamagePoint(hitLocation, normalizedMotion));
     }
 
-    /** Uses BoundingBox class method expand(double, double, double, double, double, double). Easier backwards compatibility this way.
+    /**
+     * Uses BoundingBox class method expand(double, double, double, double, double, double). Easier backwards compatibility this way.
      * https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(double,double,double,double,double,double)
      *
      * @return this hit box with expansion
@@ -341,7 +351,8 @@ public class HitBox {
     }
 
 
-    /** Uses BoundingBox class method expand(Vector, double). Easier backwards compatibility this way.
+    /**
+     * Uses BoundingBox class method expand(Vector, double). Easier backwards compatibility this way.
      * https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/util/BoundingBox.html#expand(org.bukkit.util.Vector,double)
      *
      * @param direction the direction to expand
@@ -357,5 +368,70 @@ public class HitBox {
         double positiveY = dirY > 0.0D ? dirY * expansion : 0.0D;
         double positiveZ = dirZ > 0.0D ? dirZ * expansion : 0.0D;
         return this.expand(negativeX, negativeY, negativeZ, positiveX, positiveY, positiveZ);
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Entity_Hitboxes";
+    }
+
+    @Override
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+        for (EntityType entityType : EntityType.values()) {
+            if (!entityType.isAlive()) continue;
+
+            double head = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.HEAD.name(), -1.0);
+            double body = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), -1.0);
+            double legs = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.LEGS.name(), -1.0);
+            double feet = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.FEET.name(), -1.0);
+
+            if (head < 0 || body < 0 || legs < 0 || feet < 0) {
+                debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " is missing some of its damage point values, please add it",
+                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                        "Its missing one of these: HEAD, BODY, LEGS or FEET");
+
+                putDefaults(configuration, entityType);
+                continue;
+            }
+
+            boolean horizontalEntity = configuration.getBool("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
+            if (horizontalEntity && head > 0.0) {
+                debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box had horizontal entity true and HEAD was not 0.0",
+                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                        "When using horizontal entity true HEAD should be set to 0.0!");
+
+                // Set default value to BODY
+                putDefaults(configuration, entityType);
+                continue;
+            }
+
+            double sumOf = head + body + legs + feet;
+            if (Math.abs(sumOf - 1.0) > 1e-5) { // If the numbers are not super close together (floating point issues)
+                debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " hit box values sum doesn't match 1.0",
+                        "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + entityType.name() + " in configurations",
+                        "Now the total sum was " + sumOf + ", please make it 1.0.");
+
+                putDefaults(configuration, entityType);
+            }
+        }
+    }
+
+    /**
+     * Simply resets hit boxes to default is they're missing or are invalid
+     *
+     * @param basicConfiguration the config.yml configuration instance
+     * @param entityType the entity type
+     */
+    private void putDefaults(Configuration basicConfiguration, EntityType entityType) {
+        basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.HEAD.name(), 0.0);
+
+        // Set default value to BODY 100%
+        basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), 1.0);
+
+        basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.LEGS.name(), 0.0);
+        basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.FEET.name(), 0.0);
+
+        basicConfiguration.set("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.ARMS.name(), false);
+        basicConfiguration.set("Entity_Hitboxes." + entityType.name() + ".Horizontal_Entity", false);
     }
 }
