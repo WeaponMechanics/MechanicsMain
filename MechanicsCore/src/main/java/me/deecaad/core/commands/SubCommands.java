@@ -116,48 +116,43 @@ public class SubCommands {
      */
     boolean sendHelp(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage(StringUtil.color(toString()));
-            } else {
 
-                // Create the messages with hover message
-                ComponentBuilder builder = new ComponentBuilder();
-                builder.append("Showing ").color(GOLD).bold(true)
-                        .append(parentPrefix).color(GRAY).bold(true)
-                        .append(" Help ").color(GOLD).bold(true)
-                        .append("(" + commands.size() + " Commands)").reset().color(GRAY).italic(true)
-                        .append("\n");
+            // Create the messages with hover message
+            ComponentBuilder builder = new ComponentBuilder();
+            builder.append("Showing ").color(GOLD).bold(true)
+                    .append(parentPrefix).color(GRAY).bold(true)
+                    .append(" Help ").color(GOLD).bold(true)
+                    .append("(" + commands.size() + " Commands)").reset().color(GRAY).italic(true)
+                    .append("\n");
 
-                for (SubCommand command : commands.values()) {
+            for (SubCommand command : commands.values()) {
 
-                    // Create a hoverable for the command
-                    BaseComponent[] hover = new ComponentBuilder("Command: ").color(GOLD)
-                            .append(command.getLabel()).color(GRAY)
-                            .append("\n").append("Description: ").color(GOLD)
-                            .append(command.getDescription()).color(GRAY)
-                            .append("\n").append("Usage: ").color(GOLD)
-                            .append("/" + command.getPrefix() + " " + String.join("" , command.getArgs())).color(GRAY)
-                            .append("\n").append("Permission: ").color(GOLD)
-                            .append(command.getPermission() == null ? "N/A" : command.getPermission()).color(GRAY)
-                            .append("\n\n").append("Click to auto-complete.").color(GRAY).create();
+                // Create a hoverable for the command
+                BaseComponent[] hover = new ComponentBuilder("Command: ").color(GOLD)
+                        .append(command.getLabel()).color(GRAY)
+                        .append("\n").append("Description: ").color(GOLD)
+                        .append(command.getDescription()).color(GRAY)
+                        .append("\n").append("Usage: ").color(GOLD)
+                        .append("/" + command.getPrefix() + " " + String.join("", command.getArgs())).color(GRAY)
+                        .append("\n").append("Permission: ").color(GOLD)
+                        .append(command.getPermission() == null ? "N/A" : command.getPermission()).color(GRAY)
+                        .append("\n\n").append("Click to auto-complete.").color(GRAY).create();
 
-                    builder.append("  " + SYM + " ").reset().color(GRAY);
-                    BaseComponent component = new TextComponent("/" + command.getPrefix());
-                    component.setColor(GOLD);
-                    component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
-                    component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
-                    builder.append(component);
+                builder.append("  " + SYM + " ").reset().color(GRAY);
+                BaseComponent component = new TextComponent("/" + command.getPrefix());
+                component.setColor(GOLD);
+                component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
+                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
+                builder.append(component);
 
-                    // Every command goes on a new line
-                    builder.append("\n");
-                }
-
-                // Remove the last new line, since it's extra
-                builder.removeComponent(builder.getCursor());
-
-                Player player = (Player) sender;
-                player.spigot().sendMessage(builder.create());
+                // Every command goes on a new line
+                builder.append("\n");
             }
+
+            // Remove the last new line, since it's extra
+            builder.removeComponent(builder.getCursor());
+
+            sender.spigot().sendMessage(builder.create());
             return true;
         }
 
