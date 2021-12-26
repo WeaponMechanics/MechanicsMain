@@ -64,8 +64,6 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
             }
         }
 
-        if (commandList.isEmpty()) return null;
-
         return new CommandMechanic(commandList);
     }
 
