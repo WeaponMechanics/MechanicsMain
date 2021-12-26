@@ -1,6 +1,5 @@
 package me.deecaad.core.compatibility.equipevent;
 
-import me.deecaad.core.compatibility.v1_17_R1;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.world.item.Item;
@@ -29,7 +28,7 @@ public class NonNullList_1_17_R1 extends NonNullList<ItemStack> {
     private final TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer;
 
     public NonNullList_1_17_R1(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
-        super(generate(size), ItemStack.b);
+        super(generate(size), ItemStack.EMPTY);
 
         this.consumer = consumer;
     }
@@ -52,7 +51,7 @@ public class NonNullList_1_17_R1 extends NonNullList<ItemStack> {
 
     private static List<ItemStack> generate(int size) {
         ItemStack[] items = new ItemStack[size];
-        Arrays.fill(items, ItemStack.b);
+        Arrays.fill(items, ItemStack.EMPTY);
         return Arrays.asList(items);
     }
 }

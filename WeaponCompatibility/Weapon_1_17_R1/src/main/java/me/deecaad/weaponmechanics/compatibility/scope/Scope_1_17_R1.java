@@ -4,21 +4,19 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
-import net.minecraft.network.protocol.game.PacketPlayOutAbilities;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityEffect;
-import net.minecraft.network.protocol.game.PacketPlayOutRemoveEntityEffect;
-import net.minecraft.network.protocol.game.PacketPlayOutUpdateAttributes;
-import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectList;
-import net.minecraft.world.entity.ai.attributes.AttributeModifiable;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.EntityHuman;
-import net.minecraft.world.entity.player.PlayerAbilities;
+import net.minecraft.world.entity.player.Abilities;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_17_R1.attribute.CraftAttributeMap;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
@@ -38,74 +36,74 @@ public class Scope_1_17_R1 implements IScopeCompatibility {
     }
 
     @Override
-    public void updateAbilities(Player player) {
-        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        entityPlayer.b.sendPacket(new PacketPlayOutAbilities((PlayerAbilities) ReflectionUtil.invokeField(ReflectionUtil.getField(EntityHuman.class, "cq"), entityPlayer)));
+    public void updateAbilities(org.bukkit.entity.Player player) {
+        ServerPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+        entityPlayer.connection.send(new ClientboundPlayerAbilitiesPacket((Abilities) ReflectionUtil.invokeField(ReflectionUtil.getField(net.minecraft.world.entity.player.Player.class, "abilities"), entityPlayer)));
     }
 
     @Override
-    public void updateAttributesFor(Player player) {
-        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        List<AttributeModifiable> list = new ArrayList<>();
-        list.add(entityPlayer.getAttributeMap().a(CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)));
+    public void updateAttributesFor(org.bukkit.entity.Player player) {
+        ServerPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+        List<AttributeInstance> list = new ArrayList<>();
+        list.add(entityPlayer.getAttributes().getInstance(CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)));
 
         // Negative entity id for identifying packet
-        entityPlayer.b.sendPacket(new PacketPlayOutUpdateAttributes(entityPlayer.getId(), list));
+        entityPlayer.connection.send(new ClientboundUpdateAttributesPacket(entityPlayer.getId(), list));
     }
 
     @Override
     public void modifyUpdateAttributesPacket(me.deecaad.core.packetlistener.Packet packet, int zoomAmount) {
 
-        List<PacketPlayOutUpdateAttributes.AttributeSnapshot> attributeSnapshots = ((PacketPlayOutUpdateAttributes) packet.getPacket()).c();
+        List<ClientboundUpdateAttributesPacket.AttributeSnapshot> attributeSnapshots = ((ClientboundUpdateAttributesPacket) packet.getPacket()).getValues();
 
         if (attributeSnapshots.size() > 1) {
             // Don't let external things such as sprint modify movement speed
-            attributeSnapshots.removeIf(next -> next.a() == CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED));
+            attributeSnapshots.removeIf(next -> next.getAttribute() == CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED));
             return;
         }
 
         // Don't modify other attributes than movement speed
-        if (attributeSnapshots.get(0).a() != CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)) return;
+        if (attributeSnapshots.get(0).getAttribute() != CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)) return;
 
-        PacketPlayOutUpdateAttributes.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
+        ClientboundUpdateAttributesPacket.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
 
         List<AttributeModifier> list = new ArrayList<>();
-        list.add(new AttributeModifier(UUID.randomUUID(), () -> "WM_SCOPE", ScopeLevel.getScope(zoomAmount), AttributeModifier.Operation.a));
-        attributeSnapshots.add(new PacketPlayOutUpdateAttributes.AttributeSnapshot(attributeSnapshot.a(), attributeSnapshot.b(), list));
+        list.add(new AttributeModifier(UUID.randomUUID(), () -> "WM_SCOPE", ScopeLevel.getScope(zoomAmount), AttributeModifier.Operation.ADDITION));
+        attributeSnapshots.add(new ClientboundUpdateAttributesPacket.AttributeSnapshot(attributeSnapshot.getAttribute(), attributeSnapshot.getBase(), list));
     }
 
     @Override
-    public void addNightVision(Player player) {
+    public void addNightVision(org.bukkit.entity.Player player) {
         // 6000 = 5min
-        PacketPlayOutEntityEffect entityEffect = new PacketPlayOutEntityEffect(-player.getEntityId(), new MobEffect(MobEffectList.fromId(PotionEffectType.NIGHT_VISION.getId()), 6000, 2));
-        ((CraftPlayer) player).getHandle().b.sendPacket(entityEffect);
+        ClientboundUpdateMobEffectPacket entityEffect = new ClientboundUpdateMobEffectPacket(-player.getEntityId(), new MobEffectInstance(MobEffect.byId(PotionEffectType.NIGHT_VISION.getId()), 6000, 2));
+        ((CraftPlayer) player).getHandle().connection.send(entityEffect);
     }
 
     @Override
-    public void removeNightVision(Player player) {
+    public void removeNightVision(org.bukkit.entity.Player player) {
         if (player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
 
-            EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+            ServerPlayer entityPlayer = ((CraftPlayer) player).getHandle();
 
             // Simply remove the entity effect
-            PacketPlayOutRemoveEntityEffect removeEntityEffect = new PacketPlayOutRemoveEntityEffect(player.getEntityId(), MobEffectList.fromId(PotionEffectType.NIGHT_VISION.getId()));
-            entityPlayer.b.sendPacket(removeEntityEffect);
+            ClientboundRemoveMobEffectPacket removeEntityEffect = new ClientboundRemoveMobEffectPacket(player.getEntityId(), MobEffect.byId(PotionEffectType.NIGHT_VISION.getId()));
+            entityPlayer.connection.send(removeEntityEffect);
 
             // resend the existing one
-            MobEffect mobEffect = entityPlayer.getEffect(MobEffectList.fromId(PotionEffectType.NIGHT_VISION.getId()));
-            PacketPlayOutEntityEffect entityEffect = new PacketPlayOutEntityEffect(player.getEntityId(), mobEffect);
-            ((CraftPlayer) player).getHandle().b.sendPacket(entityEffect);
+            MobEffectInstance mobEffect = entityPlayer.getEffect(MobEffect.byId(PotionEffectType.NIGHT_VISION.getId()));
+            ClientboundUpdateMobEffectPacket entityEffect = new ClientboundUpdateMobEffectPacket(player.getEntityId(), mobEffect);
+            ((CraftPlayer) player).getHandle().connection.send(entityEffect);
             return;
         }
 
         // Simply remove the entity effect
-        PacketPlayOutRemoveEntityEffect removeEntityEffect = new PacketPlayOutRemoveEntityEffect(player.getEntityId(), MobEffectList.fromId(PotionEffectType.NIGHT_VISION.getId()));
-        ((CraftPlayer) player).getHandle().b.sendPacket(removeEntityEffect);
+        ClientboundRemoveMobEffectPacket removeEntityEffect = new ClientboundRemoveMobEffectPacket(player.getEntityId(), MobEffect.byId(PotionEffectType.NIGHT_VISION.getId()));
+        ((CraftPlayer) player).getHandle().connection.send(removeEntityEffect);
     }
 
     @Override
     public boolean isRemoveNightVisionPacket(me.deecaad.core.packetlistener.Packet packet) {
         // 16 = night vision
-        return ((PacketPlayOutRemoveEntityEffect) packet.getPacket()).b() == MobEffectList.fromId(16);
+        return ((ClientboundRemoveMobEffectPacket) packet.getPacket()).getEffect() == MobEffect.byId(16);
     }
 }

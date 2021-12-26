@@ -5,25 +5,24 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_17_R1;
 import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectile;
-import net.minecraft.network.protocol.game.PacketPlayOutEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityHeadRotation;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityVelocity;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityLiving;
-import net.minecraft.world.entity.item.EntityFallingBlock;
-import net.minecraft.world.entity.item.EntityItem;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.IBlockData;
-import net.minecraft.world.phys.Vec3D;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -57,13 +56,13 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
         switch (projectileDisguise) {
             case FALLING_BLOCK:
                 Block nmsBlock = CraftMagicNumbers.getBlock(customProjectile.projectile.getProjectileStack().getType());
-                IBlockData nmsIBlockData = nmsBlock.getBlockData();
+                BlockState nmsIBlockData = nmsBlock.defaultBlockState();
 
-                EntityFallingBlock nmsEntityFallingBlock = new EntityFallingBlock(((org.bukkit.craftbukkit.v1_17_R1.CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsIBlockData);
+                FallingBlockEntity nmsEntityFallingBlock = new FallingBlockEntity(((org.bukkit.craftbukkit.v1_17_R1.CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsIBlockData);
                 customProjectile.setProjectileDisguiseId(nmsEntityFallingBlock.getId());
 
-                PacketPlayOutSpawnEntity spawn = new PacketPlayOutSpawnEntity(nmsEntityFallingBlock, Block.getCombinedId(nmsIBlockData));
-                PacketPlayOutEntityHeadRotation headRotation = new PacketPlayOutEntityHeadRotation(nmsEntityFallingBlock, convertYawToByte(customProjectile, yaw));
+                ClientboundAddEntityPacket spawn = new ClientboundAddEntityPacket(nmsEntityFallingBlock, Block.getId(nmsIBlockData));
+                ClientboundRotateHeadPacket headRotation = new ClientboundRotateHeadPacket(nmsEntityFallingBlock, convertYawToByte(customProjectile, yaw));
 
                 DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, headRotation);
                 customProjectile.projectileDisguiseNMSEntity = nmsEntityFallingBlock;
@@ -71,12 +70,12 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
             case DROPPED_ITEM:
                 ItemStack nmsStack = CraftItemStack.asNMSCopy(customProjectile.projectile.getProjectileStack());
 
-                EntityItem nmsEntityItem = new EntityItem(((org.bukkit.craftbukkit.v1_17_R1.CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsStack);
+                ItemEntity nmsEntityItem = new ItemEntity(((org.bukkit.craftbukkit.v1_17_R1.CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsStack);
                 customProjectile.setProjectileDisguiseId(nmsEntityItem.getId());
 
-                spawn = new PacketPlayOutSpawnEntity(nmsEntityItem, 1);
-                PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(customProjectile.getProjectileDisguiseId(), nmsEntityItem.getDataWatcher(), false);
-                headRotation = new PacketPlayOutEntityHeadRotation(nmsEntityItem, convertYawToByte(customProjectile, yaw));
+                spawn = new ClientboundAddEntityPacket(nmsEntityItem, 1);
+                ClientboundSetEntityDataPacket metadata = new ClientboundSetEntityDataPacket(customProjectile.getProjectileDisguiseId(), nmsEntityItem.getEntityData(), false);
+                headRotation = new ClientboundRotateHeadPacket(nmsEntityItem, convertYawToByte(customProjectile, yaw));
 
                 DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, metadata, headRotation);
                 customProjectile.projectileDisguiseNMSEntity = nmsEntityItem;
@@ -85,12 +84,12 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
                 Entity nmsEntity = ((org.bukkit.craftbukkit.v1_17_R1.CraftWorld) world).createEntity(location.toLocation(world, yaw, pitch), projectileDisguise.getEntityClass());
                 customProjectile.setProjectileDisguiseId(nmsEntity.getId());
 
-                headRotation = new PacketPlayOutEntityHeadRotation(nmsEntity, convertYawToByte(customProjectile, yaw));
+                headRotation = new ClientboundRotateHeadPacket(nmsEntity, convertYawToByte(customProjectile, yaw));
                 if (projectileDisguise.isAlive()) {
-                    PacketPlayOutSpawnEntityLiving spawnLiving = new PacketPlayOutSpawnEntityLiving((EntityLiving) nmsEntity);
+                    ClientboundAddMobPacket spawnLiving = new ClientboundAddMobPacket((LivingEntity) nmsEntity);
                     DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawnLiving, headRotation);
                 } else {
-                    spawn = new PacketPlayOutSpawnEntity(nmsEntity, 1);
+                    spawn = new ClientboundAddEntityPacket(nmsEntity, 1);
                     DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), spawn, headRotation);
                 }
                 customProjectile.projectileDisguiseNMSEntity = nmsEntity;
@@ -109,17 +108,17 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
         float yaw = customProjectile.getProjectileDisguiseYaw();
         float pitch = customProjectile.getProjectileDisguisePitch();
 
-        PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(projectileDisguiseId, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
+        ClientboundSetEntityMotionPacket velocity = new ClientboundSetEntityMotionPacket(projectileDisguiseId, new Vec3(motion.getX(), motion.getY(), motion.getZ()));
 
         double motionLength = customProjectile.getMotionLength();
         if (motionLength > 8 || motionLength == 0) {
             Entity nmsEntity = (Entity) customProjectile.projectileDisguiseNMSEntity;
 
-            nmsEntity.setPositionRaw(location.getX(), location.getY(), location.getZ());
+            nmsEntity.setPosRaw(location.getX(), location.getY(), location.getZ());
             nmsEntity.setXRot(yaw);
             nmsEntity.setYRot(pitch);
 
-            PacketPlayOutEntityTeleport teleport = new PacketPlayOutEntityTeleport(nmsEntity);
+            ClientboundTeleportEntityPacket teleport = new ClientboundTeleportEntityPacket(nmsEntity);
             DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), velocity, teleport);
 
         } else {
@@ -127,14 +126,14 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
             short y = (short) ((location.getY() * 32 - lastLocation.getY() * 32) * 128);
             short z = (short) ((location.getZ() * 32 - lastLocation.getZ() * 32) * 128);
 
-            PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(projectileDisguiseId, x, y, z, convertYawToByte(customProjectile, yaw), convertPitchToByte(customProjectile, pitch), false);
+            ClientboundMoveEntityPacket.PosRot moveLook = new ClientboundMoveEntityPacket.PosRot(projectileDisguiseId, x, y, z, convertYawToByte(customProjectile, yaw), convertPitchToByte(customProjectile, pitch), false);
             DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), velocity, moveLook);
         }
     }
 
     @Override
     public void destroyDisguise(CustomProjectile customProjectile) {
-        DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), new PacketPlayOutEntityDestroy(customProjectile.getProjectileDisguiseId()));
+        DistanceUtil.sendPacket(customProjectile.getBukkitLocation(), new ClientboundRemoveEntitiesPacket(customProjectile.getProjectileDisguiseId()));
     }
 
     @Override
@@ -143,6 +142,6 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
         Location location = new Location(world, 1, 100, 1);
         org.bukkit.entity.Entity entity = ((CraftWorld) world).createEntity(location, entityType.getEntityClass()).getBukkitEntity();
         IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
-        return new double[]{ shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity) };
+        return new double[]{shootCompatibility.getWidth(entity), shootCompatibility.getHeight(entity)};
     }
 }

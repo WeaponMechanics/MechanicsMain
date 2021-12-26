@@ -1,17 +1,15 @@
 package me.deecaad.core.compatibility.block;
 
-import me.deecaad.core.compatibility.v1_17_R1;
+import it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.SectionPosition;
-import net.minecraft.network.protocol.game.PacketPlayOutBlockBreakAnimation;
-import net.minecraft.network.protocol.game.PacketPlayOutBlockChange;
-import net.minecraft.network.protocol.game.PacketPlayOutMultiBlockChange;
-import net.minecraft.world.level.block.state.IBlockData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
+import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
@@ -25,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// https://nms.screamingsandals.org/1.17.1/
 public class Block_1_17_R1  implements BlockCompatibility {
 
     private static final Field multiBlockChangeB;
@@ -56,8 +55,8 @@ public class Block_1_17_R1  implements BlockCompatibility {
 
     @Override
     public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
-        BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
-        return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
+        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+        return new ClientboundBlockDestructionPacket(id, pos, crack);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class Block_1_17_R1  implements BlockCompatibility {
     }
 
     @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, @NotNull BlockState mask) {
+    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, @NotNull org.bukkit.block.BlockState mask) {
 
         // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
         // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
@@ -80,16 +79,16 @@ public class Block_1_17_R1  implements BlockCompatibility {
         return getBlockMaskPacket(bukkitBlock, ((CraftBlockState) mask).getHandle());
     }
 
-    private PacketPlayOutBlockChange getBlockMaskPacket(Block bukkitBlock, IBlockData mask) {
+    private ClientboundBlockUpdatePacket getBlockMaskPacket(Block bukkitBlock, BlockState mask) {
 
         // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
         // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
         // Actually this wont even need to be used through compatibility, simple version check while calling those methods is enough
 
         CraftBlock block = ((CraftBlock) bukkitBlock);
-        BlockPosition position = block.getPosition();
+        BlockPos position = block.getPosition();
 
-        return new PacketPlayOutBlockChange(position, mask);
+        return new ClientboundBlockUpdatePacket(position, mask);
     }
 
     @Override
@@ -105,7 +104,7 @@ public class Block_1_17_R1  implements BlockCompatibility {
         }
 
         List<Object> packets = new ArrayList<>(sortedBlocks.size());
-        IBlockData theMask = mask == null ? null : ((CraftBlockData) mask.createBlockData()).getState();
+        BlockState theMask = mask == null ? null : ((CraftBlockData) mask.createBlockData()).getState();
 
         for (List<Block> entry : sortedBlocks.values()) {
             packets.add(getMultiBlockMaskPacket(entry, theMask));
@@ -115,7 +114,7 @@ public class Block_1_17_R1  implements BlockCompatibility {
     }
 
     @Override
-    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable BlockState mask) {
+    public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable org.bukkit.block.BlockState mask) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");
         }
@@ -127,7 +126,7 @@ public class Block_1_17_R1  implements BlockCompatibility {
         }
 
         List<Object> packets = new ArrayList<>(sortedBlocks.size());
-        IBlockData theMask = mask == null ? null : ((CraftBlockState) mask).getHandle();
+        BlockState theMask = mask == null ? null : ((CraftBlockState) mask).getHandle();
 
         for (List<Block> entry : sortedBlocks.values()) {
             packets.add(getMultiBlockMaskPacket(entry, theMask));
@@ -136,13 +135,13 @@ public class Block_1_17_R1  implements BlockCompatibility {
         return packets;
     }
 
-    private PacketPlayOutMultiBlockChange getMultiBlockMaskPacket(List<Block> blocks, @Nullable IBlockData mask) {
+    private ClientboundSectionBlocksUpdatePacket getMultiBlockMaskPacket(List<Block> blocks, @Nullable BlockState mask) {
 
-        BlockPosition position = ((CraftBlock) blocks.get(0)).getPosition();
+        BlockPos position = ((CraftBlock) blocks.get(0)).getPosition();
 
         // Setup default information
         short[] locations = new short[blocks.size()];
-        IBlockData[] data = new IBlockData[blocks.size()];
+        BlockState[] data = new BlockState[blocks.size()];
 
         for (int i = 0; i < locations.length; i++) {
             Block block = blocks.get(i);
@@ -156,7 +155,7 @@ public class Block_1_17_R1  implements BlockCompatibility {
             data[i] = mask;
         }
 
-        PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(SectionPosition.a(position), new ShortArraySet(0), null, false);
+        ClientboundSectionBlocksUpdatePacket packet = new ClientboundSectionBlocksUpdatePacket(SectionPos.of(position), new ShortArraySet(0), null, false);
         ReflectionUtil.setField(multiBlockChangeB, packet, locations);
         ReflectionUtil.setField(multiBlockChangeC, packet, data);
 
