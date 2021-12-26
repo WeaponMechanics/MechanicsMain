@@ -9,13 +9,13 @@ import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityLiving;
-import net.minecraft.world.entity.item.EntityFallingBlock;
-import net.minecraft.world.entity.item.EntityItem;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.IBlockData;
-import net.minecraft.world.phys.Vec3D;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -55,22 +55,22 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
         switch (type) {
             case FALLING_BLOCK:
                 Block nmsBlock = CraftMagicNumbers.getBlock(projectileSettings.getDisguiseItemOrBlock().getType());
-                IBlockData nmsIBlockData = nmsBlock.getBlockData();
+                BlockState nmsIBlockData = nmsBlock.defaultBlockState();
 
-                entity  = new EntityFallingBlock(((CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsIBlockData);
+                entity  = new FallingBlockEntity(((CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsIBlockData);
 
-                PacketPlayOutSpawnEntity spawn = new PacketPlayOutSpawnEntity(entity, Block.getCombinedId(nmsIBlockData));
-                PacketPlayOutEntityHeadRotation headRotation = new PacketPlayOutEntityHeadRotation(entity, convertYawToByte(type, yaw));
+                ClientboundAddEntityPacket spawn = new ClientboundAddEntityPacket(entity, Block.getId(nmsIBlockData));
+                ClientboundRotateHeadPacket headRotation = new ClientboundRotateHeadPacket(entity, convertYawToByte(type, yaw));
 
                 DistanceUtil.sendPacket(bukkitLocation, spawn, headRotation);
                 break;
             case DROPPED_ITEM:
                 ItemStack nmsStack = CraftItemStack.asNMSCopy(projectile.getProjectileSettings().getDisguiseItemOrBlock());
-                entity = new EntityItem(((CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsStack);
+                entity = new ItemEntity(((CraftWorld) world).getHandle(), location.getX(), location.getY(), location.getZ(), nmsStack);
 
-                spawn = new PacketPlayOutSpawnEntity(entity, 1);
-                PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(entity.getId(), entity.getDataWatcher(), false);
-                headRotation = new PacketPlayOutEntityHeadRotation(entity, convertYawToByte(type, yaw));
+                spawn = new ClientboundAddEntityPacket(entity, 1);
+                ClientboundSetEntityDataPacket metadata = new ClientboundSetEntityDataPacket(entity.getId(), entity.getEntityData(), false);
+                headRotation = new ClientboundRotateHeadPacket(entity, convertYawToByte(type, yaw));
 
                 DistanceUtil.sendPacket(bukkitLocation, spawn, metadata, headRotation);
                 break;
@@ -79,12 +79,12 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
                 bukkitLocation.setPitch(pitch);
                 entity = ((CraftWorld) world).createEntity(bukkitLocation, type.getEntityClass());
 
-                headRotation = new PacketPlayOutEntityHeadRotation(entity, convertYawToByte(type, yaw));
+                headRotation = new ClientboundRotateHeadPacket(entity, convertYawToByte(type, yaw));
                 if (type.isAlive()) {
-                    PacketPlayOutSpawnEntityLiving spawnLiving = new PacketPlayOutSpawnEntityLiving((EntityLiving) entity);
+                    ClientboundAddMobPacket spawnLiving = new ClientboundAddMobPacket((LivingEntity) entity);
                     DistanceUtil.sendPacket(bukkitLocation, spawnLiving, headRotation);
                 } else {
-                    spawn = new PacketPlayOutSpawnEntity(entity, 1);
+                    spawn = new ClientboundAddEntityPacket(entity, 1);
                     DistanceUtil.sendPacket(bukkitLocation, spawn, headRotation);
                 }
                 break;
@@ -99,7 +99,7 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
 
                 // If its marked for removal, cancel task and destroy disguise
                 if (projectile.isDead()) {
-                    DistanceUtil.sendPacket(projectile.getLocation().toLocation(projectile.getWorld()), new PacketPlayOutEntityDestroy(entity.getId()));
+                    DistanceUtil.sendPacket(projectile.getLocation().toLocation(projectile.getWorld()), new ClientboundRemoveEntitiesPacket(entity.getId()));
                     cancel();
                     return;
                 }
@@ -118,15 +118,15 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
         float yaw = calculateYaw(normalizedMotion);
         float pitch = calculatePitch(normalizedMotion);
 
-        PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(entityId, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
+        ClientboundSetEntityMotionPacket velocity = new ClientboundSetEntityMotionPacket(entityId, new Vec3(motion.getX(), motion.getY(), motion.getZ()));
 
         double motionLength = projectile.getMotionLength();
         if (motionLength > 8.0 || NumberUtil.equals(motionLength, 0.0)) {
-            entity.setPositionRaw(location.getX(), location.getY(), location.getZ());
+            entity.setPosRaw(location.getX(), location.getY(), location.getZ());
             entity.setXRot(yaw);
             entity.setYRot(pitch);
 
-            PacketPlayOutEntityTeleport teleport = new PacketPlayOutEntityTeleport(entity);
+            ClientboundTeleportEntityPacket teleport = new ClientboundTeleportEntityPacket(entity);
             DistanceUtil.sendPacket(bukkitLocation, velocity, teleport);
         } else {
             Vector lastLocation = projectile.getLastLocation();
@@ -136,7 +136,7 @@ public class Projectile_1_17_R1 implements IProjectileCompatibility {
             short y = (short) ((location.getY() * 32 - lastLocation.getY() * 32) * 128);
             short z = (short) ((location.getZ() * 32 - lastLocation.getZ() * 32) * 128);
 
-            PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(entityId, x, y, z, convertYawToByte(type, yaw), convertPitchToByte(type, pitch), false);
+            ClientboundMoveEntityPacket.PosRot moveLook = new ClientboundMoveEntityPacket.PosRot(entityId, x, y, z, convertYawToByte(type, yaw), convertPitchToByte(type, pitch), false);
             DistanceUtil.sendPacket(bukkitLocation, velocity, moveLook);
         }
     }
