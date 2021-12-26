@@ -77,7 +77,7 @@ public class Entity_1_18_R1 implements EntityCompatibility {
     @Override
     public @NotNull Object getSpawnPacket(@NotNull Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_17_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_18_R1 Entity!");
         }
 
         if (entity instanceof FallingBlockEntity) {
@@ -97,7 +97,7 @@ public class Entity_1_18_R1 implements EntityCompatibility {
     @Override
     public @NotNull Object getMetadataPacket(@NotNull Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_17_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_18_R1 Entity!");
         }
 
         Entity nmsEntity = (Entity) entity;
@@ -109,7 +109,7 @@ public class Entity_1_18_R1 implements EntityCompatibility {
 
         // Make sure the given object is an entity
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_17_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_18_R1 Entity!");
         }
 
         // Setup the byte data
@@ -177,7 +177,7 @@ public class Entity_1_18_R1 implements EntityCompatibility {
     @Override
     public @NotNull Object getDestroyPacket(@NotNull Object entity) {
         if (!(entity instanceof Entity)) {
-            throw new IllegalArgumentException("Given Object must be 1_17_R1 Entity!");
+            throw new IllegalArgumentException("Given Object must be 1_18_R1 Entity!");
         }
 
         return new ClientboundRemoveEntitiesPacket(((Entity) entity).getId());

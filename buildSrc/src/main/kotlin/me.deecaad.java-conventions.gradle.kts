@@ -43,6 +43,12 @@ dependencies {
     compileOnly("org.jetbrains:annotations:23.0.0")
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
 tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
@@ -58,7 +64,6 @@ tasks {
 
 group = "me.deecaad"
 version = "1.0.0"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {
     publications.create<MavenPublication>("maven") {

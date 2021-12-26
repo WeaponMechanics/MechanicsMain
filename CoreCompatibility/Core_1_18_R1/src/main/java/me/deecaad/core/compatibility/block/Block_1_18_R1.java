@@ -2,7 +2,6 @@ package me.deecaad.core.compatibility.block;
 
 import it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.compatibility.v1_18_R1;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.BlockPos;

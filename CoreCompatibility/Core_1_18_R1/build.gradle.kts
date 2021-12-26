@@ -8,5 +8,10 @@ dependencies {
     implementation(project(":MechanicsCore"))
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_17;
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 description = "CoreCompatibility 1.18 R1"

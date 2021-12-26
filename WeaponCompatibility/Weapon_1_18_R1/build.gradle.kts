@@ -9,5 +9,10 @@ dependencies {
     implementation(project(":WeaponMechanics"))
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_17;
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
 description = "WeaponCompatibility 1.18 R1"

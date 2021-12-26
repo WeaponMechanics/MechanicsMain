@@ -9,9 +9,9 @@ import me.deecaad.core.compatibility.nbt.NBT_1_17_R1;
 
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.network.PlayerConnection;
-import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
@@ -51,14 +51,14 @@ public class v1_17_R1 implements ICompatibility {
 
     @Override
     public void sendPackets(Player player, Object packet) {
-        getEntityPlayer(player).b.sendPacket((Packet<?>) packet);
+        getEntityPlayer(player).connection.send((Packet<?>) packet);
     }
 
     @Override
     public void sendPackets(Player player, Object... packets) {
-        PlayerConnection playerConnection = getEntityPlayer(player).b;
+        ServerGamePacketListenerImpl playerConnection = getEntityPlayer(player).connection;
         for (Object packet : packets) {
-            playerConnection.sendPacket((Packet<?>) packet);
+            playerConnection.send((Packet<?>) packet);
         }
     }
 
@@ -80,7 +80,7 @@ public class v1_17_R1 implements ICompatibility {
     }
 
     @Override
-    public @NotNull EntityPlayer getEntityPlayer(@NotNull Player player) {
+    public @NotNull ServerPlayer getEntityPlayer(@NotNull Player player) {
         return ((CraftPlayer) player).getHandle();
     }
 }
