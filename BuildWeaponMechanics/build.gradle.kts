@@ -23,8 +23,8 @@ dependencies {
     implementation(project(":Weapon_1_14_R1"))
     implementation(project(":Weapon_1_15_R1"))
     implementation(project(":Weapon_1_16_R3"))
-    implementation(project(":Weapon_1_17_R1"))
-    implementation(project(":Weapon_1_18_R1"))
+    implementation(project(":Weapon_1_17_R1", "reobf"))
+    implementation(project(":Weapon_1_18_R1", "reobf"))
 }
 
 // See https://github.com/Minecrell/plugin-yml

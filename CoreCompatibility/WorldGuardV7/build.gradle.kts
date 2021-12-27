@@ -13,4 +13,10 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.6")
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(16))
+    }
+}
+
 description = "WorldGuardV7"
