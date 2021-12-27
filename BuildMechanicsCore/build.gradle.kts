@@ -25,7 +25,7 @@ dependencies {
     implementation(project(":Core_1_14_R1"))
     implementation(project(":Core_1_15_R1"))
     implementation(project(":Core_1_16_R3"))
-    implementation(project(":Core_1_17_R1"))
+    implementation(project(":Core_1_17_R1", "reobf"))
     implementation(project(":Core_1_18_R1", "reobf"))
 }
 
