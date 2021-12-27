@@ -21,3 +21,4 @@ Projectile_Settings:
     Base: <multiplier>
     In_Water: <multiplier>
     When_Raining_Or_Snowing: <multiplier>
+  Disable_Entity_Collisions: <true/false>

@@ -29,6 +29,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     private double decreaseInWater;
     private double decreaseWhenRainingOrSnowing;
 
+    private boolean disableEntityCollisions;
+
     /**
      * Empty constructor to be used as serializer
      */
@@ -36,7 +38,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
     public ProjectileSettings(EntityType projectileDisguise, ItemStack disguiseItemOrBlock, double gravity,
                               boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
-                              double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing) {
+                              double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions) {
         this.projectileDisguise = projectileDisguise;
         this.disguiseItemOrBlock = disguiseItemOrBlock;
         this.gravity = gravity;
@@ -47,6 +49,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         this.decrease = decrease;
         this.decreaseInWater = decreaseInWater;
         this.decreaseWhenRainingOrSnowing = decreaseWhenRainingOrSnowing;
+        this.disableEntityCollisions = disableEntityCollisions;
     }
 
     /**
@@ -82,7 +85,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     }
 
     /**
-     * @return whether or not to remove projectile when minimum speed is reached
+     * @return whether to remove projectile when minimum speed is reached
      */
     public boolean isRemoveAtMinimumSpeed() {
         return this.removeAtMinimumSpeed;
@@ -96,7 +99,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     }
 
     /**
-     * @return whether or not to remove projectile when maximum speed is reached
+     * @return whether to remove projectile when maximum speed is reached
      */
     public boolean isRemoveAtMaximumSpeed() {
         return this.removeAtMaximumSpeed;
@@ -121,6 +124,13 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
      */
     public double getDecreaseWhenRainingOrSnowing() {
         return decreaseWhenRainingOrSnowing;
+    }
+
+    /**
+     * @return whether to skip entity collision checks
+     */
+    public boolean isDisableEntityCollisions() {
+        return disableEntityCollisions;
     }
 
     @Override
@@ -179,7 +189,9 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         debug.validate(decreaseWhenRainingOrSnowing >= 0.0, "Motion multiplier MUST be positive",
                 "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.When_Raining_Or_Snowing"));
 
+        boolean disableEntityCollisions = configurationSection.getBoolean(path + ".Disable_Entity_Collisions", false);
+
         return new ProjectileSettings(projectileType, projectileItem, gravity, removeAtMinimumSpeed, minimumSpeed,
-                removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing);
+                removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing, disableEntityCollisions);
     }
 }

@@ -128,7 +128,7 @@ public class WeaponProjectile extends AProjectile {
     }
 
     @Override
-    public boolean handleCollisions() {
+    public boolean handleCollisions(boolean disableEntityCollisions) {
 
         if (stickedData != null) {
             Vector newLocation = stickedData.getNewLocation();
@@ -144,7 +144,7 @@ public class WeaponProjectile extends AProjectile {
         }
 
         // Returns sorted list of hits
-        List<RayTraceResult> hits = getHits();
+        List<RayTraceResult> hits = getHits(disableEntityCollisions);
         if (hits == null) {
 
             // No hits, simply update location and distance travelled
@@ -199,7 +199,7 @@ public class WeaponProjectile extends AProjectile {
         return false;
     }
 
-    private List<RayTraceResult> getHits() {
+    private List<RayTraceResult> getHits(boolean disableEntityCollisions) {
         List<RayTraceResult> hits = null;
 
         Vector normalizedMotion = getNormalizedMotion();
@@ -231,17 +231,20 @@ public class WeaponProjectile extends AProjectile {
             if (!through.quickValidCheck(block.getType())) break;
         }
 
-        List<LivingEntity> entities = getPossibleEntities();
-        if (entities != null && !entities.isEmpty()) {
-            for (LivingEntity entity : entities) {
-                HitBox entityBox = projectileCompatibility.getHitBox(entity);
-                if (entityBox == null) continue;
 
-                RayTraceResult rayTraceResult = entityBox.rayTrace(location, normalizedMotion);
-                if (rayTraceResult == null) continue; // Didn't hit
+        if (!disableEntityCollisions) {
+            List<LivingEntity> entities = getPossibleEntities();
+            if (entities != null && !entities.isEmpty()) {
+                for (LivingEntity entity : entities) {
+                    HitBox entityBox = projectileCompatibility.getHitBox(entity);
+                    if (entityBox == null) continue;
 
-                if (hits == null) hits = new ArrayList<>(1);
-                hits.add(rayTraceResult);
+                    RayTraceResult rayTraceResult = entityBox.rayTrace(location, normalizedMotion);
+                    if (rayTraceResult == null) continue; // Didn't hit
+
+                    if (hits == null) hits = new ArrayList<>(1);
+                    hits.add(rayTraceResult);
+                }
             }
         }
 

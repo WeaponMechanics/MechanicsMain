@@ -19,7 +19,7 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
     }
 
     @Override
-    public boolean handleCollisions() {
+    public boolean handleCollisions(boolean disableEntityCollisions) {
         // Rounding might cause 0.5 "extra" movement, but it doesn't really matter
         BlockIterator blocks = new BlockIterator(getWorld(), getLocation(), getNormalizedMotion(), 0.0, (int) Math.round(getMotionLength()));
 
