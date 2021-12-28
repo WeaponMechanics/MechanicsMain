@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -172,6 +173,26 @@ public final class WeaponMechanicsAPI {
             return null;
         else
             return CustomTag.WEAPON_TITLE.getString(item);
+    }
+
+    /**
+     * Returns the ammo name which is currently used in weapon. If the weapon
+     * doesn't use ammo, this method will return <code>null</code>.
+     *
+     * @param weaponTitle The non-null weapon-title of the weapon.
+     * @param weaponStack The non-null weapon item stack.
+     * @return The current ammo name, or null.
+     */
+    @Nullable
+    public static String getCurrentAmmoName(@Nonnull String weaponTitle, @Nonnull ItemStack weaponStack) {
+        checkState();
+        notNull(weaponTitle);
+        notNull(weaponStack);
+
+        AmmoTypes ammoTypes = plugin.configurations.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
+        if (ammoTypes == null) return null;
+
+        return ammoTypes.getCurrentAmmoName(weaponStack);
     }
 
     /**
