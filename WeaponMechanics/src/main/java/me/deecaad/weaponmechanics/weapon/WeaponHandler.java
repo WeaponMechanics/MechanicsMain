@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.skin.SkinHandler;
@@ -190,10 +191,30 @@ public class WeaponHandler {
 
             entityWrapper.getMainHandData().cancelTasks();
             entityWrapper.getOffHandData().cancelTasks();
+            return;
         }
 
-        // Selective fire wasn't valid, try ammo type
-        // todo
+        // Selective fire wasn't valid, try ammo type switch
+        Trigger ammoTypeSwitchTrigger = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Trigger", Trigger.class);
+        if (ammoTypeSwitchTrigger != null && ammoTypeSwitchTrigger.check(triggerType, slot, entityWrapper)) {
+
+            AmmoTypes ammoTypes = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
+            if (ammoTypes != null) {
+
+                ammoTypes.updateToNextAmmoType(weaponStack);
+
+                Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
+                if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+
+                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+
+                entityWrapper.getMainHandData().cancelTasks();
+                entityWrapper.getOffHandData().cancelTasks();
+
+                // Here has to be return if new triggers gets added
+            }
+        }
     }
 
     /**

@@ -4,7 +4,6 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -12,13 +11,20 @@ import org.bukkit.inventory.ItemStack;
 import java.io.File;
 import java.util.List;
 
-public class Ammo implements Serializer<Ammo> {
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
-    private Mechanics outOfAmmoMechanics;
-    private boolean ammoTypeSwitchAutomaticWhenOutOfAmmo;
-    private Trigger ammoTypeSwitchTrigger;
-    private Mechanics ammoTypeSwitchMechanics;
+public class AmmoTypes implements Serializer<AmmoTypes> {
+
     private List<IAmmoType> ammoTypes;
+
+    /**
+     * Empty constructor to be used as serializer
+     */
+    public AmmoTypes() { }
+
+    public AmmoTypes(List<IAmmoType> ammoTypes) {
+        this.ammoTypes = ammoTypes;
+    }
 
     public String getCurrentAmmoName(ItemStack weaponStack) {
         return ammoTypes.get(CustomTag.AMMO_TYPE_INDEX.getInteger(weaponStack)).getAmmoName();
@@ -32,12 +38,21 @@ public class Ammo implements Serializer<Ammo> {
         CustomTag.AMMO_TYPE_INDEX.setInteger(weaponStack, index);
     }
 
+    public void updateToNextAmmoType(ItemStack weaponStack) {
+        int nextIndex = getCurrentAmmoIndex(weaponStack) + 1;
+
+        if (nextIndex >= ammoTypes.size()) nextIndex = 0;
+
+        setCurrentAmmoIndex(weaponStack, nextIndex);
+    }
+
     public boolean hasAmmo(String weaponTitle, ItemStack weaponStack, IPlayerWrapper playerWrapper) {
         int index = getCurrentAmmoIndex(weaponStack);
         if (ammoTypes.get(index).hasAmmo(playerWrapper)) {
             return true;
         }
-        if (!ammoTypeSwitchAutomaticWhenOutOfAmmo || ammoTypes.size() == 1) return false;
+
+        if (ammoTypes.size() == 1 || !getConfigurations().getBool(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Automatic_When_Out_Of_Ammo")) return false;
 
         // Check from top to bottom for other ammo types
         for (int i = 0; i < ammoTypes.size(); ++i) {
@@ -47,7 +62,9 @@ public class Ammo implements Serializer<Ammo> {
 
             // Update the index automatically to use this new one
             setCurrentAmmoIndex(weaponStack, i);
-            ammoTypeSwitchMechanics.use(new CastData(playerWrapper, weaponTitle, weaponStack));
+
+            Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
+            if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(playerWrapper, weaponTitle, weaponStack));
             return true;
         }
         return false;
@@ -74,11 +91,11 @@ public class Ammo implements Serializer<Ammo> {
 
     @Override
     public String getKeyword() {
-        return "Ammo";
+        return "Ammo_Types";
     }
 
     @Override
-    public Ammo serialize(File file, ConfigurationSection configurationSection, String path) {
+    public AmmoTypes serialize(File file, ConfigurationSection configurationSection, String path) {
         return null;
     }
 }
