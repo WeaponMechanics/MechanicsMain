@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.entity.Player;
 
 public class ExperienceAmmo implements IAmmoType {
 
@@ -9,28 +10,58 @@ public class ExperienceAmmo implements IAmmoType {
 
     private int experienceAsAmmoCost;
 
+    public ExperienceAmmo(String ammoName, int experienceAsAmmoCost) {
+        this.ammoName = ammoName;
+        this.experienceAsAmmoCost = experienceAsAmmoCost;
+    }
+
     @Override
     public String getAmmoName() {
-        return null;
+        return ammoName;
     }
 
     @Override
     public boolean hasAmmo(IPlayerWrapper playerWrapper) {
-        return false;
+        return playerWrapper.getPlayer().getTotalExperience() >= experienceAsAmmoCost;
     }
 
     @Override
     public int removeAmmo(IPlayerWrapper playerWrapper, int amount) {
-        return 0;
+        if (amount == 0) return 0;
+        Player player = playerWrapper.getPlayer();
+        int experience = player.getTotalExperience();
+        if (experience == 0) return 0;
+
+        int removeExperience = this.experienceAsAmmoCost * amount;
+
+        // Check if there isn't enough experience to take
+        if (removeExperience > experience) {
+
+            // Recalculate amount to match the maximum amount that can be taken
+            amount = experience / experienceAsAmmoCost;
+            if (amount == 0) return 0;
+
+            player.setTotalExperience(experience - (amount * experienceAsAmmoCost));
+            return amount;
+        }
+
+        player.setTotalExperience(experience - removeExperience);
+        return amount;
     }
 
     @Override
     public void giveAmmo(IPlayerWrapper playerWrapper, int amount) {
-
+        if (amount == 0) return;
+        Player player = playerWrapper.getPlayer();
+        player.setTotalExperience(player.getTotalExperience() + (this.experienceAsAmmoCost * amount));
     }
 
     @Override
     public int getMaximumAmmo(IPlayerWrapper playerWrapper) {
-        return 0;
+        int experience = playerWrapper.getPlayer().getTotalExperience();
+        if (experience == 0) return 0;
+
+        // Divide with experience cost
+        return experience / experienceAsAmmoCost;
     }
 }
