@@ -1,0 +1,26 @@
+# me.deecaad.weaponmechanics.weapon.reload.ammo.Ammo
+Ammo:
+  Out_Of_Ammo: <MechanicsSerializer>
+  Ammo_Type_Switch:
+    Automatic_When_Out_Of_Ammo: <true/false>
+    Trigger: <TriggerSerializer>
+    Mechanics: <MechanicsSerializer>
+  Ammo_Types:
+    1_Ammo_Type:
+      Item_Ammo:
+        Ammo: <item serializer>
+        Magazine:
+          Maximum_Magazine_Size: <amount>
+          Item: <item serializer>
+          Not_Able_To_Fill:
+            Not_Same_Ammo_Name: <MechanicsSerializer>
+            Magazine_Already_Full: <MechanicsSerializer>
+          Magazine_Filled: <MechanicsSerializer>
+        Ammo_Converter_Check:
+          Type: <true/false>
+          Name: <true/false>
+          Lore: <true/false>
+          Enchants: <true/false>
+      Experience_As_Ammo_Cost: <experience per one ammo>
+      Money_As_Ammo_Cost: <money per one ammo>
+    2_Ammo_Type: <etc.>

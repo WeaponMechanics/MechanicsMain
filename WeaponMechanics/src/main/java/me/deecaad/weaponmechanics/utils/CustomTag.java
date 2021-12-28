@@ -15,6 +15,8 @@ public enum CustomTag {
 
     /**
      * integer
+     *
+     * Current selective fire state where 0 = single, 1 = burst and 2 = auto
      */
     SELECTIVE_FIRE("selective-fire"),
 
@@ -22,6 +24,13 @@ public enum CustomTag {
      * integer
      */
     AMMO_LEFT("ammo-left"),
+
+    /**
+     * integer
+     *
+     * Current ammo type's index in the ammo types list
+     */
+    AMMO_TYPE_INDEX("ammo-type-index"),
 
     /**
      * string

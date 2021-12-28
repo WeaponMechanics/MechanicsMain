@@ -191,6 +191,9 @@ public class WeaponHandler {
             entityWrapper.getMainHandData().cancelTasks();
             entityWrapper.getOffHandData().cancelTasks();
         }
+
+        // Selective fire wasn't valid, try ammo type
+        // todo
     }
 
     /**
