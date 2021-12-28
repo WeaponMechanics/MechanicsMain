@@ -20,6 +20,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class AmmoListeners implements Listener {
 
     @EventHandler
+    public void NEWclick(InventoryClickEvent e) {
+
+    }
+
+    @EventHandler
     public void click(InventoryClickEvent e) {
         Inventory clickedInventory = e.getClickedInventory();
         InventoryView view = e.getView();

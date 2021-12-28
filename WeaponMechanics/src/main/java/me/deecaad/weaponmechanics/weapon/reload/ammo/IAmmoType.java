@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.inventory.ItemStack;
 
 public interface IAmmoType {
 
@@ -8,9 +9,9 @@ public interface IAmmoType {
 
     boolean hasAmmo(IPlayerWrapper playerWrapper);
 
-    int removeAmmo(IPlayerWrapper playerWrapper, int amount);
+    int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount);
 
-    void giveAmmo(IPlayerWrapper playerWrapper, int amount);
+    void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount);
 
     int getMaximumAmmo(IPlayerWrapper playerWrapper);
 }

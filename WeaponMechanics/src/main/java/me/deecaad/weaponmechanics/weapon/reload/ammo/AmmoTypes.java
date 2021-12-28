@@ -71,7 +71,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
     }
 
     public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
-        return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).removeAmmo(playerWrapper, amount);
+        return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).removeAmmo(weaponStack, playerWrapper, amount);
 
         // No need to try switching since at this point it's high unlikely that any ammo can't be
         // removed from player since hasAmmo(String, ItemStack, IPlayerWrapper) is called before this
@@ -79,7 +79,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
     }
 
     public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
-        ammoTypes.get(getCurrentAmmoIndex(weaponStack)).giveAmmo(playerWrapper, amount);
+        ammoTypes.get(getCurrentAmmoIndex(weaponStack)).giveAmmo(weaponStack, playerWrapper, amount);
 
         // No need to try switching since this will simply give amount of current ammo back
     }

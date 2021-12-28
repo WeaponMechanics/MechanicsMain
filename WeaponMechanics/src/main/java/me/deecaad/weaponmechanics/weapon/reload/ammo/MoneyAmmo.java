@@ -4,6 +4,7 @@ import me.deecaad.core.compatibility.vault.IVaultCompatibility;
 import me.deecaad.core.compatibility.vault.VaultAPI;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class MoneyAmmo implements IAmmoType {
 
@@ -30,7 +31,7 @@ public class MoneyAmmo implements IAmmoType {
     }
 
     @Override
-    public int removeAmmo(IPlayerWrapper playerWrapper, int amount) {
+    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
         if (amount == 0) return 0;
         Player player = playerWrapper.getPlayer();
         double balance = vaultCompatibility.getBalance(player);
@@ -54,7 +55,7 @@ public class MoneyAmmo implements IAmmoType {
     }
 
     @Override
-    public void giveAmmo(IPlayerWrapper playerWrapper, int amount) {
+    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
         if (amount == 0) return;
         vaultCompatibility.depositBalance(playerWrapper.getPlayer(), this.moneyAsAmmoCost * amount);
     }

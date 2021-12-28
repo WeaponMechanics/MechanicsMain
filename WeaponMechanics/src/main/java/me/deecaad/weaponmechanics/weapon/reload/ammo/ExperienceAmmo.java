@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class ExperienceAmmo implements IAmmoType {
 
@@ -26,7 +27,7 @@ public class ExperienceAmmo implements IAmmoType {
     }
 
     @Override
-    public int removeAmmo(IPlayerWrapper playerWrapper, int amount) {
+    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
         if (amount == 0) return 0;
         Player player = playerWrapper.getPlayer();
         int experience = player.getTotalExperience();
@@ -50,7 +51,7 @@ public class ExperienceAmmo implements IAmmoType {
     }
 
     @Override
-    public void giveAmmo(IPlayerWrapper playerWrapper, int amount) {
+    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
         if (amount == 0) return;
         Player player = playerWrapper.getPlayer();
         player.setTotalExperience(player.getTotalExperience() + (this.experienceAsAmmoCost * amount));
