@@ -53,27 +53,12 @@ public class Ammo implements Serializer<Ammo> {
         return false;
     }
 
-    public int removeAmmo(String weaponTitle, ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
-        int index = getCurrentAmmoIndex(weaponStack);
-        int removeAmount = ammoTypes.get(index).removeAmmo(playerWrapper, amount);
-        if (removeAmount != 0) return removeAmount;
+    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
+        return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).removeAmmo(playerWrapper, amount);
 
-        if (!ammoTypeSwitchAutomaticWhenOutOfAmmo || ammoTypes.size() ==  1) return 0;
-
-        // Check from top to bottom for other ammo types
-        for (int i = 0; i < ammoTypes.size(); ++i) {
-            if (i == index) continue; // Don't try checking for that ammo type anymore
-
-            removeAmount = ammoTypes.get(i).removeAmmo(playerWrapper, amount);
-            if (removeAmount == 0) continue;
-
-            // Update the index automatically to use this new one
-            setCurrentAmmoIndex(weaponStack, i);
-            ammoTypeSwitchMechanics.use(new CastData(playerWrapper, weaponTitle, weaponStack));
-            return removeAmount;
-        }
-
-        return 0;
+        // No need to try switching since at this point it's high unlikely that any ammo can't be
+        // removed from player since hasAmmo(String, ItemStack, IPlayerWrapper) is called before this
+        // which also handles the automatic switch
     }
 
     public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
