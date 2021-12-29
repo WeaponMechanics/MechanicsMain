@@ -14,6 +14,7 @@ public class ItemAmmo implements IAmmoType {
     // Defined in ammo types list
     private String ammoName;
 
+    private String symbol;
     private ItemStack ammo;
     private ItemStack magazine;
     private int maximumMagazineSize;
@@ -25,6 +26,11 @@ public class ItemAmmo implements IAmmoType {
     @Override
     public String getAmmoName() {
         return ammoName;
+    }
+
+    @Override
+    public String getSymbol() {
+        return symbol != null ? symbol : ammoName;
     }
 
     @Override

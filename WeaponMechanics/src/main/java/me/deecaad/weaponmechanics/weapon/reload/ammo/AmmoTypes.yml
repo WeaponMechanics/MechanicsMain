@@ -1,6 +1,7 @@
 # me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes
 Ammo_Types: <path to another Ammo Types key>
   1_Ammo_Type:
+    Symbol: <symbol>
     Item_Ammo:
       Bullet_Item: <item serializer>
       Magazine:

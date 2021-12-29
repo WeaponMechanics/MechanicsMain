@@ -13,6 +13,7 @@ public class MoneyAmmo implements IAmmoType {
     // Defined in ammo types list
     private String ammoName;
 
+    private String symbol;
     private double moneyAsAmmoCost;
 
     public MoneyAmmo(String ammoName, double moneyAsAmmoCost) {
@@ -23,6 +24,11 @@ public class MoneyAmmo implements IAmmoType {
     @Override
     public String getAmmoName() {
         return ammoName;
+    }
+
+    @Override
+    public String getSymbol() {
+        return symbol != null ? symbol : ammoName;
     }
 
     @Override

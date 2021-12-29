@@ -9,6 +9,7 @@ public class ExperienceAmmo implements IAmmoType {
     // Defined in ammo types list
     private String ammoName;
 
+    private String symbol;
     private int experienceAsAmmoCost;
 
     public ExperienceAmmo(String ammoName, int experienceAsAmmoCost) {
@@ -19,6 +20,11 @@ public class ExperienceAmmo implements IAmmoType {
     @Override
     public String getAmmoName() {
         return ammoName;
+    }
+
+    @Override
+    public String getSymbol() {
+        return symbol != null ? symbol : ammoName;
     }
 
     @Override
