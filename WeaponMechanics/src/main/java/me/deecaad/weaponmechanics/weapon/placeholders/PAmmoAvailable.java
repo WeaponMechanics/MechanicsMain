@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nullable;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
 
-public class PMaximumAmmo extends PlaceholderHandler {
+public class PAmmoAvailable extends PlaceholderHandler {
 
-    public PMaximumAmmo() {
-        super("%maximum-ammo%");
+    public PAmmoAvailable() {
+        super("%ammo-available%");
     }
 
     @Nullable
