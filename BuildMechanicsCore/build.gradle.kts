@@ -29,6 +29,13 @@ dependencies {
     implementation(project(":Core_1_18_R1", "reobf"))
 }
 
+tasks {
+    compileJava {
+        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
+        options.release.set(17) // We need to set release compatibility to java 17 since MC 18+ uses it
+    }
+}
+
 // See https://github.com/Minecrell/plugin-yml
 bukkit {
     main = "me.deecaad.core.MechanicsCore"

@@ -13,9 +13,16 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.6")
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(16))
+//java {
+//    toolchain {
+//        languageVersion.set(JavaLanguageVersion.of(16))
+//    }
+//}
+
+tasks {
+    compileJava {
+        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
+        options.release.set(16)
     }
 }
 
