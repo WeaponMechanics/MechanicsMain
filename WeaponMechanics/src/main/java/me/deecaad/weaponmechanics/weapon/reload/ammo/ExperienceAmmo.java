@@ -34,7 +34,6 @@ public class ExperienceAmmo implements IAmmoType {
 
     @Override
     public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
-        if (amount == 0) return 0;
         Player player = playerWrapper.getPlayer();
         int experience = player.getTotalExperience();
         if (experience == 0) return 0;
@@ -58,7 +57,6 @@ public class ExperienceAmmo implements IAmmoType {
 
     @Override
     public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
-        if (amount == 0) return;
         Player player = playerWrapper.getPlayer();
         player.setTotalExperience(player.getTotalExperience() + (this.experienceAsAmmoCost * amount));
     }

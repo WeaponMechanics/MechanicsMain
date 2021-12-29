@@ -34,6 +34,21 @@ public enum CustomTag {
 
     /**
      * string
+     *
+     * Bullet items and magazines items have this.
+     */
+    AMMO_NAME("ammo-name"),
+
+    /**
+     * integer
+     *
+     * Simple NBT tag to tell whether item is supposed to be magazine.
+     * 0 = false, 1 = true
+     */
+    AMMO_MAGAZINE("ammo-magazine"),
+
+    /**
+     * string
      * Ammo item or magazine item name
      */
     @Deprecated

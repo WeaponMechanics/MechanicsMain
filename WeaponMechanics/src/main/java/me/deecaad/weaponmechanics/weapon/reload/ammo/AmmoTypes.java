@@ -82,6 +82,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
     }
 
     public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        if (amount == 0) return 0;
         return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).removeAmmo(weaponStack, playerWrapper, amount, maximumMagazineSize);
 
         // No need to try switching since at this point it's high unlikely that any ammo can't be
@@ -90,6 +91,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
     }
 
     public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        if (amount == 0) return;
         ammoTypes.get(getCurrentAmmoIndex(weaponStack)).giveAmmo(weaponStack, playerWrapper, amount, maximumMagazineSize);
 
         // No need to try switching since this will simply give amount of current ammo back
