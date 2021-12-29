@@ -12,8 +12,9 @@ public class ExperienceAmmo implements IAmmoType {
     private String symbol;
     private int experienceAsAmmoCost;
 
-    public ExperienceAmmo(String ammoName, int experienceAsAmmoCost) {
+    public ExperienceAmmo(String ammoName, String symbol, int experienceAsAmmoCost) {
         this.ammoName = ammoName;
+        this.symbol = symbol;
         this.experienceAsAmmoCost = experienceAsAmmoCost;
     }
 

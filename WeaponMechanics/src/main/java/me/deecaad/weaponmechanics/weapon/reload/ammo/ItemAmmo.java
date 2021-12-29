@@ -24,6 +24,14 @@ public class ItemAmmo implements IAmmoType {
     private ItemStack magazineItem;
     private AmmoConverter ammoConverter;
 
+    public ItemAmmo(String ammoName, String symbol, ItemStack bulletItem, ItemStack magazineItem, AmmoConverter ammoConverter) {
+        this.ammoName = ammoName;
+        this.symbol = symbol;
+        this.bulletItem = bulletItem;
+        this.magazineItem = magazineItem;
+        this.ammoConverter = ammoConverter;
+    }
+
     @Override
     public String getAmmoName() {
         return ammoName;

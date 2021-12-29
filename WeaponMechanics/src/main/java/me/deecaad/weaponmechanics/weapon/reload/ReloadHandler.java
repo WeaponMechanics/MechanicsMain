@@ -498,7 +498,5 @@ public class ReloadHandler implements IValidator {
                     StringUtil.foundAt(file, path + ".Unload_Ammo_On_Reload", unloadAmmoOnReload),
                     "Can't use Ammo_Per_Reload and Unload_Ammo_On_Reload at same time!");
         }
-
-        // todo consider item ammo with magazine while not using unload ammo on reload as error
     }
 }

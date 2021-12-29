@@ -48,27 +48,6 @@ public enum CustomTag {
     AMMO_MAGAZINE("ammo-magazine"),
 
     /**
-     * string
-     * Ammo item or magazine item name
-     */
-    @Deprecated
-    ITEM_AMMO_NAME("item-ammo-name"),
-
-    /**
-     * integer
-     * How much ammo magazine has left
-     */
-    @Deprecated
-    ITEM_AMMO_LEFT("item-ammo-left"),
-
-    /**
-     * integer
-     * Whether weapon still has magazine attached (0=true, 1=false)
-     */
-    @Deprecated
-    HAS_ITEM_MAGAZINE("has-item-magazine"),
-
-    /**
      * integer
      */
     FIREARM_ACTION_STATE("firearm-action-state");

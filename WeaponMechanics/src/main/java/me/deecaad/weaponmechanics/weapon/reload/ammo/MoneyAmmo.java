@@ -16,8 +16,9 @@ public class MoneyAmmo implements IAmmoType {
     private String symbol;
     private double moneyAsAmmoCost;
 
-    public MoneyAmmo(String ammoName, double moneyAsAmmoCost) {
+    public MoneyAmmo(String ammoName, String symbol, double moneyAsAmmoCost) {
         this.ammoName = ammoName;
+        this.symbol = symbol;
         this.moneyAsAmmoCost = moneyAsAmmoCost;
     }
 
