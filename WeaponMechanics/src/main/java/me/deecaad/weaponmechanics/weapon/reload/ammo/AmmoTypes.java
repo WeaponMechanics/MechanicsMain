@@ -56,7 +56,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             return true;
         }
 
-        if (ammoTypes.size() == 1 || !getConfigurations().getBool(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Automatic_When_Out_Of_Ammo")) return false;
+        if (ammoTypes.size() == 1) return false;
 
         int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
 

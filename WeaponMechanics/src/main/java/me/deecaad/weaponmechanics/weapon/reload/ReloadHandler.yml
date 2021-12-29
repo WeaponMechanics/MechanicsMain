@@ -9,7 +9,6 @@ Reload:
   Ammo:
     Out_Of_Ammo: <MechanicsSerializer>
     Ammo_Type_Switch:
-      Automatic_When_Out_Of_Ammo: <true/false>
       Trigger: <TriggerSerializer>
       Mechanics: <MechanicsSerializer>
     Ammo_Types: <AmmoTypesSerializer>
