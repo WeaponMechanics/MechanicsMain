@@ -54,11 +54,22 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
 
         if (ammoTypes.size() == 1 || !getConfigurations().getBool(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Automatic_When_Out_Of_Ammo")) return false;
 
+        int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
+
+        // If player didn't have ammo using current ammo type, but clip still has ammo left
+        // don't try to do the automatic switch and simply return false to indicate that
+        // player is out of ammo
+        if (ammoLeft > 0) return false;
+
         // Check from top to bottom for other ammo types
         for (int i = 0; i < ammoTypes.size(); ++i) {
             if (i == index) continue; // Don't try checking for that ammo type anymore
 
             if (!ammoTypes.get(i).hasAmmo(playerWrapper)) continue;
+
+            // Empty the weapon before switching using old ammo type
+            ammoTypes.get(index).giveAmmo(weaponStack, playerWrapper, ammoLeft);
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
 
             // Update the index automatically to use this new one
             setCurrentAmmoIndex(weaponStack, i);
