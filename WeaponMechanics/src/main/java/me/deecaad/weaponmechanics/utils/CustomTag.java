@@ -33,18 +33,6 @@ public enum CustomTag {
     AMMO_TYPE_INDEX("ammo-type-index"),
 
     /**
-     * integer
-     *
-     * Whether weapon has magazine attached (0 = false, 1 = true)
-     */
-    HAS_MAGAZINE("has-magazine"),
-
-    /**
-     * integer
-     */
-    MAGAZINE_AMMO_LEFT("magazine-ammo-left"),
-
-    /**
      * string
      * Ammo item or magazine item name
      */

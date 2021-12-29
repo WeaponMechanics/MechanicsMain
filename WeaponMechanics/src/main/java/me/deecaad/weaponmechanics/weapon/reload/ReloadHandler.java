@@ -224,7 +224,7 @@ public class ReloadHandler implements IValidator {
 
                 if (ammoTypes != null) {
 
-                    int removedAmount = ammoTypes.removeAmmo(weaponStack, playerWrapper, ammoToAdd);
+                    int removedAmount = ammoTypes.removeAmmo(weaponStack, playerWrapper, ammoToAdd, magazineSize);
 
                     // Just check if for some reason ammo disappeared from entity before reaching reload "complete" state
                     if (removedAmount <= 0) {
@@ -272,17 +272,12 @@ public class ReloadHandler implements IValidator {
                 }
                 int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
 
-                if (unloadAmmoOnReload) {
+                if (unloadAmmoOnReload && ammoLeft > 0) {
                     // unload weapon and give ammo back to given entity
 
-                    // This is not after ammoLeft > 0 check because if magazines are used we still
-                    // want to give the empty magazine back for player
-                    if (ammoTypes != null) ammoTypes.giveAmmo(weaponStack, playerWrapper, ammoLeft);
-
-                    if (ammoLeft > 0) {
-                        unloadedAmount = ammoLeft;
-                        CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-                    }
+                    if (ammoTypes != null) ammoTypes.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
+                    unloadedAmount = ammoLeft;
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
                 }
 
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);

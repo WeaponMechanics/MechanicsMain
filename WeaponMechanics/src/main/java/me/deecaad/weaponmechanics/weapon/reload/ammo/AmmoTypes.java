@@ -71,10 +71,6 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
 
             if (!ammoTypes.get(i).hasAmmo(playerWrapper)) continue;
 
-            // Empty the weapon before switching using old ammo type
-            ammoTypes.get(index).giveAmmo(weaponStack, playerWrapper, ammoLeft);
-            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-
             // Update the index automatically to use this new one
             setCurrentAmmoIndex(weaponStack, i);
 
@@ -85,23 +81,23 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
         return false;
     }
 
-    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
-        return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).removeAmmo(weaponStack, playerWrapper, amount);
+    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).removeAmmo(weaponStack, playerWrapper, amount, maximumMagazineSize);
 
         // No need to try switching since at this point it's high unlikely that any ammo can't be
         // removed from player since hasAmmo(String, ItemStack, IPlayerWrapper) is called before this
         // which also handles the automatic switch
     }
 
-    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
-        ammoTypes.get(getCurrentAmmoIndex(weaponStack)).giveAmmo(weaponStack, playerWrapper, amount);
+    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        ammoTypes.get(getCurrentAmmoIndex(weaponStack)).giveAmmo(weaponStack, playerWrapper, amount, maximumMagazineSize);
 
         // No need to try switching since this will simply give amount of current ammo back
     }
 
-    public int getMaximumAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper) {
+    public int getMaximumAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int maximumMagazineSize) {
         // No need to try switching since this will simply maximum amount of current ammo
-        return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).getMaximumAmmo(playerWrapper);
+        return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).getMaximumAmmo(playerWrapper, maximumMagazineSize);
     }
 
     @Override

@@ -202,9 +202,11 @@ public class WeaponHandler {
             if (ammoTypes != null) {
 
                 // First empty the current ammo
-                // AMMO_LEFT may be 0 here, but it's necessary to allow it pass if magazines are used
-                ammoTypes.giveAmmo(weaponStack, (IPlayerWrapper) entityWrapper, CustomTag.AMMO_LEFT.getInteger(weaponStack));
-                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+                int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
+                if (ammoLeft > 0) {
+                    ammoTypes.giveAmmo(weaponStack, (IPlayerWrapper) entityWrapper, ammoLeft, config.getInt(weaponTitle + ".Reload.Magazine_Size"));
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+                }
 
                 // Then do the switch
                 ammoTypes.updateToNextAmmoType(weaponStack);

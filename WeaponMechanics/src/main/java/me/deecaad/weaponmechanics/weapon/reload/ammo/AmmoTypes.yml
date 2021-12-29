@@ -3,14 +3,8 @@ Ammo_Types: <path to another Ammo Types key>
   1_Ammo_Type:
     Symbol: <symbol>
     Item_Ammo:
-      Bullet_Item: <item serializer>
-      Magazine:
-        Maximum_Magazine_Size: <amount>
-        Magazine_Item: <item serializer>
-        Not_Able_To_Fill:
-          Not_Same_Ammo_Name: <MechanicsSerializer>
-          Magazine_Already_Full: <MechanicsSerializer>
-        Magazine_Filled: <MechanicsSerializer>
+      Bullet_Item: <ItemSerializer>
+      Magazine_Item: <ItemSerializer>
       Ammo_Converter_Check:
         Type: <true/false>
         Name: <true/false>

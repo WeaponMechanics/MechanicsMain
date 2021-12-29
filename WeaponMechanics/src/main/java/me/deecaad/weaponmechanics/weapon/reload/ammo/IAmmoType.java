@@ -11,9 +11,9 @@ public interface IAmmoType {
 
     boolean hasAmmo(IPlayerWrapper playerWrapper);
 
-    int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount);
+    int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize);
 
-    void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount);
+    void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize);
 
-    int getMaximumAmmo(IPlayerWrapper playerWrapper);
+    int getMaximumAmmo(IPlayerWrapper playerWrapper, int maximumMagazineSize);
 }

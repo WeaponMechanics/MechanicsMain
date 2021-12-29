@@ -37,7 +37,7 @@ public class MoneyAmmo implements IAmmoType {
     }
 
     @Override
-    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
+    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         if (amount == 0) return 0;
         Player player = playerWrapper.getPlayer();
         double balance = vaultCompatibility.getBalance(player);
@@ -61,13 +61,13 @@ public class MoneyAmmo implements IAmmoType {
     }
 
     @Override
-    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
+    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         if (amount == 0) return;
         vaultCompatibility.depositBalance(playerWrapper.getPlayer(), this.moneyAsAmmoCost * amount);
     }
 
     @Override
-    public int getMaximumAmmo(IPlayerWrapper playerWrapper) {
+    public int getMaximumAmmo(IPlayerWrapper playerWrapper, int maximumMagazineSize) {
         double balance = vaultCompatibility.getBalance(playerWrapper.getPlayer());
         if (balance == 0) return 0;
 

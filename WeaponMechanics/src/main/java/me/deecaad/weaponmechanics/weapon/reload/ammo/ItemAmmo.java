@@ -1,8 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -17,10 +15,6 @@ public class ItemAmmo implements IAmmoType {
     private String symbol;
     private ItemStack ammo;
     private ItemStack magazine;
-    private int maximumMagazineSize;
-    private Mechanics notSameAmmoName;
-    private Mechanics magazineAlreadyFull;
-    private Mechanics magazineFilled;
     private AmmoConverter ammoConverter;
 
     @Override
@@ -42,18 +36,14 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
+    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        if (amount == 0) return 0;
+
         if (magazine != null) {
 
             // todo
 
-            // If removed amount > 0 meaning that magazine has been put back ->
-            // Set HAS_MAGAZINE back to 1 to indicate that the magazine is now there.
-            // When using magazines Unload_Ammo_On_Reload should always be true
-            // so HAS_MAGAZINE should always be 0 here since giveAmmo() is called before this.
-            CustomTag.HAS_MAGAZINE.setInteger(weaponStack, 1);
-
-            return 0; // todo -> removed amount
+            return 0;
         }
 
         // todo
@@ -62,44 +52,22 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount) {
-        Player player = playerWrapper.getPlayer();
+    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        if (amount == 0) return;
 
         if (magazine != null) {
             ItemStack cloneMagazine = magazine.clone();
-
-            if (amount == 0) {
-                // Give empty magazine back if isn't yet been given
-                if (CustomTag.HAS_MAGAZINE.getInteger(weaponStack) == 1) {
-                    // 1 in HAS_MAGAZINE means that weapon still has magazine attached
-
-                    updatePlaceholders(cloneMagazine, player);
-
-                    // No need to set MAGAZINE_AMMO_LEFT to 0 since by default
-                    // it's always 0 when cloning magazine
-
-                    giveOrDrop(player, cloneMagazine);
-
-                    // Set HAS_MAGAZINE to 0 to indicate that weapon doesn't even have empty
-                    // magazine attached to it anymore
-                    CustomTag.HAS_MAGAZINE.setInteger(weaponStack, 0);
-                }
-                return;
-            }
 
             // todo
 
             return;
         }
 
-        // When not using magazines there isn't need to give empty magazine back...
-        if (amount == 0) return;
-
         // todo
     }
 
     @Override
-    public int getMaximumAmmo(IPlayerWrapper playerWrapper) {
+    public int getMaximumAmmo(IPlayerWrapper playerWrapper, int maximumMagazineSize) {
 
         // todo
 
