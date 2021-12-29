@@ -9,9 +9,16 @@ dependencies {
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(16))
+//java {
+//    toolchain {
+//        languageVersion.set(JavaLanguageVersion.of(16))
+//    }
+//}
+
+tasks {
+    compileJava {
+        options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
+        options.release.set(16)
     }
 }
 
