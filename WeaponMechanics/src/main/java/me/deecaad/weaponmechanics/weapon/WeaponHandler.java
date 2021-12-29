@@ -196,11 +196,17 @@ public class WeaponHandler {
 
         // Selective fire wasn't valid, try ammo type switch
         Trigger ammoTypeSwitchTrigger = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Trigger", Trigger.class);
-        if (ammoTypeSwitchTrigger != null && ammoTypeSwitchTrigger.check(triggerType, slot, entityWrapper)) {
+        if (ammoTypeSwitchTrigger != null && entityWrapper instanceof IPlayerWrapper && ammoTypeSwitchTrigger.check(triggerType, slot, entityWrapper)) {
 
             AmmoTypes ammoTypes = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
             if (ammoTypes != null) {
 
+                // First empty the current ammo
+                // AMMO_LEFT may be 0 here, but it's necessary to allow it pass if magazines are used
+                ammoTypes.giveAmmo(weaponStack, (IPlayerWrapper) entityWrapper, CustomTag.AMMO_LEFT.getInteger(weaponStack));
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+
+                // Then do the switch
                 ammoTypes.updateToNextAmmoType(weaponStack);
 
                 Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
