@@ -1,6 +1,6 @@
 package me.deecaad.core.compatibility.entity;
 
-public enum MetaBitState {
+public enum BitMutator {
 
     /**
      * Keep whatever data was previously there
