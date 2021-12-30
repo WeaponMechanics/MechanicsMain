@@ -30,11 +30,13 @@ import static me.deecaad.core.compatibility.entity.BitMutator.*;
  */
 public abstract class FakeEntity {
 
+    private final EntityType type;
     private final EntityMeta meta;
     protected int cache = -1;
 
     public FakeEntity(@Nonnull Location location, @Nonnull EntityType type, @Nullable Object data) {
         init(location, type, data);
+        this.type = type;
         this.meta = new EntityMeta();
     }
 
@@ -56,6 +58,12 @@ public abstract class FakeEntity {
     // *       Tick Methods        * //
     // * ------------------------- * //
 
+    public void setMotion(@Nonnull Vector motion) {
+        setMotion(motion.getX(), motion.getY(), motion.getZ());
+    }
+
+    public abstract void setMotion(double x, double y, double z);
+
     public void setPosition(Location position) {
         setPosition(position.getX(), position.getY(), position.getZ());
     }
@@ -66,18 +74,41 @@ public abstract class FakeEntity {
 
     public abstract void setPosition(double x, double y, double z);
 
-    public void setMotion(@Nonnull Vector motion) {
-        setMotion(motion.getX(), motion.getY(), motion.getZ());
-    }
-
-    public abstract void setMotion(double x, double y, double z);
-
     public void setRotation(float yaw, float pitch) {
         setRotation(yaw, pitch, false);
     }
 
     public abstract void setRotation(float yaw, float pitch, boolean absolute);
 
+    public void setPositionRotation(double dx, double dy, double dz, float yaw, float pitch) {
+        setPositionRotation((short) (dx * 4096), (short) (dy * 4096), (short) (dz * 4096), convertYaw(yaw), convertPitch(pitch));
+    }
+
+    public abstract void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch);
+
+    private byte convertPitch(float degrees) {
+        degrees *= 256.0f / 360.0f;
+        if (!type.isAlive()) {
+            return (byte) -degrees;
+        }
+        return (byte) degrees;
+    }
+
+    private byte convertYaw(float degrees) {
+        degrees *= 256.0f / 360.0f;
+        switch (type) {
+            case ARROW:
+                return (byte) -degrees;
+            case WITHER_SKULL:
+            case ENDER_DRAGON:
+                return (byte) (degrees - 128.0f);
+            default:
+                if (!type.isAlive() && type != EntityType.ARMOR_STAND) {
+                    return (byte) (degrees - 64.0f);
+                }
+                return (byte) degrees;
+        }
+    }
 
     // * ------------------------- * //
     // *   Packet Based Methods    * //
