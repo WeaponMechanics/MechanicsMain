@@ -91,14 +91,14 @@ public class ItemSerializer implements Serializer<ItemStack>, Listener {
         if (event.isCancelled()) return;
         // 3) Deny when dragging
 
-        // Check if the item should be denied
-        if (!isDenyCraftingItem(event.getOldCursor())) return;
-
         // If "external" inventory is not open, this is player's CRAFTING inventory
         Inventory topInventory = event.getView().getTopInventory();
 
         // Check if top inventory is crafting inventory
         if (!isCraftingInventory(topInventory.getType())) return;
+
+        // Check if the item should be denied
+        if (!isDenyCraftingItem(event.getOldCursor())) return;
 
         // Now we iterate raw slots where item was being dragged to
         for (int rawSlot : event.getRawSlots()) {
