@@ -202,6 +202,17 @@ public final class NumberUtil {
     }
 
     /**
+     * Shorthand to square a given number. Avoids using <code>Math.pow</code>,
+     * which wastes resources.
+     *
+     * @param num The number to square.
+     * @return The result.
+     */
+    public static double square(double num) {
+        return num * num;
+    }
+
+    /**
      * Returns <code>true</code> if the 2 given numbers are redundantly similar
      * (To ~10 decimal places) that they could be considered equal. This is
      * useful for math with floating point numbers, since binary has a hard
