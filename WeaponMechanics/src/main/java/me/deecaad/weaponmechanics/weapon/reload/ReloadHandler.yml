@@ -6,4 +6,9 @@ Reload:
   Reload_Duration: <ticks>
   Start_Mechanics: <MechanicsSerializer>
   Finish_Mechanics: <MechanicsSerializer>
-  Ammo: <ammo serializer>
+  Ammo:
+    Out_Of_Ammo: <MechanicsSerializer>
+    Ammo_Type_Switch:
+      Trigger: <TriggerSerializer>
+      Mechanics: <MechanicsSerializer>
+    Ammo_Types: <AmmoTypesSerializer>

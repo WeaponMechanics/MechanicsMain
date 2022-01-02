@@ -122,8 +122,9 @@ public class HandData {
         if (this.reloadTasks.isEmpty()) {
             reloadStart = System.currentTimeMillis();
         }
-        for (int i : reloadTasks)
+        for (int i : reloadTasks) {
             this.reloadTasks.add(i);
+        }
     }
 
     public boolean isReloading() {
@@ -136,7 +137,9 @@ public class HandData {
 
     public void finishReload() {
         if (!reloadTasks.isEmpty()) {
-            reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
+            for (int task : reloadTasks) {
+                Bukkit.getScheduler().cancelTask(task);
+            }
             reloadTasks.clear();
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
@@ -149,7 +152,9 @@ public class HandData {
 
     public void stopReloadingTasks() {
         if (!reloadTasks.isEmpty()) {
-            reloadTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
+            for (int task : reloadTasks) {
+                Bukkit.getScheduler().cancelTask(task);
+            }
             reloadTasks.clear();
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), getReloadElapsedTime()));
@@ -174,8 +179,9 @@ public class HandData {
     }
 
     public void addFirearmActionTasks(int... firearmTask) {
-        for (int i : firearmTask)
+        for (int i : firearmTask) {
             firearmActionTasks.add(i);
+        }
     }
 
     public boolean hasRunningFirearmAction() {
@@ -184,7 +190,9 @@ public class HandData {
 
     public void stopFirearmActionTasks() {
         if (!firearmActionTasks.isEmpty()) {
-            firearmActionTasks.forEach(task -> Bukkit.getScheduler().cancelTask(task));
+            for (int task : firearmActionTasks) {
+                Bukkit.getScheduler().cancelTask(task);
+            }
             firearmActionTasks.clear();
         }
     }
