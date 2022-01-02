@@ -235,7 +235,7 @@ public class ItemAmmo implements IAmmoType {
 
             // Give rest of the ammo as bullet items back if defined
             if (bulletItem != null) {
-                int remainder = maximumMagazineSize % amount;
+                int remainder = amount % maximumMagazineSize;
                 if (remainder > 0) {
                     giveOrDrop(player, bulletItem.clone(), remainder);
                 }
