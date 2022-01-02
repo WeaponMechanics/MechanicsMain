@@ -1,10 +1,9 @@
 package me.deecaad.core;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.listeners.ItemCraftListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
@@ -57,7 +56,7 @@ public class MechanicsCore extends JavaPlugin {
         if (ReflectionUtil.getMCVersion() >= 11) {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         }
-        Bukkit.getPluginManager().registerEvents(new ItemSerializer(), this);
+        Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
     }
 
     @Override
