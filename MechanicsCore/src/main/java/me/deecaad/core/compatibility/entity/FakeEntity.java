@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static me.deecaad.core.utils.NumberUtil.square;
 
@@ -51,6 +50,38 @@ public abstract class FakeEntity {
     }
 
     // * ------------------------- * //
+    // *  Current Location Methods * //
+    // * ------------------------- * //
+
+    public double getX() {
+        return location.getX();
+    }
+
+    public double getY() {
+        return location.getY();
+    }
+
+    public double getZ() {
+        return location.getZ();
+    }
+
+    public float getYaw() {
+        return location.getYaw();
+    }
+
+    public float getPitch() {
+        return location.getPitch();
+    }
+
+    protected void setLocation(double x, double y, double z, float yaw, float pitch) {
+        location.setX(x);
+        location.setY(y);
+        location.setZ(z);
+        location.setYaw(yaw);
+        location.setPitch(pitch);
+    }
+
+    // * ------------------------- * //
     // *       Tick Methods        * //
     // * ------------------------- * //
 
@@ -87,6 +118,10 @@ public abstract class FakeEntity {
     /**
      * Sends an entity rotation packet to all players who can see this entity.
      *
+     * @implNote
+     * Implementing classes should set <code>this.location</code> using
+     * {@link Location#setYaw(float)} and {@link Location#setPitch(float)}.
+     *
      * @param yaw   The absolute yaw rotation of the entity.
      * @param pitch The absolute pitch rotation of the entity.
      */
@@ -100,26 +135,50 @@ public abstract class FakeEntity {
      * @param pitch The pitch to set the entity at.
      */
     public final void setPosition(Vector pos, float yaw, float pitch) {
-        setPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch);
+        setPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch, false);
     }
 
+    /**
+     * Shorthand for calling {@link #setPosition(double, double, double, float, float, boolean)}.
+     *
+     * @param x     The new position on the x-axis.
+     * @param y     The new position on the y-axis.
+     * @param z     The new position on the z-axis.
+     * @param yaw   The yaw to set the entity at.
+     * @param pitch The pitch to set the entity at.
+     */
     public final void setPosition(double x, double y, double z, float yaw, float pitch) {
+        setPosition(x, y, z, yaw, pitch, false);
+    }
+
+    /**
+     * Sets position of this entity. When the new location is within 8 blocks,
+     * a move-look packet is sent (using a relative position). Otherwise, a
+     * teleport packet is sent (using an absolute position).
+     *
+     * <p>If you do not want to change the entity's yaw/pitch, you may use
+     * {@link #getYaw()} and {@link #getPitch()}.
+     *
+     * @param x     The new position on the x-axis.
+     * @param y     The new position on the y-axis.
+     * @param z     The new position on the z-axis.
+     * @param yaw   The yaw to set the entity at.
+     * @param pitch The pitch to set the entity at.
+     * @param raw   true to always use a teleport packet.
+     */
+    public final void setPosition(double x, double y, double z, float yaw, float pitch, boolean raw) {
         double lengthSquared = square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
 
         // When the change of position >8, then we cannot use the move-look
         // packet since it is limited by the size of a short. When we cannot
         // use move-look, we use a teleport packet instead.
-        if (lengthSquared == 0.0 || lengthSquared > 64.0) {
+        if (raw || lengthSquared == 0.0 || lengthSquared > 64.0) {
+            setLocation(x, y, z, yaw, pitch);
             setPositionRaw(x, y, z, yaw, pitch);
         } else {
-            setPositionRotation(x - location.getX(), y - location.getY(), z, yaw, pitch);
+            setPositionRotation(x - location.getX(), y - location.getY(), z - location.getZ(), yaw, pitch);
+            setLocation(x, y, z, yaw, pitch);
         }
-
-        // Store the current location of the entity. We need this information
-        // to determine whether to use a move-look packet or a teleport packet.
-        location.setX(x);
-        location.setY(y);
-        location.setZ(z);
     }
 
     // private since nobody should use this method

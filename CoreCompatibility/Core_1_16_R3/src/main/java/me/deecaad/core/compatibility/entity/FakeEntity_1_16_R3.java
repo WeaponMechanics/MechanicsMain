@@ -90,8 +90,18 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     }
 
     @Override
+    protected void setLocation(double x, double y, double z, float yaw, float pitch) {
+        super.setLocation(x, y, z, yaw, pitch);
+
+        // Needed for teleport packet.
+        entity.setPositionRaw(x, y, z);
+        entity.yaw = yaw;
+        entity.pitch = pitch;
+    }
+
+    @Override
     public void setGravity(boolean isGravity) {
-        entity.setNoGravity(!isGravity);
+        //entity.setNoGravity(!isGravity);
     }
 
     @Override
@@ -105,8 +115,12 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
 
     @Override
     public void setRotation(float yaw, float pitch) {
-        PacketPlayOutEntityLook packet = new PacketPlayOutEntityLook(cache, convertYaw(yaw), convertPitch(pitch), false);
-        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw)) : null;
+        location.setYaw(yaw);
+        location.setPitch(pitch);
+
+        byte byteYaw = convertYaw(yaw);
+        PacketPlayOutEntityLook packet = new PacketPlayOutEntityLook(cache, byteYaw, convertPitch(pitch), false);
+        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, byteYaw) : null;
 
         for (PlayerConnection connection : connections) {
             connection.sendPacket(packet);
@@ -117,10 +131,6 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
 
     @Override
     public void setPositionRaw(double x, double y, double z, float yaw, float pitch) {
-        entity.setPositionRaw(x, y, z);
-        entity.yaw = yaw;
-        entity.pitch = pitch;
-
         PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(entity);
         PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw)) : null;
 
@@ -154,6 +164,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     @Override
     public void show(@NotNull Player player) {
         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+
         if (type.isAlive())
             connection.sendPacket(new PacketPlayOutSpawnEntityLiving((EntityLiving) entity));
         else

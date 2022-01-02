@@ -63,20 +63,22 @@ public class FakeEntityCommand extends SubCommand {
 
                 switch (moveType) {
                     case "spin":
+                        entity.setMotion(0, 0, 0);
                         entity.setRotation(rotation += 10, rotation / 10);
                         break;
                     case "flash":
                         if (ticksAlive % 10 == 0) flash = !flash;
+                        entity.setMotion(0, 0, 0);
                         entity.getMeta().setFlag(EntityMetaFlag.GLOWING, flash ? BitMutator.TRUE : BitMutator.FALSE);
                         entity.updateMeta();
                         break;
                     case "sky":
-                        entity.setMotion(0, 1, 0);
-                        entity.setPosition(position.setY(position.getY() + 1), 0.0f, 0.0f);
+                        //entity.setMotion(0, 0.08, 0);
+                        entity.setPosition(position.setY(position.getY() + 0.08), 0.0f, 0.0f);
                         break;
                     case "x":
-                        entity.setMotion(1, 0, 0);
-                        entity.setPosition(position.setX(position.getX() + 1), 0.0f, 0.0f);
+                        //entity.setMotion(0.08, 0, 0);
+                        entity.setPosition(position.setX(position.getX() + 0.08), 0.0f, 0.0f);
                         break;
                 }
             }

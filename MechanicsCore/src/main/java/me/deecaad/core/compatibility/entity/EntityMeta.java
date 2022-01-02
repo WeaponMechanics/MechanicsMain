@@ -67,6 +67,8 @@ public class EntityMeta {
     public byte apply(byte data) {
 
         // For each bit in the byte, set the requested data
+        // todo Investigate performance benefit of storing
+        // todo this as 2 bit masks instead of 8.
         for (int i = 0; i < Byte.SIZE; i++) {
             BitMutator flag = meta[i];
 
