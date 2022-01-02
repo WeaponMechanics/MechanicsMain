@@ -27,8 +27,8 @@ import static me.deecaad.core.utils.NumberUtil.square;
  */
 public abstract class FakeEntity {
 
-    private final EntityType type;
-    private final EntityMeta meta;
+    protected final EntityType type;
+    protected final EntityMeta meta;
     protected Location location;
     protected int cache = -1;
 
@@ -53,6 +53,17 @@ public abstract class FakeEntity {
     // * ------------------------- * //
     // *       Tick Methods        * //
     // * ------------------------- * //
+
+    /**
+     * Disables entity gravity. This has no effect server-side, and will not
+     * affect motion/position/rotation/anything. Instead, this method tells the
+     * client that the entity should not automatically have gravity applied.
+     *
+     * <p>This method should be called BEFORE showing this entity to the client.
+     *
+     * @param isGravity true -> gravity, false -> no gravity.
+     */
+    public abstract void setGravity(boolean isGravity);
 
     /**
      * Shorthand for {@link #setMotion(double, double, double)}.
@@ -103,6 +114,12 @@ public abstract class FakeEntity {
         } else {
             setPositionRotation(x - location.getX(), y - location.getY(), z, yaw, pitch);
         }
+
+        // Store the current location of the entity. We need this information
+        // to determine whether to use a move-look packet or a teleport packet.
+        location.setX(x);
+        location.setY(y);
+        location.setZ(z);
     }
 
     // private since nobody should use this method

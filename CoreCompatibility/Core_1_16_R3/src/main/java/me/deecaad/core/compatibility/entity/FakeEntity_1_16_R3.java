@@ -45,6 +45,10 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     private final Entity entity;
     private final List<PlayerConnection> connections; // store the player connection to avoid type cast
 
+    // Only 1 of these can be used at a time
+    private IBlockData block;
+    private net.minecraft.server.v1_16_R3.ItemStack item;
+
     public FakeEntity_1_16_R3(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
         super(location, type);
 
@@ -54,6 +58,11 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         CraftWorld world = (CraftWorld) location.getWorld();
         Entity entity;
 
+        // Location vars
+        double x = location.getX();
+        double y = location.getY();
+        double z = location.getZ();
+
         // Some entity types (dropped items and falling blocks, for example)
         // require extra data in order to display. We only need to use these
         // constructors when we are given the data (data != null).
@@ -62,13 +71,14 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             // Cannot use java 16 switch statements, unfortunately.
             switch (type) {
                 case DROPPED_ITEM:
-                    entity = new EntityItem(world.getHandle(), location.getX(), location.getY(), location.getZ(), CraftItemStack.asNMSCopy((ItemStack) data));
+                    entity = new EntityItem(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((ItemStack) data));
                     break;
                 case FALLING_BLOCK:
-                    entity = new EntityFallingBlock(world.getHandle(), location.getX(), location.getY(), location.getZ(), ((CraftBlockState) data).getHandle());
+                    entity = new EntityFallingBlock(world.getHandle(), x, y, z, block = ((CraftBlockState) data).getHandle());
                     break;
                 default:
                     entity = world.createEntity(location, type.getEntityClass());
+                    break;
             }
         } else {
             entity = world.createEntity(location, type.getEntityClass());
@@ -80,15 +90,29 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     }
 
     @Override
+    public void setGravity(boolean isGravity) {
+        entity.setNoGravity(!isGravity);
+    }
+
+    @Override
     public void setMotion(double dx, double dy, double dz) {
-        PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(cache, new Vec3D(dx, dy, dz));
-        connections.forEach(connection -> connection.sendPacket(velocity));
+        PacketPlayOutEntityVelocity packet = new PacketPlayOutEntityVelocity(cache, new Vec3D(dx, dy, dz));
+
+        for (PlayerConnection connection : connections) {
+            connection.sendPacket(packet);
+        }
     }
 
     @Override
     public void setRotation(float yaw, float pitch) {
         PacketPlayOutEntityLook packet = new PacketPlayOutEntityLook(cache, convertYaw(yaw), convertPitch(pitch), false);
-        connections.forEach(connection -> connection.sendPacket(packet));
+        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw)) : null;
+
+        for (PlayerConnection connection : connections) {
+            connection.sendPacket(packet);
+            if (head != null)
+                connection.sendPacket(head);
+        }
     }
 
     @Override
@@ -97,19 +121,26 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         entity.yaw = yaw;
         entity.pitch = pitch;
 
-        // We need to store the current location of the entity
-        location.setX(x);
-        location.setY(y);
-        location.setZ(z);
+        PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(entity);
+        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw)) : null;
 
-        PacketPlayOutEntityTeleport teleport = new PacketPlayOutEntityTeleport(entity);
-        connections.forEach(connection -> connection.sendPacket(teleport));
+        for (PlayerConnection connection : connections) {
+            connection.sendPacket(packet);
+            if (head != null)
+                connection.sendPacket(head);
+        }
     }
 
     @Override
     public void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch) {
         PacketPlayOutRelEntityMoveLook packet = new PacketPlayOutRelEntityMoveLook(cache, dx, dy, dz, yaw, pitch, false);
-        connections.forEach(connection -> connection.sendPacket(packet));
+        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw)) : null;
+
+        for (PlayerConnection connection : connections) {
+            connection.sendPacket(packet);
+            if (head != null)
+                connection.sendPacket(head);
+        }
     }
 
     public void show() {
@@ -123,7 +154,16 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     @Override
     public void show(@NotNull Player player) {
         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-        connection.sendPacket(new PacketPlayOutSpawnEntity(entity));
+        if (type.isAlive())
+            connection.sendPacket(new PacketPlayOutSpawnEntityLiving((EntityLiving) entity));
+        else
+            connection.sendPacket(new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1));
+
+        // When people set yaw and pitch in the location, we should use it
+        setRotation(location.getYaw(), location.getPitch());
+        if (type.isAlive())
+            connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, convertYaw(location.getYaw())));
+
         connection.sendPacket(getMetaPacket());
 
         // Inject the player's packet connection into this listener, so we can

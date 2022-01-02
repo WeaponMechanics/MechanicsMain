@@ -10,7 +10,7 @@ import static me.deecaad.core.compatibility.entity.BitMutator.*;
  * ({@link EntityMetaFlag}-{@link BitMutator}, respectively). These mutators
  * can be applied to an entity's metadata to change its appearance.
  *
- * @see FakeEntity#
+ * @see FakeEntity#getMeta()
  */
 public class EntityMeta {
 
@@ -26,9 +26,25 @@ public class EntityMeta {
      *
      * @param flag     The non-null entity meta flag (key) to modify.
      * @param bitState The non-null bit state to apply.
+     * @return A non-null reference to this entity meta.
      */
-    public void setFlag(@Nonnull EntityMetaFlag flag, @Nonnull BitMutator bitState) {
+    @Nonnull
+    public EntityMeta setFlag(@Nonnull EntityMetaFlag flag, @Nonnull BitMutator bitState) {
         meta[flag.getIndex()] = bitState;
+        return this;
+    }
+
+    /**
+     * Sets the given <code>flag</code> to the given <code>bitState</code>.
+     *
+     * @param flag     The non-null entity meta flag (key) to modify.
+     * @param bitState true for TRUE or false for FALSE.
+     * @return A non-null reference to this entity meta.
+     */
+    @Nonnull
+    public EntityMeta setFlag(@Nonnull EntityMetaFlag flag, boolean bitState) {
+        meta[flag.getIndex()] = bitState ? TRUE : FALSE;
+        return this;
     }
 
     /**
@@ -56,10 +72,10 @@ public class EntityMeta {
 
             switch (flag) {
                 case TRUE:
-                    data = (byte) (data | (1 << data));
+                    data = (byte) (data | (1 << i));
                     break;
                 case FALSE:
-                    data = (byte) (data & ~(1 << data));
+                    data = (byte) (data & ~(1 << i));
                     break;
                 case RETAIN:
                     // no changes if we want to keep the data
