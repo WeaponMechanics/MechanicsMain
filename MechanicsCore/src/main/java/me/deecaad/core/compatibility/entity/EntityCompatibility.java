@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -277,6 +278,16 @@ public interface EntityCompatibility {
     }
 
     List<Object> generateNonNullList(int size, TriIntConsumer<ItemStack, ItemStack> consumer);
+
+    FakeEntity generateFakeEntity(Location location, EntityType type, Object data);
+
+    default FakeEntity generateFakeEntity(Location location, ItemStack item) {
+        return generateFakeEntity(location, EntityType.DROPPED_ITEM, item);
+    }
+
+    default FakeEntity generateFakeEntity(Location location, BlockState block) {
+        return generateFakeEntity(location, EntityType.FALLING_BLOCK, block);
+    }
 
     /**
      * This enum outlines the different flags and their byte location for

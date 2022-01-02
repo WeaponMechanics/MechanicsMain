@@ -49,7 +49,7 @@ public final class WeaponMechanicsAPI {
         checkState();
         notNull(entity);
 
-        IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, false);
+        IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, true);
         if (wrapper == null)
             return 0;
 
@@ -83,7 +83,7 @@ public final class WeaponMechanicsAPI {
         checkState();
         notNull(entity);
 
-        IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, false);
+        IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, true);
         if (wrapper == null)
             return false;
 
