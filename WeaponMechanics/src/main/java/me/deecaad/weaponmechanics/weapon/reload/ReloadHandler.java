@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
@@ -194,9 +195,13 @@ public class ReloadHandler implements IValidator {
             return false;
         }
 
-        Ammo ammo = config.getObject(weaponTitle + ".Reload.Ammo", Ammo.class);
-        if (ammo != null && !ammo.hasAmmo(entityWrapper)) {
-            ammo.useOutOfAmmo(new CastData(entityWrapper, weaponTitle, weaponStack));
+        IPlayerWrapper playerWrapper = entityWrapper instanceof IPlayerWrapper ? (IPlayerWrapper) entityWrapper : null;
+        // If not player wrapper, don't even try to use ammo
+        AmmoTypes ammoTypes = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class) : null;
+
+        if (ammoTypes != null && !ammoTypes.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
+            Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
+            if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
             return false;
         }
 
@@ -217,13 +222,14 @@ public class ReloadHandler implements IValidator {
                 // Here creating this again since this may change if there isn't enough ammo...
                 int ammoToAdd = finalAmmoToAdd + unloadedAmount;
 
-                if (ammo != null) {
+                if (ammoTypes != null) {
 
-                    int removedAmount = ammo.remove(entityWrapper, ammoToAdd, magazineSize);
+                    int removedAmount = ammoTypes.removeAmmo(weaponStack, playerWrapper, ammoToAdd, magazineSize);
 
-                    // Just check if for some reason ammo disappeared from entity before reaching reload state
+                    // Just check if for some reason ammo disappeared from entity before reaching reload "complete" state
                     if (removedAmount <= 0) {
-                        ammo.useOutOfAmmo(new CastData(entityWrapper, weaponTitle, weaponStack));
+                        Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
+                        if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);
@@ -233,22 +239,8 @@ public class ReloadHandler implements IValidator {
                     }
 
                     // Else simply set ammo to add value to removed amount
-                    // Removed amount will be less than ammo to add amount IF there wasn't enough ammo in entity
+                    // Removed amount will be less than ammo to add amount IF player didn't have that much ammo
                     ammoToAdd = removedAmount;
-
-                    if (ammo.isItemMagazineAmmo()) {
-                        int itemMagazineNum = CustomTag.HAS_ITEM_MAGAZINE.getInteger(weaponStack);
-                        // 0 = true
-                        // 1 = false
-
-                        if (itemMagazineNum == 0) {
-                            // give current mag for player (even if there is ammo left)
-                            ammo.give(entityWrapper, ammoLeft, magazineSize);
-                        } else {
-                            // Set to value 0 to indicate that the mag is in again
-                            CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 0);
-                        }
-                    }
                 }
 
                 int finalAmmoSet = ammoLeft + ammoToAdd;
@@ -279,34 +271,13 @@ public class ReloadHandler implements IValidator {
                     firearmAction.reloadState(weaponStack);
                 }
                 int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
-                if (unloadAmmoOnReload) {
 
-                    if (ammo != null) {
+                if (unloadAmmoOnReload && ammoLeft > 0) {
+                    // unload weapon and give ammo back to given entity
 
-                        if (ammo.isItemMagazineAmmo()) {
-                            int itemMagazineNum = CustomTag.HAS_ITEM_MAGAZINE.getInteger(weaponStack);
-                            // 0 = true
-                            // 1 = false
-
-                            if (itemMagazineNum == 0) {
-                                // Set to value 1 to indicate that the mag is now removed
-                                CustomTag.HAS_ITEM_MAGAZINE.setInteger(weaponStack, 1);
-
-                                // give mag back
-                                ammo.give(entityWrapper, ammoLeft, magazineSize);
-                            }
-                        } else if (ammoLeft > 0) {
-                            ammo.give(entityWrapper, ammoLeft, magazineSize);
-                        }
-                    }
-
-                    if (ammoLeft > 0) {
-
-                        unloadedAmount = ammoLeft;
-
-                        // unload weapon and give ammo back to given entity
-                        CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-                    }
+                    if (ammoTypes != null) ammoTypes.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
+                    unloadedAmount = ammoLeft;
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
                 }
 
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
@@ -315,8 +286,10 @@ public class ReloadHandler implements IValidator {
                 Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
                 if (reloadStartMechanics != null) reloadStartMechanics.use(castData);
 
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (playerWrapper != null) {
+                    WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, weaponTitle, weaponStack);
+                }
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
@@ -376,8 +349,10 @@ public class ReloadHandler implements IValidator {
         Mechanics reloadFinishMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Finish_Mechanics", Mechanics.class);
         if (reloadFinishMechanics != null) reloadFinishMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
-        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+        if (entityWrapper instanceof IPlayerWrapper) {
+            WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+        }
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
     }
@@ -444,8 +419,10 @@ public class ReloadHandler implements IValidator {
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
                 firearmAction.useMechanics(castData, true);
 
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (entityWrapper instanceof IPlayerWrapper) {
+                    WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                }
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
@@ -475,8 +452,10 @@ public class ReloadHandler implements IValidator {
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
                 firearmAction.useMechanics(castData, false);
 
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (entityWrapper instanceof IPlayerWrapper) {
+                    WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                }
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
