@@ -167,7 +167,7 @@ public class HitBox implements IValidator {
             if (horizontalEntity || arms) {
                 Vector normalizedEntityDirection = livingEntity.getLocation().getDirection();
 
-                if (horizontalEntity && new HitBox(minX, minY, minZ, maxX, maxY, maxZ).expand(normalizedEntityDirection, FRONT_HIT).collides(hitLocation)) {
+                if (horizontalEntity && !new HitBox(minX, minY, minZ, maxX, maxY, maxZ).expand(normalizedEntityDirection, FRONT_HIT).collides(hitLocation)) {
                     // Basically removes directionally 0.2 from this entity hitbox and check if the hit location is still in the hitbox
                     return DamagePoint.HEAD;
                 }

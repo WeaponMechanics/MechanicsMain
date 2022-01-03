@@ -7,9 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -106,7 +104,6 @@ public class ProjectilesRunnable extends BukkitRunnable {
         while (projectilesIterator.hasNext()) {
             AProjectile projectile = projectilesIterator.next();
             try {
-
                 if (projectile.tick()) {
 
                     // Call the remove method of projectile

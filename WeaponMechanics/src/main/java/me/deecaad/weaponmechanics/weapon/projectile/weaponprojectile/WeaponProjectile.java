@@ -7,9 +7,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -35,6 +33,11 @@ public class WeaponProjectile extends AProjectile {
     private StickedData stickedData;
     private int throughAmount;
     private int bounces;
+
+    // These are for through and bouncy to deny collision with
+    // same block or entity right after colliding with it
+    private Location lastBlock;
+    private int lastEntity = -1;
 
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
                             Vector motion, ItemStack weaponStack, String weaponTitle,
@@ -162,10 +165,16 @@ public class WeaponProjectile extends AProjectile {
             return false;
         }
 
+        boolean noFinalUpdate = false;
+        double cacheMotionLength = getMotionLength();
         double distanceAlreadyAdded = 0;
 
         for (RayTraceResult hit : hits) {
 
+            // Check if hitting same entity or block as last time
+            if (equalToLast(hit)) continue;
+
+            // Stay on track of current location and distance travelled on each loop
             setRawLocation(hit.getHitLocation());
             double add = hit.getDistanceTravelled() - distanceAlreadyAdded;
             addDistanceTravelled(distanceAlreadyAdded += add);
@@ -182,6 +191,7 @@ public class WeaponProjectile extends AProjectile {
             // Sticky
             if (sticky != null && sticky.handleSticking(this, hit)) {
                 // Break since projectile sticked to entity or block
+                noFinalUpdate = true;
                 break;
             }
 
@@ -190,6 +200,9 @@ public class WeaponProjectile extends AProjectile {
                 // Continue since projectile went through.
                 // We still need to check that other collisions also allows this
                 ++throughAmount;
+
+                // Update last hit entity / block
+                updateLast(hit);
                 continue;
             }
 
@@ -197,6 +210,11 @@ public class WeaponProjectile extends AProjectile {
             if (bouncy != null && bouncy.handleBounce(this, hit)) {
                 // Break since projectile bounced to different direction
                 ++bounces;
+
+                // Update last hit entity / block
+                updateLast(hit);
+
+                noFinalUpdate = true;
                 break;
             }
 
@@ -204,7 +222,31 @@ public class WeaponProjectile extends AProjectile {
             return true;
         }
 
+        // Check that projectile didn't stick, or just bounce
+        if (!noFinalUpdate) {
+            // Here we know that projectile didn't die on any collision.
+            // We still have to update the location to last possible location.
+            setRawLocation(possibleNextLocation);
+            addDistanceTravelled(cacheMotionLength - distanceAlreadyAdded);
+        }
+
         return false;
+    }
+
+    private void updateLast(RayTraceResult hit) {
+        if (hit.isBlock()) {
+            lastBlock = hit.getBlock().getLocation();
+        } else {
+            lastEntity = hit.getLivingEntity().getEntityId();
+        }
+    }
+
+    private boolean equalToLast(RayTraceResult hit) {
+        if (hit.isBlock()) {
+            Location hitBlock = hit.getBlock().getLocation();
+            return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ();
+        }
+        return lastEntity != -1 && lastEntity == hit.getLivingEntity().getEntityId();
     }
 
     private List<RayTraceResult> getHits(boolean disableEntityCollisions) {
@@ -243,7 +285,6 @@ public class WeaponProjectile extends AProjectile {
             // If it isn't valid it can't go through
             if (!through.quickValidCheck(block.getType())) break;
         }
-
 
         if (!disableEntityCollisions) {
             List<LivingEntity> entities = getPossibleEntities();

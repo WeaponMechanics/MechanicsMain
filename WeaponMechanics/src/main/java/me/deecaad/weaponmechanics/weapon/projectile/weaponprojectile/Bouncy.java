@@ -35,11 +35,15 @@ public class Bouncy implements Serializer<Bouncy> {
     public boolean handleBounce(WeaponProjectile projectile, RayTraceResult hit) {
         if (projectile.getMotionLength() < REQUIRED_MOTION_TO_BOUNCE) return false;
 
-        Double speedModifier = hit.isBlock() && blocks != null ? blocks.isValid(hit.getBlock().getType()) :
-                entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+        Double speedModifier;
+        if (hit.isBlock()) {
+            speedModifier = blocks != null ? blocks.isValid(hit.getBlock().getType()) : null;
+        } else {
+            speedModifier = entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+        }
 
         // Speed modifier null would mean that it wasn't valid material or entity type
-        if (speedModifier == null || maximumBounceAmount - projectile.getBounces() < 0) {
+        if (speedModifier == null || maximumBounceAmount - projectile.getBounces() < 1) {
             // Projectile should die
             return false;
         }

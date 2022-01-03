@@ -23,8 +23,12 @@ public class Sticky implements Serializer<Sticky> {
     }
 
     public boolean handleSticking(WeaponProjectile projectile, RayTraceResult hit) {
-        Double isValid = hit.isBlock() && blocks != null ? blocks.isValid(hit.getBlock().getType()) :
-                entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+        Double isValid;
+        if (hit.isBlock()) {
+            isValid = blocks != null ? blocks.isValid(hit.getBlock().getType()) : null;
+        } else {
+            isValid = entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+        }
 
         // Null means that it wasn't valid material or entity type
         if (isValid == null) {

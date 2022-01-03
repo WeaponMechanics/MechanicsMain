@@ -4,6 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nullable;
@@ -47,12 +48,19 @@ public class ListHolder<T extends Enum<T>> {
             // If blacklist and list contains key
             // -> Can't use
             // Else return speed modifier
-            return list.containsKey(key) ? null : list.getOrDefault(key, defaultSpeedMultiplier);
+
+            // Speed modifier wont work with blacklist
+            return list.containsKey(key) ? null : defaultSpeedMultiplier;
         }
+
         // If whitelist and list DOES NOT contain key
         // -> Can't use
         // Else return speed modifier
-        return !list.containsKey(key) ? null : list.getOrDefault(key, defaultSpeedMultiplier);
+        if (!list.containsKey(key)) return null;
+
+        // Check if the key doesn't have its own speed multiplier
+        Double value = list.getOrDefault(key, defaultSpeedMultiplier);
+        return value == null ? defaultSpeedMultiplier : value;
     }
 
     public ListHolder<T> serialize(File file, ConfigurationSection configurationSection, String path, Class<T> clazz) {

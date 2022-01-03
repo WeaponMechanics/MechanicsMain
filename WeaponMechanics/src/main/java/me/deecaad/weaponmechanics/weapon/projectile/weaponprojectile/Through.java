@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.file.Serializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -35,11 +36,15 @@ public class Through implements Serializer<Through> {
      */
     public boolean handleThrough(WeaponProjectile projectile, RayTraceResult hit) {
 
-        Double speedModifier = hit.isBlock() && blocks != null ? blocks.isValid(hit.getBlock().getType()) :
-                entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+        Double speedModifier;
+        if (hit.isBlock()) {
+            speedModifier = blocks != null ? blocks.isValid(hit.getBlock().getType()) : null;
+        } else {
+            speedModifier = entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+        }
 
         // Speed modifier null would mean that it wasn't valid material or entity type
-        if (speedModifier == null || maximumThroughAmount - projectile.getThroughAmount() < 0) {
+        if (speedModifier == null || maximumThroughAmount - projectile.getThroughAmount() < 1) {
             // Projectile should die
             return false;
         }

@@ -91,7 +91,6 @@ public class RayTraceResult {
     }
 
     private boolean handleBlockHit(WeaponProjectile projectile) {
-
         ProjectileHitBlockEvent hitBlockEvent = new ProjectileHitBlockEvent(projectile, block, hitFace, hitLocation.clone());
         Bukkit.getPluginManager().callEvent(hitBlockEvent);
         if (hitBlockEvent.isCancelled()) return true;
@@ -141,7 +140,6 @@ public class RayTraceResult {
     }
 
     private boolean handleEntityHit(WeaponProjectile projectile) {
-
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
         Location loc = hitLocation.clone().toLocation(projectile.getWorld());
