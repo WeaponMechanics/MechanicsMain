@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -182,6 +183,20 @@ public final class FileUtil {
             config.save(file);
         } catch (IOException e) {
             throw new InternalError(e);
+        }
+    }
+
+    public static void downloadFile(File target, String link, int connectionTime, int readTime) {
+        try {
+            URL url = new URL(link);
+            URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(connectionTime * 1000); // 10 seconds
+            connection.setReadTimeout(readTime * 1000); // 30 seconds
+
+            InputStream in = connection.getInputStream();
+            Files.copy(in, target.toPath());
+        } catch (IOException ex) {
+            throw new InternalError(ex);
         }
     }
 
