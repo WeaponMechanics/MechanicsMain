@@ -108,7 +108,11 @@ public class ProjectilesRunnable extends BukkitRunnable {
             try {
 
                 if (projectile.tick()) {
-                    // todo Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(projectile));
+
+                    // Call the remove method of projectile
+                    projectile.remove();
+
+                    // Remove the projectile from runnable
                     projectilesIterator.remove();
                 }
             } catch (Exception e) {

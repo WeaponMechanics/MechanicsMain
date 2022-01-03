@@ -30,7 +30,6 @@ public class Projectile implements Serializer<Projectile> {
         this.bouncy = bouncy;
     }
 
-
     /**
      * Shoots this projectile with given location and motion
      *

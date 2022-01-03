@@ -221,6 +221,9 @@ public abstract class AProjectile {
      * or in this tick if this method is called within the tick method.
      */
     public void remove() {
+        // Don't allow anything to remove this twice
+        if (this.dead) return;
+
         this.dead = true;
 
         // Call one last time on move
@@ -241,7 +244,6 @@ public abstract class AProjectile {
         }
 
         if (aliveTicks >= MAXIMUM_ALIVE_TICKS) {
-            remove();
             return true;
         }
 
@@ -250,13 +252,11 @@ public abstract class AProjectile {
 
         // Handle collisions will update location and distance travelled
         if (handleCollisions(projectileSettings.isDisableEntityCollisions())) {
-            remove();
             return true;
         }
 
         double locationY = location.getY();
         if (aliveTicks >= MAXIMUM_ALIVE_TICKS || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
-            remove();
             return true;
         }
 
@@ -290,13 +290,11 @@ public abstract class AProjectile {
         double maximumSpeed = projectileSettings.getMaximumSpeed();
         if (minimumSpeed != -1.0 && motionLength < minimumSpeed) {
             if (projectileSettings.isRemoveAtMinimumSpeed()) {
-                remove();
                 return true;
             }
             setMotion(getNormalizedMotion().multiply(projectileSettings.getMinimumSpeed()));
         } else if (maximumSpeed != -1.0 && motionLength > maximumSpeed) {
             if (projectileSettings.isRemoveAtMaximumSpeed()) {
-                remove();
                 return true;
             }
             setMotion(getNormalizedMotion().multiply(projectileSettings.getMaximumSpeed()));
@@ -332,7 +330,7 @@ public abstract class AProjectile {
     public void onMove() {}
 
     /**
-     * Override this method to do something when projectile collides with block
+     * Override this method to do something when projectile collides with block.
      *
      * @param block the collided block
      */

@@ -4,6 +4,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -49,8 +50,8 @@ public class WeaponProjectile extends AProjectile {
      * Clones the settings of this weapon projectile and shoots again with
      * different location and motion.
      *
-     * @param location the cloned projectile's start location
-     * @param motion the cloned projectile's motion
+     * @param location the cloned projectile's new start location
+     * @param motion the cloned projectile's new motion
      * @return the cloned projectile
      */
     public WeaponProjectile cloneSettingsAndShoot(Location location, Vector motion) {
@@ -289,5 +290,10 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public void onMove() {
         if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
+    }
+
+    @Override
+    public void onEnd() {
+        Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(this));
     }
 }
