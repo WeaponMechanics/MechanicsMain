@@ -24,7 +24,6 @@ public class HitBox implements IValidator {
      * Basically -0.2 means that 20% of hit box's front
      */
     private static final double FRONT_HIT = -0.2;
-    private static final Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
 
     private Block block;
     private LivingEntity livingEntity;
@@ -146,6 +145,7 @@ public class HitBox implements IValidator {
      */
     public DamagePoint getDamagePoint(Vector hitLocation, Vector normalizedMotion) {
         if (this.livingEntity == null) return null;
+        Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
 
         EntityType type = livingEntity.getType();
         double entityHeight = maxY - minY;

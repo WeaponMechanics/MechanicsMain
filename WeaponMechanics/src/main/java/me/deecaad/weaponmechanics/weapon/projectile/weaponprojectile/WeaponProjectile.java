@@ -131,6 +131,12 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
 
+        Vector possibleNextLocation = getLocation().add(getMotion());
+        if (!getWorld().isChunkLoaded(possibleNextLocation.getBlockX() >> 4, possibleNextLocation.getBlockZ() >> 4)) {
+            // Remove projectile if next location would be in unloaded chunk
+            return true;
+        }
+
         if (stickedData != null) {
             Vector newLocation = stickedData.getNewLocation();
             if (newLocation == null) {
@@ -149,7 +155,7 @@ public class WeaponProjectile extends AProjectile {
         if (hits == null) {
 
             // No hits, simply update location and distance travelled
-            setRawLocation(getLocation().add(getMotion()));
+            setRawLocation(possibleNextLocation);
             addDistanceTravelled(getMotionLength());
 
             return false;
