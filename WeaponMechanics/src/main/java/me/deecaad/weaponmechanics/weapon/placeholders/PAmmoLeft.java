@@ -18,7 +18,6 @@ public class PAmmoLeft extends PlaceholderHandler {
     public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
         if (itemStack == null) return null;
 
-        Integer ammoLeft = CustomTag.AMMO_LEFT.getInteger(itemStack);
-        return ammoLeft == null ? null : ammoLeft.toString();
+        return "" + CustomTag.AMMO_LEFT.getInteger(itemStack);
     }
 }

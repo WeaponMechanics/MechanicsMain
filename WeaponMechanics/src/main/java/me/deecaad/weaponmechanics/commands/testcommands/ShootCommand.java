@@ -9,18 +9,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @CommandPermission(permission = "weaponmechanics.commands.test.shoot")
-public class ShootCommand extends SubCommand implements Listener {
+public class ShootCommand extends SubCommand {
 
     public ShootCommand() {
-        super("wm test", "shoot", "Shoot with given values", "<10.0,20.0,30.0,40.0,50.0> <entity-type>");
-
-        Bukkit.getPluginManager().registerEvents(this, WeaponMechanics.getPlugin());
+        super("wm test", "shoot", "Shoot with given values", "<10.0,20.0,30.0,40.0,50.0> <entity-type> <0.05>");
     }
 
     @Override
@@ -28,12 +25,18 @@ public class ShootCommand extends SubCommand implements Listener {
 
         Player player = (Player) sender;
         double speed = Double.parseDouble(args[0]) * 0.1;
+        double gravity = 0.05;
         EntityType entityType = null;
         if (args.length > 1) {
             entityType = EntityType.valueOf(args[1].toUpperCase());
         }
+        if (args.length > 2) {
+            gravity = Double.parseDouble(args[1]);
+        }
 
-        ProjectileSettings projectileSettings = new ProjectileSettings(entityType, null, 0.05, false, -1, false, -1, 0.99, 0.96, 0.98);
+        ProjectileSettings projectileSettings = new ProjectileSettings(entityType, null,
+                gravity, false, -1, false,
+                -1, 0.99, 0.96, 0.98, false);
         Projectile projectile = new Projectile(projectileSettings, null, null, null);
         projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed), null, null);
     }

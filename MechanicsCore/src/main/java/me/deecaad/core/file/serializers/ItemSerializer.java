@@ -1,8 +1,8 @@
 package me.deecaad.core.file.serializers;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
 import org.bukkit.Bukkit;
@@ -35,7 +35,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private static Method spigotMethod;
     private static Method setUnbreakable;
 
-    private final static Field ingredientsField;
+    private static final Field ingredientsField;
 
     static {
         ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
@@ -253,6 +253,11 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 return null;
             }
         }
+
+        if (configurationSection.getBoolean(path + ".Deny_Use_In_Crafting")) {
+            CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "MechanicsCore", "deny-crafting", 1);
+        }
+
         return itemStack;
     }
 

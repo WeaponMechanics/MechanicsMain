@@ -17,7 +17,8 @@ public final class CompatibilityAPI {
         compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.core.compatibility");
 
         try {
-            isPaper1 = Class.forName("com.desktroystokyo.paper.VersionHistoryManager$VersionData") != null;
+            Class.forName("com.desktroystokyo.paper.VersionHistoryManager$VersionData");
+            isPaper1 = true;
         } catch (ClassNotFoundException ex) {
             isPaper1 = false;
         }

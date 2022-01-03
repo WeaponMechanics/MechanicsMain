@@ -3,9 +3,9 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -176,13 +176,9 @@ public class MoveTask extends BukkitRunnable {
             Block block = livingEntity.getEyeLocation().getBlock();
             BlockData data = block.getBlockData();
             return block.isLiquid() || (data instanceof Waterlogged && ((Waterlogged) data).isWaterlogged());
-        } else {
-
-            // In legacy versions, flowing water/lava was a material instead
-            // of a data.
-            Block block = livingEntity.getEyeLocation().getBlock();
-            String mat = block.getType().name();
-            return mat.endsWith("WATER") || mat.endsWith("LAVA");
         }
+
+        // On versions below 1.13
+        return livingEntity.getEyeLocation().getBlock().isLiquid();
     }
 }

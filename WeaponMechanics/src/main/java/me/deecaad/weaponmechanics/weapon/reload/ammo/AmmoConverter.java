@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.reload;
+package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import org.bukkit.configuration.ConfigurationSection;

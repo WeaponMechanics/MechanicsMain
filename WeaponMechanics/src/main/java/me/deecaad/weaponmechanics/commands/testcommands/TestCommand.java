@@ -20,6 +20,7 @@ public class TestCommand extends SubCommand {
         commands.register(new MaskCommand());
         commands.register(new FallingBlockCommand());
         commands.register(new NBTCommand());
+        commands.register(new FakeEntityCommand());
     }
 
     @Override

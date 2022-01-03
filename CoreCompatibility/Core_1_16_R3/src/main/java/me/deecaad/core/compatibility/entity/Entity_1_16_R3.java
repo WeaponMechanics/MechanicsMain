@@ -18,6 +18,7 @@ import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemFactory;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_16_R3.util.CraftMagicNumbers;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
@@ -331,5 +332,10 @@ public class Entity_1_16_R3 implements EntityCompatibility {
     @Override
     public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {
         return new NonNullList_1_16_R3(size, consumer);
+    }
+
+    @Override
+    public FakeEntity generateFakeEntity(Location location, EntityType type, Object data) {
+        return new FakeEntity_1_16_R3(location, type, data);
     }
 }

@@ -82,7 +82,3 @@ IF NOT EXIST "../1_16_R3" (
 )
 cd "../1_16_R3"
 java -jar ../BuildTools.jar --rev 1.16.5 --output-dir ../../nms
-
-
-:: 1_17_R1 is handled in a separate script since it is run in a different java
-:: version. See "download-spigot-libs-java17.bat"

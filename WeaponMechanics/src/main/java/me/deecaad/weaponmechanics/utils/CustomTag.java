@@ -15,6 +15,8 @@ public enum CustomTag {
 
     /**
      * integer
+     *
+     * Current selective fire state where 0 = single, 1 = burst and 2 = auto
      */
     SELECTIVE_FIRE("selective-fire"),
 
@@ -24,22 +26,26 @@ public enum CustomTag {
     AMMO_LEFT("ammo-left"),
 
     /**
+     * integer
+     *
+     * Current ammo type's index in the ammo types list
+     */
+    AMMO_TYPE_INDEX("ammo-type-index"),
+
+    /**
      * string
-     * Ammo item or magazine item name
+     *
+     * Bullet items and magazines items have this.
      */
-    ITEM_AMMO_NAME("item-ammo-name"),
+    AMMO_NAME("ammo-name"),
 
     /**
      * integer
-     * How much ammo magazine has left
+     *
+     * Simple NBT tag to tell whether item is supposed to be magazine.
+     * 0 = false, 1 = true
      */
-    ITEM_AMMO_LEFT("item-ammo-left"),
-
-    /**
-     * integer
-     * Whether weapon still has magazine attached (0=true, 1=false)
-     */
-    HAS_ITEM_MAGAZINE("has-item-magazine"),
+    AMMO_MAGAZINE("ammo-magazine"),
 
     /**
      * integer

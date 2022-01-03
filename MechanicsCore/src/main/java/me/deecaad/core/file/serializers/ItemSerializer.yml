@@ -16,6 +16,7 @@ Item:
   Attributes:
   - <Attribute>-<Amount>
   Leather_Color: <ColorSerializer>
+  Deny_Use_In_Crafting: <true/false>
   Recipe:
     Shape:
       - "012"

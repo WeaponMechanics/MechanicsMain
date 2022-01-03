@@ -91,11 +91,11 @@ public class HitBox implements IValidator {
         return maxZ;
     }
 
-    public double getWidthX() {
+    public double getWidth() {
         return this.maxX - this.minX;
     }
 
-    public double getWidthZ() {
+    public double getDepth() {
         return this.maxZ - this.minZ;
     }
 
@@ -104,7 +104,7 @@ public class HitBox implements IValidator {
     }
 
     public double getCenterX() {
-        return this.minX + this.getWidthX() * 0.5D;
+        return this.minX + this.getWidth() * 0.5D;
     }
 
     public double getCenterY() {
@@ -112,7 +112,31 @@ public class HitBox implements IValidator {
     }
 
     public double getCenterZ() {
-        return this.minZ + this.getWidthZ() * 0.5D;
+        return this.minZ + this.getDepth() * 0.5D;
+    }
+
+    public Vector getMin() {
+        return new Vector(minX, minY, minZ);
+    }
+
+    public Vector getMax() {
+        return new Vector(maxX, maxY, maxZ);
+    }
+
+    /**
+     * Returns <code>true</code> if the given location <code>loc</code> is inside
+     * this hitbox.
+     *
+     * @param loc The point to test
+     * @return If the point is in this hitbox
+     * @throws IllegalArgumentException If the given point is null
+     */
+    public boolean contains(Vector loc) {
+        if (loc == null) throw new IllegalArgumentException("loc cannot be null");
+
+        return loc.getX() > minX && loc.getX() < maxX &&
+                loc.getY() > minY && loc.getY() < maxY &&
+                loc.getZ() > minZ && loc.getZ() < maxZ;
     }
 
     /**
