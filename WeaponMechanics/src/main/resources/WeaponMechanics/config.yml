@@ -23,6 +23,14 @@ Mechanics_Core_Download:
   Connection_Timeout: 10
   Read_Timeout: 30
 
+# Automatically down resource pack if wanted.
+Resource_Pack_Download:
+  Enabled: true  # even when this is false, you can use "Automatically_Send_To_Player"
+  Link: "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip"
+  Connection_Timeout: 10
+  Read_Timeout: 30
+  Automatically_Send_To_Player: true
+
 # If you don't use a specific trigger, it can be disabled here. The performance
 # boost is minor, but it's here if you need it.
 Disabled_Trigger_Checks:

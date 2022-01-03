@@ -26,6 +26,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
+import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
@@ -207,10 +208,6 @@ public class WeaponMechanics {
             debug.error("WeaponMechanics jar corruption... This is most likely caused by using /reload after building jar!");
         }
 
-        // Ensure that the resource pack exists in the folder
-        FileUtil.ensureFile(getClassLoader(), "WeaponMechanics/WeaponMechanicsResourcePack.zip",
-                new File(getDataFolder(), "WeaponMechanicsResourcePack.zip"));
-
         // Fill config.yml mappings
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml.exists()) {
@@ -226,6 +223,14 @@ public class WeaponMechanics {
             debug.log(LogLevel.WARN,
                     "Could not locate config.yml?",
                     "Make sure it exists in path " + getDataFolder() + "/config.yml");
+        }
+
+        // Ensure that the resource pack exists in the folder
+        if (basicConfiguration.getBool("Resource_Pack_Download.Enabled")) {
+            String link = basicConfiguration.getString("Resource_Pack_Download.Link");
+            int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
+            int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
+            FileUtil.downloadFile(new File(getDataFolder(), "WeaponMechanicsResourcePack.zip"), link, connection, read);
         }
     }
 
@@ -289,6 +294,9 @@ public class WeaponMechanics {
         // WEAPON EVENTS
         Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), getPlugin());
         Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListeners(), getPlugin());
+
+        // Other
+        Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
     }
 
     void registerPacketListeners() {
