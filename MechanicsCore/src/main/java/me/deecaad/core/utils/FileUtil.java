@@ -1,5 +1,6 @@
 package me.deecaad.core.utils;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,16 +10,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.CopyOption;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
 /**
@@ -188,15 +192,17 @@ public final class FileUtil {
 
     public static void downloadFile(File target, String link, int connectionTime, int readTime) {
         try {
-            URL url = new URL(link);
-            URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(connectionTime * 1000); // 10 seconds
-            connection.setReadTimeout(readTime * 1000); // 30 seconds
+            HttpURLConnection connection = (HttpURLConnection) new URL(link).openConnection();
+            connection.setInstanceFollowRedirects(true);
+            connection.setConnectTimeout(connectionTime * 1000);
+            connection.setReadTimeout(readTime * 1000);
 
             InputStream in = connection.getInputStream();
             Files.copy(in, target.toPath());
-        } catch (IOException ex) {
-            throw new InternalError(ex);
+            in.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
