@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
@@ -212,12 +213,17 @@ public class WeaponProjectile extends AProjectile {
         Vector normalizedMotion = getNormalizedMotion();
         Vector location = getLocation();
 
-        // Rounding might cause 0.5 "extra" movement, but it doesn't really matter
-        BlockIterator blocks = new BlockIterator(getWorld(), location, normalizedMotion, 0.0, (int) Math.round(getMotionLength()));
+        double distance = Math.ceil(getMotionLength());
+
+        // If distance is 0 or below, it will cause issues
+        if (NumberUtil.equals(distance, 0.0)) distance = 1;
+
+        BlockIterator blocks = new BlockIterator(getWorld(), location, normalizedMotion, 0.0, (int) distance);
         int maximumBlockHits = through == null ? 1 : through.getMaximumThroughAmount() - getThroughAmount() + 1;
 
         while (blocks.hasNext()) {
             Block block = blocks.next();
+
             HitBox blockBox = projectileCompatibility.getHitBox(block);
             if (blockBox == null) continue;
 

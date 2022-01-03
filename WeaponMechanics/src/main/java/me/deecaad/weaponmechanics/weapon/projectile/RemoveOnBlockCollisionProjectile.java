@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.util.BlockIterator;
@@ -20,8 +21,13 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
 
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
-        // Rounding might cause 0.5 "extra" movement, but it doesn't really matter
-        BlockIterator blocks = new BlockIterator(getWorld(), getLocation(), getNormalizedMotion(), 0.0, (int) Math.round(getMotionLength()));
+
+        double distance = Math.ceil(getMotionLength());
+
+        // If distance is 0 or below, it will cause issues
+        if (NumberUtil.equals(distance, 0.0)) distance = 1;
+
+        BlockIterator blocks = new BlockIterator(getWorld(), getLocation(), getNormalizedMotion(), 0.0, (int) distance);
 
         while (blocks.hasNext()) {
             Block block = blocks.next();
