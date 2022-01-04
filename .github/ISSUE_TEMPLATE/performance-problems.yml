@@ -1,6 +1,6 @@
 name: Performance Problems
 description: Report issues involving performance (High resource usage)
-labels: [ bug, needs triage ]
+labels: [ needs triage ]
 body:
   - type: checkboxes
     attributes:
