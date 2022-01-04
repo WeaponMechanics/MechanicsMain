@@ -182,6 +182,12 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                 return null;
             }
 
+            if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
+                debug.error("When using " + projectileType + " you need to define valid firework item.",
+                        StringUtil.foundAt(file, path + ".Projectile_Item_Or_Block"));
+                return null;
+            }
+
             switch (projectileType) {
                 case DROPPED_ITEM:
                 case FIREWORK:
