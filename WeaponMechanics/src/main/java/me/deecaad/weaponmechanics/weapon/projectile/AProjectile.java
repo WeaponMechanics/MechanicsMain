@@ -318,9 +318,7 @@ public abstract class AProjectile {
         }
 
         onMove();
-
-        // Force teleport packet if disguise went wrong way on the start (e.g. collided with shooter)
-        updateDisguise(aliveTicks == 2);
+        updateDisguise(false);
         ++aliveTicks;
         return false;
     }
