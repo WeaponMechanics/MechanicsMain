@@ -52,9 +52,14 @@ Disabled_Events:
   Projectile_Move_Event: false
 
 # This defines how smooth weapon recoil is. Lower values means smoother recoil,
-# but more packets sent. In default minecraft this value would be 50. In WM, it
+# but more packets sent. In default minecraft this value would be 50 (1 tick). In WeaponMechanics, it
 # can be lower. It is recommended to use values divisible by 5.
 Recoil_Millis_Between_Rotations: 5
+
+# Defines the new player check rate for fake entities.
+# For example fake entities are used with projectiles.
+# Use ticks, 20 ticks = 1 second.
+Check_For_New_Player_Rate: 50
 
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but

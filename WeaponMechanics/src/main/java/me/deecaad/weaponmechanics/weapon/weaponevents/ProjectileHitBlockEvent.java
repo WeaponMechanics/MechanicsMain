@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -11,10 +11,6 @@ import org.bukkit.util.Vector;
  * This class outlines the event of a projectile hitting a block. If this event
  * is cancelled, the projectile will not "interact" with the block. This can
  * cancel explosions, block damage, etc.
- *
- * <p>This event will not be called if the projectile's
- * {@link me.deecaad.weaponmechanics.weapon.projectile.Through} can pass
- * through the block.
  */
 public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancellable {
 
@@ -23,7 +19,7 @@ public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancella
     private final Vector exactLocation;
     private boolean isCancelled;
 
-    public ProjectileHitBlockEvent(ICustomProjectile projectile, Block block, BlockFace hitBlockFace, Vector exactLocation) {
+    public ProjectileHitBlockEvent(WeaponProjectile projectile, Block block, BlockFace hitBlockFace, Vector exactLocation) {
         super(projectile);
         this.block = block;
         this.hitBlockFace = hitBlockFace;
@@ -40,8 +36,7 @@ public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancella
     }
 
     /**
-     * Returns the face of the block that was hit by the projectile. The smaller
-     * the projectile's bounding box, the more accurate this method is.
+     * Returns the face of the block that was hit by the projectile.
      *
      * @return The non-null hit block face.
      */
@@ -50,9 +45,8 @@ public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancella
     }
 
     /**
-     * Returns the <i>exact*</i> location where the projectile's bounding box
-     * collides with the block's bounding box. The smaller the projectile's
-     * bounding box, the more accurate this method is.
+     * Returns the <i>exact*</i> location where the projectile's ray
+     * collides with the block's bounding box.
      *
      * @return The non-null collision point
      */

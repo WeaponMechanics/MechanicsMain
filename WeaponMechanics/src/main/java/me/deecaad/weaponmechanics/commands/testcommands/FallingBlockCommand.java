@@ -1,11 +1,11 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
+import me.deecaad.core.commands.CommandPermission;
+import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.ICompatibility;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FallingBlockWrapper;
-import me.deecaad.core.commands.CommandPermission;
-import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;

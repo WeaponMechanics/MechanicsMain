@@ -3,14 +3,11 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -22,10 +19,10 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
  * is undefined, but every projectile is guaranteed to tick once for every MC
  * server tick.
  */
-public class CustomProjectilesRunnable extends BukkitRunnable {
+public class ProjectilesRunnable extends BukkitRunnable {
 
-    private final LinkedList<ICustomProjectile> projectiles;
-    private final LinkedBlockingQueue<ICustomProjectile> asyncProjectiles;
+    private final LinkedList<AProjectile> projectiles;
+    private final LinkedBlockingQueue<AProjectile> asyncProjectiles;
 
     /**
      * Initializes and registers this runnable. This runnable can be cancelled
@@ -34,11 +31,11 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
      *
      * <p> WeaponMechanics initializes one of these by default. You probably
      * do not want to instantiate this class unless you know what you are
-     * doing. Use {@link WeaponMechanics#getCustomProjectilesRunnable()}.
+     * doing. Use {@link WeaponMechanics#getProjectilesRunnable()}.
      *
      * @param plugin The non-null plugin
      */
-    public CustomProjectilesRunnable(Plugin plugin) {
+    public ProjectilesRunnable(Plugin plugin) {
         projectiles = new LinkedList<>();
         asyncProjectiles = new LinkedBlockingQueue<>();
 
@@ -51,7 +48,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
      *
      * @param projectile The non-null projectile to tick.
      */
-    public void addProjectile(ICustomProjectile projectile) {
+    public void addProjectile(AProjectile projectile) {
         if (projectile == null)
             throw new IllegalArgumentException("Cannot add null projectile!");
 
@@ -69,7 +66,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
      *
      * @param projectiles The non-null collection of non-null projectiles.
      */
-    public void addProjectiles(Collection<? extends ICustomProjectile> projectiles) {
+    public void addProjectiles(Collection<? extends AProjectile> projectiles) {
         if (projectiles.contains(null))
             throw new IllegalArgumentException("Cannot add null projectiles");
 
@@ -96,7 +93,7 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
             projectiles.add(asyncProjectiles.remove());
         }
 
-        Iterator<ICustomProjectile> projectilesIterator = projectiles.iterator();
+        Iterator<AProjectile> projectilesIterator = projectiles.iterator();
 
         // Start timings for general projectile ticking. We may consider
         // separating projectiles by weapon-title, but that would require more
@@ -105,11 +102,14 @@ public class CustomProjectilesRunnable extends BukkitRunnable {
         timing.startTiming();
 
         while (projectilesIterator.hasNext()) {
-            ICustomProjectile projectile = projectilesIterator.next();
+            AProjectile projectile = projectilesIterator.next();
             try {
-
                 if (projectile.tick()) {
-                    Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(projectile));
+
+                    // Call the remove method of projectile
+                    projectile.remove();
+
+                    // Remove the projectile from runnable
                     projectilesIterator.remove();
                 }
             } catch (Exception e) {

@@ -120,12 +120,15 @@ public class InfoHandler {
     }
 
     public ItemStack generateWeapon(String weaponTitle, int amount) {
-        ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class).clone();
-        weaponStack.setAmount(amount);
+        ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class);
 
         // Check for weapon title typos silently
-        if (weaponStack == null)
+        if (weaponStack == null) {
             return null;
+        }
+
+        weaponStack = weaponStack.clone();
+        weaponStack.setAmount(amount);
 
         ItemMeta weaponMeta = weaponStack.getItemMeta();
         weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), null, weaponStack, weaponTitle));

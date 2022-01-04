@@ -1,10 +1,10 @@
-package me.deecaad.weaponmechanics.weapon.projectile;
+package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nullable;
@@ -15,70 +15,58 @@ import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class ProjectileListData<T extends Enum<T>> {
+public class ListHolder<T extends Enum<T>> {
 
     private boolean allowAny;
     private boolean whitelist;
-    private double defaultSpeedModifier;
-
-    /**
-     * T = Material or EntityType
-     * Double = Speed modifier
-     */
+    private double defaultSpeedMultiplier;
     private Map<T, Double> list;
 
-    public ProjectileListData() { }
-
-    public ProjectileListData(boolean allowAny, boolean whitelist, double defaultSpeedModifier, Map<T, Double> list) {
+    public ListHolder(boolean allowAny, boolean whitelist, double defaultSpeedMultiplier, Map<T, Double> list) {
         this.allowAny = allowAny;
         this.whitelist = whitelist;
-        this.defaultSpeedModifier = defaultSpeedModifier;
+        this.defaultSpeedMultiplier = defaultSpeedMultiplier;
         this.list = list;
     }
+
+    public ListHolder() { }
 
     /**
      * If this is null, that means key is NOT valid
      *
      * @param key the key
-     * @return the speed modifier of key or null if its not valid
+     * @return the speed modifier of key or null if it's not valid
      */
     @Nullable
     public Double isValid(T key) {
         if (allowAny) {
             // Since all values are valid, simply return speed modifier
-            return list == null ? defaultSpeedModifier : list.getOrDefault(key, defaultSpeedModifier);
+            return list == null ? defaultSpeedMultiplier : list.getOrDefault(key, defaultSpeedMultiplier);
         }
 
         if (!whitelist) {
             // If blacklist and list contains key
             // -> Can't use
             // Else return speed modifier
-            return list.containsKey(key) ? null : list.getOrDefault(key, defaultSpeedModifier);
+
+            // Speed modifier wont work with blacklist
+            return list.containsKey(key) ? null : defaultSpeedMultiplier;
         }
+
         // If whitelist and list DOES NOT contain key
         // -> Can't use
         // Else return speed modifier
-        return !list.containsKey(key) ? null : list.getOrDefault(key, defaultSpeedModifier);
+        if (!list.containsKey(key)) return null;
+
+        // Check if the key doesn't have its own speed multiplier
+        Double value = list.getOrDefault(key, defaultSpeedMultiplier);
+        return value == null ? defaultSpeedMultiplier : value;
     }
 
-    /**
-     * This is not registered serializer, its only meant to parse projectile block and entity lists
-     *
-     * @param clazz the enum class
-     * @param file the file being filled
-     * @param configurationSection the configuration section
-     * @param path the path to this serializer's path (path to keyword like path.keyword)
-     * @return the serialized object or null
-     */
-    public ProjectileListData<T> serialize(Class<T> clazz, File file, ConfigurationSection configurationSection, String path) {
+    public ListHolder<T> serialize(File file, ConfigurationSection configurationSection, String path, Class<T> clazz) {
+        boolean allowAny = configurationSection.getBoolean(path + ".Allow_Any", false);
 
-        boolean allowAny = clazz.equals(Material.class) ?
-                configurationSection.getBoolean(path + ".Allow_Any_Block", false) :
-                configurationSection.getBoolean(path + ".Allow_Any_Entity", false);
-
-        // Double since its nullable
         Map<T, Double> mapList = new HashMap<>();
-
         List<?> list = configurationSection.getList(path + ".List");
         if (list == null || list.isEmpty()) {
             if (!allowAny) {
@@ -87,11 +75,12 @@ public class ProjectileListData<T extends Enum<T>> {
         } else {
             for (Object data : list) {
                 String[] split = StringUtil.split(data.toString());
+                Double speedMultiplier = null;
 
-                Double speedModifier = null;
+                // Make optional to use speed multiplier
                 if (split.length >= 2) {
                     try {
-                        speedModifier = Double.parseDouble(split[1]);
+                        speedMultiplier = Double.parseDouble(split[1]);
                     } catch (NumberFormatException e) {
                         MechanicsCore.debug.log(LogLevel.ERROR,
                                 StringUtil.foundInvalid("value"),
@@ -111,7 +100,8 @@ public class ProjectileListData<T extends Enum<T>> {
                 }
 
                 for (T validValue : validValues) {
-                    mapList.put(validValue, speedModifier);
+                    // Speed multiplier is null if it isn't defined
+                    mapList.put(validValue, speedMultiplier);
                 }
             }
         }
@@ -123,8 +113,8 @@ public class ProjectileListData<T extends Enum<T>> {
             mapList = null;
         }
 
-        double defaultSpeedModifier = configurationSection.getDouble(path + ".Default_Speed_Modifier", 1.0);
+        double defaultSpeedMultiplier = configurationSection.getDouble(path + ".Default_Speed_Multiplier", 1.0);
         boolean whitelist = configurationSection.getBoolean(path + ".Whitelist", true);
-        return new ProjectileListData<>(allowAny, whitelist, defaultSpeedModifier, mapList);
+        return new ListHolder<>(allowAny, whitelist, defaultSpeedMultiplier, mapList);
     }
 }

@@ -4,11 +4,11 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -98,6 +98,8 @@ public class OptimizedExposure implements ExplosionExposure {
 
         // Setup variables for the loop
         World world = entity.getWorld();
+        Vector min = box.getMin();
+        Vector max = box.getMax();
 
         int successfulTraces = 0;
         int totalTraces = 0;
@@ -106,7 +108,7 @@ public class OptimizedExposure implements ExplosionExposure {
         for (int x = 0; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
                 for (int z = 0; z <= 1; z++) {
-                    Vector lerp = VectorUtil.lerp(box.min, box.max, x, y, z);
+                    Vector lerp = VectorUtil.lerp(min, max, x, y, z);
 
                     // Determine if the ray can hit the entity without hitting a block
                     Ray ray = new Ray(world, vec3d, lerp);
@@ -123,7 +125,7 @@ public class OptimizedExposure implements ExplosionExposure {
         // Add one more ray pointing to the center of the bound box. If this
         // ray hits the entity, it has the power of 4 rays. If this ray does
         // not hit the entity, it has the power of 0 rays
-        Ray ray = new Ray(world, vec3d, VectorUtil.lerp(box.min, box.max, 0.5));
+        Ray ray = new Ray(world, vec3d, VectorUtil.lerp(min, max, 0.5));
         TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
         if (trace.getBlocks().isEmpty()) {
             successfulTraces += 4;

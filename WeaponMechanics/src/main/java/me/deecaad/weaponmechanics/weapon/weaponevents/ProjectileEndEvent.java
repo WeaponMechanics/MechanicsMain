@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 
 /**
  * This class outlines the event of a projectile ending. A projectile may end
@@ -10,7 +10,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
  */
 public class ProjectileEndEvent extends ProjectileEvent {
 
-    public ProjectileEndEvent(ICustomProjectile projectile) {
+    public ProjectileEndEvent(WeaponProjectile projectile) {
         super(projectile);
     }
 }

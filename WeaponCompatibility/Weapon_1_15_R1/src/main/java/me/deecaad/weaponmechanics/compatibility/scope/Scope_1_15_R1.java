@@ -4,7 +4,6 @@ import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.v1_15_R1;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.attribute.Attribute;

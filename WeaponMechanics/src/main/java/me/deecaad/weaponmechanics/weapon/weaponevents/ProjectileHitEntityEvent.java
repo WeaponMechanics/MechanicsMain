@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -24,7 +24,7 @@ public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancell
     private boolean isBackStab;
     private boolean isCancelled;
 
-    public ProjectileHitEntityEvent(ICustomProjectile projectile, LivingEntity entity, Vector exactLocation, DamagePoint point, boolean isBackStab) {
+    public ProjectileHitEntityEvent(WeaponProjectile projectile, LivingEntity entity, Vector exactLocation, DamagePoint point, boolean isBackStab) {
         super(projectile);
         this.entity = entity;
         this.exactLocation = exactLocation;

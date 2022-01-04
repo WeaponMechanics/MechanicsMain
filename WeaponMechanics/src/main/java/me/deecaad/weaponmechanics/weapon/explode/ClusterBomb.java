@@ -2,8 +2,8 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -61,13 +61,9 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         this.bombs = bombs;
     }
 
-    public void trigger(ICustomProjectile projectile, LivingEntity shooter, Location splitLocation) {
+    public void trigger(WeaponProjectile projectile, LivingEntity shooter, Location splitLocation) {
 
-        int currentDepth = 0;
-
-        if (projectile.getTag("cluster-split-level") != null) {
-            currentDepth = Integer.parseInt(projectile.getTag("cluster-split-level"));
-        }
+        int currentDepth = projectile.getIntTag("cluster-split-level");
 
         // Checking to see if we have split the proper number of times
         if (currentDepth >= splits) {
@@ -81,9 +77,8 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
 
             // Either use the projectile settings from the "parent" projectile,
             // or use the projectile settings for this clusterbomb
-            (this.projectile == null ? projectile.getProjectileSettings() : this.projectile)
-                    .shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle())
-                    .setTag("cluster-split-level", String.valueOf(currentDepth + 1));
+            (this.projectile == null ? projectile.cloneSettingsAndShoot(splitLocation, vector) :
+                    this.projectile.shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("cluster-split-level", currentDepth + 1);
         }
 
         // Remove the parent split

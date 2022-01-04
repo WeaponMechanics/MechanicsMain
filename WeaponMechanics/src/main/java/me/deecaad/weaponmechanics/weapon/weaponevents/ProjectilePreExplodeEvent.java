@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.event.Cancellable;
 
 /**
@@ -12,7 +12,7 @@ public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancel
     private Explosion explosion;
     private boolean isCancelled;
 
-    public ProjectilePreExplodeEvent(ICustomProjectile projectile, Explosion explosion) {
+    public ProjectilePreExplodeEvent(WeaponProjectile projectile, Explosion explosion) {
         super(projectile);
         this.explosion = explosion;
     }

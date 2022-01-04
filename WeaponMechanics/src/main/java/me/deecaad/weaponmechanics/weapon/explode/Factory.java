@@ -1,9 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;

@@ -1,0 +1,5 @@
+# me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy
+Bouncy:
+  Maximum_Bounce_Amount: <amount>
+  Blocks: <ListHolderSerializer>
+  Entities: <ListHolderSerializer>

@@ -1,0 +1,18 @@
+# me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ListHolder
+# This is not an actual serializer alone
+Blocks:
+  Allow_Any: <true/false>
+  Default_Speed_Multiplier: <multiplier>
+  Whitelist: <true/false>
+  List:
+    - <Material>
+    - <Material>-<speed multiplier>
+    - <etc.>
+Entities:
+  Allow_Any: <true/false>
+  Default_Speed_Multiplier: <multiplier>
+  Whitelist: <true/false>
+  List:
+    - <EntityType>
+    - <EntityType>-<speed multiplier>
+    - <etc.>

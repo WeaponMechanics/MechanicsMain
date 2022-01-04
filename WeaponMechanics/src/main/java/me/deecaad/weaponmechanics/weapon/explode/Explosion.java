@@ -11,17 +11,14 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
-import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
-import me.deecaad.weaponmechanics.weapon.explode.exposures.DefaultExposure;
-import me.deecaad.weaponmechanics.weapon.explode.exposures.DistanceExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
-import me.deecaad.weaponmechanics.weapon.explode.exposures.VoidExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
-import me.deecaad.weaponmechanics.weapon.projectile.CollisionData;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -212,21 +209,21 @@ public class Explosion implements Serializer<Explosion> {
         this.mechanics = mechanics;
     }
 
-    public void explode(LivingEntity cause, CollisionData collision, ICustomProjectile projectile) {
+    public void explode(LivingEntity cause, RayTraceResult collision, WeaponProjectile projectile) {
         if (collision == null || collision.getBlock() == null) {
             explode(cause, projectile.getLocation().toLocation(projectile.getWorld()), projectile);
         } else {
-            BlockFace hitBlockFace = collision.getBlockFace();
+            BlockFace hitBlockFace = collision.getHitFace();
             Vector location = projectile.getLocation().subtract(hitBlockFace.getDirection().multiply(0.5));
             explode(cause, location.toLocation(projectile.getWorld()), projectile);
         }
     }
 
-    public void explode(LivingEntity cause, Location origin, ICustomProjectile projectile) {
+    public void explode(LivingEntity cause, Location origin, WeaponProjectile projectile) {
 
         // If the projectile uses airstrikes, then the airstrike should be
         // triggered instead od the explosion.
-        if (projectile != null && airStrike != null && !"true".equals(projectile.getTag("airstrike-bomb"))) {
+        if (projectile != null && airStrike != null && projectile.getIntTag("airstrike-bomb") == 0) {
             airStrike.trigger(origin, cause, projectile);
             return;
         }
@@ -319,7 +316,7 @@ public class Explosion implements Serializer<Explosion> {
                 projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
     }
 
-    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, ICustomProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks, int timeOffset) {
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, WeaponProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks, int timeOffset) {
         boolean isRegenerate = regeneration != null;
 
         if (isRegenerate)

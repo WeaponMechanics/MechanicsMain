@@ -4,11 +4,11 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -124,9 +124,9 @@ public class DefaultExposure implements ExplosionExposure {
             for (double y = 0; y <= 1; y += gridY) {
                 for (double z = 0; z <= 1; z += gridZ) {
 
-                    double a = NumberUtil.lerp(box.min.getX(), box.max.getX(), x);
-                    double b = NumberUtil.lerp(box.min.getY(), box.max.getY(), y);
-                    double c = NumberUtil.lerp(box.min.getZ(), box.max.getZ(), z);
+                    double a = NumberUtil.lerp(box.getMinX(), box.getMaxX(), x);
+                    double b = NumberUtil.lerp(box.getMinY(), box.getMaxY(), y);
+                    double c = NumberUtil.lerp(box.getMinZ(), box.getMaxZ(), z);
 
                     // Calculates a path from the origin of the explosion
                     // (0, 0, 0) to the current grid on the entity's bounding

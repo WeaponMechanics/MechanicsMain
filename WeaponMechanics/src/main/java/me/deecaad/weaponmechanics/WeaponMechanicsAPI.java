@@ -6,8 +6,8 @@ import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
-import me.deecaad.weaponmechanics.weapon.projectile.CustomProjectilesRunnable;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
+import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Chunk;
@@ -118,15 +118,15 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Adds the given projectile to the {@link CustomProjectilesRunnable}.
+     * Adds the given projectile to the {@link ProjectilesRunnable}.
      * Can be run async.
      *
      * @param projectile The non-null projectile to add.
-     * @see CustomProjectilesRunnable
+     * @see ProjectilesRunnable
      */
-    public static void addProjectile(@Nonnull ICustomProjectile projectile) {
+    public static void addProjectile(@Nonnull AProjectile projectile) {
         checkState();
-        CustomProjectilesRunnable runnable = plugin.customProjectilesRunnable;
+        ProjectilesRunnable runnable = plugin.projectilesRunnable;
         runnable.addProjectile(projectile);
     }
 

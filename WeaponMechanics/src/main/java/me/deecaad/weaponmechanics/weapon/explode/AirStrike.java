@@ -5,8 +5,8 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.projectile.ICustomProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -141,7 +141,7 @@ public class AirStrike implements Serializer<AirStrike> {
         this.delay = delay;
     }
 
-    public void trigger(Location flareLocation, LivingEntity shooter, ICustomProjectile projectile) {
+    public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
         new BukkitRunnable() {
 
             int count = 0;
@@ -175,9 +175,9 @@ public class AirStrike implements Serializer<AirStrike> {
                     double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-                    (getProjectile() == null ? projectile.getProjectileSettings() : getProjectile())
-                            .shoot(shooter, location, new Vector(0.0, 0.0, 0.0), projectile.getWeaponStack(), projectile.getWeaponTitle())
-                            .setTag("airstrike-bomb", "true");
+
+                    (getProjectile() == null ? projectile.cloneSettingsAndShoot(location, new Vector(0, 0, 0)) :
+                            getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("airstrike-bomb", 1);
                 }
 
                 if (++count >= loops) {

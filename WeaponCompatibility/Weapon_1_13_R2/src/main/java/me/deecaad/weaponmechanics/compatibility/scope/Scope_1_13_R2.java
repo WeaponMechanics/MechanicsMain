@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.compatibility.scope;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.v1_13_R2;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.attribute.Attribute;

@@ -163,6 +163,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         }
     }
 
+    @Override
     public void show() {
         Packet<?> spawn = type.isAlive()
                 ? new ClientboundAddMobPacket((LivingEntity) entity)
