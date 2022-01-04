@@ -337,11 +337,6 @@ public abstract class AProjectile {
         if (projectileSettings.getGravity() == 0.0) disguise.setGravity(false);
 
         disguise.show();
-
-        // Update once instantly
-        Vector normalizedMotion = getNormalizedMotion();
-        // Force teleport packet on first run
-        disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), true);
         disguise.setMotion(motion);
     }
 
