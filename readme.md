@@ -3,17 +3,17 @@
 High performance, fully featured gun plugin for newer Minecraft versions.
 
 ## Quick Links
-* [Wiki](Wiki)
-* [Download](Spigot)
-* [Getting Support](Discord)
-* [Bug report](github bug report)
+* [Wiki](https://github.com/WeaponMechanics/MechanicsMain/wiki)
+* [Download](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
+* [Getting Support](https://discord.gg/ERVgpfg)
+* [Bug Report](https://github.com/WeaponMechanics/MechanicsMain/issues/new/choose)
 * [Donate](#Donate)
 
 ## How to (Server Owners)
-See the [Getting Started]() section on the wiki.
+See the [Getting Started](https://github.com/WeaponMechanics/MechanicsMain/wiki#getting-started) section on the wiki.
 
 ## How to (Developers)
-See [Hooking into WeaponMechanics]() page on the wiki.  
+See [Hooking into WeaponMechanics](https://github.com/WeaponMechanics/MechanicsMain/wiki/API) page on the wiki.  
 
 Maven Repository:
 ```xml
