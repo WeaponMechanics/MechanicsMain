@@ -5,8 +5,10 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
@@ -28,7 +30,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     private static final Field metaPacketB;
 
     static {
-        metaPacketA = ReflectionUtil.getField(PacketPlayOutEntityMetadata.class, int.class, 0, true);
+        metaPacketA = ReflectionUtil.getField(PacketPlayOutEntityMetadata.class, int.class);
         metaPacketB = ReflectionUtil.getField(PacketPlayOutEntityMetadata.class, List.class);
 
         if (ReflectionUtil.getMCVersion() != 16) {
@@ -73,7 +75,11 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
                     entity = new EntityItem(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((ItemStack) data));
                     break;
                 case FALLING_BLOCK:
-                    entity = new EntityFallingBlock(world.getHandle(), x, y, z, block = ((CraftBlockState) data).getHandle());
+                    entity = new EntityFallingBlock(world.getHandle(), x, y, z, block =
+                            (data.getClass() == Material.class
+                                    ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
+                                    : ((CraftBlockState) data).getHandle()
+                            ));
                     break;
                 default:
                     entity = world.createEntity(location, type.getEntityClass());
@@ -96,11 +102,6 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         entity.setPositionRaw(x, y, z);
         entity.yaw = yaw;
         entity.pitch = pitch;
-    }
-
-    @Override
-    public void setGravity(boolean isGravity) {
-        //entity.setNoGravity(!isGravity);
     }
 
     @Override
@@ -196,6 +197,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private PacketPlayOutEntityMetadata getMetaPacket() {
 
         // Get the metadata stored in the entity
@@ -208,13 +210,19 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             return new PacketPlayOutEntityMetadata(entity.getId(), dataWatcher, true);
         }
 
-        // Get the current byte data
         dataWatcher.e(); // clear dirty
-        @SuppressWarnings("unchecked")
-        DataWatcher.Item<Byte> item = (DataWatcher.Item<Byte>) items.get(0);
+
+        // Get the current byte data
+        DataWatcher.Item<Byte> bitMaskItem      = (DataWatcher.Item<Byte>) items.get(0);
+        DataWatcher.Item<String> customNameItem = (DataWatcher.Item<String>) items.get(2);
+        DataWatcher.Item<Boolean> showNameItem  = (DataWatcher.Item<Boolean>) items.get(3);
+        DataWatcher.Item<Boolean> noGravityItem = (DataWatcher.Item<Boolean>) items.get(4);
 
         // Get the byte data, then apply the bitmask
-        item.a(getMeta().apply(item.b()));
+        bitMaskItem.a(getMeta().apply(bitMaskItem.b()));
+        customNameItem.a(display);
+        showNameItem.a((Boolean) (display != null));
+        noGravityItem.a((Boolean) (!gravity));
 
         // Create the packet. We need to set the raw parameters, so we use reflection.
         PacketPlayOutEntityMetadata metaPacket = new PacketPlayOutEntityMetadata();

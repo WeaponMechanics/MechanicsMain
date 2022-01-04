@@ -115,11 +115,6 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     }
 
     @Override
-    public void setGravity(boolean isGravity) {
-        //entity.setNoGravity(!isGravity);
-    }
-
-    @Override
     public void setMotion(double dx, double dy, double dz) {
         ClientboundSetEntityMotionPacket packet = new ClientboundSetEntityMotionPacket(cache, new Vec3(dx, dy, dz));
 
