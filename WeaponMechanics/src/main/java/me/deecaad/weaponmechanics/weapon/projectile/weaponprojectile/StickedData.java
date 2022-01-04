@@ -12,8 +12,8 @@ public class StickedData {
 
     private Location blockLocation;
     private LivingEntity livingEntity;
-    private Vector relativeLocation;
-    private String worldName;
+    private final Vector relativeLocation;
+    private final String worldName;
 
     public StickedData(RayTraceResult hit) {
         if (hit.isBlock()) {

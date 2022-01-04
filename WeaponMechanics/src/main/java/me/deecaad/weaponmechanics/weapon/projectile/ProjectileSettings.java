@@ -4,9 +4,12 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Material;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -16,7 +19,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
     private EntityType projectileDisguise;
-    private ItemStack disguiseItemOrBlock;
+    private Object disguiseData;
 
     private double gravity;
 
@@ -36,11 +39,11 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
      */
     public ProjectileSettings() { }
 
-    public ProjectileSettings(EntityType projectileDisguise, ItemStack disguiseItemOrBlock, double gravity,
+    public ProjectileSettings(EntityType projectileDisguise, Object disguiseData, double gravity,
                               boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
                               double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions) {
         this.projectileDisguise = projectileDisguise;
-        this.disguiseItemOrBlock = disguiseItemOrBlock;
+        this.disguiseData = disguiseData;
         this.gravity = gravity;
         this.removeAtMinimumSpeed = removeAtMinimumSpeed;
         this.minimumSpeed = minimumSpeed;
@@ -60,14 +63,21 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return this.projectileDisguise;
     }
 
+    @Deprecated
+    public ItemStack getDisguiseItemOrBlock() {
+        return null;
+    }
+
     /**
-     * Only certain entities need this. For example falling block, entity item and so on
+     * Only certain entities need this. For example falling block, entity item and so on.
+     * FALLING_BLOCK -> Material
+     * ENTITY_ITEM -> ItemStack
      *
      * @return the item stack which may be used when spawning projectile disguise
      */
     @Nullable
-    public ItemStack getDisguiseItemOrBlock() {
-        return disguiseItemOrBlock;
+    public Object getDisguiseData() {
+        return disguiseData;
     }
 
     /**
@@ -149,8 +159,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         type = type.trim().toUpperCase();
         boolean isInvisible = type.equals("INVISIBLE");
 
+        Object disguiseData = null;
         EntityType projectileType = null;
-        ItemStack projectileItem = null;
 
         if (!isInvisible) {
             try {
@@ -161,12 +171,25 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                         StringUtil.debugDidYouMean(type, EntityType.class));
                 return null;
             }
-            projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");
-            if ((projectileType == EntityType.DROPPED_ITEM || projectileType == EntityType.FALLING_BLOCK) && (projectileItem == null || projectileItem.getType() == Material.AIR)) {
+            ItemStack projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");
+            if ((projectileType == EntityType.DROPPED_ITEM
+                    || projectileType == EntityType.FALLING_BLOCK
+                    || projectileType == EntityType.FIREWORK)
+                    && projectileItem == null) {
                 debug.error("When using " + projectileType + " you need to define valid projectile item or block.",
                         "Now there wasn't any valid item or block at path " + path + ".Projectile_Item_Or_Block",
                         StringUtil.foundAt(file, path + ".Projectile_Item_Or_Block"));
                 return null;
+            }
+
+            switch (projectileType) {
+                case DROPPED_ITEM:
+                case FIREWORK:
+                    disguiseData = projectileItem;
+                case FALLING_BLOCK:
+                    disguiseData = projectileItem.getType();
+                default:
+                    break;
             }
         }
 
@@ -191,7 +214,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
         boolean disableEntityCollisions = configurationSection.getBoolean(path + ".Disable_Entity_Collisions", false);
 
-        return new ProjectileSettings(projectileType, projectileItem, gravity, removeAtMinimumSpeed, minimumSpeed,
+        return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
                 removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing, disableEntityCollisions);
     }
 }

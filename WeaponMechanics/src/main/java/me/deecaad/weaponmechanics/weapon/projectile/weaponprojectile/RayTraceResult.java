@@ -28,9 +28,9 @@ public class RayTraceResult {
 
     private static final DamageHandler damageHandler = WeaponMechanics.getWeaponHandler().getDamageHandler();
 
-    private Vector hitLocation;
-    private double distanceTravelled;
-    private BlockFace hitFace;
+    private final Vector hitLocation;
+    private final double distanceTravelled;
+    private final BlockFace hitFace;
 
     // If block
     private Block block;
@@ -58,6 +58,9 @@ public class RayTraceResult {
         return hitLocation;
     }
 
+    /**
+     * @return the distance travelled during THIS iteration until hit
+     */
     public double getDistanceTravelled() {
         return distanceTravelled;
     }

@@ -1,31 +1,37 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public abstract class AProjectile {
 
     // Projectile can be maximum of 600 ticks alive (30 seconds)
     private static final int MAXIMUM_ALIVE_TICKS = 600;
 
-    // Store this references here for easier usage
-    protected static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+    private static int CHECK_FOR_NEW_PLAYER_RATE = 0;
+
+    // Store this here for easier usage
     private static final double version = CompatibilityAPI.getVersion();
 
     private final LivingEntity shooter;
     private final World world;
 
     private final ProjectileSettings projectileSettings;
+    private FakeEntity disguise;
+    private int lastDisguiseUpdateTick;
 
     private Vector lastLocation;
     private Vector location;
@@ -50,7 +56,7 @@ public abstract class AProjectile {
         this.lastLocation = this.location.clone();
         this.motion = motion;
         this.motionLength = motion.length();
-        projectileCompatibility.disguise(this);
+        spawnDisguise(location, projectileSettings);
         onStart();
     }
 
@@ -59,6 +65,13 @@ public abstract class AProjectile {
      */
     public ProjectileSettings getProjectileSettings() {
         return projectileSettings;
+    }
+
+    /**
+     * @return the disguise of projectile, or null
+     */
+    public FakeEntity getDisguise() {
+        return disguise;
     }
 
     /**
@@ -228,8 +241,10 @@ public abstract class AProjectile {
 
         // Call one last time on move
         onMove();
+        updateDisguise(true);
 
         onEnd();
+        if (disguise != null) disguise.remove();
     }
 
     /**
@@ -266,6 +281,8 @@ public abstract class AProjectile {
             // Ensure that motion length is also 0
             if (motionLength != 0) motionLength = 0;
 
+            onMove();
+            updateDisguise(true);
             ++aliveTicks;
             return false;
         }
@@ -300,9 +317,59 @@ public abstract class AProjectile {
             setMotion(getNormalizedMotion().multiply(projectileSettings.getMaximumSpeed()));
         }
 
-        ++aliveTicks;
         onMove();
+
+        // Force teleport packet if disguise went wrong way on the start (e.g. collided with shooter)
+        updateDisguise(aliveTicks == 2);
+        ++aliveTicks;
         return false;
+    }
+
+    private void spawnDisguise(Location location, ProjectileSettings projectileSettings) {
+        EntityType type = projectileSettings.getProjectileDisguise();
+        if (type == null) return;
+
+        // Cache this rate
+        if (CHECK_FOR_NEW_PLAYER_RATE == 0) CHECK_FOR_NEW_PLAYER_RATE = getBasicConfigurations().getInt("Check_For_New_Player_Rate", 50);
+
+        disguise = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData());
+
+        if (projectileSettings.getGravity() == 0.0) disguise.setGravity(false);
+
+        disguise.show();
+
+        // Update once instantly
+        Vector normalizedMotion = getNormalizedMotion();
+        // Force teleport packet on first run
+        disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), true);
+        disguise.setMotion(motion);
+    }
+
+    /**
+     * This method can't be used multiple times on same tick
+     *
+     * @param forceTeleport true to force teleport packet
+     */
+    protected void updateDisguise(boolean forceTeleport) {
+        if (disguise == null || lastDisguiseUpdateTick == aliveTicks) return;
+
+        // Show for new players in range
+        if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0) disguise.show();
+
+        Vector normalizedMotion = getNormalizedMotion();
+        disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), forceTeleport);
+        disguise.setMotion(motion);
+
+        lastDisguiseUpdateTick = aliveTicks;
+    }
+
+    private float calculateYaw(Vector normalizedMotion) {
+        double PI_2 = VectorUtil.PI_2;
+        return (float) Math.toDegrees((Math.atan2(-normalizedMotion.getX(), normalizedMotion.getZ()) + PI_2) % PI_2);
+    }
+
+    private float calculatePitch(Vector normalizedMotion) {
+        return (float) Math.toDegrees(Math.atan(-normalizedMotion.getY() / Math.sqrt(NumberConversions.square(normalizedMotion.getX()) + NumberConversions.square(normalizedMotion.getZ()))));
     }
 
     /**

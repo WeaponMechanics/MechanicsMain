@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
@@ -22,13 +24,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class WeaponProjectile extends AProjectile {
 
     private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
+    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
 
-    private ItemStack weaponStack;
-    private String weaponTitle;
+    private final ItemStack weaponStack;
+    private final String weaponTitle;
 
-    private Sticky sticky;
-    private Through through;
-    private Bouncy bouncy;
+    private final Sticky sticky;
+    private final Through through;
+    private final Bouncy bouncy;
 
     private StickedData stickedData;
     private int throughAmount;
@@ -215,6 +218,9 @@ public class WeaponProjectile extends AProjectile {
                 updateLast(hit);
 
                 noFinalUpdate = true;
+
+                // Force disguise raw update on bounces
+                updateDisguise(true);
                 break;
             }
 
@@ -261,7 +267,7 @@ public class WeaponProjectile extends AProjectile {
         if (NumberUtil.equals(distance, 0.0)) distance = 1;
 
         BlockIterator blocks = new BlockIterator(getWorld(), location, normalizedMotion, 0.0, (int) distance);
-        int maximumBlockHits = through == null ? 1 : through.getMaximumThroughAmount() - getThroughAmount() + 1;
+        int maximumBlockHits = through == null ? 1 : through.getMaximumThroughAmount() + 1;
 
         while (blocks.hasNext()) {
             Block block = blocks.next();
@@ -343,6 +349,9 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public void onMove() {
         if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
+
+        Vector loc = getLocation();
+        getWorld().spawnParticle(Particle.REDSTONE, loc.getX(), loc.getY(), loc.getZ(), 1, 0, 0, 0, 0, new Particle.DustOptions(Color.RED, 1f), true);
     }
 
     @Override
