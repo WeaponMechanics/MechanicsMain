@@ -186,8 +186,10 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                 case DROPPED_ITEM:
                 case FIREWORK:
                     disguiseData = projectileItem;
+                    break;
                 case FALLING_BLOCK:
                     disguiseData = projectileItem.getType();
+                    break;
                 default:
                     break;
             }
