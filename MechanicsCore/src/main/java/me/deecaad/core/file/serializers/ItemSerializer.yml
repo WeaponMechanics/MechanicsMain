@@ -16,6 +16,13 @@ Item:
   Attributes:
   - <Attribute>-<Amount>
   Leather_Color: <ColorSerializer>
+  Firework:
+    Power: <firework power>
+    Effects:
+      - <Firework.Type>-<ColorSerializer>
+      - <Firework.Type>-<ColorSerializer>-<Trail>-<Flicker>
+      - <Firework.Type>-<ColorSerializer>-<Trail>-<Flicker>-<fade ColorSerializer>
+      - <etc.>
   Deny_Use_In_Crafting: <true/false>
   Recipe:
     Shape:
@@ -25,4 +32,4 @@ Item:
     Ingredients:
       '0': <ItemSerializer>
       '1': <ItemSerializer>
-
+      <etc.>

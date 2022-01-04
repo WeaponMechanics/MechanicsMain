@@ -5,20 +5,14 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.*;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -75,6 +69,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
             return null;
         }
         ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null) {
+            debug.log(LogLevel.ERROR,
+                    StringUtil.foundInvalid("material"),
+                    StringUtil.foundAt(file, path + ".Type", type),
+                    "Tried to use material which doesn't have item meta.");
+            return null;
+        }
+
         String name = configurationSection.getString(path + ".Name");
         if (name != null) {
             itemMeta.setDisplayName(StringUtil.color(name));
@@ -201,10 +203,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
                 itemStack.setItemMeta(skullMeta);
             } catch (ClassCastException e) {
-                debug.log(LogLevel.ERROR,
-                        "Found an invalid cast in configurations!",
-                        "Located at file " + file + " in " + path + ".Skull_Owning_Player in configurations",
-                        "Tried to modify skull when the item wasn't skull (" + type + ")");
+                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Skull_Owning_Player",
+                        "Tried to modify skull meta when the item wasn't skull (" + type + ")"));
                 return null;
             }
         }
@@ -215,20 +215,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     debug.warn("Error occurred while serializing Color", StringUtil.foundAt(file, path + ".Potion_Color"));
                     return null;
                 }
-
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-                if (potionMeta == null) {
-                    debug.error("Somehow itemMeta was null? Is the material type in serializer AIR?", StringUtil.foundAt(file, path + ".Potion"));
-                    return null;
-                }
-
                 potionMeta.setColor(color);
                 itemStack.setItemMeta(potionMeta);
             } catch (ClassCastException e) {
-                debug.log(LogLevel.ERROR,
-                        "Found an invalid cast in configurations!",
-                        "Located at file " + file + " in " + path + ".Potion_Color in configurations",
-                        "Tried to modify potion when the item wasn't potion (" + type + ")");
+                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Potion_Color",
+                        "Tried to modify potion meta when the item wasn't potion (" + type + ")"));
                 return null;
             }
         }
@@ -239,17 +231,84 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     debug.warn("Error occurred while serializing Color", StringUtil.foundAt(file, path + ".Leather_Color"));
                     return null;
                 }
-
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
-                if (meta == null) {
-                    debug.error("Somehow itemMeta was null? Is the material type in serializer AIR?", StringUtil.foundAt(file, path + ".Leather_Color"));
-                    return null;
-                }
-
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);
             } catch (ClassCastException e) {
-                debug.error("You cannot use " + itemStack.getType() + " with leather armor color!", StringUtil.foundAt(file, path + ".Leather_Color"));
+                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Leather_Color",
+                        "Tried to modify leather armor meta when the item wasn't leather armor (" + type + ")"));
+                return null;
+            }
+        }
+
+        if (configurationSection.contains(path + ".Firework")) {
+            try {
+                FireworkMeta meta = (FireworkMeta) itemStack.getItemMeta();
+                meta.setPower(configurationSection.getInt(path + ".Firework.Power", 1));
+
+                List<?> effects = configurationSection.getList(path + ".Firework.Effects");
+                if (effects == null) {
+                    debug.log(LogLevel.ERROR, "Firework didn't have any effects defined.", StringUtil.foundAt(file, path + ".Firework.Effects"));
+                    return null;
+                }
+
+                for (Object effectData : effects) {
+                    String[] split = StringUtil.split(effectData.toString());
+                    FireworkEffect.Builder effectBuilder = FireworkEffect.builder();
+
+                    if (split.length < 2) {
+                        debug.log(LogLevel.ERROR, "Firework effect requires at least type and color.", StringUtil.foundAt(file, path + ".Firework.Effects", effectData));
+                        return null;
+                    }
+
+                    try {
+                        effectBuilder.with(FireworkEffect.Type.valueOf(split[0].toUpperCase()));
+                    } catch (IllegalArgumentException e) {
+                        debug.log(LogLevel.ERROR,
+                                StringUtil.foundInvalid("firework type"),
+                                StringUtil.foundAt(file, path + ".Firework.Effects", split[0]),
+                                StringUtil.debugDidYouMean(split[0].toUpperCase(), FireworkEffect.Type.class));
+                        return null;
+                    }
+
+                    ColorSerializer colorSerializer = new ColorSerializer();
+
+                    Color color = colorSerializer.fromString(file, configurationSection, path, split[1]);
+                    if (color == null) {
+                        debug.log(LogLevel.ERROR,
+                                StringUtil.foundInvalid("color"),
+                                StringUtil.foundAt(file, path + ".Firework.Effects", split[1]));
+                        return null;
+                    }
+                    effectBuilder.withColor(color);
+
+                    if (split.length >= 4) {
+                        effectBuilder.trail(Boolean.parseBoolean(split[2]));
+                        effectBuilder.flicker(Boolean.parseBoolean(split[3]));
+                    }
+
+                    if (split.length > 4) {
+                        Color fadeColor = colorSerializer.fromString(file, configurationSection, path, split[4]);
+                        if (fadeColor == null) {
+                            debug.log(LogLevel.ERROR,
+                                    StringUtil.foundInvalid("fade color"),
+                                    StringUtil.foundAt(file, path + ".Firework.Effects", split[4]));
+                            return null;
+                        }
+                        effectBuilder.withFade(color);
+                    }
+
+                    meta.addEffect(effectBuilder.build());
+                }
+
+                if (meta.getEffectsSize() == 0) {
+                    debug.log(LogLevel.ERROR, "Firework effects are empty?", StringUtil.foundAt(file, path + ".Firework.Effects"));
+                    return null;
+                }
+
+            } catch (ClassCastException e) {
+                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Firework",
+                        "Tried to modify firework meta when the item wasn't leather armor (" + type + ")"));
                 return null;
             }
         }
