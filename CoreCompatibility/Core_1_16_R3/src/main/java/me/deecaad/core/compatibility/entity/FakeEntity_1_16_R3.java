@@ -28,9 +28,8 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     private static final Field metaPacketB;
 
     static {
-        Class<?> metaPacketClass = ReflectionUtil.getPacketClass("PacketPlayOutEntityMetadata");
-        metaPacketA = ReflectionUtil.getField(metaPacketClass, "a");
-        metaPacketB = ReflectionUtil.getField(metaPacketClass, "b");
+        metaPacketA = ReflectionUtil.getField(PacketPlayOutEntityMetadata.class, int.class, 0, true);
+        metaPacketB = ReflectionUtil.getField(PacketPlayOutEntityMetadata.class, List.class);
 
         if (ReflectionUtil.getMCVersion() != 16) {
             me.deecaad.core.MechanicsCore.debug.log(
@@ -154,10 +153,24 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     }
 
     public void show() {
+        Packet<?> spawn = type.isAlive()
+                ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
+                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1);
+        PacketPlayOutEntityMetadata meta = getMetaPacket();
+
         for (org.bukkit.entity.Entity temp : DistanceUtil.getEntitiesInRange(location)) {
-            if (temp.getType() == EntityType.PLAYER) {
-                show((Player) temp);
+            if (temp.getType() != EntityType.PLAYER) {
+                continue;
             }
+
+            PlayerConnection connection = ((CraftPlayer) temp).getHandle().playerConnection;
+            if (connections.contains(connection)) {
+                continue;
+            }
+
+            connection.sendPacket(spawn);
+            connection.sendPacket(meta);
+            connections.add(connection);
         }
     }
 
@@ -165,16 +178,9 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     public void show(@NotNull Player player) {
         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
 
-        if (type.isAlive())
-            connection.sendPacket(new PacketPlayOutSpawnEntityLiving((EntityLiving) entity));
-        else
-            connection.sendPacket(new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1));
-
-        // When people set yaw and pitch in the location, we should use it
-        setRotation(location.getYaw(), location.getPitch());
-        if (type.isAlive())
-            connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, convertYaw(location.getYaw())));
-
+        connection.sendPacket(type.isAlive()
+                ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
+                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1));
         connection.sendPacket(getMetaPacket());
 
         // Inject the player's packet connection into this listener, so we can
@@ -185,14 +191,16 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     @Override
     public void updateMeta() {
         PacketPlayOutEntityMetadata packet = getMetaPacket();
-        connections.forEach(connection -> connection.sendPacket(packet));
+        for (PlayerConnection connection : connections) {
+            connection.sendPacket(packet);
+        }
     }
 
     private PacketPlayOutEntityMetadata getMetaPacket() {
 
         // Get the metadata stored in the entity
         DataWatcher dataWatcher = entity.getDataWatcher();
-        List<DataWatcher.Item<?>> items = dataWatcher.c();
+        List<DataWatcher.Item<?>> items = dataWatcher.c(); // get all
 
         // I don't think this should happen, at least not often. Make
         // sure to return some packet though
@@ -201,7 +209,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         }
 
         // Get the current byte data
-        dataWatcher.e();
+        dataWatcher.e(); // clear dirty
         @SuppressWarnings("unchecked")
         DataWatcher.Item<Byte> item = (DataWatcher.Item<Byte>) items.get(0);
 
