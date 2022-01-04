@@ -357,7 +357,11 @@ public abstract class AProjectile {
         if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0) disguise.show();
 
         Vector normalizedMotion = getNormalizedMotion();
-        disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), forceTeleport);
+        if (motionLength == 0) {
+            disguise.setPosition(location.getX(), location.getY(), location.getZ(), disguise.getYaw(), disguise.getPitch(), forceTeleport);
+        } else {
+            disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), forceTeleport);
+        }
         disguise.setMotion(motion);
 
         lastDisguiseUpdateTick = aliveTicks;
