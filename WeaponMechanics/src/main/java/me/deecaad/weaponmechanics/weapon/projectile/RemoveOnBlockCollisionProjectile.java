@@ -9,7 +9,7 @@ import org.bukkit.util.Vector;
 /**
  * Really lightweight remove on block collision projectile.
  * This considers all blocks as 1x1x1 and is removed on any
- * collision including passable blocks and liquid.
+ * collision including passable blocks.
  *
  * This doesn't check entity collisions.
  */
@@ -32,7 +32,7 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
         while (blocks.hasNext()) {
             Block block = blocks.next();
 
-            if (block.isEmpty()) continue;
+            if (block.isEmpty() || block.isLiquid()) continue;
 
             // Only update location and not distance travelled
             setRawLocation(block.getLocation().toVector());
