@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static me.deecaad.core.utils.NumberUtil.square;
 
@@ -15,26 +16,25 @@ import static me.deecaad.core.utils.NumberUtil.square;
  * way "handled" by the server.
  *
  * <p>Fake entities are usually used for visual effects, since faked entities
- * can control appearances per player.
- *
- * <p>When using a faked entity, you must follow a strict order. First,
- * construct the entity, and set instance variables. Then, show the entity
- * using 1 of the <code>show()</code> method overloads. If you want to show
- * the entity to new players, or at a new time, you must first
- * {@link #clone()} this object before re-sending it. Note that you should
- * probably clone <i>before</i> you use a <code>show()</code> method.
+ * can control appearances per player. After changing a visual effect (metadata
+ * + display name + gravity + etc), a metadata packet must be sent using
+ * {@link #updateMeta()}.
  */
 public abstract class FakeEntity {
 
     protected final EntityType type;
-    protected final EntityMeta meta;
     protected Location location;
     protected int cache = -1;
+
+    protected final EntityMeta meta;
+    protected String display;
+    protected boolean gravity;
 
     public FakeEntity(@Nonnull Location location, @Nonnull EntityType type) {
         this.type = type;
         this.meta = new EntityMeta();
         this.location = location.clone();
+        this.gravity = true;
     }
 
     /**
@@ -47,6 +47,31 @@ public abstract class FakeEntity {
     @Nonnull
     public EntityMeta getMeta() {
         return meta;
+    }
+
+    /**
+     * Sets the display name of the entity. Use <code>null</code> to remove the
+     * any previous display name. Supports color codes using
+     * {@link org.bukkit.ChatColor}. After calling this method, use
+     * {@link #updateMeta()} to show the information to clients.
+     *
+     * @param display The nullable entity display-name.
+     */
+    public void setDisplay(@Nullable String display) {
+        this.display = display;
+    }
+
+    /**
+     * Disables entity gravity. This has no effect server-side, and will not
+     * affect motion/position/rotation/anything. Instead, this method tells the
+     * client that the entity should not automatically have gravity applied.
+     * After calling this method use {@link #updateMeta()} to show the
+     * information to clients.
+     *
+     * @param gravity true -> gravity, false -> no gravity.
+     */
+    public void setGravity(boolean gravity) {
+        this.gravity = gravity;
     }
 
     // * ------------------------- * //
@@ -84,17 +109,6 @@ public abstract class FakeEntity {
     // * ------------------------- * //
     // *       Tick Methods        * //
     // * ------------------------- * //
-
-    /**
-     * Disables entity gravity. This has no effect server-side, and will not
-     * affect motion/position/rotation/anything. Instead, this method tells the
-     * client that the entity should not automatically have gravity applied.
-     *
-     * <p>This method should be called BEFORE showing this entity to the client.
-     *
-     * @param isGravity true -> gravity, false -> no gravity.
-     */
-    public abstract void setGravity(boolean isGravity);
 
     /**
      * Shorthand for {@link #setMotion(double, double, double)}.
@@ -141,6 +155,17 @@ public abstract class FakeEntity {
     /**
      * Shorthand for calling {@link #setPosition(double, double, double, float, float, boolean)}.
      *
+     * @param x The new position on the x-axis.
+     * @param y The new position on the y-axis.
+     * @param z The new position on the z-axis.
+     */
+    public final void setPosition(double x, double y, double z) {
+        setPosition(x, y, z, getYaw(), getPitch(), false);
+    }
+
+    /**
+     * Shorthand for calling {@link #setPosition(double, double, double, float, float, boolean)}.
+     *
      * @param x     The new position on the x-axis.
      * @param y     The new position on the y-axis.
      * @param z     The new position on the z-axis.
@@ -167,7 +192,7 @@ public abstract class FakeEntity {
      * @param raw   true to always use a teleport packet.
      */
     public final void setPosition(double x, double y, double z, float yaw, float pitch, boolean raw) {
-        double lengthSquared = square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
+        double lengthSquared = raw ? 0.0 : square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
 
         // When the change of position >8, then we cannot use the move-look
         // packet since it is limited by the size of a short. When we cannot
