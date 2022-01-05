@@ -39,7 +39,7 @@ public class Scope_1_18_R1 implements IScopeCompatibility {
     @Override
     public void updateAbilities(org.bukkit.entity.Player player) {
         ServerPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        entityPlayer.connection.send(new ClientboundPlayerAbilitiesPacket((Abilities) ReflectionUtil.invokeField(ReflectionUtil.getField(Player.class, "abilities"), entityPlayer)));
+        entityPlayer.connection.send(new ClientboundPlayerAbilitiesPacket(entityPlayer.getAbilities()));
     }
 
     @Override
