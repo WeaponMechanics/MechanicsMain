@@ -95,11 +95,8 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
         Iterator<AProjectile> projectilesIterator = projectiles.iterator();
 
-        // Start timings for general projectile ticking. We may consider
-        // separating projectiles by weapon-title, but that would require more
-        // resources
-        MCTiming timing = WeaponMechanics.timing("Scheduled Projectiles");
-        timing.startTiming();
+        // Start timings for general projectile ticking.
+        MCTiming projectilesRunnableTiming = WeaponMechanics.timing("Projectiles Runnable").startTiming();
 
         while (projectilesIterator.hasNext()) {
             AProjectile projectile = projectilesIterator.next();
@@ -120,6 +117,6 @@ public class ProjectilesRunnable extends BukkitRunnable {
         }
 
         // End timings for projectile ticking
-        timing.stopTiming();
+        projectilesRunnableTiming.stopTiming();
     }
 }

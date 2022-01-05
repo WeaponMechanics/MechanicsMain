@@ -19,6 +19,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -96,9 +97,10 @@ public class TriggerPlayerListeners implements Listener {
     public void interact(PlayerInteractEvent e) {
         Action action = e.getAction();
         Player player = e.getPlayer();
+        EntityEquipment playerEquipment = player.getEquipment();
 
         // I don't think ignoreCancelled = true works in this event properly
-        if (player.getGameMode() == GameMode.SPECTATOR) return;
+        if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
         if (action == Action.PHYSICAL || e.useItemInHand() == Event.Result.DENY) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
@@ -109,7 +111,7 @@ public class TriggerPlayerListeners implements Listener {
             EquipmentSlot hand = e.getHand();
 
             // Only if main hand is air (off hand can be whatever
-            if (player.getEquipment().getItemInMainHand().getType() == Material.AIR) {
+            if (playerEquipment.getItemInMainHand().getType() == Material.AIR) {
 
                 // Check if the action was right click block AND hand used was main hand
                 // -> Cancel
@@ -136,7 +138,7 @@ public class TriggerPlayerListeners implements Listener {
         }
 
         // 1.8 support...
-        ItemStack mainStack = useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand();
+        ItemStack mainStack = useOffHand ? playerEquipment.getItemInMainHand() : playerEquipment.getItemInHand();
 
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, true);
 
@@ -144,7 +146,7 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack offStack = null;
         String offWeapon = null;
         if (useOffHand) {
-            offStack = player.getEquipment().getItemInOffHand();
+            offStack = playerEquipment.getItemInOffHand();
             offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, true);
         }
 
@@ -192,7 +194,8 @@ public class TriggerPlayerListeners implements Listener {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         Player player = e.getPlayer();
-        if (player.getGameMode() == GameMode.SPECTATOR) return;
+        EntityEquipment playerEquipment = player.getEquipment();
+        if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
 
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
 
@@ -205,7 +208,7 @@ public class TriggerPlayerListeners implements Listener {
         boolean useOffHand = version >= 1.09;
 
         // getItemInMainHand didn't exist in 1.8
-        ItemStack mainStack = useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand();
+        ItemStack mainStack = useOffHand ? playerEquipment.getItemInMainHand() : playerEquipment.getItemInHand();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
 
         if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Arm_Swing_Animation")) {
@@ -216,7 +219,7 @@ public class TriggerPlayerListeners implements Listener {
         // 1.8 shall not pass
         if (!useOffHand) return;
 
-        ItemStack offStack = player.getEquipment().getItemInOffHand();
+        ItemStack offStack = playerEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
         if (offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Arm_Swing_Animation")) {
@@ -233,7 +236,9 @@ public class TriggerPlayerListeners implements Listener {
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         if (playerWrapper.isInventoryOpen()) return;
-        if (player.getGameMode() == GameMode.SPECTATOR) return;
+
+        EntityEquipment playerEquipment = player.getEquipment();
+        if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
 
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
 
@@ -244,7 +249,7 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack offStack = null;
         String offWeapon = null;
         if (useOffHand) {
-            offStack = player.getEquipment().getItemInOffHand();
+            offStack = playerEquipment.getItemInOffHand();
             offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
         }
 
@@ -275,7 +280,7 @@ public class TriggerPlayerListeners implements Listener {
             // - 1 item in slot when dropping -> reference changes
             // - 2 items or more in slot when dropping -> reference stays same
             Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, mainWeapon,
-                    useOffHand ? player.getEquipment().getItemInMainHand() : player.getEquipment().getItemInHand(),
+                    useOffHand ? playerEquipment.getItemInMainHand() : playerEquipment.getItemInHand(),
                     EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield));
         }
 

@@ -99,9 +99,21 @@ public class ShootHandler implements IValidator {
      * @param weaponStack   the weapon stack
      * @param slot          the slot used on trigger
      * @param triggerType   the trigger type trying to activate shoot
+     * @param dualWield     whether this was dual wield
      * @return true if was able to shoot
      */
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+        Trigger trigger = getConfigurations().getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
+        if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
+
+        MCTiming shootHandlerTiming = WeaponMechanics.timing("Shoot Handler").startTiming();
+        boolean result = shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+        shootHandlerTiming.stopTiming();
+
+        return result;
+    }
+
+    private boolean shootWithoutTrigger(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Don't even try if slot is already being used for full auto or burst
@@ -109,17 +121,12 @@ public class ShootHandler implements IValidator {
 
         Configuration config = getConfigurations();
 
-        Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
-        if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
-
         WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
         Bukkit.getPluginManager().callEvent(preShootEvent);
         if (preShootEvent.isCancelled()) return false;
 
         // Cancel shooting if we can only shoot while scoped.
         if (config.getBool(weaponTitle + ".Shoot.Only_Shoot_While_Scoped") && !handData.getZoomData().isZooming()) return false;
-
-        MCTiming timings = WeaponMechanics.timing("Shoot Handler").startTiming();
 
         boolean mainhand = slot == EquipmentSlot.HAND;
 
@@ -139,7 +146,6 @@ public class ShootHandler implements IValidator {
                 entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
             }
 
-            timings.stopTiming();
             return false;
         }
 
@@ -188,11 +194,8 @@ public class ShootHandler implements IValidator {
                 doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
             }
 
-            timings.stopTiming();
             return false;
         }
-
-        timings.stopTiming();
 
         // FIREARM END
 
