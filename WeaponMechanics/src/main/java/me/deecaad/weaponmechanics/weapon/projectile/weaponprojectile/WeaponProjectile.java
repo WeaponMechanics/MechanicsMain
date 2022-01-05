@@ -408,9 +408,6 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public void onMove() {
         if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
-
-        Vector loc = getLocation();
-        getWorld().spawnParticle(Particle.REDSTONE, loc.getX(), loc.getY(), loc.getZ(), 1, 0, 0, 0, 0, new Particle.DustOptions(Color.RED, 1f), true);
     }
 
     @Override
