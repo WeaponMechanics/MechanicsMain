@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -10,9 +11,21 @@ import static me.deecaad.core.MechanicsCore.debug;
 public interface Serializer<T> {
 
     /**
-     * @return keyword of this serializer used in configurations
+     * Returns the unique identifier to this serializer. This identifier is
+     * used to determine when to apply the serializer to a config section.
+     * The identifier is case-sensitive, and it is ignored when
+     * <code>null</code>.
+     *
+     * <p>Generally speaking, you should always override this method. When you
+     * do not need automatic serializer handling, you may return null.
+     *
+     * @return The nullable unique identifier.
      */
-    String getKeyword();
+    default String getKeyword() {
+        return null;
+    }
+
+    Debugger getDebugger();
 
     /**
      * Basically if this is not null then all other serializers will be used except these ones which
