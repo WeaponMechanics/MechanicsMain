@@ -62,9 +62,9 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         CraftWorld world = (CraftWorld) location.getWorld();
 
         // Location vars
-        double x = location.getX();
-        double y = location.getY();
-        double z = location.getZ();
+        final double x = location.getX();
+        final double y = location.getY();
+        final double z = location.getZ();
 
         // Some entity types (dropped items and falling blocks, for example)
         // require extra data in order to display. We only need to use these
