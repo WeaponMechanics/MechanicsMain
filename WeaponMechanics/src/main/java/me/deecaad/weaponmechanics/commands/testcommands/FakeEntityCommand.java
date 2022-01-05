@@ -6,6 +6,7 @@ import me.deecaad.core.compatibility.entity.BitMutator;
 import me.deecaad.core.compatibility.entity.EntityMetaFlag;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -22,7 +23,7 @@ import java.util.List;
 public class FakeEntityCommand extends SubCommand {
 
     public FakeEntityCommand() {
-        super("wm test", "fakeentity", "Spawns a fake entity", "<type> <move> <time> <gravity>");
+        super("wm test", "fakeentity", "Spawns a fake entity", "<type> <move> <time> <gravity> <name>");
     }
 
     @Override
@@ -37,21 +38,21 @@ public class FakeEntityCommand extends SubCommand {
         // Parse arguments of the command
         EntityType type = args.length > 0 ? EntityType.valueOf(args[0]) : EntityType.ZOMBIE;
         String moveType = args.length > 1 ? args[1] : "none";
-        int time =        args.length > 2 ? Integer.parseInt(args[2]) : 200;
+        int time =        args.length > 2 ? Integer.parseInt(args[2]) : 1200;
         boolean gravity = args.length > 3 ? Boolean.parseBoolean(args[3]) : false;
+        String name     = args.length > 4 ? StringUtil.color(args[4]) : null;
 
         FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(player.getLocation(), type, null);
-        if (!gravity)
-            entity.setGravity(false);
+        entity.setGravity(gravity);
+        entity.setDisplay(name);
         entity.show(player);
+        entity.setMotion(0, 0, 0);
 
         new BukkitRunnable() {
 
             // Some temp vars for the different move types
             int ticksAlive = 0;
-            float rotation = 0;
             boolean flash = true;
-            Vector position = player.getLocation().toVector();
 
             @Override
             public void run() {
@@ -63,22 +64,20 @@ public class FakeEntityCommand extends SubCommand {
 
                 switch (moveType) {
                     case "spin":
-                        entity.setMotion(0, 0, 0);
-                        entity.setRotation(rotation += 10, rotation / 10);
+                        entity.setRotation(entity.getYaw() + 5.0f, entity.getYaw() / 2.0f);
                         break;
                     case "flash":
                         if (ticksAlive % 10 == 0) flash = !flash;
-                        entity.setMotion(0, 0, 0);
                         entity.getMeta().setFlag(EntityMetaFlag.GLOWING, flash ? BitMutator.TRUE : BitMutator.FALSE);
                         entity.updateMeta();
                         break;
                     case "sky":
                         //entity.setMotion(0, 0.08, 0);
-                        entity.setPosition(position.setY(position.getY() + 0.08), 0.0f, 0.0f);
+                        entity.setPosition(entity.getX(), entity.getY() + 0.1, entity.getZ());
                         break;
                     case "x":
                         //entity.setMotion(0.08, 0, 0);
-                        entity.setPosition(position.setX(position.getX() + 0.08), 0.0f, 0.0f);
+                        entity.setPosition(entity.getX() + 0.1, entity.getY(), entity.getZ());
                         break;
                 }
             }
@@ -93,7 +92,7 @@ public class FakeEntityCommand extends SubCommand {
             case "<move>":
                 return Arrays.asList(tag, "none", "spin", "flash", "sky", "x");
             case "<time>":
-                return Arrays.asList(tag, "100", "200", "400");
+                return Arrays.asList(tag, "100", "200", "400", "1600");
             case "<gravity>":
                 return Arrays.asList(tag, "true", "false");
             default:

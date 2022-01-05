@@ -257,7 +257,7 @@ public final class BlockDamageData {
                     : (int) NumberUtil.lerp(0, MAX_BLOCK_CRACK, durability);
 
             Object packet = CompatibilityAPI.getBlockCompatibility().getCrackPacket(block, crack, packetId);
-            DistanceUtil.sendPacket(block.getLocation(), 45.0, new Object[]{packet});
+            DistanceUtil.sendPacket(block.getLocation(), packet);
         }
     }
 }

@@ -48,15 +48,7 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
     public void use(CastData castData) {
         Location location = locationAdjuster != null ? locationAdjuster.getNewLocation(castData.getCastLocation()) : castData.getCastLocation();
 
-        List<Player> players = new ArrayList<>();
-
-        for (Entity entity : DistanceUtil.getEntitiesInRange(location)) {
-            if (entity.getType() != EntityType.PLAYER) {
-                continue;
-            }
-            players.add((Player) entity);
-        }
-
+        List<Player> players = DistanceUtil.getPlayersInRange(location);
         if (players.isEmpty()) {
             return;
         }

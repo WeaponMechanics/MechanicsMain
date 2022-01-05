@@ -25,6 +25,7 @@ import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -105,6 +106,17 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     }
 
     @Override
+    public void setDisplay(@Nullable String display) {
+        entity.setCustomName(CraftChatMessage.fromStringOrNull(display));
+        entity.setCustomNameVisible(display != null && !"".equals(display));
+    }
+
+    @Override
+    public void setGravity(boolean gravity) {
+        entity.setNoGravity(!gravity);
+    }
+
+    @Override
     protected void setLocation(double x, double y, double z, float yaw, float pitch) {
         super.setLocation(x, y, z, yaw, pitch);
 
@@ -170,7 +182,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
                 : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 1);
         ClientboundSetEntityDataPacket meta = getMetaPacket();
 
-        for (org.bukkit.entity.Entity temp : DistanceUtil.getEntitiesInRange(location)) {
+        for (org.bukkit.entity.Entity temp : DistanceUtil.getPlayersInRange(location)) {
             if (temp.getType() != EntityType.PLAYER) {
                 continue;
             }

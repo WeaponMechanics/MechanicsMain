@@ -2,8 +2,11 @@ package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
@@ -11,6 +14,7 @@ import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.util.CraftChatMessage;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -52,12 +56,10 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
 
     public FakeEntity_1_16_R3(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
         super(location, type);
-
         if (location.getWorld() == null)
             throw new IllegalArgumentException();
 
         CraftWorld world = (CraftWorld) location.getWorld();
-        Entity entity;
 
         // Location vars
         double x = location.getX();
@@ -89,9 +91,20 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             entity = world.createEntity(location, type.getEntityClass());
         }
 
-        this.entity = entity;
+        this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         this.cache = entity.getId();
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
+    }
+
+    @Override
+    public void setDisplay(@Nullable String display) {
+        entity.setCustomName(CraftChatMessage.fromStringOrNull(display));
+        entity.setCustomNameVisible(display != null && !"".equals(display));
+    }
+
+    @Override
+    public void setGravity(boolean gravity) {
+        entity.setNoGravity(!gravity);
     }
 
     @Override
@@ -100,6 +113,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
 
         // Needed for teleport packet.
         entity.setPositionRaw(x, y, z);
+        entity.setHeadRotation(yaw);
         entity.yaw = yaw;
         entity.pitch = pitch;
     }
@@ -107,6 +121,9 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     @Override
     public void setMotion(double dx, double dy, double dz) {
         PacketPlayOutEntityVelocity packet = new PacketPlayOutEntityVelocity(cache, new Vec3D(dx, dy, dz));
+        motion.setX(dx);
+        motion.setY(dy);
+        motion.setZ(dz);
 
         for (PlayerConnection connection : connections) {
             connection.sendPacket(packet);
@@ -117,60 +134,66 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     public void setRotation(float yaw, float pitch) {
         location.setYaw(yaw);
         location.setPitch(pitch);
+        entity.setHeadRotation(yaw);
+        entity.yaw = yaw;
+        entity.pitch = pitch;
 
         byte byteYaw = convertYaw(yaw);
         PacketPlayOutEntityLook packet = new PacketPlayOutEntityLook(cache, byteYaw, convertPitch(pitch), false);
-        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, byteYaw) : null;
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, byteYaw);
 
         for (PlayerConnection connection : connections) {
             connection.sendPacket(packet);
-            if (head != null)
-                connection.sendPacket(head);
+            connection.sendPacket(head);
         }
     }
 
     @Override
     public void setPositionRaw(double x, double y, double z, float yaw, float pitch) {
         PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(entity);
-        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw)) : null;
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw));
 
         for (PlayerConnection connection : connections) {
             connection.sendPacket(packet);
-            if (head != null)
-                connection.sendPacket(head);
+            connection.sendPacket(head);
         }
     }
 
     @Override
     public void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch) {
         PacketPlayOutRelEntityMoveLook packet = new PacketPlayOutRelEntityMoveLook(cache, dx, dy, dz, yaw, pitch, false);
-        PacketPlayOutEntityHeadRotation head = type.isAlive() ? new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw)) : null;
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw));
 
         for (PlayerConnection connection : connections) {
             connection.sendPacket(packet);
-            if (head != null)
-                connection.sendPacket(head);
+            connection.sendPacket(head);
         }
     }
 
     public void show() {
+
+        // Construct the packets out of the loop to save resources, they will
+        // be the same for each Player.
         Packet<?> spawn = type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
                 : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1);
         PacketPlayOutEntityMetadata meta = getMetaPacket();
+        PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw()));
+        PacketPlayOutEntityLook look = new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
+        PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
 
-        for (org.bukkit.entity.Entity temp : DistanceUtil.getEntitiesInRange(location)) {
-            if (temp.getType() != EntityType.PLAYER) {
-                continue;
-            }
-
+        for (Player temp : DistanceUtil.getPlayersInRange(location)) {
             PlayerConnection connection = ((CraftPlayer) temp).getHandle().playerConnection;
             if (connections.contains(connection)) {
                 continue;
             }
 
-            connection.sendPacket(spawn);
             connection.sendPacket(meta);
+            connection.sendPacket(head);
+            connection.sendPacket(velocity);
+            connection.sendPacket(look);
+            connection.sendPacket(spawn);
+
             connections.add(connection);
         }
     }
@@ -178,11 +201,16 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     @Override
     public void show(@NotNull Player player) {
         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+        if (connections.contains(connection))
+            throw new IllegalArgumentException();
 
+        connection.sendPacket(getMetaPacket());
+        connection.sendPacket(new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
+        connection.sendPacket(new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ())));
+        connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw())));
         connection.sendPacket(type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
                 : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1));
-        connection.sendPacket(getMetaPacket());
 
         // Inject the player's packet connection into this listener, so we can
         // show the player position/velocity/rotation changes
@@ -210,19 +238,26 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             return new PacketPlayOutEntityMetadata(entity.getId(), dataWatcher, true);
         }
 
+        if (true) {
+            StringBuilder builder = new StringBuilder("[");
+            items.forEach(item -> builder.append(ChatColor.COLOR_CHAR)
+                    .append("123456789abcdef".charAt(NumberUtil.random("123456789abcdef".length())))
+                    .append(item.a().a())
+                    .append("=")
+                    .append(item.b())
+                    .append(", "));
+            builder.setLength(builder.length() - 2);
+            builder.append(ChatColor.RESET).append("]");
+            Bukkit.broadcastMessage(builder.toString());
+        }
+
         dataWatcher.e(); // clear dirty
 
         // Get the current byte data
-        DataWatcher.Item<Byte> bitMaskItem      = (DataWatcher.Item<Byte>) items.get(0);
-        DataWatcher.Item<String> customNameItem = (DataWatcher.Item<String>) items.get(2);
-        DataWatcher.Item<Boolean> showNameItem  = (DataWatcher.Item<Boolean>) items.get(3);
-        DataWatcher.Item<Boolean> noGravityItem = (DataWatcher.Item<Boolean>) items.get(4);
+        DataWatcher.Item<Byte> bitMaskItem = (DataWatcher.Item<Byte>) items.get(0);
 
         // Get the byte data, then apply the bitmask
         bitMaskItem.a(getMeta().apply(bitMaskItem.b()));
-        customNameItem.a(display);
-        showNameItem.a((Boolean) (display != null));
-        noGravityItem.a((Boolean) (!gravity));
 
         // Create the packet. We need to set the raw parameters, so we use reflection.
         PacketPlayOutEntityMetadata metaPacket = new PacketPlayOutEntityMetadata();

@@ -24,17 +24,16 @@ public abstract class FakeEntity {
 
     protected final EntityType type;
     protected Location location;
+    protected Vector motion;
     protected int cache = -1;
 
     protected final EntityMeta meta;
-    protected String display;
-    protected boolean gravity;
 
     public FakeEntity(@Nonnull Location location, @Nonnull EntityType type) {
         this.type = type;
         this.meta = new EntityMeta();
-        this.location = location.clone();
-        this.gravity = true;
+        this.location = new Location(location.getWorld(), 0, 0, 0);
+        this.motion = new Vector();
     }
 
     /**
@@ -57,9 +56,7 @@ public abstract class FakeEntity {
      *
      * @param display The nullable entity display-name.
      */
-    public void setDisplay(@Nullable String display) {
-        this.display = display;
-    }
+    public abstract void setDisplay(@Nullable String display);
 
     /**
      * Disables entity gravity. This has no effect server-side, and will not
@@ -70,9 +67,7 @@ public abstract class FakeEntity {
      *
      * @param gravity true -> gravity, false -> no gravity.
      */
-    public void setGravity(boolean gravity) {
-        this.gravity = gravity;
-    }
+    public abstract void setGravity(boolean gravity);
 
     // * ------------------------- * //
     // *  Current Location Methods * //
