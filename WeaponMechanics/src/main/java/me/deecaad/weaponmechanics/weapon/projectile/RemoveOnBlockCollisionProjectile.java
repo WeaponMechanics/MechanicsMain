@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -15,8 +16,13 @@ import org.bukkit.util.Vector;
  */
 public class RemoveOnBlockCollisionProjectile extends AProjectile {
 
-    protected RemoveOnBlockCollisionProjectile(ProjectileSettings projectileSettings, Location location, Vector motion) {
-        super(projectileSettings, location, motion);
+    public RemoveOnBlockCollisionProjectile(Location location, Vector motion) {
+        this(location, motion, null);
+    }
+
+    public RemoveOnBlockCollisionProjectile(Location location, Vector motion, FakeEntity disguise) {
+        super(location, motion);
+        if (disguise != null) spawnDisguise(disguise);
     }
 
     @Override

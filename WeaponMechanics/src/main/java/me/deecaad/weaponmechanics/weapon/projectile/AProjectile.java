@@ -6,11 +6,11 @@ import me.deecaad.core.utils.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +18,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public abstract class AProjectile {
 
+    // Used with disguises and cached on first run, defaults to 50 ticks
     private static int CHECK_FOR_NEW_PLAYER_RATE = 0;
 
     // Store this here for easier usage
@@ -26,7 +27,6 @@ public abstract class AProjectile {
     private final LivingEntity shooter;
     private final World world;
 
-    private final ProjectileSettings projectileSettings;
     private FakeEntity disguise;
     private int lastDisguiseUpdateTick;
 
@@ -41,32 +41,98 @@ public abstract class AProjectile {
     private Map<String, String> stringTags;
     private Map<String, Integer> integerTags;
 
-    protected AProjectile(ProjectileSettings projectileSettings, Location location, Vector motion) {
-        this(projectileSettings, null, location, motion);
+    protected AProjectile(Location location, Vector motion) {
+        this(null, location, motion);
     }
 
-    protected AProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location, Vector motion) {
-        this.projectileSettings = projectileSettings;
+    protected AProjectile(LivingEntity shooter, Location location, Vector motion) {
         this.shooter = shooter;
         this.world = location.getWorld();
         this.location = location.toVector();
         this.lastLocation = this.location.clone();
         this.motion = motion;
         this.motionLength = motion.length();
-        spawnDisguise(location, projectileSettings);
         onStart();
     }
 
     /**
-     * @return the base projectile settings of this projectile
+     * @return gravity of projectile
      */
-    public ProjectileSettings getProjectileSettings() {
-        return projectileSettings;
+    public double getGravity() {
+        return 0.05;
     }
 
     /**
-     * @return the disguise of projectile, or null
+     * -1.0 means not used
+     *
+     * @return minimum speed of projectile
      */
+    public double getMinimumSpeed() {
+        return -1.0;
+    }
+
+    /**
+     * @return whether to remove projectile when minimum speed is reached
+     */
+    public boolean isRemoveAtMinimumSpeed() {
+        return false;
+    }
+
+    /**
+     * -1.0 means not used
+     *
+     * @return maximum speed of projectile
+     */
+    public double getMaximumSpeed() {
+        return -1.0;
+    }
+
+    /**
+     * @return whether to remove projectile when maximum speed is reached
+     */
+    public boolean isRemoveAtMaximumSpeed() {
+        return false;
+    }
+
+    /**
+     * @return base speed decreasing
+     */
+    public double getDecrease() {
+        return 0.99;
+    }
+
+    /**
+     * @return speed decreasing in water
+     */
+    public double getDecreaseInWater() {
+        return 0.96;
+    }
+
+    /**
+     * @return speed decreasing when raining or snowing
+     */
+    public double getDecreaseWhenRainingOrSnowing() {
+        return 0.98;
+    }
+
+    /**
+     * @return whether to skip entity collision checks
+     */
+    public boolean isDisableEntityCollisions() {
+        return false;
+    }
+
+    /**
+     * @return the maximum amount of ticks projectile can be alive
+     */
+    public int getMaximumAliveTicks() {
+        return 600;
+    }
+
+    /**
+     * @return the disguise of projectile, or null if not used
+     */
+    @Nullable
     public FakeEntity getDisguise() {
         return disguise;
     }
@@ -74,6 +140,7 @@ public abstract class AProjectile {
     /**
      * @return the shooter of projectile
      */
+    @Nullable
     public LivingEntity getShooter() {
         return shooter;
     }
@@ -141,6 +208,8 @@ public abstract class AProjectile {
     }
 
     /**
+     * Updates motion length at same time
+     *
      * @param motion the new motion for projectile
      */
     public void setMotion(Vector motion) {
@@ -259,12 +328,12 @@ public abstract class AProjectile {
         lastLocation = location.clone();
 
         // Handle collisions will update location and distance travelled
-        if (handleCollisions(projectileSettings.isDisableEntityCollisions())) {
+        if (handleCollisions(isDisableEntityCollisions())) {
             return true;
         }
 
         double locationY = location.getY();
-        if (aliveTicks >= projectileSettings.getMaximumAliveTicks() || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
+        if (aliveTicks >= getMaximumAliveTicks() || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
             return true;
         }
 
@@ -281,33 +350,33 @@ public abstract class AProjectile {
         }
 
         Block blockAtCurrentLocation = world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        double decrease = projectileSettings.getDecrease();
+        double decrease = getDecrease();
         if (blockAtCurrentLocation.isLiquid()) {
-            decrease = projectileSettings.getDecreaseInWater();
+            decrease = getDecreaseInWater();
         } else if (world.isThundering() || world.hasStorm()) {
-            decrease = projectileSettings.getDecreaseWhenRainingOrSnowing();
+            decrease = getDecreaseWhenRainingOrSnowing();
         }
 
         motion.multiply(decrease);
 
-        double gravity = projectileSettings.getGravity();
+        double gravity = getGravity();
         if (gravity != 0) {
             motion.setY(motion.getY() - gravity);
         }
         motionLength = motion.length();
 
-        double minimumSpeed = projectileSettings.getMinimumSpeed();
-        double maximumSpeed = projectileSettings.getMaximumSpeed();
+        double minimumSpeed = getMinimumSpeed();
+        double maximumSpeed = getMaximumSpeed();
         if (minimumSpeed != -1.0 && motionLength < minimumSpeed) {
-            if (projectileSettings.isRemoveAtMinimumSpeed()) {
+            if (isRemoveAtMinimumSpeed()) {
                 return true;
             }
-            setMotion(getNormalizedMotion().multiply(projectileSettings.getMinimumSpeed()));
+            setMotion(getNormalizedMotion().multiply(getMinimumSpeed()));
         } else if (maximumSpeed != -1.0 && motionLength > maximumSpeed) {
-            if (projectileSettings.isRemoveAtMaximumSpeed()) {
+            if (isRemoveAtMaximumSpeed()) {
                 return true;
             }
-            setMotion(getNormalizedMotion().multiply(projectileSettings.getMaximumSpeed()));
+            setMotion(getNormalizedMotion().multiply(getMaximumSpeed()));
         }
 
         onMove();
@@ -316,19 +385,23 @@ public abstract class AProjectile {
         return false;
     }
 
-    private void spawnDisguise(Location location, ProjectileSettings projectileSettings) {
-        EntityType type = projectileSettings.getProjectileDisguise();
-        if (type == null) return;
+    /**
+     * If this projectile already has disguise spawned, this call is ignored
+     *
+     * @param disguise the disguise to spawn
+     */
+    public void spawnDisguise(FakeEntity disguise) {
+        if (disguise == null || this.disguise != null) return;
 
         // Cache this rate
         if (CHECK_FOR_NEW_PLAYER_RATE == 0) CHECK_FOR_NEW_PLAYER_RATE = getBasicConfigurations().getInt("Check_For_New_Player_Rate", 50);
 
-        disguise = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData());
+        this.disguise = disguise;
 
-        if (projectileSettings.getGravity() == 0.0) disguise.setGravity(false);
+        if (getGravity() == 0.0) this.disguise.setGravity(false);
 
-        disguise.show();
-        disguise.setMotion(motion);
+        this.disguise.show();
+        this.disguise.setMotion(motion);
     }
 
     /**

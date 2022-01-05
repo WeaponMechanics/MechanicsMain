@@ -66,15 +66,11 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return this.projectileDisguise;
     }
 
-    @Deprecated
-    public ItemStack getDisguiseItemOrBlock() {
-        return null;
-    }
-
     /**
      * Only certain entities need this. For example falling block, entity item and so on.
      * FALLING_BLOCK -> Material
      * ENTITY_ITEM -> ItemStack
+     * FIREWORK -> ItemStack with FireworkMeta
      *
      * @return the item stack which may be used when spawning projectile disguise
      */

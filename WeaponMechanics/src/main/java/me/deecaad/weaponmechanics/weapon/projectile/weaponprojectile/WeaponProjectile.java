@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -12,6 +13,7 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
@@ -25,6 +27,9 @@ public class WeaponProjectile extends AProjectile {
 
     private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
     private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+
+    // Storing this reference to be able to use cloneSettingsAndShoot(Location, Motion) method
+    private final ProjectileSettings projectileSettings;
 
     private final ItemStack weaponStack;
     private final String weaponTitle;
@@ -45,12 +50,16 @@ public class WeaponProjectile extends AProjectile {
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
                             Vector motion, ItemStack weaponStack, String weaponTitle,
                             Sticky sticky, Through through, Bouncy bouncy) {
-        super(projectileSettings, shooter, location, motion);
+        super(shooter, location, motion);
+        this.projectileSettings = projectileSettings;
         this.weaponStack = weaponStack;
         this.weaponTitle = weaponTitle;
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
+
+        EntityType type = projectileSettings.getProjectileDisguise();
+        if (type != null) spawnDisguise(CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData()));
     }
 
     /**
@@ -62,9 +71,59 @@ public class WeaponProjectile extends AProjectile {
      * @return the cloned projectile
      */
     public WeaponProjectile cloneSettingsAndShoot(Location location, Vector motion) {
-        WeaponProjectile projectile = new WeaponProjectile(getProjectileSettings(), getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
+        WeaponProjectile projectile = new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
         WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
         return projectile;
+    }
+
+    @Override
+    public double getGravity() {
+        return projectileSettings.getGravity();
+    }
+
+    @Override
+    public double getMinimumSpeed() {
+        return projectileSettings.getMinimumSpeed();
+    }
+
+    @Override
+    public boolean isRemoveAtMinimumSpeed() {
+        return projectileSettings.isRemoveAtMinimumSpeed();
+    }
+
+    @Override
+    public double getMaximumSpeed() {
+        return projectileSettings.getMaximumSpeed();
+    }
+
+    @Override
+    public boolean isRemoveAtMaximumSpeed() {
+        return projectileSettings.isRemoveAtMaximumSpeed();
+    }
+
+    @Override
+    public double getDecrease() {
+        return projectileSettings.getDecrease();
+    }
+
+    @Override
+    public double getDecreaseInWater() {
+        return projectileSettings.getDecreaseInWater();
+    }
+
+    @Override
+    public double getDecreaseWhenRainingOrSnowing() {
+        return projectileSettings.getDecreaseWhenRainingOrSnowing();
+    }
+
+    @Override
+    public boolean isDisableEntityCollisions() {
+        return projectileSettings.isDisableEntityCollisions();
+    }
+
+    @Override
+    public int getMaximumAliveTicks() {
+        return projectileSettings.getMaximumAliveTicks();
     }
 
     /**
@@ -331,7 +390,7 @@ public class WeaponProjectile extends AProjectile {
                 Chunk chunk = getWorld().getChunkAt(x, z);
                 for (final Entity entity : chunk.getEntities()) {
                     if (!entity.getType().isAlive() || entity.isInvulnerable()
-                            || (getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())) continue;
+                            || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())) continue;
 
                     entities.add((LivingEntity) entity);
                 }
