@@ -10,7 +10,7 @@ Projectile_Settings:
       Owning_Player: <UUID of player or name of player>
     Potion:
       Color: <ColorType>
-  Gravity: <gravity multiplier>
+  Gravity: <gravity>
   Minimum:
     Speed: <minimum speed of projectile>
     Remove_Projectile_On_Speed_Reached: <true/false>
@@ -22,3 +22,4 @@ Projectile_Settings:
     In_Water: <multiplier>
     When_Raining_Or_Snowing: <multiplier>
   Disable_Entity_Collisions: <true/false>
+  Maximum_Alive_Ticks: <ticks>

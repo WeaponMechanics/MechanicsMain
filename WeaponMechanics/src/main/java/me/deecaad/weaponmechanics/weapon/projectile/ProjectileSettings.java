@@ -33,6 +33,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     private double decreaseWhenRainingOrSnowing;
 
     private boolean disableEntityCollisions;
+    private int maximumAliveTicks;
 
     /**
      * Empty constructor to be used as serializer
@@ -41,7 +42,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
     public ProjectileSettings(EntityType projectileDisguise, Object disguiseData, double gravity,
                               boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
-                              double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions) {
+                              double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions,
+                              int maximumAliveTicks) {
         this.projectileDisguise = projectileDisguise;
         this.disguiseData = disguiseData;
         this.gravity = gravity;
@@ -53,6 +55,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         this.decreaseInWater = decreaseInWater;
         this.decreaseWhenRainingOrSnowing = decreaseWhenRainingOrSnowing;
         this.disableEntityCollisions = disableEntityCollisions;
+        this.maximumAliveTicks = maximumAliveTicks;
     }
 
     /**
@@ -143,6 +146,13 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return disableEntityCollisions;
     }
 
+    /**
+     * @return the maximum amount of ticks projectile can be alive
+     */
+    public int getMaximumAliveTicks() {
+        return maximumAliveTicks;
+    }
+
     @Override
     public String getKeyword() {
         return "Projectile_Settings";
@@ -221,8 +231,9 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                 "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.When_Raining_Or_Snowing"));
 
         boolean disableEntityCollisions = configurationSection.getBoolean(path + ".Disable_Entity_Collisions", false);
+        int maximumAliveTicks = configurationSection.getInt(path + ".Maximum_Alive_Ticks", 600);
 
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
-                removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing, disableEntityCollisions);
+                removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing, disableEntityCollisions, maximumAliveTicks);
     }
 }

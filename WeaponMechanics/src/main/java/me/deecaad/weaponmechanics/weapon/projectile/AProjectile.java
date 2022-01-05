@@ -18,9 +18,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public abstract class AProjectile {
 
-    // Projectile can be maximum of 600 ticks alive (30 seconds)
-    private static final int MAXIMUM_ALIVE_TICKS = 600;
-
     private static int CHECK_FOR_NEW_PLAYER_RATE = 0;
 
     // Store this here for easier usage
@@ -258,10 +255,6 @@ public abstract class AProjectile {
             return true;
         }
 
-        if (aliveTicks >= MAXIMUM_ALIVE_TICKS) {
-            return true;
-        }
-
         // Update last location here since handle collisions will change the location
         lastLocation = location.clone();
 
@@ -271,7 +264,7 @@ public abstract class AProjectile {
         }
 
         double locationY = location.getY();
-        if (aliveTicks >= MAXIMUM_ALIVE_TICKS || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
+        if (aliveTicks >= projectileSettings.getMaximumAliveTicks() || locationY < (version < 1.16 ? -32 : world.getMinHeight()) || locationY > world.getMaxHeight()) {
             return true;
         }
 

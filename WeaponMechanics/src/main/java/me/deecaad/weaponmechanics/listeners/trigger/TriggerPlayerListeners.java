@@ -150,13 +150,12 @@ public class TriggerPlayerListeners implements Listener {
 
         if (mainWeapon == null && offWeapon == null) return;
 
-        boolean isBlockInteraction = action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK;
-        if (isBlockInteraction && (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Block_Interactions", true)
-                || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Block_Interactions", true))) {
+        if ((mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Block_Interactions")
+                || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Block_Interactions"))) {
             e.setUseInteractedBlock(Event.Result.DENY);
         }
 
-        if (!isBlockInteraction && (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Item_Interactions")
+        if ((mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Item_Interactions")
                 || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Item_Interactions"))) {
             e.setUseItemInHand(Event.Result.DENY);
         }
