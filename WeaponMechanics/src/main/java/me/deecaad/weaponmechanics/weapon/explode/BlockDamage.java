@@ -269,7 +269,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
                 materials.forEach(material -> shotsToBreak.put(material, durability));
             }
-        } else {
+        } else if (!strings.isEmpty()) {
             debug.error("Error in Block_Damage!", "You tried to use Shots_To_Break_Blocks with Blacklist: true!",
                     "This doesn't make sense, since all materials/durability should be defined in Block_List",
                     StringUtil.foundAt(file, path));
