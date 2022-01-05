@@ -13,3 +13,4 @@ Recoil:
     List:
       - <horizontal recoil>-<vertical recoil>-<chance to skip>%
       - <etc.>
+  Modify_Recoil_When: <modify recoil when serializer>

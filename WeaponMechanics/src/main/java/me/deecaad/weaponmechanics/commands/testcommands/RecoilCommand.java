@@ -44,7 +44,7 @@ public class RecoilCommand extends SubCommand {
 
         int shootTime = Integer.parseInt(args[5]);
 
-        Recoil recoil = new Recoil(rotationTime, recoverTime, yaws, pitches, null);
+        Recoil recoil = new Recoil(rotationTime, recoverTime, yaws, pitches, null, null);
         IPlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
         new BukkitRunnable() {
             int ticks = 0;
