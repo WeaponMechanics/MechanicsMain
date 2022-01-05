@@ -1,0 +1,86 @@
+Origin_12:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6Origin 12"
+      Unbreakable: true
+      Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.0002"
+      Deny_Use_In_Crafting: true
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "&6Origin 12 &7«&6%ammo-left%&7»&6%reload%"
+        Time: 40
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Drop_Item: true
+      Swap_Hands: true
+      Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 81
+    Scope:
+      Custom_Model_Data: 91
+  Projectile: "shotgun.Projectile"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 30
+    Projectiles_Per_Shot: 10
+    Delay_Between_Shots: 7
+    Spread:
+      Spread_Image:
+        Name: "cross"
+        Field_Of_View_Width: 19
+        Field_Of_View_Height: 19
+    Recoil:
+      Push_Time: 200
+      Recover_Time: 200
+      Horizontal:
+        - 3
+        - -3
+      Vertical:
+        - 3
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
+    Mechanics:
+      Sounds:
+        - "custom:shoot.origin12-6-1-0-0.1"
+  Reload:
+    Trigger:
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
+    Magazine_Size: 8
+    Reload_Duration: 34
+    Start_Mechanics:
+      Sounds:
+        - "custom:reload.start.light-0.5-1-0-0.1"
+    Finish_Mechanics:
+      Sounds:
+        - "custom:reload.end.light-0.5-1-0-0.1"
+  Damage:
+    Base_Damage: 10.2
+    Armor_Damage: 3
+    Dropoff:
+      - "5~-2.25"
+      - "10~-5.6"
+      - "20~-8.96"
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+    Zoom_Amount: 4
+    Mechanics:
+      Sounds:
+        - "custom:scope.in-0.5-1-0-0.1"
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - "custom:scope.out-0.5-1-0-0.1"

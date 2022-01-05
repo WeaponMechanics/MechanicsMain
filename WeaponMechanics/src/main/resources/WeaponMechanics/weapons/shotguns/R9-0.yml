@@ -1,0 +1,100 @@
+R9-0:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6R9-0"
+      Unbreakable: true
+      Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.0054"
+      Deny_Use_In_Crafting: true
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "&6R9-0%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Time: 40
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Drop_Item: true
+      Swap_Hands: true
+      Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 61
+    Scope:
+      Custom_Model_Data: 71
+  Projectile: "shotgun.Projectile"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 40
+    Projectiles_Per_Shot: 12
+    Delay_Between_Shots: 16
+    Burst:
+      Shots_Per_Burst: 2
+      Ticks_Between_Each_Shot: 5
+    Spread:
+      Spread_Image:
+        Name: "circle"
+        Field_Of_View_Width: 17
+        Field_Of_View_Height: 17
+    Recoil:
+      Push_Time: 200
+      Recover_Time: 200
+      Horizontal:
+        - 7.5
+        - -7.5
+      Vertical:
+        - 7.5
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
+    Mechanics:
+      Sounds:
+        - "custom:shoot.r90-6-1-0-0.1"
+  Reload:
+    Trigger:
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
+    Magazine_Size: 14
+    Ammo_Per_Reload: 2
+    Reload_Duration: 6
+    Start_Mechanics:
+      Sounds:
+        - "custom:reload.start.shotgun-0.5-1-2-0.1"
+  Damage:
+    Base_Damage: 10.8
+    Armor_Damage: 4
+    Dropoff:
+      - "5~-2.16"
+      - "10~-5.4"
+      - "20~-8.64"
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+    Zoom_Amount: 4
+    Mechanics:
+      Sounds:
+        - "custom:scope.in-0.5-1-0-0.1"
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - "custom:scope.out-0.5-1-0-0.1"
+  Firearm_Action:
+    Type: "PUMP"
+    Open:
+      Time: 12
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+    Close:
+      Time: 4
+      Mechanics:
+        Sounds:
+          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"

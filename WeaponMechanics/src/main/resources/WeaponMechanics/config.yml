@@ -78,14 +78,14 @@ Explosions:
 # These are the symbols used for various weapon states.
 Placeholder_Symbols:
   REVOLVER:
-    Open: "□"
-    Close: "■"
+    Open: " □"
+    Close: " ■"
   PUMP:
-    Open: "□"
-    Close: "■"
+    Open: " □"
+    Close: " ■"
   LEVER:
-    Open: "□"
-    Close: "■"
+    Open: " □"
+    Close: " ■"
   Reload: "ᴿ"
   Selective_Fire:
     SINGLE: "S"
@@ -144,7 +144,7 @@ Damage:
     Sprinting: 0.05
     In_Midair: 0.03
   Critical_Points:
-    HEAD: 0.05
+    HEAD: 2.0 # Always double damage on head
     BODY: 0.0
     ARMS: -0.005
     LEGS: -0.005

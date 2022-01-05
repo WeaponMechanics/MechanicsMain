@@ -1,142 +1,111 @@
-/RPG-7:
+RPG-7:
   Info:
     Weapon_Item:
-      Type: DIAMOND_HOE
-      Name: "&r&eRPG-7"
-      Lore:
-        - "&7For when bullets just don't get the job done"
+      Type: "FEATHER"
+      Name: "&6RPG-7"
       Unbreakable: true
       Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.02855"
+      Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&r%weapon-title% %selective_fire_state% &e«%ammo-left%»&r%reload%"
+        Message: "&6RPG-7 &7Â«&6%ammo-left%&7Â»&6%reload%"
         Time: 40
     Weapon_Get_Mechanics:
       Sounds:
-        - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Cancel:
-      Block_Interactions: false
-      Item_Interactions: false
       Drop_Item: true
       Swap_Hands: true
       Arm_Swing_Animation: true
   Skin:
     Default:
-      Custom_Model_Data: 341
+      Custom_Model_Data: 101
     Scope:
-      Custom_Model_Data: 351
-  Projectile:
-    Settings:
-      Type: SNOWBALL
-      Width: 0.15
-      Height: 0.15
-    Projectile_Motion:
-      Gravity: 0.0
-      Minimum:
-        Speed: 10.0
-        Remove_Projectile_On_Speed_Reached: true
-      Maximum:
-        Speed: 30.0
-        Remove_Projectile_On_Speed_Reached: false
-      Decrease_Motion:
-        Base: 1.25
-        In_Water: 0.75
+      Custom_Model_Data: 111
+  Projectile: "rocket_launcher.Projectile"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
-      Off_Hand: "LEFT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 15
-    Projectiles_Per_Shot: 1
+    Projectile_Speed: 40
     Spread:
-      Base_Spread: 0.25
+      Base_Spread: 5.5
       Modify_Spread_When:
-        Zooming: -0.2
-        Sneaking: -0.025
-        In_Midair: 0.25
-        Gliding: 0.25
+        Zooming: 50%
+        Sneaking: 50%
+        Walking: 1
+        In_Midair: 150%
+        Gliding: 200%
     Recoil:
-      Push_Time: 100
-      Recover_Time: 250
-      Recoil_Pattern:
-        Repeat_Pattern: true
-        List:
-          - "-0.02~0.5"
-          - "0.02~0.5"
+      Push_Time: 200
+      Recover_Time: 200
+      Horizontal:
+        - 11
+        - -11
+      Vertical:
+        - 11
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
     Mechanics:
       Sounds:
-        - BLOCK_BASALT_BREAK-4-2.0
-        - BLOCK_BASALT_STEP-4-2.0
-        - BLOCK_SCAFFOLDING_BREAK-2-2.0
+        - "custom:shoot.rpg7-6-1-0-0.1"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
-    Magazine_Size: 30
-    Ammo_Per_Reload: 30
-    Reload_Duration: 44
+    Magazine_Size: 1
+    Reload_Duration: 71
     Start_Mechanics:
       Sounds:
-        - ITEM_FLINTANDSTEEL_USE-2-2.0-0
-        - ITEM_FLINTANDSTEEL_USE-2-1.7-18
-        - ITEM_FLINTANDSTEEL_USE-2-1.9-20
-        - BLOCK_PISTON_EXTEND-2-1.5-34
-        - BLOCK_PISTON_CONTRACT-2-1.5-42
+        - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+        - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+        - "ITEM_FLINTANDSTEEL_USE-0.5-1.5-33"
+        - "ITEM_FLINTANDSTEEL_USE-0.5-1.7-35"
+        - "ITEM_FLINTANDSTEEL_USE-0.5-1.9-37"
+        - "BLOCK_PISTON_EXTEND-0.5-1-69-0.1"
   Damage:
-    Base_Damage: 1.0
-  Scope:
-    Trigger:
-      Main_Hand: "LEFT_CLICK"
-      Off_Hand: "RIGHT_CLICK"
-    Zoom_Amount: 2
-    Mechanics:
-      Sounds:
-        - custom:scope.in-0.5-1.0-0-0.05
-    Zoom_Off:
-      Mechanics:
-        Sounds:
-          - custom:scope.out-0.5-1.0-0-0.05
+    Base_Damage: 12.2
+    Base_Explosion_Damage: 12.2
+    Fire_Ticks: 40
+    Armor_Damage: 4
   Explosion:
+    Explosion_Exposure: "DEFAULT"
+    Explosion_Shape: "SPHERE"
     Explosion_Type_Data:
-      Yield: 5
+      Radius: 5.6
     Detonation:
       Impact_When:
         Entity: true
         Block: true
-#    Cluster_Bomb:
-#      Split_Projectile: <ProjectileSerializer>
-#      Projectile_Speed: <Double>
-#      Number_Of_Bombs: <Integer>
-#      Number_Of_Splits: <Integer>
-#    Airstrike:
-#      Dropped_Projectile: <ProjectileSerializer>
-#      Minimum_Bombs: <Integer>
-#      Maximum_Bombs: <Integer>
-#      Height: <Double>
-#      Vertical_Randomness: <Double>
-#      Distance_Between_Bombs: <Double>
-#      Maximum_Distance_From_Center: <Double>
-#      Layers: <Integer>
-#      Delay_Between_Layers: <Integer>
     Block_Damage:
       Break_Blocks: true
-      Blacklist: true
+      Spawn_Falling_Block_Chance: 0.75
+      Blacklist: false
+      Block_List:
+        - "$GLASS"
     Regeneration:
-      Ticks_Before_Start: 1200
-      Max_Blocks_Per_Update: 2
+      Ticks_Before_Start: 300
+      Max_Blocks_Per_Update: 3
       Ticks_Between_Updates: 5
     Flashbang:
-      Effect_Distance: 10
+      Effect_Distance: 11.2
       Mechanics:
         Potion_Effects:
-          - BLINDNESS-100-1-false
+          - "CONFUSION-200-3-false"
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+    Zoom_Amount: 6
     Mechanics:
-      Firework:
-        Firework_Type: BURST
-        Flight_Time: 0
-        Flicker: false
-        Colors:
-          - BLACK
-        Fade_Colors:
-          - BLACK
+      Sounds:
+        - "custom:scope.in-0.5-1-0-0.1"
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - "custom:scope.out-0.5-1-0-0.1"
