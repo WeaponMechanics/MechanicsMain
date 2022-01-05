@@ -68,7 +68,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         ModifySpreadWhen increaseChangeWhen = new ModifySpreadWhen().serialize(file, configurationSection, path + ".Increase_Change_When");
         if (increaseChangeWhen == null) return null;
 
-        double startingAmount = configurationSection.getDouble(path + ".Starting_Amount");
+        double startingAmount = configurationSection.getDouble(path + ".Starting_Amount", 0) * 0.01;
         Bounds bounds = getBounds(configurationSection, path + ".Bounds");
         return new ChangingSpread(startingAmount, increaseChangeWhen, bounds);
     }
@@ -83,7 +83,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
 
         // Just giving default values to avoid confusions when checking if value was ever even used
         if (max == -1) {
-            max = 10;
+            max = 15;
         }
 
         if (min == -1) {
@@ -95,7 +95,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         }
 
         boolean resetAfterReachingBound = configurationSection.getBoolean(path + ".Reset_After_Reaching_Bound");
-        return new Bounds(resetAfterReachingBound, min, max);
+        return new Bounds(resetAfterReachingBound, min * 0.01, max * 0.01);
     }
 
     public static class Bounds {
