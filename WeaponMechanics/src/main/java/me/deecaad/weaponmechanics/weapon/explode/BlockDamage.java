@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -142,6 +143,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param block The non-null block to damage.
      * @return The DamageData associated with the block.
      */
+    @Nullable
     public BlockDamageData.DamageData damage(Block block) {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
             int max = getMaxDurability(block);
