@@ -230,7 +230,11 @@ public class WeaponMechanics {
             String link = basicConfiguration.getString("Resource_Pack_Download.Link");
             int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
             int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
-            FileUtil.downloadFile(new File(getDataFolder(), "WeaponMechanicsResourcePack.zip"), link, connection, read);
+
+            File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
+            if (!pack.exists()) {
+                FileUtil.downloadFile(pack, link, connection, read);
+            }
         }
     }
 

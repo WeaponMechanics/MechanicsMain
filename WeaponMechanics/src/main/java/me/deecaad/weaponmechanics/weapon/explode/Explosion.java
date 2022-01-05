@@ -404,11 +404,7 @@ public class Explosion implements Serializer<Explosion> {
             Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
             Object destroy = entityCompatibility.getDestroyPacket(nms);
 
-            for (Entity entity : DistanceUtil.getEntitiesInRange(origin)) {
-                if (entity.getType() != EntityType.PLAYER) {
-                    continue;
-                }
-                Player player = (Player) entity;
+            for (Player player : DistanceUtil.getPlayersInRange(origin)) {
                 CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
 
                 new BukkitRunnable() {

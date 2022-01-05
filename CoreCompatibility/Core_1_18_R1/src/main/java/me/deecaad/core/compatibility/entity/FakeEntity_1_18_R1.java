@@ -6,6 +6,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -21,10 +22,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -93,15 +97,31 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         if (data != null) {
             entity = switch (type) {
                 case DROPPED_ITEM -> new ItemEntity(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((ItemStack) data));
-                case FALLING_BLOCK -> new FallingBlockEntity(world.getHandle(), x, y, z, block = ((CraftBlockState) data).getHandle());
+                case FALLING_BLOCK -> new FallingBlockEntity(world.getHandle(), x, y, z, block =
+                        (data.getClass() == Material.class
+                                ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
+                                : ((CraftBlockState) data).getHandle()
+                        ));
                 default -> world.createEntity(location, type.getEntityClass());
             };
         } else {
             entity = world.createEntity(location, type.getEntityClass());
         }
 
+        this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         this.cache = entity.getId();
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
+    }
+
+    @Override
+    public void setDisplay(@Nullable String display) {
+        entity.setCustomName(CraftChatMessage.fromStringOrNull(display));
+        entity.setCustomNameVisible(display != null && !"".equals(display));
+    }
+
+    @Override
+    public void setGravity(boolean gravity) {
+        entity.setNoGravity(!gravity);
     }
 
     @Override
@@ -110,6 +130,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
 
         // Needed for teleport packet.
         entity.setPosRaw(x, y, z);
+        entity.setYHeadRot(yaw);
         entity.setYRot(yaw);
         entity.setXRot(pitch);
     }
@@ -117,6 +138,9 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     @Override
     public void setMotion(double dx, double dy, double dz) {
         ClientboundSetEntityMotionPacket packet = new ClientboundSetEntityMotionPacket(cache, new Vec3(dx, dy, dz));
+        motion.setX(dx);
+        motion.setY(dy);
+        motion.setZ(dz);
 
         for (ServerGamePacketListenerImpl connection : connections) {
             connection.send(packet);
@@ -127,39 +151,39 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     public void setRotation(float yaw, float pitch) {
         location.setYaw(yaw);
         location.setPitch(pitch);
+        entity.setYHeadRot(yaw);
+        entity.setXRot(yaw);
+        entity.setYRot(pitch);
 
         byte byteYaw = convertYaw(yaw);
         Rot packet = new Rot(cache, byteYaw, convertPitch(pitch), false);
-        ClientboundRotateHeadPacket head = type.isAlive() ? new ClientboundRotateHeadPacket(entity, byteYaw) : null;
+        ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, byteYaw);
 
         for (ServerGamePacketListenerImpl connection : connections) {
             connection.send(packet);
-            if (head != null)
-                connection.send(head);
+            connection.send(head);
         }
     }
 
     @Override
     public void setPositionRaw(double x, double y, double z, float yaw, float pitch) {
         ClientboundTeleportEntityPacket packet = new ClientboundTeleportEntityPacket(entity);
-        ClientboundRotateHeadPacket head = type.isAlive() ? new ClientboundRotateHeadPacket(entity, convertYaw(yaw)) : null;
+        ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(yaw));
 
         for (ServerGamePacketListenerImpl connection : connections) {
             connection.send(packet);
-            if (head != null)
-                connection.send(head);
+            connection.send(head);
         }
     }
 
     @Override
     public void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch) {
         PosRot packet = new PosRot(cache, dx, dy, dz, yaw, pitch, false);
-        ClientboundRotateHeadPacket head = type.isAlive() ? new ClientboundRotateHeadPacket(entity, convertYaw(yaw)) : null;
+        ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(yaw));
 
         for (ServerGamePacketListenerImpl connection : connections) {
             connection.send(packet);
-            if (head != null)
-                connection.send(head);
+            connection.send(head);
         }
     }
 
@@ -169,19 +193,22 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
                 ? new ClientboundAddMobPacket((LivingEntity) entity)
                 : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 1);
         ClientboundSetEntityDataPacket meta = getMetaPacket();
+        ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
+        Rot look = new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
+        ClientboundSetEntityMotionPacket velocity = new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ()));
 
-        for (org.bukkit.entity.Entity temp : DistanceUtil.getEntitiesInRange(location)) {
-            if (temp.getType() != EntityType.PLAYER) {
-                continue;
-            }
-
+        for (Player temp : DistanceUtil.getPlayersInRange(location)) {
             ServerGamePacketListenerImpl connection = ((CraftPlayer) temp).getHandle().connection;
             if (connections.contains(connection)) {
                 continue;
             }
 
-            connection.send(spawn);
             connection.send(meta);
+            connection.send(head);
+            connection.send(velocity);
+            connection.send(look);
+            connection.send(spawn);
+
             connections.add(connection);
         }
     }
@@ -190,10 +217,14 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     public void show(@NotNull Player player) {
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
 
+
+        connection.send(getMetaPacket());
+        connection.send(new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
+        connection.send(new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ())));
+        connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
         connection.send(type.isAlive()
                 ? new ClientboundAddMobPacket((LivingEntity) entity)
                 : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 1));
-        connection.send(getMetaPacket());
 
         // Inject the player's packet connection into this listener, so we can
         // show the player position/velocity/rotation changes

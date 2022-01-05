@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This final utility class outlines static methods involving the visible
@@ -50,10 +52,35 @@ public final class DistanceUtil {
      * @param origin The coordinates that from where entities are taken
      * @return The entities withing range of view distance from origin
      */
-    public static Collection<Entity> getEntitiesInRange(@Nonnull Location origin) {
+    public static List<Player> getPlayersInRange(@Nonnull Location origin) {
         World world = origin.getWorld();
+        if (world == null)
+            throw new IllegalArgumentException();
+
         double distance = getRange(world);
-        return world.getNearbyEntities(origin, distance, distance, distance);
+
+        // AABB
+        double x1 = origin.getX() - distance;
+        double y1 = origin.getY() - distance;
+        double z1 = origin.getZ() - distance;
+        double x2 = origin.getX() + distance;
+        double y2 = origin.getY() + distance;
+        double z2 = origin.getZ() + distance;
+
+        // Collect all players in box
+        List<Player> players = new LinkedList<>();
+        for (Player player : world.getPlayers()) {
+            Location pos = player.getLocation();
+
+            if (pos.getX() > x1 && pos.getX() < x2
+                    && pos.getY() > y1 && pos.getY() < y2
+                    && pos.getZ() > z1 && pos.getZ() < z2) {
+
+                players.add(player);
+            }
+        }
+
+        return players;
     }
 
     /**
@@ -78,29 +105,14 @@ public final class DistanceUtil {
      * @param packets The packets to send to players in view.
      */
     public static void sendPacket(@Nonnull Location origin, Object... packets) {
-        sendPacket(origin, getRange(origin.getWorld()), packets);
-    }
-
-    /**
-     * Sends the given packet to all players whose distance to the given
-     * {@link Location} is les than the given <code>distance</code>.
-     *
-     * @param origin   The coordinates that the packet is being spawned at.
-     * @param distance The maximum distance a player can be and still see the
-     *                 packet.
-     * @param packets   The packets to send to the players.
-     */
-    public static void sendPacket(@Nonnull Location origin, double distance, Object... packets) {
         if (origin.getWorld() == null)
             throw new IllegalArgumentException("Cannot have null world");
 
-        World world = origin.getWorld();
-        Collection<Entity> entities = world.getNearbyEntities(origin, distance, distance, distance);
-        for (Entity entity : entities) {
+        for (Player entity : getPlayersInRange(origin)) {
             if (entity.getType() != EntityType.PLAYER) {
                 continue;
             }
-            CompatibilityAPI.getCompatibility().sendPackets((Player) entity, packets);
+            CompatibilityAPI.getCompatibility().sendPackets(entity, packets);
         }
     }
 }
