@@ -94,6 +94,10 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     public ClusterBomb serialize(File file, ConfigurationSection configurationSection, String path) {
         int bombs = configurationSection.getInt(path + ".Number_Of_Bombs", -1);
 
+        if (bombs == -1) {
+            return null;
+        }
+
         debug.validate(bombs > 0, "Number_Of_Bombs must be a positive number!");
 
         Projectile projectileSettings = new Projectile().serialize(file, configurationSection, path + ".Split_Projectile");

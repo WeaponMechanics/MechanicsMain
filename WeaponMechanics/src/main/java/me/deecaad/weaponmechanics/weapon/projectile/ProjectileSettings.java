@@ -3,9 +3,6 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.StringUtil;
-import org.bukkit.Material;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -158,10 +155,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     public ProjectileSettings serialize(File file, ConfigurationSection configurationSection, String path) {
 
         String type = configurationSection.getString(path + ".Type");
-        if (type == null) {
-            debug.error("You failed to specify projectile type!", StringUtil.foundAt(file, path + ".Type"));
-            return null;
-        }
+        if (type == null) return null;
+
         type = type.trim().toUpperCase();
         boolean isInvisible = type.equals("INVISIBLE");
 
