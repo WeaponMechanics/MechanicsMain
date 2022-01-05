@@ -28,6 +28,7 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
 
+        Vector possibleNextLocation = getLocation().add(getMotion());
         double distance = Math.ceil(getMotionLength());
 
         // If distance is 0 or below, it will cause issues
@@ -47,6 +48,8 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
             // Block was not air, remove
             return true;
         }
+
+        setRawLocation(possibleNextLocation);
 
         // There wasn't any collisions
         return false;
