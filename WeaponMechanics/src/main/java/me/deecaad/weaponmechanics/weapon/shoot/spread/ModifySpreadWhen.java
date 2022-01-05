@@ -103,7 +103,7 @@ public class ModifySpreadWhen implements Serializer<ModifySpreadWhen> {
             debug.log(LogLevel.ERROR,
                     "Found an invalid number in configurations!",
                     "Located at file " + file + " in " + path + " (" + value + ") in configurations",
-                    "Make sure they're numbers e.g. 1.76, 5.21, 8, 23");
+                    "Make sure they're numbers e.g. 17.6, 52.1, 8, 23");
             return null;
         }
     }

@@ -5,8 +5,8 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
  */
 public class NumberModifier {
 
-    private double spread;
-    private boolean percentage;
+    private final double spread;
+    private final boolean percentage;
 
     public NumberModifier(double spread, boolean percentage) {
         this.percentage = percentage;
@@ -17,7 +17,7 @@ public class NumberModifier {
             // -> 100% would then mean that no changes are made
             this.spread = spread * 0.01;
         } else {
-            this.spread = spread * 0.1;
+            this.spread = spread;
         }
     }
 
