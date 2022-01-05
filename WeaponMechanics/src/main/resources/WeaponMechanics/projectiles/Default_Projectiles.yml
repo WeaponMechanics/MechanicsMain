@@ -101,3 +101,15 @@ assault_rifle:
       Entities:
         Allow_Any: true
         Default_Speed_Multiplier: 0.7
+
+pistol:
+  Projectile:
+    Projectile_Settings:
+      Type: "DROPPED_ITEM"
+      Projectile_Item_Or_Block:
+        Type: "IRON_NUGGET"
+      Gravity: 0.05
+      Decrease_Motion:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98

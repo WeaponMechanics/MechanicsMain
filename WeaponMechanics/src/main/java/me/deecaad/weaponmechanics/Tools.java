@@ -16,7 +16,7 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
-        calculateStats(0.71, 0.72, 0.63, 0.75, 0.63, 0.71);
+        calculateStats(0.54, 0.65, 0.52, 0.53, 0.77, 0.6);
     }
 
     private static void calculateStats(double accuracy, double damage, double range,
@@ -33,8 +33,8 @@ public class Tools {
         System.out.println("-> Shotgun: " + "5: " + damageDropOff + " 10: " + (damageDropOff*2.5) + " 20: " + (damageDropOff*4));
         System.out.println("-> Sniper rifle: 0");
         System.out.println("Fire rate: ");
-        System.out.println("-> full auto: " + NumberUtil.lerp(-5, 20, firerate));
-        System.out.println("-> firearm actions: " + NumberUtil.lerp(20, -5, firerate));
+        System.out.println("-> full/semi auto: " + NumberUtil.lerp(-5, 20, firerate));
+        System.out.println("-> firearm actions/delay between shots: " + NumberUtil.lerp(20, -5, firerate));
         System.out.println("Mobility:");
         System.out.println("-> movement attribute: " + NumberUtil.lerp(-0.08, 0.025, mobility));
         System.out.println("-> reload duration: " + Math.round(NumberUtil.lerp(140, 0, mobility)));
