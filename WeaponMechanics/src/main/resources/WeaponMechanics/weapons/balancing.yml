@@ -1,6 +1,6 @@
 # https://callofduty.fandom.com/wiki/Call_of_Duty:_Modern_Warfare_(2019)#Weapons
 # https://www.gamesatlas.com/cod-modern-warfare/weapons/
-# min + factor * (max - min)
+# Tools class automates calculations
 
 # Accuracy
 # -> spread                        MIN = 12.5, MAX = 0
@@ -13,6 +13,7 @@
 #   * Shotgun                      5 *1 -> 10 *2.5 -> 20 *4
 #   * Sniper rifles                *0
 #   * Rocket launchers             *0
+#   * Marksman rifle               *0
 # Fire Rate
 # -> full auto                     MIN = -5, MAX = 20
 # -> firearm actions               MIN = 20, MAX = -5

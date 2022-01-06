@@ -186,7 +186,7 @@ public class WeaponHandler {
                 }
             }
 
-            Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire", Mechanics.class);
+            Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", Mechanics.class);
             if (selectiveFireMechanics != null) selectiveFireMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
