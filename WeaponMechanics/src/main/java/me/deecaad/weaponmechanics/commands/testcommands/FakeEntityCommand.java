@@ -9,9 +9,11 @@ import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -42,7 +44,7 @@ public class FakeEntityCommand extends SubCommand {
         boolean gravity = args.length > 3 ? Boolean.parseBoolean(args[3]) : false;
         String name     = args.length > 4 ? StringUtil.color(args[4]) : null;
 
-        FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(player.getLocation(), type, null);
+        FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(player.getLocation(), type, type == EntityType.DROPPED_ITEM ? new ItemStack(Material.STONE_AXE) : null);
         entity.setGravity(gravity);
         entity.setDisplay(name);
         entity.show(player);
@@ -67,9 +69,11 @@ public class FakeEntityCommand extends SubCommand {
                         entity.setRotation(entity.getYaw() + 5.0f, entity.getYaw() / 2.0f);
                         break;
                     case "flash":
-                        if (ticksAlive % 10 == 0) flash = !flash;
-                        entity.getMeta().setFlag(EntityMetaFlag.GLOWING, flash ? BitMutator.TRUE : BitMutator.FALSE);
-                        entity.updateMeta();
+                        if (ticksAlive % 10 == 0) {
+                            flash = !flash;
+                            entity.getMeta().setFlag(EntityMetaFlag.GLOWING, flash ? BitMutator.TRUE : BitMutator.FALSE);
+                            entity.updateMeta();
+                        }
                         break;
                     case "sky":
                         //entity.setMotion(0, 0.08, 0);

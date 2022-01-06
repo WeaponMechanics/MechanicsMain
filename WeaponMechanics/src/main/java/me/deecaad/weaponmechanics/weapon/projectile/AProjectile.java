@@ -97,22 +97,13 @@ public abstract class AProjectile {
     /**
      * @return base speed decreasing
      */
-    public double getDecrease() {
-        return 0.99;
-    }
-
-    /**
-     * @return speed decreasing in water
-     */
-    public double getDecreaseInWater() {
-        return 0.96;
-    }
-
-    /**
-     * @return speed decreasing when raining or snowing
-     */
-    public double getDecreaseWhenRainingOrSnowing() {
-        return 0.98;
+    public double getDrag() {
+        if (getCurrentBlock().isLiquid())
+            return 0.96;
+        else if (world.isThundering() || world.hasStorm())
+            return 0.98;
+        else
+            return 0.99;
     }
 
     /**
@@ -164,6 +155,22 @@ public abstract class AProjectile {
      */
     public Vector getLocation() {
         return location.clone();
+    }
+
+    public Block getCurrentBlock() {
+        return world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
+    public double getX() {
+        return location.getX();
+    }
+
+    public double getY() {
+        return location.getY();
+    }
+
+    public double getZ() {
+        return location.getZ();
     }
 
     /**
@@ -349,15 +356,8 @@ public abstract class AProjectile {
             return false;
         }
 
-        Block blockAtCurrentLocation = world.getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        double decrease = getDecrease();
-        if (blockAtCurrentLocation.isLiquid()) {
-            decrease = getDecreaseInWater();
-        } else if (world.isThundering() || world.hasStorm()) {
-            decrease = getDecreaseWhenRainingOrSnowing();
-        }
-
-        motion.multiply(decrease);
+        double drag = getDrag();
+        motion.multiply(drag);
 
         double gravity = getGravity();
         if (gravity != 0) {

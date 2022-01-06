@@ -102,18 +102,13 @@ public class WeaponProjectile extends AProjectile {
     }
 
     @Override
-    public double getDecrease() {
-        return projectileSettings.getDecrease();
-    }
-
-    @Override
-    public double getDecreaseInWater() {
-        return projectileSettings.getDecreaseInWater();
-    }
-
-    @Override
-    public double getDecreaseWhenRainingOrSnowing() {
-        return projectileSettings.getDecreaseWhenRainingOrSnowing();
+    public double getDrag() {
+        if (getCurrentBlock().isLiquid())
+            return projectileSettings.getDecreaseInWater();
+        else if (getWorld().isThundering() || getWorld().hasStorm())
+            return projectileSettings.getDecreaseWhenRainingOrSnowing();
+        else
+            return projectileSettings.getDecrease();
     }
 
     @Override
