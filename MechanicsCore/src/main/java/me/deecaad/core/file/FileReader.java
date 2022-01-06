@@ -212,16 +212,21 @@ public class FileReader {
                         pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
                     } else {
                         try {
-                            Object valid = serializer.serialize(file, configuration, key);
-                            if (valid == null)
-                                debug.warn(serializer.getKeyword() + " serializer returned null",
-                                    "This is probably due to a configuration error! The error(s) should be above this message",
-                                    StringUtil.foundAt(file, key));
 
+                            // SerializerException can be thrown whenever the
+                            // user input an invalid value. We should log the
+                            // exception.
+                            Object valid = serializer.serialize(file, configuration, key);
                             filledMap.set(key, valid);
                             startsWithDeny = key;
+
+                        } catch (SerializerException e) {
+                            e.log(debugger);
                         } catch (Exception e) {
-                            debug.log(LogLevel.WARN, "Unhandled caught exception from serializer " + serializer.getKeyword() + "!", e);
+
+                            // Any Exception other than SerializerException
+                            // should be fixed by the dev of the serializer.
+                            throw new InternalError("Unhandled caught exception from serializer " + serializer.getKeyword() + "!", e);
                         }
                     }
                     continue;

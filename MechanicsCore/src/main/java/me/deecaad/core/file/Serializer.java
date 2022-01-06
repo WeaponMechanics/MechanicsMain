@@ -1,6 +1,5 @@
 package me.deecaad.core.file;
 
-import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -24,8 +23,6 @@ public interface Serializer<T> {
     default String getKeyword() {
         return null;
     }
-
-    Debugger getDebugger();
 
     /**
      * Basically if this is not null then all other serializers will be used except these ones which
@@ -82,5 +79,5 @@ public interface Serializer<T> {
      * @param path the path to this serializer's path (path to keyword like path.keyword)
      * @return the serialized object or null
      */
-    T serialize(File file, ConfigurationSection configurationSection, String path);
+    T serialize(File file, ConfigurationSection configurationSection, String path) throws SerializerException;
 }

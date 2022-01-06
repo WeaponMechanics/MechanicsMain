@@ -10,7 +10,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class SerializerException extends Exception {
 
@@ -29,8 +28,7 @@ public class SerializerException extends Exception {
         this.location = location;
     }
 
-    public void log() {
-        Debugger debug = serializer.getDebugger();
+    public void log(Debugger debug) {
 
         LinkedList<String> collected = new LinkedList<>();
         collected.add("A mistake was found in your configurations when making '" + serializer.getClass().getSimpleName() + "'");
