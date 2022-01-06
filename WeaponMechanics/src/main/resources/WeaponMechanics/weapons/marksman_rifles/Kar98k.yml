@@ -1,0 +1,101 @@
+Kar98k:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6Kar98k"
+      Unbreakable: true
+      Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.0243"
+      Deny_Use_In_Crafting: true
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "&6Kar98k%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Time: 40
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Drop_Item: true
+      Swap_Hands: true
+      Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 221
+    Scope:
+      Custom_Model_Data: 231
+  Projectile: "marksman_rifle.Projectile"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 110
+    Delay_Between_Shots: 18
+    Spread:
+      Base_Spread: 3
+      Modify_Spread_When:
+        Zooming: 50%
+        Sneaking: 50%
+        Walking: 1
+        In_Midair: 150%
+        Gliding: 200%
+    Recoil:
+      Push_Time: 200
+      Recover_Time: 200
+      Horizontal:
+        - 8.2
+        - -8.2
+      Vertical:
+        - 8.2
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
+    Mechanics:
+      Sounds:
+        - "custom:shoot.kar98k-6-1-0-0.1"
+  Reload:
+    Trigger:
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
+    Magazine_Size: 5
+    Reload_Duration: 66
+    Start_Mechanics:
+      Sounds:
+        - "custom:reload.start.normal-0.5-1-0-0.1"
+        - "custom:reload.end.normal-0.5-1-64-0.1"
+  Damage:
+    Base_Damage: 11.4
+    Armor_Damage: 4
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+    Zoom_Amount: 8
+    Mechanics:
+      Sounds:
+        - "custom:scope.in-0.5-1-0-0.1"
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - "custom:scope.out-0.5-1-0-0.1"
+    Zoom_Stacking:
+      Maximum_Stacks: 1
+      Increase_Zoom_Per_Stack: 8
+      Mechanics:
+        Sounds:
+          - "custom:scope.in-0.5-1-0-0.1"
+  Firearm_Action:
+    Type: "LEVER"
+    Open:
+      Time: 9
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+    Close:
+      Time: 9
+      Mechanics:
+        Sounds:
+          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"

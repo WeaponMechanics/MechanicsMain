@@ -10,7 +10,7 @@ FN_FAL:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6FN FAL &7«&6%ammo-left%&7»&6%reload%"
+        Message: "&6FN FAL &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
         Time: 40
     Weapon_Get_Mechanics:
       Sounds:
@@ -32,6 +32,14 @@ FN_FAL:
       Deny_When:
         Swimming: true
     Projectile_Speed: 40
+    Selective_Fire:
+      Trigger:
+        Main_Hand: "DOUBLE_SNEAK"
+        Off_Hand: "DOUBLE_SNEAK"
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-1-2"
+    Delay_Between_Shots: 5
     Fully_Automatic_Shots_Per_Second: 9
     Spread:
       Base_Spread: 3.2
@@ -59,6 +67,8 @@ FN_FAL:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
+      Deny_When:
+        Swimming: true
     Magazine_Size: 20
     Reload_Duration: 56
     Start_Mechanics:
@@ -78,6 +88,8 @@ FN_FAL:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
+      Deny_When:
+        Swimming: true
     Zoom_Amount: 8
     Mechanics:
       Sounds:

@@ -667,3 +667,24 @@ Entity_Hitboxes:
     ARMS: true
     LEGS: 0.25
     FEET: 0.125
+  AXOLOTL:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.65
+    ARMS: false
+    LEGS: 0.35
+    FEET: 0.0
+  GLOW_SQUID:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 1.0
+    ARMS: false
+    LEGS: 0.0
+    FEET: 0.0
+  GOAT:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.6
+    ARMS: false
+    LEGS: 0.3
+    FEET: 0.1
