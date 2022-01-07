@@ -12,7 +12,7 @@ import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
 public class WikiCommand extends SubCommand {
 
     public static char SYM = '\u27A2';
-    public static String WIKI = "https://github.com/DeeCaaD/MechanicsMain/wiki";
+    public static String WIKI = "https://github.com/WeaponMechanics/MechanicsMain/wiki";
 
     public WikiCommand() {
         super("wm", "wiki", "Shows links to the Wiki");
