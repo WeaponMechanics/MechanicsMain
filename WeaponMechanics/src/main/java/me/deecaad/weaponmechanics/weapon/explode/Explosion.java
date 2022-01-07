@@ -1,15 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.compatibility.entity.FallingBlockWrapper;
+import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -28,7 +27,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -324,10 +322,18 @@ public class Explosion implements Serializer<Explosion> {
             timeOffset += regeneration.getTicksBeforeStart();
 
         List<BlockDamageData.DamageData> brokenBlocks = isRegenerate ? new ArrayList<>(regeneration.getMaxBlocksPerUpdate()) : null;
+        Location temp = new Location(null, 0, 0, 0);
 
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
             Block block = blocks.get(i);
+
+            // Check WorldGuard to determine whether we can break blocks here
+            // Always use null for player. We could check if the projectile
+            // shooter owns the region, but it is best to simply deny for all
+            // players (Less confused people).
+            if (!WorldGuardAPI.getWorldGuardCompatibility().testFlag(block.getLocation(temp), null, "weapon-break-block"))
+                continue;
 
             // We need the BlockState for falling blocks. If we get the state
             // after breaking the block, we will get AIR (not good for visual
