@@ -44,7 +44,9 @@ public class WeaponProjectile extends AProjectile {
 
     // These are for through and bouncy to deny collision with
     // same block or entity right after colliding with it
+    private int lastBlockUpdateTick;
     private Location lastBlock;
+    private int lastEntityUpdateTick;
     private int lastEntity = -1;
 
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
@@ -229,7 +231,8 @@ public class WeaponProjectile extends AProjectile {
         for (RayTraceResult hit : hits) {
 
             // Check if hitting same entity or block as last time
-            if (equalToLast(hit)) continue;
+            // And that the last hit to this block / entity was over 1 ticks ago
+            if (equalToLastHit(hit)) continue;
 
             // Stay on track of current location and distance travelled on each loop
             setRawLocation(hit.getHitLocation());
@@ -259,7 +262,7 @@ public class WeaponProjectile extends AProjectile {
                 ++throughAmount;
 
                 // Update last hit entity / block
-                updateLast(hit);
+                updateLastHit(hit);
                 continue;
             }
 
@@ -269,7 +272,7 @@ public class WeaponProjectile extends AProjectile {
                 ++bounces;
 
                 // Update last hit entity / block
-                updateLast(hit);
+                updateLastHit(hit);
 
                 noFinalUpdate = true;
 
@@ -293,20 +296,43 @@ public class WeaponProjectile extends AProjectile {
         return false;
     }
 
-    private void updateLast(RayTraceResult hit) {
+    private void updateLastHit(RayTraceResult hit) {
         if (hit.isBlock()) {
             lastBlock = hit.getBlock().getLocation();
+            lastBlockUpdateTick = getAliveTicks() + 1;
         } else {
             lastEntity = hit.getLivingEntity().getEntityId();
+            lastEntityUpdateTick = getAliveTicks() + 1;
         }
+
+        // Logic of +1 for last update tick:
+
+        // Current alive tick is 5 in this case
+        // lastXUpdateTick = 5 + 1
+
+        // getAliveTicks <= lastXUpdateTick
+
+        // getAliveTicks = 5 // CHECKS DURING CURRENT TICK
+        // 5 <= 6 = TRUE
+        // -> equalToLastHit can be true
+
+        // getAliveTicks = 6 // CHECKS TICK AFTER HIT
+        // 6 <= 6 = TRUE
+        // -> equalToLastHit can be true
+
+        // getAliveTicks = 7 // CHECKS 2 TICKS AFTER HIT
+        // 7 <= 6 = FALSE
+        // -> equalToLastHit is false even if the hit entity / block is same
     }
 
-    private boolean equalToLast(RayTraceResult hit) {
+    private boolean equalToLastHit(RayTraceResult hit) {
         if (hit.isBlock()) {
             Location hitBlock = hit.getBlock().getLocation();
-            return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ();
+            return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ() // Check block
+                    && getAliveTicks() <= lastBlockUpdateTick; // Check hit tick
         }
-        return lastEntity != -1 && lastEntity == hit.getLivingEntity().getEntityId();
+        return lastEntity != -1 && lastEntity == hit.getLivingEntity().getEntityId() // Check entity
+                && getAliveTicks() <= lastEntityUpdateTick; // Check hit tick
     }
 
     private List<RayTraceResult> getHits(boolean disableEntityCollisions) {

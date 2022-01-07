@@ -59,7 +59,6 @@ public interface IPlayerWrapper extends IEntityWrapper {
     /**
      * @return the message helper for weapon info display
      */
-    @Nullable
     MessageHelper getMessageHelper();
 
     /**
