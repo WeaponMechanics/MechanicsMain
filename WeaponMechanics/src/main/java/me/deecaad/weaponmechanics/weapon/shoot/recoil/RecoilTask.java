@@ -164,6 +164,16 @@ public class RecoilTask extends TimerTask {
             return true;
         }
 
+        ModifyRecoilWhen modifyRecoilWhen = tempRecoil.getModifyRecoilWhen();
+        if (modifyRecoilWhen != null) {
+            if (rotateYaw != 0) {
+                rotateYaw = (float) modifyRecoilWhen.applyChanges(playerWrapper, rotateYaw);
+            }
+            if (rotatePitch != 0) {
+                rotatePitch = (float) modifyRecoilWhen.applyChanges(playerWrapper, rotatePitch);
+            }
+        }
+
         long pushTime = tempRecoil.getPushTime();
 
         if (pushTime == 0) {

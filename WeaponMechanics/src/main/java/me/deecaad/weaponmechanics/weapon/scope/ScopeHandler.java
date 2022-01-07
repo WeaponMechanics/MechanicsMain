@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
+import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
@@ -110,6 +111,17 @@ public class ScopeHandler implements IValidator {
      * @return true if successfully zoomed in or stacked
      */
     private boolean zoomIn(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+        MCTiming scopeHandlerTiming = WeaponMechanics.timing("Scope Handler").startTiming();
+        boolean result = zoomInWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
+        scopeHandlerTiming.stopTiming();
+
+        return result;
+    }
+
+    /**
+     * @return true if successfully zoomed in or stacked
+     */
+    private boolean zoomInWithoutTiming(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         Configuration config = getConfigurations();
         LivingEntity entity = entityWrapper.getEntity();
 
@@ -175,6 +187,17 @@ public class ScopeHandler implements IValidator {
      * @return true if successfully zoomed out
      */
     private boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+        MCTiming scopeHandlerTiming = WeaponMechanics.timing("Scope Handler").startTiming();
+        boolean result = zoomOutWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
+        scopeHandlerTiming.stopTiming();
+
+        return result;
+    }
+
+    /**
+     * @return true if successfully zoomed out
+     */
+    private boolean zoomOutWithoutTiming(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         if (!zoomData.isZooming()) return false;
         LivingEntity entity = entityWrapper.getEntity();
 

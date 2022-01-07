@@ -1,101 +1,100 @@
 FN_FAL:
   Info:
     Weapon_Item:
-      Type: DIAMOND_HOE
-      Name: "&r&eFN FAL 5000"
-      Lore:
-        - "&7Witty info"
+      Type: "FEATHER"
+      Name: "&6FN FAL"
       Unbreakable: true
       Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.017"
+      Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&r%weapon-title% %selective_fire_state% &e«%ammo-left%»&r%reload%"
+        Message: "&6FN FAL &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
         Time: 40
     Weapon_Get_Mechanics:
       Sounds:
-        - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Cancel:
-      Block_Interactions: false
-      Item_Interactions: false
       Drop_Item: true
       Swap_Hands: true
       Arm_Swing_Animation: true
   Skin:
     Default:
-      Custom_Model_Data: 161
+      Custom_Model_Data: 141
     Scope:
-      Custom_Model_Data: 171
-  Projectile: "Default-Projectile.Projectile"
+      Custom_Model_Data: 151
+  Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
-      Off_Hand: "LEFT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 110 # 810 is more accurate
-    Projectiles_Per_Shot: 1
+    Projectile_Speed: 40
     Selective_Fire:
       Trigger:
-        Main_Hand: "SWAP_TO_OFF_HAND"
-        Off_Hand: "SWAP_TO_MAIN_HAND"
+        Main_Hand: "DOUBLE_SNEAK"
+        Off_Hand: "DOUBLE_SNEAK"
       Mechanics:
         Sounds:
-          - BLOCK_NOTE_BLOCK_HAT-1-2.0
-    Delay_Between_Shots: 1
-    Fully_Automatic_Shots_Per_Second: 10 # 8 is more accurate
+          - "BLOCK_NOTE_BLOCK_HAT-1-2"
+    Delay_Between_Shots: 5
+    Fully_Automatic_Shots_Per_Second: 9
     Spread:
-      Base_Spread: 0.25
+      Base_Spread: 3.2
       Modify_Spread_When:
-        Zooming: -0.2
-        Sneaking: -0.025
-        In_Midair: 0.25
-        Gliding: 0.25
-      Changing_Spread:
-        Starting_Amount: 0.0
-        Increase_Change_When:
-          Always: 0.01
-        Bounds:
-          Reset_After_Reaching_Bound: false
-          Minimum_Spread: 0.025
-          Maximum_Spread: 0.4
+        Zooming: 50%
+        Sneaking: 50%
+        Walking: 1
+        In_Midair: 150%
+        Gliding: 200%
     Recoil:
-      Push_Time: 100
+      Push_Time: 200
       Recover_Time: 200
-      Recoil_Pattern:
-        Repeat_Pattern: true
-        List:
-          - "-0.02~0.1"
-          - "0.02~0.1"
+      Horizontal:
+        - 3.19
+        - -3.19
+      Vertical:
+        - 3.19
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
     Mechanics:
       Sounds:
-        - BLOCK_BASALT_BREAK-4-2.0
-        - BLOCK_BASALT_STEP-4-2.0
-        - BLOCK_SCAFFOLDING_BREAK-2-2.0
+        - "custom:shoot.fnfal-6-1-0-0.1"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
+      Deny_When:
+        Swimming: true
     Magazine_Size: 20
-    Ammo_Per_Reload: 20
-    Reload_Duration: 52
+    Reload_Duration: 56
     Start_Mechanics:
       Sounds:
-        - ITEM_FLINTANDSTEEL_USE-2-2.0-0
-        - ITEM_FLINTANDSTEEL_USE-2-1.7-26
-        - ITEM_FLINTANDSTEEL_USE-2-1.9-28
-        - BLOCK_PISTON_EXTEND-2-1.5-46
-        - BLOCK_PISTON_CONTRACT-2-1.5-50
+        - "custom:reload.start.normal-0.5-1-0-0.1"
+    Finish_Mechanics:
+      Sounds:
+        - "custom:reload.end.normal-0.5-1-0-0.1"
   Damage:
-    Base_Damage: 10.6 # 53% of health
+    Base_Damage: 10.8
+    Armor_Damage: 4
+    Dropoff:
+      - "10~-1.6"
+      - "25~-3.2"
+      - "50~-4.8"
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
-      Off_Hand: "RIGHT_CLICK"
-    Zoom_Amount: 2
+      Off_Hand: "LEFT_CLICK"
+      Deny_When:
+        Swimming: true
+    Zoom_Amount: 8
     Mechanics:
       Sounds:
-        - custom:scope.in-0.5-1.0-0-0.05
+        - "custom:scope.in-0.5-1-0-0.1"
     Zoom_Off:
       Mechanics:
         Sounds:
-          - custom:scope.out-0.5-1.0-0-0.05
+          - "custom:scope.out-0.5-1-0-0.1"

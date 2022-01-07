@@ -363,8 +363,6 @@ public class WeaponMechanics {
         mechanicsCore.onDisable();
 
         mechanicsCore.onLoad();
-        this.onLoad();
-
         mechanicsCore.onEnable();
 
         // Setup the debugger

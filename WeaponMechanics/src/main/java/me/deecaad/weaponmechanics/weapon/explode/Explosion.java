@@ -1,8 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.entity.EntityCompatibility;
+import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.compatibility.entity.FallingBlockWrapper;
+import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.primitive.DoubleEntry;
@@ -17,6 +18,7 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorte
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
+import me.deecaad.weaponmechanics.weapon.projectile.RemoveOnBlockCollisionProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
@@ -25,7 +27,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -267,12 +268,10 @@ public class Explosion implements Serializer<Explosion> {
         // When blockDamage is null, we should not attempt to damage blocks or
         // spawn falling blocks. We also don't need to worry about regeneration.
         if (blockDamage != null) {
-            Map<FallingBlockData, Vector> fallingBlocks = new HashMap<>((int) (blockChance * 1.1 * blocks.size()));
             int timeOffset = regeneration == null ? -1 : (solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate());
 
-            damageBlocks(transparent, true, origin, projectile, fallingBlocks, timeOffset);
-            damageBlocks(solid, false, origin, projectile, fallingBlocks, 0);
-            spawnFallingBlocks(fallingBlocks, origin);
+            damageBlocks(transparent, true, origin, projectile, timeOffset);
+            damageBlocks(solid, false, origin, projectile, 0);
         }
 
         DoubleMap<LivingEntity> entities = event.getEntities();
@@ -316,24 +315,37 @@ public class Explosion implements Serializer<Explosion> {
                 projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
     }
 
-    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, WeaponProjectile projectile, Map<FallingBlockData, Vector> fallingBlocks, int timeOffset) {
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, WeaponProjectile projectile, int timeOffset) {
         boolean isRegenerate = regeneration != null;
 
         if (isRegenerate)
             timeOffset += regeneration.getTicksBeforeStart();
 
         List<BlockDamageData.DamageData> brokenBlocks = isRegenerate ? new ArrayList<>(regeneration.getMaxBlocksPerUpdate()) : null;
+        Location temp = new Location(null, 0, 0, 0);
 
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
             Block block = blocks.get(i);
 
-            // Getting the state of the block BEFORE the block is broken is important,
-            // otherwise we are just getting an air block, which is useless
+            // Check WorldGuard to determine whether we can break blocks here
+            // Always use null for player. We could check if the projectile
+            // shooter owns the region, but it is best to simply deny for all
+            // players (Less confused people).
+            if (!WorldGuardAPI.getWorldGuardCompatibility().testFlag(block.getLocation(temp), null, "weapon-break-block"))
+                continue;
+
+            // We need the BlockState for falling blocks. If we get the state
+            // after breaking the block, we will get AIR (not good for visual
+            // effects).
             BlockState state = block.getState();
             BlockDamageData.DamageData data = blockDamage.damage(block);
 
-            // Group blocks together to reduce task scheduling (#28). After
+            // This happens when a block is blacklisted
+            if (data == null)
+                continue;
+
+            // Group blocks together to reduce task scheduling. After
             // reaching the bound, we can schedule a task to generate later.
             if (isRegenerate) {
                 brokenBlocks.add(data);
@@ -364,57 +376,33 @@ public class Explosion implements Serializer<Explosion> {
                 data.remove();
             }
 
-            // Handling falling blocks super expensive on the CPU... TODO
-            if (data.isBroken() && NumberUtil.chance(blockChance)) {
+            if (data.isBroken() && blockDamage.isBreakBlocks() && NumberUtil.chance(blockChance)) {
 
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                 Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 
+                // We want blocks to fly out of the newly formed crater. By
+                // getting the opposite of the projectile velocity, we can
+                // force most falling blocks out of the hole.
                 if (projectile != null) {
                     Vector motion = projectile.getMotion().multiply(-1).normalize();
                     velocity.add(motion);
                 }
 
-                // We want to store the data, and calculate the falling blocks later
-                // so the falling blocks don't interact with blocks that are going to be
-                // blown up (but aren't blown up yet by this explosion)
-                FallingBlockData falling = new FallingBlockData(velocity, state, loc);
-                fallingBlocks.put(falling, velocity);
+                // This method will add the falling block to the WeaponMechanics
+                // ticker, but it is only added on the next tick. This is
+                // important, since otherwise the projectile would spawn BEFORE
+                // all the blocks were destroyed.
+                spawnFallingBlock(loc, state, velocity);
             }
         }
     }
 
-    protected void spawnFallingBlocks(Map<FallingBlockData, Vector> fallingBlocks, Location origin) {
-        EntityCompatibility entityCompatibility = CompatibilityAPI.getEntityCompatibility();
+    protected void spawnFallingBlock(Location location, BlockState state, Vector velocity) {
+        FakeEntity disguise = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, state);
 
-        // We cannot do this async, unfortunately
-        for (Map.Entry<FallingBlockData, Vector> entry : fallingBlocks.entrySet()) {
-            FallingBlockWrapper wrapper = entry.getKey().get();
-            Object nms = wrapper.getEntity();
-            int removeTime = NumberUtil.minMax(0, wrapper.getTimeToHitGround(), 200);
-            Vector velocity = entry.getValue();
-
-            if (removeTime == 0) continue;
-
-            // All the packets needed to handle showing the falling block
-            // to the player. The destroy packet is sent later, when the block
-            // hits the ground. Sent to every player in view.
-            Object spawn = entityCompatibility.getSpawnPacket(nms);
-            Object meta = entityCompatibility.getMetadataPacket(nms);
-            Object motion = entityCompatibility.getVelocityPacket(nms, velocity);
-            Object destroy = entityCompatibility.getDestroyPacket(nms);
-
-            for (Player player : DistanceUtil.getPlayersInRange(origin)) {
-                CompatibilityAPI.getCompatibility().sendPackets(player, spawn, meta, motion);
-
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        CompatibilityAPI.getCompatibility().sendPackets(player, destroy);
-                    }
-                }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), removeTime);
-            }
-        }
+        RemoveOnBlockCollisionProjectile projectile = new RemoveOnBlockCollisionProjectile(location, velocity, disguise);
+        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
     }
 
     @Override

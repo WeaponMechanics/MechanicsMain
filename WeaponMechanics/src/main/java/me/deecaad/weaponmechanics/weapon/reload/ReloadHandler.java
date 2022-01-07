@@ -1,9 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
+import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -48,7 +50,7 @@ public class ReloadHandler implements IValidator {
      * @param weaponStack the weapon stack
      * @param slot the slot used on trigger
      * @param triggerType the trigger type trying to activate reload
-     * @param dualWield whether or not this was dual wield
+     * @param dualWield whether this was dual wield
      * @return true if was able to start reloading
      */
     public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
@@ -59,16 +61,29 @@ public class ReloadHandler implements IValidator {
     }
 
     /**
-     * Starts reloading without checking for trigger
+     * Starts reloading without checking for trigger.
+     * Used for example when trying to shoot without ammo.
      *
      * @param entityWrapper the entity who used reload
      * @param weaponTitle the weapon title
      * @param weaponStack the weapon stack
      * @param slot the slot used on reload
-     * @param dualWield whether or not this was dual wield
+     * @param dualWield whether this was dual wield
      * @return true if was able to start reloading
      */
     public boolean startReloadWithoutTrigger(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
+
+        // This method is called from many places in reload handler and shoot handler as well
+        // so that's why even startReloadWithoutTriggerAndWithoutTiming() is a separated method
+
+        MCTiming reloadHandlerTiming = WeaponMechanics.timing("Reload Handler").startTiming();
+        boolean result = startReloadWithoutTriggerAndWithoutTiming(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+        reloadHandlerTiming.stopTiming();
+
+        return result;
+    }
+
+    private boolean startReloadWithoutTriggerAndWithoutTiming(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
 
         // Don't try to reload if either one of the hands is already reloading
         if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
@@ -295,7 +310,7 @@ public class ReloadHandler implements IValidator {
             }
         };
 
-        if (firearmAction == null) {
+        if (firearmAction == null || state == null) {
 
             // Doesn't run any chain since in this case as there isn't next task
             reloadTask.startChain();

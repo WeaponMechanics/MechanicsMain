@@ -1,101 +1,88 @@
 AK-47:
   Info:
     Weapon_Item:
-      Type: DIAMOND_HOE
-      Name: "&r&eAK-47"
-      Lore:
-        - "&7Russians drink vodka and shoot ak-47s"
+      Type: "FEATHER"
+      Name: "&6AK-47"
       Unbreakable: true
       Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.0181"
+      Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&r%weapon-title% %selective_fire_state% &e«%ammo-left%»&r%reload%"
+        Message: "&6AK-47 &7«&6%ammo-left%&7»&6%reload%"
         Time: 40
     Weapon_Get_Mechanics:
       Sounds:
-        - ITEM_ARMOR_EQUIP_CHAIN-1-0.75
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Cancel:
-      Block_Interactions: false
-      Item_Interactions: false
       Drop_Item: true
       Swap_Hands: true
       Arm_Swing_Animation: true
   Skin:
     Default:
-      Custom_Model_Data: 1
+      Custom_Model_Data: 121
     Scope:
-      Custom_Model_Data: 11
-  Projectile: "Default-Projectile.Projectile"
+      Custom_Model_Data: 131
+  Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
-      Off_Hand: "LEFT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 100 # 715 is more accurate
-    Projectiles_Per_Shot: 1
-    Selective_Fire:
-      Trigger:
-        Main_Hand: "SWAP_TO_OFF_HAND"
-        Off_Hand: "SWAP_TO_MAIN_HAND"
-      Mechanics:
-        Sounds:
-          - BLOCK_NOTE_BLOCK_HAT-1-2.0
-    Delay_Between_Shots: 1
-    Fully_Automatic_Shots_Per_Second: 10 # 9 is more accurate, but 10 is a good number for full auto
+    Projectile_Speed: 40
+    Fully_Automatic_Shots_Per_Second: 10
     Spread:
-      Base_Spread: 0.25
+      Base_Spread: 3.9
       Modify_Spread_When:
-        Zooming: -0.2
-        Sneaking: -0.025
-        In_Midair: 0.25
-        Gliding: 0.25
-      Changing_Spread:
-        Starting_Amount: 0.0
-        Increase_Change_When:
-          Always: 0.01
-        Bounds:
-          Reset_After_Reaching_Bound: false
-          Minimum_Spread: 0.025
-          Maximum_Spread: 0.4
+        Zooming: 50%
+        Sneaking: 50%
+        Walking: 1
+        In_Midair: 150%
+        Gliding: 200%
     Recoil:
-      Push_Time: 100
+      Push_Time: 200
       Recover_Time: 200
-      Recoil_Pattern:
-        Repeat_Pattern: true
-        List:
-          - "-0.02~0.1"
-          - "0.02~0.1"
+      Horizontal:
+        - 3.2
+        - -3.2
+      Vertical:
+        - 3.2
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
     Mechanics:
       Sounds:
-        - BLOCK_BASALT_BREAK-4-2.0
-        - BLOCK_BASALT_STEP-4-2.0
-        - BLOCK_SCAFFOLDING_BREAK-2-2.0
+        - "custom:shoot.ak47-6-1-0-0.1"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
     Magazine_Size: 30
-    Ammo_Per_Reload: 30
-    Reload_Duration: 44
+    Reload_Duration: 57
     Start_Mechanics:
       Sounds:
-        - ITEM_FLINTANDSTEEL_USE-2-2.0-0
-        - ITEM_FLINTANDSTEEL_USE-2-1.7-18
-        - ITEM_FLINTANDSTEEL_USE-2-1.9-20
-        - BLOCK_PISTON_EXTEND-2-1.5-34
-        - BLOCK_PISTON_CONTRACT-2-1.5-42
+        - "custom:reload.start.normal-0.5-1-0-0.1"
+    Finish_Mechanics:
+      Sounds:
+        - "custom:reload.end.normal-0.5-1-0-0.1"
   Damage:
-    Base_Damage: 7.6 # 38% of your health per shot
+    Base_Damage: 10.2
+    Armor_Damage: 3
+    Dropoff:
+      - "10~-1.66"
+      - "25~-3.32"
+      - "50~-4.98"
   Scope:
     Trigger:
-       Main_Hand: "LEFT_CLICK"
-       Off_Hand: "RIGHT_CLICK"
-    Zoom_Amount: 2
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+    Zoom_Amount: 8
     Mechanics:
       Sounds:
-        - custom:scope.in-0.5-1.0-0-0.05
+        - "custom:scope.in-0.5-1-0-0.1"
     Zoom_Off:
       Mechanics:
         Sounds:
-          - custom:scope.out-0.5-1.0-0-0.05
+          - "custom:scope.out-0.5-1-0-0.1"

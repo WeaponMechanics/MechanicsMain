@@ -91,7 +91,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             entity = world.createEntity(location, type.getEntityClass());
         }
 
-        this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        this.setLocation(x, y, z, location.getYaw(), location.getPitch());
         this.cache = entity.getId();
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
     }
@@ -176,7 +176,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         // be the same for each Player.
         Packet<?> spawn = type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1);
+                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
         PacketPlayOutEntityMetadata meta = getMetaPacket();
         PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw()));
         PacketPlayOutEntityLook look = new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
@@ -188,11 +188,11 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
                 continue;
             }
 
+            connection.sendPacket(spawn);
             connection.sendPacket(meta);
             connection.sendPacket(head);
             connection.sendPacket(velocity);
             connection.sendPacket(look);
-            connection.sendPacket(spawn);
 
             connections.add(connection);
         }
@@ -204,13 +204,13 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         if (connections.contains(connection))
             throw new IllegalArgumentException();
 
+        connection.sendPacket(type.isAlive()
+                ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
+                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
         connection.sendPacket(getMetaPacket());
         connection.sendPacket(new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.sendPacket(new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ())));
         connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw())));
-        connection.sendPacket(type.isAlive()
-                ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 1));
 
         // Inject the player's packet connection into this listener, so we can
         // show the player position/velocity/rotation changes

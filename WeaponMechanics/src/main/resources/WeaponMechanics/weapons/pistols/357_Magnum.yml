@@ -1,0 +1,103 @@
+357_Magnum:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6.357 Magnum"
+      Unbreakable: true
+      Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.0002"
+      Deny_Use_In_Crafting: true
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "&6.357 Magnum%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Time: 40
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Drop_Item: true
+      Swap_Hands: true
+      Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 181
+    Scope:
+      Custom_Model_Data: 191
+  Projectile: "pistol.Projectile"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 40
+    Delay_Between_Shots: 9
+    Spread:
+      Base_Spread: 5
+      Modify_Spread_When:
+        Zooming: 50%
+        Sneaking: 50%
+        Walking: 1
+        In_Midair: 150%
+        Gliding: 200%
+    Recoil:
+      Push_Time: 200
+      Recover_Time: 200
+      Horizontal:
+        - 3.5
+        - -3.5
+      Vertical:
+        - 3.5
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
+    Mechanics:
+      Sounds:
+        - "custom:shoot.357magnum-6-1-0-0.1"
+  Reload:
+    Trigger:
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
+    Magazine_Size: 6
+    Reload_Duration: 34
+    Start_Mechanics:
+      Sounds:
+        - "custom:reload.start.shotgun-0.5-1-0-0.1"
+        - "custom:reload.start.shotgun-0.5-1-7-0.1"
+        - "custom:reload.start.shotgun-0.5-1-13-0.1"
+        - "custom:reload.start.shotgun-0.5-1-19-0.1"
+        - "custom:reload.start.shotgun-0.5-1-25-0.1"
+        - "custom:reload.start.shotgun-0.5-1-31-0.1"
+  Damage:
+    Base_Damage: 7.6
+    Armor_Damage: 2
+    Dropoff:
+      - "10~-1.88"
+      - "25~-3.76"
+      - "50~-5.64"
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+    Zoom_Amount: 5
+    Mechanics:
+      Sounds:
+        - "custom:scope.in-0.5-1-0-0.1"
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - "custom:scope.out-0.5-1-0-0.1"
+  Firearm_Action:
+    Type: "REVOLVER"
+    Open:
+      Time: 9
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+    Close:
+      Time: 9
+      Mechanics:
+        Sounds:
+          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"

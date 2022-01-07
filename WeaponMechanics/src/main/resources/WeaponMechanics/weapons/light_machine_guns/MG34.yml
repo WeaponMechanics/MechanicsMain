@@ -1,0 +1,88 @@
+MG34:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6MG34"
+      Unbreakable: true
+      Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED--0.0296"
+      Deny_Use_In_Crafting: true
+    Weapon_Info_Display:
+      Action_Bar:
+        Message: "&6MG34 &7«&6%ammo-left%&7»&6%reload%"
+        Time: 40
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Drop_Item: true
+      Swap_Hands: true
+      Arm_Swing_Animation: true
+  Skin:
+    Default:
+      Custom_Model_Data: 241
+    Scope:
+      Custom_Model_Data: 251
+  Projectile: "light_machine_gun.Projectile"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 40
+    Fully_Automatic_Shots_Per_Second: 13
+    Spread:
+      Base_Spread: 3.5
+      Modify_Spread_When:
+        Zooming: 50%
+        Sneaking: 50%
+        Walking: 1
+        In_Midair: 150%
+        Gliding: 200%
+    Recoil:
+      Push_Time: 200
+      Recover_Time: 200
+      Horizontal:
+        - 2.8
+        - -2.8
+      Vertical:
+        - 2.8
+      Modify_Recoil_When:
+        Zooming: 50%
+        Sneaking: 50%
+    Mechanics:
+      Sounds:
+        - "custom:shoot.mg34-6-1-0-0.1"
+  Reload:
+    Trigger:
+      Main_Hand: "DROP_ITEM"
+      Off_Hand: "DROP_ITEM"
+    Magazine_Size: 75
+    Reload_Duration: 73
+    Start_Mechanics:
+      Sounds:
+        - "custom:reload.start.heavy-0.5-1-0-0.1"
+    Finish_Mechanics:
+      Sounds:
+        - "custom:reload.end.heavy-0.5-1-0-0.1"
+  Damage:
+    Base_Damage: 10.4
+    Armor_Damage: 3
+    Dropoff:
+      - "10~-1.44"
+      - "25~-2.88"
+      - "50~-4.32"
+  Scope:
+    Trigger:
+      Main_Hand: "LEFT_CLICK"
+      Off_Hand: "LEFT_CLICK"
+    Zoom_Amount: 8
+    Mechanics:
+      Sounds:
+        - "custom:scope.in-0.5-1-0-0.1"
+    Zoom_Off:
+      Mechanics:
+        Sounds:
+          - "custom:scope.out-0.5-1-0-0.1"

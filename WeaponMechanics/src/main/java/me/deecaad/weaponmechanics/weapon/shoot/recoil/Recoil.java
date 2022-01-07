@@ -29,18 +29,20 @@ public class Recoil implements Serializer<Recoil> {
     private List<Float> randomHorizontal;
     private List<Float> randomVertical;
     private RecoilPattern recoilPattern;
+    private ModifyRecoilWhen modifyRecoilWhen;
 
     /**
      * Empty constructor to be used as serializer
      */
     public Recoil() { }
 
-    public Recoil(long pushTime, long recoverTime, List<Float> randomHorizontal, List<Float> randomVertical, RecoilPattern recoilPattern) {
+    public Recoil(long pushTime, long recoverTime, List<Float> randomHorizontal, List<Float> randomVertical, RecoilPattern recoilPattern, ModifyRecoilWhen modifyRecoilWhen) {
         this.pushTime = pushTime;
         this.recoverTime = recoverTime;
         this.randomHorizontal = randomHorizontal;
         this.randomVertical = randomVertical;
         this.recoilPattern = recoilPattern;
+        this.modifyRecoilWhen = modifyRecoilWhen;
     }
 
     public void start(Player player, boolean mainHand) {
@@ -89,6 +91,10 @@ public class Recoil implements Serializer<Recoil> {
         return recoilPattern;
     }
 
+    public ModifyRecoilWhen getModifyRecoilWhen() {
+        return modifyRecoilWhen;
+    }
+
     @Override
     public String getKeyword() {
         return "Recoil";
@@ -104,10 +110,11 @@ public class Recoil implements Serializer<Recoil> {
             return null;
         }
 
+        ModifyRecoilWhen modifyRecoilWhen = new ModifyRecoilWhen().serialize(file, configurationSection, path + ".Modify_Recoil_When");
         long pushTime = configurationSection.getLong(path + ".Push_Time");
         long recoverTime = configurationSection.getLong(path + ".Recover_Time");
 
-        return new Recoil(pushTime, recoverTime, randomHorizontal, randomVertical, recoilPattern);
+        return new Recoil(pushTime, recoverTime, randomHorizontal, randomVertical, recoilPattern, modifyRecoilWhen);
     }
 
     private List<Float> convertToFloatList(File file, ConfigurationSection configurationSection, String path) {

@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -12,6 +13,7 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
@@ -26,6 +28,9 @@ public class WeaponProjectile extends AProjectile {
     private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
     private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
 
+    // Storing this reference to be able to use cloneSettingsAndShoot(Location, Motion) method
+    private final ProjectileSettings projectileSettings;
+
     private final ItemStack weaponStack;
     private final String weaponTitle;
 
@@ -39,18 +44,24 @@ public class WeaponProjectile extends AProjectile {
 
     // These are for through and bouncy to deny collision with
     // same block or entity right after colliding with it
+    private int lastBlockUpdateTick;
     private Location lastBlock;
+    private int lastEntityUpdateTick;
     private int lastEntity = -1;
 
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
                             Vector motion, ItemStack weaponStack, String weaponTitle,
                             Sticky sticky, Through through, Bouncy bouncy) {
-        super(projectileSettings, shooter, location, motion);
+        super(shooter, location, motion);
+        this.projectileSettings = projectileSettings;
         this.weaponStack = weaponStack;
         this.weaponTitle = weaponTitle;
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
+
+        EntityType type = projectileSettings.getProjectileDisguise();
+        if (type != null) spawnDisguise(CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData()));
     }
 
     /**
@@ -62,9 +73,54 @@ public class WeaponProjectile extends AProjectile {
      * @return the cloned projectile
      */
     public WeaponProjectile cloneSettingsAndShoot(Location location, Vector motion) {
-        WeaponProjectile projectile = new WeaponProjectile(getProjectileSettings(), getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
+        WeaponProjectile projectile = new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
         WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
         return projectile;
+    }
+
+    @Override
+    public double getGravity() {
+        return projectileSettings.getGravity();
+    }
+
+    @Override
+    public double getMinimumSpeed() {
+        return projectileSettings.getMinimumSpeed();
+    }
+
+    @Override
+    public boolean isRemoveAtMinimumSpeed() {
+        return projectileSettings.isRemoveAtMinimumSpeed();
+    }
+
+    @Override
+    public double getMaximumSpeed() {
+        return projectileSettings.getMaximumSpeed();
+    }
+
+    @Override
+    public boolean isRemoveAtMaximumSpeed() {
+        return projectileSettings.isRemoveAtMaximumSpeed();
+    }
+
+    @Override
+    public double getDrag() {
+        if (getCurrentBlock().isLiquid())
+            return projectileSettings.getDecreaseInWater();
+        else if (getWorld().isThundering() || getWorld().hasStorm())
+            return projectileSettings.getDecreaseWhenRainingOrSnowing();
+        else
+            return projectileSettings.getDecrease();
+    }
+
+    @Override
+    public boolean isDisableEntityCollisions() {
+        return projectileSettings.isDisableEntityCollisions();
+    }
+
+    @Override
+    public int getMaximumAliveTicks() {
+        return projectileSettings.getMaximumAliveTicks();
     }
 
     /**
@@ -175,7 +231,8 @@ public class WeaponProjectile extends AProjectile {
         for (RayTraceResult hit : hits) {
 
             // Check if hitting same entity or block as last time
-            if (equalToLast(hit)) continue;
+            // And that the last hit to this block / entity was over 1 ticks ago
+            if (equalToLastHit(hit)) continue;
 
             // Stay on track of current location and distance travelled on each loop
             setRawLocation(hit.getHitLocation());
@@ -205,7 +262,7 @@ public class WeaponProjectile extends AProjectile {
                 ++throughAmount;
 
                 // Update last hit entity / block
-                updateLast(hit);
+                updateLastHit(hit);
                 continue;
             }
 
@@ -215,7 +272,7 @@ public class WeaponProjectile extends AProjectile {
                 ++bounces;
 
                 // Update last hit entity / block
-                updateLast(hit);
+                updateLastHit(hit);
 
                 noFinalUpdate = true;
 
@@ -239,20 +296,43 @@ public class WeaponProjectile extends AProjectile {
         return false;
     }
 
-    private void updateLast(RayTraceResult hit) {
+    private void updateLastHit(RayTraceResult hit) {
         if (hit.isBlock()) {
             lastBlock = hit.getBlock().getLocation();
+            lastBlockUpdateTick = getAliveTicks() + 1;
         } else {
             lastEntity = hit.getLivingEntity().getEntityId();
+            lastEntityUpdateTick = getAliveTicks() + 1;
         }
+
+        // Logic of +1 for last update tick:
+
+        // Current alive tick is 5 in this case
+        // lastXUpdateTick = 5 + 1
+
+        // getAliveTicks <= lastXUpdateTick
+
+        // getAliveTicks = 5 // CHECKS DURING CURRENT TICK
+        // 5 <= 6 = TRUE
+        // -> equalToLastHit can be true
+
+        // getAliveTicks = 6 // CHECKS TICK AFTER HIT
+        // 6 <= 6 = TRUE
+        // -> equalToLastHit can be true
+
+        // getAliveTicks = 7 // CHECKS 2 TICKS AFTER HIT
+        // 7 <= 6 = FALSE
+        // -> equalToLastHit is false even if the hit entity / block is same
     }
 
-    private boolean equalToLast(RayTraceResult hit) {
+    private boolean equalToLastHit(RayTraceResult hit) {
         if (hit.isBlock()) {
             Location hitBlock = hit.getBlock().getLocation();
-            return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ();
+            return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ() // Check block
+                    && getAliveTicks() <= lastBlockUpdateTick; // Check hit tick
         }
-        return lastEntity != -1 && lastEntity == hit.getLivingEntity().getEntityId();
+        return lastEntity != -1 && lastEntity == hit.getLivingEntity().getEntityId() // Check entity
+                && getAliveTicks() <= lastEntityUpdateTick; // Check hit tick
     }
 
     private List<RayTraceResult> getHits(boolean disableEntityCollisions) {
@@ -331,7 +411,7 @@ public class WeaponProjectile extends AProjectile {
                 Chunk chunk = getWorld().getChunkAt(x, z);
                 for (final Entity entity : chunk.getEntities()) {
                     if (!entity.getType().isAlive() || entity.isInvulnerable()
-                            || (getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())) continue;
+                            || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())) continue;
 
                     entities.add((LivingEntity) entity);
                 }
@@ -349,9 +429,6 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public void onMove() {
         if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
-
-        Vector loc = getLocation();
-        getWorld().spawnParticle(Particle.REDSTONE, loc.getX(), loc.getY(), loc.getZ(), 1, 0, 0, 0, 0, new Particle.DustOptions(Color.RED, 1f), true);
     }
 
     @Override

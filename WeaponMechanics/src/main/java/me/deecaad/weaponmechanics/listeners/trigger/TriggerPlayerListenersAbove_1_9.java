@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -31,8 +32,9 @@ public class TriggerPlayerListenersAbove_1_9 implements Listener {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items")) return;
 
         Player player = e.getPlayer();
+        EntityEquipment playerEquipment = player.getEquipment();
 
-        if (player.getGameMode() == GameMode.SPECTATOR) return;
+        if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
 
         ItemStack toMain = e.getMainHandItem();
         String toMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toMain, false);
@@ -46,8 +48,8 @@ public class TriggerPlayerListenersAbove_1_9 implements Listener {
 
             e.setCancelled(true);
 
-            toOff = player.getEquipment().getItemInMainHand();
-            toMain = player.getEquipment().getItemInOffHand();
+            toOff = playerEquipment.getItemInMainHand();
+            toMain = playerEquipment.getItemInOffHand();
         }
 
         IPlayerWrapper playerWrapper = getPlayerWrapper(player);

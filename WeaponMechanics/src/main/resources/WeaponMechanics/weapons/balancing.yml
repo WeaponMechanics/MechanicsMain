@@ -1,0 +1,25 @@
+# https://callofduty.fandom.com/wiki/Call_of_Duty:_Modern_Warfare_(2019)#Weapons
+# https://www.gamesatlas.com/cod-modern-warfare/weapons/
+# Tools class automates calculations
+
+# Accuracy
+# -> spread                        MIN = 12.5, MAX = 0
+# -> spread image FOV              = spread * 30
+# Damage
+# -> generally damage              MIN = -5, MAX = 15
+# -> armor damage                  MIN = -2, MAX = 5
+# Range (damage drop off)          MIN = -3, MAX = -1
+#   * Default                      10 *1 -> 25 *2 -> 50 *3
+#   * Shotgun                      5 *1 -> 10 *2.5 -> 20 *4
+#   * Sniper rifles                *0
+#   * Rocket launchers             *0
+#   * Marksman rifle               *0
+# Fire Rate
+# -> full auto                     MIN = -5, MAX = 20
+# -> firearm actions               MIN = 20, MAX = -5
+# Mobility
+# -> movement attribute            MIN = -0.08, MAX = 0.025
+# -> reload duration               MIN = 140, MAX = 0
+# Control
+# -> Full auto                     MIN = 10, MAX = 0
+# -> Slow firing                   MIN = 15, MAX = 5

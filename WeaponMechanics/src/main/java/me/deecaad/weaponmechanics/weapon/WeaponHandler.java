@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.weapon;
 
-import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
+import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -23,6 +23,10 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -53,8 +57,10 @@ public class WeaponHandler {
 
     /**
      * Checks main and off hand items if they're weapons and uses them based on trigger.
-     * This is used with the exceptions off PlayerDropItemEvent, PlayerInteractEvent
-     * and PlayerSwapHandItemsEvent.
+     * This is used with the exceptions off 
+     * {@link TriggerPlayerListeners#dropItem(PlayerDropItemEvent)}, 
+     * {@link TriggerPlayerListeners#interact(PlayerInteractEvent)}
+     * and {@link TriggerPlayerListenersAbove_1_9#swapHandItems(PlayerSwapHandItemsEvent)}.
      *
      * @param livingEntity the living entity which caused trigger
      * @param triggerType the trigger type
@@ -70,12 +76,11 @@ public class WeaponHandler {
         if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
 
         boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
-
-        MCTiming timings = WeaponMechanics.timing("Weapon Handlers");
-        timings.startTiming();
+        EntityEquipment entityEquipment = livingEntity.getEquipment();
+        if (entityEquipment == null) return;
 
         // getItemInMainHand didn't exist in 1.8
-        ItemStack mainStack = useOffHand ? livingEntity.getEquipment().getItemInMainHand() : livingEntity.getEquipment().getItemInHand();
+        ItemStack mainStack = useOffHand ? entityEquipment.getItemInMainHand() : entityEquipment.getItemInHand();
 
         String mainWeapon = infoHandler.getWeaponTitle(mainStack, autoConvert);
 
@@ -83,12 +88,11 @@ public class WeaponHandler {
         ItemStack offStack = null;
         String offWeapon = null;
         if (useOffHand) {
-            offStack = livingEntity.getEquipment().getItemInOffHand();
+            offStack = entityEquipment.getItemInOffHand();
             offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
         }
 
         if (mainWeapon == null && offWeapon == null) {
-            timings.stopTiming();
             return;
         }
 
@@ -101,8 +105,6 @@ public class WeaponHandler {
 
         // Off weapon is automatically null at this point if server is using 1.8
         if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
-
-        timings.stopTiming();
     }
 
     /**
@@ -112,6 +114,7 @@ public class WeaponHandler {
      * 2) Reload
      * 3) Scope
      * 4) Selective fire
+     * 5) Ammo type switch
      * }</pre>
      *
      * @param entityWrapper the entity which caused trigger
@@ -183,7 +186,7 @@ public class WeaponHandler {
                 }
             }
 
-            Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire", Mechanics.class);
+            Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", Mechanics.class);
             if (selectiveFireMechanics != null) selectiveFireMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);

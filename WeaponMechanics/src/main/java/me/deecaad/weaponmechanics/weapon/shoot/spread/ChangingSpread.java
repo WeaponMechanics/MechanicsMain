@@ -31,8 +31,8 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
      *
      * @param entityWrapper the entity wrapper used to check circumstances
      * @param tempSpread the spread
-     * @param mainHand whether or not main hand was used
-     * @param updateSpreadChange whether or not to allow updating current spread change
+     * @param mainHand whether main hand was used
+     * @param updateSpreadChange whether to allow updating current spread change
      * @return the modifier holder with updated horizontal and vertical values
      */
     public double applyChanges(IEntityWrapper entityWrapper, double tempSpread, boolean mainHand, boolean updateSpreadChange) {
@@ -68,14 +68,14 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         ModifySpreadWhen increaseChangeWhen = new ModifySpreadWhen().serialize(file, configurationSection, path + ".Increase_Change_When");
         if (increaseChangeWhen == null) return null;
 
-        double startingAmount = configurationSection.getDouble(path + ".Starting_Amount") * 0.1;
+        double startingAmount = configurationSection.getDouble(path + ".Starting_Amount", 0) * 0.01;
         Bounds bounds = getBounds(configurationSection, path + ".Bounds");
         return new ChangingSpread(startingAmount, increaseChangeWhen, bounds);
     }
 
     private Bounds getBounds(ConfigurationSection configurationSection, String path) {
-        double min = configurationSection.getDouble(path + ".Minimum_Spread", -1);
-        double max = configurationSection.getDouble(path + ".Maximum_Spread", -1);
+        double min = configurationSection.getDouble(path + ".Minimum", -1);
+        double max = configurationSection.getDouble(path + ".Maximum", -1);
 
         if (min == -1 && max == -1) {
             return null;
@@ -83,7 +83,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
 
         // Just giving default values to avoid confusions when checking if value was ever even used
         if (max == -1) {
-            max = 50;
+            max = 15;
         }
 
         if (min == -1) {
@@ -95,7 +95,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         }
 
         boolean resetAfterReachingBound = configurationSection.getBoolean(path + ".Reset_After_Reaching_Bound");
-        return new Bounds(resetAfterReachingBound, min * 0.1, max * 0.1);
+        return new Bounds(resetAfterReachingBound, min * 0.01, max * 0.01);
     }
 
     public static class Bounds {

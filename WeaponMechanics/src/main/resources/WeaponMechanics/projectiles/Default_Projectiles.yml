@@ -1,31 +1,161 @@
-Default-Projectile:
+sub_machine_gun:
   Projectile:
-    Settings:
+    Projectile_Settings:
       Type: "DROPPED_ITEM"
-      Width: 0.25
-      Height: 0.25
       Projectile_Item_Or_Block:
-        Type: IRON_NUGGET
-    Projectile_Motion:
-      Gravity: 0.05
-      Minimum:
-        Speed: 40
-        Remove_Projectile_On_Speed_Reached: true
+        Type: "IRON_NUGGET"
       Maximum:
-        Speed: 160
-        Remove_Projectile_On_Speed_Reached: false
+        Speed: 40
+      Gravity: 0.05
       Decrease_Motion:
-        Base: 0.95
-        In_Water: 0.60
-        When_Raining_Or_Snowing: 0.9
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
     Through:
+      Maximum_Through_Amount: 1
       Blocks:
-        Maximum_Pass_Throughs: 2
-        Default_Speed_Modifier: 0.80
+        Default_Speed_Multiplier: 0.8
         Whitelist: true
         List:
-          - $GLASS
+          - "$GLASS"
       Entities:
-        Maximum_Pass_Throughs: 1
-        Allow_Any_Entity: true
-        Default_Speed_Modifier: 0.55
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.7
+
+sniper_rifle:
+  Projectile:
+    Projectile_Settings:
+      Type: "INVISIBLE"
+      Minimum:
+        Speed: 80
+      Gravity: 0.05
+      Decrease_Motion:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+    Through:
+      Maximum_Through_Amount: 4
+      Blocks:
+        Default_Speed_Multiplier: 0.8
+        Whitelist: true
+        List:
+          - "$GLASS"
+      Entities:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.7
+
+shotgun:
+  Projectile:
+    Projectile_Settings:
+      Type: "EGG"
+      Gravity: 0.08
+      Minimum:
+        Speed: 2
+      Decrease_Motion:
+        Base: 0.9
+        In_Water: 0.87
+        When_Raining_Or_Snowing: 0.89
+    Bouncy:
+      Maximum_Bounce_Amount: 1
+      Blocks:
+        Allow_Any: true
+    Through:
+      Maximum_Through_Amount: 1
+      Blocks:
+        Whitelist: true
+        List:
+          - "$GLASS"
+
+rocket_launcher:
+  Projectile:
+    Projectile_Settings:
+      Type: "WITHER_SKULL"
+      Minimum:
+        Speed: 25
+      Gravity: 0.02
+      Decrease_Motion:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+
+assault_rifle:
+  Projectile:
+    Projectile_Settings:
+      Type: "DROPPED_ITEM"
+      Projectile_Item_Or_Block:
+        Type: "IRON_NUGGET"
+      Minimum:
+        Speed: 30
+      Gravity: 0.05
+      Decrease_Motion:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+    Through:
+      Maximum_Through_Amount: 2
+      Blocks:
+        Default_Speed_Multiplier: 0.8
+        Whitelist: true
+        List:
+          - "$GLASS"
+      Entities:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.7
+
+pistol:
+  Projectile:
+    Projectile_Settings:
+      Type: "DROPPED_ITEM"
+      Projectile_Item_Or_Block:
+        Type: "IRON_NUGGET"
+      Gravity: 0.05
+      Decrease_Motion:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+
+marksman_rifle:
+  Projectile:
+    Projectile_Settings:
+      Type: "INVISIBLE"
+      Minimum:
+        Speed: 70
+      Gravity: 0.05
+      Decrease_Motion:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+    Through:
+      Maximum_Through_Amount: 3
+      Blocks:
+        Default_Speed_Multiplier: 0.7
+        Whitelist: true
+        List:
+          - "$GLASS"
+      Entities:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.6
+
+light_machine_gun:
+  Projectile:
+    Projectile_Settings:
+      Type: "DROPPED_ITEM"
+      Projectile_Item_Or_Block:
+        Type: "IRON_NUGGET"
+      Minimum:
+        Speed: 35
+      Gravity: 0.04
+      Decrease_Motion:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+    Through:
+      Maximum_Through_Amount: 5
+      Blocks:
+        Default_Speed_Multiplier: 0.8
+        Whitelist: true
+        List:
+          - "$GLASS"
+      Entities:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.7

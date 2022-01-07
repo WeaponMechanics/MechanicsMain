@@ -108,7 +108,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
             entity = world.createEntity(location, type.getEntityClass());
         }
 
-        this.setLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+        this.setLocation(x, y, z, location.getYaw(), location.getPitch());
         this.cache = entity.getId();
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
     }
@@ -191,7 +191,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     public void show() {
         Packet<?> spawn = type.isAlive()
                 ? new ClientboundAddMobPacket((LivingEntity) entity)
-                : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 1);
+                : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0);
         ClientboundSetEntityDataPacket meta = getMetaPacket();
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
         Rot look = new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
@@ -203,11 +203,11 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
                 continue;
             }
 
+            connection.send(spawn);
             connection.send(meta);
             connection.send(head);
             connection.send(velocity);
             connection.send(look);
-            connection.send(spawn);
 
             connections.add(connection);
         }
@@ -217,14 +217,13 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     public void show(@NotNull Player player) {
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
 
-
+        connection.send(type.isAlive()
+                ? new ClientboundAddMobPacket((LivingEntity) entity)
+                : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0));
         connection.send(getMetaPacket());
         connection.send(new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.send(new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ())));
         connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
-        connection.send(type.isAlive()
-                ? new ClientboundAddMobPacket((LivingEntity) entity)
-                : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 1));
 
         // Inject the player's packet connection into this listener, so we can
         // show the player position/velocity/rotation changes

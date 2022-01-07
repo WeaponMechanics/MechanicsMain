@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -142,6 +143,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param block The non-null block to damage.
      * @return The DamageData associated with the block.
      */
+    @Nullable
     public BlockDamageData.DamageData damage(Block block) {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
             int max = getMaxDurability(block);
@@ -269,7 +271,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
                 materials.forEach(material -> shotsToBreak.put(material, durability));
             }
-        } else {
+        } else if (!strings.isEmpty()) {
             debug.error("Error in Block_Damage!", "You tried to use Shots_To_Break_Blocks with Blacklist: true!",
                     "This doesn't make sense, since all materials/durability should be defined in Block_List",
                     StringUtil.foundAt(file, path));

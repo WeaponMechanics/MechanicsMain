@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics;
 
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -15,6 +16,31 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
+        calculateStats(0.72, 0.77, 0.78, 0.59, 0.48, 0.72);
+    }
+
+    private static void calculateStats(double accuracy, double damage, double range,
+                                       double firerate, double mobility, double control) {
+        System.out.println("Accuracy: ");
+        System.out.println("-> spread: " + NumberUtil.lerp(12.5, 0, accuracy));
+        System.out.println("-> spread image FOV: " + (30 * NumberUtil.lerp(1.25, 0, accuracy)));
+        System.out.println("Damage:");
+        System.out.println("-> generally: " + NumberUtil.lerp(-5, 15, damage));
+        System.out.println("-> armor: " + Math.round(NumberUtil.lerp(-2, 5, damage)));
+        System.out.println("Range (damage drop off): ");
+        double damageDropOff = NumberUtil.lerp(-3, -1, range);
+        System.out.println("-> Default: " + "10: " + damageDropOff + " 25: " + (damageDropOff*2) + " 50: " + (damageDropOff*3));
+        System.out.println("-> Shotgun: " + "5: " + damageDropOff + " 10: " + (damageDropOff*2.5) + " 20: " + (damageDropOff*4));
+        System.out.println("-> Sniper rifle, rocket launcher, marksman rifle: 0");
+        System.out.println("Fire rate: ");
+        System.out.println("-> full/semi auto: " + NumberUtil.lerp(-5, 20, firerate));
+        System.out.println("-> firearm actions/delay between shots: " + NumberUtil.lerp(20, -5, firerate));
+        System.out.println("Mobility:");
+        System.out.println("-> movement attribute: " + NumberUtil.lerp(-0.08, 0.025, mobility));
+        System.out.println("-> reload duration: " + Math.round(NumberUtil.lerp(140, 0, mobility)));
+        System.out.println("Control: ");
+        System.out.println("-> Full auto: " + NumberUtil.lerp(10, 0, control));
+        System.out.println("-> Slow firing: " + NumberUtil.lerp(15, 5, control));
     }
 
     private static void reflectionsTest() {

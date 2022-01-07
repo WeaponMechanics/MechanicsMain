@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.shoot.spread;
+package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.weapon.shoot.AModifyWhen;
@@ -9,24 +9,25 @@ import java.io.File;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
-public class ModifySpreadWhen extends AModifyWhen {
+public class ModifyRecoilWhen extends AModifyWhen {
 
     /**
      * Empty constructor to be used as serializer
      */
-    public ModifySpreadWhen() { }
+    public ModifyRecoilWhen() { }
 
-    public ModifySpreadWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking, NumberModifier standing, NumberModifier walking, NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
+    public ModifyRecoilWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking, NumberModifier standing, NumberModifier walking, NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         super(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
     }
 
     @Override
     public String getKeyword() {
-        return "Modify_Spread_When";
+        return "Modify_Recoil_When";
     }
 
     @Override
-    public ModifySpreadWhen serialize(File file, ConfigurationSection configurationSection, String path) {
+    public ModifyRecoilWhen serialize(File file, ConfigurationSection configurationSection, String path) {
+
         NumberModifier always = getModifierHandler(file, configurationSection, path + ".Always");
         NumberModifier zooming = getModifierHandler(file, configurationSection, path + ".Zooming");
         NumberModifier sneaking = getModifierHandler(file, configurationSection, path + ".Sneaking");
@@ -39,20 +40,14 @@ public class ModifySpreadWhen extends AModifyWhen {
                 && swimming == null && inMidair == null && gliding == null) {
             return null;
         }
-        return new ModifySpreadWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
+        return new ModifyRecoilWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
     }
 
     private NumberModifier getModifierHandler(File file, ConfigurationSection configurationSection, String path) {
         String value = configurationSection.getString(path);
         if (value == null) return null;
         try {
-            boolean percentage = value.endsWith("%");
-            double number = Double.parseDouble(value.split("%")[0]);
-            if (!percentage) {
-                number *= 0.01;
-            }
-
-            return new NumberModifier(number, percentage);
+            return new NumberModifier(Double.parseDouble(value.split("%")[0]), value.endsWith("%"));
         } catch (NumberFormatException e) {
             debug.log(LogLevel.ERROR,
                     "Found an invalid number in configurations!",
