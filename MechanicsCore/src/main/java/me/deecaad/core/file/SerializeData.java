@@ -1,8 +1,10 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 public class SerializeData {
@@ -12,98 +14,171 @@ public class SerializeData {
     public final String key;
     public final ConfigurationSection config;
 
-    public SerializeData(Serializer<?> serializer, File file, String key, ConfigurationSection config) {
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, @Nonnull String key, @Nonnull ConfigurationSection config) {
         this.serializer = serializer;
         this.file = file;
         this.key = key;
         this.config = config;
     }
 
-    public void assertExists(String relative) throws SerializerException {
-        if (!config.contains(relative, true)) {
-            throw new SerializerMissingKeyException(serializer, relative, relative);
-        }
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
+        this.serializer = serializer;
+        this.file = other.file;
+        this.key = other.key;
+        ConfigurationSection temp = other.config.getConfigurationSection(relative);
+
+        if (temp == null)
+            throw new IllegalArgumentException("No config section at " + relative);
+        else
+            this.config = temp;
     }
 
-    public void assertType(String relative, Class<?> type) throws SerializerException {
-        Object value = config.get(relative);
-
-        // Use assertExists for required keys
-        if (value == null)
-            return;
-
-        Class<?> actual = value.getClass();
-        if (!type.isAssignableFrom(actual)) {
-            throw new SerializerTypeException(serializer, type, actual, value, getLocation(relative));
-        }
+    public ConfigAccessor of(String relative) {
+        return new ConfigAccessor(relative);
     }
 
-    public void assertPositive(String relative) throws SerializerException {
-        Object value = config.get(relative);
+    public class ConfigAccessor {
 
-        // Use assertExists for required keys
-        if (value == null)
-            return;
+        private final String relative;
 
-        try {
-
-            // Using a double is not perfect since somebody may use a Long
-            // in config, which may cause issues. For int/float/double, this
-            // should work without issue.
-            double num = (double) value;
-            if (num < 0.0)
-                throw new SerializerNegativeException(serializer, num, getLocation(relative));
-
-        } catch (ClassCastException ex) {
-
-            // assertPositive is also effective for asserting the given type is a number.
-            throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation(relative));
+        private ConfigAccessor(String relative) {
+            this.relative = relative;
         }
-    }
 
-    public void assertRange(String relative, int min, int max) throws SerializerException {
-        Object value = config.get(relative);
+        public ConfigAccessor assertExists() throws SerializerException {
+            if (!config.contains(relative, true)) {
+                throw new SerializerMissingKeyException(serializer, relative, relative);
+            }
 
-        // Use assertExists for required keys
-        if (value == null)
-            return;
-
-        try {
-
-            // Silently strips away float point data (without exception)
-            int num = (int) value;
-            if (num < min || num > max)
-                throw new SerializerRangeException(serializer, min, num, max, getLocation(relative));
-
-        } catch (ClassCastException ex) {
-            throw new SerializerTypeException(serializer, Integer.class, value.getClass(), value, getLocation(relative));
+            return this;
         }
-    }
 
-    public void assertRange(String relative, double min, double max) throws SerializerException {
-        Object value = config.get(relative);
+        public ConfigAccessor assertType(Class<?> type) throws SerializerException {
+            Object value = config.get(relative);
 
-        // Use assertExists for required keys
-        if (value == null)
-            return;
+            // Use assertExists for required keys
+            if (value != null) {
+                Class<?> actual = value.getClass();
+                if (!type.isAssignableFrom(actual)) {
+                    throw new SerializerTypeException(serializer, type, actual, value, getLocation());
+                }
+            }
 
-        try {
-
-            // Silently strips away float point data (without exception)
-            double num = (double) value;
-            if (num < min || num > max)
-                throw new SerializerRangeException(serializer, min, num, max, getLocation(relative));
-
-        } catch (ClassCastException ex) {
-            throw new SerializerTypeException(serializer, Double.class, value.getClass(), value, getLocation(relative));
+            return this;
         }
-    }
 
-    public String getLocation(String relative) {
-        if (relative == null || "".equals(relative)) {
-            return StringUtil.foundAt(file, key);
-        } else {
-            return StringUtil.foundAt(file, key + "." + relative);
+        public ConfigAccessor assertNumber() throws SerializerException {
+            Object value = config.get(relative);
+
+            // Use assertExists for required keys
+            if (value == null)
+                return this;
+
+            try {
+
+                // Using a double is not perfect since somebody may use a Long
+                // in config, which may cause issues. For int/float/double, this
+                // should work without issue.
+                double ignore = (double) value;
+
+            } catch (ClassCastException ex) {
+
+                // assertPositive is also effective for asserting the given type is a number.
+                throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation());
+            }
+
+            return this;
+        }
+
+        public ConfigAccessor assertPositive() throws SerializerException {
+            Object value = config.get(relative);
+
+            // Use assertExists for required keys
+            if (value == null)
+                return this;
+
+            try {
+
+                // Using a double is not perfect since somebody may use a Long
+                // in config, which may cause issues. For int/float/double, this
+                // should work without issue.
+                double num = (double) value;
+                if (num < 0.0)
+                    throw new SerializerNegativeException(serializer, num, getLocation());
+
+            } catch (ClassCastException ex) {
+
+                // assertPositive is also effective for asserting the given type is a number.
+                throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation());
+            }
+
+            return this;
+        }
+
+        public ConfigAccessor assertRange(int min, int max) throws SerializerException {
+            Object value = config.get(relative);
+
+            // Use assertExists for required keys
+            if (value == null)
+                return this;
+
+            try {
+
+                // Silently strips away float point data (without exception)
+                int num = (int) value;
+                if (num < min || num > max)
+                    throw new SerializerRangeException(serializer, min, num, max, getLocation());
+
+            } catch (ClassCastException ex) {
+                throw new SerializerTypeException(serializer, Integer.class, value.getClass(), value, getLocation());
+            }
+
+            return this;
+        }
+
+        public ConfigAccessor assertRange(double min, double max) throws SerializerException {
+            Object value = config.get(relative);
+
+            // Use assertExists for required keys
+            if (value == null)
+                return this;
+
+            try {
+
+                // Silently strips away float point data (without exception)
+                double num = (double) value;
+                if (num < min || num > max)
+                    throw new SerializerRangeException(serializer, min, num, max, getLocation());
+
+            } catch (ClassCastException ex) {
+                throw new SerializerTypeException(serializer, Double.class, value.getClass(), value, getLocation());
+            }
+
+            return this;
+        }
+
+        public <T extends Serializer<T>> T serialize(Class<T> serializerClass) throws SerializerException {
+            T serializer = ReflectionUtil.newInstance(serializerClass);
+            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
+            return serializer.serialize(data);
+        }
+
+        private String getLocation() {
+            if (relative == null || "".equals(relative)) {
+                return StringUtil.foundAt(file, key);
+            } else {
+                return StringUtil.foundAt(file, key + "." + relative);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> T get() {
+            return (T) config.get(relative);
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> T get(T defaultValue) {
+            return (T) config.get(relative, defaultValue);
         }
     }
 }

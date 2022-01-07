@@ -1,24 +1,20 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class AirStrike implements Serializer<AirStrike> {
 
@@ -193,30 +189,27 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     @Override
-    public AirStrike serialize(File file, ConfigurationSection configurationSection, String path) {
+    public AirStrike serialize(SerializeData data) throws SerializerException {
 
-        int min = configurationSection.getInt(path + ".Minimum_Bombs", -1);
-        int max = configurationSection.getInt(path + ".Maximum_Bombs", -1);
+        int min = data.of("Minimum_Bombs").assertExists().assertPositive().get();
+        int max = data.of("Maximum_Bombs").assertExists().assertPositive().get();
 
         if (min == -1 || max == -1) {
             return null;
         }
 
-        Projectile projectileSettings = new Projectile().serialize(file, configurationSection, path + ".Dropped_Projectile");
+        Projectile projectile = data.of("Dropped_Projectile").assertExists().serialize(Projectile.class);
 
-        double yOffset = configurationSection.getDouble(path + ".Height", 60);
-        double yNoise = configurationSection.getDouble(path + ".Vertical_Randomness", 5);
+        double yOffset = data.of("Height").assertPositive().get(60.0);
+        double yNoise = data.of("Vertical_Randomness").assertPositive().get(5.0);
 
-        double separation = configurationSection.getDouble(path + ".Distance_Between_Bombs", 3);
-        double range = configurationSection.getDouble(path + ".Maximum_Distance_From_Center", 25);
+        double separation = data.of("Distance_Between_Bombs").assertPositive().get(3.0);
+        double range = data.of("Maximum_Distance_From_Center").assertPositive().get(25.0);
 
-        int layers = configurationSection.getInt(path + ".Layers", 3);
-        int interval = configurationSection.getInt(path + ".Delay_Between_Layers", 40);
+        int layers = data.of("Layers").assertPositive().get(1);
+        int interval = data.of("Delay_Between_Layers").assertPositive().get(40);
 
-        debug.validate(LogLevel.WARN, max < 100, StringUtil.foundLarge(max, file, path + ".Maximum_Bombs"));
-        debug.validate(LogLevel.WARN, layers < 100, StringUtil.foundLarge(max, file, path + ".Layers"));
-
-        return new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval);
+        return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval);
     }
 
     static class Vector2d {

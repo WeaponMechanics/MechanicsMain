@@ -69,15 +69,15 @@ public interface Serializer<T> {
     }
 
     /**
-     * You should return null if configuration section at this path wasn't valid,
-     * otherwise configuration filling will be messed up. After the keyword
-     * everything required should be saved into this method's return object because
-     * FileAPI will not save anything after this keyword anymore if this doesn't return null.
+     * Instantiates a new Object to be added into the finalized configuration.
+     * The object should be built off of {@link SerializeData#config}. If there
+     * is any misconfiguration (or any other issue preventing the construction
+     * of an object), then this method should throw a
+     * {@link SerializerException}. This method cannot return null.
      *
-     * @param file the file being filled
-     * @param configurationSection the configuration section
-     * @param path the path to this serializer's path (path to keyword like path.keyword)
-     * @return the serialized object or null
+     * @param data The non-null data containing config
+     * @return The non-null serialized data.
+     * @throws SerializerException If there is an error in config.
      */
-    T serialize(File file, ConfigurationSection configurationSection, String path) throws SerializerException;
+    T serialize(SerializeData data) throws SerializerException;
 }
