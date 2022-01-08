@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -160,25 +162,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     @Override
-    public BlockDamage serialize(File file, ConfigurationSection configurationSection, String path) {
-        ConfigurationSection config = configurationSection.getConfigurationSection(path);
-
-        boolean isBreakBlocks = config.getBoolean("Break_Blocks", false);
-        int damage = config.getInt("Damage_Per_Hit", 1);
-        int defaultBlockDurability = config.getInt("Default_Block_Durability", 1);
-        boolean isBlacklist = config.getBoolean("Blacklist", false);
-
-        if (damage < 0) {
-            debug.error("Block_Damage Damage MUST be positive. Found: " + damage,
-                    StringUtil.foundAt(file, path));
-            return null;
-        }
-
-        if (defaultBlockDurability < 0) {
-            debug.error("Block_Damage Default_Block_Durability MUST be positive. Found: " + defaultBlockDurability,
-                    StringUtil.foundAt(file, path));
-            return null;
-        }
+    public BlockDamage serialize(SerializeData data) throws SerializerException {
+        boolean isBreakBlocks = data.of("Break_Blocks").assertType(Boolean.class).get(false);
+        int damage = data.of("Damage_Per_Hit").assertPositive().get(1);
+        int defaultBlockDurability = data.of("Default_Block_Durability").assertPositive().get(1);
+        boolean isBlacklist = data.of("Blacklist").assertType(Boolean.class).get(false);
 
         List<String> strings = config.getStringList("Block_List");
         if (!isBlacklist && strings.isEmpty()) {

@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -21,13 +23,16 @@ public class AmmoConverter extends WeaponConverter {
     }
 
     @Override
-    public AmmoConverter serialize(File file, ConfigurationSection configurationSection, String path) {
-        boolean type = configurationSection.getBoolean(path + ".Type");
-        boolean name = configurationSection.getBoolean(path + ".Name");
-        boolean lore = configurationSection.getBoolean(path + ".Lore");
-        boolean enchantments = configurationSection.getBoolean(path + ".Enchantments");
+    public AmmoConverter serialize(SerializeData data) throws SerializerException {
+        boolean type = data.of("Type").assertType(Boolean.class).get(false);
+        boolean name = data.of("Name").assertType(Boolean.class).get(false);
+        boolean lore = data.of("Lore").assertType(Boolean.class).get(false);
+        boolean enchantments = data.of("Enchantments").assertType(Boolean.class).get(false);
+
         if (!type && !name && !lore && !enchantments) {
-            return null;
+            data.throwException("'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
+                    "One of them should be 'true' to allow ammo conversion",
+                    "If you want to remove the ammo conversion feature, remove the '" + getKeyword() + "' option from config");
         }
 
         return new AmmoConverter(type, name, lore, enchantments);

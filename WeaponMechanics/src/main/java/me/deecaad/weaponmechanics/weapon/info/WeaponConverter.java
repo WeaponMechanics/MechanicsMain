@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -10,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -105,16 +108,19 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     }
 
     @Override
-    public WeaponConverter serialize(File file, ConfigurationSection configurationSection, String path) {
-        boolean type = configurationSection.getBoolean(path + ".Type");
-        boolean name = configurationSection.getBoolean(path + ".Name");
-        boolean lore = configurationSection.getBoolean(path + ".Lore");
-        boolean enchantments = configurationSection.getBoolean(path + ".Enchantments");
+    public WeaponConverter serialize(SerializeData data) throws SerializerException {
+        boolean type = data.of("Type").assertType(Boolean.class).get(false);
+        boolean name = data.of("Name").assertType(Boolean.class).get(false);
+        boolean lore = data.of("Lore").assertType(Boolean.class).get(false);
+        boolean enchantments = data.of("Enchantments").assertType(Boolean.class).get(false);
+
         if (!type && !name && !lore && !enchantments) {
-            return null;
+            data.throwException("'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
+                    "One of them should be 'true' to allow weapon conversion",
+                    "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }
 
-        WeaponMechanics.getWeaponHandler().getInfoHandler().addWeaponWithConvert(path.split("\\.")[0]);
+        WeaponMechanics.getWeaponHandler().getInfoHandler().addWeaponWithConvert(data.key.split("\\.")[0]);
 
         return new WeaponConverter(type, name, lore, enchantments);
     }
