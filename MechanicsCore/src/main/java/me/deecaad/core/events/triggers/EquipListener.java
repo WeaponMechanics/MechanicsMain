@@ -6,12 +6,15 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -110,7 +113,7 @@ public class EquipListener implements Listener {
         // into their hand).
         if (commandLine.startsWith("/give") || commandLine.startsWith("/minecraft:give")) {
             Listener listener = new Listener() {
-                @EventHandler (ignoreCancelled = true, priority = EventPriority.HIGHEST)
+                @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
                 public void onDrop(PlayerDropItemEvent event) {
                     if (player.equals(event.getPlayer())) {
                         ignoreGiveDropPlayers.add(player);
@@ -126,6 +129,13 @@ public class EquipListener implements Listener {
                     HandlerList.unregisterAll(listener);
                 }
             }.runTask(MechanicsCore.getPlugin());
+        }
+    }
+
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInventoryDrop(InventoryClickEvent event) {
+        if (event.getSlot() == -999 && !isEmpty(event.getCursor()) && event.getWhoClicked() instanceof Player) {
+            ignoreGiveDropPlayers.add((Player) event.getWhoClicked());
         }
     }
 
@@ -151,6 +161,13 @@ public class EquipListener implements Listener {
         // in a stack, or dropping an un-stackable item.
         if (isEmpty(item)) {
             Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.HAND, event.getItemDrop().getItemStack(), null));
+        }
+    }
+
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onPlace(BlockPlaceEvent event) {
+        if (event.getItemInHand().getAmount() - 1 == 0) {
+            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(event.getPlayer(), event.getHand(), new ItemStack(event.getBlockPlaced().getType()), null));
         }
     }
 

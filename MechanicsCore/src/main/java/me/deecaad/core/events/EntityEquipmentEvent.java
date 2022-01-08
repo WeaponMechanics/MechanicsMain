@@ -61,7 +61,7 @@ public class EntityEquipmentEvent extends EntityEvent {
 
     /**
      * Returns <code>true</code> if an item is being equipped to the slot.
-     * Note that an item may equipped at the same time one is dequipped.
+     * Note that an item may be equipped at the same time one is dequipped.
      *
      * @return <code>true</code>
      * @see #isDequipping()
@@ -75,7 +75,6 @@ public class EntityEquipmentEvent extends EntityEvent {
      *
      * @return The nullable previous item.
      */
-    @Nullable
     public ItemStack getDequipped() {
         return dequipped;
     }
@@ -85,7 +84,6 @@ public class EntityEquipmentEvent extends EntityEvent {
      *
      * @return The nullable currently equipped item.
      */
-    @Nullable
     public ItemStack getEquipped() {
         return equipped;
     }

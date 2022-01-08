@@ -238,19 +238,6 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
             return new PacketPlayOutEntityMetadata(entity.getId(), dataWatcher, true);
         }
 
-        if (true) {
-            StringBuilder builder = new StringBuilder("[");
-            items.forEach(item -> builder.append(ChatColor.COLOR_CHAR)
-                    .append("123456789abcdef".charAt(NumberUtil.random("123456789abcdef".length())))
-                    .append(item.a().a())
-                    .append("=")
-                    .append(item.b())
-                    .append(", "));
-            builder.setLength(builder.length() - 2);
-            builder.append(ChatColor.RESET).append("]");
-            Bukkit.broadcastMessage(builder.toString());
-        }
-
         dataWatcher.e(); // clear dirty
 
         // Get the current byte data

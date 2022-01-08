@@ -1,5 +1,6 @@
 package me.deecaad.core;
 
+import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.JarInstancer;
 import me.deecaad.core.file.Serializer;
@@ -9,8 +10,14 @@ import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -55,6 +62,21 @@ public class MechanicsCore extends JavaPlugin {
         // don't exist in 1.10 and lower.
         if (ReflectionUtil.getMCVersion() >= 11) {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
+            Bukkit.getPluginManager().registerEvents(new Listener() {
+                @EventHandler
+                public void onEquip(EntityEquipmentEvent event) {
+                    ComponentBuilder builder = new ComponentBuilder();
+
+                    if (event.isDequipping())
+                        builder.append("Dequipping: " + StringUtil.keyToRead(event.getDequipped().getType().name()) + ", ")
+                                .color(ChatColor.RED);
+                    if (event.isEquipping())
+                        builder.append("Equipping: " + StringUtil.keyToRead(event.getEquipped().getType().name()))
+                                .color(ChatColor.GREEN);
+
+                    event.getEntity().spigot().sendMessage(builder.create());
+                }
+            }, this);
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
     }
