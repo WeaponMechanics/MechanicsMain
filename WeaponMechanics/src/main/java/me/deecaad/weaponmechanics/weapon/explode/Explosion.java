@@ -50,6 +50,7 @@ public class Explosion implements Serializer<Explosion> {
     private RegenerationData regeneration;
     private Set<ExplosionTrigger> triggers;
     private int delay;
+    private boolean removeProjectileOnDetonation;
     private double blockChance;
     private boolean isKnockback;
     private ClusterBomb cluster;
@@ -93,6 +94,7 @@ public class Explosion implements Serializer<Explosion> {
                      @Nullable RegenerationData regeneration,
                      @Nonnull Set<ExplosionTrigger> triggers,
                      @Nonnegative int delay,
+                     boolean removeProjectileOnDetonation,
                      double blockChance,
                      boolean isKnockback,
                      @Nullable ClusterBomb clusterBomb,
@@ -106,6 +108,7 @@ public class Explosion implements Serializer<Explosion> {
         this.regeneration = regeneration;
         this.triggers = triggers;
         this.delay = delay;
+        this.removeProjectileOnDetonation = removeProjectileOnDetonation;
         this.blockChance = blockChance;
         this.isKnockback = isKnockback;
         this.cluster = clusterBomb;
@@ -160,6 +163,10 @@ public class Explosion implements Serializer<Explosion> {
 
     public void setDelay(int delay) {
         this.delay = delay;
+    }
+
+    public boolean isRemoveProjectileOnDetonation() {
+        return removeProjectileOnDetonation;
     }
 
     public double getBlockChance() {
@@ -523,6 +530,8 @@ public class Explosion implements Serializer<Explosion> {
         int delay = section.getInt("Detonation.Delay_After_Impact");
         debug.validate(delay >= 0, "Delay should be positive", StringUtil.foundAt(file, path + ".Detonation.Delay_After_Impact"));
 
+        boolean removeProjectileOnDetonation = section.getBoolean("Detonation.Remove_Projectile_On_Detonation");
+
         double blockChance = section.getDouble("Block_Damage.Spawn_Falling_Block_Chance");
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
         debug.validate(blockChance >= 0.0 && blockChance <= 1.0, "Falling block spawn chance should be [0, 1]",
@@ -539,7 +548,7 @@ public class Explosion implements Serializer<Explosion> {
         Flashbang flashbang = new Flashbang().serialize(file, configurationSection, path + ".Flashbang");
         Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics");
 
-        return new Explosion(shape, exposure, blockDamage, regeneration, triggers, delay, blockChance, isKnockback,
+        return new Explosion(shape, exposure, blockDamage, regeneration, triggers, delay, removeProjectileOnDetonation, blockChance, isKnockback,
                 clusterBomb, airStrike, flashbang, mechanics);
     }
 

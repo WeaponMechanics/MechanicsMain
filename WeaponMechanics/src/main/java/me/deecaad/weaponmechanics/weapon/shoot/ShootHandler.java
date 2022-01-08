@@ -615,6 +615,10 @@ public class ShootHandler implements IValidator {
                         explosion.explode(entityWrapper.getEntity(), origin, finalBullet);
 
                         finalBullet.setIntTag("explosion-detonation", 1);
+
+                       if (explosion.isRemoveProjectileOnDetonation()) {
+                           finalBullet.remove();
+                       }
                     }
                 }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
             }

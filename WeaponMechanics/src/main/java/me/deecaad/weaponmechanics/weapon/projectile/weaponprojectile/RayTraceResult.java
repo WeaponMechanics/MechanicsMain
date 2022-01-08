@@ -128,7 +128,7 @@ public class RayTraceResult {
                             if (!event.isCancelled() && event.getExplosion() != null) {
                                 event.getExplosion().explode(shooter, loc, projectile);
 
-                                if (projectile.getStickedData() != null) {
+                                if (explosion.isRemoveProjectileOnDetonation()) {
                                     projectile.remove();
                                 }
                             }
@@ -189,7 +189,7 @@ public class RayTraceResult {
                     public void run() {
                         explosion.explode(shooter, RayTraceResult.this, projectile);
 
-                        if (projectile.getStickedData() != null) {
+                        if (explosion.isRemoveProjectileOnDetonation()) {
                             projectile.remove();
                         }
                     }

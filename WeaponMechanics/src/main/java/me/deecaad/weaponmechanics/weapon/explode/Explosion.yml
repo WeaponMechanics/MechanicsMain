@@ -13,6 +13,7 @@ Explosion:
     Height: <Double>
   Detonation:
     Detonate_After_Ticks: <Ticks> # The time after the trigger that the explosion occurs
+    Remove_Projectile_On_Detonation: <Boolean>
     Impact_When:
       Shoot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
       Entity: <Boolean> # When the projectile hits an entity
