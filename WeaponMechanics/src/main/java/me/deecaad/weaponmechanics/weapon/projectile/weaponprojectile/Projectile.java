@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -16,17 +18,19 @@ public class Projectile implements Serializer<Projectile> {
     private Sticky sticky;
     private Through through;
     private Bouncy bouncy;
+    private Mechanics mechanics;
 
     /**
      * Empty constructor to be used as serializer
      */
     public Projectile() { }
 
-    public Projectile(ProjectileSettings projectileSettings, Sticky sticky, Through through, Bouncy bouncy) {
+    public Projectile(ProjectileSettings projectileSettings, Sticky sticky, Through through, Bouncy bouncy, Mechanics mechanics) {
         this.projectileSettings = projectileSettings;
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
+        this.mechanics = mechanics;
     }
 
     /**
@@ -41,6 +45,7 @@ public class Projectile implements Serializer<Projectile> {
     public WeaponProjectile shoot(LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle) {
         WeaponProjectile projectile = new WeaponProjectile(projectileSettings, shooter, location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
         WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
+        if (mechanics != null) mechanics.use(new CastData(projectile));
         return projectile;
     }
 
@@ -57,6 +62,7 @@ public class Projectile implements Serializer<Projectile> {
         Sticky sticky = new Sticky().serialize(file, configurationSection, path + ".Sticky");
         Through through = new Through().serialize(file, configurationSection, path + ".Through");
         Bouncy bouncy = new Bouncy().serialize(file, configurationSection, path + ".Bouncy");
-        return new Projectile(projectileSettings, sticky, through, bouncy);
+        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics");
+        return new Projectile(projectileSettings, sticky, through, bouncy, mechanics);
     }
 }

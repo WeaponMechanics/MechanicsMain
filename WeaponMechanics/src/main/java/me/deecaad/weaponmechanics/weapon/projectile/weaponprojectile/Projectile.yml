@@ -4,3 +4,4 @@ Projectile:
   Sticky: <StickySerializer>
   Through: <ThroughSerializer>
   Bouncy: <BouncySerializer>
+  Mechanics: <MechanicsSerializer>
