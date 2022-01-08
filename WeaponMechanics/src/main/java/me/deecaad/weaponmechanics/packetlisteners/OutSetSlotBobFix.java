@@ -33,8 +33,8 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
 
     static {
         Class<?> packetClass = ReflectionUtil.getPacketClass("PacketPlayOutSetSlot");
-        windowField = ReflectionUtil.getField(packetClass, int.class, 0);
-        slotField = ReflectionUtil.getField(packetClass, int.class, 1);
+        windowField = ReflectionUtil.getField(packetClass, int.class, 0, true);
+        slotField = ReflectionUtil.getField(packetClass, int.class, ReflectionUtil.getMCVersion() >= 17 ? 2 : 1, true);
         itemField = ReflectionUtil.getField(packetClass, ReflectionUtil.getNMSClass("world.item", "ItemStack"));
     }
 
