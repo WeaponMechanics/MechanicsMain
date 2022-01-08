@@ -1,10 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
+import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 /**
@@ -27,31 +28,16 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
 
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
-
         Vector possibleNextLocation = getLocation().add(getMotion());
-        double distance = Math.ceil(getMotionLength());
-
-        // If distance is 0 or below, it will cause issues
-        if (NumberUtil.equals(distance, 0.0)) distance = 1;
-
-        BlockIterator blocks = new BlockIterator(getWorld(), getLocation(), getNormalizedMotion(), 0.0, (int) distance);
-
-        while (blocks.hasNext()) {
-            Block block = blocks.next();
-
-            if (block.isEmpty() || block.isLiquid()) continue;
-
-            // Only update location and not distance travelled
-            setRawLocation(block.getLocation().toVector());
-            onCollide(block);
-
-            // Block was not air, remove
+        Ray ray = new Ray(getWorld(), getLocation(), possibleNextLocation);
+        TraceResult result = ray.trace(TraceCollision.BLOCK, 0.3);
+        if (!result.isEmpty()) {
+            Block hit = result.getOneBlock();
+            setRawLocation(hit.getLocation().toVector());
+            onCollide(result.getOneBlock());
             return true;
         }
-
         setRawLocation(possibleNextLocation);
-
-        // There wasn't any collisions
         return false;
     }
 }

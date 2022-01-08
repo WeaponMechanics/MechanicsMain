@@ -1,0 +1,66 @@
+Flashbang:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6Flashbang"
+      Unbreakable: true
+      Custom_Model_Data: 261
+      Hide_Flags: true
+      Deny_Use_In_Crafting: true
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+  Projectile:
+    Projectile_Settings:
+      Type: "DROPPED_ITEM"
+      Projectile_Item_Or_Block:
+        Type: "FEATHER"
+        Custom_Model_Data: 261
+      Disable_Entity_Collisions: true
+    Bouncy:
+      Maximum_Bounce_Amount: -1
+      Blocks:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.6
+      Rolling:
+        Required_Motion_To_Start_Rolling: 3
+        Blocks:
+          Allow_Any: true
+          Default_Speed_Multiplier: 0.9
+          List:
+            - "$_ICE-0.99"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 18
+    Delay_Between_Shots: 20
+    Consume_Item_On_Shoot: true
+    Mechanics:
+      Sounds:
+        - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
+  Explosion:
+    Disable_Vanilla_Knockback: true
+    Explosion_Exposure: "DEFAULT"
+    Explosion_Shape: "SPHERE"
+    Explosion_Type_Data:
+      Radius: 8
+    Detonation:
+      Delay_After_Impact: 60
+      Remove_Projectile_On_Detonation: true
+      Impact_When:
+        Shoot: true
+    Flashbang:
+      Effect_Distance: 8
+      Mechanics:
+        Sounds:
+          - "ENTITY_GENERIC_EXTINGUISH_FIRE-0.5-1-0-0.1"
+        Potion_Effects:
+          - "BLINDNESS-100-1-false"
+          - "SLOW-200-2-false"
+    Mechanics:
+      Sounds:
+        - "ENTITY_GENERIC_DRINK-6-2-0-0.1"
+        - "ENTITY_GENERIC_BURN-6-2-0-0.1"

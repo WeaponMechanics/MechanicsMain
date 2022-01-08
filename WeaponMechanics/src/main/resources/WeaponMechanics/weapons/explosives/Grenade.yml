@@ -1,0 +1,73 @@
+Grenade:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6Grenade"
+      Unbreakable: true
+      Custom_Model_Data: 281
+      Hide_Flags: true
+      Deny_Use_In_Crafting: true
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+  Projectile:
+    Projectile_Settings:
+      Type: "DROPPED_ITEM"
+      Projectile_Item_Or_Block:
+        Type: "FEATHER"
+        Custom_Model_Data: 281
+      Disable_Entity_Collisions: true
+    Bouncy:
+      Maximum_Bounce_Amount: -1
+      Blocks:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.6
+      Rolling:
+        Required_Motion_To_Start_Rolling: 3
+        Blocks:
+          Allow_Any: true
+          Default_Speed_Multiplier: 0.9
+          List:
+            - "$_ICE-0.99"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 18
+    Delay_Between_Shots: 20
+    Consume_Item_On_Shoot: true
+    Mechanics:
+      Sounds:
+        - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
+  Damage:
+    Base_Explosion_Damage: 19
+    Fire_Ticks: 60
+    Enable_Owner_Immunity: true
+    Armor_Damage: 7
+  Explosion:
+    Explosion_Exposure: "DEFAULT"
+    Explosion_Shape: "PARABOLA"
+    Explosion_Type_Data:
+      Depth: -5
+      Angle: 0.15
+    Detonation:
+      Delay_After_Impact: 60
+      Remove_Projectile_On_Detonation: true
+      Impact_When:
+        Shoot: true
+    Block_Damage:
+      Break_Blocks: true
+      Spawn_Falling_Block_Chance: 0.5
+      Blacklist: true
+      Block_List:
+        - "BEDROCK"
+    Flashbang:
+      Effect_Distance: 10
+      Mechanics:
+        Potion_Effects:
+          - "CONFUSION-200-3-false"
+    Mechanics:
+      Sounds:
+        - "custom:explosion.frag-6-1-0-0.1"

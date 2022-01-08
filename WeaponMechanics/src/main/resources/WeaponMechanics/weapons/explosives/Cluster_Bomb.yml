@@ -1,0 +1,60 @@
+Cluster_Bomb:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6Cluster Bomb"
+      Unbreakable: true
+      Custom_Model_Data: 291
+      Hide_Flags: true
+      Deny_Use_In_Crafting: true
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+  Projectile:
+    Projectile_Settings:
+      Type: "DROPPED_ITEM"
+      Projectile_Item_Or_Block:
+        Type: "FEATHER"
+        Custom_Model_Data: 291
+      Disable_Entity_Collisions: true
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Projectile_Speed: 18
+    Delay_Between_Shots: 20
+    Consume_Item_On_Shoot: true
+    Mechanics:
+      Sounds:
+        - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
+  Damage:
+    Base_Explosion_Damage: 8
+    Fire_Ticks: 60
+    Armor_Damage: 4
+  Explosion:
+    Explosion_Exposure: "DISTANCE"
+    Explosion_Shape: "SPHERE"
+    Explosion_Type_Data:
+      Radius: 3
+    Detonation:
+      Impact_When:
+        Block: true
+    Cluster_Bomb:
+      Projectile_Speed: 14
+      Number_Of_Bombs: 5
+      Number_Of_Splits: 2
+    Block_Damage:
+      Break_Blocks: true
+      Spawn_Falling_Block_Chance: 0.5
+      Blacklist: true
+      Block_List:
+        - "BEDROCK"
+    Regeneration:
+      Ticks_Before_Start: 300
+      Max_Blocks_Per_Update: 5
+      Ticks_Between_Updates: 5
+    Mechanics:
+      Sounds:
+        - "custom:explosion.frag-6-1-0-0.1"
