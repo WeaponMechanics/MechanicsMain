@@ -345,6 +345,7 @@ public abstract class AProjectile {
         }
 
         if (VectorUtil.isEmpty(motion)) {
+
             // No need to continue as motion is empty
 
             // Ensure that motion length is also 0
@@ -356,8 +357,7 @@ public abstract class AProjectile {
             return false;
         }
 
-        double drag = getDrag();
-        motion.multiply(drag);
+        motion.multiply(getDrag());
 
         double gravity = getGravity();
         if (gravity != 0) {

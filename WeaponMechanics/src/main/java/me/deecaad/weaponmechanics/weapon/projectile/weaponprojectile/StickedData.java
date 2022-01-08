@@ -27,6 +27,12 @@ public class StickedData {
         }
     }
 
+    public StickedData(WeaponProjectile projectile, Block block) {
+        blockLocation = block.getLocation();
+        relativeLocation = projectile.getLocation().add(new Vector(0, 0.05, 0)).subtract(blockLocation.toVector());
+        worldName = blockLocation.getWorld().getName();
+    }
+
     public Vector getNewLocation() {
         if (livingEntity != null) {
             return livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity.getLocation().clone().add(relativeLocation).toVector();

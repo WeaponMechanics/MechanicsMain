@@ -7,7 +7,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
