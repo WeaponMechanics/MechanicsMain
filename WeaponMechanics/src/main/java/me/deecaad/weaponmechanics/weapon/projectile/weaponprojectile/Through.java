@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.file.Serializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -10,7 +9,9 @@ import java.io.File;
 
 public class Through implements Serializer<Through> {
 
+    // -1 = infinite
     private int maximumThroughAmount;
+
     private ListHolder<Material> blocks;
     private ListHolder<EntityType> entities;
 
@@ -44,7 +45,7 @@ public class Through implements Serializer<Through> {
         }
 
         // Speed modifier null would mean that it wasn't valid material or entity type
-        if (speedModifier == null || maximumThroughAmount - projectile.getThroughAmount() < 1) {
+        if (speedModifier == null || (maximumThroughAmount != -1 && maximumThroughAmount - projectile.getThroughAmount() < 1)) {
             // Projectile should die
             return false;
         }

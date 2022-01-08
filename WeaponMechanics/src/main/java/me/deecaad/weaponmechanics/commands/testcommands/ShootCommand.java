@@ -2,10 +2,8 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;

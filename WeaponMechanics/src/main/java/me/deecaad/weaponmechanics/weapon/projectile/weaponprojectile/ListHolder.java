@@ -4,7 +4,6 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nullable;
@@ -41,7 +40,11 @@ public class ListHolder<T extends Enum<T>> {
     public Double isValid(T key) {
         if (allowAny) {
             // Since all values are valid, simply return speed modifier
-            return list == null ? defaultSpeedMultiplier : list.getOrDefault(key, defaultSpeedMultiplier);
+            if (list == null) return defaultSpeedMultiplier;
+
+            // The value of key might be null if it doesn't have value defined
+            Double value = list.getOrDefault(key, defaultSpeedMultiplier);
+            return value == null ? defaultSpeedMultiplier : value;
         }
 
         if (!whitelist) {
@@ -58,7 +61,7 @@ public class ListHolder<T extends Enum<T>> {
         // Else return speed modifier
         if (!list.containsKey(key)) return null;
 
-        // Check if the key doesn't have its own speed multiplier
+        // The value of key might be null if it doesn't have value defined
         Double value = list.getOrDefault(key, defaultSpeedMultiplier);
         return value == null ? defaultSpeedMultiplier : value;
     }

@@ -7,10 +7,11 @@ import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
-import me.deecaad.weaponmechanics.weapon.projectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -41,6 +42,7 @@ public class WeaponProjectile extends AProjectile {
     private StickedData stickedData;
     private int throughAmount;
     private int bounces;
+    private boolean rolling;
 
     // These are for through and bouncy to deny collision with
     // same block or entity right after colliding with it
@@ -80,7 +82,7 @@ public class WeaponProjectile extends AProjectile {
 
     @Override
     public double getGravity() {
-        return projectileSettings.getGravity();
+        return isRolling() ? 0 : projectileSettings.getGravity();
     }
 
     @Override
@@ -191,6 +193,24 @@ public class WeaponProjectile extends AProjectile {
         return bounces;
     }
 
+    /**
+     * Setting rolling to true disables projectile gravity
+     *
+     * @param rolling the new rolling state
+     */
+    public void setRolling(boolean rolling) {
+        if (bouncy == null) return;
+
+        this.rolling = rolling;
+    }
+
+    /**
+     * @return whether projectile is currently rolling
+     */
+    public boolean isRolling() {
+        return rolling;
+    }
+
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
 
@@ -217,6 +237,9 @@ public class WeaponProjectile extends AProjectile {
         List<RayTraceResult> hits = getHits(disableEntityCollisions);
         if (hits == null) {
 
+            // Check if can't keep rolling
+            if (isRolling() && bouncy.checkForRollingCancel(this)) return true;
+
             // No hits, simply update location and distance travelled
             setRawLocation(possibleNextLocation);
             addDistanceTravelled(getMotionLength());
@@ -224,15 +247,10 @@ public class WeaponProjectile extends AProjectile {
             return false;
         }
 
-        boolean noFinalUpdate = false;
         double cacheMotionLength = getMotionLength();
         double distanceAlreadyAdded = 0;
 
         for (RayTraceResult hit : hits) {
-
-            // Check if hitting same entity or block as last time
-            // And that the last hit to this block / entity was over 1 ticks ago
-            if (equalToLastHit(hit)) continue;
 
             // Stay on track of current location and distance travelled on each loop
             setRawLocation(hit.getHitLocation());
@@ -251,8 +269,7 @@ public class WeaponProjectile extends AProjectile {
             // Sticky
             if (sticky != null && sticky.handleSticking(this, hit)) {
                 // Break since projectile sticked to entity or block
-                noFinalUpdate = true;
-                break;
+                return false;
             }
 
             // Through
@@ -266,32 +283,33 @@ public class WeaponProjectile extends AProjectile {
                 continue;
             }
 
-            // Bouncy
-            if (bouncy != null && bouncy.handleBounce(this, hit)) {
-                // Break since projectile bounced to different direction
-                ++bounces;
+            // Bouncy and rolling
+            if (bouncy != null) {
 
-                // Update last hit entity / block
-                updateLastHit(hit);
+                // We want to check that projectile isn't already rolling
+                // If it is already rolling we want to allow bouncing against hits
+                if (!isRolling() && cacheMotionLength < bouncy.getRequiredMotionToStartRollingOrDie()) {
 
-                noFinalUpdate = true;
+                    // Returns true if projectile should die, false otherwise
+                    return !hit.isBlock() || !bouncy.handleRolling(this, hit.getBlock());
+                } else if (bouncy.handleBounce(this, hit)) {
+                    // Break since projectile bounced to different direction
+                    ++bounces;
 
-                // Force disguise raw update on bounces
-                updateDisguise(true);
-                break;
+                    // Update last hit entity / block
+                    updateLastHit(hit);
+                    return false;
+                }
             }
 
             // Projectile should die if code reaches this point
             return true;
         }
 
-        // Check that projectile didn't stick, or just bounce
-        if (!noFinalUpdate) {
-            // Here we know that projectile didn't die on any collision.
-            // We still have to update the location to last possible location.
-            setRawLocation(possibleNextLocation);
-            addDistanceTravelled(cacheMotionLength - distanceAlreadyAdded);
-        }
+        // Here we know that projectile didn't die on any collision.
+        // We still have to update the location to last possible location.
+        setRawLocation(possibleNextLocation);
+        addDistanceTravelled(cacheMotionLength - distanceAlreadyAdded);
 
         return false;
     }
@@ -325,13 +343,14 @@ public class WeaponProjectile extends AProjectile {
         // -> equalToLastHit is false even if the hit entity / block is same
     }
 
-    private boolean equalToLastHit(RayTraceResult hit) {
-        if (hit.isBlock()) {
-            Location hitBlock = hit.getBlock().getLocation();
-            return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ() // Check block
-                    && getAliveTicks() <= lastBlockUpdateTick; // Check hit tick
-        }
-        return lastEntity != -1 && lastEntity == hit.getLivingEntity().getEntityId() // Check entity
+    private boolean equalToLastHit(Block hit) {
+        Location hitBlock = hit.getLocation();
+        return lastBlock != null && lastBlock.getBlockX() == hitBlock.getBlockX() && lastBlock.getBlockY() == hitBlock.getBlockY() && lastBlock.getBlockZ() == hitBlock.getBlockZ() // Check block
+                && getAliveTicks() <= lastBlockUpdateTick; // Check hit tick
+    }
+
+    private boolean equalToLastHit(LivingEntity entity) {
+        return lastEntity != -1 && lastEntity == entity.getEntityId() // Check entity
                 && getAliveTicks() <= lastEntityUpdateTick; // Check hit tick
     }
 
@@ -351,6 +370,7 @@ public class WeaponProjectile extends AProjectile {
 
         while (blocks.hasNext()) {
             Block block = blocks.next();
+            if (equalToLastHit(block)) continue;
 
             HitBox blockBox = projectileCompatibility.getHitBox(block);
             if (blockBox == null) continue;
@@ -376,6 +396,8 @@ public class WeaponProjectile extends AProjectile {
             List<LivingEntity> entities = getPossibleEntities();
             if (entities != null && !entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
+                    if (equalToLastHit(entity)) continue;
+
                     HitBox entityBox = projectileCompatibility.getHitBox(entity);
                     if (entityBox == null) continue;
 
