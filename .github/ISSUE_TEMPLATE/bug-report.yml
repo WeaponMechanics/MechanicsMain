@@ -58,7 +58,6 @@ body:
         1. Try dragging and dropping files
         2. Try copying and pasting files
         3. If you are having trouble uploading files, use https://paste.gg
-      render: markdown
     validations:
       required: true
 
