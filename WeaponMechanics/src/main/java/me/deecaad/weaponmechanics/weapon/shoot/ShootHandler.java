@@ -153,6 +153,11 @@ public class ShootHandler implements IValidator {
         }
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+
+        if (!getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot")) {
+            reloadHandler.handleWeaponStackAmount(entityWrapper, weaponStack);
+        }
+
         int ammoLeft = reloadHandler.getAmmoLeft(weaponStack);
 
         // FIREARM START
