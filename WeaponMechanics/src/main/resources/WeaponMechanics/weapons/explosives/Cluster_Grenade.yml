@@ -1,8 +1,8 @@
-Cluster_Bomb:
+Cluster_Grenade:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6Cluster Bomb"
+      Name: "&6Cluster Grenade"
       Unbreakable: true
       Custom_Model_Data: 291
       Hide_Flags: true
