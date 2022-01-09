@@ -41,7 +41,6 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
 
     @Override
     public boolean didDoubleSneak() {
-
         if (lastStartSneak == 0) {
             lastStartSneak = System.currentTimeMillis();
 
@@ -49,12 +48,14 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
             return false;
         }
 
-        boolean passedTooMuch = NumberUtil.hasMillisPassed(lastStartSneak, 500);
+        if (!NumberUtil.hasMillisPassed(lastStartSneak, 500)) {
+            // Double sneaked
+            lastStartSneak = 0; // Reset the timer
+            return true;
+        }
 
-        // Reset the timer to 0 meaning again that there hasn't been any last sneak
-        lastStartSneak = 0;
-
-        return !passedTooMuch;
+        lastStartSneak = System.currentTimeMillis();
+        return false;
     }
 
     @Override
