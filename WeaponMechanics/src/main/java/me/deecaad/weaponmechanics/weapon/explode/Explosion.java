@@ -27,9 +27,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -388,13 +386,8 @@ public class Explosion implements Serializer<Explosion> {
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                 Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 
-                // We want blocks to fly out of the newly formed crater. By
-                // getting the opposite of the projectile velocity, we can
-                // force most falling blocks out of the hole.
-                if (projectile != null) {
-                    Vector motion = projectile.getMotion().multiply(-1).normalize();
-                    velocity.add(motion);
-                }
+                // We want blocks to fly out of the newly formed crater.
+                velocity.setY(Math.abs(velocity.getY()));
 
                 // This method will add the falling block to the WeaponMechanics
                 // ticker, but it is only added on the next tick. This is

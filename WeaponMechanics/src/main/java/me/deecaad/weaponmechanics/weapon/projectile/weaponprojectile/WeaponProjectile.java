@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
@@ -82,7 +83,7 @@ public class WeaponProjectile extends AProjectile {
 
     @Override
     public double getGravity() {
-        return isRolling() ? 0 : projectileSettings.getGravity();
+        return rolling || stickedData != null ? 0 : projectileSettings.getGravity();
     }
 
     @Override
@@ -214,7 +215,8 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
 
-        Vector possibleNextLocation = getLocation().add(getMotion());
+        Vector motion = getMotion();
+        Vector possibleNextLocation = getLocation().add(motion);
         if (!getWorld().isChunkLoaded(possibleNextLocation.getBlockX() >> 4, possibleNextLocation.getBlockZ() >> 4)) {
             // Remove projectile if next location would be in unloaded chunk
             return true;
@@ -232,6 +234,9 @@ public class WeaponProjectile extends AProjectile {
             }
             return false;
         }
+
+        // Don't check for new collisions if motion is empty
+        if (VectorUtil.isEmpty(motion)) return false;
 
         // Returns sorted list of hits
         List<RayTraceResult> hits = getHits(disableEntityCollisions);

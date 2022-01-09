@@ -29,8 +29,7 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
         Vector possibleNextLocation = getLocation().add(getMotion());
-        Ray ray = new Ray(getWorld(), getLocation(), possibleNextLocation);
-        TraceResult result = ray.trace(TraceCollision.BLOCK, 0.3);
+        TraceResult result = new Ray(getWorld(), getLocation(), possibleNextLocation).trace(TraceCollision.BLOCK, 0.3);
         if (!result.isEmpty()) {
             Block hit = result.getOneBlock();
             setRawLocation(hit.getLocation().toVector());

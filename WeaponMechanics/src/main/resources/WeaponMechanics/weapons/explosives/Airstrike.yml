@@ -17,18 +17,6 @@ Airstrike:
         Type: "FEATHER"
         Custom_Model_Data: 301
       Disable_Entity_Collisions: true
-    Bouncy:
-      Maximum_Bounce_Amount: -1
-      Blocks:
-        Allow_Any: true
-        Default_Speed_Multiplier: 0.6
-      Rolling:
-        Required_Motion_To_Start_Rolling: 3
-        Blocks:
-          Allow_Any: true
-          Default_Speed_Multiplier: 0.9
-          List:
-            - "$_ICE-0.99"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -51,10 +39,8 @@ Airstrike:
     Explosion_Type_Data:
       Radius: 5
     Detonation:
-      Delay_After_Impact: 60
-      Remove_Projectile_On_Detonation: true
       Impact_When:
-        Shoot: true
+        Block: true
     Airstrike:
       Dropped_Projectile:
         Projectile_Settings:

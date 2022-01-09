@@ -17,6 +17,18 @@ Cluster_Bomb:
         Type: "FEATHER"
         Custom_Model_Data: 291
       Disable_Entity_Collisions: true
+    Bouncy:
+      Maximum_Bounce_Amount: -1
+      Blocks:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.6
+      Rolling:
+        Required_Motion_To_Start_Rolling: 3
+        Blocks:
+          Allow_Any: true
+          Default_Speed_Multiplier: 0.9
+          List:
+            - "$_ICE-0.99"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -39,12 +51,13 @@ Cluster_Bomb:
     Explosion_Type_Data:
       Radius: 3
     Detonation:
+      Delay_After_Impact: 80
+      Remove_Projectile_On_Detonation: true
       Impact_When:
-        Block: true
+        Shoot: true
     Cluster_Bomb:
       Projectile_Speed: 14
-      Number_Of_Bombs: 5
-      Number_Of_Splits: 2
+      Number_Of_Bombs: 10
     Block_Damage:
       Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.5
