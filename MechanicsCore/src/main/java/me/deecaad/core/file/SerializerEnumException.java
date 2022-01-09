@@ -27,7 +27,7 @@ public class SerializerEnumException extends SerializerException {
             return new String[] {
                     "You tried to use a wildcard ('$') when wildcards aren't allowed to be used!",
                     forValue(actual),
-                    didYouMean(actual, enumClass) // didYouMean doesn't include $, so it can provide "helpful" info
+                    didYouMean(actual, enumClass)
             };
         }
 

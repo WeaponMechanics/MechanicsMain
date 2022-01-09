@@ -12,7 +12,7 @@ public class SerializerTypeException extends SerializerException {
 
     private static String[] getMessages(Class<?> expected, Class<?> actual, Object value) {
         return new String[] {
-                "Expected a(n) " + expected.getSimpleName() + ", but got a(n) " + actual.getSimpleName(),
+                "Expected a(n) " + expected.getSimpleName() + ", but got a(n) " + (actual == null ? "Unknown Type" : actual.getSimpleName()),
                 forValue(value)
         };
     }

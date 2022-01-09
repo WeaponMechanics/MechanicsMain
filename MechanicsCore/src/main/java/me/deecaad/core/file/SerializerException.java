@@ -14,8 +14,8 @@ import java.util.LinkedList;
 public class SerializerException extends Exception {
 
     private final Serializer<?> serializer;
-    private final String[] messages;
     private final String location;
+    private String[] messages;
 
     /**
      *
@@ -38,6 +38,16 @@ public class SerializerException extends Exception {
 
         debug.log(LogLevel.ERROR, collected.toArray(new String[0]));
     }
+
+    public SerializerException addMessage(String message) {
+        String[] copy = new String[messages.length + 1];
+        System.arraycopy(messages, 0, copy, 0, messages.length);
+        copy[messages.length] = message;
+        this.messages = copy;
+
+        return this;
+    }
+
 
     public static String forValue(Object value) {
         return "Found value: " + value;

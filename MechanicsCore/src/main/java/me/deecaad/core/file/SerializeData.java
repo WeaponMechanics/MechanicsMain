@@ -1,11 +1,13 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.util.List;
 
 /**
  * Wraps a key (<i>Usually</i> pointing to a {@link ConfigurationSection}) with
@@ -277,11 +279,84 @@ public class SerializeData {
             return this;
         }
 
+        @Nonnull
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        public ConfigAccessor assertList(int required, Class<?>... args) throws SerializerException {
+            assertType(List.class);
+            List<?> objects = (List<?>) config.get(key + "." + relative);
+
+            // Use assertExists for required keys
+            if (objects == null || objects.isEmpty())
+                return this;
+
+            for (int i = 0; i < objects.size(); i++) {
+
+                // We expect each value to be a string in format like:
+                // <String>~<Integer>
+                // In the case above ^, args = {String.class, int.class}
+                String[] split = StringUtil.split(objects.get(i).toString());
+
+                // Missing required data
+                if (split.length < required) {
+                     StringBuilder builder = new StringBuilder(args[0].getSimpleName());
+                    for (int j = 1; j < args.length; j++) {
+                        Class<?> clazz = args[j];
+                        builder.append(", ").append(clazz.getSimpleName());
+                    }
+
+                    throwException(key + " requires the first " + required + " arguments to be defined.",
+                            "Format: " + builder,
+                            SerializerException.forValue(objects.get(i)));
+                }
+
+                for (int j = 0; j < split.length; j++) {
+                    String component = split[j];
+                    Class<?> clazz = args[j];
+
+                    // Allow null classes to skip error checking for an argument
+                    if (clazz == null)
+                        continue;
+
+                    try {
+                        if (clazz == int.class) {
+                            clazz = Integer.class; // Set class to be more human-readable in error
+                            Integer.parseInt(component);
+                        } else if (clazz == double.class) {
+                            clazz = Double.class;
+                            Double.parseDouble(component);
+                        } else if (clazz == boolean.class) {
+                            clazz = Boolean.class;
+                            if (!component.equalsIgnoreCase("true") && !component.equalsIgnoreCase("false"))
+                                throw new Exception();
+                        } else if (clazz.isEnum()) {
+                            throw new SerializerEnumException(serializer, (Class<Enum>) clazz, component, true, getLocation(i))
+                                    .addMessage("Full List Element: " + objects.get(i).toString());
+                        }
+                    } catch (SerializerException ex) {
+                        throw ex;
+                    } catch (Exception ex) {
+                        throw new SerializerTypeException(serializer, clazz, null, component, getLocation(i))
+                                .addMessage("Full List Element: " + objects.get(i).toString());
+                    }
+                }
+            }
+
+            return this;
+        }
+
         private String getLocation() {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key);
             } else {
                 return StringUtil.foundAt(file, key + "." + relative);
+            }
+        }
+
+        private String getLocation(int index) {
+            if (relative == null || "".equals(relative)) {
+                return StringUtil.foundAt(file, key, index);
+            } else {
+                return StringUtil.foundAt(file, key + "." + relative, index);
             }
         }
 
