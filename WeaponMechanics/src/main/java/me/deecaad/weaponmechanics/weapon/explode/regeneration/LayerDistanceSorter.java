@@ -11,10 +11,27 @@ public class LayerDistanceSorter extends BlockRegenSorter {
     }
 
     @Override
-    public int compare(Block o1, Block o2) {
-        int height = o1.getY() - o2.getY();
+    public int compare(Block a, Block b) {
+        int height = a.getY() - b.getY();
 
-        if (height != 0) return height;
-        else return (int) (origin.distanceSquared(o2.getLocation()) - origin.distanceSquared(o1.getLocation()));
+        if (height != 0)
+            return height;
+        else
+            return calculateDistance(a, b);
+    }
+
+    private int calculateDistance(Block a, Block b) {
+        int x = origin.getBlockX();
+        int y = origin.getBlockY();
+        int z = origin.getBlockZ();
+
+        int distanceA = square(a.getX() - x) + square(a.getY() - y) + square(a.getZ() - z);
+        int distanceB = square(b.getX() - x) + square(b.getY() - y) + square(b.getZ() - z);
+
+        return distanceA - distanceB;
+    }
+
+    private static int square(int a) {
+        return a * a;
     }
 }
