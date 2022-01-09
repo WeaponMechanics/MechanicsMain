@@ -17,6 +17,21 @@ Airstrike:
         Type: "FEATHER"
         Custom_Model_Data: 301
       Disable_Entity_Collisions: true
+    Bouncy:
+      Maximum_Bounce_Amount: -1
+      Blocks:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.6
+      Rolling:
+        Required_Motion_To_Start_Rolling: 3
+        Blocks:
+          Allow_Any: true
+          Default_Speed_Multiplier: 0.9
+          List:
+            - "$_ICE-0.99"
+    Mechanics:
+      Sounds:
+        - "ENTITY_WOLF_HOWL-6-2-100"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -33,14 +48,19 @@ Airstrike:
     Base_Explosion_Damage: 7
     Fire_Ticks: 60
     Armor_Damage: 4
+    Victim_Mechanics:
+      Potion_Effects:
+        - "CONFUSION-200-3-false"
   Explosion:
     Explosion_Exposure: "NONE"
     Explosion_Shape: "SPHERE"
     Explosion_Type_Data:
       Radius: 5
     Detonation:
+      Delay_After_Impact: 100
+      Remove_Projectile_On_Detonation: true
       Impact_When:
-        Block: true
+        Spawn: true
     Airstrike:
       Dropped_Projectile:
         Projectile_Settings:
@@ -54,6 +74,9 @@ Airstrike:
       Maximum_Distance_From_Center: 32
       Layers: 3
       Delay_Between_Layers: 30
+      Detonation:
+        Impact_When:
+          Block: true
     Block_Damage:
       Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.5

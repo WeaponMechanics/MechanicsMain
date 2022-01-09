@@ -51,7 +51,7 @@ Flashbang:
       Delay_After_Impact: 60
       Remove_Projectile_On_Detonation: true
       Impact_When:
-        Shoot: true
+        Spawn: true
     Flashbang:
       Effect_Distance: 8
       Mechanics:

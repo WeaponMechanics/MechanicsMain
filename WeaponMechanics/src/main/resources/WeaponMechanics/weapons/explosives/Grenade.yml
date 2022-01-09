@@ -46,6 +46,9 @@ Grenade:
     Fire_Ticks: 60
     Enable_Owner_Immunity: true
     Armor_Damage: 7
+    Victim_Mechanics:
+      Potion_Effects:
+        - "CONFUSION-200-3-false"
   Explosion:
     Explosion_Exposure: "DEFAULT"
     Explosion_Shape: "PARABOLA"
@@ -56,18 +59,13 @@ Grenade:
       Delay_After_Impact: 60
       Remove_Projectile_On_Detonation: true
       Impact_When:
-        Shoot: true
+        Spawn: true
     Block_Damage:
       Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.5
       Blacklist: true
       Block_List:
         - "BEDROCK"
-    Flashbang:
-      Effect_Distance: 10
-      Mechanics:
-        Potion_Effects:
-          - "CONFUSION-200-3-false"
     Mechanics:
       Sounds:
         - "custom:explosion.frag-6-1-0-0.1"

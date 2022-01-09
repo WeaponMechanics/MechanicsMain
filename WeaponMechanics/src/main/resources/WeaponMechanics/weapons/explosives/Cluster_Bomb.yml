@@ -45,6 +45,9 @@ Cluster_Bomb:
     Base_Explosion_Damage: 8
     Fire_Ticks: 60
     Armor_Damage: 4
+    Victim_Mechanics:
+      Potion_Effects:
+        - "CONFUSION-200-3-false"
   Explosion:
     Explosion_Exposure: "DISTANCE"
     Explosion_Shape: "SPHERE"
@@ -54,10 +57,15 @@ Cluster_Bomb:
       Delay_After_Impact: 80
       Remove_Projectile_On_Detonation: true
       Impact_When:
-        Shoot: true
+        Spawn: true
     Cluster_Bomb:
       Projectile_Speed: 14
-      Number_Of_Bombs: 10
+      Number_Of_Bombs: 12
+      Detonation:
+        Delay_After_Impact: 50
+        Remove_Projectile_On_Detonation: true
+        Impact_When:
+          Spawn: true
     Block_Damage:
       Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.5

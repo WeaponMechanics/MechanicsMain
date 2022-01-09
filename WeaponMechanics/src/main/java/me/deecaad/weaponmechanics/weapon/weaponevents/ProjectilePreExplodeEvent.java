@@ -22,6 +22,7 @@ public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancel
     }
 
     public void setExplosion(Explosion explosion) {
+        if (explosion == null) throw new NullPointerException("Explosion can't be null");
         this.explosion = explosion;
     }
 

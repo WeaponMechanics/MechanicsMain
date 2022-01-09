@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
@@ -89,6 +90,10 @@ public class RayTraceResult {
         return block != null;
     }
 
+    /**
+     * @param projectile the projectile which caused hit
+     * @return true if hit was cancelled
+     */
     public boolean handleHit(WeaponProjectile projectile) {
         return this.block != null ? handleBlockHit(projectile) : handleEntityHit(projectile);
     }
@@ -99,45 +104,7 @@ public class RayTraceResult {
         if (hitBlockEvent.isCancelled()) return true;
 
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
-        if (explosion != null) {
-            Set<Explosion.ExplosionTrigger> triggers = explosion.getTriggers();
-            boolean explosionTriggered = projectile.getIntTag("explosion-detonated") == 1;
-            boolean fluid = block.isLiquid() && triggers.contains(Explosion.ExplosionTrigger.LIQUID);
-            boolean solid = block.getType().isSolid() && triggers.contains(Explosion.ExplosionTrigger.BLOCK);
-
-            if (!explosionTriggered && (fluid || solid)) {
-
-                // Handle worldguard flags
-                IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
-                Location loc = hitLocation.clone().toLocation(projectile.getWorld());
-                LivingEntity shooter = projectile.getShooter();
-                if (shooter instanceof Player
-                        ? !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode")
-                        : !worldGuard.testFlag(loc, null, "weapon-explode")) {
-
-                    Object obj = worldGuard.getValue(loc, "weapon-explode-message");
-                    if (obj != null && !obj.toString().isEmpty()) {
-                        shooter.sendMessage(StringUtil.color(obj.toString()));
-                    }
-                } else {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, explosion);
-                            Bukkit.getPluginManager().callEvent(event);
-                            if (!event.isCancelled() && event.getExplosion() != null) {
-                                event.getExplosion().explode(shooter, loc, projectile);
-
-                                if (explosion.isRemoveProjectileOnDetonation()) {
-                                    projectile.remove();
-                                }
-                            }
-                        }
-                    }.runTaskLater(getPlugin(), explosion.getDelay());
-                    projectile.setIntTag("explosion-detonated", 1);
-                }
-            }
-        }
+        if (explosion != null) explosion.handleExplosion(projectile.getShooter(), hitLocation.clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.BLOCK);
 
         return false;
     }
@@ -148,11 +115,9 @@ public class RayTraceResult {
         Location loc = hitLocation.clone().toLocation(projectile.getWorld());
         LivingEntity shooter = projectile.getShooter();
 
-        if (shooter instanceof Player
-                ? !worldGuard.testFlag(loc, (Player) shooter, "weapon-damage")
-                : !worldGuard.testFlag(loc, null, "weapon-damage")) { // is cancelled check
+        if (!worldGuard.testFlag(loc, shooter instanceof Player ? (Player) shooter : null, "weapon-damage")) { // is cancelled check
             Object obj = worldGuard.getValue(loc, "weapon-damage-message");
-            if (obj != null && !obj.toString().isEmpty()) {
+            if (obj != null && !obj.toString().isEmpty() && shooter != null) {
                 shooter.sendMessage(StringUtil.color(obj.toString()));
             }
             return true;
@@ -173,31 +138,7 @@ public class RayTraceResult {
         }
 
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
-        if (explosion != null && projectile.getIntTag("explosion-detonated") == 0 && explosion.getTriggers().contains(Explosion.ExplosionTrigger.ENTITY)) {
-
-            // Handle worldguard flags
-            if (shooter instanceof Player
-                    ? !worldGuard.testFlag(loc, (Player) shooter, "weapon-explode")
-                    : !worldGuard.testFlag(loc, null, "weapon-explode")) { // is cancelled check
-                Object obj = worldGuard.getValue(loc, "weapon-explode-message");
-                if (obj != null && !obj.toString().isEmpty()) {
-                    shooter.sendMessage(StringUtil.color(obj.toString()));
-                }
-            } else {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        explosion.explode(shooter, RayTraceResult.this, projectile);
-
-                        if (explosion.isRemoveProjectileOnDetonation()) {
-                            projectile.remove();
-                        }
-                    }
-                }.runTaskLater(getPlugin(), explosion.getDelay());
-
-                projectile.setIntTag("explosion-detonated", 1);
-            }
-        }
+        if (explosion != null) explosion.handleExplosion(projectile.getShooter(), hitLocation.clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.ENTITY);
 
         return false;
     }

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class AirStrike implements Serializer<AirStrike> {
 
@@ -32,6 +33,7 @@ public class AirStrike implements Serializer<AirStrike> {
     private double radius;
     private int loops;
     private int delay;
+    private Detonation detonation;
 
     /**
      * Default constructor for serializer
@@ -56,7 +58,7 @@ public class AirStrike implements Serializer<AirStrike> {
      * @param delay      The amount of time (in ticks) between each layer of bombs.
      */
     public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
-                     double distance, double radius, int loops, int delay) {
+                     double distance, double radius, int loops, int delay, Detonation detonation) {
 
         this.projectile = projectile;
         this.min = min;
@@ -67,78 +69,47 @@ public class AirStrike implements Serializer<AirStrike> {
         this.radius = radius;
         this.loops = loops;
         this.delay = delay;
+        this.detonation = detonation;
     }
 
     public Projectile getProjectile() {
         return projectile;
     }
 
-    public void setProjectile(Projectile projectile) {
-        this.projectile = projectile;
-    }
-
     public int getMin() {
         return min;
-    }
-
-    public void setMin(int min) {
-        this.min = min;
     }
 
     public int getMax() {
         return max;
     }
 
-    public void setMax(int max) {
-        this.max = max;
-    }
-
     public double getHeight() {
         return height;
-    }
-
-    public void setHeight(double height) {
-        this.height = height;
     }
 
     public double getyVariation() {
         return yVariation;
     }
 
-    public void setyVariation(double yVariation) {
-        this.yVariation = yVariation;
-    }
-
     public double getDistanceBetweenSquared() {
         return distanceBetweenSquared;
-    }
-
-    public void setDistanceBetweenSquared(double distanceBetweenSquared) {
-        this.distanceBetweenSquared = distanceBetweenSquared;
     }
 
     public double getRadius() {
         return radius;
     }
 
-    public void setRadius(double radius) {
-        this.radius = radius;
-    }
-
     public int getLoops() {
         return loops;
-    }
-
-    public void setLoops(int loops) {
-        this.loops = loops;
     }
 
     public int getDelay() {
         return delay;
     }
 
-    public void setDelay(int delay) {
-        this.delay = delay;
+    public Detonation getDetonation() {
+        return detonation;
     }
 
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
@@ -175,18 +146,22 @@ public class AirStrike implements Serializer<AirStrike> {
                     double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-                    (
-                            getProjectile() == null
-                                    ? projectile.cloneSettingsAndShoot(location, new Vector(0, 0, 0))
-                                    : getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())
-                    ).setIntTag("airstrike-bomb", 1);
+                    // Either use the projectile settings from the "parent" projectile,
+                    // or use the projectile settings for this airstrike
+                    Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
+                    if (projectileHandler != null) {
+                        WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())
+                                : projectile.clone(location, new Vector(0, 0, 0));
+                        newProjectile.setIntTag("airstrike-bomb", 1);
+                        projectileHandler.shoot(newProjectile, location);
+                    }
                 }
 
                 if (++count >= loops) {
                     cancel();
                 }
             }
-        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, delay);
+        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, delay);
     }
 
     @Override
@@ -218,7 +193,9 @@ public class AirStrike implements Serializer<AirStrike> {
         debug.validate(LogLevel.WARN, max < 100, StringUtil.foundLarge(max, file, path + ".Maximum_Bombs"));
         debug.validate(LogLevel.WARN, layers < 100, StringUtil.foundLarge(max, file, path + ".Layers"));
 
-        return new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval);
+        Detonation detonation = new Detonation().serialize(file, configurationSection, path + ".Detonation");
+
+        return new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval, detonation);
     }
 
     static class Vector2d {

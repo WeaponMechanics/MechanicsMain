@@ -17,7 +17,6 @@ RPG-7:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Cancel:
       Drop_Item: true
-      Swap_Hands: true
       Arm_Swing_Animation: true
   Skin:
     Default:
@@ -37,9 +36,7 @@ RPG-7:
       Modify_Spread_When:
         Zooming: 50%
         Sneaking: 50%
-        Walking: 1
         In_Midair: 150%
-        Gliding: 200%
     Recoil:
       Push_Time: 200
       Recover_Time: 200
@@ -51,6 +48,7 @@ RPG-7:
       Modify_Recoil_When:
         Zooming: 50%
         Sneaking: 50%
+        In_Midair: 150%
     Mechanics:
       Sounds:
         - "custom:shoot.rpg7-6-1-0-0.1"
@@ -73,8 +71,11 @@ RPG-7:
     Base_Explosion_Damage: 12.2
     Fire_Ticks: 40
     Armor_Damage: 4
+    Victim_Mechanics:
+      Potion_Effects:
+        - "CONFUSION-200-3-false"
   Explosion:
-    Explosion_Exposure: "DEFAULT"
+    Explosion_Exposure: "DISTANCE"
     Explosion_Shape: "SPHERE"
     Explosion_Type_Data:
       Radius: 5.6
@@ -92,11 +93,6 @@ RPG-7:
       Ticks_Before_Start: 300
       Max_Blocks_Per_Update: 3
       Ticks_Between_Updates: 5
-    Flashbang:
-      Effect_Distance: 11.2
-      Mechanics:
-        Potion_Effects:
-          - "CONFUSION-200-3-false"
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"

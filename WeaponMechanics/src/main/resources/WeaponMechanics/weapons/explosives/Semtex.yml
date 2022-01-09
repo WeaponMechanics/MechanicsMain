@@ -45,6 +45,9 @@ Semtex:
     Base_Explosion_Damage: 19
     Fire_Ticks: 60
     Armor_Damage: 7
+    Victim_Mechanics:
+      Potion_Effects:
+        - "CONFUSION-200-3-false"
   Explosion:
     Explosion_Exposure: "DEFAULT"
     Explosion_Shape: "DEFAULT"
@@ -55,7 +58,7 @@ Semtex:
       Delay_After_Impact: 80
       Remove_Projectile_On_Detonation: true
       Impact_When:
-        Shoot: true
+        Spawn: true
     Block_Damage:
       Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.5
@@ -66,11 +69,6 @@ Semtex:
       Ticks_Before_Start: 300
       Max_Blocks_Per_Update: 5
       Ticks_Between_Updates: 5
-    Flashbang:
-      Effect_Distance: 12
-      Mechanics:
-        Potion_Effects:
-          - "CONFUSION-200-3-false"
     Mechanics:
       Sounds:
         - "custom:explosion.frag-6-1-0-0.1"

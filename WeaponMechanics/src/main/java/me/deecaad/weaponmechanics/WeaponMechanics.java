@@ -163,25 +163,27 @@ public class WeaponMechanics {
             getPlayerWrapper(player);
         }
 
+        long tookMillis = System.currentTimeMillis() - millisCurrent;
+
         // This is done like this to allow other plugins to add their own serializers
         // before WeaponMechanics starts filling those configuration mappings.
         new BukkitRunnable() {
             @Override
             public void run() {
+                long millisCurrent = System.currentTimeMillis();
 
                 loadConfig();
                 registerPlaceholders();
                 registerListeners();
+
+                double seconds = NumberUtil.getAsRounded(((System.currentTimeMillis() - millisCurrent) + tookMillis) * 0.001, 2);
+                debug.info("Enabled WeaponMechanics in " + seconds + "s");
 
             }
         }.runTask(getPlugin());
 
         WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
-
-        long tookMillis = System.currentTimeMillis() - millisCurrent;
-        double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
-        debug.info("Enabled WeaponMechanics in " + seconds + "s");
     }
 
     void setupDebugger() {

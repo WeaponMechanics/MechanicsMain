@@ -1,16 +1,22 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class Projectile implements Serializer<Projectile> {
 
@@ -43,10 +49,40 @@ public class Projectile implements Serializer<Projectile> {
      * @param weaponTitle the weapon title used to shoot
      */
     public WeaponProjectile shoot(LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle) {
-        WeaponProjectile projectile = new WeaponProjectile(projectileSettings, shooter, location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
+        return shoot(create(shooter, location, motion, weaponStack, weaponTitle), location);
+    }
+
+    /**
+     * Shoots created projectile object
+     *
+     * @param projectile the created projectile object
+     * @param location the location containing pitch and yaw
+     */
+    public WeaponProjectile shoot(WeaponProjectile projectile, Location location) {
+
         WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
         if (mechanics != null) mechanics.use(new CastData(projectile));
+        EntityType type = projectileSettings.getProjectileDisguise();
+        if (type != null) projectile.spawnDisguise(CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData()));
+
+        // Handle explosions
+        Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
+        if (explosion != null) explosion.handleExplosion(projectile.getShooter(), projectile, ExplosionTrigger.SPAWN);
+
         return projectile;
+    }
+
+    /**
+     * Creates this projectile with given location and motion without shooting it
+     *
+     * @param shooter the living entity used to shoot
+     * @param location the location from where to shoot
+     * @param motion the motion of projectile
+     * @param weaponStack the weapon stack used to shoot
+     * @param weaponTitle the weapon title used to shoot
+     */
+    public WeaponProjectile create(LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle) {
+        return new WeaponProjectile(projectileSettings, shooter, location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
     }
 
     @Override

@@ -55,7 +55,6 @@ public class WeaponReloadEvent extends WeaponEvent {
 
     public void setFirearmOpenTime(int firearmOpenTime) {
         this.firearmOpenTime = firearmOpenTime;
-
     }
 
     public int getFirearmCloseTime() {

@@ -15,6 +15,7 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
@@ -136,14 +137,7 @@ public class ShootHandler implements IValidator {
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
         Location loc = entityWrapper.getEntity().getLocation();
-        boolean isCancelled;
-        if (entityWrapper instanceof IPlayerWrapper) {
-            isCancelled = !worldGuard.testFlag(loc, ((IPlayerWrapper) entityWrapper).getPlayer(), "weapon-shoot");
-        } else {
-            isCancelled = !worldGuard.testFlag(loc, null, "weapon-shoot");
-        }
-
-        if (isCancelled) {
+        if (!worldGuard.testFlag(loc, entityWrapper instanceof IPlayerWrapper ? ((IPlayerWrapper) entityWrapper).getPlayer() : null, "weapon-shoot")) {
             Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
             if (obj != null && !obj.toString().isEmpty()) {
                 entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
@@ -566,9 +560,6 @@ public class ShootHandler implements IValidator {
         Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
 
-        // Handle explosions
-        Explosion explosion = config.getObject(weaponTitle + ".Explosion", Explosion.class);
-
         for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
 
             // i == 0
@@ -581,48 +572,15 @@ public class ShootHandler implements IValidator {
                 recoil.start((Player) entityWrapper.getEntity(), mainHand);
             }
 
-            WeaponProjectile bullet = projectile.shoot(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
+            // Only create bullet first if WeaponShootEvent changes
+            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
+
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
             bullet = shootEvent.getProjectile();
 
-            // Handle worldguard flags
-            IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
-            Location loc = entityWrapper.getEntity().getLocation();
-            boolean isCancelled;
-            if (entityWrapper instanceof IPlayerWrapper) {
-                isCancelled = !worldGuard.testFlag(loc, ((IPlayerWrapper) entityWrapper).getPlayer(), "weapon-explode");
-            } else {
-                isCancelled = !worldGuard.testFlag(loc, null, "weapon-explode");
-            }
-
-            if (isCancelled) {
-                Object obj = worldGuard.getValue(loc, "weapon-explode-message");
-                if (obj != null && !obj.toString().isEmpty()) {
-                    entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
-                }
-            }
-
-            boolean canExplode = bullet.getIntTag("explosion-detonation") == 0;
-            if (!isCancelled && explosion != null && canExplode && explosion.getTriggers().contains(Explosion.ExplosionTrigger.SHOOT)) {
-
-                WeaponProjectile finalBullet = bullet;
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Vector v = finalBullet.getLocation();
-                        Location origin = new Location(shootLocation.getWorld(), v.getX(), v.getY(), v.getZ());
-                        explosion.explode(entityWrapper.getEntity(), origin, finalBullet);
-
-                        finalBullet.setIntTag("explosion-detonation", 1);
-
-                       if (explosion.isRemoveProjectileOnDetonation()) {
-                           finalBullet.remove();
-                       }
-                    }
-                }.runTaskLater(WeaponMechanics.getPlugin(), explosion.getDelay());
-            }
-
+            // Shoot the given bullet
+            projectile.shoot(bullet, shootLocation);
         }
     }
 

@@ -6,6 +6,8 @@ import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
+import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
@@ -24,6 +26,8 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class WeaponProjectile extends AProjectile {
 
@@ -62,23 +66,17 @@ public class WeaponProjectile extends AProjectile {
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
-
-        EntityType type = projectileSettings.getProjectileDisguise();
-        if (type != null) spawnDisguise(CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData()));
     }
 
     /**
-     * Clones the settings of this weapon projectile and shoots again with
-     * different location and motion.
+     * Clones the settings of this weapon projectile without shooting it
      *
      * @param location the cloned projectile's new start location
      * @param motion the cloned projectile's new motion
      * @return the cloned projectile
      */
-    public WeaponProjectile cloneSettingsAndShoot(Location location, Vector motion) {
-        WeaponProjectile projectile = new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
-        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
-        return projectile;
+    public WeaponProjectile clone(Location location, Vector motion) {
+        return new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
     }
 
     @Override
