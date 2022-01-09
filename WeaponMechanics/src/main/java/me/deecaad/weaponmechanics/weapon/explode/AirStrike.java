@@ -175,9 +175,11 @@ public class AirStrike implements Serializer<AirStrike> {
                     double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-
-                    (getProjectile() == null ? projectile.cloneSettingsAndShoot(location, new Vector(0, 0, 0)) :
-                            getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("airstrike-bomb", 1);
+                    (
+                            getProjectile() == null
+                                    ? projectile.cloneSettingsAndShoot(location, new Vector(0, 0, 0))
+                                    : getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())
+                    ).setIntTag("airstrike-bomb", 1);
                 }
 
                 if (++count >= loops) {

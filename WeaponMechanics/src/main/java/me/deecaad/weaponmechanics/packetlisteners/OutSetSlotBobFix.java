@@ -12,7 +12,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -21,8 +23,10 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class OutSetSlotBobFix extends PacketHandler implements Listener {
 
@@ -43,11 +47,15 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
     private final Map<Player, ItemStack> mainHandItem;
     private final Map<Player, ItemStack> offHandItem;
 
+    private Set<Player> letThrough;
+
     public OutSetSlotBobFix(Plugin plugin) {
         super("PacketPlayOutSetSlot");
 
         mainHandItem = new HashMap<>();
         offHandItem = new HashMap<>();
+
+        letThrough = new HashSet<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             mainHandItem.put(player, player.getInventory().getItemInHand());
@@ -72,11 +80,22 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
             offHandItem.put(player, event.getEquipped());
     }
 
+    @EventHandler (priority = EventPriority.MONITOR)
+    public void onDrop(PlayerDropItemEvent event) {
+        if (event.isCancelled() && CustomTag.WEAPON_TITLE.getString(event.getItemDrop().getItemStack()) != null) {
+            letThrough.add(event.getPlayer());
+        }
+    }
+
     @Override
     public void onPacket(Packet wrapper) {
         Player player = wrapper.getPlayer();
         int window = (int) ReflectionUtil.invokeField(windowField, wrapper.getPacket());
         int slotNum = (int) ReflectionUtil.invokeField(slotField, wrapper.getPacket());
+
+        // Fix cancelled item drops
+        if (letThrough.remove(player))
+            return;
 
         // 0 is the player's inventory.
         if (window != 0)
@@ -105,7 +124,7 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
             else
                 offHandItem.put(player, dequipped);
 
-        } else if (!Objects.equals(equipped, dequipped)) {
+        } else {
             wrapper.setCancelled(true);
         }
     }
