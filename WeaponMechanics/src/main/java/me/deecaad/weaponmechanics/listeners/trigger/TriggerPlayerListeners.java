@@ -255,12 +255,10 @@ public class TriggerPlayerListeners implements Listener {
 
         if (mainWeapon == null && offWeapon == null) return;
 
-        if (playerWrapper.getMainHandData().isReloading() || playerWrapper.getOffHandData().isReloading()) {
-            // Cancel reload (and other tasks) since drop item will most of the time cause
-            // itemstack reference change which will cause other bugs (e.g. infinite reload bug)
-            playerWrapper.getMainHandData().cancelTasks();
-            playerWrapper.getOffHandData().cancelTasks();
-        }
+        // Cancel reload (and other tasks) since drop item will most of the time cause
+        // itemstack reference change which will cause other bugs (e.g. infinite reload bug)
+        playerWrapper.getMainHandData().cancelTasks();
+        playerWrapper.getOffHandData().cancelTasks();
 
         if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item")
                 || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item")) {
