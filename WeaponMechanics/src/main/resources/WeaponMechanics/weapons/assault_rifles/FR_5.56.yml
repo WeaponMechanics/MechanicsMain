@@ -23,6 +23,8 @@ FR_5_56:
       Custom_Model_Data: 311
     Scope:
       Custom_Model_Data: 321
+    Reload:
+      Custom_Model_Data: 331
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

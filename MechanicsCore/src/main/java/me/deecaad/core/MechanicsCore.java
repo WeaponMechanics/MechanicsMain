@@ -62,21 +62,6 @@ public class MechanicsCore extends JavaPlugin {
         // don't exist in 1.10 and lower.
         if (ReflectionUtil.getMCVersion() >= 11) {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
-            Bukkit.getPluginManager().registerEvents(new Listener() {
-                @EventHandler
-                public void onEquip(EntityEquipmentEvent event) {
-                    ComponentBuilder builder = new ComponentBuilder();
-
-                    if (event.isDequipping())
-                        builder.append("Dequipping: " + StringUtil.keyToRead(event.getDequipped().getType().name()) + ", ")
-                                .color(ChatColor.RED);
-                    if (event.isEquipping())
-                        builder.append("Equipping: " + StringUtil.keyToRead(event.getEquipped().getType().name()))
-                                .color(ChatColor.GREEN);
-
-                    event.getEntity().spigot().sendMessage(builder.create());
-                }
-            }, this);
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
     }

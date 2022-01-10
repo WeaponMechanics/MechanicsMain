@@ -262,8 +262,8 @@ public class TriggerPlayerListeners implements Listener {
             playerWrapper.getOffHandData().cancelTasks();
         }
 
-        if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item", true)
-                || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item", true)) {
+        if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item")
+                || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item")) {
 
             e.setCancelled(true);
         }
