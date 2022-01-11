@@ -306,6 +306,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     return null;
                 }
 
+                itemStack.setItemMeta(meta);
+
             } catch (ClassCastException e) {
                 debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Firework",
                         "Tried to modify firework meta when the item wasn't leather armor (" + type + ")"));
