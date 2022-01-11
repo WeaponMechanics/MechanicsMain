@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.compatibility;
 
 import me.deecaad.core.compatibility.CompatibilitySetup;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
-import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 
 public class WeaponCompatibilityAPI {
 
@@ -17,9 +16,5 @@ public class WeaponCompatibilityAPI {
 
     public static IScopeCompatibility getScopeCompatibility() {
         return getWeaponCompatibility().getScopeCompatibility();
-    }
-
-    public static IShootCompatibility getShootCompatibility() {
-        return getWeaponCompatibility().getShootCompatibility();
     }
 }

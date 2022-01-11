@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Location;
@@ -13,7 +13,7 @@ import java.util.TimerTask;
 
 public class RecoilTask extends TimerTask {
 
-    private static final IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
+    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
     private final IPlayerWrapper playerWrapper;
     private final HandData handData;
 
@@ -75,10 +75,10 @@ public class RecoilTask extends TimerTask {
                 float pitch = location.getPitch() < -80 ? 0 : pitchPerIteration;
                 shouldBeLastPitch -= pitch;
                 shouldBeLastYaw += yawPerIteration;
-                shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitch, false);
+                weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitch, false);
             } else if (counter >= waitRotations) {
                 // Let recovering happen normally without checking any maximum pitch changes
-                shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitchPerIteration, false);
+                weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitchPerIteration, false);
             }
         }
 

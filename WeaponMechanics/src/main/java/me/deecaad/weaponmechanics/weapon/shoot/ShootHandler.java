@@ -604,7 +604,7 @@ public class ShootHandler implements IValidator {
 
         if (!dualWield) return livingEntity.getEyeLocation();
 
-        double dividedWidth = WeaponCompatibilityAPI.getShootCompatibility().getWidth(livingEntity) / 2.0;
+        double dividedWidth = WeaponCompatibilityAPI.getWeaponCompatibility().getWidth(livingEntity) / 2.0;
         double distance = mainhand ? 2.0 : 0.0;
 
         Location eyeLocation = livingEntity.getEyeLocation();
