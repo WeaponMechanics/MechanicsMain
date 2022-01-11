@@ -189,16 +189,10 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                 return null;
             }
 
-            switch (projectileType) {
-                case DROPPED_ITEM:
-                case FIREWORK:
-                    disguiseData = projectileItem;
-                    break;
-                case FALLING_BLOCK:
-                    disguiseData = projectileItem.getType();
-                    break;
-                default:
-                    break;
+            if (projectileType == EntityType.FALLING_BLOCK) {
+                disguiseData = projectileItem.getType();
+            } else {
+                disguiseData = projectileItem;
             }
         }
 

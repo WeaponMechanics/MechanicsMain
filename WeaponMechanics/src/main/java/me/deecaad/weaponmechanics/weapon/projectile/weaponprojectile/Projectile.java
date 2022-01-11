@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.BitMutator;
+import me.deecaad.core.compatibility.entity.EntityMetaFlag;
+import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -11,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -63,7 +67,31 @@ public class Projectile implements Serializer<Projectile> {
         WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
         if (mechanics != null) mechanics.use(new CastData(projectile));
         EntityType type = projectileSettings.getProjectileDisguise();
-        if (type != null) projectile.spawnDisguise(CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData()));
+        if (type != null) {
+
+            FakeEntity fakeEntity;
+            Object data = projectileSettings.getDisguiseData();
+            if (type == EntityType.ARMOR_STAND && data != null) {
+                // Armor stand height * eye height multiplier
+                // 1.975 * 0.85 = 1.67875
+                Location offset = new Location(location.getWorld(), 0, -1.67875, 0);
+
+                // Add the first offset before actually spawning
+                location.add(offset);
+
+                fakeEntity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, data);
+
+                fakeEntity.setEquipment(EquipmentSlot.HEAD, (ItemStack) data);
+                fakeEntity.getMeta().setFlag(EntityMetaFlag.INVISIBLE, BitMutator.TRUE);
+
+                // Set the offset for new packets
+                fakeEntity.setOffset(offset);
+            } else {
+                fakeEntity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, data);
+            }
+
+            projectile.spawnDisguise(fakeEntity);
+        }
 
         // Handle explosions
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
