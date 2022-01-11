@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -189,14 +190,11 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     @Override
+    @Nonnull
     public AirStrike serialize(SerializeData data) throws SerializerException {
 
         int min = data.of("Minimum_Bombs").assertExists().assertPositive().get();
         int max = data.of("Maximum_Bombs").assertExists().assertPositive().get();
-
-        if (min == -1 || max == -1) {
-            return null;
-        }
 
         Projectile projectile = data.of("Dropped_Projectile").assertExists().serialize(Projectile.class);
 

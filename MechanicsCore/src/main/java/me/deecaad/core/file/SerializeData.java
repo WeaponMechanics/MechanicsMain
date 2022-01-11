@@ -7,6 +7,9 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -57,7 +60,7 @@ public class SerializeData {
 
     /**
      * Creates a {@link ConfigAccessor} which accesses the data (stored in
-     * config) at <code>this.key + relative</code>. The returned accessor
+     * config) at <code>this.key + "." + relative</code>. The returned accessor
      * can be used to validate arguments.
      *
      * @param relative The non-null, non-empty key relative to this.key.
@@ -65,6 +68,18 @@ public class SerializeData {
      */
     public ConfigAccessor of(String relative) {
         return new ConfigAccessor(relative);
+    }
+
+    /**
+     * Creates a {@link ConfigListAccessor} which accesses the data (stored in
+     * config) at <code>this.key + ".' + relative</code>. The returned accessor
+     * can be used to validate arguments.
+     *
+     * @param relative The non-null, non-empty key relative to this.key.
+     * @return The non-null config list accessor.
+     */
+    public ConfigListAccessor ofList(String relative) {
+        return new ConfigListAccessor(relative);
     }
 
     /**
@@ -76,13 +91,197 @@ public class SerializeData {
      * how many messages you may give to the player, but make sure that each
      * message is <i>important</i> and contains <i>useful</i> information.
      *
+     * @param relative The nullable relative key.
      * @param messages The non-null list of messages to include.
      * @throws SerializerException Always throws an exception... That's the point :p
      */
-    public void throwException(String... messages) throws SerializerException {
+    public void throwException(String relative, String... messages) throws SerializerException {
+        String key = this.key + ((relative == null || relative.isEmpty()) ? "" : "." + relative);
         throw new SerializerException(serializer, messages, StringUtil.foundAt(file, key));
     }
 
+    public void throwListException(String relative, int index, String... messages) throws SerializerException {
+        String key = this.key + ((relative == null || relative.isEmpty()) ? "" : "." + relative);
+        throw new SerializerException(serializer, messages, StringUtil.foundAt(file, key, index + 1));
+    }
+
+    public class ConfigListAccessor {
+
+        // Stores the class arguments, which is used to check the format
+        private final LinkedList<ClassArgument> arguments;
+        private final String relative;
+
+        public ConfigListAccessor(String relative) {
+            this.arguments = new LinkedList<>();
+            this.relative = relative;
+        }
+
+        public ConfigListAccessor addArgument(Class<?> clazz, boolean required) {
+            return this.addArgument(clazz, required, false);
+        }
+
+        public ConfigListAccessor addArgument(Class<?> clazz, boolean required, boolean skipCheck) {
+
+            // Ensure that all required arguments are in order. For example,
+            // true~true~false is fine, but true~false~true is impossible to
+            // serialize.
+            if (required && arguments.getLast() != null && !arguments.getLast().required)
+                throw new IllegalArgumentException("Required arguments must be consecutive");
+
+            ClassArgument arg = new ClassArgument();
+            arg.clazz = clazz;
+            arg.required = required;
+            arg.skipCheck = skipCheck;
+            arguments.add(arg);
+            return this;
+        }
+
+        /**
+         * Asserts that this key exists in the configuration. This method
+         * ensures that the user explicitly defined a value for the key.
+         *
+         * @return A non-null reference to this accessor (builder pattern).
+         * @throws SerializerException If the key is not explicitly defined.
+         */
+        @Nonnull
+        public ConfigListAccessor assertExists() throws SerializerException {
+            if (!config.contains(key + "." + relative, true))
+                throw new SerializerMissingKeyException(serializer, relative, getLocation());
+
+            return this;
+        }
+
+        @Nonnull
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        public ConfigListAccessor assertList() throws SerializerException {
+            if (arguments.isEmpty())
+                throw new IllegalStateException("Need to set arguments before assertions");
+
+            // The first step is to assert that the value stored at this key
+            // is a list (of any generic-type).
+            Object value = config.get(key + "." + relative);
+            if (value instanceof List)
+                throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation());
+            List<?> list = (List<?>) config.get(key + "." + relative);
+
+            // Use assertExists for required keys
+            if (list == null || list.isEmpty())
+                return this;
+
+            for (int i = 0; i < list.size(); i++) {
+                String string = list.get(i).toString();
+
+                // Show the user the correct format
+                StringBuilder format = new StringBuilder("<");
+                arguments.forEach(arg -> format.append(arg.clazz.getSimpleName()).append(">-<"));
+                format.append('>');
+
+                // Empty string in config is probably a mistake (Perhaps they
+                // forgot to save?). Instead of ignoring this, we should tell
+                // the user (playing it safe).
+                if (string == null || string.trim().isEmpty()) {
+                    throwListException(relative, i, relative + " does not allow empty elements in the list.",
+                            "Valid Format: " + format);
+                }
+
+                // We expect each value to be a string in format like:
+                // <String>~<Integer>~<Boolean>
+                String[] split = StringUtil.split(string);
+
+                // Missing required data
+                int required = (int) arguments.stream().filter(arg -> arg.required).count();
+                if (split.length < required) {
+                    throwListException(relative, i, relative + " requires the first " + required + " arguments to be defined.",
+                            SerializerException.forValue(string),
+                            "You are missing " + (required - split.length) + " arguments",
+                            "Valid Format: " + format
+                    );
+                }
+
+                for (int j = 0; j < split.length; j++) {
+
+                    // Extra data check. This happens when the user adds more
+                    // data than what the list can take. For example, if this
+                    // list uses the format 'string-int' and the user inputs
+                    // 'string-int-double', then this will be triggered.
+                    if (arguments.size() <= j) {
+                        throwException("Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
+                                SerializerException.forValue(string),
+                                "Valid Format: " + format
+                        );
+                    }
+
+                    String component = split[j];
+                    ClassArgument argument = arguments.get(j);
+                    if (argument.skipCheck)
+                        continue;
+
+                    try {
+                        if (argument.clazz == int.class) {
+                            argument.clazz = Integer.class; // Set class to be more human-readable in error
+                            Integer.parseInt(component);
+                        } else if (argument.clazz == double.class) {
+                            argument.clazz = Double.class;
+                            Double.parseDouble(component);
+                        } else if (argument.clazz == boolean.class) {
+                            argument.clazz = Boolean.class;
+                            if (!component.equalsIgnoreCase("true") && !component.equalsIgnoreCase("false"))
+                                throw new Exception();
+                        } else if (argument.clazz.isEnum() && EnumUtil.parseEnums((Class<Enum>) argument.clazz, component).isEmpty()) {
+                            throw new SerializerEnumException(serializer, (Class<Enum>) argument.clazz, component, true, getLocation(i))
+                                    .addMessage("Full List Element: " + string)
+                                    .addMessage("Valid List Format: " + format);
+                        }
+                    } catch (SerializerException ex) {
+                        throw ex; // Rethrow exception so it isn't caught and ignored
+                    } catch (Exception ex) {
+                        throw new SerializerTypeException(serializer, argument.clazz, null, component, getLocation(i))
+                                .addMessage("Full List Element: " + string)
+                                .addMessage("Valid List Format: " + format);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        @SuppressWarnings("rawtypes")
+        public List<String[]> get() {
+
+            // Use assertExists for required keys
+            if (!config.contains(key + "." + relative))
+                return Collections.emptyList();
+
+            List<String[]> list = new ArrayList<>();
+            for (Object obj : (List) config.get(key + "." + relative, Collections.emptyList())) {
+                list.add(StringUtil.split(obj.toString()));
+            }
+
+            return list;
+        }
+
+        private String getLocation() {
+            if (relative == null || "".equals(relative)) {
+                return StringUtil.foundAt(file, key);
+            } else {
+                return StringUtil.foundAt(file, key + "." + relative);
+            }
+        }
+
+        private String getLocation(int index) {
+            if (relative == null || "".equals(relative)) {
+                return StringUtil.foundAt(file, key, index);
+            } else {
+                return StringUtil.foundAt(file, key + "." + relative, index);
+            }
+        }
+
+        private class ClassArgument {
+            Class<?> clazz;
+            boolean required;
+            boolean skipCheck;
+        }
+    }
 
     /**
      * Wraps a configuration KEY to some helper functions to facilitate data
@@ -93,7 +292,7 @@ public class SerializeData {
      */
     public class ConfigAccessor {
 
-        private final String relative;
+        protected final String relative;
 
         private ConfigAccessor(String relative) {
             this.relative = relative;
@@ -108,9 +307,8 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigAccessor assertExists() throws SerializerException {
-            if (!config.contains(key + "." + relative, true)) {
+            if (!config.contains(key + "." + relative, true))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation());
-            }
 
             return this;
         }
@@ -279,84 +477,11 @@ public class SerializeData {
             return this;
         }
 
-        @Nonnull
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        public ConfigAccessor assertList(int required, Class<?>... args) throws SerializerException {
-            assertType(List.class);
-            List<?> objects = (List<?>) config.get(key + "." + relative);
-
-            // Use assertExists for required keys
-            if (objects == null || objects.isEmpty())
-                return this;
-
-            for (int i = 0; i < objects.size(); i++) {
-
-                // We expect each value to be a string in format like:
-                // <String>~<Integer>
-                // In the case above ^, args = {String.class, int.class}
-                String[] split = StringUtil.split(objects.get(i).toString());
-
-                // Missing required data
-                if (split.length < required) {
-                     StringBuilder builder = new StringBuilder(args[0].getSimpleName());
-                    for (int j = 1; j < args.length; j++) {
-                        Class<?> clazz = args[j];
-                        builder.append(", ").append(clazz.getSimpleName());
-                    }
-
-                    throwException(key + " requires the first " + required + " arguments to be defined.",
-                            "Format: " + builder,
-                            SerializerException.forValue(objects.get(i)));
-                }
-
-                for (int j = 0; j < split.length; j++) {
-                    String component = split[j];
-                    Class<?> clazz = args[j];
-
-                    // Allow null classes to skip error checking for an argument
-                    if (clazz == null)
-                        continue;
-
-                    try {
-                        if (clazz == int.class) {
-                            clazz = Integer.class; // Set class to be more human-readable in error
-                            Integer.parseInt(component);
-                        } else if (clazz == double.class) {
-                            clazz = Double.class;
-                            Double.parseDouble(component);
-                        } else if (clazz == boolean.class) {
-                            clazz = Boolean.class;
-                            if (!component.equalsIgnoreCase("true") && !component.equalsIgnoreCase("false"))
-                                throw new Exception();
-                        } else if (clazz.isEnum()) {
-                            throw new SerializerEnumException(serializer, (Class<Enum>) clazz, component, true, getLocation(i))
-                                    .addMessage("Full List Element: " + objects.get(i).toString());
-                        }
-                    } catch (SerializerException ex) {
-                        throw ex;
-                    } catch (Exception ex) {
-                        throw new SerializerTypeException(serializer, clazz, null, component, getLocation(i))
-                                .addMessage("Full List Element: " + objects.get(i).toString());
-                    }
-                }
-            }
-
-            return this;
-        }
-
         private String getLocation() {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key);
             } else {
                 return StringUtil.foundAt(file, key + "." + relative);
-            }
-        }
-
-        private String getLocation(int index) {
-            if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key, index);
-            } else {
-                return StringUtil.foundAt(file, key + "." + relative, index);
             }
         }
 

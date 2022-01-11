@@ -3,6 +3,7 @@ package me.deecaad.core.file;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -73,11 +74,12 @@ public interface Serializer<T> {
      * The object should be built off of {@link SerializeData#config}. If there
      * is any misconfiguration (or any other issue preventing the construction
      * of an object), then this method should throw a
-     * {@link SerializerException}. This method cannot return null.
+     * {@link SerializerException}. This method may not return null.
      *
      * @param data The non-null data containing config
      * @return The non-null serialized data.
      * @throws SerializerException If there is an error in config.
      */
+    @Nonnull
     T serialize(SerializeData data) throws SerializerException;
 }
