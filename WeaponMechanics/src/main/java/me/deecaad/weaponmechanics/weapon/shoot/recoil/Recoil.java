@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,7 +22,7 @@ public class Recoil implements Serializer<Recoil> {
 
     public static long MILLIS_BETWEEN_ROTATIONS = 5;
     private static final Timer TIMER = new Timer();
-    private static final IShootCompatibility shootCompatibility = WeaponCompatibilityAPI.getShootCompatibility();
+    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
     private long pushTime;
     private long recoverTime;
@@ -51,7 +51,7 @@ public class Recoil implements Serializer<Recoil> {
             // No need for task as rotation time and recover time are 0
             float rotateYaw = randomHorizontal.get(NumberUtil.random(randomHorizontal.size()));
             float rotatePitch = randomVertical.get(NumberUtil.random(randomVertical.size()));
-            shootCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), rotateYaw, rotatePitch, false);
+            weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), rotateYaw, rotatePitch, false);
             return;
         }
         HandData handData = mainHand ? playerWrapper.getMainHandData() : playerWrapper.getOffHandData();

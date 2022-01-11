@@ -12,6 +12,7 @@ import org.bukkit.util.Vector;
 import java.io.File;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ClusterBomb implements Serializer<ClusterBomb> {
 
@@ -19,46 +20,36 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     private double speed;
     private int splits;
     private int bombs;
+    private Detonation detonation;
 
     public ClusterBomb() { }
 
-    public ClusterBomb(Projectile projectile, double speed, int splits, int bombs) {
+    public ClusterBomb(Projectile projectile, double speed, int splits, int bombs, Detonation detonation) {
         this.projectile = projectile;
         this.speed = speed;
         this.splits = splits;
         this.bombs = bombs;
+        this.detonation = detonation;
     }
 
     public Projectile getProjectile() {
         return projectile;
     }
 
-    public void setProjectile(Projectile projectile) {
-        this.projectile = projectile;
-    }
-
     public double getSpeed() {
         return speed;
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
     }
 
     public int getSplits() {
         return splits;
     }
 
-    public void setSplits(int splits) {
-        this.splits = splits;
-    }
-
     public int getBombs() {
         return bombs;
     }
 
-    public void setBombs(int bombs) {
-        this.bombs = bombs;
+    public Detonation getDetonation() {
+        return detonation;
     }
 
     public void trigger(WeaponProjectile projectile, LivingEntity shooter, Location splitLocation) {
@@ -74,11 +65,18 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
 
         for (int i = 0; i < bombs; i++) {
             Vector vector = VectorUtil.random(speed);
+            vector.setY(Math.abs(vector.getY()));
 
             // Either use the projectile settings from the "parent" projectile,
-            // or use the projectile settings for this clusterbomb
-            (this.projectile == null ? projectile.cloneSettingsAndShoot(splitLocation, vector) :
-                    this.projectile.shoot(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("cluster-split-level", currentDepth + 1);
+            // or use the projectile settings for this cluster bomb
+            Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
+            if (projectileHandler != null) {
+                WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle())
+                        : projectile.clone(splitLocation, vector);
+                newProjectile.setIntTag("cluster-split-level", currentDepth + 1);
+                projectileHandler.shoot(newProjectile, splitLocation);
+            }
+
         }
 
         // Remove the parent split
@@ -104,6 +102,8 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         double speed = configurationSection.getDouble(path + ".Projectile_Speed", 15);
         int splits = configurationSection.getInt(path + ".Number_Of_Splits", 1);
 
-        return new ClusterBomb(projectileSettings, speed / 10.0, splits, bombs);
+        Detonation detonation = new Detonation().serialize(file, configurationSection, path + ".Detonation");
+
+        return new ClusterBomb(projectileSettings, speed / 10.0, splits, bombs, detonation);
     }
 }

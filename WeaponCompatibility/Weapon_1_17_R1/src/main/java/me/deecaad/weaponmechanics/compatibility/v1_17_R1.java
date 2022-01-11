@@ -3,14 +3,18 @@ package me.deecaad.weaponmechanics.compatibility;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponmechanics.compatibility.projectile.Projectile_1_17_R1;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_17_R1;
-import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
-import me.deecaad.weaponmechanics.compatibility.shoot.Shoot_1_17_R1;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.world.damagesource.DamageSource;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class v1_17_R1 implements IWeaponCompatibility {
 
@@ -24,14 +28,22 @@ public class v1_17_R1 implements IWeaponCompatibility {
         }
     }
 
+    private final Set<ClientboundPlayerPositionPacket.RelativeArgument> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(
+            ClientboundPlayerPositionPacket.RelativeArgument.X,
+            ClientboundPlayerPositionPacket.RelativeArgument.Y,
+            ClientboundPlayerPositionPacket.RelativeArgument.Z,
+            ClientboundPlayerPositionPacket.RelativeArgument.X_ROT,
+            ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT));
+
+    private final Set<ClientboundPlayerPositionPacket.RelativeArgument> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(
+            ClientboundPlayerPositionPacket.RelativeArgument.X,
+            ClientboundPlayerPositionPacket.RelativeArgument.Y,
+            ClientboundPlayerPositionPacket.RelativeArgument.Z));
+
     private final IScopeCompatibility scopeCompatibility;
-    private final IProjectileCompatibility projectileCompatibility;
-    private final IShootCompatibility shootCompatibility;
 
     public v1_17_R1() {
         this.scopeCompatibility = new Scope_1_17_R1();
-        this.projectileCompatibility = new Projectile_1_17_R1();
-        this.shootCompatibility = new Shoot_1_17_R1();
     }
 
     @Nonnull
@@ -40,15 +52,32 @@ public class v1_17_R1 implements IWeaponCompatibility {
         return scopeCompatibility;
     }
 
-    @Nonnull
     @Override
-    public IProjectileCompatibility getProjectileCompatibility() {
-        return projectileCompatibility;
+    public void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute) {
+        pitch *= -1;
+        ((CraftPlayer) player).getHandle().connection.send(new ClientboundPlayerPositionPacket(0, 0, 0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0, true));
     }
 
-    @Nonnull
     @Override
-    public IShootCompatibility getShootCompatibility() {
-        return shootCompatibility;
+    public void logDamage(org.bukkit.entity.LivingEntity victim, org.bukkit.entity.LivingEntity source, double health, double damage, boolean isMelee) {
+        DamageSource damageSource;
+
+        if (isMelee) {
+            if (source instanceof Player) {
+                damageSource = DamageSource.playerAttack(((org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer) source).getHandle());
+            } else {
+                damageSource = DamageSource.mobAttack(((CraftLivingEntity) source).getHandle());
+            }
+        } else {
+            damageSource = DamageSource.thrown(null, ((CraftLivingEntity) source).getHandle());
+        }
+
+        net.minecraft.world.entity.LivingEntity nms = ((CraftLivingEntity) victim).getHandle();
+        nms.combatTracker.recordDamage(damageSource, (float) damage, (float) health);
+    }
+
+    @Override
+    public void setKiller(org.bukkit.entity.LivingEntity victim, Player killer) {
+        ((CraftLivingEntity) victim).getHandle().lastHurtByMob = ((CraftPlayer) killer).getHandle();
     }
 }

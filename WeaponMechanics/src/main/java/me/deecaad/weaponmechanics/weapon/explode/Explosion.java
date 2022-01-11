@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.compatibility.entity.FallingBlockWrapper;
+import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.utils.*;
@@ -19,26 +19,24 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
 import me.deecaad.weaponmechanics.weapon.projectile.RemoveOnBlockCollisionProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
+import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -48,8 +46,7 @@ public class Explosion implements Serializer<Explosion> {
     private ExplosionExposure exposure;
     private BlockDamage blockDamage;
     private RegenerationData regeneration;
-    private Set<ExplosionTrigger> triggers;
-    private int delay;
+    private Detonation detonation;
     private double blockChance;
     private boolean isKnockback;
     private ClusterBomb cluster;
@@ -74,10 +71,8 @@ public class Explosion implements Serializer<Explosion> {
      *                     damaged. If null is used, blocks will not be damaged.
      * @param regeneration The nullable data to determine how blocks are
      *                     regenerated after being broken by {@link BlockDamage}.
-     * @param triggers     The non-null possible triggers that may cause this
-     *                     explosion to occur (e.x. When projectiles hit a block).
-     * @param delay        The delay after <code>trigger</code> before the
-     *                     explosion actually occurs.
+     * @param detonation   The object containing information about when
+     *                     explosion should detonate.
      * @param blockChance  The chance [0, 1] for block from {@link BlockDamage}
      *                     to spawn a packet based falling block.
      * @param isKnockback  Use true to enable vanilla MC explosion knockback.
@@ -91,8 +86,7 @@ public class Explosion implements Serializer<Explosion> {
                      @Nonnull ExplosionExposure exposure,
                      @Nullable BlockDamage blockDamage,
                      @Nullable RegenerationData regeneration,
-                     @Nonnull Set<ExplosionTrigger> triggers,
-                     @Nonnegative int delay,
+                     @Nonnull Detonation detonation,
                      double blockChance,
                      boolean isKnockback,
                      @Nullable ClusterBomb clusterBomb,
@@ -104,8 +98,7 @@ public class Explosion implements Serializer<Explosion> {
         this.exposure = exposure;
         this.blockDamage = blockDamage;
         this.regeneration = regeneration;
-        this.triggers = triggers;
-        this.delay = delay;
+        this.detonation = detonation;
         this.blockChance = blockChance;
         this.isKnockback = isKnockback;
         this.cluster = clusterBomb;
@@ -118,112 +111,100 @@ public class Explosion implements Serializer<Explosion> {
         return shape;
     }
 
-    public void setShape(ExplosionShape shape) {
-        this.shape = shape;
-    }
-
     public ExplosionExposure getExposure() {
         return exposure;
-    }
-
-    public void setExposure(ExplosionExposure exposure) {
-        this.exposure = exposure;
     }
 
     public BlockDamage getBlockDamage() {
         return blockDamage;
     }
 
-    public void setBlockDamage(BlockDamage blockDamage) {
-        this.blockDamage = blockDamage;
-    }
-
     public RegenerationData getRegeneration() {
         return regeneration;
     }
 
-    public void setRegeneration(RegenerationData regeneration) {
-        this.regeneration = regeneration;
-    }
-
-    public Set<ExplosionTrigger> getTriggers() {
-        return triggers;
-    }
-
-    public void setTriggers(Set<ExplosionTrigger> triggers) {
-        this.triggers = triggers;
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-
-    public void setDelay(int delay) {
-        this.delay = delay;
+    public Detonation getDetonation() {
+        return detonation;
     }
 
     public double getBlockChance() {
         return blockChance;
     }
 
-    public void setBlockChance(double blockChance) {
-        this.blockChance = blockChance;
-    }
-
     public boolean isKnockback() {
         return isKnockback;
-    }
-
-    public void setKnockback(boolean knockback) {
-        isKnockback = knockback;
     }
 
     public ClusterBomb getCluster() {
         return cluster;
     }
 
-    public void setCluster(ClusterBomb cluster) {
-        this.cluster = cluster;
-    }
-
     public AirStrike getAirStrike() {
         return airStrike;
-    }
-
-    public void setAirStrike(AirStrike airStrike) {
-        this.airStrike = airStrike;
     }
 
     public Flashbang getFlashbang() {
         return flashbang;
     }
 
-    public void setFlashbang(Flashbang flashbang) {
-        this.flashbang = flashbang;
-    }
-
     public Mechanics getMechanics() {
         return mechanics;
     }
 
-    public void setMechanics(Mechanics mechanics) {
-        this.mechanics = mechanics;
+    public void handleExplosion(LivingEntity cause, WeaponProjectile projectile, ExplosionTrigger trigger) {
+        handleExplosion(cause, null, projectile, trigger);
     }
 
-    public void explode(LivingEntity cause, RayTraceResult collision, WeaponProjectile projectile) {
-        if (collision == null || collision.getBlock() == null) {
-            explode(cause, projectile.getLocation().toLocation(projectile.getWorld()), projectile);
+    public void handleExplosion(LivingEntity cause, @Nullable Location origin, WeaponProjectile projectile, ExplosionTrigger trigger) {
+        if (projectile.getIntTag("explosion-detonation") == 1) return;
+
+        Detonation currentDetonation;
+        if (airStrike != null && airStrike.getDetonation() != null && projectile.getIntTag("airstrike-bomb") == 1) {
+            // Only use airstrike's own detonation on its bombs
+            currentDetonation = airStrike.getDetonation();
+        } else if (cluster != null && cluster.getDetonation() != null && projectile.getIntTag("cluster-split-level") >= 1) {
+            // Only use cluster bomb's own detonation on its bombs
+            currentDetonation = cluster.getDetonation();
         } else {
-            BlockFace hitBlockFace = collision.getHitFace();
-            Vector location = projectile.getLocation().subtract(hitBlockFace.getDirection().multiply(0.5));
-            explode(cause, location.toLocation(projectile.getWorld()), projectile);
+            // Otherwise use default detonation
+            currentDetonation = detonation;
         }
+
+        if (!currentDetonation.getTriggers().contains(trigger)) return;
+
+        ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, this);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return;
+
+        // Set to 1 to indicate that this projectile has been detonated
+        projectile.setIntTag("explosion-detonation", 1);
+
+        new BukkitRunnable() {
+            public void run() {
+                event.getExplosion().explode(cause, origin != null ? origin : projectile.getLocation().toLocation(projectile.getWorld()), projectile);
+
+                if (currentDetonation.isRemoveProjectileOnDetonation()) {
+                    projectile.remove();
+                }
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), currentDetonation.getDelay());
     }
 
     public void explode(LivingEntity cause, Location origin, WeaponProjectile projectile) {
 
+        // Handle worldguard flags
+        IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
+        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(cause);
+        if (!worldGuard.testFlag(origin, entityWrapper instanceof IPlayerWrapper ? ((IPlayerWrapper) entityWrapper).getPlayer() : null, "weapon-explode")) {
+            Object obj = worldGuard.getValue(origin, "weapon-explode-message");
+            if (obj != null && !obj.toString().isEmpty()) {
+                entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
+            }
+            return;
+        }
+
         // If the projectile uses airstrikes, then the airstrike should be
-        // triggered instead od the explosion.
+        // triggered instead of the explosion.
         if (projectile != null && airStrike != null && projectile.getIntTag("airstrike-bomb") == 0) {
             airStrike.trigger(origin, cause, projectile);
             return;
@@ -311,7 +292,7 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (flashbang != null) flashbang.trigger(exposure, projectile, origin);
-        if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(cause), origin,
+        if (mechanics != null) mechanics.use(new CastData(entityWrapper, origin,
                 projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
     }
 
@@ -381,13 +362,8 @@ public class Explosion implements Serializer<Explosion> {
                 Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                 Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 
-                // We want blocks to fly out of the newly formed crater. By
-                // getting the opposite of the projectile velocity, we can
-                // force most falling blocks out of the hole.
-                if (projectile != null) {
-                    Vector motion = projectile.getMotion().multiply(-1).normalize();
-                    velocity.add(motion);
-                }
+                // We want blocks to fly out of the newly formed crater.
+                velocity.setY(Math.abs(velocity.getY()));
 
                 // This method will add the falling block to the WeaponMechanics
                 // ticker, but it is only added on the next tick. This is
@@ -499,29 +475,14 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         // Determine when the projectile should explode
-        ConfigurationSection impactWhenSection = section.getConfigurationSection("Detonation.Impact_When");
-        if (impactWhenSection == null) {
-            debug.error("Missing \"Detonation.Impact_When\" section.",
-                    "We need it to determine when the projectile explodes.");
+        Detonation detonation = new Detonation().serialize(file, configurationSection, path + ".Detonation");
+        if (detonation == null) {
+            debug.log(LogLevel.ERROR,
+                    StringUtil.foundInvalid("detonation"),
+                    StringUtil.foundAt(file, path + ".Detonation"),
+                    "It didn't exist, or was wrongly configured");
             return null;
         }
-
-        Set<Explosion.ExplosionTrigger> triggers = new HashSet<>(4, 1.0f);
-        for (String key : impactWhenSection.getKeys(false)) {
-            try {
-                Explosion.ExplosionTrigger trigger = Explosion.ExplosionTrigger.valueOf(key.toUpperCase());
-                boolean value = impactWhenSection.getBoolean(key);
-
-                if (value) triggers.add(trigger);
-            } catch (IllegalArgumentException ex) {
-                debug.log(LogLevel.ERROR, "Unknown trigger type \"" + key + "\"... Did you spell it correctly in config?");
-                debug.log(LogLevel.DEBUG, ex);
-            }
-        }
-
-        // Time after the trigger the explosion occurs
-        int delay = section.getInt("Detonation.Delay_After_Impact");
-        debug.validate(delay >= 0, "Delay should be positive", StringUtil.foundAt(file, path + ".Detonation.Delay_After_Impact"));
 
         double blockChance = section.getDouble("Block_Damage.Spawn_Falling_Block_Chance");
         boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
@@ -539,48 +500,7 @@ public class Explosion implements Serializer<Explosion> {
         Flashbang flashbang = new Flashbang().serialize(file, configurationSection, path + ".Flashbang");
         Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics");
 
-        return new Explosion(shape, exposure, blockDamage, regeneration, triggers, delay, blockChance, isKnockback,
-                clusterBomb, airStrike, flashbang, mechanics);
-    }
-
-    private static class FallingBlockData implements Supplier<FallingBlockWrapper> {
-
-        private final Vector velocity;
-        private final BlockState state;
-        private final Location loc;
-
-        FallingBlockData(Vector velocity, BlockState state, Location loc) {
-            this.velocity = velocity;
-            this.state = state;
-            this.loc = loc;
-        }
-
-        @Override
-        public FallingBlockWrapper get() {
-            return CompatibilityAPI.getEntityCompatibility().createFallingBlock(loc, state, velocity, 200);
-        }
-    }
-
-    public enum ExplosionTrigger {
-
-        /**
-         * When the projectile is shot/thrown
-         */
-        SHOOT,
-
-        /**
-         * When the projectile hits a non-air and non-liquid block
-         */
-        BLOCK,
-
-        /**
-         * When the projectile hits an entity
-         */
-        ENTITY,
-
-        /**
-         * When the projectile hits a liquid
-         */
-        LIQUID
+        return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
+                isKnockback, clusterBomb, airStrike, flashbang, mechanics);
     }
 }

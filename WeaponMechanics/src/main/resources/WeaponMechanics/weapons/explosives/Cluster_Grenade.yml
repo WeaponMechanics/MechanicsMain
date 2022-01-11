@@ -1,10 +1,10 @@
-Semtex:
+Cluster_Grenade:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6Semtex"
+      Name: "&6Cluster Grenade"
       Unbreakable: true
-      Custom_Model_Data: 271
+      Custom_Model_Data: 291
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
@@ -15,20 +15,20 @@ Semtex:
       Type: "DROPPED_ITEM"
       Projectile_Item_Or_Block:
         Type: "FEATHER"
-        Custom_Model_Data: 271
-    Sticky:
+        Custom_Model_Data: 291
+      Disable_Entity_Collisions: true
+    Bouncy:
+      Maximum_Bounce_Amount: -1
       Blocks:
         Allow_Any: true
-      Entities:
-        Allow_Any: true
-    Mechanics:
-      Sounds:
-        - "BLOCK_NOTE_BLOCK_PLING-1.5-2-20"
-        - "BLOCK_NOTE_BLOCK_PLING-1.5-2-40"
-        - "BLOCK_NOTE_BLOCK_PLING-1.5-2-55"
-        - "BLOCK_NOTE_BLOCK_PLING-1.5-2-65"
-        - "BLOCK_NOTE_BLOCK_PLING-1.5-2-70"
-        - "BLOCK_NOTE_BLOCK_PLING-1.5-2-75"
+        Default_Speed_Multiplier: 0.6
+      Rolling:
+        Required_Motion_To_Start_Rolling: 3
+        Blocks:
+          Allow_Any: true
+          Default_Speed_Multiplier: 0.9
+          List:
+            - "$_ICE-0.99"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -42,23 +42,30 @@ Semtex:
       Sounds:
         - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
   Damage:
-    Base_Explosion_Damage: 19
+    Base_Explosion_Damage: 8
     Fire_Ticks: 60
-    Armor_Damage: 7
+    Armor_Damage: 4
     Victim_Mechanics:
       Potion_Effects:
         - "CONFUSION-200-3-false"
   Explosion:
-    Explosion_Exposure: "DEFAULT"
-    Explosion_Shape: "DEFAULT"
+    Explosion_Exposure: "DISTANCE"
+    Explosion_Shape: "SPHERE"
     Explosion_Type_Data:
-      Yield: 6
-      Rays: 16
+      Radius: 3
     Detonation:
       Delay_After_Impact: 80
       Remove_Projectile_On_Detonation: true
       Impact_When:
         Spawn: true
+    Cluster_Bomb:
+      Projectile_Speed: 14
+      Number_Of_Bombs: 12
+      Detonation:
+        Delay_After_Impact: 50
+        Remove_Projectile_On_Detonation: true
+        Impact_When:
+          Spawn: true
     Block_Damage:
       Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.5

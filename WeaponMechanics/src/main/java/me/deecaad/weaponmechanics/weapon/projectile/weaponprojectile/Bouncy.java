@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -13,7 +13,7 @@ import java.io.File;
 
 public class Bouncy implements Serializer<Bouncy> {
 
-    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
     // -1 = infinite
     private int maximumBounceAmount;
@@ -123,7 +123,7 @@ public class Bouncy implements Serializer<Bouncy> {
     public boolean checkForRollingCancel(WeaponProjectile projectile) {
         Vector slightlyBelow = projectile.getLocation().add(new Vector(0, -0.05, 0));
         Block slightlyBelowBlock = projectile.getWorld().getBlockAt(slightlyBelow.getBlockX(), slightlyBelow.getBlockY(), slightlyBelow.getBlockZ());
-        if (projectileCompatibility.getHitBox(slightlyBelowBlock) != null) {
+        if (weaponCompatibility.getHitBox(slightlyBelowBlock) != null) {
             // Check speed modifier of block below and apply it
             if (!handleRolling(projectile, slightlyBelowBlock)) {
                 // Block below wasn't valid rolling block, remove projectile

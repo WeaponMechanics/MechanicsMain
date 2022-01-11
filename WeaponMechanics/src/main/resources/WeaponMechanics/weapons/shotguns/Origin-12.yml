@@ -17,7 +17,6 @@ Origin_12:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Cancel:
       Drop_Item: true
-      Swap_Hands: true
       Arm_Swing_Animation: true
   Skin:
     Default:
@@ -50,6 +49,7 @@ Origin_12:
       Modify_Recoil_When:
         Zooming: 50%
         Sneaking: 50%
+        In_Midair: 150%
     Mechanics:
       Sounds:
         - "custom:shoot.origin12-6-1-0-0.1"

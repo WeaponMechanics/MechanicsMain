@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics;
 
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -12,6 +13,7 @@ import java.util.Map;
 public class CastData {
 
     private IEntityWrapper caster;
+    private WeaponProjectile projectileCaster;
     private Location casterLocation;
     private String weaponTitle;
     private ItemStack weaponStack;
@@ -31,11 +33,20 @@ public class CastData {
         this.casterLocation = casterLocation;
     }
 
+    /**
+     * Use when you want specific cast location for sounds etc
+     */
     public CastData(IEntityWrapper caster, Location casterLocation, String weaponTitle, ItemStack weaponStack) {
         this.caster = caster;
         this.casterLocation = casterLocation;
         this.weaponTitle = weaponTitle;
         this.weaponStack = weaponStack;
+    }
+
+    public CastData(WeaponProjectile caster) {
+        projectileCaster = caster;
+        weaponTitle = caster.getWeaponTitle();
+        weaponStack = caster.getWeaponStack();
     }
 
     /**
@@ -44,6 +55,15 @@ public class CastData {
     @Nullable
     public IEntityWrapper getCasterWrapper() {
         return caster;
+    }
+
+    /**
+     *
+     * @return the projectile caster of this cast, null if not used
+     */
+    @Nullable
+    public WeaponProjectile getProjectileCaster() {
+        return projectileCaster;
     }
 
     /**
@@ -58,7 +78,9 @@ public class CastData {
      * @return the cast location or caster location if defined
      */
     public Location getCastLocation() {
-        return casterLocation != null ? casterLocation : caster.getEntity().getLocation();
+        if (casterLocation != null) return casterLocation;
+
+        return projectileCaster != null ? projectileCaster.getLocation().toLocation(projectileCaster.getWorld()) : caster.getEntity().getLocation();
     }
 
     @Nullable

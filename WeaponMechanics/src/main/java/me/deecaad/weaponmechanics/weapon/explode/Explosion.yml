@@ -13,11 +13,11 @@ Explosion:
     Height: <Double>
   Detonation:
     Detonate_After_Ticks: <Ticks> # The time after the trigger that the explosion occurs
+    Remove_Projectile_On_Detonation: <Boolean>
     Impact_When:
-      Shoot: <Boolean> # Triggers the explosion when the projectile is shot/thrown
+      Spawn: <Boolean> # Triggers the explosion when the projectile is shot/thrown
       Entity: <Boolean> # When the projectile hits an entity
       Block: <Boolean> # When the projectile hits a non-fluid, non-air block
-      Liquid: <Boolean> # When the projectile hits a fluid block
   Block_Damage:
     Break_Blocks: <Boolean> # If this is true, blocks will be broken if they are damaged enough. Otherwise, they will only crack
     Spawn_Falling_Block_Chance: <Double>
@@ -36,6 +36,7 @@ Explosion:
     Projectile_Speed: <Double> # The speed to spawn the split projectiles at
     Number_Of_Bombs: <Integer> # The number of bombs to spawn
     Number_Of_Splits: <Integer> # How many times should the bombs split
+    Detonation: <DetonationSerializer>
   Airstrike:
     Dropped_Projectile: <ProjectileSerializer> # The projectile to spawn for each dropped bomb, defaults to the shot projectile
     Minimum_Bombs: <Integer> # The minimum number of bombs to spawn
@@ -46,6 +47,7 @@ Explosion:
     Maximum_Distance_From_Center: <Double> # How far away bombs can spawn from the center
     Layers: <Integer> # How many airstrikes to spawn in
     Delay_Between_Layers: <Integer> # The delay (in ticks) between volleys of bombs
+    Detonation: <DetonationSerializer>
   Flashbang:
     Effect_Distance: <Double>
     Mechanics: <MechanicsSerializer>

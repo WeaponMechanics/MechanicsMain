@@ -55,31 +55,6 @@ public class Block_1_16_R3 implements BlockCompatibility {
     }
 
     @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, org.bukkit.Material mask, byte data) {
-        return getBlockMaskPacket(bukkitBlock, ((CraftBlockData) mask.createBlockData()).getState());
-    }
-
-    @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, @NotNull BlockState mask) {
-        return getBlockMaskPacket(bukkitBlock, ((CraftBlockState) mask).getHandle());
-    }
-
-    private PacketPlayOutBlockChange getBlockMaskPacket(Block bukkitBlock, IBlockData mask) {
-
-        CraftBlock block = ((CraftBlock) bukkitBlock);
-        BlockPosition position = block.getPosition();
-        World world = block.getCraftWorld().getHandle();
-
-        int x = block.getChunk().getX();
-        int z = block.getChunk().getZ();
-
-        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world.getChunkAt(x, z), position);
-        packet.block = mask;
-
-        return packet;
-    }
-
-    @Override
     public @NotNull List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable org.bukkit.Material mask, byte data) {
         if (blocks == null || blocks.isEmpty()) {
             throw new IllegalArgumentException("No blocks are being changed!");

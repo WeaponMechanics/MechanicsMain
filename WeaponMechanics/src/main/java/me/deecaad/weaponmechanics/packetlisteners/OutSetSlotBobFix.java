@@ -1,19 +1,20 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,6 +22,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,129 +35,123 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
 
     static {
         Class<?> packetClass = ReflectionUtil.getPacketClass("PacketPlayOutSetSlot");
-        windowField = ReflectionUtil.getField(packetClass, int.class, 0);
-        slotField = ReflectionUtil.getField(packetClass, int.class, 1);
+        windowField = ReflectionUtil.getField(packetClass, int.class, 0, true);
+        slotField = ReflectionUtil.getField(packetClass, int.class, ReflectionUtil.getMCVersion() >= 17 ? 2 : 1, true);
         itemField = ReflectionUtil.getField(packetClass, ReflectionUtil.getNMSClass("world.item", "ItemStack"));
     }
-
     // * ----- END OF REFLECTIONS ----- * //
 
-    private final Map<Player, ItemStack> mainHandItem;
-    private final Map<Player, ItemStack> offHandItem;
+    private final Map<Player, SimpleItemData> mainHand;
+    private final Map<Player, SimpleItemData> offHand;
 
     public OutSetSlotBobFix(Plugin plugin) {
         super("PacketPlayOutSetSlot");
-
-        mainHandItem = new HashMap<>();
-        offHandItem = new HashMap<>();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            mainHandItem.put(player, player.getInventory().getItemInHand());
-
-            if (CompatibilityAPI.getVersion() >= 1.09)
-                offHandItem.put(player, player.getInventory().getItemInOffHand());
-        }
+        mainHand = new HashMap<>();
+        offHand = new HashMap<>();
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
-    public void onEquip(EntityEquipmentEvent event) {
-        if (event.getEntityType() != EntityType.PLAYER)
-            return;
+    public void drop(PlayerDropItemEvent event) {
+        mainHand.put(event.getPlayer(), null);
+    }
 
-        Player player = (Player) event.getEntity();
+    @EventHandler
+    public void click(InventoryClickEvent event) {
+        HumanEntity humanEntity = event.getWhoClicked();
+        if (!(humanEntity instanceof Player)) return;
+        Player player = (Player) humanEntity;
+        mainHand.put(player, null);
+        offHand.put(player, null);
+    }
 
-        if (event.getSlot() == EquipmentSlot.HAND)
-            mainHandItem.put(player, event.getEquipped());
-        else if (CompatibilityAPI.getVersion() >= 1.09 && event.getSlot() == EquipmentSlot.OFF_HAND)
-            offHandItem.put(player, event.getEquipped());
+    @EventHandler
+    public void click(InventoryDragEvent event) {
+        HumanEntity humanEntity = event.getWhoClicked();
+        if (!(humanEntity instanceof Player)) return;
+        Player player = (Player) humanEntity;
+        mainHand.put(player, null);
+        offHand.put(player, null);
+    }
+
+    @EventHandler
+    public void quit(PlayerQuitEvent event) {
+        mainHand.remove(event.getPlayer());
+        offHand.remove(event.getPlayer());
     }
 
     @Override
     public void onPacket(Packet wrapper) {
         Player player = wrapper.getPlayer();
-        int window = (int) ReflectionUtil.invokeField(windowField, wrapper.getPacket());
-        int slotNum = (int) ReflectionUtil.invokeField(slotField, wrapper.getPacket());
 
         // 0 is the player's inventory.
-        if (window != 0)
-            return;
+        if ((int) ReflectionUtil.invokeField(windowField, wrapper.getPacket()) != 0) return;
 
-        // Check for main/off hand
+        int slotNum = (int) ReflectionUtil.invokeField(slotField, wrapper.getPacket());
+
         boolean mainHand = slotNum == 36 + player.getInventory().getHeldItemSlot();
-        if (!mainHand && slotNum != 45)
+        if (!mainHand && slotNum != 45) return;
+
+        Map<Player, SimpleItemData> data = mainHand ? this.mainHand : this.offHand;
+
+        ItemStack packetItem = CompatibilityAPI.getNBTCompatibility().getBukkitStack(ReflectionUtil.invokeField(itemField, wrapper.getPacket()));
+        if (!packetItem.hasItemMeta() || !CustomTag.WEAPON_TITLE.hasString(packetItem)) {
+            data.put(player, null);
             return;
-
-        Object nmsEquipped = ReflectionUtil.invokeField(itemField, wrapper.getPacket());
-        ItemStack equipped = CompatibilityAPI.getNBTCompatibility().getBukkitStack(nmsEquipped);
-        ItemStack dequipped = mainHand ? mainHandItem.get(player) : offHandItem.get(player);
-
-        if (!equipped.hasItemMeta())
-            return;
-
-        // Only check when the item is a weapon stack
-        String weaponTitle = CustomTag.WEAPON_TITLE.getString(equipped);
-        if (weaponTitle == null)
-            return;
-
-        if (isDifferent(equipped, dequipped)) {
-            if (mainHand)
-                mainHandItem.put(player, equipped);
-            else
-                offHandItem.put(player, dequipped);
-
-        } else if (!Objects.equals(equipped, dequipped)) {
-            wrapper.setCancelled(true);
         }
+
+        SimpleItemData lastData = data.get(player);
+        if (lastData == null) {
+            data.put(player, new SimpleItemData(slotNum, packetItem));
+            return;
+        }
+
+        SimpleItemData newData = new SimpleItemData(slotNum, packetItem);
+        if (newData.isDifferent(lastData)) {
+            data.put(player, newData);
+            return;
+        }
+
+        wrapper.setCancelled(true);
     }
 
-    public boolean isDifferent(ItemStack a, ItemStack b) {
-        int nullCounter = 0;
-        if (isEmpty(a)) nullCounter++;
-        if (isEmpty(b)) nullCounter++;
+    public static class SimpleItemData {
 
-        if (nullCounter == 2)
-            return false;
-        else if (nullCounter == 1)
-            return true;
+        private final int sentToSlot;
+        private final Material type;
+        private final int amount;
+        private String displayName;
+        private List<String> lore;
+        private int customModelData;
+        private int durability;
 
-        if (a.getType() != b.getType())
-            return true;
-        if (a.getAmount() != b.getAmount())
-            return true;
-        if (a.hasItemMeta() != b.hasItemMeta())
-            return true;
-        if (a.hasItemMeta()) {
-            ItemMeta aMeta = a.getItemMeta();
-            ItemMeta bMeta = b.getItemMeta();
-
-            if (!Objects.equals(aMeta.getDisplayName(), bMeta.getDisplayName()))
-                return true;
-            if (!Objects.equals(aMeta.getLore(), bMeta.getLore()))
-                return true;
-            if (!Objects.equals(aMeta.getEnchants(), bMeta.getEnchants()))
-                return true;
-
-            if (CompatibilityAPI.getVersion() >= 1.14 && aMeta.getCustomModelData() != bMeta.getCustomModelData())
-                return true;
-
-            // This durability check will cause minor gun bobbing with skins, and
-            // possibly gun bobbing with block/entity interactions, but without the
-            // check, tools will not appear to lose durability
-            if (CompatibilityAPI.getVersion() < 1.13) {
-                return a.getDurability() != b.getDurability();
-            } else {
-                if (aMeta instanceof Damageable != bMeta instanceof Damageable)
-                    return true;
-                return aMeta instanceof Damageable && ((Damageable) aMeta).getDamage() != ((Damageable) bMeta).getDamage();
+        public SimpleItemData(int sentToSlot, ItemStack itemStack) {
+            this.sentToSlot = sentToSlot;
+            this.type = itemStack.getType();
+            this.amount = itemStack.getAmount();
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            if (itemMeta == null) return;
+            if (itemMeta.hasDisplayName()) this.displayName = itemMeta.getDisplayName();
+            if (itemMeta.hasLore()) this.lore = itemMeta.getLore();
+            double version = CompatibilityAPI.getVersion();
+            if (version >= 1.14 && itemMeta.hasCustomModelData()) this.customModelData = itemMeta.getCustomModelData();
+            if (version < 1.13) {
+                this.durability = itemStack.getDurability();
+            } else if (itemMeta instanceof Damageable) {
+                Damageable damageableItemMeta = (Damageable) itemMeta;
+                if (damageableItemMeta.hasDamage()) this.durability = ((Damageable) itemMeta).getDamage();
             }
         }
 
-        return false;
-    }
+        public boolean sameSlot(int newSlot) {
+            return sentToSlot == newSlot;
+        }
 
-    public static boolean isEmpty(ItemStack item) {
-        return item == null || item.getType() == Material.AIR;
+        public boolean isDifferent(SimpleItemData other) {
+            return sentToSlot != other.sentToSlot || type != other.type || amount != other.amount || customModelData != other.customModelData
+                    || durability != other.durability || !Objects.equals(displayName, other.displayName)
+                    || !Objects.equals(lore, other.lore);
+        }
     }
 }

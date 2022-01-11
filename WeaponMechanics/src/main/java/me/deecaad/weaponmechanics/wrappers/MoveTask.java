@@ -2,8 +2,8 @@ package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import org.bukkit.Bukkit;
@@ -147,15 +147,15 @@ public class MoveTask extends BukkitRunnable {
      * Mid air is determined on if current block in player's position doesn't have hit box and block below that doesn't have hit box either
      */
     private boolean isInMidair(LivingEntity livingEntity) {
-        IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+        IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
         Block current = livingEntity.getLocation().getBlock();
         Block below = current.getRelative(BlockFace.DOWN);
 
         // Check for liquid as hit boxes are considered null if block is liquid
         if (current.isLiquid() || below.isLiquid()) return false;
 
-        HitBox belowHitBox = projectileCompatibility.getHitBox(below);
-        HitBox currentHitBox = projectileCompatibility.getHitBox(current);
+        HitBox belowHitBox = weaponCompatibility.getHitBox(below);
+        HitBox currentHitBox = weaponCompatibility.getHitBox(current);
         return belowHitBox == null && currentHitBox == null;
     }
 

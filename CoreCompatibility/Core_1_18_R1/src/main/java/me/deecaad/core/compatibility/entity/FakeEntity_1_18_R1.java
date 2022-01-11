@@ -1,26 +1,26 @@
 package me.deecaad.core.compatibility.entity;
 
+import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import net.minecraft.core.Rotations;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
-import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
@@ -31,16 +31,17 @@ import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.*;
+import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.PosRot;
+import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Rot;
 
 public class FakeEntity_1_18_R1 extends FakeEntity {
 
@@ -70,13 +71,12 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         }
     }
 
-
     private final Entity entity;
     private final List<ServerGamePacketListenerImpl> connections; // store the player connection to avoid type cast
 
     // Only 1 of these can be used at a time
     private BlockState block;
-    private net.minecraft.world.item.ItemStack item;
+    private ItemStack item;
 
     public FakeEntity_1_18_R1(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
         super(location, type);
@@ -96,12 +96,13 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         // constructors when we are given the data (data != null).
         if (data != null) {
             entity = switch (type) {
-                case DROPPED_ITEM -> new ItemEntity(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((ItemStack) data));
+                case DROPPED_ITEM -> new ItemEntity(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
                 case FALLING_BLOCK -> new FallingBlockEntity(world.getHandle(), x, y, z, block =
                         (data.getClass() == Material.class
                                 ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
                                 : ((CraftBlockState) data).getHandle()
                         ));
+                case FIREWORK -> new FireworkRocketEntity(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
                 default -> world.createEntity(location, type.getEntityClass());
             };
         } else {
@@ -142,13 +143,16 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         motion.setY(dy);
         motion.setZ(dz);
 
-        for (ServerGamePacketListenerImpl connection : connections) {
-            connection.send(packet);
-        }
+        sendPackets(packet);
     }
 
     @Override
     public void setRotation(float yaw, float pitch) {
+        if (offset != null) {
+            yaw += offset.getYaw();
+            pitch += offset.getPitch();
+        }
+
         location.setYaw(yaw);
         location.setPitch(pitch);
         entity.setYHeadRot(yaw);
@@ -159,10 +163,9 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         Rot packet = new Rot(cache, byteYaw, convertPitch(pitch), false);
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, byteYaw);
 
-        for (ServerGamePacketListenerImpl connection : connections) {
-            connection.send(packet);
-            connection.send(head);
-        }
+        sendPackets(packet, head);
+
+        if (type == EntityType.ARMOR_STAND) updateMeta();
     }
 
     @Override
@@ -170,10 +173,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         ClientboundTeleportEntityPacket packet = new ClientboundTeleportEntityPacket(entity);
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(yaw));
 
-        for (ServerGamePacketListenerImpl connection : connections) {
-            connection.send(packet);
-            connection.send(head);
-        }
+        sendPackets(packet, head);
     }
 
     @Override
@@ -181,10 +181,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         PosRot packet = new PosRot(cache, dx, dy, dz, yaw, pitch, false);
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(yaw));
 
-        for (ServerGamePacketListenerImpl connection : connections) {
-            connection.send(packet);
-            connection.send(head);
-        }
+        sendPackets(packet, head);
     }
 
     @Override
@@ -196,6 +193,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
         Rot look = new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
         ClientboundSetEntityMotionPacket velocity = new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ()));
+        ClientboundSetEquipmentPacket equipment = getEquipmentPacket();
 
         for (Player temp : DistanceUtil.getPlayersInRange(location)) {
             ServerGamePacketListenerImpl connection = ((CraftPlayer) temp).getHandle().connection;
@@ -208,6 +206,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
             connection.send(head);
             connection.send(velocity);
             connection.send(look);
+            if (equipment != null) connection.send(equipment);
 
             connections.add(connection);
         }
@@ -215,6 +214,8 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
 
     @Override
     public void show(@NotNull Player player) {
+        if (!player.isOnline()) return;
+
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
 
         connection.send(type.isAlive()
@@ -224,6 +225,8 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         connection.send(new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.send(new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ())));
         connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
+        ClientboundSetEquipmentPacket equipment = getEquipmentPacket();
+        if (equipment != null) connection.send(equipment);
 
         // Inject the player's packet connection into this listener, so we can
         // show the player position/velocity/rotation changes
@@ -232,10 +235,9 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
 
     @Override
     public void updateMeta() {
-        ClientboundSetEntityDataPacket packet = getMetaPacket();
-        for (ServerGamePacketListenerImpl connection : connections) {
-            connection.send(packet);
-        }
+        if (type == EntityType.ARMOR_STAND) ((ArmorStand) entity).setHeadPose(new Rotations(getPitch(), 0, 0));
+
+        sendPackets(getMetaPacket());
     }
 
     private ClientboundSetEntityDataPacket getMetaPacket() {
@@ -267,25 +269,70 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
 
     @Override
     public void remove() {
-        ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(cache);
-
-        Iterator<ServerGamePacketListenerImpl> iterator = connections.iterator();
-        while (iterator.hasNext()) {
-            ServerGamePacketListenerImpl connection = iterator.next();
-            connection.send(packet);
-
-            iterator.remove();
-        }
+        sendPackets(new ClientboundRemoveEntitiesPacket(cache));
+        connections.clear();
     }
 
     @Override
     public void remove(@NotNull Player player) {
+        if (!player.isOnline()) return;
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
         connection.send(new ClientboundRemoveEntitiesPacket(cache));
 
         // Uninject player from seeing position changes
         if (!connections.remove(connection)) {
             throw new IllegalStateException("Tried to remove player that was never added");
+        }
+    }
+
+    @Override
+    public void playEntityEffect(EntityEffect entityEffect) {
+        if (!entityEffect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
+        sendPackets(new ClientboundEntityEventPacket(entity, entityEffect.getData()));
+    }
+
+    @Override
+    public void setEquipment(org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
+        if (!type.isAlive()) return;
+        LivingEntity livingEntity = (LivingEntity) entity;
+        switch (equipmentSlot) {
+            case HAND -> livingEntity.setItemSlot(EquipmentSlot.MAINHAND, CraftItemStack.asNMSCopy(itemStack));
+            case OFF_HAND -> livingEntity.setItemSlot(EquipmentSlot.OFFHAND, CraftItemStack.asNMSCopy(itemStack));
+            default -> livingEntity.setItemSlot(EquipmentSlot.valueOf(equipmentSlot.toString()), CraftItemStack.asNMSCopy(itemStack));
+        }
+    }
+
+    @Override
+    public void updateEquipment() {
+        ClientboundSetEquipmentPacket packet = getEquipmentPacket();
+        if (packet != null) sendPackets(packet);
+    }
+
+    private ClientboundSetEquipmentPacket getEquipmentPacket() {
+        if (!type.isAlive()) return null;
+        LivingEntity livingEntity = (LivingEntity) entity;
+
+        List<Pair<EquipmentSlot, ItemStack>> equipmentList = new ArrayList<>(1);
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack itemStack = livingEntity.getItemBySlot(slot);
+            if (!itemStack.isEmpty()) {
+                equipmentList.add(Pair.of(slot, itemStack));
+            }
+        }
+        return equipmentList.isEmpty() ? null : new ClientboundSetEquipmentPacket(cache, equipmentList);
+    }
+
+    private void sendPackets(Packet<?>... packets) {
+        Iterator<ServerGamePacketListenerImpl> connectionIterator = connections.iterator();
+        while (connectionIterator.hasNext()) {
+            ServerGamePacketListenerImpl connection = connectionIterator.next();
+            if (connection.isDisconnected()) {
+                connectionIterator.remove();
+                continue;
+            }
+            for (Packet<?> packet : packets) {
+                connection.send(packet);
+            }
         }
     }
 }

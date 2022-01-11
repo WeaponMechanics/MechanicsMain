@@ -2,13 +2,15 @@ package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_13_R2.*;
+import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.IBlockData;
+import net.minecraft.server.v1_13_R2.PacketPlayOutBlockBreakAnimation;
+import net.minecraft.server.v1_13_R2.PacketPlayOutMultiBlockChange;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
@@ -53,31 +55,6 @@ public class Block_1_13_R2 implements BlockCompatibility {
     public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
-    }
-
-    @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, Material mask, byte data) {
-        return getBlockMaskPacket(bukkitBlock, ((CraftBlockData) mask.createBlockData()).getState());
-    }
-
-    @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, @NotNull BlockState mask) {
-        return getBlockMaskPacket(bukkitBlock, ((CraftBlockState) mask).getHandle());
-    }
-
-    private PacketPlayOutBlockChange getBlockMaskPacket(Block bukkitBlock, IBlockData mask) {
-
-        CraftBlock block = ((CraftBlock) bukkitBlock);
-        BlockPosition position = block.getPosition();
-        World world = block.getCraftWorld().getHandle();
-
-        int x = block.getChunk().getX();
-        int z = block.getChunk().getZ();
-
-        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world.getChunkAt(x, z), position);
-        packet.block = mask;
-
-        return packet;
     }
 
     @Override

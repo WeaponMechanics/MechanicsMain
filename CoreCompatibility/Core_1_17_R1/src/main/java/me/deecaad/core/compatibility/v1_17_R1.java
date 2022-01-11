@@ -6,7 +6,6 @@ import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.Entity_1_17_R1;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.nbt.NBT_1_17_R1;
-
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.Packet;

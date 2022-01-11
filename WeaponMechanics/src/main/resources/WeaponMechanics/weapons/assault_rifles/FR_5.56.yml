@@ -1,16 +1,16 @@
-M4A1:
+FR_5_56:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6M4A1"
+      Name: "&6FR 5.56"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED--0.0139"
+        - "GENERIC_MOVEMENT_SPEED--0.0191"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6M4A1 &7«&6%ammo-left%&7»&6%reload%"
+        Message: "&6FR 5.56 &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
         Time: 40
     Weapon_Get_Mechanics:
       Sounds:
@@ -20,9 +20,11 @@ M4A1:
       Arm_Swing_Animation: true
   Skin:
     Default:
-      Custom_Model_Data: 161
+      Custom_Model_Data: 311
     Scope:
-      Custom_Model_Data: 171
+      Custom_Model_Data: 321
+    Reload:
+      Custom_Model_Data: 331
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:
@@ -31,9 +33,20 @@ M4A1:
       Deny_When:
         Swimming: true
     Projectile_Speed: 40
-    Fully_Automatic_Shots_Per_Second: 14
+    Selective_Fire:
+      Trigger:
+        Main_Hand: "DOUBLE_SNEAK"
+        Off_Hand: "DOUBLE_SNEAK"
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-1-2"
+    Delay_Between_Shots: 2
+    Fully_Automatic_Shots_Per_Second: 13
+    Burst:
+      Shots_Per_Burst: 3
+      Ticks_Between_Each_Shot: 2
     Spread:
-      Base_Spread: 3.6
+      Base_Spread: 3.38
       Modify_Spread_When:
         Zooming: 50%
         Sneaking: 50%
@@ -42,23 +55,25 @@ M4A1:
       Push_Time: 200
       Recover_Time: 200
       Horizontal:
-        - 2.9
-        - -2.9
+        - 2.8
+        - -2.8
       Vertical:
-        - 2.9
+        - 2.8
       Modify_Recoil_When:
         Zooming: 50%
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
       Sounds:
-        - "custom:shoot.m4a1-6-1-0-0.1"
+        - "custom:shoot.fr556-6-1-0-0.1"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
+      Deny_When:
+        Swimming: true
     Magazine_Size: 30
-    Reload_Duration: 52
+    Reload_Duration: 59
     Start_Mechanics:
       Sounds:
         - "custom:reload.start.normal-0.5-1-0-0.1"
@@ -66,16 +81,18 @@ M4A1:
       Sounds:
         - "custom:reload.end.normal-0.5-1-0-0.1"
   Damage:
-    Base_Damage: 9.4
+    Base_Damage: 10
     Armor_Damage: 3
     Dropoff:
-      - "10~-1.74"
-      - "25~-3.48"
-      - "50~-5.22"
+      - "10~-1.76"
+      - "25~-3.52"
+      - "50~-5.28"
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
+      Deny_When:
+        Swimming: true
     Zoom_Amount: 8
     Mechanics:
       Sounds:

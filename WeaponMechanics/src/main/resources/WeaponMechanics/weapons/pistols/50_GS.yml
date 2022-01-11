@@ -17,7 +17,6 @@
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Cancel:
       Drop_Item: true
-      Swap_Hands: true
       Arm_Swing_Animation: true
   Skin:
     Default:
@@ -38,9 +37,7 @@
       Modify_Spread_When:
         Zooming: 50%
         Sneaking: 50%
-        Walking: 1
         In_Midair: 150%
-        Gliding: 200%
     Recoil:
       Push_Time: 200
       Recover_Time: 200
@@ -52,6 +49,7 @@
       Modify_Recoil_When:
         Zooming: 50%
         Sneaking: 50%
+        In_Midair: 150%
     Mechanics:
       Sounds:
         - "custom:shoot.50gs-6-1-0-0.1"

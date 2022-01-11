@@ -1,10 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
@@ -14,7 +14,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
@@ -27,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class WeaponProjectile extends AProjectile {
 
     private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
-    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
     // Storing this reference to be able to use cloneSettingsAndShoot(Location, Motion) method
     private final ProjectileSettings projectileSettings;
@@ -61,28 +60,22 @@ public class WeaponProjectile extends AProjectile {
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
-
-        EntityType type = projectileSettings.getProjectileDisguise();
-        if (type != null) spawnDisguise(CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, projectileSettings.getDisguiseData()));
     }
 
     /**
-     * Clones the settings of this weapon projectile and shoots again with
-     * different location and motion.
+     * Clones the settings of this weapon projectile without shooting it
      *
      * @param location the cloned projectile's new start location
      * @param motion the cloned projectile's new motion
      * @return the cloned projectile
      */
-    public WeaponProjectile cloneSettingsAndShoot(Location location, Vector motion) {
-        WeaponProjectile projectile = new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
-        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
-        return projectile;
+    public WeaponProjectile clone(Location location, Vector motion) {
+        return new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
     }
 
     @Override
     public double getGravity() {
-        return isRolling() ? 0 : projectileSettings.getGravity();
+        return rolling || stickedData != null ? 0 : projectileSettings.getGravity();
     }
 
     @Override
@@ -214,7 +207,8 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public boolean handleCollisions(boolean disableEntityCollisions) {
 
-        Vector possibleNextLocation = getLocation().add(getMotion());
+        Vector motion = getMotion();
+        Vector possibleNextLocation = getLocation().add(motion);
         if (!getWorld().isChunkLoaded(possibleNextLocation.getBlockX() >> 4, possibleNextLocation.getBlockZ() >> 4)) {
             // Remove projectile if next location would be in unloaded chunk
             return true;
@@ -232,6 +226,9 @@ public class WeaponProjectile extends AProjectile {
             }
             return false;
         }
+
+        // Don't check for new collisions if motion is empty
+        if (VectorUtil.isEmpty(motion)) return false;
 
         // Returns sorted list of hits
         List<RayTraceResult> hits = getHits(disableEntityCollisions);
@@ -372,7 +369,7 @@ public class WeaponProjectile extends AProjectile {
             Block block = blocks.next();
             if (equalToLastHit(block)) continue;
 
-            HitBox blockBox = projectileCompatibility.getHitBox(block);
+            HitBox blockBox = weaponCompatibility.getHitBox(block);
             if (blockBox == null) continue;
 
             RayTraceResult rayTraceResult = blockBox.rayTrace(location, normalizedMotion);
@@ -398,7 +395,7 @@ public class WeaponProjectile extends AProjectile {
                 for (LivingEntity entity : entities) {
                     if (equalToLastHit(entity)) continue;
 
-                    HitBox entityBox = projectileCompatibility.getHitBox(entity);
+                    HitBox entityBox = weaponCompatibility.getHitBox(entity);
                     if (entityBox == null) continue;
 
                     RayTraceResult rayTraceResult = entityBox.rayTrace(location, normalizedMotion);

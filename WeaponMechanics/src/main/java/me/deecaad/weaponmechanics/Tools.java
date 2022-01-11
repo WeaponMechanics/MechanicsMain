@@ -16,11 +16,13 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
-        calculateStats(0.72, 0.77, 0.78, 0.59, 0.48, 0.72);
+        calculateStats(0.73, 0.75, 0.62, 0.72, 0.58, 0.72);
     }
 
     private static void calculateStats(double accuracy, double damage, double range,
                                        double firerate, double mobility, double control) {
+        // https://callofduty.fandom.com/wiki/Call_of_Duty:_Modern_Warfare_(2019)#Weapons
+        // https://www.gamesatlas.com/cod-modern-warfare/weapons/
         System.out.println("Accuracy: ");
         System.out.println("-> spread: " + NumberUtil.lerp(12.5, 0, accuracy));
         System.out.println("-> spread image FOV: " + (30 * NumberUtil.lerp(1.25, 0, accuracy)));

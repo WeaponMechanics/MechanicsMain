@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.listeners;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
@@ -34,7 +34,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 public class WeaponListeners implements Listener {
 
     private WeaponHandler weaponHandler;
-    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
     public WeaponListeners(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -75,7 +75,7 @@ public class WeaponListeners implements Listener {
         // RIGHT MELEE
 
         Entity entityVictim = e.getRightClicked();
-        HitBox victimHitBox = projectileCompatibility.getHitBox(entityVictim);
+        HitBox victimHitBox = weaponCompatibility.getHitBox(entityVictim);
 
         if (victimHitBox == null) return; // Invalid entity
 

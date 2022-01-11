@@ -203,9 +203,9 @@ public class FileReader {
                     validatorDatas.add(new ValidatorData(validator, file, configuration, key));
                 }
 
-                // Check if this key is a serializer and handle pathTo
+                // Check if this key is a serializer, and that it isn't the header and handle pathTo
                 Serializer<?> serializer = this.serializers.get(lastKey);
-                if (serializer != null) {
+                if (serializer != null && keySplit.length > 1) {
                     String pathTo = serializer.useLater(configuration, key);
                     if (pathTo != null) {
                         startsWithDeny = key;

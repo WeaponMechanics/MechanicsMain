@@ -1,8 +1,11 @@
 package me.deecaad.core.compatibility.entity;
 
+import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -24,6 +27,7 @@ public abstract class FakeEntity {
 
     protected final EntityType type;
     protected Location location;
+    protected Location offset;
     protected Vector motion;
     protected int cache = -1;
 
@@ -91,6 +95,17 @@ public abstract class FakeEntity {
 
     public float getPitch() {
         return location.getPitch();
+    }
+
+    /**
+     * Sets the location offset for this entity. Entity yaw and pitch
+     * are also modified based on this value. This offset is applied
+     * to entity when any move packet or such is sent to the player.
+     *
+     * @param offset The vector changing FakeEntity position
+     */
+    public void setOffset(Location offset) {
+        this.offset = offset;
     }
 
     protected void setLocation(double x, double y, double z, float yaw, float pitch) {
@@ -187,6 +202,14 @@ public abstract class FakeEntity {
      * @param raw   true to always use a teleport packet.
      */
     public final void setPosition(double x, double y, double z, float yaw, float pitch, boolean raw) {
+        if (offset != null) {
+            x += offset.getX();
+            y += offset.getY();
+            z += offset.getZ();
+            yaw += offset.getYaw();
+            pitch += offset.getPitch();
+        }
+
         double lengthSquared = raw ? 0.0 : square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
 
         // When the change of position >8, then we cannot use the move-look
@@ -199,6 +222,8 @@ public abstract class FakeEntity {
             setPositionRotation(x - location.getX(), y - location.getY(), z - location.getZ(), yaw, pitch);
             setLocation(x, y, z, yaw, pitch);
         }
+
+        if (type == EntityType.ARMOR_STAND) updateMeta();
     }
 
     // private since nobody should use this method
@@ -300,4 +325,25 @@ public abstract class FakeEntity {
      * @param player The non-null player to hide the entity from.
      */
     public abstract void remove(@Nonnull Player player);
+
+    /**
+     * Sends the given entity effect for players that currently see it.
+     *
+     * @param entityEffect the entity effect to play
+     */
+    public abstract void playEntityEffect(EntityEffect entityEffect);
+
+    /**
+     * Sets new item to given equipment slot.
+     *
+     * @param equipmentSlot the equipment slot to modify
+     * @param itemStack the item stack set to slot
+     */
+    public abstract void setEquipment(EquipmentSlot equipmentSlot, ItemStack itemStack);
+
+    /**
+     * Updates the equipment for all players that currently see it. This method
+     * should be used after any modifications to {@link #setEquipment(EquipmentSlot, ItemStack)}.
+     */
+    public abstract void updateEquipment();
 }

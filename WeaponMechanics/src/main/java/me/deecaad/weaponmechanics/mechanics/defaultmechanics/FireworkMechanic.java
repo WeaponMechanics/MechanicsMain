@@ -1,7 +1,8 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.serializers.ColorSerializer;
+import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
@@ -10,16 +11,16 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
+import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -27,8 +28,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 public class FireworkMechanic implements IMechanic<FireworkMechanic> {
 
     private LocationAdjuster locationAdjuster;
-    private int flightTime;
-    private FireworkEffect fireworkEffect;
+    private ItemStack fireworkItem;
 
     /**
      * Empty constructor to be used as serializer
@@ -38,10 +38,9 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
-    public FireworkMechanic(LocationAdjuster locationAdjuster, int flightTime, FireworkEffect fireworkEffect) {
+    public FireworkMechanic(LocationAdjuster locationAdjuster, ItemStack fireworkItem) {
         this.locationAdjuster = locationAdjuster;
-        this.flightTime = flightTime;
-        this.fireworkEffect = fireworkEffect;
+        this.fireworkItem = fireworkItem;
     }
 
     @Override
@@ -52,7 +51,22 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         if (players.isEmpty()) {
             return;
         }
-        CompatibilityAPI.getCompatibility().getEntityCompatibility().spawnFirework(WeaponMechanics.getPlugin(), location, players, (byte) flightTime, fireworkEffect);
+
+        int flightTime = ((FireworkMeta) fireworkItem.getItemMeta()).getPower();
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(location, EntityType.FIREWORK, fireworkItem);
+        if (flightTime > 1) fakeEntity.setMotion(0.001, 0.3, -0.001);
+        fakeEntity.show();
+        if (flightTime <= 0) {
+            fakeEntity.playEntityEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.remove();
+            return;
+        }
+        new BukkitRunnable() {
+            public void run() {
+                fakeEntity.playEntityEffect(EntityEffect.FIREWORK_EXPLODE);
+                fakeEntity.remove();
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), flightTime);
     }
 
     @Override
@@ -62,72 +76,18 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
 
     @Override
     public FireworkMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
-        String stringFireworkType = configurationSection.getString(path + ".Firework_Type");
-        if (stringFireworkType == null) return null;
-        stringFireworkType = stringFireworkType.toUpperCase();
+        ItemStack fireworkItem = new ItemSerializer().serializeWithoutRecipe(file, configurationSection, path + ".Item");;
+        if (fireworkItem == null) return null;
 
-        FireworkEffect.Type fireworkType;
-        try {
-            fireworkType = FireworkEffect.Type.valueOf(stringFireworkType);
-        } catch (IllegalArgumentException e) {
+        if (!(fireworkItem.getItemMeta() instanceof FireworkMeta)) {
             debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("firework type"),
-                    StringUtil.foundAt(file, path + ".Type", stringFireworkType),
-                    StringUtil.debugDidYouMean(stringFireworkType, FireworkEffect.Type.class));
+                    StringUtil.foundInvalid("firework item"),
+                    StringUtil.foundAt(file, path + ".Item"),
+                    "The item was generated, but it didn't have firework meta defined.");
             return null;
         }
-
-        List<Color> colors = convertColorList(file, configurationSection, path + ".Colors");
-        if (colors == null) {
-            debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("firework color list"),
-                    StringUtil.foundAt(file, path + ".Colors"),
-                    "It either didn't exist or it wasn't properly configured");
-            return null;
-        }
-
-        List<Color> fadeColors = convertColorList(file, configurationSection, path + ".Fade_Colors");
-        boolean flicker = configurationSection.getBoolean(path + ".Flicker", true);
-        boolean trail = configurationSection.getBoolean(path + ".Trail", false);
 
         LocationAdjuster locationAdjuster = new LocationAdjuster().serialize(file, configurationSection, path + ".Location_Adjuster");
-
-        int flightTime = configurationSection.getInt(path + ".Flight_Time", 0);
-        if (flightTime < 0) {
-            debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("firework flight time"),
-                    StringUtil.foundAt(file, path + ".Flight_Time", flightTime),
-                    "It can't have negative value");
-            return null;
-        }
-
-        FireworkEffect.Builder fireworkEffectBuilder = FireworkEffect.builder().with(fireworkType).withColor(colors).flicker(flicker).trail(trail);
-        if (fadeColors != null) {
-            fireworkEffectBuilder.withFade(fadeColors);
-        }
-
-        return new FireworkMechanic(locationAdjuster, flightTime, fireworkEffectBuilder.build());
-    }
-
-    private List<Color> convertColorList(File file, ConfigurationSection configurationSection, String path) {
-        List<String> stringColorList = configurationSection.getStringList(path);
-        if (stringColorList == null || stringColorList.isEmpty()) return null;
-
-        ColorSerializer colorSerializer = new ColorSerializer();
-
-        List<Color> colorList = new ArrayList<>();
-        for (String stringInList : stringColorList) {
-            for (String stringInLine : stringInList.split(", ?")) {
-
-                Color color = colorSerializer.fromString(file, configurationSection, path, stringInLine);
-
-                if (color == null) {
-                    continue;
-                }
-                colorList.add(color);
-            }
-        }
-        if (colorList.isEmpty()) return null;
-        return colorList;
+        return new FireworkMechanic(locationAdjuster, fireworkItem);
     }
 }

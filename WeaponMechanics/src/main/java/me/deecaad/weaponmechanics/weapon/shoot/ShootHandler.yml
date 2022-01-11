@@ -11,7 +11,7 @@ Shoot:
   Burst:
     Shots_Per_Burst: <amount>
     Ticks_Between_Each_Shot: <ticks>
+  Consume_Item_On_Shoot: <true/false>
   Spread: <SpreadSerializer>
-  Projectile: <ProjectileSerializer>
   Recoil: <RecoilSerializer>
   Mechanics: <MechanicsSerializer>

@@ -24,6 +24,7 @@ import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -96,6 +97,14 @@ public class ReloadHandler implements IValidator {
 
         Configuration config = getConfigurations();
 
+
+        int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
+        int tempMagazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
+        if (tempMagazineSize <= 0 || reloadDuration <= 0) {
+            // This ensures that non intended reloads doesn't occur from ShootHandler for example
+            return false;
+        }
+
         int ammoLeft = getAmmoLeft(weaponStack);
         if (ammoLeft == -1) { // This shouldn't be -1, perhaps ammo was added for weapon in configs later in server...
             CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
@@ -108,8 +117,6 @@ public class ReloadHandler implements IValidator {
 
         boolean mainhand = slot == EquipmentSlot.HAND;
         HandData handData = mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-        int tempMagazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
-        int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
 
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
         FirearmState state = null;
@@ -260,6 +267,8 @@ public class ReloadHandler implements IValidator {
 
                 int finalAmmoSet = ammoLeft + ammoToAdd;
 
+                handleWeaponStackAmount(entityWrapper, weaponStack);
+
                 CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet);
 
                 if (firearmAction != null) {
@@ -292,6 +301,9 @@ public class ReloadHandler implements IValidator {
 
                     if (ammoTypes != null) ammoTypes.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
                     unloadedAmount = ammoLeft;
+
+                    handleWeaponStackAmount(entityWrapper, weaponStack);
+
                     CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
                 }
 
@@ -406,6 +418,28 @@ public class ReloadHandler implements IValidator {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
         }
         return true;
+    }
+
+    /**
+     * Drop item stacks to entity location if the
+     * weapon stack amount is more than 1
+     *
+     * @param entityWrapper the entity
+     * @param weaponStack the item stack to give
+     */
+    public void handleWeaponStackAmount(IEntityWrapper entityWrapper, ItemStack weaponStack) {
+
+        int weaponStackAmount = weaponStack.getAmount();
+        if (weaponStackAmount > 1) {
+            // If the amount is above 1, we want to split the stack
+            weaponStack.setAmount(weaponStackAmount - 1);
+
+            // Drop the clone of weapon stack item with amount - 1
+            LivingEntity entity = entityWrapper.getEntity();
+            entity.getWorld().dropItemNaturally(entity.getLocation().add(0, 1, 0), weaponStack.clone());
+
+            weaponStack.setAmount(1);
+        }
     }
 
     private ChainTask getOpenTask(int firearmOpenTime, boolean isPump, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,

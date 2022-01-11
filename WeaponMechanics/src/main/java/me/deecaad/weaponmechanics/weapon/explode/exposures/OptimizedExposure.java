@@ -90,7 +90,7 @@ public class OptimizedExposure implements ExplosionExposure {
      * @return The level of exposure of the entity to the explosion
      */
     private static double getExposure(Vector vec3d, Entity entity) {
-        HitBox box = WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(entity);
+        HitBox box = WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(entity);
 
         if (box == null) {
             return 0.0;

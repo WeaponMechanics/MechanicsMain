@@ -17,7 +17,6 @@ R9-0:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Cancel:
       Drop_Item: true
-      Swap_Hands: true
       Arm_Swing_Animation: true
   Skin:
     Default:
@@ -53,6 +52,7 @@ R9-0:
       Modify_Recoil_When:
         Zooming: 50%
         Sneaking: 50%
+        In_Midair: 150%
     Mechanics:
       Sounds:
         - "custom:shoot.r90-6-1-0-0.1"

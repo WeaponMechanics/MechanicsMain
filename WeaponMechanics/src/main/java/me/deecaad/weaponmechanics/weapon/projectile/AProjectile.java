@@ -211,6 +211,7 @@ public abstract class AProjectile {
      * @return the normalized current motion
      */
     public Vector getNormalizedMotion() {
+        if (motionLength == 0) return getMotion();
         return getMotion().divide(new Vector(motionLength, motionLength, motionLength));
     }
 
@@ -344,11 +345,11 @@ public abstract class AProjectile {
             return true;
         }
 
-        if (VectorUtil.isEmpty(motion)) {
+        double gravity = getGravity();
+        if (gravity == 0 && VectorUtil.isEmpty(motion)) {
 
-            // No need to continue as motion is empty
+            // No need to continue as motion is empty and there isn't gravity currently
 
-            // Ensure that motion length is also 0
             if (motionLength != 0) motionLength = 0;
 
             onMove();
@@ -357,12 +358,11 @@ public abstract class AProjectile {
             return false;
         }
 
-        motion.multiply(getDrag());
-
-        double gravity = getGravity();
         if (gravity != 0) {
             motion.setY(motion.getY() - gravity);
         }
+
+        motion.multiply(getDrag());
         motionLength = motion.length();
 
         double minimumSpeed = getMinimumSpeed();
@@ -415,10 +415,10 @@ public abstract class AProjectile {
         // Show for new players in range
         if (aliveTicks % CHECK_FOR_NEW_PLAYER_RATE == 0) disguise.show();
 
-        Vector normalizedMotion = getNormalizedMotion();
         if (motionLength == 0) {
             disguise.setPosition(location.getX(), location.getY(), location.getZ(), disguise.getYaw(), disguise.getPitch(), forceTeleport);
         } else {
+            Vector normalizedMotion = getNormalizedMotion();
             disguise.setPosition(location.getX(), location.getY(), location.getZ(), calculateYaw(normalizedMotion), calculatePitch(normalizedMotion), forceTeleport);
         }
         disguise.setMotion(motion);
@@ -427,11 +427,13 @@ public abstract class AProjectile {
     }
 
     private float calculateYaw(Vector normalizedMotion) {
+        if (motionLength == 0) return 0;
         double PI_2 = VectorUtil.PI_2;
         return (float) Math.toDegrees((Math.atan2(-normalizedMotion.getX(), normalizedMotion.getZ()) + PI_2) % PI_2);
     }
 
     private float calculatePitch(Vector normalizedMotion) {
+        if (motionLength == 0) return 0;
         return (float) Math.toDegrees(Math.atan(-normalizedMotion.getY() / Math.sqrt(NumberConversions.square(normalizedMotion.getX()) + NumberConversions.square(normalizedMotion.getZ()))));
     }
 

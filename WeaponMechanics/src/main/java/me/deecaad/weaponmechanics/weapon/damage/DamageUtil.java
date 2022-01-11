@@ -121,9 +121,9 @@ public class DamageUtil {
         // Apply any remaining damage to the victim, and handle internals
         double oldHealth = victim.getHealth();
         victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
-        WeaponCompatibilityAPI.getShootCompatibility().logDamage(victim, cause, oldHealth, damage, false);
+        WeaponCompatibilityAPI.getWeaponCompatibility().logDamage(victim, cause, oldHealth, damage, false);
         if (cause.getType() == EntityType.PLAYER) {
-            WeaponCompatibilityAPI.getShootCompatibility().setKiller(victim, (Player) cause);
+            WeaponCompatibilityAPI.getWeaponCompatibility().setKiller(victim, (Player) cause);
         }
 
         // Visual red flash

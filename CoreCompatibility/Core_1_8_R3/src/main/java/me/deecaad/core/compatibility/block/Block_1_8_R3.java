@@ -9,7 +9,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.block.CraftBlock;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -56,35 +55,6 @@ public class Block_1_8_R3 implements BlockCompatibility {
     public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPosition pos = new BlockPosition(block.getX(), block.getY(), block.getZ());
         return new PacketPlayOutBlockBreakAnimation(id, pos, crack);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, Material mask, byte data) {
-        IBlockData blockData = net.minecraft.server.v1_8_R3.Block.getByCombinedId(mask.getId() | data << 12);
-
-        return getBlockMaskPacket(bukkitBlock, blockData);
-    }
-
-    @Override
-    public @NotNull Object getBlockMaskPacket(Block bukkitBlock, @NotNull BlockState mask) {
-        WorldServer world = ((CraftWorld) bukkitBlock.getWorld()).getHandle();
-        BlockPosition pos = new BlockPosition(bukkitBlock.getX(), bukkitBlock.getY(), bukkitBlock.getZ());
-        IBlockData blockData = world.c(pos).getBlockData();
-
-        return getBlockMaskPacket(bukkitBlock, blockData);
-    }
-
-    private PacketPlayOutBlockChange getBlockMaskPacket(Block bukkitBlock, IBlockData mask) {
-
-        CraftBlock block = ((CraftBlock) bukkitBlock);
-        BlockPosition position = new BlockPosition(block.getX(), block.getY(), block.getZ());
-        World world = ((CraftWorld) block.getWorld()).getHandle();
-
-        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world, position);
-        packet.block = mask;
-
-        return packet;
     }
 
     @SuppressWarnings("deprecation")

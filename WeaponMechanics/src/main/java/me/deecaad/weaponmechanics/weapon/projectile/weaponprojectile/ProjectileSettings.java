@@ -174,8 +174,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
             }
             ItemStack projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");
             if ((projectileType == EntityType.DROPPED_ITEM
-                    || projectileType == EntityType.FALLING_BLOCK
-                    || projectileType == EntityType.FIREWORK)
+                    || projectileType == EntityType.FALLING_BLOCK)
                     && projectileItem == null) {
                 debug.error("When using " + projectileType + " you need to define valid projectile item or block.",
                         "Now there wasn't any valid item or block at path " + path + ".Projectile_Item_Or_Block",
@@ -183,22 +182,18 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                 return null;
             }
 
-            if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
-                debug.error("When using " + projectileType + " you need to define valid firework item.",
-                        StringUtil.foundAt(file, path + ".Projectile_Item_Or_Block"));
-                return null;
-            }
+            if (projectileItem != null) {
+                if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
+                    debug.error("When using " + projectileType + " you need to define valid firework item.",
+                            StringUtil.foundAt(file, path + ".Projectile_Item_Or_Block"));
+                    return null;
+                }
 
-            switch (projectileType) {
-                case DROPPED_ITEM:
-                case FIREWORK:
-                    disguiseData = projectileItem;
-                    break;
-                case FALLING_BLOCK:
+                if (projectileType == EntityType.FALLING_BLOCK) {
                     disguiseData = projectileItem.getType();
-                    break;
-                default:
-                    break;
+                } else {
+                    disguiseData = projectileItem;
+                }
             }
         }
 
