@@ -1,13 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
@@ -17,7 +14,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
@@ -27,12 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
-
 public class WeaponProjectile extends AProjectile {
 
     private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
-    private static final IProjectileCompatibility projectileCompatibility = WeaponCompatibilityAPI.getProjectileCompatibility();
+    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
     // Storing this reference to be able to use cloneSettingsAndShoot(Location, Motion) method
     private final ProjectileSettings projectileSettings;
@@ -375,7 +369,7 @@ public class WeaponProjectile extends AProjectile {
             Block block = blocks.next();
             if (equalToLastHit(block)) continue;
 
-            HitBox blockBox = projectileCompatibility.getHitBox(block);
+            HitBox blockBox = weaponCompatibility.getHitBox(block);
             if (blockBox == null) continue;
 
             RayTraceResult rayTraceResult = blockBox.rayTrace(location, normalizedMotion);
@@ -401,7 +395,7 @@ public class WeaponProjectile extends AProjectile {
                 for (LivingEntity entity : entities) {
                     if (equalToLastHit(entity)) continue;
 
-                    HitBox entityBox = projectileCompatibility.getHitBox(entity);
+                    HitBox entityBox = weaponCompatibility.getHitBox(entity);
                     if (entityBox == null) continue;
 
                     RayTraceResult rayTraceResult = entityBox.rayTrace(location, normalizedMotion);

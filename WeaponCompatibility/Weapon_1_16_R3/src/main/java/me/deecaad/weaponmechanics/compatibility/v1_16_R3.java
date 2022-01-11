@@ -3,8 +3,6 @@ package me.deecaad.weaponmechanics.compatibility;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.projectile.IProjectileCompatibility;
-import me.deecaad.weaponmechanics.compatibility.projectile.Projectile_1_16_R3;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_16_R3;
 import me.deecaad.weaponmechanics.compatibility.shoot.IShootCompatibility;
@@ -25,12 +23,10 @@ public class v1_16_R3 implements IWeaponCompatibility {
     }
 
     private final IScopeCompatibility scopeCompatibility;
-    private final IProjectileCompatibility projectileCompatibility;
     private final IShootCompatibility shootCompatibility;
 
     public v1_16_R3() {
         this.scopeCompatibility = new Scope_1_16_R3();
-        this.projectileCompatibility = new Projectile_1_16_R3();
         this.shootCompatibility = new Shoot_1_16_R3();
     }
 
@@ -38,12 +34,6 @@ public class v1_16_R3 implements IWeaponCompatibility {
     @Override
     public IScopeCompatibility getScopeCompatibility() {
         return scopeCompatibility;
-    }
-
-    @Nonnull
-    @Override
-    public IProjectileCompatibility getProjectileCompatibility() {
-        return projectileCompatibility;
     }
 
     @Nonnull

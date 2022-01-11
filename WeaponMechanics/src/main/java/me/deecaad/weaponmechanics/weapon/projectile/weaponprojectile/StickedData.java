@@ -37,7 +37,7 @@ public class StickedData {
         if (livingEntity != null) {
             return livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity.getLocation().clone().add(relativeLocation).toVector();
         }
-        return WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(blockLocation.getBlock()) == null ? null : blockLocation.clone().add(relativeLocation).toVector();
+        return WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(blockLocation.getBlock()) == null ? null : blockLocation.clone().add(relativeLocation).toVector();
     }
 
     public boolean isBlockStick() {
@@ -53,6 +53,6 @@ public class StickedData {
     public Block getBlock() {
         if (blockLocation == null) return null;
         Block block = blockLocation.getBlock();
-        return WeaponCompatibilityAPI.getProjectileCompatibility().getHitBox(block) == null ? null : block;
+        return WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(block) == null ? null : block;
     }
 }
