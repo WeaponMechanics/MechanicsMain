@@ -9,6 +9,7 @@ import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -162,107 +163,55 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     @Override
+    @NotNull
     public BlockDamage serialize(SerializeData data) throws SerializerException {
         boolean isBreakBlocks = data.of("Break_Blocks").assertType(Boolean.class).get(false);
         int damage = data.of("Damage_Per_Hit").assertPositive().get(1);
         int defaultBlockDurability = data.of("Default_Block_Durability").assertPositive().get(1);
         boolean isBlacklist = data.of("Blacklist").assertType(Boolean.class).get(false);
 
-        List<String> strings = config.getStringList("Block_List");
+        SerializeData.ConfigListAccessor accessor = data.ofList("Block_List")
+                .addArgument(Material.class, true);
+
+        // The extra ~<Integer> tag is only useful for when whitelist is used.
+        // When a blacklist is used, only the "Shots_To_Break_Blocks" tag can
+        // be used to define the extra int tag.
+        if (!isBlacklist)
+            accessor.addArgument(int.class, false);
+
+        // This does the bulk of our validation.
+        List<String[]> strings = accessor.assertExists().assertList().get();
+
         if (!isBlacklist && strings.isEmpty()) {
-            debug.warn("No blocks can be broken by the Block_Damage!",
-                    "This is most likely a mistake!", StringUtil.foundAt(file, path));
+            data.throwException(null, "'Block_Damage' found that cannot break any blocks!",
+                    "This happens when you use 'Blacklist: false' and an empty 'Block_List'");
         }
 
         Map<Material, Integer> blockList = new HashMap<>(strings.size());
-        for (String str : strings) {
-
-            // Easy to forget to remove whitespace (or extra blank values). It
-            // is not a fatal error, so we can ignore it.
-            if (str == null || str.trim().isEmpty()) {
-                debug.warn("Found an empty string in Block_List", StringUtil.foundAt(file, path + ".Block_List"));
-                continue;
-            }
-
-            String[] split = StringUtil.split(str);
-
-            // Will rarely happen, but sometimes people may add extra data. It
-            // is not a fatal error, so we can ignore it.
-            if (split.length > 2) {
-                debug.warn("Found extra data for Block_List in \"" + str + "\". Expected <Material>-<Shots_To_Break>",
-                        StringUtil.foundAt(file, path + ".Block_List"));
-            }
+        for (String[] split : strings) {
 
             List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
-            int durability;
-
-            try {
-                durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
-            } catch (NumberFormatException ex) {
-                debug.error("Expected an Integer, Got: " + split[1], StringUtil.foundAt(file, path + ".Block_List"));
-                continue;
-            }
-
-            // When the list is empty, the parseEnums method failed to
-            // find any kind of match for the given material.
-            if (materials.isEmpty()) {
-                debug.error("Could not find any materials that matched \"" + split[0] + "\"",
-                        "Remember that you may use '$' as a wildcard (Try $GLASS)",
-                        StringUtil.debugDidYouMean(split[0], Material.class),
-                        StringUtil.foundAt(file, path + ".Block_List"));
-                continue;
-            }
+            int durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
 
             materials.forEach(material -> blockList.put(material, durability));
         }
 
-        strings = config.getStringList("Shots_To_Break_Blocks");
+        strings = data.ofList("Shots_To_Break_Blocks")
+                .addArgument(Material.class, true).addArgument(int.class, true).assertList().get();
         Map<Material, Integer> shotsToBreak = new HashMap<>(strings.size());
+
         if (isBlacklist) {
-            for (String str : strings) {
-
-                // Easy to forget to remove whitespace (or extra blank values). It
-                // is not a fatal error, so we can ignore it.
-                if (str == null || str.trim().isEmpty()) {
-                    debug.warn("Found an empty string in Shots_To_Break_Blocks", StringUtil.foundAt(file, path + ".Shots_To_Break_Blocks"));
-                    continue;
-                }
-
-                String[] split = StringUtil.split(str);
-
-                // Will rarely happen, but sometimes people may add extra data. It
-                // is not a fatal error, so we can ignore it.
-                if (split.length > 2) {
-                    debug.warn("Found extra data for Block_List in \"" + str + "\". Expected <Material>-<Shots_To_Break>",
-                            StringUtil.foundAt(file, path + ".Shots_To_Break_Blocks"));
-                }
+            for (String[] split : strings) {
 
                 List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
-                int durability;
-
-                try {
-                    durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
-                } catch (NumberFormatException ex) {
-                    debug.error("Expected an Integer, Got: " + split[1], StringUtil.foundAt(file, path + ".Shots_To_Break_Blocks"));
-                    continue;
-                }
-
-                // When the list is empty, the parseEnums method failed to
-                // find any kind of match for the given material.
-                if (materials.isEmpty()) {
-                    debug.error("Could not find any materials that matched \"" + split[0] + "\"",
-                            "Remember that you may use '$' as a wildcard (Try using $GLASS)",
-                            StringUtil.debugDidYouMean(split[0], Material.class),
-                            StringUtil.foundAt(file, path + ".Block_List"));
-                    continue;
-                }
+                int durability = Integer.parseInt(split[1]);
 
                 materials.forEach(material -> shotsToBreak.put(material, durability));
             }
         } else if (!strings.isEmpty()) {
-            debug.error("Error in Block_Damage!", "You tried to use Shots_To_Break_Blocks with Blacklist: true!",
-                    "This doesn't make sense, since all materials/durability should be defined in Block_List",
-                    StringUtil.foundAt(file, path));
+            data.throwException(null, "Found 'Block_Damage' that uses 'Shots_To_Break_Blocks' when 'Blacklist: false'",
+                    "'Shots_To_Break_Blocks' should only be used when 'Blacklist: true'",
+                    "Instead, copy and paste your values from 'Shots_To_Break_Blocks' to 'Block_List'");
         }
 
         return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, blockList, shotsToBreak);
