@@ -22,7 +22,7 @@ public class WeaponItemSerializer extends ItemSerializer {
     public ItemStack serialize(File file, ConfigurationSection configurationSection, String path) {
         ItemStack weaponStack = super.serializeWithoutRecipe(file, configurationSection, path);
         if (weaponStack == null) return null;
-        String weaponTitle = path.split("\\.")[0].toLowerCase();
+        String weaponTitle = path.split("\\.")[0];
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
 
         int magazineSize = configurationSection.getInt(weaponTitle + ".Reload.Magazine_Size", -1);
