@@ -2,19 +2,18 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.entity.EntityCompatibility;
+import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class FireworkCommand extends SubCommand {
 
@@ -39,6 +38,8 @@ public class FireworkCommand extends SubCommand {
         boolean flicker = args.length <= 4 || Boolean.parseBoolean(args[4]);
         boolean trail = args.length <= 5 || Boolean.parseBoolean(args[5]);
 
+        ItemStack itemStack = new ItemStack(Material.FIREWORK_ROCKET);
+        FireworkMeta meta = (FireworkMeta) itemStack.getItemMeta();
         FireworkEffect effect = FireworkEffect.builder()
                 .with(type)
                 .withColor(color)
@@ -46,9 +47,25 @@ public class FireworkCommand extends SubCommand {
                 .flicker(flicker)
                 .trail(trail)
                 .build();
+        meta.addEffect(effect);
+        itemStack.setItemMeta(meta);
 
-        EntityCompatibility compatibility = CompatibilityAPI.getCompatibility().getEntityCompatibility();
-        compatibility.spawnFirework(WeaponMechanics.getPlugin(), player.getLocation(), Collections.singleton(player), flightTime, effect);
+        Random random = new Random();
+
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(player.getLocation(), EntityType.FIREWORK, itemStack);
+        fakeEntity.setMotion(random.nextGaussian() * 0.001, 0.3, random.nextGaussian() * 0.001);
+        fakeEntity.show();
+        if (flightTime == 0) {
+            fakeEntity.playEntityEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.remove();
+            return;
+        }
+        new BukkitRunnable() {
+            public void run() {
+                fakeEntity.playEntityEffect(EntityEffect.FIREWORK_EXPLODE);
+                fakeEntity.remove();
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), flightTime);
     }
 
     @Override
