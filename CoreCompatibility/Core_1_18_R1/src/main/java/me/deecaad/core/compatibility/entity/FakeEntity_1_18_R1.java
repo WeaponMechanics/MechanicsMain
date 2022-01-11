@@ -20,7 +20,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.bukkit.*;
+import org.bukkit.EntityEffect;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
@@ -38,7 +40,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.*;
+import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.PosRot;
+import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Rot;
 
 public class FakeEntity_1_18_R1 extends FakeEntity {
 

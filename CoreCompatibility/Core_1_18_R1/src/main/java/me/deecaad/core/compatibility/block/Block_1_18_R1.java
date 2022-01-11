@@ -7,7 +7,6 @@ import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
-import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.block.Block;
@@ -58,38 +57,6 @@ public class Block_1_18_R1 implements BlockCompatibility {
     public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
         BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
         return new ClientboundBlockDestructionPacket(id, pos, crack);
-    }
-
-    @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, org.bukkit.Material mask, byte data) {
-
-        // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
-        // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
-        // Actually this wont even need to be used through compatibility, simple version check while calling those methods is enough
-
-        return getBlockMaskPacket(bukkitBlock, ((CraftBlockData) mask.createBlockData()).getState());
-    }
-
-    @Override
-    public @NotNull Object getBlockMaskPacket(@NotNull Block bukkitBlock, @NotNull org.bukkit.block.BlockState mask) {
-
-        // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
-        // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
-        // Actually this wont even need to be used through compatibility, simple version check while calling those methods is enough
-
-        return getBlockMaskPacket(bukkitBlock, ((CraftBlockState) mask).getHandle());
-    }
-
-    private ClientboundBlockUpdatePacket getBlockMaskPacket(Block bukkitBlock, BlockState mask) {
-
-        // TODO: change usage to player.sendBlockChange(location, blockdata) <- since 1_13_R2
-        // player.sendBlockChange(location, material, byte) <- 1_8_R3 - 1_12_R1
-        // Actually this wont even need to be used through compatibility, simple version check while calling those methods is enough
-
-        CraftBlock block = ((CraftBlock) bukkitBlock);
-        BlockPos position = block.getPosition();
-
-        return new ClientboundBlockUpdatePacket(position, mask);
     }
 
     @Override

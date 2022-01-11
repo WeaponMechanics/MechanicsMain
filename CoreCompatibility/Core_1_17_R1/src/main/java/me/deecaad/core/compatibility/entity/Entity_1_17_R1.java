@@ -7,7 +7,6 @@ import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 public class Entity_1_17_R1 implements EntityCompatibility {

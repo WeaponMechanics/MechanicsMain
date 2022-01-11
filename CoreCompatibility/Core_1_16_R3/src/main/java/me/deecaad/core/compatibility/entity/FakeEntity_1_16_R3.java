@@ -3,10 +3,10 @@ package me.deecaad.core.compatibility.entity;
 import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.*;
-import org.bukkit.*;
+import org.bukkit.EntityEffect;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlockState;
@@ -25,7 +25,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.minecraft.server.v1_16_R3.PacketPlayOutEntity.*;
+import static net.minecraft.server.v1_16_R3.PacketPlayOutEntity.PacketPlayOutEntityLook;
+import static net.minecraft.server.v1_16_R3.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
 
 public class FakeEntity_1_16_R3 extends FakeEntity {
 

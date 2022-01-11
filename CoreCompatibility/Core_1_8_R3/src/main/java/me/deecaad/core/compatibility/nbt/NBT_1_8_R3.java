@@ -1,6 +1,5 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.compatibility.v1_8_R3;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;

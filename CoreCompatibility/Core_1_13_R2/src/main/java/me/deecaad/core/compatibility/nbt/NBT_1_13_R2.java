@@ -1,7 +1,6 @@
 package me.deecaad.core.compatibility.nbt;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.compatibility.v1_13_R2;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;

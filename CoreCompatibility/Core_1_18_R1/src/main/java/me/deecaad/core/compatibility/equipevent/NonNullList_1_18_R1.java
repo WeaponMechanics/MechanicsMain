@@ -3,9 +3,9 @@ package me.deecaad.core.compatibility.equipevent;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.NonNullList;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 
 import java.lang.reflect.Field;

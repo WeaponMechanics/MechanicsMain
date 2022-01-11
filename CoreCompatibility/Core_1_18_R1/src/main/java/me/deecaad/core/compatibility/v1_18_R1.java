@@ -7,12 +7,11 @@ import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.Entity_1_18_R1;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.nbt.NBT_1_18_R1;
-
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;

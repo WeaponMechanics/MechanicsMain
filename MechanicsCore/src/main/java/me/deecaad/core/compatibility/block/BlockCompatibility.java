@@ -68,41 +68,6 @@ public interface BlockCompatibility {
     Object getCrackPacket(@Nonnull Block block, int crack, int id);
 
     /**
-     * Returns a block change packet for the given <code>bukkitBlock</code>.
-     * This packet will make the block <i>appear</i> as the given
-     * <code>mask</code> and <code>data</code>. The mask is removed if the
-     * player interacts with the block.
-     *
-     * <p>For more information, please see the protocol
-     * <a href="https://wiki.vg/Protocol#Block_Change">wiki</a>.
-     *
-     * @param bukkitBlock The non-null block to mask.
-     * @param mask        The non-null bukkit material for the mask.
-     * @param data        The non-negative byte data for material for legacy
-     *                    minecraft versions. For newer versions, this data
-     *                    should be ignored.
-     * @return The non-null block mask packet.
-     */
-    @Nonnull
-    Object getBlockMaskPacket(@Nonnull Block bukkitBlock, @Nonnull Material mask, @Nonnegative byte data);
-
-    /**
-     * Returns a block change packet for the given <code>bukkitBlock</code>.
-     * This packet will make the block <i>appear</i> as the given
-     * <code>mask</code>. The mask is removed if the player interacts with the
-     * block.
-     *
-     * <p>For more information, please see the protocol
-     * <a href="https://wiki.vg/Protocol#Block_Change">wiki</a>.
-     *
-     * @param bukkitBlock The non-null block to mask.
-     * @param mask        The non-null state to mask the block as.
-     * @return The non-null block mask packet.
-     */
-    @Nonnull
-    Object getBlockMaskPacket(@Nonnull Block bukkitBlock, @Nonnull BlockState mask);
-
-    /**
      * Returns a list of multi block change packets that masks all of the given
      * <code>blocks</code>. This packet will make the block <i>appear</i> as
      * the given <code>mask</code>. The <code>data</code> is used in legacy
