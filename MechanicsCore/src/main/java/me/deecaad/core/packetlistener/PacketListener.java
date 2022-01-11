@@ -288,7 +288,7 @@ public abstract class PacketListener {
         // for fast getting
         if (channel == null) {
             CompatibilityAPI.getCompatibility().getEntityPlayer(player);
-            Object nmsPlayer = CompatibilityAPI.getEntityCompatibility().getNMSEntity(player);
+            Object nmsPlayer = CompatibilityAPI.getCompatibility().getEntityPlayer(player);
             Object connection = ReflectionUtil.invokeField(playerConnectionField, nmsPlayer);
             Object manager = ReflectionUtil.invokeField(networkManagerField, connection);
 

@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.compatibility.entity.FallingBlockWrapper;
 import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
 import me.deecaad.core.file.Serializer;
@@ -20,7 +19,6 @@ import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
 import me.deecaad.weaponmechanics.weapon.projectile.RemoveOnBlockCollisionProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
@@ -29,19 +27,16 @@ import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -507,23 +502,5 @@ public class Explosion implements Serializer<Explosion> {
 
         return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
                 isKnockback, clusterBomb, airStrike, flashbang, mechanics);
-    }
-
-    private static class FallingBlockData implements Supplier<FallingBlockWrapper> {
-
-        private final Vector velocity;
-        private final BlockState state;
-        private final Location loc;
-
-        FallingBlockData(Vector velocity, BlockState state, Location loc) {
-            this.velocity = velocity;
-            this.state = state;
-            this.loc = loc;
-        }
-
-        @Override
-        public FallingBlockWrapper get() {
-            return CompatibilityAPI.getEntityCompatibility().createFallingBlock(loc, state, velocity, 200);
-        }
     }
 }
