@@ -29,7 +29,6 @@ public class WeaponReloadEvent extends WeaponEvent {
     }
 
     public void setReloadTime(int reloadTime) {
-
         this.reloadTime = reloadTime;
     }
 

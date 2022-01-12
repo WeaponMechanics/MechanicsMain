@@ -9,7 +9,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import me.deecaad.weaponmechanics.utils.SoundUtil;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadSound;
 import org.bukkit.Location;
@@ -188,7 +187,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
                 }
 
                 try {
-                    Sound sound = SoundUtil.fromStringToSound(stringSound);
+                    Sound sound = Sound.valueOf(stringSound);
                     soundList.add(new BukkitSound(sound, volume, pitch, delay, noise));
                 } catch (IllegalArgumentException e) {
                     debug.log(LogLevel.ERROR,
