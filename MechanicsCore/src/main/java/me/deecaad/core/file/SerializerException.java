@@ -30,8 +30,16 @@ public class SerializerException extends Exception {
 
     public void log(Debugger debug) {
 
+        // Sometimes a class will end with 'Serializer' in its name, like
+        // 'ColorSerializer'. This information may be confusing to some people,
+        // so we can strip it away here.
+        String simple = serializer.getClass().getSimpleName();
+        int index = simple.indexOf("Serializer");
+        if (index > 0)
+            simple = simple.substring(0, index);
+
         LinkedList<String> collected = new LinkedList<>();
-        collected.add("A mistake was found in your configurations when making '" + serializer.getClass().getSimpleName() + "'");
+        collected.add("A mistake was found in your configurations when making '" + simple + "'");
         collected.addAll(Arrays.asList(messages));
         collected.add(location);
         collected.add(""); // Add an empty string for blank line between errors
@@ -60,6 +68,17 @@ public class SerializerException extends Exception {
     public static String didYouMean(String input, Iterable<String> options) {
         String expected = StringUtil.didYouMean(input, options);
         return "Did you mean to use '" + expected + "' instead of '" + input + "'?";
+    }
+
+    public static String examples(String... examples) {
+        StringBuilder builder = new StringBuilder("'");
+
+        for (String str : examples)
+            builder.append(str).append("', ");
+
+        builder.setLength(builder.length() - 2);
+
+        return "Example values: " + builder;
     }
 
     public static String possibleValues(Iterable<String> options, int count) {

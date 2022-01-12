@@ -12,6 +12,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -173,8 +174,10 @@ public class AirStrike implements Serializer<AirStrike> {
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
 
-                    (getProjectile() == null ? projectile.cloneSettingsAndShoot(location, new Vector(0, 0, 0)) :
-                            getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("airstrike-bomb", 1);
+                    (
+                            getProjectile() == null
+                                    ? projectile.clone(location, new Vector(0, 0, 0))
+                                    : getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("airstrike-bomb", 1);
                 }
 
                 if (++count >= loops) {
@@ -191,7 +194,7 @@ public class AirStrike implements Serializer<AirStrike> {
 
     @Override
     @Nonnull
-    public AirStrike serialize(SerializeData data) throws SerializerException {
+    public @NotNull AirStrike serialize(SerializeData data) throws SerializerException {
 
         int min = data.of("Minimum_Bombs").assertExists().assertPositive().get();
         int max = data.of("Maximum_Bombs").assertExists().assertPositive().get();

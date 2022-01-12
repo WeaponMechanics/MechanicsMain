@@ -7,6 +7,7 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.weapon.shoot.AModifyWhen;
 import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -31,7 +32,7 @@ public class ModifySpreadWhen extends AModifyWhen {
 
     @Override
     @Nonnull
-    public ModifySpreadWhen serialize(SerializeData data) throws SerializerException {
+    public @NotNull ModifySpreadWhen serialize(SerializeData data) throws SerializerException {
         NumberModifier always   = getModifierHandler(data.of("Always"));
         NumberModifier zooming  = getModifierHandler(data.of("Zooming"));
         NumberModifier sneaking = getModifierHandler(data.of("Sneaking"));

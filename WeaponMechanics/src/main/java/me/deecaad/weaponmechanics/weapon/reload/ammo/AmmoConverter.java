@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -23,7 +24,7 @@ public class AmmoConverter extends WeaponConverter {
     }
 
     @Override
-    public AmmoConverter serialize(SerializeData data) throws SerializerException {
+    public @NotNull AmmoConverter serialize(SerializeData data) throws SerializerException {
         boolean type = data.of("Type").assertType(Boolean.class).get(false);
         boolean name = data.of("Name").assertType(Boolean.class).get(false);
         boolean lore = data.of("Lore").assertType(Boolean.class).get(false);

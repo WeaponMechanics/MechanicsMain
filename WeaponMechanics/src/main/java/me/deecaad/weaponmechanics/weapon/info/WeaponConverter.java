@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -108,7 +109,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     }
 
     @Override
-    public WeaponConverter serialize(SerializeData data) throws SerializerException {
+    public @NotNull WeaponConverter serialize(SerializeData data) throws SerializerException {
         boolean type = data.of("Type").assertType(Boolean.class).get(false);
         boolean name = data.of("Name").assertType(Boolean.class).get(false);
         boolean lore = data.of("Lore").assertType(Boolean.class).get(false);

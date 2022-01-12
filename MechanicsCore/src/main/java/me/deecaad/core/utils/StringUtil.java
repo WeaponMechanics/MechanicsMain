@@ -253,6 +253,18 @@ public final class StringUtil {
         return String.join("_", camel.split("(?=[A-Z])")).toLowerCase();
     }
 
+    public static String upperSnakeCase(String snake) {
+        StringBuilder builder = new StringBuilder(snake.length());
+        String[] split = snake.split("_");
+        for (String str : split)
+            builder.append(Character.toUpperCase(str.charAt(0))).append(str.substring(1)).append('_');
+
+        if (split.length != 0)
+            builder.setLength(builder.length() - 1);
+
+        return builder.toString();
+    }
+
     /**
      * Translates a snake case {@link String} to a user readable
      * {@link String}.

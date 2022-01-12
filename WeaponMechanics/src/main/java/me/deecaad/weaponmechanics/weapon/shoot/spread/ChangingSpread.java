@@ -6,6 +6,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -66,7 +67,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     }
 
     @Override
-    public ChangingSpread serialize(SerializeData data) throws SerializerException {
+    public @NotNull ChangingSpread serialize(SerializeData data) throws SerializerException {
         ModifySpreadWhen increaseChangeWhen = data.of("Increase_Change_When").assertExists().serialize(ModifySpreadWhen.class);
         double startingAmount = data.of("Starting_Amount").get(0.0) * 0.01;
 

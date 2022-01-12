@@ -8,6 +8,7 @@ import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -76,7 +77,7 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
 
     @Override
     @Nonnull
-    public ListHolder<T> serialize(SerializeData data) throws SerializerException {
+    public @NotNull ListHolder<T> serialize(SerializeData data) throws SerializerException {
         boolean allowAny = data.of(".Allow_Any").get(false);
 
         Map<T, Double> mapList = new HashMap<>();

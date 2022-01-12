@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -8,7 +10,9 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -89,21 +93,14 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     }
 
     @Override
-    public ClusterBomb serialize(File file, ConfigurationSection configurationSection, String path) {
-        int bombs = configurationSection.getInt(path + ".Number_Of_Bombs", -1);
+    @Nonnull
+    public ClusterBomb serialize(SerializeData data) throws SerializerException {
+        int bombs = data.of("Number_Of_Bombs").assertExists().assertPositive().get();
+        Projectile projectileSettings = data.of("Split_Projectile").serialize(Projectile.class);
+        double speed = data.of("Projectile_Speed").assertPositive().get(30.0) / 20.0;
+        int splits = data.of("Number_Of_Splits").assertPositive().get(1);
+        Detonation detonation = data.of("Detonation").serialize(Detonation.class);
 
-        if (bombs == -1) {
-            return null;
-        }
-
-        debug.validate(bombs > 0, "Number_Of_Bombs must be a positive number!");
-
-        Projectile projectileSettings = new Projectile().serialize(file, configurationSection, path + ".Split_Projectile");
-        double speed = configurationSection.getDouble(path + ".Projectile_Speed", 15);
-        int splits = configurationSection.getInt(path + ".Number_Of_Splits", 1);
-
-        Detonation detonation = new Detonation().serialize(file, configurationSection, path + ".Detonation");
-
-        return new ClusterBomb(projectileSettings, speed / 10.0, splits, bombs, detonation);
+        return new ClusterBomb(projectileSettings, speed, splits, bombs, detonation);
     }
 }

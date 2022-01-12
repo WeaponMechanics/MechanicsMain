@@ -1,13 +1,16 @@
 package me.deecaad.core.file.serializers;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerMissingKeyException;
+import me.deecaad.core.file.SerializerRangeException;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Color;
-import org.bukkit.configuration.ConfigurationSection;
 
-import java.io.File;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -16,82 +19,83 @@ import static me.deecaad.core.MechanicsCore.debug;
 public class ColorSerializer implements Serializer<Color> {
 
     @Override
-    public String getKeyword() {
-        return "Color";
+    @Nonnull
+    public Color serialize(SerializeData data) throws SerializerException {
+
+        String input = data.config.getString(data.key);
+        if (input == null || input.isEmpty())
+            throw new SerializerMissingKeyException(this, "Color", StringUtil.foundAt(data.file, data.key));
+
+        return fromString(data, input.trim());
     }
 
-    @Override
-    public Color serialize(File file, ConfigurationSection configurationSection, String path) {
+    public Color fromString(SerializeData data, String input) throws SerializerException {
 
-        String data = configurationSection.getString(path);
-        if (data == null) return null;
-
-        return fromString(file, configurationSection, path, data);
-    }
-
-    public Color fromString(File file, ConfigurationSection configurationSection, String path, String data) {
-        Color color;
-
-        try {
-            if (data.startsWith("0x")) {
-                String subString = data.substring(2);
-                if (subString.length() != 6) {
-                    debug.warn("Hex strings are usually 6 digits for colors... Found: " + subString,
-                            StringUtil.foundAt(file, path));
-                }
-                int rgb = Integer.parseInt(subString, 16);
-                color = Color.fromRGB(rgb);
-
-            } else if (data.startsWith("#")) {
-                String subString = data.substring(1);
-                if (subString.length() != 6) {
-                    debug.warn("Hex strings are usually 6 digits for colors... Found: " + subString,
-                            StringUtil.foundAt(file, path));
-                }
-                int rgb = Integer.parseInt(subString, 16);
-                color = Color.fromRGB(rgb);
-
-            } else if (StringUtil.countChars('-', data) == 2) {
-                String[] split = data.split("-");
-                int r = Integer.parseInt(split[0]);
-                int g = Integer.parseInt(split[1]);
-                int b = Integer.parseInt(split[2]);
-
-                if (r < 0 || r > 255) {
-                    debug.error("Invalid number for red color. Number should be in range 0-255. Found: " + r,
-                            StringUtil.foundAt(file, path));
-                    return null;
-                } else if (g < 0 || g > 255) {
-                    debug.error("Invalid number for green color. Number should be in range 0-255. Found: " + g,
-                            StringUtil.foundAt(file, path));
-                    return null;
-                } else if (b < 0 || b > 255) {
-                    debug.error("Invalid number for blue color. Number should be in range 0-255. Found: " + b,
-                            StringUtil.foundAt(file, path));
-                    return null;
-                }
-
-                color = Color.fromRGB(r, g, b);
-
-            } else {
-                Optional<ColorType> optional = EnumUtil.getIfPresent(ColorType.class, data.trim().toUpperCase());
-
-                if (optional.isPresent()) {
-                    color = optional.get().color;
-                } else {
-                    debug.error("Can't figure out which color to use for input: " + data,
-                            "Did you mean " + StringUtil.didYouMean(data, EnumUtil.getOptions(ColorType.class)) + "?",
-                            StringUtil.foundAt(file, path));
-                    return null;
-                }
+        // Follows the format, '0xRRGGBB' and translates each character as a
+        // hex character. While '0xRR' is technically a valid hex code for red,
+        // this is actually treated as an error (To help avoid confusion).
+        if (input.startsWith("0x")) {
+            String subString = input.substring(2);
+            if (subString.length() != 6) {
+                data.throwException(null, "Hex strings should have 6 digits",
+                        SerializerException.forValue(input),
+                        SerializerException.examples("0xFF00BB", "0x123456", "0x111111"));
             }
-        } catch (NumberFormatException ex) {
-            debug.error("Found an invalid number or hex string in configurations: " + ex.getMessage(),
-                    StringUtil.foundAt(file, path));
-            return null;
+            int rgb = Integer.parseInt(subString, 16);
+            return Color.fromRGB(rgb);
         }
 
-        return color;
+        // Follows the format, '#RRGGBB' and translates each character as a
+        // hex character. While '#RR' is technically a valid hex code for red,
+        // this is actually treated as an error (To help avoid confusion).
+        else if (input.startsWith("#")) {
+            String subString = input.substring(1);
+            if (subString.length() != 6) {
+                data.throwException(null, "Hex strings should have 6 digits",
+                        SerializerException.forValue(input),
+                        SerializerException.examples("#FF00BB", "#123456", "#111111"));
+            }
+            int rgb = Integer.parseInt(subString, 16);
+            return Color.fromRGB(rgb);
+        }
+
+        // Follows the format, 'R-G-B' and translates each character as a byte.
+        else if (StringUtil.countChars('-', input) == 2) {
+            String[] split = input.split("-");
+            int r = Integer.parseInt(split[0]);
+            int g = Integer.parseInt(split[1]);
+            int b = Integer.parseInt(split[2]);
+
+            if (r < 0 || r > 255)
+                throw new SerializerRangeException(this, 0, r, 255, StringUtil.foundAt(data.file, data.key));
+            else if (g < 0 || g > 255)
+                throw new SerializerRangeException(this, 0, g, 255, StringUtil.foundAt(data.file, data.key));
+            else if (b < 0 || b > 255)
+                throw new SerializerRangeException(this, 0, b, 255, StringUtil.foundAt(data.file, data.key));
+
+            return Color.fromRGB(r, g, b);
+        }
+
+        // Allows for primitive color usage, like 'RED', 'BLUE', or 'GREEN'.
+        else {
+            Optional<ColorType> optional = EnumUtil.getIfPresent(ColorType.class, input.toUpperCase());
+
+            if (optional.isPresent()) {
+                return optional.get().color;
+            }
+
+            // This occurs when EVERY color format fails, so we should try to
+            // provide a lot of information to help the user.
+            else {
+                data.throwException(null, SerializerException.forValue(input),
+                        SerializerException.didYouMean(input, ColorType.class),
+                        "Valid Formats: '#RRGGBB', 'r-g-b', 'RED'",
+                        SerializerException.examples("#AA0022", "255-100-0", "RED", "#444411", "BLUE", "0-0-255")
+                        );
+            }
+        }
+
+        throw new InternalError("Reached unreachable code");
     }
 
     public enum ColorType {

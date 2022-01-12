@@ -1,10 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +47,8 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     }
 
     @Override
-    public DamageDropoff serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public DamageDropoff serialize(File file, ConfigurationSection configurationSection, String path) throws SerializerException {
         List<String> strings = configurationSection.getStringList(path);
         TreeMap<Double, Double> distances = new TreeMap<>();
 

@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -152,7 +153,7 @@ public class Bouncy implements Serializer<Bouncy> {
 
     @Override
     @Nonnull
-    public Bouncy serialize(SerializeData data) throws SerializerException {
+    public @NotNull Bouncy serialize(SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
