@@ -464,8 +464,6 @@ public class SerializeData {
                 return this;
 
             try {
-
-                // Silently strips away float point data (without exception)
                 double num = (double) value;
                 if (num < min || num > max)
                     throw new SerializerRangeException(serializer, min, num, max, getLocation());
@@ -477,7 +475,7 @@ public class SerializeData {
             return this;
         }
 
-        private String getLocation() {
+        public String getLocation() {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key);
             } else {
@@ -525,12 +523,25 @@ public class SerializeData {
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
         public <T extends Serializer<T>> T serialize(@Nonnull Class<T> serializerClass) throws SerializerException {
+            return serialize(ReflectionUtil.newInstance(serializerClass));
+        }
+
+        /**
+         * Handles nested serializers. Uses the given serializer to serialize
+         * an object from this relative key. Returns null when the key hasn't
+         * been explicitly defined.
+         *
+         * @param serializer The non-null serializer instance.
+         * @param <T> The serializer type.
+         * @return The serialized object.
+         * @throws SerializerException If there is a mistake in config found during serialization.
+         */
+        public <T extends Serializer<T>> T serialize(@Nonnull Serializer<T> serializer) throws SerializerException {
 
             // Use assertExists for required keys
             if (!config.contains(relative))
                 return null;
 
-            T serializer = ReflectionUtil.newInstance(serializerClass);
             SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
             return serializer.serialize(data);
         }

@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import org.bukkit.Material;
@@ -9,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 public class Bouncy implements Serializer<Bouncy> {
@@ -148,16 +151,19 @@ public class Bouncy implements Serializer<Bouncy> {
     }
 
     @Override
-    public Bouncy serialize(File file, ConfigurationSection configurationSection, String path) {
-        ListHolder<Material> blocks = new ListHolder<Material>().serialize(file, configurationSection, path + ".Blocks", Material.class);
-        ListHolder<EntityType> entities = new ListHolder<EntityType>().serialize(file, configurationSection, path + ".Entities", EntityType.class);
+    @Nonnull
+    public Bouncy serialize(SerializeData data) throws SerializerException {
+        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
-        if (blocks == null && entities == null) return null;
+        if (blocks == null && entities == null) {
+            data.throwException("'Bouncy' requires at least one of 'Blocks' or 'Entities'");
+        }
 
-        int maximumBounceAmount = configurationSection.getInt(path + ".Maximum_Bounce_Amount", 1);
+        int maximumBounceAmount = data.of("Maximum_Bounce_Amount").assertPositive().get(1);
 
-        ListHolder<Material> rollingBlocks = new ListHolder<Material>().serialize(file, configurationSection, path + ".Rolling.Blocks", Material.class);
-        double requiredMotionToStartRolling = configurationSection.getDouble(path + ".Rolling.Required_Motion_To_Start_Rolling", 3) * 0.1;
+        ListHolder<Material> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Material.class));
+        double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertPositive().get(3) * 0.05;
 
         return new Bouncy(maximumBounceAmount, blocks, entities, requiredMotionToStartRolling, rollingBlocks);
     }
