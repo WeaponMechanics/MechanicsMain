@@ -73,6 +73,16 @@ public class SerializeData {
         return new SerializeData(serializer, file, key.toString(), config);
     }
 
+    public ConfigAccessor of() {
+        String[] split = key.split("\\.");
+        StringBuilder key = new StringBuilder();
+
+        for (int i = 0; i < split.length - 2; i++)
+            key.append(split[i]);
+
+        return new SerializeData(serializer, file, key.toString(), config).of(split[split.length - 1]);
+    }
+
     /**
      * Creates a {@link ConfigAccessor} which accesses the data (stored in
      * config) at <code>this.key + "." + relative</code>. The returned accessor
@@ -551,8 +561,17 @@ public class SerializeData {
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
-        public <T extends Serializer<T>> T serialize(@Nonnull Serializer<T> serializer) throws SerializerException {
+        public <T extends Serializer<T>> T serialize(@Nonnull T serializer) throws SerializerException {
 
+            // Use assertExists for required keys
+            if (!config.contains(relative))
+                return null;
+
+            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
+            return serializer.serialize(data);
+        }
+
+        public <T> T serializeNonStandardSerializer(@Nonnull Serializer<T> serializer) throws SerializerException {
             // Use assertExists for required keys
             if (!config.contains(relative))
                 return null;

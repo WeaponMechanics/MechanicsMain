@@ -13,9 +13,9 @@ import java.util.LinkedList;
 
 public class SerializerException extends Exception {
 
-    private final String serializerName;
+    private String serializerName;
     private String[] messages;
-    private final String location;
+    private String location;
 
     public SerializerException(String serializerName, String[] messages, String location) {
         this.serializerName = serializerName;
@@ -41,6 +41,10 @@ public class SerializerException extends Exception {
             simple = simple.substring(0, index);
 
         serializerName = simple;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public void log(Debugger debug) {

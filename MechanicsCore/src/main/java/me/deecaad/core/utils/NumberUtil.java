@@ -133,6 +133,59 @@ public final class NumberUtil {
         }
     }
 
+    // %50
+    // 50%
+    // 0.50
+    // 0.5
+    // 50
+
+    // true
+    // hi
+    public static double parseChance(Object value) throws Exception {
+        double chance;
+
+        // Handle percentages. This is the officially supported method of
+        // parsing a chance. Users may use decimals as well.
+        if (value.toString().contains("%")) {
+            String str = value.toString().trim();
+
+            // We should account for %50 and 50%, since it can be easy to mix
+            // those up.
+            if (str.startsWith("%")) {
+                chance = Double.parseDouble(str.substring(1)) / 100.0;
+            } else if (str.endsWith("%")) {
+                chance = Double.parseDouble(str.substring(0, str.length() - 1)) / 100.0;
+            } else {
+                throw new Exception("Input had a '%' in the middle when it should have been on the end");
+            }
+        }
+
+        // Specifically look for values like 40 and 80. This shouldn't be
+        // officially supported, but adding it will probably help avoid some
+        // confusion
+        else if (value instanceof Integer) {
+            chance = ((int) value) / 100.0;
+        }
+
+        // Consider all other numbers to be decimals
+        else if (value instanceof Number) {
+            chance = (double) value;
+        }
+
+        // After checking for numbers, and percentages, there is nothing else
+        // we can do except yell at the user for being stupid.
+        else {
+            throw new Exception("What the fuck are you doing");
+        }
+
+
+        if (chance < 0.0 || chance > 1.0) {
+            throw new Exception("Chance should be a number between '0.0' and '1.0'. Use '0.50' OR '50%' for a 50% chance");
+        }
+
+        return chance;
+    }
+
     /**
      * Shorthand for using {@link Math#min(int, int)} and
      * {@link Math#max(int, int)}. The resulting number is less than or equal

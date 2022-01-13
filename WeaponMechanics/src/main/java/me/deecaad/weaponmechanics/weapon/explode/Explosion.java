@@ -8,6 +8,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerMissingKeyException;
+import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
@@ -31,14 +32,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -393,7 +392,8 @@ public class Explosion implements Serializer<Explosion> {
     @Nonnull
     public Explosion serialize(SerializeData data) throws SerializerException {
 
-
+        // We don't need to get the values here since we add them to the map
+        // later. We should still make sure these are positive numbers, though.
         data.of("Explosion_Type_Data.Yield").assertPositive();
         data.of("Explosion_Type_Data.Angle").assertPositive();
         data.of("Explosion_Type_Data.Height").assertPositive();
@@ -408,7 +408,8 @@ public class Explosion implements Serializer<Explosion> {
 
         Map<String, Object> typeData = data.config.getConfigurationSection("Explosion_Type_Data").getValues(false);
 
-        // Rays is a default value, so we don't need to check if typeData.contains("Rays").
+        // We don't want to require users to define the "Rays" option, since
+        // most people will not understand hat it means. Vanilla MC uses 16.
         if (!typeData.containsKey("Rays"))
             typeData.put("Rays", 16);
 
@@ -418,62 +419,38 @@ public class Explosion implements Serializer<Explosion> {
         try {
             exposure = ExposureFactory.getInstance().get(data.config.getString("Explosion_Exposure", "DEFAULT"), typeData);
             shape = ShapeFactory.getInstance().get(data.config.getString("Explosion_Shape", "DEFAULT"), typeData);
-        } catch (Factory.FactoryException e) {
-            data.throwException("Explosion_Type_Data",
-                    e.getMessage(),
-                    "You failed to specify the " + e.getMissingArgument(),
-                    "You instead specified: " + e.getValues());
+        } catch (SerializerException ex) {
+
+            // We need to manually set the file and path, since the Factory
+            // class does not get enough information to fill it.
+            ex.setLocation(data.of().getLocation());
+            throw ex;
         }
 
-        if (exposure == null) {
-            debug.error("Invalid explosion exposure \"" + section.getString("Explosion_Exposure", "DEFAULT") + "\"",
-                    "Did you mean: " + StringUtil.didYouMean(section.getString("Explosion_Exposure", "DEFAULT"), ExposureFactory.getInstance().getOptions()),
-                    "Valid Options: " + ExposureFactory.getInstance().getOptions(),
-                    "Found at: " + StringUtil.foundAt(file, path + ".Explosion_Exposure"));
-            return null;
-        } else if (shape == null) {
-            debug.error("Invalid explosion shape \"" + section.getString("Explosion_Shape") + "\"",
-                    "Did You Mean: " + StringUtil.didYouMean(section.getString("Explosion_Shape", "DEFAULT"), ShapeFactory.getInstance().getOptions()),
-                    "Valid Options: " + ShapeFactory.getInstance().getOptions(),
-                    "Found at: " + StringUtil.foundAt(file, path + ".Explosion_Shape"));
-            return null;
-        }
+        BlockDamage blockDamage = data.of("Block_Damage").serialize(BlockDamage.class);
+        RegenerationData regeneration = data.of("Regeneration").serialize(RegenerationData.class);
 
-        // Determine which blocks will be broken and how they will be regenerated
-        BlockDamage blockDamage = null;
-        if (section.contains("Block_Damage")) {
-            blockDamage = new BlockDamage().serialize(file, configurationSection, path + ".Block_Damage");
-        }
-        RegenerationData regeneration = null;
-        if (section.contains("Regeneration")) {
-            regeneration = new RegenerationData().serialize(file, configurationSection, path + ".Regeneration");
-        }
-
-        // Determine when the projectile should explode
-        Detonation detonation = new Detonation().serialize(file, configurationSection, path + ".Detonation");
-        if (detonation == null) {
-            debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("detonation"),
-                    StringUtil.foundAt(file, path + ".Detonation"),
-                    "It didn't exist, or was wrongly configured");
-            return null;
-        }
-
-        double blockChance = section.getDouble("Block_Damage.Spawn_Falling_Block_Chance");
-        boolean isKnockback = !section.getBoolean("Disable_Vanilla_Knockback");
-        debug.validate(blockChance >= 0.0 && blockChance <= 1.0, "Falling block spawn chance should be [0, 1]",
-                StringUtil.foundAt(file, path + "Block_Damage.Spawn_Falling_Block_Chance"));
-
-        // A weird check, but I (somehow) made this mistake. Thought it was worth checking for
+        // This check determines if the player tried to use Block Regeneration
+        // when blocks cannot even be broken in the first place. Easy mistake
+        // to make when copying/pasting and deleting chunks of config.
         if ((blockDamage == null || !blockDamage.isBreakBlocks()) && regeneration != null) {
-            debug.error("Tried to use block regeneration for an explosion but blocks will not be broken.",
-                    "This is almost certainly a misconfiguration!", StringUtil.foundAt(file, path));
+            data.throwException("Found an Explosion that defines 'Regeneration' when 'Block_Damage' cannot break blocks!",
+                    "This happens when 'Block_Damage.Break_Blocks: false' or when 'Block_Damage' was not added AND you tried to add 'Regeneration'");
         }
 
-        ClusterBomb clusterBomb = new ClusterBomb().serialize(file, configurationSection, path + ".Cluster_Bomb");
-        AirStrike airStrike = new AirStrike().serialize(file, configurationSection, path + ".Airstrike");
-        Flashbang flashbang = new Flashbang().serialize(file, configurationSection, path + ".Flashbang");
-        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics");
+        // This is a required argument to determine when a projectile using this
+        // explosion should explode (onEntityHit, onBlockHit, after delay, etc.)
+        Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class);
+
+        Double blockChance = data.of("Block_Damage.Spawn_Falling_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
+        boolean isKnockback = !data.of("Disable_Vanilla_Knockback").assertType(Boolean.class).get(false);
+
+        // These 4 options are all nullable and not required for an explosion
+        // to occur. It is very interesting when they are all used together :p
+        ClusterBomb clusterBomb = data.of("Cluster_Bomb").serialize(ClusterBomb.class);
+        AirStrike airStrike = data.of("Airstrike").serialize(AirStrike.class);
+        Flashbang flashbang = data.of("Flashbang").serialize(Flashbang.class);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
 
         return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
                 isKnockback, clusterBomb, airStrike, flashbang, mechanics);
