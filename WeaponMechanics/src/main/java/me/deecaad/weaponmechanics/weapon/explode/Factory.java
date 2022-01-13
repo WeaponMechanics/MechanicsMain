@@ -1,7 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerMissingKeyException;
+import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -10,13 +15,15 @@ import java.util.Set;
 public class Factory<T> {
 
     private final Map<String, Arguments> map;
+    private final Class<T> clazz;
 
     /**
      * Only subclasses should be able to instantiate this class. It does not
      * make sense to instantiate a factory otherwise.
      */
-    protected Factory() {
-        map = new HashMap<>();
+    protected Factory(@Nonnull Class<T> clazz) {
+        this.map = new HashMap<>();
+        this.clazz = clazz;
     }
 
     /**
@@ -34,15 +41,17 @@ public class Factory<T> {
      * @param arguments The non-null map of arguments.
      * @return Instantiated object.
      * @throws InternalError If no "good" constructor exists.
-     * @throws FactoryException If there were missing arguments.
+     * @throws FactoryException If there were missing arguments or if 'key' is invalid.
      * @throws ClassCastException If a given argument is an invalid type.
      */
-    public final T get(String key, Map<String, Object> arguments) {
+    public final T get(String key, Map<String, Object> arguments) throws SerializerException {
         key = key.trim().toUpperCase(Locale.ROOT);
         Arguments args = map.get(key);
 
-        if (args == null)
-            return null;
+        if (args == null) {
+            String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
+            throw new SerializerOptionsException(name, clazz.getSimpleName(), getOptions(), key, "FILL_ME");
+        }
 
         // Pull only the values that we need from the mapped arguments. The
         // order of the arguments will match the order defined by the
@@ -52,8 +61,11 @@ public class Factory<T> {
             String argument = args.arguments[i];
             Class<?> clazz = args.argumentTypes[i];
 
-            if (!arguments.containsKey(argument))
+            if (!arguments.containsKey(argument)) {
+                String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
+                throw new SerializerMissingKeyException(name, argument, "FILL_ME");
                 throw new FactoryException(this, key, argument, arguments);
+            }
 
             objects[i] = clazz == null
                     ? arguments.get(argument)

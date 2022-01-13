@@ -68,7 +68,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
 
     @Override
     public @NotNull ChangingSpread serialize(SerializeData data) throws SerializerException {
-        ModifySpreadWhen increaseChangeWhen = data.of("Increase_Change_When").assertExists().serialize(ModifySpreadWhen.class);
+        ModifySpreadWhen increaseChangeWhen = (ModifySpreadWhen) data.of("Increase_Change_When").assertExists().serialize(new ModifySpreadWhen());
         double startingAmount = data.of("Starting_Amount").get(0.0) * 0.01;
 
         Bounds bounds = data.config.contains(data.key + ".Bounds") ? getBounds(data.move("Bounds")) : null;

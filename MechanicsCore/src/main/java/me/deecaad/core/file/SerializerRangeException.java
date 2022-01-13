@@ -4,8 +4,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class SerializerRangeException extends SerializerException {
 
+    public SerializerRangeException(@NotNull String name, int min, int actual, int max, @NotNull String location) {
+        super(name, getMessages(min, actual, max), location);
+    }
+
     public SerializerRangeException(@NotNull Serializer<?> serializer, int min, int actual, int max, @NotNull String location) {
         super(serializer, getMessages(min, actual, max), location);
+    }
+
+    public SerializerRangeException(@NotNull String name, double min, double actual, double max, @NotNull String location) {
+        super(name, getMessages(min, actual, max), location);
     }
 
     public SerializerRangeException(@NotNull Serializer<?> serializer, double min, double actual, double max, @NotNull String location) {

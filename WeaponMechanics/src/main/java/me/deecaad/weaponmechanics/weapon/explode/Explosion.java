@@ -4,7 +4,10 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
 import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.utils.*;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
@@ -387,67 +390,39 @@ public class Explosion implements Serializer<Explosion> {
     }
 
     @Override
-    public Explosion serialize(File file, ConfigurationSection configurationSection, String path) {
-        ConfigurationSection section = configurationSection.getConfigurationSection(path);
-        assert section != null;
+    @Nonnull
+    public Explosion serialize(SerializeData data) throws SerializerException {
 
-        // Get all possibly applicable data for the explosions,
-        // and warn users for "odd" values
-        ConfigurationSection typeData = section.getConfigurationSection("Explosion_Type_Data");
-        if (typeData == null) {
-            debug.log(LogLevel.ERROR, "Missing Explosion_Type_Data, a required argument.", StringUtil.foundAt(file, path));
-            return null;
+
+        data.of("Explosion_Type_Data.Yield").assertPositive();
+        data.of("Explosion_Type_Data.Angle").assertPositive();
+        data.of("Explosion_Type_Data.Height").assertPositive();
+        data.of("Explosion_Type_Data.Width").assertPositive();
+        data.of("Explosion_Type_Data.Radius").assertPositive();
+        data.of("Rays").assertPositive();
+
+        // We always want at least one.
+        if (!data.config.contains("Explosion_Type_Data")) {
+            throw new SerializerMissingKeyException(data.serializer, "Explosion_Type_Data", data.of("Explosion_Type_Data").getLocation());
         }
-        double yield = typeData.getDouble("Yield", 3.0);
-        double angle = typeData.getDouble("Angle", 0.5);
-        double depth = typeData.getDouble("Depth", -3.0);
-        double height = typeData.getDouble("Height", 3.0);
-        double width = typeData.getDouble("Width", 3.0);
-        double radius = typeData.getDouble("Radius", 3.0);
-        int rays = typeData.getInt("Rays", 16);
 
-        String found = StringUtil.foundAt(file, path + ".Explosion_Type_Data.");
-
-        debug.validate(yield > 0, "Explosion Yield should be a positive number!", found + "Yield");
-        debug.validate(angle > 0, "Explosion Angle should be a positive number!", found + "Angle");
-        debug.validate(height > 0, "Explosion Height should be a positive number!", found + "Depth");
-        debug.validate(width > 0, "Explosion Width should be a positive number!", found + "Width");
-        debug.validate(radius > 0, "Explosion Radius should be a positive number!", found + "Height");
-        debug.validate(rays > 0, "Explosion Rays should be a positive number!", found + "Rays");
-
-        // We only want to turn users about big numbers, since users MIGHT
-        // want to use these numbers.
-        debug.validate(LogLevel.WARN, yield < 50, StringUtil.foundLarge(yield, file, path + "Explosion_Type_Data.Yield"));
-        debug.validate(LogLevel.WARN, angle < 50, StringUtil.foundLarge(angle, file, path + "Explosion_Type_Data.Angle"));
-        debug.validate(LogLevel.WARN, height < 50, StringUtil.foundLarge(height, file, path + "Explosion_Type_Data.Height"));
-        debug.validate(LogLevel.WARN, width < 50, StringUtil.foundLarge(width, file, path + "Explosion_Type_Data.Width"));
-        debug.validate(LogLevel.WARN, radius < 50, StringUtil.foundLarge(radius, file, path + "Explosion_Type_Data.Radius"));
-        debug.validate(LogLevel.WARN, rays < 50, StringUtil.foundLarge(rays, file, path + "Explosion_Type_Data.Rays"));
-
-        // We want to ensure each value in the section is their expected type.
-        // For example, sometimes a configuration section will hold a value as
-        // an int when we would expect it to be a double.
-        if (typeData.contains("Yield", true)) typeData.set("Yield", yield);
-        if (typeData.contains("Angle", true)) typeData.set("Angle", angle);
-        if (typeData.contains("Depth", true)) typeData.set("Depth", -Math.abs(depth));
-        if (typeData.contains("Height", true)) typeData.set("Height", height);
-        if (typeData.contains("Width", true)) typeData.set("Width", width);
-        if (typeData.contains("Radius", true)) typeData.set("Radius", radius);
+        Map<String, Object> typeData = data.config.getConfigurationSection("Explosion_Type_Data").getValues(false);
 
         // Rays is a default value, so we don't need to check if typeData.contains("Rays").
-        typeData.set("Rays", rays);
+        if (!typeData.containsKey("Rays"))
+            typeData.put("Rays", 16);
 
-        Map<String, Object> temp = typeData.getValues(true);
         ExplosionExposure exposure;
         ExplosionShape shape;
 
         try {
-            exposure = ExposureFactory.getInstance().get(section.getString("Explosion_Exposure", "DEFAULT"), temp);
-            shape = ShapeFactory.getInstance().get(section.getString("Explosion_Shape", "DEFAULT"), temp);
+            exposure = ExposureFactory.getInstance().get(data.config.getString("Explosion_Exposure", "DEFAULT"), typeData);
+            shape = ShapeFactory.getInstance().get(data.config.getString("Explosion_Shape", "DEFAULT"), typeData);
         } catch (Factory.FactoryException e) {
-            debug.error(e.getMessage(), "You failed to specify the " + e.getMissingArgument(),
-                    "You instead specified: " + e.getValues(), StringUtil.foundAt(file, path + ".Explosion_type_Data"));
-            return null;
+            data.throwException("Explosion_Type_Data",
+                    e.getMessage(),
+                    "You failed to specify the " + e.getMissingArgument(),
+                    "You instead specified: " + e.getValues());
         }
 
         if (exposure == null) {

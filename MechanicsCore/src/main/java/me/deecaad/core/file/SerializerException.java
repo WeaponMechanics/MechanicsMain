@@ -13,22 +13,24 @@ import java.util.LinkedList;
 
 public class SerializerException extends Exception {
 
-    private final Serializer<?> serializer;
-    private final String location;
+    private final String serializerName;
     private String[] messages;
+    private final String location;
 
-    /**
-     *
-     * @param serializer The serializer that generated the exception.
-     * @param location   The file + path location to the issue {@link StringUtil#foundAt(File, String)}
-     */
-    public SerializerException(@Nonnull Serializer<?> serializer, String[] messages, @Nonnull String location) {
-        this.serializer = serializer;
+    public SerializerException(String serializerName, String[] messages, String location) {
+        this.serializerName = serializerName;
         this.messages = messages;
         this.location = location;
     }
 
-    public void log(Debugger debug) {
+    /**
+     * @param serializer The serializer that generated the exception.
+     * @param messages   The messages telling the user the error and how to fix it.
+     * @param location   The file + path location to the issue {@link StringUtil#foundAt(File, String)}
+     */
+    public SerializerException(@Nonnull Serializer<?> serializer, String[] messages, @Nonnull String location) {
+        this.messages = messages;
+        this.location = location;
 
         // Sometimes a class will end with 'Serializer' in its name, like
         // 'ColorSerializer'. This information may be confusing to some people,
@@ -38,8 +40,13 @@ public class SerializerException extends Exception {
         if (index > 0)
             simple = simple.substring(0, index);
 
+        serializerName = simple;
+    }
+
+    public void log(Debugger debug) {
         LinkedList<String> collected = new LinkedList<>();
-        collected.add("A mistake was found in your configurations when making '" + simple + "'");
+
+        collected.add("A mistake was found in your configurations when making '" + serializerName + "'");
         collected.addAll(Arrays.asList(messages));
         collected.add(location);
         collected.add(""); // Add an empty string for blank line between errors

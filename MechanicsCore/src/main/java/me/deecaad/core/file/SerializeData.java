@@ -59,6 +59,21 @@ public class SerializeData {
     }
 
     /**
+     * Helper method to "move out" into the parent section.
+     *
+     * @return The non-null serialize data.
+     */
+    public SerializeData out() {
+        String[] split = key.split("\\.");
+        StringBuilder key = new StringBuilder();
+
+        for (int i = 0; i < split.length - 2; i++)
+            key.append(split[i]);
+
+        return new SerializeData(serializer, file, key.toString(), config);
+    }
+
+    /**
      * Creates a {@link ConfigAccessor} which accesses the data (stored in
      * config) at <code>this.key + "." + relative</code>. The returned accessor
      * can be used to validate arguments.

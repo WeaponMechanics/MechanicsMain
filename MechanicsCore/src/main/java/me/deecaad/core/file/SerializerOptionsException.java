@@ -4,6 +4,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class SerializerOptionsException extends SerializerException {
 
+    public SerializerOptionsException(@NotNull String name, String type, Iterable<String> options,
+                                      String actual, @NotNull String location) {
+
+        super(name, getMessages(type, options, actual), location);
+    }
+
     public SerializerOptionsException(@NotNull Serializer<?> serializer, String type, Iterable<String> options,
                                       String actual, @NotNull String location) {
 

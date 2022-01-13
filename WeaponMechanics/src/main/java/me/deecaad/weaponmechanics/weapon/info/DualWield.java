@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -11,6 +13,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashSet;
@@ -83,10 +86,11 @@ public class DualWield implements Serializer<DualWield> {
     }
 
     @Override
-    public DualWield serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public DualWield serialize(SerializeData data) throws SerializerException {
         List<?> weaponsList = configurationSection.getList(path + ".Weapons");
-        if (weaponsList == null) return null;
         Set<String> weapons = new HashSet<>();
+
         try {
             // Saves weapons in lower case
             weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle.toString().toLowerCase()));

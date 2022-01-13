@@ -4,6 +4,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class SerializerMissingKeyException extends SerializerException {
 
+    public SerializerMissingKeyException(@NotNull String name, String key, @NotNull String location) {
+        super(name, getMessages(key), location);
+    }
+
     public SerializerMissingKeyException(@NotNull Serializer<?> serializer, String key, @NotNull String location) {
         super(serializer, getMessages(key), location);
     }

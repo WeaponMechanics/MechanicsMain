@@ -4,6 +4,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class SerializerTypeException extends SerializerException {
 
+    public SerializerTypeException(@NotNull String name, Class<?> expected,
+                                   Class<?> actual, Object value, @NotNull String location) {
+
+        super(name, getMessages(expected, actual, value), location);
+    }
+
     public SerializerTypeException(@NotNull Serializer<?> serializer, Class<?> expected,
                                    Class<?> actual, Object value, @NotNull String location) {
 

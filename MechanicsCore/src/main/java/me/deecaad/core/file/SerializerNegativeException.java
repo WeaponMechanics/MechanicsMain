@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class SerializerNegativeException extends SerializerException {
 
-    public SerializerNegativeException(@NotNull Serializer<?> serializer, Object value, @NotNull String location) {
-        super(serializer, getMessages(value), location);
+    public SerializerNegativeException(@NotNull String name, Object value, @NotNull String location) {
+        super(name, getMessages(value), location);
     }
 
     private static String[] getMessages(Object value) {
