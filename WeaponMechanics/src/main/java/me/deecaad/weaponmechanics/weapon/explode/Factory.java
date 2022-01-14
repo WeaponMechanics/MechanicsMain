@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.file.SerializerOptionsException;
+import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 
@@ -33,7 +34,7 @@ public class Factory<T> {
      *
      * <p>The given <code>arguments</code> <i>MUST</i> explicitly contain
      * <i>ALL</i> objects defined by the {@link Arguments#arguments}. If an
-     * argument is missing, a {@link FactoryException} is thrown. The given
+     * argument is missing, a {@link SerializerException} is thrown. The given
      * objects are type-casted to their expected type. Ensure that the
      * constructors for your defined arguments exist.
      *
@@ -41,8 +42,7 @@ public class Factory<T> {
      * @param arguments The non-null map of arguments.
      * @return Instantiated object.
      * @throws InternalError If no "good" constructor exists.
-     * @throws FactoryException If there were missing arguments or if 'key' is invalid.
-     * @throws ClassCastException If a given argument is an invalid type.
+     * @throws SerializerException invalid key OR missing argument OR invalid argument type.
      */
     public final T get(String key, Map<String, Object> arguments) throws SerializerException {
         key = key.trim().toUpperCase(Locale.ROOT);
@@ -63,13 +63,15 @@ public class Factory<T> {
 
             if (!arguments.containsKey(argument)) {
                 String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
-                throw new SerializerMissingKeyException(name, argument, "FILL_ME");
-                throw new FactoryException(this, key, argument, arguments);
+                throw new SerializerMissingKeyException(name, argument, "FILL_ME")
+                        .addMessage("You specified: " + arguments);
             }
 
-            objects[i] = clazz == null
-                    ? arguments.get(argument)
-                    : clazz.cast(arguments.get(argument));
+            objects[i] = arguments.get(argument);
+            if (clazz != null && clazz.isAssignableFrom(objects[i].getClass())) {
+                String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
+                throw new SerializerTypeException(name, clazz, objects[i].getClass(), objects[i], "FILL_ME");
+            }
         }
 
         return ReflectionUtil.newInstance(args.manufacturedType, objects);
@@ -104,34 +106,6 @@ public class Factory<T> {
             this.manufacturedType = (Class<T>) manufacturedType;
             this.arguments = arguments;
             this.argumentTypes = argumentTypes;
-        }
-    }
-
-
-    public static class FactoryException extends RuntimeException {
-
-        private final String key;
-        private final String missingArgument;
-        private final Map<String, Object> values;
-
-        public FactoryException(Factory<?> factory, String key, String missingArgument, Map<String, Object> values) {
-            super("Failure to initialize " + key + "(" + factory.map.get(key).manufacturedType.getSimpleName() + "), missing: " + missingArgument);
-
-            this.key = key;
-            this.missingArgument = missingArgument;
-            this.values = values;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getMissingArgument() {
-            return missingArgument;
-        }
-
-        public Map<String, Object> getValues() {
-            return values;
         }
     }
 }
