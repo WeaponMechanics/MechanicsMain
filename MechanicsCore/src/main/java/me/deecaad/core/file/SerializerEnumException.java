@@ -53,10 +53,10 @@ public class SerializerEnumException extends SerializerException {
         list.add("Could not match config to any " + enumClass.getSimpleName());
         list.add(forValue(actual));
         list.add(didYouMean(actual, enumClass));
-        list.add("Remember that you can " + (allowWildcard ? "" : "NOT") + " use wildcards ('$')");
+        list.add("Remember that you are " + (allowWildcard ? "" : "NOT ") + "allowed use wildcards (using '$')");
 
         if (link != null)
-            list.add("Reference: " + link);
+            list.add(enumClass.getSimpleName() + " Reference: " + link);
 
         return list.toArray(new String[0]);
     }

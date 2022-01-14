@@ -349,7 +349,6 @@ public class SerializeData {
          * @throws SerializerException If the type does not match.
          */
         @Nonnull
-        @SuppressWarnings({"unchecked", "rawtypes"})
         public ConfigAccessor assertType(Class<?> type) throws SerializerException {
             Object value = config.get(key + "." + relative);
 
@@ -537,6 +536,33 @@ public class SerializeData {
         @SuppressWarnings("unchecked")
         public <T> T get(T defaultValue) {
             return (T) config.get(key + "." + relative, defaultValue);
+        }
+
+        public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz) throws SerializerException {
+            return getEnum(clazz, null);
+        }
+
+        public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz, T defaultValue) throws SerializerException {
+            String input = config.get(key + "." + relative, "").toString().trim();
+
+            // Use assertExists for required keys
+            if (input.isEmpty())
+                return defaultValue;
+
+            // Wildcards are not allowed for singleton enums, they are only
+            // allowed for lists.
+            if (input.startsWith("$"))
+                throw new SerializerEnumException(serializer, clazz, input, false, getLocation());
+
+            // The returned value will have either 0 elements (meaning that the
+            // input is invalid) OR 1 element (meaning that the input is valid).
+            List<T> list = EnumUtil.parseEnums(clazz, input);
+            if (list.isEmpty()) {
+                throw new SerializerEnumException(serializer, clazz, input, false, getLocation());
+            }
+
+            // At this point, the list is guarenteed to have exactly 1 element.
+            return list.get(0);
         }
 
         /**

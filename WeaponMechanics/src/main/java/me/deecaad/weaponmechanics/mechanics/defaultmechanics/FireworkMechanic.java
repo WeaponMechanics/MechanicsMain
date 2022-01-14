@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.utils.DistanceUtil;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.List;
 
@@ -75,7 +77,8 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
     }
 
     @Override
-    public FireworkMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public FireworkMechanic serialize(SirializeData data) throws SerializerException {
         ItemStack fireworkItem = new ItemSerializer().serializeWithoutRecipe(file, configurationSection, path + ".Item");;
         if (fireworkItem == null) return null;
 
