@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Wraps a key (<i>Usually</i> pointing to a {@link ConfigurationSection}) with
@@ -348,6 +349,7 @@ public class SerializeData {
          * @throws SerializerException If the type does not match.
          */
         @Nonnull
+        @SuppressWarnings({"unchecked", "rawtypes"})
         public ConfigAccessor assertType(Class<?> type) throws SerializerException {
             Object value = config.get(key + "." + relative);
 

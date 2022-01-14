@@ -1,11 +1,14 @@
 package me.deecaad.weaponmechanics.mechanics;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
 
@@ -98,7 +101,8 @@ public class Mechanics implements Serializer<Mechanics> {
     }
 
     @Override
-    public Mechanics serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public Mechanics serialize(SerializeData data) throws SerializerException {
 
         List<IMechanic<?>> mechanicsList = new ArrayList<>();
 
@@ -107,12 +111,14 @@ public class Mechanics implements Serializer<Mechanics> {
             IMechanic<?> mechanicSerializer = mechanicSerializers.get(keyword);
             if (mechanicSerializer == null) continue;
 
-            Object mechanic = mechanicSerializer.serialize(file, configurationSection, path + "." + keyword);
-            if (mechanic == null) continue;
-
+            Object mechanic = data.of(keyword).serializeNonStandardSerializer(mechanicSerializer);
             mechanicsList.add((IMechanic<?>) mechanic);
         }
 
-        return mechanicsList.isEmpty() ? null : new Mechanics(mechanicsList);
+        if (mechanicsList.isEmpty()) {
+            data.throwException("Found an empty Mechanics list. You should define at least one Mechanic, or remove the list.");
+        }
+
+        return new Mechanics(mechanicsList);
     }
 }

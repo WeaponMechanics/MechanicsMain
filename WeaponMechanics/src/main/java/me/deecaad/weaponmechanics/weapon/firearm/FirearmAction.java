@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.firearm;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -8,6 +10,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -128,21 +131,10 @@ public class FirearmAction implements Serializer<FirearmAction> {
     }
 
     @Override
-    public FirearmAction serialize(File file, ConfigurationSection configurationSection, String path) {
-        String stringType = configurationSection.getString(path + ".Type");
-        if (stringType == null) {
-            return null;
-        }
+    @Nonnull
+    public FirearmAction serialize(SerializeData data) throws SerializerException {
 
-        FirearmType type;
-        try {
-            type = FirearmType.valueOf(stringType.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid firearm type in configurations!",
-                    "Located at file " + file + " in " + path + ".Type (" + stringType.toUpperCase() + ") in configurations");
-            return null;
-        }
+        FirearmType type = data.of("Type").assertExists().assertEnum(FirearmType.class).get();
 
         // Default to 1 in order to make it easier to use
         int firearmActionFrequency = configurationSection.getInt(path + ".Firearm_Action_Frequency", 1);
