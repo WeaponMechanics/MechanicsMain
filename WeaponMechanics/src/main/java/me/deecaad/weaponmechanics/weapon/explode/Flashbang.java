@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -15,6 +17,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.Collection;
 
@@ -105,26 +108,10 @@ public class Flashbang implements Serializer<Flashbang> {
     }
 
     @Override
-    public Flashbang serialize(File file, ConfigurationSection configurationSection, String path) {
-
-        double distance = configurationSection.getDouble(path + ".Effect_Distance", -1);
-        if (distance == -1) {
-            return null;
-        }
-
-        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics");
-
-        debug.validate(distance > 0.0, "Flashbang Effect_Distance should be a positive number! Found: " + distance,
-                StringUtil.foundAt(file, path + ".Distance"));
-        debug.validate(LogLevel.WARN, distance < 100.0, StringUtil.foundLarge(distance, file, path + ".Effect_Distance"));
-
-        // Since the flashbang depends on mechanics for applying blindness to effected
-        // entities, not specifying the mechanics is always a mistake
-        if (mechanics == null) {
-            debug.error("Flashbang MUST use Mechanics in order to make people blind. You forgot to add Mechanics!",
-                    StringUtil.foundAt(file, path + ".Mechanics"));
-            return null;
-        }
+    @Nonnull
+    public Flashbang serialize(SerializeData data) throws SerializerException {
+        double distance = data.of("Effect_Distance").assertExists().assertPositive().get();
+        Mechanics mechanics = data.of("Mechanics").assertExists().serialize(Mechanics.class);
 
         return new Flashbang(distance, mechanics);
     }

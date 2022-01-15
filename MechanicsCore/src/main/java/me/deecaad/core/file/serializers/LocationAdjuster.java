@@ -1,11 +1,16 @@
 package me.deecaad.core.file.serializers;
 
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 public class LocationAdjuster implements Serializer<LocationAdjuster> {
@@ -59,30 +64,23 @@ public class LocationAdjuster implements Serializer<LocationAdjuster> {
     }
 
     @Override
-    public LocationAdjuster serialize(File file, ConfigurationSection configurationSection, String path) {
-        String adjuster = configurationSection.getString(path);
-        if (adjuster == null) return null;
-        String[] adjusterData = adjuster.split("~");
+    @Nonnull
+    public LocationAdjuster serialize(SerializeData data) throws SerializerException {
+        String input = data.of().assertExists().assertType(String.class).get();
+        String[] split = StringUtil.split(input);
 
-        if (adjusterData.length < 3) {
-            MechanicsCore.debug.log(LogLevel.ERROR,
-                    "Found an invalid location adjuster format in configurations!",
-                    "Located at file " + file + " in " + path + " in configurations",
-                    "Make sure there is 3 args: <x>~<y>~<z>.");
-            return null;
+        if (split.length < 3) {
+            data.throwException(null, "Expected x~y~z format for location adjuster",
+                    SerializerException.forValue(input));
         }
 
         double x, y, z;
         try {
-            x = Integer.parseInt(adjusterData[0]);
-            y = Integer.parseInt(adjusterData[1]);
-            z = Integer.parseInt(adjusterData[2]);
+            x = Double.parseDouble(split[0]);
+            y = Double.parseDouble(split[1]);
+            z = Double.parseDouble(split[2]);
         } catch (NumberFormatException e) {
-            MechanicsCore.debug.log(LogLevel.ERROR,
-                    "Found an invalid number format in configurations!",
-                    "Located at file " + file + " in " + path + " in configurations",
-                    "Make sure you only use numbers.");
-            return null;
+            throw new SerializerTypeException(this, Number.class, null, e.getMessage(), data.of().getLocation());
         }
 
         return new LocationAdjuster(x, y, z);
