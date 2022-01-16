@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
@@ -10,6 +12,7 @@ import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,43 +104,33 @@ public class Recoil implements Serializer<Recoil> {
     }
 
     @Override
-    public Recoil serialize(File file, ConfigurationSection configurationSection, String path) {
-        RecoilPattern recoilPattern = new RecoilPattern().serialize(file, configurationSection, path + ".Recoil_Pattern");
-        List<Float> randomHorizontal = convertToFloatList(file, configurationSection, path + ".Horizontal");
-        List<Float> randomVertical = convertToFloatList(file, configurationSection, path + ".Vertical");
+    @Nonnull
+    public Recoil serialize(SerializeData data) throws SerializerException {
+        RecoilPattern recoilPattern = data.of("Recoil_Pattern").serialize(RecoilPattern.class);
+        List<Float> randomHorizontal = convertToFloatList(data.ofList("Horizontal"));
+        List<Float> randomVertical = convertToFloatList(data.ofList("Vertical"));
 
         if (recoilPattern == null && randomHorizontal == null && randomVertical == null) {
-            return null;
+            data.throwException(null, "When using Recoil, you need to use at least one of: 'Recoil_Pattern', 'Horizontal', 'Vertical'");
         }
 
-        ModifyRecoilWhen modifyRecoilWhen = new ModifyRecoilWhen().serialize(file, configurationSection, path + ".Modify_Recoil_When");
-        long pushTime = configurationSection.getLong(path + ".Push_Time");
-        long recoverTime = configurationSection.getLong(path + ".Recover_Time");
+        ModifyRecoilWhen modifyRecoilWhen = (ModifyRecoilWhen) data.of("Modify_Recoil_When").serialize(new ModifyRecoilWhen());
+        long pushTime = data.of("Push_Time").assertPositive().get(0);
+        long recoverTime = data.of("Recover_Time").assertPositive().get(0);
 
         return new Recoil(pushTime, recoverTime, randomHorizontal, randomVertical, recoilPattern, modifyRecoilWhen);
     }
 
-    private List<Float> convertToFloatList(File file, ConfigurationSection configurationSection, String path) {
-        List<?> list = configurationSection.getList(path);
-        if (list == null || list.isEmpty()) return null;
+    private List<Float> convertToFloatList(SerializeData.ConfigListAccessor accessor) throws SerializerException {
+        List<String[]> list = accessor.addArgument(double.class, true).assertList().get();
+        if (list == null || list.isEmpty())
+            return null;
 
         List<Float> floatList = new ArrayList<>();
-        for (Object value : list) {
-            try {
-                floatList.add(Float.parseFloat(value.toString()));
-            } catch (NumberFormatException e) {
-                debug.log(LogLevel.ERROR,
-                        "Found an invalid value in configurations!",
-                        "Located at file " + file + " in " + path + " (" + value.toString() + ") in configurations",
-                        "Tried to get get float from " + value.toString() + ", but it wasn't float?");
-            }
+        for (String[] split : list) {
+            floatList.add(Float.parseFloat(split[0]));
         }
-        if (floatList.isEmpty()) {
-            debug.log(LogLevel.ERROR,
-                    "For some reason any value in list wasn't valid!",
-                    "Located at file " + file + " in " + path + " in configurations");
-            return null;
-        }
+
         return floatList;
     }
 }

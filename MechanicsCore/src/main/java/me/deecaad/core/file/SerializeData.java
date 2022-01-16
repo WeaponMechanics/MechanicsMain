@@ -561,7 +561,7 @@ public class SerializeData {
                 throw new SerializerEnumException(serializer, clazz, input, false, getLocation());
             }
 
-            // At this point, the list is guarenteed to have exactly 1 element.
+            // At this point, the list is guaranteed to have exactly 1 element.
             return list.get(0);
         }
 

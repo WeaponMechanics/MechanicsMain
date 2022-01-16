@@ -4,7 +4,9 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.BitMutator;
 import me.deecaad.core.compatibility.entity.EntityMetaFlag;
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -18,6 +20,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -119,14 +122,14 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     @Override
-    public Projectile serialize(File file, ConfigurationSection configurationSection, String path) {
-        ProjectileSettings projectileSettings = new ProjectileSettings().serialize(file, configurationSection, path + ".Projectile_Settings");
-        if (projectileSettings == null) return null;
+    @Nonnull
+    public Projectile serialize(SerializeData data) throws SerializerException {
+        ProjectileSettings projectileSettings = data.of("Projectile_Settings").assertExists().serialize(ProjectileSettings.class);
 
-        Sticky sticky = new Sticky().serialize(file, configurationSection, path + ".Sticky");
-        Through through = new Through().serialize(file, configurationSection, path + ".Through");
-        Bouncy bouncy = new Bouncy().serialize(file, configurationSection, path + ".Bouncy");
-        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics");
+        Sticky sticky = data.of("Sticky").serialize(Sticky.class);
+        Through through = data.of("Through").serialize(Through.class);
+        Bouncy bouncy = data.of("Bouncy").serialize(Bouncy.class);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
         return new Projectile(projectileSettings, sticky, through, bouncy, mechanics);
     }
 }

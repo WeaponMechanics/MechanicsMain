@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -10,10 +13,14 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -49,71 +56,44 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
     }
 
     @Override
-    public PotionMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
-        List<String> stringPotionList = configurationSection.getStringList(path);
-        if (stringPotionList == null || stringPotionList.isEmpty()) return null;
+    @Nonnull
+    public PotionMechanic serialize(SerializeData data) throws SerializerException {
+
+        // Uses the format: <PotionEffectType>-<Duration>-<Amplifier>-<Ambient>-<Hide>-<Icon>
+        String[] key = data.key.split("\\.");
+        List<String[]> stringPotionList = data.out().ofList(key[key.length - 1])
+                .addArgument(PotionEffectType.class, true, true)
+                .addArgument(int.class, true)
+                .addArgument(int.class, true)
+                .addArgument(boolean.class, false)
+                .addArgument(boolean.class, false)
+                .addArgument(boolean.class, false)
+                .assertList().assertExists().get();
 
         List<PotionEffect> potionEffectList = new ArrayList<>();
 
-        for (String stringInList : stringPotionList) {
-            for (String stringInLine : stringInList.split(", ?")) {
+        for (String[] split : stringPotionList) {
 
-                String[] potionData = StringUtil.split(stringInLine);
-
-                if (potionData.length < 3) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid potion format in configurations!",
-                            "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations",
-                            "At least these are required <PotionEffectType>-<duration in ticks>-<amplifier>");
-                    continue;
-                }
-
-                int duration;
-                int amplifier;
-                boolean allowParticles = true;
-                boolean produceMoreParticles = false;
-                boolean icon = false;
-
-                try {
-                    duration = Integer.parseInt(potionData[1]);
-                    amplifier = Integer.parseInt(potionData[2]);
-                } catch (NumberFormatException e) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid number format in configurations!",
-                            "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations",
-                            "Make sure you use numbers in duration and amplifier args.");
-                    continue;
-                }
-
-                if (duration < 0) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid number in configurations!",
-                            "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations",
-                            "Make sure duration is positive number. 20 ticks equals 1 second.");
-                    continue;
-                }
-                if (amplifier < 1) amplifier = 1;
-
-                if (potionData.length > 3) allowParticles = Boolean.parseBoolean(potionData[3]);
-                if (potionData.length > 4) produceMoreParticles = Boolean.parseBoolean(potionData[4]);
-                if (potionData.length > 5) icon = Boolean.parseBoolean(potionData[5]);
-
-                try {
-                    PotionEffectType potionEffectType = PotionEffectType.getByName(potionData[0]);
-                    if (CompatibilityAPI.getVersion() < 1.14) {
-                        potionEffectList.add(new PotionEffect(potionEffectType, duration, amplifier, produceMoreParticles, allowParticles));
-                    } else {
-                        potionEffectList.add(new PotionEffect(potionEffectType, duration, amplifier, produceMoreParticles, allowParticles, icon));
-                    }
-                } catch (IllegalArgumentException e) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid potion effect type in configurations!",
-                            "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations");
-                }
+            PotionEffectType potionEffectType = PotionEffectType.getByName(split[0]);
+            if (potionEffectType == null) {
+                throw new SerializerOptionsException(this, "Potion Effect", Arrays.stream(PotionEffectType.values()).map(Object::toString).collect(Collectors.toList()), split[0], data.of().getLocation());
             }
+
+            int duration = Integer.parseInt(split[1]);
+            int amplifier = Integer.parseInt(split[2]) - 1; // subtract one since 0 is potion level 1
+
+            if (amplifier < 1) amplifier = 1;
+
+            boolean allowParticles = split.length <= 3 || Boolean.parseBoolean(split[3]);
+            boolean produceMoreParticles = split.length > 4 && Boolean.parseBoolean(split[4]);
+            boolean icon = split.length > 5 && Boolean.parseBoolean(split[5]);
+
+            if (CompatibilityAPI.getVersion() < 1.14)
+                potionEffectList.add(new PotionEffect(potionEffectType, duration, amplifier, produceMoreParticles, allowParticles));
+            else
+                potionEffectList.add(new PotionEffect(potionEffectType, duration, amplifier, produceMoreParticles, allowParticles, icon));
         }
 
-        if (potionEffectList.isEmpty()) return null;
         return new PotionMechanic(potionEffectList);
     }
 }

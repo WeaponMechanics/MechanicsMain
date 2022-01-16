@@ -33,24 +33,25 @@ public class ModifySpreadWhen extends AModifyWhen {
     @Override
     @Nonnull
     public @NotNull ModifySpreadWhen serialize(SerializeData data) throws SerializerException {
-        NumberModifier always   = getModifierHandler(data.of("Always"));
-        NumberModifier zooming  = getModifierHandler(data.of("Zooming"));
-        NumberModifier sneaking = getModifierHandler(data.of("Sneaking"));
-        NumberModifier standing = getModifierHandler(data.of("Standing"));
-        NumberModifier walking  = getModifierHandler(data.of("Walking"));
-        NumberModifier swimming = getModifierHandler(data.of("Swimming"));
-        NumberModifier inMidair = getModifierHandler(data.of("In_Midair"));
-        NumberModifier gliding  = getModifierHandler(data.of("Gliding"));
+        NumberModifier always   = getModifierHandler(data.move("Always"));
+        NumberModifier zooming  = getModifierHandler(data.move("Zooming"));
+        NumberModifier sneaking = getModifierHandler(data.move("Sneaking"));
+        NumberModifier standing = getModifierHandler(data.move("Standing"));
+        NumberModifier walking  = getModifierHandler(data.move("Walking"));
+        NumberModifier swimming = getModifierHandler(data.move("Swimming"));
+        NumberModifier inMidair = getModifierHandler(data.move("In_Midair"));
+        NumberModifier gliding  = getModifierHandler(data.move("Gliding"));
 
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
                 && swimming == null && inMidair == null && gliding == null) {
-            return null;
+
+            data.throwException(null, "Tried to use Modify_Spread_When without any arguments");
         }
         return new ModifySpreadWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
     }
 
-    private NumberModifier getModifierHandler(SerializeData.ConfigAccessor accessor) throws SerializerException {
-        String value = accessor.assertType(String.class).get();
+    private NumberModifier getModifierHandler(SerializeData data) throws SerializerException {
+        String value = data.of().assertExists().get().toString();
         if (value == null) return null;
         try {
             boolean percentage = value.endsWith("%");
@@ -61,7 +62,7 @@ public class ModifySpreadWhen extends AModifyWhen {
 
             return new NumberModifier(number, percentage);
         } catch (NumberFormatException e) {
-            throw new SerializerTypeException(this, Double.class, null, value, accessor.getLocation());
+            throw new SerializerTypeException(this, Double.class, null, value, data.of().getLocation());
         }
     }
 }

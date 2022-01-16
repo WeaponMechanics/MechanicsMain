@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
@@ -9,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 public class MovementMechanic implements IMechanic<MovementMechanic> {
@@ -72,19 +75,15 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
     }
 
     @Override
-    public MovementMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
-        double movementSpeed = configurationSection.getDouble(path + ".Movement_Speed", -99);
-        if (movementSpeed == -99) {
-            return null;
-        }
-        // Better for configs
-        movementSpeed /= 10.0;
+    @Nonnull
+    public MovementMechanic serialize(SerializeData data) throws SerializerException {
+        double movementSpeed = data.of("Movement_Speed").assertExists().assertPositive().get();
+        boolean towardsTarget = data.of("Towards_Target").assertType(Boolean.class).get(false);
+        double verticalSpeed = data.of("Vertical_Speed").assertExists().assertPositive().get();
 
-        boolean towardsTarget = configurationSection.getBoolean(path + ".Towards_Target");
-        double verticalSpeed = configurationSection.getDouble(path + ".Vertical_Speed", -99);
-
-        // Better for configs
-        verticalSpeed /= 10.0;
+        // Divide by 20 to convert from m/s to m/tick
+        movementSpeed /= 20.0;
+        verticalSpeed /= 20.0;
 
         return new MovementMechanic(movementSpeed, towardsTarget, verticalSpeed);
     }

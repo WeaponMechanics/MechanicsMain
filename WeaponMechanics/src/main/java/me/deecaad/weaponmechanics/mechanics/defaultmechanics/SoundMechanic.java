@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -17,6 +19,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -125,7 +128,8 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
     }
 
     @Override
-    public SoundMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public SoundMechanic serialize(SerializeData data) throws SerializerException {
         List<String> stringSoundList = configurationSection.getStringList(path);
         if (stringSoundList == null || stringSoundList.isEmpty()) return null;
 
