@@ -88,21 +88,15 @@ public class DualWield implements Serializer<DualWield> {
     @Override
     @Nonnull
     public DualWield serialize(SerializeData data) throws SerializerException {
-        List<?> weaponsList = configurationSection.getList(path + ".Weapons");
+        List<String[]> weaponsList = data.ofList("Weapons")
+                .addArgument(String.class, true, true)
+                .assertExists().assertList().get();
         Set<String> weapons = new HashSet<>();
 
-        try {
-            // Saves weapons in lower case
-            weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle.toString().toLowerCase()));
-        } catch (ClassCastException e) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid value in configurations!",
-                    "Located at file " + file + " in " + path + ".Weapons (" + weaponsList + ") in configurations",
-                    "Tried to get get weapon title from " + weaponsList + ", but some of its values wasn't string?");
-            return null;
-        }
-        boolean whitelist = configurationSection.getBoolean(path + ".Whitelist", false);
-        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics_On_Deny");
+        // Saves weapons in lower case
+        weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle[0].toLowerCase()));
+        boolean whitelist = data.of("Whitelist").assertType(Boolean.class).get(false);
+        Mechanics mechanics = data.of("Mechanics_On_Deny").serialize(Mechanics.class);
         return new DualWield(whitelist, weapons, mechanics);
     }
 }

@@ -1,10 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 public class Through implements Serializer<Through> {
@@ -65,13 +68,16 @@ public class Through implements Serializer<Through> {
     }
 
     @Override
-    public Through serialize(File file, ConfigurationSection configurationSection, String path) {
-        ListHolder<Material> blocks = new ListHolder<Material>().serialize(file, configurationSection, path + ".Blocks", Material.class);
-        ListHolder<EntityType> entities = new ListHolder<EntityType>().serialize(file, configurationSection, path + ".Entities", EntityType.class);
+    @Nonnull
+    public Through serialize(SerializeData data) throws SerializerException {
+        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
-        if (blocks == null && entities == null) return null;
+        if (blocks == null && entities == null) {
+            data.throwException("'Sticky' requires at least one of 'Blocks' or 'Entities'");
+        }
 
-        int maximumThroughAmount = configurationSection.getInt(path + ".Maximum_Through_Amount", 1);
+        int maximumThroughAmount = data.of("Maximum_Through_Amount").assertPositive().get(1);
 
         return new Through(maximumThroughAmount, blocks, entities);
     }

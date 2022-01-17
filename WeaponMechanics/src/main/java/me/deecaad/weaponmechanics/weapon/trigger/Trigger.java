@@ -1,11 +1,15 @@
 package me.deecaad.weaponmechanics.weapon.trigger;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -133,59 +137,32 @@ public class Trigger implements Serializer<Trigger> {
     }
 
     @Override
-    public Trigger serialize(File file, ConfigurationSection configurationSection, String path) {
-        String main = configurationSection.getString(path + ".Main_Hand");
-        String off = configurationSection.getString(path + ".Off_Hand");
+    @Nonnull
+    public Trigger serialize(SerializeData data) throws SerializerException {
+        TriggerType main = data.of("Main_Hand").getEnum(TriggerType.class, null);
+        TriggerType off = data.of("Off_Hand").getEnum(TriggerType.class, null);
+
         if (main == null && off == null) {
-            return null;
+            data.throwException(null, "At least one of Main_Hand or Off_Hand should be used");
         }
-        TriggerType mainTrigger = null;
-        if (main != null)  {
-            main = main.toUpperCase();
-            try {
-                mainTrigger = TriggerType.valueOf(main);
-            } catch (IllegalArgumentException e) {
-                debug.log(LogLevel.ERROR,
-                        "Found an invalid trigger type in configurations!",
-                        "Located at file " + file + " in " + path + ".Main_Hand" + " (" + main + ") in configurations");
-                return null;
-            }
-        }
-        TriggerType offTrigger = null;
-        if (off != null)  {
-            off = off.toUpperCase();
-            try {
-                offTrigger = TriggerType.valueOf(off);
-            } catch (IllegalArgumentException e) {
-                debug.log(LogLevel.ERROR,
-                        "Found an invalid trigger type in configurations!",
-                        "Located at file " + file + " in " + path + ".Off_Hand" + " (" + off + ") in configurations");
-                return null;
-            }
-        }
+
         Set<String> denyWhen = new HashSet<>();
-        ConfigurationSection denySection = configurationSection.getConfigurationSection(path + ".Deny_When");
+        ConfigurationSection denySection = data.config.getConfigurationSection(data.key + ".Deny_When");
         if (denySection != null) {
             for (String denyName : denySection.getKeys(false)) {
 
                 if (!denyName.equals("Reloading") && !denyName.equals("Zooming") && !denyName.equals("Sneaking") && !denyName.equals("Standing")
                         && !denyName.equals("Walking") && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")) {
-                    debug.log(LogLevel.ERROR,
-                            "Found and invalid deny when value in configurations!",
-                            "Located at file " + file + " in " + path + ".Deny_When." + denyWhen + " (" + denyWhen + ") in configurations",
-                            "Valid ones are: Reloading, Zooming, Sneaking, Standing, Walking, Swimming, In_Midair and Gliding");
-                    continue;
+
+                    data.throwException("Deny_When", "Unknown key: " + denyName);
                 }
 
-                boolean denied = configurationSection.getBoolean(path + ".Deny_When." + denyName, false);
-                if (denied) {
+                boolean denied = data.of("Deny_When." + denyName).assertType(Boolean.class).get(false);
+                if (denied)
                     denyWhen.add(denyName);
-                }
             }
         }
-        if (mainTrigger == null && offTrigger == null) {
-            return null;
-        }
-        return new Trigger(mainTrigger, offTrigger, denyWhen);
+
+        return new Trigger(main, off, denyWhen);
     }
 }

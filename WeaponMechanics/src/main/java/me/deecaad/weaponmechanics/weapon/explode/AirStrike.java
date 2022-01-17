@@ -29,6 +29,7 @@ public class AirStrike implements Serializer<AirStrike> {
     private double radius;
     private int loops;
     private int delay;
+    private Detonation detonation;
 
     /**
      * Default constructor for serializer
@@ -138,6 +139,14 @@ public class AirStrike implements Serializer<AirStrike> {
         this.delay = delay;
     }
 
+    public Detonation getDetonation() {
+        return detonation;
+    }
+
+    public void setDetonation(Detonation detonation) {
+        this.detonation = detonation;
+    }
+
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
         new BukkitRunnable() {
 
@@ -208,6 +217,8 @@ public class AirStrike implements Serializer<AirStrike> {
 
         int layers = data.of("Layers").assertPositive().get(1);
         int interval = data.of("Delay_Between_Layers").assertPositive().get(40);
+
+        Detonation detonation = data.of("Detonation").serialize(Detonation.class);
 
         return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval);
     }

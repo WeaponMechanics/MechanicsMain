@@ -20,5 +20,5 @@ public interface IValidator {
      * @param configurationSection the configuration section object
      * @param path the path to this validator's path (path to keyword like path.keyword)
      */
-    void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path);
+    void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) throws SerializerException;
 }

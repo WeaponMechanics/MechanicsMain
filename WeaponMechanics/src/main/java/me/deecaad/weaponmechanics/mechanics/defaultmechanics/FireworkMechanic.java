@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
@@ -78,19 +79,14 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
 
     @Override
     @Nonnull
-    public FireworkMechanic serialize(SirializeData data) throws SerializerException {
-        ItemStack fireworkItem = new ItemSerializer().serializeWithoutRecipe(file, configurationSection, path + ".Item");;
-        if (fireworkItem == null) return null;
+    public FireworkMechanic serialize(SerializeData data) throws SerializerException {
+        ItemStack fireworkItem = data.of("Item").assertExists().serializeNonStandardSerializer(new ItemSerializer());
 
         if (!(fireworkItem.getItemMeta() instanceof FireworkMeta)) {
-            debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("firework item"),
-                    StringUtil.foundAt(file, path + ".Item"),
-                    "The item was generated, but it didn't have firework meta defined.");
-            return null;
+            data.throwException(null, "Item Type should be a firework when using a Firework Mechanic");
         }
 
-        LocationAdjuster locationAdjuster = new LocationAdjuster().serialize(file, configurationSection, path + ".Location_Adjuster");
+        LocationAdjuster locationAdjuster = data.of("Location_Adjuster").serialize(LocationAdjuster.class);
         return new FireworkMechanic(locationAdjuster, fireworkItem);
     }
 }

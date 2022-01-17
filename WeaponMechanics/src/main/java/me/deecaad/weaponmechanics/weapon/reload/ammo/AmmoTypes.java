@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -9,6 +11,7 @@ import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,36 +113,38 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
     }
 
     @Override
-    public AmmoTypes serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public AmmoTypes serialize(SerializeData data) throws SerializerException {
         List<IAmmoType> ammoTypes = new ArrayList<>();
-        for (String ammoName : configurationSection.getConfigurationSection(path).getKeys(false)) {
-            String nowPath = path + "." + ammoName;
-            String symbol = configurationSection.getString(nowPath + ".Symbol");
+        for (String ammoName : data.config.getConfigurationSection(data.key).getKeys(false)) {
+            SerializeData move = data.move(ammoName);
+
+            String symbol = move.of("Symbol").assertType(String.class).get(null);
 
             // Experience
-            int experienceAsAmmoCost = configurationSection.getInt(nowPath + ".Experience_As_Ammo_Cost", -1);
+            int experienceAsAmmoCost = move.of("Experience_As_Ammo_Cost").assertPositive().get(-1);
             if (experienceAsAmmoCost != -1) {
                 ammoTypes.add(new ExperienceAmmo(ammoName, symbol, experienceAsAmmoCost));
                 continue;
             }
 
             // Money
-            int moneyAsAmmoCost = configurationSection.getInt(nowPath + ".Money_As_Ammo_Cost", -1);
+            int moneyAsAmmoCost = move.of("Money_As_Ammo_Cost").assertPositive().get(-1);
             if (moneyAsAmmoCost != -1) {
                 ammoTypes.add(new MoneyAmmo(ammoName, symbol, moneyAsAmmoCost));
                 continue;
             }
 
             // Item
-            ItemStack bulletItem = new ItemSerializer().serializeWithoutRecipe(file, configurationSection, nowPath + ".Item_Ammo.Bullet_Item");
-            ItemStack magazineItem = new ItemSerializer().serializeWithoutRecipe(file, configurationSection, nowPath + ".Item_Ammo.Magazine_Item");
+            ItemStack bulletItem = move.of("Item_Ammo.Bullet_Item").serializeNonStandardSerializer(new ItemSerializer());
+            ItemStack magazineItem = move.of("Item_Ammo.Magazine_Item").serializeNonStandardSerializer(new ItemSerializer());
 
-            if (magazineItem == null && bulletItem == null) continue;
+            if (magazineItem == null && bulletItem == null) {
+                move.throwException("Tried to use ammo without any options? You should use at least one of the ammo types!");
+            }
 
             if (bulletItem != null) {
                 CustomTag.AMMO_NAME.setString(bulletItem, ammoName);
-
-                bulletItem = new ItemSerializer().serializeRecipe(file, configurationSection, nowPath + ".Item_Ammo.Bullet_Item", bulletItem);
             }
 
             // Not else if since both of these can be used at same time
@@ -148,13 +153,11 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
 
                 // Set to indicate that this item is magazine
                 CustomTag.AMMO_MAGAZINE.setInteger(magazineItem, 1);
-
-                magazineItem = new ItemSerializer().serializeRecipe(file, configurationSection, nowPath + ".Item_Ammo.Magazine_Item", magazineItem);
             }
 
-            AmmoConverter ammoConverter = new AmmoConverter().serialize(file, configurationSection, nowPath + ".Item_Ammo.Ammo_Converter_Check");
+            AmmoConverter ammoConverter = (AmmoConverter) move.of("Item_Ammo.Ammo_Converter_Check").serialize(new AmmoConverter());
             ammoTypes.add(new ItemAmmo(ammoName, symbol, bulletItem, magazineItem, ammoConverter));
         }
-        return ammoTypes.isEmpty() ? null : new AmmoTypes(ammoTypes);
+        return new AmmoTypes(ammoTypes);
     }
 }

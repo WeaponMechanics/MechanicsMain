@@ -162,6 +162,23 @@ public class SerializeData {
             return this;
         }
 
+        public ConfigListAccessor assertArgumentPositive() {
+            arguments.getLast().positive = true;
+            return this;
+        }
+
+        public ConfigListAccessor assertArgumentRange(int min, int max) {
+            arguments.getLast().min = min;
+            arguments.getLast().max = max;
+            return this;
+        }
+
+        public ConfigListAccessor assertArgumentRange(double min, double max) {
+            arguments.getLast().min = min;
+            arguments.getLast().max = max;
+            return this;
+        }
+
         /**
          * Asserts that this key exists in the configuration. This method
          * ensures that the user explicitly defined a value for the key.
@@ -231,7 +248,7 @@ public class SerializeData {
                     // list uses the format 'string-int' and the user inputs
                     // 'string-int-double', then this will be triggered.
                     if (arguments.size() <= j) {
-                        throwException("Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
+                        throwListException(relative, i, "Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
                                 SerializerException.forValue(string),
                                 "Valid Format: " + format
                         );
@@ -245,14 +262,26 @@ public class SerializeData {
                     try {
                         if (argument.clazz == int.class) {
                             argument.clazz = Integer.class; // Set class to be more human-readable in error
-                            Integer.parseInt(component);
-                        } else if (argument.clazz == double.class) {
+                            int parseInt = Integer.parseInt(component);
+                            if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseInt < argument.min || parseInt > argument.max))
+                                throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i));
+                            if (argument.positive && parseInt < 0)
+                                throw new SerializerNegativeException(serializer, parseInt, getLocation(i));
+                        }
+
+                        else if (argument.clazz == double.class) {
                             argument.clazz = Double.class;
-                            Double.parseDouble(component);
+                            double parseDouble = Double.parseDouble(component);
+                            if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseDouble < argument.min || parseDouble > argument.max))
+                                throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i));
+                            if (argument.positive && parseDouble < 0.0)
+                                throw new SerializerNegativeException(serializer, parseDouble, getLocation(i));
+
                         } else if (argument.clazz == boolean.class) {
                             argument.clazz = Boolean.class;
                             if (!component.equalsIgnoreCase("true") && !component.equalsIgnoreCase("false"))
                                 throw new Exception();
+
                         } else if (argument.clazz.isEnum() && EnumUtil.parseEnums((Class<Enum>) argument.clazz, component).isEmpty()) {
                             throw new SerializerEnumException(serializer, (Class<Enum>) argument.clazz, component, true, getLocation(i))
                                     .addMessage("Full List Element: " + string)
@@ -286,7 +315,7 @@ public class SerializeData {
             return list;
         }
 
-        private String getLocation() {
+        public String getLocation() {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key);
             } else {
@@ -294,7 +323,7 @@ public class SerializeData {
             }
         }
 
-        private String getLocation(int index) {
+        public String getLocation(int index) {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key, index);
             } else {
@@ -306,6 +335,10 @@ public class SerializeData {
             Class<?> clazz;
             boolean required;
             boolean skipCheck;
+
+            boolean positive;
+            double min = Double.NaN;
+            double max = Double.NaN;
         }
     }
 

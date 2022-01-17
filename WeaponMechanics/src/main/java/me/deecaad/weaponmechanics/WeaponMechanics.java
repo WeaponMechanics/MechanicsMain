@@ -216,7 +216,7 @@ public class WeaponMechanics {
             List<IValidator> validators = new ArrayList<>();
             validators.add(new HitBox()); // No need for other validators here as this is only for config.yml
 
-            FileReader basicConfigurationReader = new FileReader(null, validators);
+            FileReader basicConfigurationReader = new FileReader(debug, null, validators);
             Configuration filledMap = basicConfigurationReader.fillOneFile(configyml);
             basicConfiguration = basicConfigurationReader.usePathToSerializersAndValidators(filledMap);
         } else {
@@ -267,7 +267,7 @@ public class WeaponMechanics {
         }
 
         // Fill configuration mappings (except config.yml)
-        Configuration temp = new FileReader(MechanicsCore.getListOfSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
+        Configuration temp = new FileReader(debug, MechanicsCore.getListOfSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
         try {
             configurations.add(temp);
         } catch (DuplicateKeyException e) {
