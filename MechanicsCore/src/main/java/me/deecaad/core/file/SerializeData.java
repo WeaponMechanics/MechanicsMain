@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Wraps a key (<i>Usually</i> pointing to a {@link ConfigurationSection}) with
@@ -151,7 +152,7 @@ public class SerializeData {
             // Ensure that all required arguments are in order. For example,
             // true~true~false is fine, but true~false~true is impossible to
             // serialize.
-            if (required && arguments.getLast() != null && !arguments.getLast().required)
+            if (required && !arguments.isEmpty() && !arguments.getLast().required)
                 throw new IllegalArgumentException("Required arguments must be consecutive");
 
             ClassArgument arg = new ClassArgument();
@@ -203,7 +204,7 @@ public class SerializeData {
             // The first step is to assert that the value stored at this key
             // is a list (of any generic-type).
             Object value = config.get(key + "." + relative);
-            if (value instanceof List)
+            if (!(value instanceof List))
                 throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation());
             List<?> list = (List<?>) config.get(key + "." + relative);
 
@@ -212,7 +213,7 @@ public class SerializeData {
                 return this;
 
             for (int i = 0; i < list.size(); i++) {
-                String string = list.get(i).toString();
+                String string = Objects.toString(list.get(i));
 
                 // Show the user the correct format
                 StringBuilder format = new StringBuilder("<");

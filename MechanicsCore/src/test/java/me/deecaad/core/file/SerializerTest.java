@@ -5,8 +5,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 
 import static  org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +22,12 @@ public class SerializerTest {
     @BeforeEach
     void setUp() {
         file = new File("test-config.yml");
-        config = YamlConfiguration.loadConfiguration(file);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/test-config.yml")));
+        config = YamlConfiguration.loadConfiguration(reader);
+
+        System.out.println(file);
+        System.out.println(config.getKeys(false));
+        System.out.println();
     }
 
     @AfterEach
@@ -27,21 +36,17 @@ public class SerializerTest {
         config = null;
     }
 
-    @Test
-    public void test_parseInvalid() {
-        for (int i = 0; config.contains("Squares.Invalid." + i); i++) {
-            SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, config);
-
-            assertThrows(SerializerException.class, () ->  data.serializer.serialize(data));
-        }
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 3, 4, 5})
+    public void test_parseInvalid(int i) {
+        SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, config);
+        assertThrows(SerializerException.class, () ->  data.serializer.serialize(data));
     }
 
-    @Test
-    public void test_parseValid() {
-        for (int i = 0; config.contains("Squares.Invalid." + i); i++) {
-            SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, config);
-
-            assertDoesNotThrow(() ->  data.serializer.serialize(data));
-        }
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 3})
+    public void test_parseValid(int i) {
+        SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, config);
+        assertThrows(SerializerException.class, () ->  data.serializer.serialize(data));
     }
 }
