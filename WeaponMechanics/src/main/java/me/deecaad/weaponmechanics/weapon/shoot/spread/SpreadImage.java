@@ -3,12 +3,8 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ProbabilityMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.ArrayUtil;
-import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -18,20 +14,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-
-/**
- * This class serves to get random
- * locations from points on an image.
- *
- * A point is more likely to be selected
- * if it has less color (more black)
- *
- * All SpreadImages should be constructed
- * onLoad or onEnable, as loading the image
- * from a file (IO operation) can be fairly
- * taxing.
- */
 public class SpreadImage implements Serializer<SpreadImage> {
     
     private ProbabilityMap<Point> points;
@@ -44,9 +26,8 @@ public class SpreadImage implements Serializer<SpreadImage> {
     
     public SpreadImage(Sprite sprite, double fovWidth, double fovHeight) {
         this.points = new ProbabilityMap<>();
-
-        width = sprite.getWidth();
-        height = sprite.getHeight();
+        this.width = sprite.getWidth();
+        this.height = sprite.getHeight();
 
         double maxYaw = Math.toRadians(fovWidth);
         double maxPitch = Math.toRadians(fovHeight);
@@ -54,15 +35,28 @@ public class SpreadImage implements Serializer<SpreadImage> {
         double xMiddle = width / 2.0;
         double yMiddle = height / 2.0;
         
-        int[][] pixels = ArrayUtil.toBlackAndWhite(sprite.getPixels());
+        int[][] pixels = sprite.getPixels();
         for (int y = 0; y < pixels.length; y++) {
             for (int x = 0; x < pixels[y].length; x++) {
-                if (pixels[y][x] != 0) {
+
+                // First, we need to strip away color/alpha data. We only want
+                // a number [0, 255] (which represents a grayscale shade).
+                int r = (pixels[y][x] >> 16) & 0xFF;
+                int g = (pixels[y][x] >> 8) & 0xFF;
+                int b = (pixels[y][x]) & 0xFF;
+
+                if (r != g || r != b) {
+                    throw new IllegalArgumentException("Found an image that used colors instead of a shade " +
+                            "of gray at pixel x:" + x + " y:" + y);
+                }
+
+                int grayScale = 255 - r;
+                if (grayScale != 0) {
                     double yaw = (x - xMiddle) / sprite.getWidth() * maxYaw;
                     double pitch = (y - yMiddle) / sprite.getHeight() * maxPitch;
 
                     Point point = new Point(yaw, pitch);
-                    double chance = pixels[y][x] / 255d;
+                    double chance = grayScale / 255.0;
                     points.add(point, chance);
                 }
             }

@@ -5,11 +5,11 @@ import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.ArrayUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginDescriptionFile;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -30,7 +30,7 @@ public class InfoCommand extends SubCommand {
         sender.sendMessage("" + GRAY + GOLD + BOLD + "Weapon" + GRAY + BOLD + "Mechanics"
                 + GRAY + ", v" + ITALIC + desc.getVersion());
 
-        sender.sendMessage("  " + GRAY + SYM + GOLD + " Authors: " + GRAY + ArrayUtil.toString(desc.getAuthors()));
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " Authors: " + GRAY + toString(desc.getAuthors()));
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Command:" + GRAY + " /weaponmechanics");
 
         // Informs the user about any updates
@@ -52,6 +52,15 @@ public class InfoCommand extends SubCommand {
         Set<String> softDepencies = new LinkedHashSet<>(desc.getSoftDepend());
         softDepencies.addAll(MechanicsCore.getPlugin().getDescription().getSoftDepend());
         softDepencies.remove("MechanicsCore");
-        sender.sendMessage("  " + GRAY + SYM + GOLD + " Supported plugins: " + GRAY + ArrayUtil.toString(softDepencies));
+        sender.sendMessage("  " + GRAY + SYM + GOLD + " Supported plugins: " + GRAY + toString(softDepencies));
+    }
+
+    public static String toString(Collection<?> list) {
+        StringBuilder builder = new StringBuilder();
+        for (Object obj : list) {
+            builder.append(obj).append(", ");
+        }
+        builder.setLength(builder.length() - 2);
+        return builder.toString();
     }
 }
