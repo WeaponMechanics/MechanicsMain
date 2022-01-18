@@ -25,32 +25,41 @@ import static me.deecaad.core.utils.NumberUtil.square;
  */
 public abstract class FakeEntity {
 
+    // Use these constants to change an entity's metadata. Note that '2' is
+    // intentionally missing due to it being unused in new MC versions.
+    public static final int FIRE_FLAG = 0;
+    public static final int SNEAKING = 1;
+    public static final int SPRINTING = 3;
+    public static final int SWIMMING = 4;
+    public static final int INVISIBLE = 5;
+    public static final int GLOWING = 6;
+    public static final int GLIDING = 7;
+
     protected final EntityType type;
     protected Location location;
     protected Location offset;
     protected Vector motion;
     protected int cache = -1;
 
-    protected final EntityMeta meta;
-
     public FakeEntity(@Nonnull Location location, @Nonnull EntityType type) {
         this.type = type;
-        this.meta = new EntityMeta();
         this.location = new Location(location.getWorld(), 0, 0, 0);
         this.motion = new Vector();
     }
 
-    /**
-     * Returns a reference to the entity metadata mutator that effects this
-     * entity. In order for changes to seen by the client, you must call
-     * {@link #updateMeta()}.
-     *
-     * @return The non-null entity metadata mutators.
-     */
-    @Nonnull
-    public EntityMeta getMeta() {
-        return meta;
+    public final void setOnFire(boolean isOnFire) {
+        this.setMeta(FIRE_FLAG, isOnFire);
     }
+
+    public final void setGlowing(boolean isGlowing) {
+        this.setMeta(GLOWING, isGlowing);
+    }
+
+    public final void setInvisible(boolean isInvisible) {
+        this.setMeta(INVISIBLE, isInvisible);
+    }
+
+    public abstract void setMeta(int metaFlag, boolean isEnabled);
 
     /**
      * Sets the display name of the entity. Use <code>null</code> to remove the
@@ -304,7 +313,7 @@ public abstract class FakeEntity {
 
     /**
      * Updates the meta for all players that currently see it. This method
-     * should be used after any modifications to {@link #getMeta()}.
+     * should be used after any modifications to entity meta.
      */
     public abstract void updateMeta();
 
