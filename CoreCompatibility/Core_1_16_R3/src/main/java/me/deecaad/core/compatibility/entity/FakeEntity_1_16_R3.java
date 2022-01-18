@@ -15,10 +15,13 @@ import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_16_R3.util.CraftChatMessage;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +43,8 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         }
     }
 
+    // Store this since using Enum#values() is especially slow
+    public static final EnumItemSlot[] SLOTS = EnumItemSlot.values();
 
     private final Entity entity;
     private final List<PlayerConnection> connections; // store the player connection to avoid type cast
@@ -94,8 +99,22 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     }
 
     @Override
-    public void setMeta(int metaFlag, boolean isEnabled) {
+    public boolean getMeta(int metaFlag) {
+        return entity.getFlag(metaFlag);
+    }
 
+    @Override
+    public void setMeta(int metaFlag, boolean isEnabled) {
+        entity.setFlag(metaFlag, isEnabled);
+    }
+
+    @Override
+    public void setData(@Nullable Object data) {
+        switch (type) {
+            case DROPPED_ITEM:
+                ((EntityItem) entity).setItemStack(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                break;
+        }
     }
 
     @Override
@@ -175,7 +194,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         Packet<?> spawn = type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
                 : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
-        PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), false);
+        PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true);
         PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw()));
         PacketPlayOutEntityLook look = new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
@@ -208,7 +227,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         connection.sendPacket(type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
                 : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
-        connection.sendPacket(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), false));
+        connection.sendPacket(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true));
         connection.sendPacket(new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.sendPacket(new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ())));
         connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw())));
@@ -245,26 +264,42 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     }
 
     @Override
-    public void playEntityEffect(EntityEffect entityEffect) {
-        if (!entityEffect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
-        sendPackets(new PacketPlayOutEntityStatus(entity, entityEffect.getData()));
+    public void playEffect(EntityEffect effect) {
+        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
+        sendPackets(new PacketPlayOutEntityStatus(entity, effect.getData()));
     }
 
     @Override
-    public void setEquipment(org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
-        if (!type.isAlive()) return;
-        EntityLiving livingEntity = (EntityLiving) entity;
+    public void setEquipment(@Nonnull org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
+        if (!type.isAlive())
+            throw new IllegalStateException("Cannot set equipment of " + type);
+
+        EnumItemSlot slot;
         switch (equipmentSlot) {
             case HAND:
-                livingEntity.setSlot(EnumItemSlot.MAINHAND, CraftItemStack.asNMSCopy(itemStack));
+                slot = EnumItemSlot.MAINHAND;
                 break;
             case OFF_HAND:
-                livingEntity.setSlot(EnumItemSlot.OFFHAND, CraftItemStack.asNMSCopy(itemStack));
+                slot = EnumItemSlot.OFFHAND;
+                break;
+            case FEET:
+                slot = EnumItemSlot.FEET;
+                break;
+            case CHEST:
+                slot = EnumItemSlot.CHEST;
+                break;
+            case LEGS:
+                slot = EnumItemSlot.LEGS;
+                break;
+            case HEAD:
+                slot = EnumItemSlot.HEAD;
                 break;
             default:
-                livingEntity.setSlot(EnumItemSlot.valueOf(equipmentSlot.toString()), CraftItemStack.asNMSCopy(itemStack));
-                break;
+                throw new IllegalArgumentException();
         }
+
+        EntityLiving livingEntity = (EntityLiving) entity;
+        livingEntity.setSlot(slot, CraftItemStack.asNMSCopy(itemStack));
     }
 
     @Override
@@ -277,8 +312,8 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         if (!type.isAlive()) return null;
         EntityLiving livingEntity = (EntityLiving) entity;
 
-        List<Pair<EnumItemSlot, ItemStack>> equipmentList = new ArrayList<>(1);
-        for (EnumItemSlot slot : EnumItemSlot.values()) {
+        List<Pair<EnumItemSlot, ItemStack>> equipmentList = new ArrayList<>(6);
+        for (EnumItemSlot slot : SLOTS) {
             ItemStack itemStack = livingEntity.getEquipment(slot);
             if (!itemStack.isEmpty()) {
                 equipmentList.add(Pair.of(slot, itemStack));

@@ -28,12 +28,12 @@ public abstract class FakeEntity {
     // Use these constants to change an entity's metadata. Note that '2' is
     // intentionally missing due to it being unused in new MC versions.
     public static final int FIRE_FLAG = 0;
-    public static final int SNEAKING = 1;
-    public static final int SPRINTING = 3;
-    public static final int SWIMMING = 4;
-    public static final int INVISIBLE = 5;
-    public static final int GLOWING = 6;
-    public static final int GLIDING = 7;
+    public static final int SNEAKING_FLAG = 1;
+    public static final int SPRINTING_FLAG = 3;
+    public static final int SWIMMING_FLAG = 4;
+    public static final int INVISIBLE_FLAG = 5;
+    public static final int GLOWING_FLAG = 6;
+    public static final int GLIDING_FLAG = 7;
 
     protected final EntityType type;
     protected Location location;
@@ -47,19 +47,69 @@ public abstract class FakeEntity {
         this.motion = new Vector();
     }
 
+    public EntityType getType() {
+        return type;
+    }
+
+    // * ------------------------- * //
+    // *        Meta Methods       * //
+    // * ------------------------- * //
+
+    public final boolean isOnFire() {
+        return getMeta(FIRE_FLAG);
+    }
+
+    public final boolean isGlowing() {
+        return getMeta(GLOWING_FLAG);
+    }
+
+    public final boolean isInvisible() {
+        return getMeta(INVISIBLE_FLAG);
+    }
+
+    /**
+     * Gets the stored meta-data flag.
+     *
+     * @param metaFlag The index location of which flag to edit.
+     * @return Whether the flag is enabled or disabled.
+     * @see #setMeta(int, boolean)
+     */
+    public abstract boolean getMeta(int metaFlag);
+
     public final void setOnFire(boolean isOnFire) {
         this.setMeta(FIRE_FLAG, isOnFire);
     }
 
     public final void setGlowing(boolean isGlowing) {
-        this.setMeta(GLOWING, isGlowing);
+        this.setMeta(GLOWING_FLAG, isGlowing);
     }
 
     public final void setInvisible(boolean isInvisible) {
-        this.setMeta(INVISIBLE, isInvisible);
+        this.setMeta(INVISIBLE_FLAG, isInvisible);
     }
 
+    /**
+     * Sets this entity's meta-data at the given <code>metaFlag</code> index.
+     * You can toggle a meta flag by checking {@link #getMeta(int)}. <
+     * <code>metaFlag</code> should be one of the flag constants in the
+     * {@link FakeEntity} (this) class. After these modifications, call
+     * {@link #updateMeta()} to show player's changes.
+     *
+     * @param metaFlag  The index location of which flag to edit.
+     * @param isEnabled Whether to enable or disable the flag.
+     * @see #getMeta(int)
+     */
     public abstract void setMeta(int metaFlag, boolean isEnabled);
+
+    /**
+     * Sets the data usually used in the constructor of a {@link FakeEntity}.
+     * As of the time of writing, <code>data</code> may only be an
+     * {@link ItemStack}, and this method will only have any behavior for
+     * armorstands and dropped items.
+     *
+     * @param data The nullable data.
+     */
+    public abstract void setData(@Nullable Object data);
 
     /**
      * Sets the display name of the entity. Use <code>null</code> to remove the
@@ -336,11 +386,12 @@ public abstract class FakeEntity {
     public abstract void remove(@Nonnull Player player);
 
     /**
-     * Sends the given entity effect for players that currently see it.
+     * Plays an entity effect for this entity. Make sure that the given effect
+     * can be used for this entity's {@link #getType}.
      *
-     * @param entityEffect the entity effect to play
+     * @param effect The non-null effect to play.
      */
-    public abstract void playEntityEffect(EntityEffect entityEffect);
+    public abstract void playEffect(@Nonnull EntityEffect effect);
 
     /**
      * Sets new item to given equipment slot.
@@ -348,7 +399,7 @@ public abstract class FakeEntity {
      * @param equipmentSlot the equipment slot to modify
      * @param itemStack the item stack set to slot
      */
-    public abstract void setEquipment(EquipmentSlot equipmentSlot, ItemStack itemStack);
+    public abstract void setEquipment(@Nonnull EquipmentSlot equipmentSlot, @Nullable ItemStack itemStack);
 
     /**
      * Updates the equipment for all players that currently see it. This method
