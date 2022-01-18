@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -50,20 +51,29 @@ public class DamageUtil {
 
         // Apply damage per armor and attachment
         for (ItemStack armorSlot : victim.getEquipment().getArmorContents()) {
+            if (armorSlot == null)
+                continue;
 
-            if (armorSlot == null) continue;
+            // We parse Material and EquipmentSlot from the given item. Note
+            // that all armor names are formatted like: DIAMOND_CHESTPLATE,
+            // IRON_BOOTS, LEATHER_HELMET, hence Material_Equipment slot.
+            // Normally we would split at the '_', but using String#split is
+            // ~50x slower than String#subString.
+            String name = armorSlot.getType().name();
+            int splitIndex = name.indexOf('_');
+            if (splitIndex == -1)
+                continue;
 
-            // Note that the material for armor is going to be something like
-            // Material.DIAMOND_CHESTPLATE, Material.IRON_BOOTS, Material.GOLDEN_LEGGINGS, Material.LEATHER_HELMET;
-            // So split[0] is going to be the material of the armor and
-            // split[1] is going to be the armor's slot/type
-            String[] split = armorSlot.getType().name().split("_");
-            if (split.length == 2) {
-                rate.addAndGet(config.getDouble("Damage.Armor." + split[1] + "." + split[0]));
-            }
+            // This method of parsing material and slot has issues with
+            // materials like ACACIA_BOAT. In this case, it will fail silently
+            // by adding 0.0 to the rate.
+            String material = name.substring(0, splitIndex);
+            String slot = name.substring(splitIndex + 1);
+
+            rate.addAndGet(config.getDouble("Damage.Armor." + slot + "." + material, 0.0));
 
             armorSlot.getEnchantments().forEach((enchant, level) ->
-                    rate.addAndGet(config.getDouble("Damage.Armor.Enchantments." + enchant.getKey().getKey())));
+                    rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getKey().getKey())));
         }
 
         // Apply damage based on victim movement
@@ -94,7 +104,7 @@ public class DamageUtil {
 
         if (victim.isInvulnerable() || victim.isDead()) {
             return;
-        } else if (victim instanceof Player) {
+        } else if (victim.getType() == EntityType.PLAYER) {
             GameMode gamemode = ((Player) victim).getGameMode();
 
             if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR) {
