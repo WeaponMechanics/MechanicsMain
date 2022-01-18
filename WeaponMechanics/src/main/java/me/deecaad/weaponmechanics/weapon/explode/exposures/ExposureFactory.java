@@ -41,6 +41,7 @@ public final class ExposureFactory extends Factory<ExplosionExposure> {
     }
 
     private ExposureFactory() {
+        super(ExplosionExposure.class);
     }
 
     public static ExposureFactory getInstance() {

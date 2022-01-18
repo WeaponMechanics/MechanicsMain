@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.skin;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -79,15 +81,12 @@ public class SkinHandler implements IValidator {
     }
 
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) throws SerializerException {
 
         // Convert the skins under "Skin" keyword to skin objects
         Skin skinSerializer = new Skin();
         for (String skinName : configurationSection.getConfigurationSection(path).getKeys(false)) {
-            Skin skin = skinSerializer.serialize0(file, configurationSection, path + "." + skinName);
-            if (skin == null) {
-                continue;
-            }
+            Skin skin = skinSerializer.serialize(new SerializeData(null, file, path + "." + skinName, configurationSection));
             configuration.set(path + "." + skinName, skin);
         }
     }

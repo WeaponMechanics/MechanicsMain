@@ -3,16 +3,26 @@ package me.deecaad.core.file;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.io.File;
+import javax.annotation.Nonnull;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
 public interface Serializer<T> {
 
     /**
-     * @return keyword of this serializer used in configurations
+     * Returns the unique identifier to this serializer. This identifier is
+     * used to determine when to apply the serializer to a config section.
+     * The identifier is case-sensitive, and it is ignored when
+     * <code>null</code>.
+     *
+     * <p>Generally speaking, you should always override this method. When you
+     * do not need automatic serializer handling, you may return null.
+     *
+     * @return The nullable unique identifier.
      */
-    String getKeyword();
+    default String getKeyword() {
+        return null;
+    }
 
     /**
      * Basically if this is not null then all other serializers will be used except these ones which
@@ -59,15 +69,16 @@ public interface Serializer<T> {
     }
 
     /**
-     * You should return null if configuration section at this path wasn't valid,
-     * otherwise configuration filling will be messed up. After the keyword
-     * everything required should be saved into this method's return object because
-     * FileAPI will not save anything after this keyword anymore if this doesn't return null.
+     * Instantiates a new Object to be added into the finalized configuration.
+     * The object should be built off of {@link SerializeData#config}. If there
+     * is any misconfiguration (or any other issue preventing the construction
+     * of an object), then this method should throw a
+     * {@link SerializerException}. This method may not return null.
      *
-     * @param file the file being filled
-     * @param configurationSection the configuration section
-     * @param path the path to this serializer's path (path to keyword like path.keyword)
-     * @return the serialized object or null
+     * @param data The non-null data containing config
+     * @return The non-null serialized data.
+     * @throws SerializerException If there is an error in config.
      */
-    T serialize(File file, ConfigurationSection configurationSection, String path);
+    @Nonnull
+    T serialize(SerializeData data) throws SerializerException;
 }

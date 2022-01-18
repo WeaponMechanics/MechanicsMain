@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.reload;
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -525,27 +526,26 @@ public class ReloadHandler implements IValidator {
         }
 
         int magazineSize = configurationSection.getInt(path + ".Magazine_Size");
-        debug.validate(magazineSize > 0, StringUtil.foundInvalid("magazine size"),
-                StringUtil.foundAt(file, path + ".Magazine_Size", magazineSize),
-                "It either didn't exist or it was given negative value.");
+        debug.validate(magazineSize > 0, "Magazine_Size must be positive",
+                SerializerException.forValue(magazineSize),
+                StringUtil.foundAt(file, path + ".Magazine_Size"));
 
         int reloadDuration = configurationSection.getInt(path + ".Reload_Duration");
-        debug.validate(reloadDuration > 0, StringUtil.foundInvalid("reload duration"),
-                StringUtil.foundAt(file, path + ".Reload_Duration", reloadDuration),
-                "It either didn't exist or it was given negative value.");
+        debug.validate(reloadDuration > 0, "Reload_Duration must be positive",
+                SerializerException.forValue(reloadDuration),
+                StringUtil.foundAt(file, path + ".Reload_Duration"));
 
         int ammoPerReload = configurationSection.getInt(path + ".Ammo_Per_Reload", -99);
         if (ammoPerReload != -99) {
-            debug.validate(ammoPerReload > 0, StringUtil.foundInvalid("ammo per reload"),
-                    StringUtil.foundAt(file, path + ".Ammo_Per_Reload", ammoPerReload),
-                    "Can't use negative value here.");
+            debug.validate(ammoPerReload > 0, "Ammo_Per_Reload must be positive",
+                    SerializerException.forValue(ammoPerReload),
+                    StringUtil.foundAt(file, path + ".Ammo_Per_Reload"));
         }
         boolean unloadAmmoOnReload = configurationSection.getBoolean(path + ".Unload_Ammo_On_Reload");
         if (unloadAmmoOnReload && ammoPerReload != -99) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
-            debug.error(StringUtil.foundInvalid("logic"),
-                    StringUtil.foundAt(file, path + ".Unload_Ammo_On_Reload", unloadAmmoOnReload),
-                    "Can't use Ammo_Per_Reload and Unload_Ammo_On_Reload at same time!");
+            debug.error("Cannot use Ammo_Per_Reload and Unload_Ammo_On_Reload at the same time",
+                    StringUtil.foundAt(file, path + ".Unload_Ammo_On_Reload"));
         }
     }
 }

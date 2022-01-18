@@ -1,11 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.FireworkEffect;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,34 +47,21 @@ public class Detonation implements Serializer<Detonation> {
     }
 
     @Override
-    public Detonation serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public Detonation serialize(SerializeData data) throws SerializerException {
 
-        ConfigurationSection impactWhenSection = configurationSection.getConfigurationSection(path + ".Impact_When");
-        if (impactWhenSection == null) {
-            return null;
-        }
+        Set<ExplosionTrigger> triggers = new HashSet<>(ExplosionTrigger.values().length, 1.0f);
+        for (ExplosionTrigger trigger : ExplosionTrigger.values()) {
+            String key = StringUtil.upperSnakeCase(trigger.name());
+            boolean enable = data.of(key).assertType(Boolean.class).get(false);
 
-        Set<ExplosionTrigger> triggers = new HashSet<>(4, 1.0f);
-        for (String key : impactWhenSection.getKeys(false)) {
-            try {
-                ExplosionTrigger trigger = ExplosionTrigger.valueOf(key.toUpperCase());
-                boolean value = impactWhenSection.getBoolean(key);
-
-                if (value) triggers.add(trigger);
-            } catch (IllegalArgumentException ex) {
-                debug.log(LogLevel.ERROR,
-                        StringUtil.foundInvalid("trigger type"),
-                        StringUtil.foundAt(file, path + ".Impact_When", key),
-                        StringUtil.debugDidYouMean(key, ExplosionTrigger.class));
-                return null;
-            }
+            if (enable)
+                triggers.add(trigger);
         }
 
         // Time after the trigger the explosion occurs
-        int delay = configurationSection.getInt(path + ".Delay_After_Impact");
-        debug.validate(delay >= 0, "Delay should be positive", StringUtil.foundAt(file, path + ".Delay_After_Impact"));
-
-        boolean removeProjectileOnDetonation = configurationSection.getBoolean(path + ".Remove_Projectile_On_Detonation");
+        int delay = data.of("Delay_After_Impact").assertPositive().get(0);
+        boolean removeProjectileOnDetonation = data.of("Remove_Projectile_On_Detonation").assertType(Boolean.class).get(true);
 
         return new Detonation(triggers, delay, removeProjectileOnDetonation);
     }

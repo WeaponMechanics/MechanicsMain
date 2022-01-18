@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
@@ -8,8 +10,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Locale;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -152,41 +156,30 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     }
 
     @Override
-    public ProjectileSettings serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public ProjectileSettings serialize(SerializeData data) throws SerializerException {
 
-        String type = configurationSection.getString(path + ".Type");
-        if (type == null) return null;
-
-        type = type.trim().toUpperCase();
+        String type = data.of("Type").assertExists().get().toString().trim().toUpperCase(Locale.ROOT);
         boolean isInvisible = type.equals("INVISIBLE");
 
         Object disguiseData = null;
         EntityType projectileType = null;
 
         if (!isInvisible) {
-            try {
-                projectileType = EntityType.valueOf(type);
-            } catch (IllegalArgumentException e) {
-                debug.error(StringUtil.foundInvalid("projectile type"),
-                        StringUtil.foundAt(file, path + ".Type", type),
-                        StringUtil.debugDidYouMean(type, EntityType.class));
-                return null;
-            }
-            ItemStack projectileItem = new ItemSerializer().serialize(file, configurationSection, path + ".Projectile_Item_Or_Block");
+            projectileType = data.of("Type").assertExists().getEnum(EntityType.class);
+            ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serializeNonStandardSerializer(new ItemSerializer());
             if ((projectileType == EntityType.DROPPED_ITEM
                     || projectileType == EntityType.FALLING_BLOCK)
                     && projectileItem == null) {
-                debug.error("When using " + projectileType + " you need to define valid projectile item or block.",
-                        "Now there wasn't any valid item or block at path " + path + ".Projectile_Item_Or_Block",
-                        StringUtil.foundAt(file, path + ".Projectile_Item_Or_Block"));
-                return null;
+
+                data.throwException(null, "When using " + projectileType + ", you MUST use Projectile_Item_Or_Block");
             }
 
             if (projectileItem != null) {
                 if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
-                    debug.error("When using " + projectileType + " you need to define valid firework item.",
-                            StringUtil.foundAt(file, path + ".Projectile_Item_Or_Block"));
-                    return null;
+
+                    data.throwException(null, "When using " + projectileType + ", the item must be a firework",
+                            SerializerException.forValue(projectileItem));
                 }
 
                 if (projectileType == EntityType.FALLING_BLOCK) {
@@ -197,27 +190,20 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
             }
         }
 
-        double gravity = configurationSection.getDouble(path + ".Gravity", 0.05);
+        double gravity = data.of("Gravity").assertNumber().get(10.0) / 20.0;
 
         // -1 so that CustomProjectile#tick() can understand that minimum or maximum speed isn't used
-        double minimumSpeed = configurationSection.getDouble(path + ".Minimum.Speed", -10.0) * 0.1;
-        boolean removeAtMinimumSpeed = configurationSection.getBoolean(path + ".Minimum.Remove_Projectile_On_Speed_Reached", false);
-        double maximumSpeed = configurationSection.getDouble(path + ".Maximum.Speed", -10.0) * 0.1;
-        boolean removeAtMaximumSpeed = configurationSection.getBoolean(path + ".Maximum.Remove_Projectile_On_Speed_Reached", false);
+        double minimumSpeed = data.of("Minimum.Speed").assertPositive().get(-20.0) / 20.0;
+        boolean removeAtMinimumSpeed = data.of("Minimum.Remove_Projectile_On_Speed_Reached").assertType(Boolean.class).get(false);
+        double maximumSpeed = data.of("Maximum.Speed").assertPositive().get(-20.0) / 20.0;
+        boolean removeAtMaximumSpeed = data.of("Maximum.Remove_Projectile_On_Speed_Reached").assertType(Boolean.class).get(false);
 
-        double decrease = configurationSection.getDouble(path + ".Decrease_Motion.Base", 0.99);
-        double decreaseInWater = configurationSection.getDouble(path + ".Decrease_Motion.In_Water", 0.96);
-        double decreaseWhenRainingOrSnowing = configurationSection.getDouble(path + ".Decrease_Motion.When_Raining_Or_Snowing", 0.98);
+        double decrease = data.of("Drag.Base").assertRange(0.0, 3.0).get(0.99);
+        double decreaseInWater = data.of("Drag.In_Water").assertRange(0.0, 3.0).get(0.96);
+        double decreaseWhenRainingOrSnowing = data.of("Drag.When_Raining_Or_Snowing").assertRange(0.0, 3.0).get(0.98);
 
-        debug.validate(decrease >= 0.0, "Motion multiplier MUST be positive",
-                "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.Base"));
-        debug.validate(decreaseInWater >= 0.0, "Motion multiplier MUST be positive",
-                "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.In_Water"));
-        debug.validate(decreaseWhenRainingOrSnowing >= 0.0, "Motion multiplier MUST be positive",
-                "Use 0.0 -> 1.0 to slow down, 1.0+ to speed up", StringUtil.foundAt(file, path + ".Decrease_Motion.When_Raining_Or_Snowing"));
-
-        boolean disableEntityCollisions = configurationSection.getBoolean(path + ".Disable_Entity_Collisions", false);
-        int maximumAliveTicks = configurationSection.getInt(path + ".Maximum_Alive_Ticks", 600);
+        boolean disableEntityCollisions = data.of("Disable_Entity_Collisions").assertType(Boolean.class).get(false);
+        int maximumAliveTicks = data.of("Maximum_Alive_Ticks").assertPositive().get(600);
 
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
                 removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing, disableEntityCollisions, maximumAliveTicks);

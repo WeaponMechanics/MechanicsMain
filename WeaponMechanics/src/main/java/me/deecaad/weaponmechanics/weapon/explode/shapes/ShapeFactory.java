@@ -33,6 +33,7 @@ public final class ShapeFactory extends Factory<ExplosionShape> {
     }
 
     private ShapeFactory() {
+        super(ExplosionShape.class);
     }
 
     public static ShapeFactory getInstance() {

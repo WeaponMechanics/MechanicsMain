@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -11,6 +13,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashSet;
@@ -83,22 +86,17 @@ public class DualWield implements Serializer<DualWield> {
     }
 
     @Override
-    public DualWield serialize(File file, ConfigurationSection configurationSection, String path) {
-        List<?> weaponsList = configurationSection.getList(path + ".Weapons");
-        if (weaponsList == null) return null;
+    @Nonnull
+    public DualWield serialize(SerializeData data) throws SerializerException {
+        List<String[]> weaponsList = data.ofList("Weapons")
+                .addArgument(String.class, true, true)
+                .assertExists().assertList().get();
         Set<String> weapons = new HashSet<>();
-        try {
-            // Saves weapons in lower case
-            weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle.toString().toLowerCase()));
-        } catch (ClassCastException e) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid value in configurations!",
-                    "Located at file " + file + " in " + path + ".Weapons (" + weaponsList + ") in configurations",
-                    "Tried to get get weapon title from " + weaponsList + ", but some of its values wasn't string?");
-            return null;
-        }
-        boolean whitelist = configurationSection.getBoolean(path + ".Whitelist", false);
-        Mechanics mechanics = new Mechanics().serialize(file, configurationSection, path + ".Mechanics_On_Deny");
+
+        // Saves weapons in lower case
+        weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle[0].toLowerCase()));
+        boolean whitelist = data.of("Whitelist").assertType(Boolean.class).get(false);
+        Mechanics mechanics = data.of("Mechanics_On_Deny").serialize(Mechanics.class);
         return new DualWield(whitelist, weapons, mechanics);
     }
 }

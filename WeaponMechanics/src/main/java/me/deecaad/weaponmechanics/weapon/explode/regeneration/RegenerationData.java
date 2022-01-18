@@ -1,8 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.explode.regeneration;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -55,18 +58,11 @@ public class RegenerationData implements Serializer<RegenerationData> {
     }
 
     @Override
-    public RegenerationData serialize(File file, ConfigurationSection configurationSection, String path) {
-        ConfigurationSection config = configurationSection.getConfigurationSection(path);
-
-        int ticksBeforeStart = config.getInt("Ticks_Before_Start", 1200); // 1 minute, in ticks
-        int maxBlocksPerUpdate = config.getInt("Max_Blocks_Per_Update", 1);
-        int interval = config.getInt("Ticks_Between_Updates", 1);
-
-        String foundIn = "Found in file " + file + " at path " + path;
-
-        debug.validate(ticksBeforeStart >= 0, "Ticks_Before_Start MUST be a positive number!", foundIn);
-        debug.validate(maxBlocksPerUpdate > 0, "Max_Blocks_Per_Update MUST be a positive number!", foundIn);
-        debug.validate(interval > 0, "Ticks_Between_Updates MUST be a positive number!", foundIn);
+    @Nonnull
+    public RegenerationData serialize(SerializeData data) throws SerializerException {
+        int ticksBeforeStart = data.of("Ticks_Before_Start").assertPositive().get(1200); // 1 minute, in ticks
+        int maxBlocksPerUpdate = data.of("Max_Blocks_Per_Update").assertPositive().get(1);
+        int interval = data.of("Ticks_Between_Updates").assertPositive().get(1);
 
         return new RegenerationData(ticksBeforeStart, maxBlocksPerUpdate, interval);
     }

@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.skin;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -10,6 +12,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -65,6 +68,10 @@ public class Skin implements Serializer<Skin>  {
         boolean hasMetaChanges = false;
         ItemMeta meta = itemStack.getItemMeta();
 
+        // Happens when somebody tries to apply a skin to air
+        if (meta == null)
+            throw new IllegalArgumentException("Tried to apply skin to item without meta: " + itemStack);
+
         if (durability != -1) {
             if (version >= 1.132) {
                 if (((org.bukkit.inventory.meta.Damageable) meta).getDamage() != durability) {
@@ -89,43 +96,14 @@ public class Skin implements Serializer<Skin>  {
     }
 
     @Override
-    public String getKeyword() {
-        return "Skin";
-    }
+    @Nonnull
+    public Skin serialize(SerializeData data) throws SerializerException {
 
-    @Override
-    public Skin serialize(File file, ConfigurationSection configurationSection, String path) {
-        return this;
-    }
+        Material type = data.of("Type").getEnum(Material.class, null);
+        byte legacyData = data.of("Legacy_Data").assertPositive().get((byte) -1);
+        short durability = data.of("Durability").assertPositive().get((short) -1);
+        int customModelData = data.of("Custom_Model_Data").assertPositive().get(-1);
 
-    public Skin serialize0(File file, ConfigurationSection configurationSection, String path) {
-
-        String type = configurationSection.getString(path + ".Type");
-        Material material = null;
-        byte data = -1;
-        if (type != null) {
-            type = type.toUpperCase();
-
-            try {
-                ItemStack itemStack = MaterialUtil.fromStringToItemStack(type);
-                material = itemStack.getType();
-                data = itemStack.getData().getData();
-            } catch (IllegalArgumentException e) {
-                debug.log(LogLevel.ERROR,
-                        StringUtil.foundInvalid("material"),
-                        StringUtil.foundAt(file, path + ".Type", type),
-                        StringUtil.debugDidYouMean(type.split(":")[0], Material.class));
-                return null;
-            }
-        }
-
-        short durability = (short) configurationSection.getInt(path + ".Durability", -1);
-        int customModelData = configurationSection.getInt(path + ".Custom_Model_Data", -1);
-
-        if (material == null && data == -1 && durability == -1 && customModelData == -1) {
-            return null;
-        }
-
-        return new Skin(material, data, durability, customModelData);
+        return new Skin(type, legacyData, durability, customModelData);
     }
 }

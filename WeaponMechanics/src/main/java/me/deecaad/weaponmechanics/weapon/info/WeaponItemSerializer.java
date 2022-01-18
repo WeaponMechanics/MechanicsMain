@@ -1,11 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 /**
@@ -19,19 +22,20 @@ public class WeaponItemSerializer extends ItemSerializer {
     }
 
     @Override
-    public ItemStack serialize(File file, ConfigurationSection configurationSection, String path) {
-        ItemStack weaponStack = super.serializeWithoutRecipe(file, configurationSection, path);
-        if (weaponStack == null) return null;
-        String weaponTitle = path.split("\\.")[0];
+    @Nonnull
+    public ItemStack serialize(SerializeData data) throws SerializerException {
+        ItemStack weaponStack = super.serializeWithoutRecipe(data);
+
+        String weaponTitle = data.key.split("\\.")[0];
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
 
-        int magazineSize = configurationSection.getInt(weaponTitle + ".Reload.Magazine_Size", -1);
+        int magazineSize = data.config.getInt(weaponTitle + ".Reload.Magazine_Size", -1);
         if (magazineSize != -1) {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, magazineSize);
         }
 
         CustomTag.WEAPON_TITLE.setString(weaponStack, weaponTitle);
-        weaponStack = super.serializeRecipe(file, configurationSection, path, weaponStack);
+        weaponStack = super.serializeRecipe(data, weaponStack);
         return weaponStack;
     }
 }

@@ -3,7 +3,11 @@ package me.deecaad.core.file.serializers;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
+import me.deecaad.core.file.SerializerRangeException;
 import me.deecaad.core.utils.*;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,10 +18,12 @@ import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.*;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -46,46 +52,35 @@ public class ItemSerializer implements Serializer<ItemStack> {
     }
 
     @Override
-    public ItemStack serialize(File file, ConfigurationSection configurationSection, String path) {
-        ItemStack itemStack = serializeWithoutRecipe(file, configurationSection, path);
-        itemStack = serializeRecipe(file, configurationSection, path, itemStack);
+    @Nonnull
+    public ItemStack serialize(SerializeData data) throws SerializerException {
+        ItemStack itemStack = serializeWithoutRecipe(data);
+        itemStack = serializeRecipe(data, itemStack);
         return itemStack;
     }
 
-    public ItemStack serializeWithoutRecipe(File file, ConfigurationSection configurationSection, String path) {
-        String type = configurationSection.getString(path + ".Type");
-        if (type == null) {
-            return null;
-        }
-        type = type.toUpperCase();
-        ItemStack itemStack;
-        try {
-            itemStack = MaterialUtil.fromStringToItemStack(type);
-        } catch (IllegalArgumentException e) {
-            debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("material"),
-                    StringUtil.foundAt(file, path + ".Type", type),
-                    StringUtil.debugDidYouMean(type.split(":")[0], Material.class));
-            return null;
-        }
+    public ItemStack serializeWithoutRecipe(SerializeData data) throws SerializerException {
+
+        // TODO Add byte data support using 'Data:' or 'Extra_Data:' key
+        Material type = data.of("Type").assertExists().getEnum(Material.class);
+        ItemStack itemStack = new ItemStack(type);
+
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
-            debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("material"),
-                    StringUtil.foundAt(file, path + ".Type", type),
-                    "Tried to use material which doesn't have item meta.");
-            return null;
+            data.throwException("Type", "Did you use air as a material? This is not allowed!",
+                    SerializerException.forValue(type));
+            assert false;
         }
 
-        String name = configurationSection.getString(path + ".Name");
-        if (name != null) {
+        String name = data.of("Name").assertType(String.class).get(null);
+        if (name != null)
             itemMeta.setDisplayName(StringUtil.color(name));
-        }
-        List<?> lore = configurationSection.getList(path + ".Lore");
+
+        List<?> lore = data.of("Lore").assertType(List.class).get(null);
         if (lore != null && !lore.isEmpty()) {
             itemMeta.setLore(convertListObject(lore));
         }
-        short durability = (short) configurationSection.getInt(path + ".Durability", -99);
+        short durability = (short) (int) data.of("Durability").assertPositive().get(-99);
         if (durability != -99) {
             if (CompatibilityAPI.getVersion() >= 1.132) {
                 ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(durability);
@@ -93,96 +88,77 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemStack.setDurability(durability);
             }
         }
-        boolean unbreakable = configurationSection.getBoolean(path + ".Unbreakable", false);
+        boolean unbreakable = data.of("Unbreakable").assertType(Boolean.class).get(false);
         if (CompatibilityAPI.getVersion() >= 1.11) {
             itemMeta.setUnbreakable(unbreakable);
         } else {
             setupUnbreakable();
             ReflectionUtil.invokeMethod(setUnbreakable, ReflectionUtil.invokeMethod(spigotMethod, itemMeta), true);
         }
-        int customModelData = configurationSection.getInt(path + ".Custom_Model_Data", -99);
+
+        int customModelData = data.of("Custom_Model_Data").assertPositive().get(-99);
         if (customModelData != -99 && CompatibilityAPI.getVersion() >= 1.14) {
             itemMeta.setCustomModelData(customModelData);
         }
-        boolean hideFlags = configurationSection.getBoolean(path + ".Hide_Flags", false);
+
+        boolean hideFlags = data.of("Hide_Flags").assertType(Boolean.class).get(false);
         if (hideFlags) {
             itemMeta.addItemFlags(ItemFlag.values());
         }
-        List<?> enchantments = configurationSection.getList(path + ".Enchantments");
+
+        List<String[]> enchantments = data.ofList("Enchantments")
+                .addArgument(Enchantment.class, true, true)
+                .addArgument(int.class, true)
+                .get();
+
+
         if (enchantments != null) {
-            for (Object enchantment : enchantments) {
-                String[] splitted = StringUtil.split(enchantment.toString());
+            for (String[] split : enchantments) {
                 Enchantment enchant;
                 if (CompatibilityAPI.getVersion() < 1.13) {
-                    enchant = Enchantment.getByName(splitted[0]);
+                    enchant = Enchantment.getByName(split[0]);
                 } else {
-                    enchant = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(splitted[0]));
+                    enchant = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(split[0]));
                 }
                 if (enchant == null) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid enchantment in configurations!",
-                            "Located at file " + file + " in " + path + ".Enchantments (" + splitted[0] + ") in configurations");
-                    continue;
+                    throw new SerializerOptionsException("Item", "Enchantment",
+                            Arrays.stream(Enchantment.values()).map(Enchantment::getName).collect(Collectors.toList()),
+                            split[0], data.of("Enchantments").getLocation());
                 }
-                int enchantmentLevel = splitted.length > 1 ? Integer.parseInt(splitted[1]) : 1;
+                int enchantmentLevel = Integer.parseInt(split[1]);
                 itemMeta.addEnchant(enchant, enchantmentLevel - 1, true);
             }
         }
 
         itemStack.setItemMeta(itemMeta);
 
-        List<?> attributes = configurationSection.getList(path + ".Attributes");
+        List<String[]> attributes = data.ofList("Attributes")
+                .addArgument(AttributeType.class, true)
+                .addArgument(double.class, true)
+                .addArgument(AttributeType.class, false)
+                .get();
+
         if (attributes != null) {
-            for (Object attributeData : attributes) {
-                String[] split = StringUtil.split(attributeData.toString());
-                if (split.length < 2) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid configuration format!",
-                            StringUtil.foundAt(file, path + ".Attributes", attributeData),
-                            "Please use the format: <Attribute>-<Value>-<Slot>. Slot is optional.");
-                    continue;
-                }
-                AttributeType attribute;
-                NBTCompatibility.AttributeSlot slot;
-                double amount;
+            for (String[] split : attributes) {
 
-                Optional<AttributeType> attributeOptional = EnumUtil.getIfPresent(AttributeType.class, split[0]);
-                if (!attributeOptional.isPresent()) {
-                    debug.error("Found an invalid Attribute Type in configurations!",
-                            StringUtil.foundAt(file, path + ".Attributes", split[0]),
-                            StringUtil.debugDidYouMean(split[0], AttributeType.class));
-                    continue;
-                }
-                attribute = attributeOptional.get();
+                List<AttributeType> attributeTypes = EnumUtil.parseEnums(AttributeType.class, split[0]);
+                List<NBTCompatibility.AttributeSlot> attributeSlots = split.length > 2 ? EnumUtil.parseEnums(NBTCompatibility.AttributeSlot.class, split[2]) : null;
+                double amount = Double.parseDouble(split[1]);
 
-                if (split.length >= 3) {
-                    Optional<NBTCompatibility.AttributeSlot> slotOptional =
-                            EnumUtil.getIfPresent(NBTCompatibility.AttributeSlot.class, split[2]);
-                    if (!slotOptional.isPresent()) {
-                        debug.error("Found an invalid Attribute Slot in configurations!",
-                                StringUtil.foundAt(file, path + ".Attributes", split[2]),
-                                StringUtil.debugDidYouMean(split[2], NBTCompatibility.AttributeSlot.class));
-
+                for (AttributeType attribute : attributeTypes) {
+                    if (attributeSlots == null) {
+                        CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, null, amount);
                         continue;
                     }
-                    slot = slotOptional.get();
-                } else {
-                    slot = null;
-                }
 
-                try {
-                    amount = Double.parseDouble(split[1]);
-                } catch (NumberFormatException e) {
-                    debug.error("Invalid number format for Attribute Amount in configurations! Make sure there are not extra characters/symbols",
-                            StringUtil.foundAt(file, path + ".Attributes", split[1]));
-                    continue;
+                    for (NBTCompatibility.AttributeSlot slot : attributeSlots) {
+                        CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, slot, amount);
+                    }
                 }
-
-                CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, slot, amount);
             }
         }
 
-        String owningPlayer = configurationSection.getString(path + ".Skull_Owning_Player");
+        String owningPlayer = data.of("Skull_Owning_Player").assertType(String.class).get(null);
         if (owningPlayer != null) {
             try {
                 SkullMeta skullMeta = (SkullMeta) itemStack.getItemMeta();
@@ -203,189 +179,120 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
                 itemStack.setItemMeta(skullMeta);
             } catch (ClassCastException e) {
-                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Skull_Owning_Player",
-                        "Tried to modify skull meta when the item wasn't skull (" + type + ")"));
-                return null;
+                data.throwException("Skull_Owning_Player", "Tried to use Skulls when the item wasn't a player head!",
+                        SerializerException.forValue(type));
             }
         }
-        if (CompatibilityAPI.getVersion() >= 1.11 && configurationSection.contains(path + ".Potion_Color")) {
+
+        if (CompatibilityAPI.getVersion() >= 1.11 && data.config.contains(data.key + ".Potion_Color")) {
             try {
-                Color color = new ColorSerializer().serialize(file, configurationSection, path + ".Potion_Color");
-                if (color == null) {
-                    debug.warn("Error occurred while serializing Color", StringUtil.foundAt(file, path + ".Potion_Color"));
-                    return null;
-                }
+                Color color = data.of("Potion_Color").serializeNonStandardSerializer(new ColorSerializer());
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
                 potionMeta.setColor(color);
                 itemStack.setItemMeta(potionMeta);
             } catch (ClassCastException e) {
-                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Potion_Color",
-                        "Tried to modify potion meta when the item wasn't potion (" + type + ")"));
-                return null;
+                data.throwException("Potion_Color", "Tried to use Potion Color when the item wasn't a potion!",
+                        SerializerException.forValue(type));
             }
         }
-        if (configurationSection.contains(path + ".Leather_Color")) {
+        if (data.config.contains(data.key + ".Leather_Color")) {
             try {
-                Color color = new ColorSerializer().serialize(file, configurationSection, path + ".Leather_Color");
-                if (color == null) {
-                    debug.warn("Error occurred while serializing Color", StringUtil.foundAt(file, path + ".Leather_Color"));
-                    return null;
-                }
+                Color color = data.of("Leather_Color").serializeNonStandardSerializer(new ColorSerializer());
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);
             } catch (ClassCastException e) {
-                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Leather_Color",
-                        "Tried to modify leather armor meta when the item wasn't leather armor (" + type + ")"));
-                return null;
+                data.throwException("Leather_Color", "Tried to use Leather Color when the item wasn't leather armor!",
+                        SerializerException.forValue(type));
             }
         }
 
-        if (configurationSection.contains(path + ".Firework")) {
-            try {
-                FireworkMeta meta = (FireworkMeta) itemStack.getItemMeta();
-                meta.setPower(configurationSection.getInt(path + ".Firework.Power", 1));
+        if (data.config.contains(data.key + ".Firework")) {
 
-                List<?> effects = configurationSection.getList(path + ".Firework.Effects");
-                if (effects == null) {
-                    debug.log(LogLevel.ERROR, "Firework didn't have any effects defined.", StringUtil.foundAt(file, path + ".Firework.Effects"));
-                    return null;
-                }
+            // <FireworkEffect.Type>-<Color>-<Boolean=Trail>-<Boolean=Flicker>-<Color=Fade>
+            List<String[]> list = data.ofList("Firework.Effects")
+                    .addArgument(FireworkEffect.Type.class, true)
+                    .addArgument(ColorSerializer.class, true, true)
+                    .addArgument(boolean.class, false)
+                    .addArgument(boolean.class, false)
+                    .addArgument(ColorSerializer.class, false)
+                    .assertExists().assertList().get();
 
-                for (Object effectData : effects) {
-                    String[] split = StringUtil.split(effectData.toString());
-                    FireworkEffect.Builder effectBuilder = FireworkEffect.builder();
+            FireworkMeta meta = (FireworkMeta) itemMeta;
+            for (String[] split : list) {
 
-                    if (split.length < 2) {
-                        debug.log(LogLevel.ERROR, "Firework effect requires at least type and color.", StringUtil.foundAt(file, path + ".Firework.Effects", effectData));
-                        return null;
-                    }
+                FireworkEffect.Builder builder = FireworkEffect.builder();
+                builder.with(FireworkEffect.Type.valueOf(split[0]));
 
-                    try {
-                        effectBuilder.with(FireworkEffect.Type.valueOf(split[0].toUpperCase()));
-                    } catch (IllegalArgumentException e) {
-                        debug.log(LogLevel.ERROR,
-                                StringUtil.foundInvalid("firework type"),
-                                StringUtil.foundAt(file, path + ".Firework.Effects", split[0]),
-                                StringUtil.debugDidYouMean(split[0].toUpperCase(), FireworkEffect.Type.class));
-                        return null;
-                    }
+                // Handle initial colors
+                String[] colors = split[1].split(", ?");
+                for (String color : colors)
+                    builder.withColor(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
 
-                    ColorSerializer colorSerializer = new ColorSerializer();
+                builder.trail(split.length > 2 && split[2].equalsIgnoreCase("true"));
+                builder.flicker(split.length > 3 && split[3].equalsIgnoreCase("true"));
 
-                    Color color = colorSerializer.fromString(file, configurationSection, path, split[1]);
-                    if (color == null) {
-                        debug.log(LogLevel.ERROR,
-                                StringUtil.foundInvalid("color"),
-                                StringUtil.foundAt(file, path + ".Firework.Effects", split[1]));
-                        return null;
-                    }
-                    effectBuilder.withColor(color);
+                // Handle the fade colors
+                String[] fadeColors = split.length > 4 ? split[4].split(", ?") : new String[0];
+                for (String color : fadeColors)
+                    builder.withFade(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
 
-                    if (split.length >= 4) {
-                        effectBuilder.trail(Boolean.parseBoolean(split[2]));
-                        effectBuilder.flicker(Boolean.parseBoolean(split[3]));
-                    }
-
-                    if (split.length > 4) {
-                        Color fadeColor = colorSerializer.fromString(file, configurationSection, path, split[4]);
-                        if (fadeColor == null) {
-                            debug.log(LogLevel.ERROR,
-                                    StringUtil.foundInvalid("fade color"),
-                                    StringUtil.foundAt(file, path + ".Firework.Effects", split[4]));
-                            return null;
-                        }
-                        effectBuilder.withFade(color);
-                    }
-
-                    meta.addEffect(effectBuilder.build());
-                }
-
-                if (meta.getEffectsSize() == 0) {
-                    debug.log(LogLevel.ERROR, "Firework effects are empty?", StringUtil.foundAt(file, path + ".Firework.Effects"));
-                    return null;
-                }
-
-                itemStack.setItemMeta(meta);
-
-            } catch (ClassCastException e) {
-                debug.log(LogLevel.ERROR, StringUtil.foundInvalid("cast"), StringUtil.foundAt(file, path + ".Firework",
-                        "Tried to modify firework meta when the item wasn't leather armor (" + type + ")"));
-                return null;
+                // Add the newly constructed firework effect to the list.
+                meta.addEffect(builder.build());
             }
         }
 
-        if (configurationSection.getBoolean(path + ".Deny_Use_In_Crafting")) {
+        if (data.of("Deny_Use_In_Crafting").assertType(Boolean.class).get(false)) {
             CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "MechanicsCore", "deny-crafting", 1);
         }
 
         return itemStack;
     }
 
-    public ItemStack serializeRecipe(File file, ConfigurationSection configurationSection, String path, ItemStack itemStack) {
-        if (configurationSection.contains(path + ".Recipe")) {
+    public ItemStack serializeRecipe(SerializeData data, ItemStack itemStack) throws SerializerException {
+        if (data.config.contains(data.key + ".Recipe")) {
             ShapedRecipe recipe;
             if (CompatibilityAPI.getVersion() < 1.13) {
                 recipe = new ShapedRecipe(itemStack);
             } else {
-                recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), path), itemStack);
+                recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), itemStack);
             }
 
-            if (!configurationSection.contains(path + ".Recipe.Shape")) {
-                debug.error("You forgot to specify a shape for your item recipe!", StringUtil.foundAt(file, path + ".Recipe.Shape"));
-                return null;
-            }
+            // The Recipe.Shape should be a list looking similar to:
+            //   - ABC
+            //   - DEF
+            //   - GHI
+            List<Object> shape = data.of("Recipe.Shape").assertExists().assertType(List.class).get();
+            if (shape.size() < 1 || shape.size() > 3)
+                throw new SerializerRangeException(this, 1, shape.size(), 3,  data.of("Recipe.Shape").getLocation());
 
-            String[] shape = configurationSection.getStringList(path + ".Recipe.Shape").toArray(new String[0]);
-            if (shape.length < 1 || shape.length > 3) {
-                debug.error("Your recipe shape must have between 1 and 3 rows! Found " + shape.length,
-                        StringUtil.foundAt(file, path + ".Recipe.Shape"));
-                return null;
-            }
+            recipe.shape(shape.stream().map(Object::toString).toArray(String[]::new));
 
-            recipe.shape(shape);
+            Set<Character> ingredientChars = new HashSet<>();
+            for (String str : recipe.getShape()) {
+                if (str.length() < 1 || str.length() > 3)
+                    throw new SerializerRangeException(this, 1, shape.size(), 3,  data.of("Recipe.Shape").getLocation());
+
+                for (char c : str.toCharArray())
+                    ingredientChars.add(c);
+            }
 
             // Shaped recipes in 1.12 and lower just use a map of
             // characters and ItemStacks. In 1.13 and higher, recipes
             // use Characters and RecipeChoices.
             final Map<Character, Object> ingredients = new HashMap<>();
-            ConfigurationSection config = configurationSection.getConfigurationSection(path + ".Recipe.Ingredients");
+            data.of("Recipe.Ingredients").assertExists().assertType(ConfigurationSection.class);
+            for (char c : ingredientChars) {
+                ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(this);
 
-            if (config == null) {
-                debug.error("You need to specify ingredients for your recipe", StringUtil.foundAt(file, path + ".Recipe.Ingredients"));
-                return null;
+                if (CompatibilityAPI.getVersion() < 1.13)
+                    ingredients.put(c, item);
+                else
+                    ingredients.put(c, new RecipeChoice.ExactChoice(item));
             }
 
-            for (String key : config.getKeys(false)) {
-                String[] split = key.split("\\.");
-                String last = split[split.length - 1];
-
-                if (last.length() != 1) {
-                    debug.error("Recipe ingredients can only be one character!", StringUtil.foundAt(file, path + ".Recipe.Ingredients." + last));
-                    return null;
-                }
-
-                // At this point, we need to figure out if people are using
-                // the simple ingredients (Material~Byte) or advanced ingredients
-                // (ItemStack). People can mix and match
-                ItemStack item;
-                if (config.isString(last)) {
-                    item = MaterialUtil.fromStringToItemStack(config.getString(last));
-                } else {
-                    item = this.serialize(file, configurationSection, path + ".Recipe.Ingredients." + last);
-                }
-
-                if (CompatibilityAPI.getVersion() < 1.13) {
-                    ingredients.put(last.charAt(0), item);
-                } else {
-                    ingredients.put(last.charAt(0), new RecipeChoice.ExactChoice(item));
-                }
-
-            }
-
+            // Finalize and register the new recipe.
             ReflectionUtil.setField(ingredientsField, recipe, ingredients);
-
-            // Register the recipe to bukkit
             Bukkit.addRecipe(recipe);
         }
         return itemStack;

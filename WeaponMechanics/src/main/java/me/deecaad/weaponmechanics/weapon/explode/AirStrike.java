@@ -1,25 +1,21 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
-import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
-import java.io.File;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class AirStrike implements Serializer<AirStrike> {
 
@@ -58,7 +54,7 @@ public class AirStrike implements Serializer<AirStrike> {
      * @param delay      The amount of time (in ticks) between each layer of bombs.
      */
     public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
-                     double distance, double radius, int loops, int delay, Detonation detonation) {
+                     double distance, double radius, int loops, int delay) {
 
         this.projectile = projectile;
         this.min = min;
@@ -69,47 +65,86 @@ public class AirStrike implements Serializer<AirStrike> {
         this.radius = radius;
         this.loops = loops;
         this.delay = delay;
-        this.detonation = detonation;
     }
 
     public Projectile getProjectile() {
         return projectile;
     }
 
+    public void setProjectile(Projectile projectile) {
+        this.projectile = projectile;
+    }
+
     public int getMin() {
         return min;
+    }
+
+    public void setMin(int min) {
+        this.min = min;
     }
 
     public int getMax() {
         return max;
     }
 
+    public void setMax(int max) {
+        this.max = max;
+    }
+
     public double getHeight() {
         return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     public double getyVariation() {
         return yVariation;
     }
 
+    public void setyVariation(double yVariation) {
+        this.yVariation = yVariation;
+    }
+
     public double getDistanceBetweenSquared() {
         return distanceBetweenSquared;
+    }
+
+    public void setDistanceBetweenSquared(double distanceBetweenSquared) {
+        this.distanceBetweenSquared = distanceBetweenSquared;
     }
 
     public double getRadius() {
         return radius;
     }
 
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
     public int getLoops() {
         return loops;
+    }
+
+    public void setLoops(int loops) {
+        this.loops = loops;
     }
 
     public int getDelay() {
         return delay;
     }
 
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
     public Detonation getDetonation() {
         return detonation;
+    }
+
+    public void setDetonation(Detonation detonation) {
+        this.detonation = detonation;
     }
 
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
@@ -146,22 +181,18 @@ public class AirStrike implements Serializer<AirStrike> {
                     double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-                    // Either use the projectile settings from the "parent" projectile,
-                    // or use the projectile settings for this airstrike
-                    Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
-                    if (projectileHandler != null) {
-                        WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())
-                                : projectile.clone(location, new Vector(0, 0, 0));
-                        newProjectile.setIntTag("airstrike-bomb", 1);
-                        projectileHandler.shoot(newProjectile, location);
-                    }
+
+                    (
+                            getProjectile() == null
+                                    ? projectile.clone(location, new Vector(0, 0, 0))
+                                    : getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("airstrike-bomb", 1);
                 }
 
                 if (++count >= loops) {
                     cancel();
                 }
             }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, delay);
+        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, delay);
     }
 
     @Override
@@ -170,32 +201,26 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     @Override
-    public AirStrike serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public AirStrike serialize(SerializeData data) throws SerializerException {
 
-        int min = configurationSection.getInt(path + ".Minimum_Bombs", -1);
-        int max = configurationSection.getInt(path + ".Maximum_Bombs", -1);
+        int min = data.of("Minimum_Bombs").assertExists().assertPositive().get();
+        int max = data.of("Maximum_Bombs").assertExists().assertPositive().get();
 
-        if (min == -1 || max == -1) {
-            return null;
-        }
+        Projectile projectile = data.of("Dropped_Projectile").assertExists().serialize(Projectile.class);
 
-        Projectile projectileSettings = new Projectile().serialize(file, configurationSection, path + ".Dropped_Projectile");
+        double yOffset = data.of("Height").assertPositive().get(60.0);
+        double yNoise = data.of("Vertical_Randomness").assertPositive().get(5.0);
 
-        double yOffset = configurationSection.getDouble(path + ".Height", 60);
-        double yNoise = configurationSection.getDouble(path + ".Vertical_Randomness", 5);
+        double separation = data.of("Distance_Between_Bombs").assertPositive().get(3.0);
+        double range = data.of("Maximum_Distance_From_Center").assertPositive().get(25.0);
 
-        double separation = configurationSection.getDouble(path + ".Distance_Between_Bombs", 3);
-        double range = configurationSection.getDouble(path + ".Maximum_Distance_From_Center", 25);
+        int layers = data.of("Layers").assertPositive().get(1);
+        int interval = data.of("Delay_Between_Layers").assertPositive().get(40);
 
-        int layers = configurationSection.getInt(path + ".Layers", 3);
-        int interval = configurationSection.getInt(path + ".Delay_Between_Layers", 40);
+        Detonation detonation = data.of("Detonation").serialize(Detonation.class);
 
-        debug.validate(LogLevel.WARN, max < 100, StringUtil.foundLarge(max, file, path + ".Maximum_Bombs"));
-        debug.validate(LogLevel.WARN, layers < 100, StringUtil.foundLarge(max, file, path + ".Layers"));
-
-        Detonation detonation = new Detonation().serialize(file, configurationSection, path + ".Detonation");
-
-        return new AirStrike(projectileSettings, min, max, yOffset, yNoise, separation, range, layers, interval, detonation);
+        return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval);
     }
 
     static class Vector2d {

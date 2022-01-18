@@ -22,45 +22,6 @@ public final class MaterialUtil {
     private MaterialUtil() { }
 
     /**
-     * Returns a bukkit item based on the input string.
-     *
-     * @param itemStackString The non-null formatted string:
-     *                        <code>&lt;material&gt;:&lt;data&gt;</code>
-     * @return The non-null, parsed bukkit item.
-     * @throws NumberFormatException           If data after the ':' was not a
-     *                                         valid short.
-     * @throws StringIndexOutOfBoundsException If there was no number put after
-     *                                         the ':'.
-     * @throws IllegalArgumentException        If there is no {@link Material}
-     *                                         with the provided name.
-     */
-    public static ItemStack fromStringToItemStack(String itemStackString) {
-        itemStackString = itemStackString.trim().toUpperCase();
-
-        int index = itemStackString.lastIndexOf(':');
-        Optional<Material> mat;
-        short data;
-
-        if (index == -1) {
-            mat = EnumUtil.getIfPresent(Material.class, itemStackString);
-            data = 0;
-        } else {
-            mat = EnumUtil.getIfPresent(Material.class, itemStackString.substring(0, index));
-            data = Short.parseShort(itemStackString.substring(index + 1));
-        }
-
-        if (!mat.isPresent()) {
-            throw new IllegalArgumentException("Unknown material for input: " + (index == -1 ? itemStackString : itemStackString.substring(0, index)));
-        }
-
-        if (CompatibilityAPI.getVersion() < 1.13) {
-            return new ItemStack(mat.get(), 1, data);
-        } else {
-            return new ItemStack(mat.get());
-        }
-    }
-
-    /**
      * Returns a float representing the blast resistance, or the resistance to
      * explosions, of a specific {@link Material}. In legacy minecraft
      * versions, we have to rely on version dependant code to get the blast

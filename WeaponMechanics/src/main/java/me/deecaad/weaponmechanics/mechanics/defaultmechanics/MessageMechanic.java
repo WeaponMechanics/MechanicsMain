@@ -1,7 +1,12 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerEnumException;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerVersionException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -25,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Constructor;
 
@@ -227,126 +233,73 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     }
 
     @Override
-    public MessageMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public MessageMechanic serialize(SerializeData data) throws SerializerException {
 
         // CHAT
         ChatData chatData = null;
-        String chatMessage = configurationSection.getString(path + ".Chat.Message");
+        String chatMessage = data.of("Chat.Message").assertType(String.class).get(null);
         if (chatMessage != null) {
 
             ClickEvent.Action clickEventAction = null;
             String clickEventValue = null;
-            String hoverEventValue = configurationSection.getString(path + ".Chat.Hover_Text");
+            String hoverEventValue = data.of("Chat.Hover_Text").assertType(String.class).get(null);
             if (hoverEventValue != null) hoverEventValue = StringUtil.color(hoverEventValue);
 
-            String clickEventString = configurationSection.getString(path + ".Chat.Click");
+            String clickEventString = data.of("Chat.Click").assertType(String.class).get(null);
             if (clickEventString != null) {
-                String[] parsedClickEvent = clickEventString.split("-", 2);
-                if (parsedClickEvent.length != 2) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("parameter length"),
-                            StringUtil.foundAt(file, path + ".Chat.Click"),
-                            "Make sure the format is <ClickEvent.Action>-<value>");
-                    return null;
+                String[] split = clickEventString.split("-", 2);
+                if (split.length != 2) {
+                    data.throwException(null, "Chat Click Action should be formatted like: <ClickEvent.Action>-<value>",
+                            SerializerVersionException.forValue(clickEventString));
                 }
-                try {
-                    clickEventAction = ClickEvent.Action.valueOf(parsedClickEvent[0].toUpperCase());
-                    clickEventValue = StringUtil.color(parsedClickEvent[1]);
 
-                } catch (IllegalArgumentException e) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("ClickEvent.Action"),
-                            StringUtil.foundAt(file, path + ".Chat.Click", parsedClickEvent[0].toUpperCase()),
-                            StringUtil.debugDidYouMean(parsedClickEvent[0].toUpperCase(), ClickEvent.Action.class));
-                    return null;
-                }
+                clickEventAction = EnumUtil.getIfPresent(ClickEvent.Action.class, split[0])
+                        .orElseThrow(() -> new SerializerEnumException(this, ClickEvent.Action.class, split[0], false, data.of("Chat.Click").getLocation()));
+                clickEventValue = StringUtil.color(split[1]);
             }
             chatData = new ChatData(StringUtil.color(chatMessage), clickEventAction, clickEventValue, hoverEventValue);
         }
 
         // ACTION BAR
-        String actionBarMessage = configurationSection.getString(path + ".Action_Bar.Message");
+        String actionBarMessage = data.of("Action_Bar.Message").assertType(String.class).get(null);
         if (actionBarMessage != null) actionBarMessage = StringUtil.color(actionBarMessage);
-        int actionBarTime = configurationSection.getInt(path + ".Action_Bar.Time");
-        if (actionBarTime != 0 && actionBarTime < 40) {
-            debug.log(LogLevel.ERROR,
-                    StringUtil.foundInvalid("action bar time"),
-                    StringUtil.foundAt(file, path + ".Action_Bar.Time", actionBarTime),
-                    "If action bar time is below 40, don't use it at all!");
-            return null;
-        }
+        int actionBarTime = data.of("Action_Bar.Time").assertRange(40, Integer.MAX_VALUE).get(0);
 
         // TITLE
         TitleData titleData = null;
-        String titleMessage = configurationSection.getString(path + ".Title.Title");
-        String subtitleMessage = configurationSection.getString(path + ".Title.Subtitle");
+        String titleMessage = data.of("Title.Title").assertType(String.class).get(null);
+        String subtitleMessage = data.of("Title.Subtitle").assertType(String.class).get(null);
         if (titleMessage != null || subtitleMessage != null) {
-            int fadeIn = 0, stay = 0, fadeOut = 0;
-            String titleTime = configurationSection.getString(path + ".Title.Time");
-            if (titleTime != null) {
-                String[] splittedTitleTime = StringUtil.split(titleTime);
-                if (splittedTitleTime.length != 3) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("parameter length"),
-                            StringUtil.foundAt(file, path + ".Title.Time"),
-                            "Make sure the format is <fade in ticks>-<stay ticks>-<fade out ticks>");
-                    return null;
-                }
-                try {
-                    fadeIn = Integer.parseInt(splittedTitleTime[0]);
-                    stay = Integer.parseInt(splittedTitleTime[1]);
-                    fadeOut = Integer.parseInt(splittedTitleTime[2]);
-                } catch (NumberFormatException e) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("number format"),
-                            StringUtil.foundAt(file, path + ".Title.Time", titleTime));
-                    return null;
-                }
-            }
+
+            int fadeIn = data.of("Title.Fade_In").assertPositive().get(0);
+            int stay = data.of("Title.Stay").assertExists().assertPositive().get();
+            int fadeOut = data.of("Title.Fade_Out").assertPositive().get(0);
 
             titleData = new TitleData(StringUtil.color(titleMessage), StringUtil.color(subtitleMessage), fadeIn, stay, fadeOut);
         }
 
         // BOSS BAR
         BossBarData bossBarData = null;
-        String bossBarMessage = configurationSection.getString(path + ".Boss_Bar.Title");
+        String bossBarMessage = data.of("Boss_Bar.Title").assertType(String.class).get(null);
         if (bossBarMessage != null) {
             if (CompatibilityAPI.getVersion() < 1.09) {
-                debug.log(LogLevel.ERROR, "Boss bar isn't available in 1.8 server version.");
-                return null;
+                throw new SerializerVersionException(this, 9, "Boss Bar Mechanic", data.of("Boss_Bar").getLocation());
             }
-            BarColor barColor;
-            String stringBarColor = configurationSection.getString(path + ".Boss_Bar.Bar_Color").toUpperCase();
-            try {
-                barColor = BarColor.valueOf(stringBarColor);
-            } catch (IllegalArgumentException e) {
-                debug.log(LogLevel.ERROR,
-                        StringUtil.foundInvalid("bar color"),
-                        StringUtil.foundAt(file, path + ".Boss_Bar.Bar_Color", stringBarColor),
-                        StringUtil.debugDidYouMean(stringBarColor, BarColor.class));
-                return null;
-            }
-            BarStyle barStyle;
-            String stringBarStyle = configurationSection.getString(path + ".Boss_Bar.Bar_Style").toUpperCase();
-            try {
-                barStyle = BarStyle.valueOf(stringBarStyle);
-            } catch (IllegalArgumentException e) {
-                debug.log(LogLevel.ERROR,
-                        StringUtil.foundInvalid("bar style"),
-                        StringUtil.foundAt(file, path + ".Boss_Bar.Bar_Style", stringBarStyle),
-                        StringUtil.debugDidYouMean(stringBarStyle, BarStyle.class));
-                return null;
-            }
-            int time = configurationSection.getInt(path + ".Boss_Bar.Time");
+
+            BarColor barColor = data.of("Boss_Bar.Bar_Color").getEnum(BarColor.class, BarColor.RED);
+            BarStyle barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BarStyle.class, BarStyle.SOLID);
+            int time = data.of("Boss_Bar.Time").assertExists().assertPositive().get();
             bossBarData = new BossBarData(StringUtil.color(bossBarMessage), barColor, barStyle, time);
         }
 
         if (chatData == null && actionBarMessage == null && titleData == null && bossBarData == null) {
-            return null;
+            data.throwException(null, "Tried to use a Message Mechanic without any messages added!",
+                    "If you do not want to send any messages, please remove the key from your config.");
         }
 
-        boolean sendGlobally = configurationSection.getBoolean(path + ".Send_Globally");
-        boolean sendGloballyForWorld = configurationSection.getBoolean(path + ".Send_Globally_For_World");
+        boolean sendGlobally = data.of("Send_Globally").assertType(Boolean.class).get(false);
+        boolean sendGloballyForWorld = data.of("Send_Globally_For_World").assertType(Boolean.class).get(false);
 
         return new MessageMechanic(sendGlobally, sendGloballyForWorld, chatData, actionBarMessage, actionBarTime, titleData, bossBarData);
     }

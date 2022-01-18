@@ -1,25 +1,26 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static me.deecaad.core.MechanicsCore.debug;
-
 public class FileReader {
 
+    private final Debugger debug;
     private final List<PathToSerializer> pathToSerializers;
     private final Map<String, Serializer<?>> serializers;
     private final List<ValidatorData> validatorDatas;
     private final Map<String, IValidator> validators;
 
-    public FileReader(@Nullable List<Serializer<?>> serializers, @Nullable List<IValidator> validators) {
+    public FileReader(@Nonnull Debugger debug, @Nullable List<Serializer<?>> serializers, @Nullable List<IValidator> validators) {
+        this.debug = debug;
         this.serializers = new HashMap<>();
         this.validators = new HashMap<>();
         this.pathToSerializers = new ArrayList<>();
@@ -212,16 +213,21 @@ public class FileReader {
                         pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
                     } else {
                         try {
-                            Object valid = serializer.serialize(file, configuration, key);
-                            if (valid == null)
-                                debug.warn(serializer.getKeyword() + " serializer returned null",
-                                    "This is probably due to a configuration error! The error(s) should be above this message",
-                                    StringUtil.foundAt(file, key));
 
+                            // SerializerException can be thrown whenever the
+                            // user input an invalid value. We should log the
+                            // exception.
+                            Object valid = serializer.serialize(new SerializeData(serializer, file, key, configuration));
                             filledMap.set(key, valid);
                             startsWithDeny = key;
+
+                        } catch (SerializerException e) {
+                            e.log(debug);
                         } catch (Exception e) {
-                            debug.log(LogLevel.WARN, "Unhandled caught exception from serializer " + serializer.getKeyword() + "!", e);
+
+                            // Any Exception other than SerializerException
+                            // should be fixed by the dev of the serializer.
+                            throw new InternalError("Unhandled caught exception from serializer " + serializer.getKeyword() + "!", e);
                         }
                     }
                     continue;
@@ -251,7 +257,12 @@ public class FileReader {
         }
         if (!validatorDatas.isEmpty()) {
             for (ValidatorData validatorData : validatorDatas) {
-                validatorData.getValidator().validate(filledMap, validatorData.getFile(), validatorData.getConfigurationSection(), validatorData.getPath());
+
+                try {
+                    validatorData.getValidator().validate(filledMap, validatorData.getFile(), validatorData.getConfigurationSection(), validatorData.getPath());
+                } catch (SerializerException ex) {
+                    ex.log(debug);
+                }
             }
         }
         return filledMap;

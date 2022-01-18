@@ -1,10 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -45,25 +48,22 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     }
 
     @Override
-    public DamageDropoff serialize(File file, ConfigurationSection configurationSection, String path) {
-        List<String> strings = configurationSection.getStringList(path);
+    @Nonnull
+    public DamageDropoff serialize(SerializeData data) throws SerializerException {
+        String[] temp = data.key.split("\\.");
+        String relative = temp[temp.length - 1];
+
+        List<String[]> list = data.out().ofList(relative)
+                .addArgument(double.class, true)
+                .addArgument(double.class, true)
+                .assertExists().assertList().get();
+
         TreeMap<Double, Double> distances = new TreeMap<>();
 
-        for (String str : strings) {
-            try {
-                String[] split = StringUtil.split(str);
-                Double blocks = Double.valueOf(split[0]);
-                Double damage = Double.valueOf(split[1]);
-                distances.put(blocks, damage);
-
-            } catch (NumberFormatException ex) {
-                debug.error("Unknown decimal " + ex.getMessage(), StringUtil.foundAt(file, path));
-                debug.log(LogLevel.DEBUG, ex);
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                debug.error("You must specify both blocks and damage. For input string: " + str,
-                        StringUtil.foundAt(file, path));
-                debug.log(LogLevel.DEBUG, ex);
-            }
+        for (String[] split : list) {
+            Double blocks = Double.valueOf(split[0]);
+            Double damage = Double.valueOf(split[1]);
+            distances.put(blocks, damage);
         }
 
         return new DamageDropoff(distances);

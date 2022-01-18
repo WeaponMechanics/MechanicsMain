@@ -1,5 +1,7 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -10,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +52,9 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
     }
 
     @Override
-    public CommandMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
-        List<String> stringCommandList = configurationSection.getStringList(path);
-        if (stringCommandList == null || stringCommandList.isEmpty()) return null;
+    @Nonnull
+    public CommandMechanic serialize(SerializeData data) throws SerializerException {
+        List<String> stringCommandList = data.config.getStringList(data.key);
 
         List<CommandData> commandList = new ArrayList<>();
         for (String commandInList : stringCommandList) {

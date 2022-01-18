@@ -1,14 +1,21 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ProbabilityMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.ArrayUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
+import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -35,7 +42,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
      */
     public SpreadImage() {}
     
-    public SpreadImage(Sprite sprite, int fovWidth, int fovHeight) {
+    public SpreadImage(Sprite sprite, double fovWidth, double fovHeight) {
         this.points = new ProbabilityMap<>();
 
         width = sprite.getWidth();
@@ -102,49 +109,43 @@ public class SpreadImage implements Serializer<SpreadImage> {
     }
 
     @Override
-    public SpreadImage serialize(File file, ConfigurationSection configurationSection, String path) {
-        String imageName = configurationSection.getString(path + ".Name", null);
+    @Nonnull
+    public SpreadImage serialize(SerializeData data) throws SerializerException {
+        String imageName = data.of("Name").assertExists().assertType(String.class).get();
 
-        // Avoid an error. Image name is a required field
-        if (imageName == null) {
-            return null;
-        }
+        // 9/10, people will be using a png. If no file extension is provided,
+        // we will default to png.
+        if (!imageName.contains("\\."))
+            imageName += ".png";
 
-        // Consider the following examples:
-        // "circle.jpeg"
-        // "circle.png"
-        // "circle"
-        //
-        // Assuming the file has the proper extension, all of
-        // the examples should work (Though, only png files are
-        // tested). If there is no file extension given (or, in
-        // other terms, there is no "." in the file name), add the
-        // png file extension
-        if (!imageName.contains("\\.")) imageName += ".png";
-
-        int FOVWidth = configurationSection.getInt(path + ".Field_Of_View_Width", 45);
-        int FOVHeight = configurationSection.getInt(path + ".Field_Of_View_Height", 45);
+        double FOVWidth  = data.of("Field_Of_View_Width").assertExists().assertRange(0.0, 360.0).get();
+        double FOVHeight = data.of("Field_Of_View_Height").assertExists().assertRange(0.0, 360.0).get();
 
         File dataFolder = WeaponMechanics.getPlugin().getDataFolder();
-        File sprites = new File(dataFolder, "spread_patterns");
+        File spritesFolder = new File(dataFolder, "spread_patterns");
+        File spriteFile = new File(spritesFolder, imageName);
 
-        Sprite sprite = new Sprite(new File(sprites, imageName));
+        if (!spriteFile.exists()) {
+            data.throwException("Name", "No spread image '" + spriteFile + "' exists",
+                    "Make sure you spelled the name correctly",
+                    SerializerException.didYouMean(imageName, Arrays.asList(Objects.requireNonNull(spritesFolder.list()))));
+        }
+
+        Sprite sprite;
+        try {
+            sprite = new Sprite(spriteFile);
+        } catch (IOException ex) {
+            data.throwException("Name", "There was an error while reading the file '" + spriteFile + "'",
+                    "Are you sure it is an image? Was it corrupted? Can you open the image normally?",
+                    ex.getClass() + ": " + ex.getMessage());
+
+            throw new InternalError("unreachable code");
+        }
+
         SpreadImage image = new SpreadImage(sprite, FOVWidth, FOVHeight);
-
-        debug.validate(!image.points.isEmpty(), "The spread image with the name \"" + imageName + "\" has no points!",
-                "Found in file " + file + " at path " + path);
-
-        // Helps avoid having multiple if statements, easier to look at this way
-        boolean isFailed = !sprites.exists()
-                || sprite.getPixels() == null
-                || image.points.isEmpty();
-
-        if (isFailed) {
-            // Since (Most of the time) the player has
-            // already been told about the failure, this
-            // doesn't need to be specific
-            debug.log(LogLevel.ERROR, "Failed to serialize spread image!");
-            return null;
+        if (image.points.isEmpty()) {
+            data.throwException("Name", "The spread image '" + imageName + "' is either blank, or colored",
+                    "Make sure '" + imageName + "' is black and white");
         }
 
         return image;

@@ -222,59 +222,19 @@ public final class StringUtil {
     }
 
     /**
-     * Returns a {@link String} containing the file path and configuration
-     * path. Should be used to help the user find exactly where in their config
-     * an error occurs.
+     * Returns a string containing the location of key (Which file it is in,
+     * and the path).
      *
-     * @param file The non-null hard file location.
-     * @param path The non-null path to the exact config key.
-     * @return The non-null user-readable location.
+     * @param file The non-null file containing the key.
+     * @param path The non-null key in config.
+     * @return The non-null human-readable location.
      */
     public static String foundAt(File file, String path) {
-        return "Located at file " + file + " in path " + path + " in configurations";
+        return "Located in file '" + file + "' at '" + path + "'";
     }
 
-    /**
-     * Returns a {@link String} containing the file path, configuration path
-     * and the incorrect value. Should be used to help the user find exactly
-     * where in their config an error occurs.
-     *
-     * @param file  The non-null hard file location.
-     * @param path  The non-null path to the exact config key.
-     * @param value The incorrect value that was input by the user.
-     * @return The non-null user-readable location.
-     */
-    public static String foundAt(File file, String path, Object value) {
-        return "Located at file " + file + " in path " + path + " (" + value + ") in configurations.";
-    }
-
-    /**
-     * Returns a formatted {@link String} which explains which configuration
-     * key is incorrect.
-     *
-     * @param invalid The invalid key.
-     * @return The non-null invalid key.
-     */
-    public static String foundInvalid(String invalid) {
-        return "Found an invalid " + invalid + " in configurations!";
-    }
-
-    /**
-     * Returns a list of formatted strings that warns the user about a possible
-     * mistake, and where that mistake may be.
-     *
-     * @param number The number that is absurdly large.
-     * @param file   The non-null hard file location.
-     * @param path   The non-null path to the exact config key.
-     * @return The non-null warning to the user.
-     * @see Debugger#warn(String...)
-     */
-    public static String[] foundLarge(double number, File file, String path) {
-        return new String[]{
-                "WARNING: Found a large number in configurations (" + number + ")",
-                "This is not an error, but you should be careful when using large numbers, and this may be a mistake.",
-                StringUtil.foundAt(file, path)
-        };
+    public static String foundAt(File file, String path, int i) {
+        return "Located in file '" + file + "' at '" + path + "' (The " + ordinal(i) + " list item)";
     }
 
     /**
@@ -291,6 +251,18 @@ public final class StringUtil {
      */
     public static String camelToSnake(String camel) {
         return String.join("_", camel.split("(?=[A-Z])")).toLowerCase();
+    }
+
+    public static String upperSnakeCase(String snake) {
+        StringBuilder builder = new StringBuilder(snake.length());
+        String[] split = snake.split("_");
+        for (String str : split)
+            builder.append(Character.toUpperCase(str.charAt(0))).append(str.substring(1)).append('_');
+
+        if (split.length != 0)
+            builder.setLength(builder.length() - 1);
+
+        return builder.toString();
     }
 
     /**

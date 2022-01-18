@@ -1,16 +1,7 @@
 package me.deecaad.core.utils;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This final utility class outlines static methods that operate on or return
@@ -107,7 +98,7 @@ public final class EnumUtil {
      * @return An optional of the enum found, or an empty optional.
      */
     public static <T extends Enum<T>> Optional<T> getIfPresent(Class<T> clazz, String name) {
-        WeakReference<? extends Enum<?>> reference = getConstants(clazz).get(name.toUpperCase());
+        WeakReference<? extends Enum<?>> reference = getConstants(clazz).get(name.trim().toUpperCase(Locale.ROOT));
         return reference == null ? Optional.empty() : Optional.of(clazz.cast(reference.get()));
     }
 

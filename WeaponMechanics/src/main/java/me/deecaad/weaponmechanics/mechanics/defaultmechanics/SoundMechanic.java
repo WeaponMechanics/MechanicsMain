@@ -1,6 +1,9 @@
 package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerEnumException;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -17,6 +20,7 @@ import org.bukkit.SoundCategory;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -125,82 +129,47 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
     }
 
     @Override
-    public SoundMechanic serialize(File file, ConfigurationSection configurationSection, String path) {
-        List<String> stringSoundList = configurationSection.getStringList(path);
-        if (stringSoundList == null || stringSoundList.isEmpty()) return null;
+    @Nonnull
+    public SoundMechanic serialize(SerializeData data) throws SerializerException {
+        String[] key = data.key.split("\\.");
+
+        // Expecting <Sound>-<Volume>-<Pitch>-<Delay>-<Noise>
+        List<String[]> stringSoundList = data.out().ofList(key[key.length - 1])
+                .addArgument(Sound.class, true, true)
+                .addArgument(double.class, true).assertArgumentPositive()
+                .addArgument(double.class, false).assertArgumentRange(0.5, 2.0)
+                .addArgument(int.class, false).assertArgumentPositive()
+                .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
+                .assertList().assertExists().get();
 
         List<SoundMechanicData> soundList = new ArrayList<>();
-
         int delayedCounter = 0;
 
-        for (String stringInList : stringSoundList) {
-            for (String stringInLine : stringInList.split(", ?")) {
+        for (int i = 0; i < stringSoundList.size(); i++) {
+            String[] split = stringSoundList.get(i);
 
-                String[] soundData = StringUtil.split(stringInLine);
+            float volume = Float.parseFloat(split[1]);
+            float pitch = split.length > 2 ? Float.parseFloat(split[2]) : 1.0f;
+            int delay = split.length > 3 ? Integer.parseInt(split[3]) : 0;
+            float noise = split.length > 4 ? Float.parseFloat(split[4]) : 0.0f;
 
-                if (soundData.length < 3) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid sound format in configurations!",
-                            "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations",
-                            "At least these are required <sound>-<volume>-<pitch>");
-                    continue;
-                }
+            if (delay > 0)
+                delayedCounter++;
 
-                float volume;
-                float pitch;
-                int delay = 0;
-                float noise = 0.0f;
+            String stringSound = split[0].trim();
+            if (stringSound.toLowerCase().startsWith("custom:")) {
+                stringSound = stringSound.substring("custom:".length());
+                soundList.add(new CustomSound(stringSound, volume, pitch, delay, noise));
+                continue;
+            }
 
-                try {
-                    volume = Float.parseFloat(soundData[1]);
-                    pitch = Float.parseFloat(soundData[2]);
-
-                    if (pitch < 0.0 || pitch > 2.0) {
-                        debug.log(LogLevel.ERROR,
-                                StringUtil.foundInvalid("pitch"),
-                                StringUtil.foundAt(file, path, stringInLine),
-                                "Make sure that pitch is between 0.5 and 2.0.");
-                        return null;
-                    }
-
-                    pitch = Math.max(pitch, 0.5f);
-
-                    if (soundData.length > 3) delay = Integer.parseInt(soundData[3]);
-                    if (delay > 0) delayedCounter++;
-
-                    if (soundData.length > 4) noise = Float.parseFloat(soundData[4]);
-                } catch (NumberFormatException e) {
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid number format in configurations!",
-                            "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations",
-                            "Make sure you only use numbers after sound parameter.");
-                    continue;
-                }
-                if (delay < 0) delay = 0;
-                if (noise < 0) noise = 0;
-
-                String stringSound = soundData[0];
-                if (stringSound.toLowerCase().startsWith("custom:")) {
-                    stringSound = stringSound.substring("custom:".length());
-                    soundList.add(new CustomSound(stringSound, volume, pitch, delay, noise));
-                    continue;
-                }
-
-                try {
-                    Sound sound = Sound.valueOf(stringSound);
-                    soundList.add(new BukkitSound(sound, volume, pitch, delay, noise));
-                } catch (IllegalArgumentException e) {
-                    debug.log(LogLevel.ERROR,
-                            StringUtil.foundInvalid("bukkit sound"),
-                            StringUtil.foundAt(file, path, stringInLine),
-                            StringUtil.debugDidYouMean(stringSound.toUpperCase(), Sound.class));
-                    debug.log(LogLevel.ERROR,
-                            "Found an invalid bukkit sound in configurations!",
-                            "Located at file " + file + " in " + path + " (" + stringInLine + ") in configurations");
-                }
+            try {
+                Sound sound = Sound.valueOf(stringSound);
+                soundList.add(new BukkitSound(sound, volume, pitch, delay, noise));
+            } catch (IllegalArgumentException e) {
+                throw new SerializerEnumException(this, Sound.class, stringSound, false, data.out().ofList(key[key.length - 1]).getLocation(i));
             }
         }
-        if (soundList.isEmpty()) return null;
 
         return new SoundMechanic(delayedCounter, soundList);
     }

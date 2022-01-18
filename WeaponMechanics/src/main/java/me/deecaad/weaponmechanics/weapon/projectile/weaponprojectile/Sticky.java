@@ -1,10 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 public class Sticky implements Serializer<Sticky> {
@@ -46,12 +49,14 @@ public class Sticky implements Serializer<Sticky> {
     }
 
     @Override
-    public Sticky serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public Sticky serialize(SerializeData data) throws SerializerException {
+        ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
+        ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
-        ListHolder<Material> blocks = new ListHolder<Material>().serialize(file, configurationSection, path + ".Blocks", Material.class);
-        ListHolder<EntityType> entities = new ListHolder<EntityType>().serialize(file, configurationSection, path + ".Entities", EntityType.class);
-
-        if (blocks == null && entities == null) return null;
+        if (blocks == null && entities == null) {
+            data.throwException("'Sticky' requires at least one of 'Blocks' or 'Entities'");
+        }
 
         return new Sticky(blocks, entities);
     }

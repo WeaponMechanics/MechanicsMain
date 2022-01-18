@@ -1,9 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -64,37 +67,25 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     }
 
     @Override
-    public ChangingSpread serialize(File file, ConfigurationSection configurationSection, String path) {
-        ModifySpreadWhen increaseChangeWhen = new ModifySpreadWhen().serialize(file, configurationSection, path + ".Increase_Change_When");
-        if (increaseChangeWhen == null) return null;
+    public @NotNull ChangingSpread serialize(SerializeData data) throws SerializerException {
+        ModifySpreadWhen increaseChangeWhen = (ModifySpreadWhen) data.of("Increase_Change_When").assertExists().serialize(new ModifySpreadWhen());
+        double startingAmount = data.of("Starting_Amount").get(0.0) * 0.01;
 
-        double startingAmount = configurationSection.getDouble(path + ".Starting_Amount", 0) * 0.01;
-        Bounds bounds = getBounds(configurationSection, path + ".Bounds");
+        Bounds bounds = data.config.contains(data.key + ".Bounds") ? getBounds(data.move("Bounds")) : null;
+
         return new ChangingSpread(startingAmount, increaseChangeWhen, bounds);
     }
 
-    private Bounds getBounds(ConfigurationSection configurationSection, String path) {
-        double min = configurationSection.getDouble(path + ".Minimum", -1);
-        double max = configurationSection.getDouble(path + ".Maximum", -1);
+    private Bounds getBounds(SerializeData data) throws SerializerException {
+        double min = data.of("Minimum").assertPositive().get(0.0);
+        double max = data.of("Maximum").assertPositive().get(15.0);
 
-        if (min == -1 && max == -1) {
-            return null;
+        if (min > max) {
+            data.throwException("Found 'Changing_Spread' where 'Minimum > Maximum'",
+                    "The 'Maximum' MUST be bigger then 'Minimum'");
         }
 
-        // Just giving default values to avoid confusions when checking if value was ever even used
-        if (max == -1) {
-            max = 15;
-        }
-
-        if (min == -1) {
-            min = 0;
-        }
-
-        if (min < 0.0) {
-            min = 0.0;
-        }
-
-        boolean resetAfterReachingBound = configurationSection.getBoolean(path + ".Reset_After_Reaching_Bound");
+        boolean resetAfterReachingBound = data.of("Reset_After_Reaching_Bound").assertType(Boolean.class).get();
         return new Bounds(resetAfterReachingBound, min * 0.01, max * 0.01);
     }
 

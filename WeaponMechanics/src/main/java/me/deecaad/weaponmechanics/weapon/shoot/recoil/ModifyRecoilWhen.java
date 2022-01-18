@@ -1,11 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.weapon.shoot.AModifyWhen;
 import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
-import org.bukkit.configuration.ConfigurationSection;
 
-import java.io.File;
+import javax.annotation.Nonnull;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -14,7 +16,8 @@ public class ModifyRecoilWhen extends AModifyWhen {
     /**
      * Empty constructor to be used as serializer
      */
-    public ModifyRecoilWhen() { }
+    public ModifyRecoilWhen() {
+    }
 
     public ModifyRecoilWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking, NumberModifier standing, NumberModifier walking, NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         super(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
@@ -26,34 +29,41 @@ public class ModifyRecoilWhen extends AModifyWhen {
     }
 
     @Override
-    public ModifyRecoilWhen serialize(File file, ConfigurationSection configurationSection, String path) {
+    @Nonnull
+    public ModifyRecoilWhen serialize(SerializeData data) throws SerializerException {
 
-        NumberModifier always = getModifierHandler(file, configurationSection, path + ".Always");
-        NumberModifier zooming = getModifierHandler(file, configurationSection, path + ".Zooming");
-        NumberModifier sneaking = getModifierHandler(file, configurationSection, path + ".Sneaking");
-        NumberModifier standing = getModifierHandler(file, configurationSection, path + ".Standing");
-        NumberModifier walking = getModifierHandler(file, configurationSection, path + ".Walking");
-        NumberModifier swimming = getModifierHandler(file, configurationSection, path + ".Swimming");
-        NumberModifier inMidair = getModifierHandler(file, configurationSection, path + ".In_Midair");
-        NumberModifier gliding = getModifierHandler(file, configurationSection, path + ".Gliding");
+        NumberModifier always = getModifierHandler(data.move("Always"));
+        NumberModifier zooming = getModifierHandler(data.move("Zooming"));
+        NumberModifier sneaking = getModifierHandler(data.move("Sneaking"));
+        NumberModifier standing = getModifierHandler(data.move("Standing"));
+        NumberModifier walking = getModifierHandler(data.move("Walking"));
+        NumberModifier swimming = getModifierHandler(data.move("Swimming"));
+        NumberModifier inMidair = getModifierHandler(data.move("In_Midair"));
+        NumberModifier gliding = getModifierHandler(data.move("Gliding"));
+
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
                 && swimming == null && inMidair == null && gliding == null) {
-            return null;
+
+            data.throwException(null, "Tried to use Modify_Recoil_When without any arguments");
         }
+
         return new ModifyRecoilWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
     }
 
-    private NumberModifier getModifierHandler(File file, ConfigurationSection configurationSection, String path) {
-        String value = configurationSection.getString(path);
+    private NumberModifier getModifierHandler(SerializeData data) throws SerializerException {
+        String value = data.of().assertExists().get().toString();
         if (value == null) return null;
         try {
-            return new NumberModifier(Double.parseDouble(value.split("%")[0]), value.endsWith("%"));
+            boolean percentage = value.endsWith("%");
+            double number = Double.parseDouble(value.split("%")[0]);
+            if (!percentage) {
+                number *= 0.01;
+            }
+
+            return new NumberModifier(number, percentage);
         } catch (NumberFormatException e) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid number in configurations!",
-                    "Located at file " + file + " in " + path + " (" + value + ") in configurations",
-                    "Make sure they're numbers e.g. 17.6, 52.1, 8, 23");
-            return null;
+            throw new SerializerTypeException(this, Number.class, null, value, data.of().getLocation())
+                    .addMessage("Remember that you can use percentages like '10%' to add 10% more recoil");
         }
     }
 }

@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.firearm;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -8,6 +10,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -128,52 +131,18 @@ public class FirearmAction implements Serializer<FirearmAction> {
     }
 
     @Override
-    public FirearmAction serialize(File file, ConfigurationSection configurationSection, String path) {
-        String stringType = configurationSection.getString(path + ".Type");
-        if (stringType == null) {
-            return null;
-        }
+    @Nonnull
+    public FirearmAction serialize(SerializeData data) throws SerializerException {
 
-        FirearmType type;
-        try {
-            type = FirearmType.valueOf(stringType.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid firearm type in configurations!",
-                    "Located at file " + file + " in " + path + ".Type (" + stringType.toUpperCase() + ") in configurations");
-            return null;
-        }
+        FirearmType type = data.of("Type").assertExists().getEnum(FirearmType.class);
 
         // Default to 1 in order to make it easier to use
-        int firearmActionFrequency = configurationSection.getInt(path + ".Firearm_Action_Frequency", 1);
-        if (firearmActionFrequency < 1) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid firearm action frequency in configurations!",
-                    "Make sure the value is 1 or more, not it was " + firearmActionFrequency + ".",
-                    "Located at file " + file + " in " + path + ".Firearm_Action_Frequency in configurations");
-            return null;
-        }
+        int firearmActionFrequency = data.of("Firearm_Action_Frequency").assertRange(1, Integer.MAX_VALUE).get(1);
+        int openTime = data.of("Open.Time").assertRange(1, Integer.MAX_VALUE).get(1);
+        int closeTime = data.of("Close.Time").assertRange(1, Integer.MAX_VALUE).get(1);
 
-        int openTime = configurationSection.getInt(path + ".Open.Time");
-        if (openTime < 1) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid firearm action open time in configurations!",
-                    "Make sure the value is 1 or more, not it was " + openTime + ".",
-                    "Located at file " + file + " in " + path + ".Open.Time in configurations");
-            return null;
-        }
-
-        int closeTime = configurationSection.getInt(path + ".Close.Time");
-        if (closeTime < 1) {
-            debug.log(LogLevel.ERROR,
-                    "Found an invalid firearm action close time in configurations!",
-                    "Make sure the value is 1 or more, not it was " + closeTime + ".",
-                    "Located at file " + file + " in " + path + ".Open.Time in configurations");
-            return null;
-        }
-
-        Mechanics open = new Mechanics().serialize(file, configurationSection, path + ".Open.Mechanics");
-        Mechanics close = new Mechanics().serialize(file, configurationSection, path + ".Close.Mechanics");
+        Mechanics open = data.of("Open.Mechanics").serialize(Mechanics.class);
+        Mechanics close = data.of("Close.Mechanics").serialize(Mechanics.class);
 
         return new FirearmAction(type, firearmActionFrequency, openTime, closeTime, open, close);
     }

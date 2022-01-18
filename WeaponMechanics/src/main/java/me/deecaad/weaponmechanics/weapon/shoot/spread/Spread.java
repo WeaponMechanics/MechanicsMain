@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.shoot.spread;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.VectorUtil;
@@ -9,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -98,21 +101,17 @@ public class Spread implements Serializer<Spread> {
     }
 
     @Override
-    public Spread serialize(File file, ConfigurationSection configurationSection, String path) {
-        SpreadImage spreadImage = new SpreadImage().serialize(file, configurationSection, path + ".Spread_Image");
-        if (spreadImage != null) {
+    @Nonnull
+    public Spread serialize(SerializeData data) throws SerializerException {
+        SpreadImage spreadImage = data.of("Spread_Image").serialize(SpreadImage.class);
+        if (spreadImage != null)
             return new Spread(spreadImage);
-        }
-        double baseSpread = configurationSection.getDouble(path + ".Base_Spread");
-        if (baseSpread <= 0.0) {
-            debug.error("Base_Spread must be greater than 0!", StringUtil.foundAt(file, path + ".Base_Spread"));
-            return null;
-        }
 
-        baseSpread *= 0.01;
+        double baseSpread = data.of("Base_Spread").assertExists().assertPositive().get();
+        baseSpread /= 100.0;
 
-        ModifySpreadWhen modifySpreadWhen = new ModifySpreadWhen().serialize(file, configurationSection, path + ".Modify_Spread_When");
-        ChangingSpread changingSpread = new ChangingSpread().serialize(file, configurationSection, path + ".Changing_Spread");
+        ModifySpreadWhen modifySpreadWhen = (ModifySpreadWhen) data.of("Modify_Spread_When").serialize(new ModifySpreadWhen());
+        ChangingSpread changingSpread = data.of("Changing_Spread").serialize(ChangingSpread.class);
         return new Spread(baseSpread, modifySpreadWhen, changingSpread);
     }
 }
