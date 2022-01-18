@@ -45,23 +45,7 @@ import static net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Ro
 
 public class FakeEntity_1_18_R1 extends FakeEntity {
 
-    private static final SynchedEntityData EMPTY;
-    private static final Field metaPacketB;
-
     static {
-        metaPacketB = ReflectionUtil.getField(ClientboundSetEntityDataPacket.class, List.class);
-
-        // Using an "EMPTY" entity data when sending Metadata packets will save
-        // performance, since the "getAll" method usually has to check/collect
-        // everything.
-        EMPTY = new SynchedEntityData(null) {
-            @Nullable
-            @Override
-            public List<DataItem<?>> getAll() {
-                return null;
-            }
-        };
-
         if (ReflectionUtil.getMCVersion() != 18) {
             me.deecaad.core.MechanicsCore.debug.log(
                     LogLevel.ERROR,
@@ -112,6 +96,11 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         this.setLocation(x, y, z, location.getYaw(), location.getPitch());
         this.cache = entity.getId();
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
+    }
+
+    @Override
+    public void setMeta(int metaFlag, boolean isEnabled) {
+        entity.setSharedFlag(metaFlag, isEnabled);
     }
 
     @Override
@@ -189,7 +178,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         Packet<?> spawn = type.isAlive()
                 ? new ClientboundAddMobPacket((LivingEntity) entity)
                 : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0);
-        ClientboundSetEntityDataPacket meta = getMetaPacket();
+        ClientboundSetEntityDataPacket meta = new ClientboundSetEntityDataPacket(cache, entity.getEntityData(), false);
         ClientboundRotateHeadPacket head = new ClientboundRotateHeadPacket(entity, convertYaw(getYaw()));
         Rot look = new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
         ClientboundSetEntityMotionPacket velocity = new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ()));
@@ -221,7 +210,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
         connection.send(type.isAlive()
                 ? new ClientboundAddMobPacket((LivingEntity) entity)
                 : new ClientboundAddEntityPacket(entity, type == EntityType.FALLING_BLOCK ? Block.getId(block) : 0));
-        connection.send(getMetaPacket());
+        connection.send(new ClientboundSetEntityDataPacket(cache, entity.getEntityData(), false));
         connection.send(new Rot(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.send(new ClientboundSetEntityMotionPacket(cache, new Vec3(motion.getX(), motion.getY(), motion.getZ())));
         connection.send(new ClientboundRotateHeadPacket(entity, convertYaw(getYaw())));
@@ -237,34 +226,7 @@ public class FakeEntity_1_18_R1 extends FakeEntity {
     public void updateMeta() {
         if (type == EntityType.ARMOR_STAND) ((ArmorStand) entity).setHeadPose(new Rotations(getPitch(), 0, 0));
 
-        sendPackets(getMetaPacket());
-    }
-
-    private ClientboundSetEntityDataPacket getMetaPacket() {
-
-        // Get the metadata stored in the entity
-        SynchedEntityData dataWatcher = entity.getEntityData();
-        List<SynchedEntityData.DataItem<?>> items = dataWatcher.getAll();
-
-        // I don't think this should happen, at least not often. Make
-        // sure to return some packet though
-        if (items == null || items.isEmpty()) {
-            return new ClientboundSetEntityDataPacket(entity.getId(), dataWatcher, true);
-        }
-
-        // Get the current byte data
-        dataWatcher.clearDirty();
-        @SuppressWarnings("unchecked")
-        SynchedEntityData.DataItem<Byte> item = (SynchedEntityData.DataItem<Byte>) items.get(0);
-
-        // Get the byte data, then apply the bitmask
-        item.setValue(getMeta().apply(item.getValue()));
-
-        // Create the packet. We need to set the raw parameters, so we use reflection.
-        ClientboundSetEntityDataPacket metaPacket = new ClientboundSetEntityDataPacket(cache, EMPTY, true);
-        ReflectionUtil.setField(metaPacketB, metaPacket, items);
-
-        return metaPacket;
+        sendPackets(new ClientboundSetEntityDataPacket(cache, entity.getEntityData(), false));
     }
 
     @Override

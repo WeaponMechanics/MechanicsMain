@@ -70,7 +70,7 @@ public class FakeEntityCommand extends SubCommand {
                     case "flash":
                         if (ticksAlive % 10 == 0) {
                             flash = !flash;
-                            entity.getMeta().setFlag(EntityMetaFlag.GLOWING, flash ? BitMutator.TRUE : BitMutator.FALSE);
+                            entity.setGlowing(flash);
                             entity.updateMeta();
                         }
                         break;

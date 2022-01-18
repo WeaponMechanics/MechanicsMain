@@ -85,7 +85,7 @@ public class Projectile implements Serializer<Projectile> {
                 fakeEntity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, data);
 
                 fakeEntity.setEquipment(EquipmentSlot.HEAD, (ItemStack) data);
-                fakeEntity.getMeta().setFlag(EntityMetaFlag.INVISIBLE, BitMutator.TRUE);
+                fakeEntity.setInvisible(true);
 
                 // Set the offset for new packets
                 fakeEntity.setOffset(offset);

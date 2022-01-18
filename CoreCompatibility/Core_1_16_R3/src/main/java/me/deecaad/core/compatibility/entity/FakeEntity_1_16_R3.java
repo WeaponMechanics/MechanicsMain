@@ -30,13 +30,7 @@ import static net.minecraft.server.v1_16_R3.PacketPlayOutEntity.PacketPlayOutRel
 
 public class FakeEntity_1_16_R3 extends FakeEntity {
 
-    private static final Field metaPacketA;
-    private static final Field metaPacketB;
-
     static {
-        metaPacketA = ReflectionUtil.getField(PacketPlayOutEntityMetadata.class, int.class);
-        metaPacketB = ReflectionUtil.getField(PacketPlayOutEntityMetadata.class, List.class);
-
         if (ReflectionUtil.getMCVersion() != 16) {
             me.deecaad.core.MechanicsCore.debug.log(
                     LogLevel.ERROR,
@@ -97,6 +91,11 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         this.setLocation(x, y, z, location.getYaw(), location.getPitch());
         this.cache = entity.getId();
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best
+    }
+
+    @Override
+    public void setMeta(int metaFlag, boolean isEnabled) {
+
     }
 
     @Override
@@ -176,7 +175,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         Packet<?> spawn = type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
                 : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
-        PacketPlayOutEntityMetadata meta = getMetaPacket();
+        PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), false);
         PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw()));
         PacketPlayOutEntityLook look = new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
         PacketPlayOutEntityVelocity velocity = new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ()));
@@ -209,7 +208,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
         connection.sendPacket(type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
                 : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
-        connection.sendPacket(getMetaPacket());
+        connection.sendPacket(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), false));
         connection.sendPacket(new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.sendPacket(new PacketPlayOutEntityVelocity(cache, new Vec3D(motion.getX(), motion.getY(), motion.getZ())));
         connection.sendPacket(new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw())));
@@ -225,36 +224,7 @@ public class FakeEntity_1_16_R3 extends FakeEntity {
     public void updateMeta() {
         if (type == EntityType.ARMOR_STAND) ((EntityArmorStand) entity).setHeadPose(new Vector3f(getPitch(), 0, 0));
 
-        sendPackets(getMetaPacket());
-    }
-
-    @SuppressWarnings("unchecked")
-    private PacketPlayOutEntityMetadata getMetaPacket() {
-
-        // Get the metadata stored in the entity
-        DataWatcher dataWatcher = entity.getDataWatcher();
-        List<DataWatcher.Item<?>> items = dataWatcher.c(); // get all
-
-        // I don't think this should happen, at least not often. Make
-        // sure to return some packet though
-        if (items == null || items.isEmpty()) {
-            return new PacketPlayOutEntityMetadata(entity.getId(), dataWatcher, true);
-        }
-
-        dataWatcher.e(); // clear dirty
-
-        // Get the current byte data
-        DataWatcher.Item<Byte> bitMaskItem = (DataWatcher.Item<Byte>) items.get(0);
-
-        // Get the byte data, then apply the bitmask
-        bitMaskItem.a(getMeta().apply(bitMaskItem.b()));
-
-        // Create the packet. We need to set the raw parameters, so we use reflection.
-        PacketPlayOutEntityMetadata metaPacket = new PacketPlayOutEntityMetadata();
-        ReflectionUtil.setField(metaPacketA, metaPacket, cache);
-        ReflectionUtil.setField(metaPacketB, metaPacket, items);
-
-        return metaPacket;
+        sendPackets(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), false));
     }
 
     @Override
