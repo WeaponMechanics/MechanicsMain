@@ -8,6 +8,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -129,6 +130,8 @@ public abstract class MainCommand extends BukkitCommand {
             temp = commands.keys();
         }
 
-        return temp.stream().filter(string -> string.startsWith(args[args.length - 1])).collect(Collectors.toList());
+        return temp.stream()
+                .filter(string -> string.toLowerCase(Locale.ROOT).startsWith(args[args.length - 1].toLowerCase(Locale.ROOT)))
+                .collect(Collectors.toList());
     }
 }

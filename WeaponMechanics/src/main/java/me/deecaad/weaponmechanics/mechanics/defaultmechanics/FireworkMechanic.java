@@ -60,13 +60,13 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         if (flightTime > 1) fakeEntity.setMotion(0.001, 0.3, -0.001);
         fakeEntity.show();
         if (flightTime <= 0) {
-            fakeEntity.playEntityEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
             fakeEntity.remove();
             return;
         }
         new BukkitRunnable() {
             public void run() {
-                fakeEntity.playEntityEffect(EntityEffect.FIREWORK_EXPLODE);
+                fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
                 fakeEntity.remove();
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), flightTime);

@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
-import me.deecaad.core.utils.MaterialUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -11,7 +10,6 @@ import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -180,9 +178,8 @@ public class DamageUtil {
         }
     
         for (ItemStack armorSlot : armor) {
-            if (armorSlot == null || MaterialUtil.isAir(armorSlot.getType())) {
+            if (armorSlot == null || "AIR".equals(armorSlot.getType().name()))
                 continue;
-            }
 
             if (CompatibilityAPI.getVersion() >= 1.132) {
                 if (armorSlot instanceof Damageable) {

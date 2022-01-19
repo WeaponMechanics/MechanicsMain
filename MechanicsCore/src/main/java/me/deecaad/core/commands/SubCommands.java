@@ -59,9 +59,7 @@ public class SubCommands {
     public SubCommand get(String key) {
         SubCommand command = commands.get(key);
 
-        // Disgusting chunk to handle aliases. The first command found with a
-        // matching alias is used. Duplicate aliases are not specifically
-        // handled.
+        // If we couldn't find a command, check each registered command's aliases.
         if (command == null) {
             for (SubCommand cmd : commands.values())
                 for (String alias : cmd.getAliases())
@@ -171,7 +169,7 @@ public class SubCommands {
      * @param args What is being typed
      */
     public boolean execute(String key, CommandSender sender, String[] args) {
-        SubCommand command = get(key);
+        SubCommand command = get(key.toLowerCase(Locale.ROOT));
         if (command == null) {
             return false;
         } else if (command.getPermission() == null || sender.hasPermission(command.getPermission())) {
@@ -191,7 +189,7 @@ public class SubCommands {
      * @return tab completions
      */
     List<String> tabCompletions(String key, String[] args) {
-        SubCommand command = get(key);
+        SubCommand command = get(key.toLowerCase(Locale.ROOT));
         if (command == null) {
             debug.debug("Unknown sub-command: " + key);
             return new ArrayList<>();

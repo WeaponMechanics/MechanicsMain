@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -14,6 +15,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -41,6 +43,20 @@ public class InfoHandler {
 
     public InfoHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
+    }
+
+    /**
+     * Returns the weapon-title that is most similar to the method parameter.
+     * This method will <i>always</i> return a valid weapon title, regardless
+     * of how inaccurate the parameter is. Meaning, yes, <code>AK-47</code>
+     * could return <code>RPG</code>.
+     *
+     * @param weapon The non-null "inaccurate" weapon-title.
+     * @return The non-null valid weapon-title.
+     */
+    @Nonnull
+    public String getWeaponTitle(String weapon) {
+        return StringUtil.didYouMean(weapon, weaponList);
     }
 
     /**
@@ -225,5 +241,17 @@ public class InfoHandler {
         }
 
         return false;
+    }
+
+    private static int[] mapToCharTable(String str) {
+        int[] table = new int["abcdefghijklmnopqrstuvwxyz".length()];
+        for (int i = 0; i < str.length(); i++) {
+            try {
+                table[Character.toLowerCase(str.charAt(i)) - 97]++;
+            } catch (ArrayIndexOutOfBoundsException ignore) {
+                // Sometimes a string will contain something like an underscore.
+            }
+        }
+        return table;
     }
 }

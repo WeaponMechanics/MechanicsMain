@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -86,9 +87,9 @@ public abstract class SubCommand extends BukkitCommand {
      *                     <samp>&lt;player&gt; &lt;amount&gt;</samp>.
      */
     public SubCommand(String parentPrefix, String label, String desc, String usage) {
-        super(label);
+        super(label = label.toLowerCase(Locale.ROOT));
 
-        this.prefix = parentPrefix + " " + label;
+        this.prefix = parentPrefix.toLowerCase(Locale.ROOT) + " " + label;
         this.commands = new SubCommands(this.prefix);
         this.args = StringUtil.splitAfterWord(usage);
 

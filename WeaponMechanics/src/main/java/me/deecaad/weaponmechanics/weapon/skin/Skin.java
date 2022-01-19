@@ -4,18 +4,11 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.MaterialUtil;
-import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-
-import static me.deecaad.core.MechanicsCore.debug;
 
 public class Skin implements Serializer<Skin>  {
 

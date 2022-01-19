@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.commands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.utils.StringUtil;
+import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -31,9 +32,10 @@ public class GiveCommand extends SubCommand {
             return;
         }
 
-        String weaponTitle = args[0];
+        InfoHandler info = getWeaponHandler().getInfoHandler();
+        String weaponTitle = info.getWeaponTitle(args[0]);
         if (!getWeaponHandler().getInfoHandler().hasWeapon(weaponTitle)) {
-            sender.sendMessage(StringUtil.color(ChatColor.RED + "Could not find weapon " + args[0]));
+            sender.sendMessage(ChatColor.RED + "Could not find weapon " + args[0]);
             return;
         }
 
@@ -66,7 +68,7 @@ public class GiveCommand extends SubCommand {
             return;
         }
 
-        getWeaponHandler().getInfoHandler().giveOrDropWeapon(weaponTitle, player, amount);
+        info.giveOrDropWeapon(info.getWeaponTitle(weaponTitle), player, amount);
     }
 
     @Override

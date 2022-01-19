@@ -204,6 +204,9 @@ public class SerializeData {
             // The first step is to assert that the value stored at this key
             // is a list (of any generic-type).
             Object value = config.get(key + "." + relative);
+            if (value == null)
+                return this;
+
             if (!(value instanceof List))
                 throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation());
             List<?> list = (List<?>) config.get(key + "." + relative);

@@ -1,8 +1,7 @@
 package me.deecaad.core;
 
-import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.events.triggers.EquipListener;
-import me.deecaad.core.file.JarInstancer;
+import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.listeners.ItemCraftListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
@@ -10,14 +9,8 @@ import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -51,7 +44,7 @@ public class MechanicsCore extends JavaPlugin {
         FileUtil.ensureDefaults(getClassLoader(), "MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
 
         try {
-            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, getClassLoader(), true);
+            List<?> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
             //noinspection unchecked
             serializersList = (List<Serializer<?>>) serializers;
         } catch (IOException e) {

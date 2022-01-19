@@ -12,6 +12,7 @@ import me.deecaad.core.file.DuplicateKeyException;
 import me.deecaad.core.file.FileReader;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.JarInstancer;
+import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.file.LinkedConfig;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.TaskChain;
@@ -244,7 +245,7 @@ public class WeaponMechanics {
         debug.debug("Loading and serializing config");
 
         try {
-            List<?> serializers = new JarInstancer(new JarFile(getFile())).createAllInstances(Serializer.class, getClassLoader(), true);
+            List<?> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
             //noinspection unchecked
             MechanicsCore.addSerializers(getPlugin(), (List<Serializer<?>>) serializers);
         } catch (IOException e) {
