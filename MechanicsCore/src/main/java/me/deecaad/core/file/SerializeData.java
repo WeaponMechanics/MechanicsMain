@@ -39,10 +39,10 @@ public class SerializeData {
         this.serializer = serializer;
         this.file = other.file;
         this.key = other.key + "." + relative;
-        ConfigurationSection temp = other.config.getConfigurationSection(relative);
+        ConfigurationSection temp = other.config.getConfigurationSection(this.key);
 
         if (temp == null)
-            throw new IllegalArgumentException("No config section at " + relative);
+            throw new IllegalArgumentException("No config section at " + this.key);
         else
             this.config = temp;
     }
@@ -69,8 +69,11 @@ public class SerializeData {
         String[] split = key.split("\\.");
         StringBuilder key = new StringBuilder();
 
-        for (int i = 0; i < split.length - 2; i++)
-            key.append(split[i]);
+        for (int i = 0; i < split.length - 1; i++)
+            key.append(split[i]).append('.');
+
+        if (key.length() > 0)
+            key.setLength(key.length() - 1);
 
         return new SerializeData(serializer, file, key.toString(), config);
     }
@@ -79,8 +82,11 @@ public class SerializeData {
         String[] split = key.split("\\.");
         StringBuilder key = new StringBuilder();
 
-        for (int i = 0; i < split.length - 2; i++)
-            key.append(split[i]);
+        for (int i = 0; i < split.length - 1; i++)
+            key.append(split[i]).append('.');
+
+        if (key.length() > 0)
+            key.setLength(key.length() - 1);
 
         return new SerializeData(serializer, file, key.toString(), config).of(split[split.length - 1]);
     }
@@ -123,12 +129,24 @@ public class SerializeData {
      * @throws SerializerException Always throws an exception... That's the point :p
      */
     public void throwException(String relative, String... messages) throws SerializerException {
-        String key = this.key + ((relative == null || relative.isEmpty()) ? "" : "." + relative);
+        if (messages.length == 0)
+            throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
+
+        String key = this.key;
+        if (relative != null && !relative.isEmpty())
+            key += "." + relative;
+
         throw new SerializerException(serializer, messages, StringUtil.foundAt(file, key));
     }
 
     public void throwListException(String relative, int index, String... messages) throws SerializerException {
-        String key = this.key + ((relative == null || relative.isEmpty()) ? "" : "." + relative);
+        if (messages.length == 0)
+            throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
+
+        String key = this.key;
+        if (relative != null && !relative.isEmpty())
+            key += "." + relative;
+
         throw new SerializerException(serializer, messages, StringUtil.foundAt(file, key, index + 1));
     }
 
@@ -421,7 +439,7 @@ public class SerializeData {
 
                 // Any number (long, short, int, byte, etc) can be type-casted
                 // to a double in java.
-                double ignore = (double) value;
+                double ignore = ((Number) value).doubleValue();
 
             } catch (ClassCastException ex) {
 
@@ -456,7 +474,7 @@ public class SerializeData {
                 if (value instanceof Long && ((Long) value) < 0L)
                     throw new SerializerNegativeException(serializer, value, getLocation());
 
-                double num = (double) value;
+                double num = ((Number) value).doubleValue();
                 if (num < 0.0)
                     throw new SerializerNegativeException(serializer, num, getLocation());
 
@@ -527,7 +545,7 @@ public class SerializeData {
                 return this;
 
             try {
-                double num = (double) value;
+                double num = ((Number) value).doubleValue();
                 if (num < min || num > max)
                     throw new SerializerRangeException(serializer, min, num, max, getLocation());
 
@@ -629,7 +647,7 @@ public class SerializeData {
         public <T extends Serializer<T>> T serialize(@Nonnull T serializer) throws SerializerException {
 
             // Use assertExists for required keys
-            if (!config.contains(relative))
+            if (!config.contains(key + "." + relative))
                 return null;
 
             SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
@@ -638,7 +656,7 @@ public class SerializeData {
 
         public <T> T serializeNonStandardSerializer(@Nonnull Serializer<T> serializer) throws SerializerException {
             // Use assertExists for required keys
-            if (!config.contains(relative))
+            if (!config.contains(key + "." + relative))
                 return null;
 
             SerializeData data = new SerializeData(serializer, SerializeData.this, relative);

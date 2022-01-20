@@ -172,7 +172,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").assertType(Boolean.class).get(messageMechanic != null && messageMechanic.hasBossBar());
 
         if (messageMechanic == null && !updateItemName && !expLevel && !expProgress) {
-            data.throwException("Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");
+            data.throwException(null, "Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");
         }
 
 

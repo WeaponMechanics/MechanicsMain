@@ -16,5 +16,6 @@ public class WeaponMechanicsMainCommand extends MainCommand {
         commands.register(new InfoCommand());
         commands.register(new ReloadCommand());
         commands.register(new WikiCommand());
+        commands.register(new ListWeaponsCommand());
     }
 }

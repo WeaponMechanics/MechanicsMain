@@ -57,10 +57,13 @@ public class ListWeaponsCommand extends SubCommand {
         // MapFont allows us to evaluate the length, in pixels, of a string. MC
         // chat (by default) is 320 pixels wide.
         ComponentBuilder builder = new ComponentBuilder();
-        builder.append("================== WeaponMechanics ==================");
+        builder.append("==================").color(ChatColor.GOLD)
+                .append(" WeaponMechanics ").color(ChatColor.GRAY).italic(true)
+                .append("==================").color(ChatColor.GOLD).italic(false);
 
-        int cellSize = 320 - MinecraftFont.Font.getWidth(" \u27A2 ") * 2;
-        for (int i = requestedPage * maxPerPage; i < (requestedPage + 1) * maxPerPage && i < weapons.size(); i++) {
+        int cellSize = 320 - MinecraftFont.Font.getWidth(" » ") * 2;
+        int i;
+        for (i = requestedPage * maxPerPage; i < (requestedPage + 1) * maxPerPage && i < weapons.size(); i++) {
 
             // Each table cell needs to fit within the pixel size limit. This
             // prevents an empty row from being created and messing up the
@@ -78,7 +81,9 @@ public class ListWeaponsCommand extends SubCommand {
             // We want to display the gun so the player knows: 1) Exactly which
             // weapon they are choosing, 2) That they can click the buttons
             // TODO Use show item using NMS? SHOW_ITEM enum is useless, so...
-            if (weapon.hasItemMeta()) {
+            if (weapon == null) {
+               hover.append("Error in weapon config checking, check console!").color(ChatColor.RED);
+            } else if (weapon.hasItemMeta()) {
                 ItemMeta meta = weapon.getItemMeta();
                 assert meta != null;
 
@@ -98,19 +103,23 @@ public class ListWeaponsCommand extends SubCommand {
             // After filling the 2 columns, we can move to the next row.
             if (i % 2 == 1)
                 builder.append("\n");
-
         }
+
+        // If there weren't enough weapons to fill up a row completely, then
+        // we need to add a new line for the page selector.
+        if (i % 2 == 0)
+            builder.append("\n");
 
         // Add the 'previous page' and 'next page' options below the table
         builder.append("================== ").color(ChatColor.GOLD)
-                .append("<<").color(ChatColor.GRAY).bold(true)
+                .append("«").color(ChatColor.GRAY).bold(true)
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the previous page")))
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage - 1)))
                 .append("                   ")
-                .append(">>").color(ChatColor.GRAY).bold(true)
+                .append("»").color(ChatColor.GRAY).bold(true)
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the next page")))
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage + 1)))
-                .append(" ==================").color(ChatColor.GOLD);
+                .append(" ==================").color(ChatColor.GOLD).bold(false);
 
         sender.spigot().sendMessage(builder.create());
     }

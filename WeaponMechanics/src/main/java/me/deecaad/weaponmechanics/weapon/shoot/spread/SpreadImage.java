@@ -112,8 +112,8 @@ public class SpreadImage implements Serializer<SpreadImage> {
         if (!imageName.contains("\\."))
             imageName += ".png";
 
-        double FOVWidth  = data.of("Field_Of_View_Width").assertExists().assertRange(0.0, 360.0).get();
-        double FOVHeight = data.of("Field_Of_View_Height").assertExists().assertRange(0.0, 360.0).get();
+        double FOVWidth  = ((Number) data.of("Field_Of_View_Width").assertExists().assertRange(0.0, 360.0).get()).doubleValue();
+        double FOVHeight = ((Number) data.of("Field_Of_View_Height").assertExists().assertRange(0.0, 360.0).get()).doubleValue();
 
         File dataFolder = WeaponMechanics.getPlugin().getDataFolder();
         File spritesFolder = new File(dataFolder, "spread_patterns");
