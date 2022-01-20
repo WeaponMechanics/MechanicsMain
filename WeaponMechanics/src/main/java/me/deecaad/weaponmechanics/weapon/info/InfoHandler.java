@@ -26,18 +26,18 @@ public class InfoHandler {
     /**
      * List of all registered weapons
      */
-    private static final Set<String> weaponList = new HashSet<>();
+    private final Set<String> weaponList = new HashSet<>();
 
     /**
      * List of all registered weapons in sorted order.
      * This is here just to make it more efficient to use list command.
      */
-    private static final List<String> sortedWeaponList = new ArrayList<>();
+    private final List<String> sortedWeaponList = new ArrayList<>();
 
     /**
      * List of all weapons with convert option used
      */
-    private static final Set<String> weaponsWithConvert = new HashSet<>();
+    private final Set<String> weaponsWithConvert = new HashSet<>();
 
     private WeaponHandler weaponHandler;
 
@@ -80,7 +80,7 @@ public class InfoHandler {
      * @return the list of all registered weapons in sorted order
      */
     public List<String> getSortedWeaponList() {
-        return sortedWeaponList;
+        return new ArrayList<>(sortedWeaponList);
     }
 
     /**

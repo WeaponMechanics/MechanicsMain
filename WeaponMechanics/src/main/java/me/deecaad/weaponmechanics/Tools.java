@@ -4,6 +4,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.bukkit.map.MinecraftFont;
 
 import java.lang.reflect.Field;
 
@@ -16,7 +17,8 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
-        calculateStats(0.73, 0.75, 0.62, 0.72, 0.58, 0.72);
+        //calculateStats(0.73, 0.75, 0.62, 0.72, 0.58, 0.72);
+        fontData();
     }
 
     private static void calculateStats(double accuracy, double damage, double range,
@@ -86,5 +88,21 @@ public class Tools {
 
             System.out.println("          - " + mat.name().toLowerCase() + "~" + durability);
         }
+    }
+
+    private static void fontData() {
+        final String ALL_CHARS = " !\"#$%&'()*+,-./0123456789:;<=>?" +
+                "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_" +
+                "'abcdefghijklmnopqrstuvwxyz{|}~\u007F";
+
+        for (int i = 0; i < ALL_CHARS.length(); i++) {
+            char c = ALL_CHARS.charAt(i);
+
+            System.out.println(c + ": " + MinecraftFont.Font.getChar(c).getWidth());
+        }
+
+        System.out.println();
+        System.out.println("=============== /wm list (Page 1) ===============");
+        System.out.println(MinecraftFont.Font.getWidth("================== WeaponMechanics =================="));
     }
 }
