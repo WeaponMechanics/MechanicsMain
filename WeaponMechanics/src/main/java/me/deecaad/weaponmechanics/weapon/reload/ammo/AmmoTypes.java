@@ -138,7 +138,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             ItemStack magazineItem = move.of("Item_Ammo.Magazine_Item").serializeNonStandardSerializer(new ItemSerializer());
 
             if (magazineItem == null && bulletItem == null) {
-                move.exception("Tried to use ammo without any options? You should use at least one of the ammo types!");
+                throw move.exception(null, "Tried to use ammo without any options? You should use at least one of the ammo types!");
             }
 
             if (bulletItem != null) {

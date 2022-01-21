@@ -114,7 +114,7 @@ public class Mechanics implements Serializer<Mechanics> {
         }
 
         if (mechanicsList.isEmpty()) {
-            data.exception("Found an empty Mechanics list. You should define at least one Mechanic, or remove the list.");
+            throw data.exception(null, "Found an empty Mechanics list. You should define at least one Mechanic, or remove the list.");
         }
 
         return new Mechanics(mechanicsList);

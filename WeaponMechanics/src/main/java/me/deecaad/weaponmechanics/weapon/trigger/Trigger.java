@@ -138,7 +138,7 @@ public class Trigger implements Serializer<Trigger> {
         TriggerType off = data.of("Off_Hand").getEnum(TriggerType.class, null);
 
         if (main == null && off == null) {
-            data.exception(null, "At least one of Main_Hand or Off_Hand should be used");
+            throw data.exception(null, "At least one of Main_Hand or Off_Hand should be used");
         }
 
         Set<String> denyWhen = new HashSet<>();
@@ -149,7 +149,7 @@ public class Trigger implements Serializer<Trigger> {
                 if (!denyName.equals("Reloading") && !denyName.equals("Zooming") && !denyName.equals("Sneaking") && !denyName.equals("Standing")
                         && !denyName.equals("Walking") && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")) {
 
-                    data.exception("Deny_When", "Unknown key: " + denyName);
+                    throw data.exception("Deny_When", "Unknown key: " + denyName);
                 }
 
                 boolean denied = data.of("Deny_When." + denyName).assertType(Boolean.class).get(false);

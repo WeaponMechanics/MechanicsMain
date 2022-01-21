@@ -40,7 +40,7 @@ public class ModifySpreadWhen extends AModifyWhen {
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
                 && swimming == null && inMidair == null && gliding == null) {
 
-            data.exception(null, "Tried to use Modify_Spread_When without any arguments");
+            throw data.exception(null, "Tried to use Modify_Spread_When without any arguments");
         }
         return new ModifySpreadWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);
     }

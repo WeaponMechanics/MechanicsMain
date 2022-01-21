@@ -78,7 +78,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         double max = data.of("Maximum").assertPositive().get(15.0);
 
         if (min > max) {
-            data.exception("Found 'Changing_Spread' where 'Minimum > Maximum'",
+            throw data.exception(null, "Found 'Changing_Spread' where 'Minimum > Maximum'",
                     "The 'Maximum' MUST be bigger then 'Minimum'");
         }
 

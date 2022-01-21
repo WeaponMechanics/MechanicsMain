@@ -113,7 +113,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         boolean enchantments = data.of("Enchantments").assertType(Boolean.class).get(false);
 
         if (!type && !name && !lore && !enchantments) {
-            data.exception("'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
+            throw data.exception(null, "'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
                     "One of them should be 'true' to allow weapon conversion",
                     "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }

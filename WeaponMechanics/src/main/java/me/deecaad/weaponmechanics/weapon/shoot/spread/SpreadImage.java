@@ -120,7 +120,7 @@ public class SpreadImage implements Serializer<SpreadImage> {
         File spriteFile = new File(spritesFolder, imageName);
 
         if (!spriteFile.exists()) {
-            data.exception("Name", "No spread image '" + spriteFile + "' exists",
+            throw data.exception("Name", "No spread image '" + spriteFile + "' exists",
                     "Make sure you spelled the name correctly",
                     SerializerException.didYouMean(imageName, Arrays.asList(Objects.requireNonNull(spritesFolder.list()))));
         }
@@ -129,16 +129,14 @@ public class SpreadImage implements Serializer<SpreadImage> {
         try {
             sprite = new Sprite(spriteFile);
         } catch (IOException ex) {
-            data.exception("Name", "There was an error while reading the file '" + spriteFile + "'",
+            throw data.exception("Name", "There was an error while reading the file '" + spriteFile + "'",
                     "Are you sure it is an image? Was it corrupted? Can you open the image normally?",
                     ex.getClass() + ": " + ex.getMessage());
-
-            throw new InternalError("unreachable code");
         }
 
         SpreadImage image = new SpreadImage(sprite, FOVWidth, FOVHeight);
         if (image.points.isEmpty()) {
-            data.exception("Name", "The spread image '" + imageName + "' is either blank, or colored",
+            throw data.exception("Name", "The spread image '" + imageName + "' is either blank, or colored",
                     "Make sure '" + imageName + "' is black and white");
         }
 

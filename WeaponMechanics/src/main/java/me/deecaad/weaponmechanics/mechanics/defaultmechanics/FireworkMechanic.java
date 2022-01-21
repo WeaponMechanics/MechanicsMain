@@ -77,7 +77,7 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         ItemStack fireworkItem = data.of("Item").assertExists().serializeNonStandardSerializer(new ItemSerializer());
 
         if (!(fireworkItem.getItemMeta() instanceof FireworkMeta)) {
-            data.exception(null, "Item Type should be a firework when using a Firework Mechanic");
+            throw data.exception(null, "Item Type should be a firework when using a Firework Mechanic");
         }
 
         LocationAdjuster locationAdjuster = data.of("Location_Adjuster").serialize(LocationAdjuster.class);

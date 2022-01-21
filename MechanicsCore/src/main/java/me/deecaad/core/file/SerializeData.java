@@ -59,12 +59,7 @@ public class SerializeData {
         return new SerializeData(serializer, this, relative);
     }
 
-    /**
-     * Helper method to "move out" into the parent section.
-     *
-     * @return The non-null serialize data.
-     */
-    public SerializeData out() {
+    public ConfigListAccessor ofList() {
         String[] split = key.split("\\.");
         StringBuilder key = new StringBuilder();
 
@@ -74,7 +69,7 @@ public class SerializeData {
         if (key.length() > 0)
             key.setLength(key.length() - 1);
 
-        return new SerializeData(serializer, file, key.toString(), config);
+        return new SerializeData(serializer, file, key.toString(), config).ofList(split[split.length - 1]);
     }
 
     public ConfigAccessor of() {
@@ -254,7 +249,7 @@ public class SerializeData {
                 // forgot to save?). Instead of ignoring this, we should tell
                 // the user (playing it safe).
                 if (string == null || string.trim().isEmpty()) {
-                    listException(relative, i, relative + " does not allow empty elements in the list.",
+                    throw listException(relative, i, relative + " does not allow empty elements in the list.",
                             "Valid Format: " + format);
                 }
 
@@ -265,7 +260,7 @@ public class SerializeData {
                 // Missing required data
                 int required = (int) arguments.stream().filter(arg -> arg.required).count();
                 if (split.length < required) {
-                    listException(relative, i, relative + " requires the first " + required + " arguments to be defined.",
+                    throw listException(relative, i, relative + " requires the first " + required + " arguments to be defined.",
                             SerializerException.forValue(string),
                             "You are missing " + (required - split.length) + " arguments",
                             "Valid Format: " + format
@@ -279,7 +274,7 @@ public class SerializeData {
                     // list uses the format 'string-int' and the user inputs
                     // 'string-int-double', then this will be triggered.
                     if (arguments.size() <= j) {
-                        listException(relative, i, "Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
+                        throw listException(relative, i, "Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
                                 SerializerException.forValue(string),
                                 "Valid Format: " + format
                         );

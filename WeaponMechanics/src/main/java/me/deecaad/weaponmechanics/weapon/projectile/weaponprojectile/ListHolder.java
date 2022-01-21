@@ -97,7 +97,7 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
 
         if (mapList.isEmpty()) {
             if (!allowAny) {
-                data.exception(null, "'List' found without any valid options",
+                throw data.exception(null, "'List' found without any valid options",
                         "This happens when 'Allow_Any: false' and 'List' is empty");
             }
             mapList = null;

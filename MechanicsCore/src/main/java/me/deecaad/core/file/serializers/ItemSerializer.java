@@ -64,9 +64,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
-            data.exception("Type", "Did you use air as a material? This is not allowed!",
+            throw data.exception("Type", "Did you use air as a material? This is not allowed!",
                     SerializerException.forValue(type));
-            assert false;
         }
 
         String name = data.of("Name").assertType(String.class).get(null);
@@ -176,7 +175,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
                 itemStack.setItemMeta(skullMeta);
             } catch (ClassCastException e) {
-                data.exception("Skull_Owning_Player", "Tried to use Skulls when the item wasn't a player head!",
+                throw data.exception("Skull_Owning_Player", "Tried to use Skulls when the item wasn't a player head!",
                         SerializerException.forValue(type));
             }
         }
@@ -188,7 +187,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 potionMeta.setColor(color);
                 itemStack.setItemMeta(potionMeta);
             } catch (ClassCastException e) {
-                data.exception("Potion_Color", "Tried to use Potion Color when the item wasn't a potion!",
+                throw data.exception("Potion_Color", "Tried to use Potion Color when the item wasn't a potion!",
                         SerializerException.forValue(type));
             }
         }
@@ -199,7 +198,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);
             } catch (ClassCastException e) {
-                data.exception("Leather_Color", "Tried to use Leather Color when the item wasn't leather armor!",
+                throw data.exception("Leather_Color", "Tried to use Leather Color when the item wasn't leather armor!",
                         SerializerException.forValue(type));
             }
         }

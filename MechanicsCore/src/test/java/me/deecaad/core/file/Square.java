@@ -37,7 +37,7 @@ public class Square implements Serializer<Square> {
         double b = data.of("B").assertRange(0.0, 1.0).get(0.0);
 
         if (length == 0)
-            data.exception("Length", "'Length' may not be '0'");
+            throw data.exception("Length", "'Length' may not be '0'");
 
         return new Square(offset, length, r, g, b);
     }

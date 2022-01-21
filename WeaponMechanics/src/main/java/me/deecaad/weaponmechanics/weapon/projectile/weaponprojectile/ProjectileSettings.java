@@ -167,13 +167,13 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                     || projectileType == EntityType.FALLING_BLOCK)
                     && projectileItem == null) {
 
-                data.exception(null, "When using " + projectileType + ", you MUST use Projectile_Item_Or_Block");
+                throw data.exception(null, "When using " + projectileType + ", you MUST use Projectile_Item_Or_Block");
             }
 
             if (projectileItem != null) {
                 if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
 
-                    data.exception(null, "When using " + projectileType + ", the item must be a firework",
+                    throw data.exception(null, "When using " + projectileType + ", the item must be a firework",
                             SerializerException.forValue(projectileItem));
                 }
 

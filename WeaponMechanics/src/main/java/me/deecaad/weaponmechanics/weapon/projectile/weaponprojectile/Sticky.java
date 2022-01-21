@@ -53,7 +53,7 @@ public class Sticky implements Serializer<Sticky> {
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
         if (blocks == null && entities == null) {
-            data.exception("'Sticky' requires at least one of 'Blocks' or 'Entities'");
+            throw data.exception(null, "'Sticky' requires at least one of 'Blocks' or 'Entities'");
         }
 
         return new Sticky(blocks, entities);

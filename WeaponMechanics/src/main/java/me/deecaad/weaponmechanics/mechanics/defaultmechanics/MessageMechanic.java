@@ -245,7 +245,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
             if (clickEventString != null) {
                 String[] split = clickEventString.split("-", 2);
                 if (split.length != 2) {
-                    data.exception(null, "Chat Click Action should be formatted like: <ClickEvent.Action>-<value>",
+                    throw data.exception(null, "Chat Click Action should be formatted like: <ClickEvent.Action>-<value>",
                             SerializerVersionException.forValue(clickEventString));
                 }
 
@@ -289,7 +289,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (chatData == null && actionBarMessage == null && titleData == null && bossBarData == null) {
-            data.exception(null, "Tried to use a Message Mechanic without any messages added!",
+            throw data.exception(null, "Tried to use a Message Mechanic without any messages added!",
                     "If you do not want to send any messages, please remove the key from your config.");
         }
 

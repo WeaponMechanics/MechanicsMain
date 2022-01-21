@@ -66,17 +66,20 @@ public class LocationAdjuster implements Serializer<LocationAdjuster> {
         String[] split = StringUtil.split(input);
 
         if (split.length < 3) {
-            data.exception(null, "Expected x~y~z format for location adjuster",
+            throw data.exception(null, "Expected x~y~z format for location adjuster",
                     SerializerException.forValue(input));
         }
 
-        double x, y, z;
+        double x = Double.NaN;
+        double y = Double.NaN;
+        double z = Double.NaN;
         try {
             x = Double.parseDouble(split[0]);
             y = Double.parseDouble(split[1]);
             z = Double.parseDouble(split[2]);
         } catch (NumberFormatException e) {
-            throw new SerializerTypeException(this, Number.class, null, e.getMessage(), data.of().getLocation());
+            throw new SerializerTypeException(this, Number.class, null, e.getMessage(), data.of().getLocation())
+                    .addMessage(String.format("X: %s, Y: %s, Z: %s", x, y, z));
         }
 
         return new LocationAdjuster(x, y, z);

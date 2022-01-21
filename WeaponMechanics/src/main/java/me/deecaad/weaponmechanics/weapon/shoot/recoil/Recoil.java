@@ -107,7 +107,7 @@ public class Recoil implements Serializer<Recoil> {
         List<Float> randomVertical = convertToFloatList(data.ofList("Vertical"));
 
         if (recoilPattern == null && randomHorizontal == null && randomVertical == null) {
-            data.exception(null, "When using Recoil, you need to use at least one of: 'Recoil_Pattern', 'Horizontal', 'Vertical'");
+            throw data.exception(null, "When using Recoil, you need to use at least one of: 'Recoil_Pattern', 'Horizontal', 'Vertical'");
         }
 
         ModifyRecoilWhen modifyRecoilWhen = (ModifyRecoilWhen) data.of("Modify_Recoil_When").serialize(new ModifyRecoilWhen());

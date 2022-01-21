@@ -156,7 +156,7 @@ public class Bouncy implements Serializer<Bouncy> {
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
         if (blocks == null && entities == null) {
-            data.exception("'Bouncy' requires at least one of 'Blocks' or 'Entities'");
+            throw data.exception(null, "'Bouncy' requires at least one of 'Blocks' or 'Entities'");
         }
 
         int maximumBounceAmount = data.of("Maximum_Bounce_Amount").assertPositive().get(1);

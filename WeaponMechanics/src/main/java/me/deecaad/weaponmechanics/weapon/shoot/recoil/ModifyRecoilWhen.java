@@ -41,7 +41,7 @@ public class ModifyRecoilWhen extends AModifyWhen {
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
                 && swimming == null && inMidair == null && gliding == null) {
 
-            data.exception(null, "Tried to use Modify_Recoil_When without any arguments");
+            throw data.exception(null, "Tried to use Modify_Recoil_When without any arguments");
         }
 
         return new ModifyRecoilWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);

@@ -60,7 +60,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
             double chanceToSkip = split.length > 2 ? Double.parseDouble(split[2].split("%")[0]) : 0.0;
 
             if (chanceToSkip > 100 || chanceToSkip < 0) {
-                data.exception(null, "Chance to skip should be between 0 and 100",
+                throw data.exception(null, "Chance to skip should be between 0 and 100",
                         SerializerException.forValue(split[2]));
             }
 

@@ -37,7 +37,7 @@ public class ColorSerializer implements Serializer<Color> {
         if (input.startsWith("0x")) {
             String subString = input.substring(2);
             if (subString.length() != 6) {
-                data.exception(null, "Hex strings should have 6 digits",
+                throw data.exception(null, "Hex strings should have 6 digits",
                         SerializerException.forValue(input),
                         SerializerException.examples("0xFF00BB", "0x123456", "0x111111"));
             }
@@ -51,7 +51,7 @@ public class ColorSerializer implements Serializer<Color> {
         else if (input.startsWith("#")) {
             String subString = input.substring(1);
             if (subString.length() != 6) {
-                data.exception(null, "Hex strings should have 6 digits",
+                throw data.exception(null, "Hex strings should have 6 digits",
                         SerializerException.forValue(input),
                         SerializerException.examples("#FF00BB", "#123456", "#111111"));
             }
@@ -87,15 +87,13 @@ public class ColorSerializer implements Serializer<Color> {
             // This occurs when EVERY color format fails, so we should try to
             // provide a lot of information to help the user.
             else {
-                data.exception(null, SerializerException.forValue(input),
+                throw data.exception(null, SerializerException.forValue(input),
                         SerializerException.didYouMean(input, ColorType.class),
                         "Valid Formats: '#RRGGBB', 'r-g-b', 'RED'",
                         SerializerException.examples("#AA0022", "255-100-0", "RED", "#444411", "BLUE", "0-0-255")
                         );
             }
         }
-
-        throw new InternalError("Reached unreachable code");
     }
 
     public enum ColorType {
