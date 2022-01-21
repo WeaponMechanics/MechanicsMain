@@ -3,13 +3,10 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerTypeException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.weapon.shoot.AModifyWhen;
 import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
 
 import javax.annotation.Nonnull;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ModifyRecoilWhen extends AModifyWhen {
 
@@ -44,7 +41,7 @@ public class ModifyRecoilWhen extends AModifyWhen {
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
                 && swimming == null && inMidair == null && gliding == null) {
 
-            data.throwException(null, "Tried to use Modify_Recoil_When without any arguments");
+            data.exception(null, "Tried to use Modify_Recoil_When without any arguments");
         }
 
         return new ModifyRecoilWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding);

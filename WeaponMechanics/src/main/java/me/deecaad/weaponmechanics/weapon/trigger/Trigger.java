@@ -3,18 +3,13 @@ package me.deecaad.weaponmechanics.weapon.trigger;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Trigger implements Serializer<Trigger> {
 
@@ -143,7 +138,7 @@ public class Trigger implements Serializer<Trigger> {
         TriggerType off = data.of("Off_Hand").getEnum(TriggerType.class, null);
 
         if (main == null && off == null) {
-            data.throwException(null, "At least one of Main_Hand or Off_Hand should be used");
+            data.exception(null, "At least one of Main_Hand or Off_Hand should be used");
         }
 
         Set<String> denyWhen = new HashSet<>();
@@ -154,7 +149,7 @@ public class Trigger implements Serializer<Trigger> {
                 if (!denyName.equals("Reloading") && !denyName.equals("Zooming") && !denyName.equals("Sneaking") && !denyName.equals("Standing")
                         && !denyName.equals("Walking") && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")) {
 
-                    data.throwException("Deny_When", "Unknown key: " + denyName);
+                    data.exception("Deny_When", "Unknown key: " + denyName);
                 }
 
                 boolean denied = data.of("Deny_When." + denyName).assertType(Boolean.class).get(false);

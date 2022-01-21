@@ -7,15 +7,12 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -23,10 +20,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.List;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class FireworkMechanic implements IMechanic<FireworkMechanic> {
 
@@ -83,7 +77,7 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
         ItemStack fireworkItem = data.of("Item").assertExists().serializeNonStandardSerializer(new ItemSerializer());
 
         if (!(fireworkItem.getItemMeta() instanceof FireworkMeta)) {
-            data.throwException(null, "Item Type should be a firework when using a Firework Mechanic");
+            data.exception(null, "Item Type should be a firework when using a Firework Mechanic");
         }
 
         LocationAdjuster locationAdjuster = data.of("Location_Adjuster").serialize(LocationAdjuster.class);

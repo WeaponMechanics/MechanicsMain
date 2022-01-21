@@ -434,7 +434,7 @@ public class Explosion implements Serializer<Explosion> {
         // when blocks cannot even be broken in the first place. Easy mistake
         // to make when copying/pasting and deleting chunks of config.
         if ((blockDamage == null || !blockDamage.isBreakBlocks()) && regeneration != null) {
-            data.throwException("Found an Explosion that defines 'Regeneration' when 'Block_Damage' cannot break blocks!",
+            data.exception("Found an Explosion that defines 'Regeneration' when 'Block_Damage' cannot break blocks!",
                     "This happens when 'Block_Damage.Break_Blocks: false' or when 'Block_Damage' was not added AND you tried to add 'Regeneration'");
         }
 

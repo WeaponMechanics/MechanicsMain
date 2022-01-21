@@ -3,18 +3,11 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
-import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class RecoilPattern implements Serializer<RecoilPattern> {
 
@@ -67,7 +60,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
             double chanceToSkip = split.length > 2 ? Double.parseDouble(split[2].split("%")[0]) : 0.0;
 
             if (chanceToSkip > 100 || chanceToSkip < 0) {
-                data.throwException(null, "Chance to skip should be between 0 and 100",
+                data.exception(null, "Chance to skip should be between 0 and 100",
                         SerializerException.forValue(split[2]));
             }
 

@@ -7,7 +7,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerVersionException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -25,16 +24,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.lang.reflect.Constructor;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class MessageMechanic implements IMechanic<MessageMechanic> {
 
@@ -250,7 +245,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
             if (clickEventString != null) {
                 String[] split = clickEventString.split("-", 2);
                 if (split.length != 2) {
-                    data.throwException(null, "Chat Click Action should be formatted like: <ClickEvent.Action>-<value>",
+                    data.exception(null, "Chat Click Action should be formatted like: <ClickEvent.Action>-<value>",
                             SerializerVersionException.forValue(clickEventString));
                 }
 
@@ -294,7 +289,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (chatData == null && actionBarMessage == null && titleData == null && bossBarData == null) {
-            data.throwException(null, "Tried to use a Message Mechanic without any messages added!",
+            data.exception(null, "Tried to use a Message Mechanic without any messages added!",
                     "If you do not want to send any messages, please remove the key from your config.");
         }
 

@@ -5,15 +5,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -116,7 +113,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         boolean enchantments = data.of("Enchantments").assertType(Boolean.class).get(false);
 
         if (!type && !name && !lore && !enchantments) {
-            data.throwException("'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
+            data.exception("'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
                     "One of them should be 'true' to allow weapon conversion",
                     "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }

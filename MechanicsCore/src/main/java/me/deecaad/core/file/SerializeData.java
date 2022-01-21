@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -118,17 +117,17 @@ public class SerializeData {
     /**
      * When there is no method in {@link ConfigAccessor} to match a specific
      * configuration error, you may check for it manually and use this method
-     * to throw an exception.
+     * to throw a "general" exception.
      *
      * <p>Make sure to keep messages clear and concise. There is no limit to
      * how many messages you may give to the player, but make sure that each
      * message is <i>important</i> and contains <i>useful</i> information.
      *
      * @param relative The nullable relative key.
-     * @param messages The non-null list of messages to include.
-     * @throws SerializerException Always throws an exception... That's the point :p
+     * @param messages The non-empty list of messages to include.
+     * @return The non-null constructed exception.
      */
-    public void throwException(String relative, String... messages) throws SerializerException {
+    public SerializerException exception(String relative, String... messages) {
         if (messages.length == 0)
             throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
 
@@ -136,10 +135,20 @@ public class SerializeData {
         if (relative != null && !relative.isEmpty())
             key += "." + relative;
 
-        throw new SerializerException(serializer, messages, StringUtil.foundAt(file, key));
+        return new SerializerException(serializer, messages, StringUtil.foundAt(file, key));
     }
 
-    public void throwListException(String relative, int index, String... messages) throws SerializerException {
+    /**
+     * When there is no method in {@link ConfigListAccessor} to match a
+     * specific configuration error, you may check for it manually and use this
+     * method to throw a "general" exception.
+     *
+     * @param relative The nullable relative key.
+     * @param index The index (NOT index + 1) of the element that had the error.
+     * @param messages The non-empty list of messages to include
+     * @return The non-null constructed exception.
+     */
+    public SerializerException listException(String relative, int index, String... messages) {
         if (messages.length == 0)
             throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
 
@@ -147,7 +156,7 @@ public class SerializeData {
         if (relative != null && !relative.isEmpty())
             key += "." + relative;
 
-        throw new SerializerException(serializer, messages, StringUtil.foundAt(file, key, index + 1));
+        return new SerializerException(serializer, messages, StringUtil.foundAt(file, key, index + 1));
     }
 
     public class ConfigListAccessor {
@@ -245,7 +254,7 @@ public class SerializeData {
                 // forgot to save?). Instead of ignoring this, we should tell
                 // the user (playing it safe).
                 if (string == null || string.trim().isEmpty()) {
-                    throwListException(relative, i, relative + " does not allow empty elements in the list.",
+                    listException(relative, i, relative + " does not allow empty elements in the list.",
                             "Valid Format: " + format);
                 }
 
@@ -256,7 +265,7 @@ public class SerializeData {
                 // Missing required data
                 int required = (int) arguments.stream().filter(arg -> arg.required).count();
                 if (split.length < required) {
-                    throwListException(relative, i, relative + " requires the first " + required + " arguments to be defined.",
+                    listException(relative, i, relative + " requires the first " + required + " arguments to be defined.",
                             SerializerException.forValue(string),
                             "You are missing " + (required - split.length) + " arguments",
                             "Valid Format: " + format
@@ -270,7 +279,7 @@ public class SerializeData {
                     // list uses the format 'string-int' and the user inputs
                     // 'string-int-double', then this will be triggered.
                     if (arguments.size() <= j) {
-                        throwListException(relative, i, "Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
+                        listException(relative, i, "Invalid list format, " + relative + " can only use " + arguments.size() + " arguments.",
                                 SerializerException.forValue(string),
                                 "Valid Format: " + format
                         );
@@ -374,6 +383,7 @@ public class SerializeData {
     public class ConfigAccessor {
 
         protected final String relative;
+        private boolean exists;
 
         private ConfigAccessor(String relative) {
             this.relative = relative;
@@ -391,6 +401,7 @@ public class SerializeData {
             if (!config.contains(key + "." + relative, true))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation());
 
+            exists = true;
             return this;
         }
 
@@ -419,6 +430,119 @@ public class SerializeData {
         }
 
         /**
+         * Returns the integer value of the config, or throws an exception if
+         * the value is not a number. Note that this method will also throw an
+         * exception if the input is explicitly a double. For example,
+         * <code>1.0</code> is a valid integer which will be parsed as
+         * <code>1</code>, but <code>1.1</code> will throw an exception.
+         *
+         * <p>Note that this method should only be called if you have already
+         * used {@link #assertExists()}. For non-required values, instead use
+         * {@link #getInt(int)}.
+         *
+         * @return The integer from config.
+         * @throws SerializerException If the config value is not an integer.
+         */
+        public int getInt() throws SerializerException {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
+            return getInt(Integer.MIN_VALUE);
+        }
+
+        /**
+         * Returns the integer value of the config, or throws an exception if
+         * the value is not a number. Note that this method will also throw an
+         * exception if the input is explicitly a double. For example,
+         * <code>1.0</code> is a valid integer which will be parsed as
+         * <code>1</code>, but <code>1.1</code> will throw an exception.
+         *
+         * @return The integer from config.
+         * @param def The default value to return when the config is undefined.
+         * @throws SerializerException If the config value is not an integer.
+         */
+        public int getInt(int def) throws SerializerException {
+            Number num = getNumber(def);
+            if (Double.compare(Math.floor(num.doubleValue()), Math.ceil(num.doubleValue())) != 0)
+                throw new SerializerTypeException(serializer, Integer.class, Double.class, num, getLocation());
+
+            return num.intValue();
+        }
+
+        /**
+         * Returns the double value of the config, or throws an exception if
+         * the value is not a number.
+         *
+         * <p>Note that this method should only be called if you have already
+         * used {@link #assertExists()}. For non-required values, instead use
+         * {@link #getDouble(double)}.
+         *
+         * @return The integer from config.
+         * @throws SerializerException If the config value is not a double.
+         */
+        public double getDouble() throws SerializerException {
+            if (!exists)
+                throw new IllegalArgumentException("Either provide a default value or use assertExists()!");
+
+            return getDouble(Double.NaN);
+        }
+
+        /**
+         * Returns the double value of the config, or throws an exception if
+         * the value is not a number.
+         *
+         * @return The double from config.
+         * @param def The default value to return when the config is undefined.
+         * @throws SerializerException If the config value is not a double.
+         */
+        public double getDouble(double def) throws SerializerException {
+            return getNumber(def).doubleValue();
+        }
+
+        /**
+         * Returns the boolean value of the config, or throws an exception if
+         * the value is not a boolean.
+         *
+         * <p>Note that this method should only be called if you have already
+         * used {@link #assertExists()}. For non-required values, instead use
+         * {@link #getBool(boolean)}.
+         *
+         * @return The boolean from config.
+         * @throws SerializerException If the config value is not a boolean.
+         */
+        public boolean getBool() throws SerializerException {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
+            return getBool(false);
+        }
+
+        /**
+         * Returns the boolean value of the config, or throws an exception if
+         * the value is not a boolean.
+         *
+         * @return The boolean from config.
+         * @param def The default value to return when the config is undefined.
+         * @throws SerializerException If the config value is not a boolean.
+         */
+        public boolean getBool(boolean def) throws SerializerException {
+            Object value = config.get(key + "." + relative);
+            if (value == null)
+                return def;
+
+            if (value instanceof Boolean)
+                return (Boolean) value;
+            if (value instanceof String) {
+                if (value.toString().trim().equalsIgnoreCase("true"))
+                    return true;
+                if (value.toString().trim().equalsIgnoreCase("false"))
+                    return false;
+            }
+
+            throw new SerializerTypeException(serializer, Boolean.class, value.getClass(), value, getLocation());
+        }
+
+        /**
          * Asserts that the value at this key is a number of any type. The
          * check is done by checking the value can be type-casted to a double.
          * Note that if you want a more specific number type (for example, an
@@ -428,60 +552,37 @@ public class SerializeData {
          * @throws SerializerException If the type is not a number.
          */
         @Nonnull
-        public ConfigAccessor assertNumber() throws SerializerException {
+        public Number getNumber(Number def) throws SerializerException {
             Object value = config.get(key + "." + relative);
 
             // Use assertExists for required keys
             if (value == null)
-                return this;
+                return def;
 
             try {
-
-                // Any number (long, short, int, byte, etc) can be type-casted
-                // to a double in java.
-                double ignore = ((Number) value).doubleValue();
-
+                return (Number) value;
             } catch (ClassCastException ex) {
-
-                // assertPositive is also effective for asserting the given type is a number.
                 throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation());
             }
-
-            return this;
         }
 
         /**
          * Asserts that the value at this key is a number, AND that the number
          * is positive. Note that if you want a more specific number type (for
-         * example, an integer), you should use {@link #assertType(Class)}.
+         * example, an integer), you should use {@link #getInt(int)}.
          *
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type is not a number or is not positive.
          */
         @Nonnull
         public ConfigAccessor assertPositive() throws SerializerException {
-            Object value = config.get(key + "." + relative);
+            Number value = getNumber(null);
 
             // Use assertExists for required keys
-            if (value == null)
-                return this;
+            if (value != null) {
 
-            try {
-
-                // We need to check longs first since they might have weird
-                // behavior when we cast them to a double (data loss or
-                // otherwise)
-                if (value instanceof Long && ((Long) value) < 0L)
+                if ((value instanceof Long && value.longValue() < 0L) || value.doubleValue() < 0L)
                     throw new SerializerNegativeException(serializer, value, getLocation());
-
-                double num = ((Number) value).doubleValue();
-                if (num < 0.0)
-                    throw new SerializerNegativeException(serializer, num, getLocation());
-
-            } catch (ClassCastException ex) {
-
-                // assertPositive is also effective for asserting the given type is a number.
-                throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation());
             }
 
             return this;
@@ -491,7 +592,7 @@ public class SerializeData {
          * Asserts that the value at this key is a number, AND that the number
          * is within the inclusive range. Note that if you want a more specific
          * number type (for example, an integer), you should use
-         * {@link #assertType(Class)}.
+         * {@link #getInt(int)}.
          *
          * @param min Inclusive minimum bound. min < max.
          * @param max Inclusive maximum bound. max > min.
@@ -504,21 +605,15 @@ public class SerializeData {
             if (min > max)
                 throw new IllegalArgumentException("min > max");
 
-            Object value = config.get(key + "." + relative);
+            Number value = getNumber(null);
 
             // Use assertExists for required keys
-            if (value == null)
-                return this;
-
-            try {
+            if (value != null) {
 
                 // Silently strips away float point data (without exception)
-                int num = (int) value;
+                int num = value.intValue();
                 if (num < min || num > max)
                     throw new SerializerRangeException(serializer, min, num, max, getLocation());
-
-            } catch (ClassCastException ex) {
-                throw new SerializerTypeException(serializer, Integer.class, value.getClass(), value, getLocation());
             }
 
             return this;
@@ -528,7 +623,7 @@ public class SerializeData {
          * Asserts that the value at this key is a number, AND that the number
          * is within the inclusive range. Note that if you want a more specific
          * number type (for example, an integer), you should use
-         * {@link #assertType(Class)}.
+         * {@link #getInt(int)}.
          *
          * @param min Inclusive minimum bound. min < max.
          * @param max Inclusive maximum bound. max > min.
@@ -538,19 +633,17 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigAccessor assertRange(double min, double max) throws SerializerException {
-            Object value = config.get(key + "." + relative);
+            if (min > max)
+                throw new IllegalArgumentException("min > max");
+
+            Number value = getNumber(null);
 
             // Use assertExists for required keys
-            if (value == null)
-                return this;
+            if (value != null) {
 
-            try {
-                double num = ((Number) value).doubleValue();
+                double num = value.doubleValue();
                 if (num < min || num > max)
                     throw new SerializerRangeException(serializer, min, num, max, getLocation());
-
-            } catch (ClassCastException ex) {
-                throw new SerializerTypeException(serializer, Double.class, value.getClass(), value, getLocation());
             }
 
             return this;
@@ -575,6 +668,9 @@ public class SerializeData {
          */
         @SuppressWarnings("unchecked")
         public <T> T get() {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
             return (T) config.get(key + "." + relative);
         }
 

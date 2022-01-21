@@ -1,17 +1,13 @@
 package me.deecaad.core.file.serializers;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerTypeException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 
 public class LocationAdjuster implements Serializer<LocationAdjuster> {
 
@@ -70,7 +66,7 @@ public class LocationAdjuster implements Serializer<LocationAdjuster> {
         String[] split = StringUtil.split(input);
 
         if (split.length < 3) {
-            data.throwException(null, "Expected x~y~z format for location adjuster",
+            data.exception(null, "Expected x~y~z format for location adjuster",
                     SerializerException.forValue(input));
         }
 

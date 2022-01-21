@@ -8,11 +8,9 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,7 +138,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             ItemStack magazineItem = move.of("Item_Ammo.Magazine_Item").serializeNonStandardSerializer(new ItemSerializer());
 
             if (magazineItem == null && bulletItem == null) {
-                move.throwException("Tried to use ammo without any options? You should use at least one of the ammo types!");
+                move.exception("Tried to use ammo without any options? You should use at least one of the ammo types!");
             }
 
             if (bulletItem != null) {

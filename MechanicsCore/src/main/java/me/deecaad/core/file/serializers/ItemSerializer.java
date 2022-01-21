@@ -19,13 +19,10 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.*;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static me.deecaad.core.MechanicsCore.debug;
 
 public class ItemSerializer implements Serializer<ItemStack> {
 
@@ -67,7 +64,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) {
-            data.throwException("Type", "Did you use air as a material? This is not allowed!",
+            data.exception("Type", "Did you use air as a material? This is not allowed!",
                     SerializerException.forValue(type));
             assert false;
         }
@@ -179,7 +176,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 }
                 itemStack.setItemMeta(skullMeta);
             } catch (ClassCastException e) {
-                data.throwException("Skull_Owning_Player", "Tried to use Skulls when the item wasn't a player head!",
+                data.exception("Skull_Owning_Player", "Tried to use Skulls when the item wasn't a player head!",
                         SerializerException.forValue(type));
             }
         }
@@ -191,7 +188,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 potionMeta.setColor(color);
                 itemStack.setItemMeta(potionMeta);
             } catch (ClassCastException e) {
-                data.throwException("Potion_Color", "Tried to use Potion Color when the item wasn't a potion!",
+                data.exception("Potion_Color", "Tried to use Potion Color when the item wasn't a potion!",
                         SerializerException.forValue(type));
             }
         }
@@ -202,7 +199,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);
             } catch (ClassCastException e) {
-                data.throwException("Leather_Color", "Tried to use Leather Color when the item wasn't leather armor!",
+                data.exception("Leather_Color", "Tried to use Leather Color when the item wasn't leather armor!",
                         SerializerException.forValue(type));
             }
         }

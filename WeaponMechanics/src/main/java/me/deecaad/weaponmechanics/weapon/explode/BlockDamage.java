@@ -4,21 +4,16 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class BlockDamage implements Serializer<BlockDamage> {
 
@@ -183,7 +178,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
         List<String[]> strings = accessor.assertExists().assertList().get();
 
         if (!isBlacklist && strings.isEmpty()) {
-            data.throwException(null, "'Block_Damage' found that cannot break any blocks!",
+            data.exception(null, "'Block_Damage' found that cannot break any blocks!",
                     "This happens when you use 'Blacklist: false' and an empty 'Block_List'");
         }
 
@@ -209,7 +204,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 materials.forEach(material -> shotsToBreak.put(material, durability));
             }
         } else if (!strings.isEmpty()) {
-            data.throwException(null, "Found 'Block_Damage' that uses 'Shots_To_Break_Blocks' when 'Blacklist: false'",
+            data.exception(null, "Found 'Block_Damage' that uses 'Shots_To_Break_Blocks' when 'Blacklist: false'",
                     "'Shots_To_Break_Blocks' should only be used when 'Blacklist: true'",
                     "Instead, copy and paste your values from 'Shots_To_Break_Blocks' to 'Block_List'");
         }

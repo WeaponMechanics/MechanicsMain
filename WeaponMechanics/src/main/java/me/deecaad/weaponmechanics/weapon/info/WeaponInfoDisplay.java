@@ -5,9 +5,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
@@ -16,17 +14,14 @@ import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.lang.reflect.Constructor;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
@@ -172,12 +167,12 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").assertType(Boolean.class).get(messageMechanic != null && messageMechanic.hasBossBar());
 
         if (messageMechanic == null && !updateItemName && !expLevel && !expProgress) {
-            data.throwException(null, "Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");
+            data.exception(null, "Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");
         }
 
 
         if (bossBarProgress && (messageMechanic == null || messageMechanic.hasBossBar())) {
-            data.throwException(null, "In order for a boss bar to work properly, 'Show_Ammo_In.Boss_Bar_Progress: true' and the",
+            data.exception(null, "In order for a boss bar to work properly, 'Show_Ammo_In.Boss_Bar_Progress: true' and the",
                     "boss bar needs to be defined in the message.");
         }
 

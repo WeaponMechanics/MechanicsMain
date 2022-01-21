@@ -3,10 +3,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
-import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 
 public class AmmoConverter extends WeaponConverter {
 
@@ -31,7 +28,7 @@ public class AmmoConverter extends WeaponConverter {
         boolean enchantments = data.of("Enchantments").assertType(Boolean.class).get(false);
 
         if (!type && !name && !lore && !enchantments) {
-            data.throwException("'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
+            data.exception("'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
                     "One of them should be 'true' to allow ammo conversion",
                     "If you want to remove the ammo conversion feature, remove the '" + getKeyword() + "' option from config");
         }

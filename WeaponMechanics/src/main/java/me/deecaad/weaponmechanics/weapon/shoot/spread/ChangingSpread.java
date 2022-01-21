@@ -5,10 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 
 public class ChangingSpread implements Serializer<ChangingSpread> {
 
@@ -81,7 +78,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         double max = data.of("Maximum").assertPositive().get(15.0);
 
         if (min > max) {
-            data.throwException("Found 'Changing_Spread' where 'Minimum > Maximum'",
+            data.exception("Found 'Changing_Spread' where 'Minimum > Maximum'",
                     "The 'Maximum' MUST be bigger then 'Minimum'");
         }
 

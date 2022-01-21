@@ -4,11 +4,9 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 
 public class Through implements Serializer<Through> {
 
@@ -74,7 +72,7 @@ public class Through implements Serializer<Through> {
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
         if (blocks == null && entities == null) {
-            data.throwException("'Sticky' requires at least one of 'Blocks' or 'Entities'");
+            data.exception("'Sticky' requires at least one of 'Blocks' or 'Entities'");
         }
 
         int maximumThroughAmount = data.of("Maximum_Through_Amount").assertPositive().get(1);

@@ -1,23 +1,16 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
-import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> {
 
@@ -104,7 +97,7 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
 
         if (mapList.isEmpty()) {
             if (!allowAny) {
-                data.throwException(null, "'List' found without any valid options",
+                data.exception(null, "'List' found without any valid options",
                         "This happens when 'Allow_Any: false' and 'List' is empty");
             }
             mapList = null;

@@ -4,18 +4,13 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
-import me.deecaad.core.utils.StringUtil;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.Locale;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
@@ -172,13 +167,13 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                     || projectileType == EntityType.FALLING_BLOCK)
                     && projectileItem == null) {
 
-                data.throwException(null, "When using " + projectileType + ", you MUST use Projectile_Item_Or_Block");
+                data.exception(null, "When using " + projectileType + ", you MUST use Projectile_Item_Or_Block");
             }
 
             if (projectileItem != null) {
                 if (projectileType == EntityType.FIREWORK && !(projectileItem.getItemMeta() instanceof FireworkMeta)) {
 
-                    data.throwException(null, "When using " + projectileType + ", the item must be a firework",
+                    data.exception(null, "When using " + projectileType + ", the item must be a firework",
                             SerializerException.forValue(projectileItem));
                 }
 

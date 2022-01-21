@@ -34,7 +34,7 @@ public class ChanceSerializer implements Serializer<Double> {
             } else if (str.endsWith("%")) {
                 chance = Double.parseDouble(str.substring(0, str.length() - 1)) / 100.0;
             } else {
-                data.throwException(null, "Chance input had a '%' in the middle when it should have been on the end",
+                data.exception(null, "Chance input had a '%' in the middle when it should have been on the end",
                         SerializerException.forValue(value));
             }
         }

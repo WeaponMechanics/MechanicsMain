@@ -7,13 +7,11 @@ import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 
 public class Bouncy implements Serializer<Bouncy> {
 
@@ -158,7 +156,7 @@ public class Bouncy implements Serializer<Bouncy> {
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
         if (blocks == null && entities == null) {
-            data.throwException("'Bouncy' requires at least one of 'Blocks' or 'Entities'");
+            data.exception("'Bouncy' requires at least one of 'Blocks' or 'Entities'");
         }
 
         int maximumBounceAmount = data.of("Maximum_Bounce_Amount").assertPositive().get(1);
