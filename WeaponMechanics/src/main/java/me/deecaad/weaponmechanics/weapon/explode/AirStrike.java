@@ -54,7 +54,7 @@ public class AirStrike implements Serializer<AirStrike> {
      * @param delay      The amount of time (in ticks) between each layer of bombs.
      */
     public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
-                     double distance, double radius, int loops, int delay) {
+                     double distance, double radius, int loops, int delay, Detonation detonation) {
 
         this.projectile = projectile;
         this.min = min;
@@ -65,6 +65,7 @@ public class AirStrike implements Serializer<AirStrike> {
         this.radius = radius;
         this.loops = loops;
         this.delay = delay;
+        this.detonation = detonation;
     }
 
     public Projectile getProjectile() {
@@ -204,23 +205,23 @@ public class AirStrike implements Serializer<AirStrike> {
     @Nonnull
     public AirStrike serialize(SerializeData data) throws SerializerException {
 
-        int min = data.of("Minimum_Bombs").assertExists().assertPositive().get();
-        int max = data.of("Maximum_Bombs").assertExists().assertPositive().get();
+        int min = data.of("Minimum_Bombs").assertExists().assertPositive().getInt();
+        int max = data.of("Maximum_Bombs").assertExists().assertPositive().getInt();
 
         Projectile projectile = data.of("Dropped_Projectile").assertExists().serialize(Projectile.class);
 
-        double yOffset = data.of("Height").assertPositive().get(60.0);
-        double yNoise = data.of("Vertical_Randomness").assertPositive().get(5.0);
+        double yOffset = data.of("Height").assertPositive().getDouble(60.0);
+        double yNoise = data.of("Vertical_Randomness").assertPositive().getDouble(5.0);
 
-        double separation = data.of("Distance_Between_Bombs").assertPositive().get(3.0);
-        double range = data.of("Maximum_Distance_From_Center").assertPositive().get(25.0);
+        double separation = data.of("Distance_Between_Bombs").assertPositive().getDouble(3.0);
+        double range = data.of("Maximum_Distance_From_Center").assertPositive().getDouble(25.0);
 
-        int layers = data.of("Layers").assertPositive().get(1);
-        int interval = data.of("Delay_Between_Layers").assertPositive().get(40);
+        int layers = data.of("Layers").assertPositive().getInt(1);
+        int interval = data.of("Delay_Between_Layers").assertPositive().getInt(40);
 
         Detonation detonation = data.of("Detonation").serialize(Detonation.class);
 
-        return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval);
+        return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval, detonation);
     }
 
     static class Vector2d {

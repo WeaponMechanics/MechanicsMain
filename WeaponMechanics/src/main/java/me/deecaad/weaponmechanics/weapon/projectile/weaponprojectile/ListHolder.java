@@ -71,7 +71,7 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
     @Override
     @Nonnull
     public @NotNull ListHolder<T> serialize(SerializeData data) throws SerializerException {
-        boolean allowAny = data.of(".Allow_Any").get(false);
+        boolean allowAny = data.of(".Allow_Any").getBool(false);
 
         Map<T, Double> mapList = new HashMap<>();
         List<String[]> list = data.ofList("List")
@@ -103,8 +103,8 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
             mapList = null;
         }
 
-        double defaultSpeedMultiplier = data.of("Default_Speed_Multiplier").assertPositive().get(1.0);
-        boolean whitelist = data.of("Whitelist").assertType(Boolean.class).get(true);
+        double defaultSpeedMultiplier = data.of("Default_Speed_Multiplier").assertPositive().getDouble(1.0);
+        boolean whitelist = data.of("Whitelist").getBool(true);
         return new ListHolder<>(allowAny, whitelist, defaultSpeedMultiplier, mapList);
     }
 }

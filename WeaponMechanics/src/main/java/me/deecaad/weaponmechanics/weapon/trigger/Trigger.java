@@ -152,7 +152,7 @@ public class Trigger implements Serializer<Trigger> {
                     throw data.exception("Deny_When", "Unknown key: " + denyName);
                 }
 
-                boolean denied = data.of("Deny_When." + denyName).assertType(Boolean.class).get(false);
+                boolean denied = data.of("Deny_When." + denyName).getBool(false);
                 if (denied)
                     denyWhen.add(denyName);
             }

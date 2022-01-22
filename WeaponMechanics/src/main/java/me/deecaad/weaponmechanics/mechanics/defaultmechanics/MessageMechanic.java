@@ -259,7 +259,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         // ACTION BAR
         String actionBarMessage = data.of("Action_Bar.Message").assertType(String.class).get(null);
         if (actionBarMessage != null) actionBarMessage = StringUtil.color(actionBarMessage);
-        int actionBarTime = data.of("Action_Bar.Time").assertRange(40, Integer.MAX_VALUE).get(0);
+        int actionBarTime = data.of("Action_Bar.Time").assertRange(40, Integer.MAX_VALUE).getInt(0);
 
         // TITLE
         TitleData titleData = null;
@@ -267,9 +267,9 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         String subtitleMessage = data.of("Title.Subtitle").assertType(String.class).get(null);
         if (titleMessage != null || subtitleMessage != null) {
 
-            int fadeIn = data.of("Title.Fade_In").assertPositive().get(0);
-            int stay = data.of("Title.Stay").assertExists().assertPositive().get();
-            int fadeOut = data.of("Title.Fade_Out").assertPositive().get(0);
+            int fadeIn = data.of("Title.Fade_In").assertPositive().getInt(0);
+            int stay = data.of("Title.Stay").assertExists().assertPositive().getInt();
+            int fadeOut = data.of("Title.Fade_Out").assertPositive().getInt(0);
 
             titleData = new TitleData(StringUtil.color(titleMessage), StringUtil.color(subtitleMessage), fadeIn, stay, fadeOut);
         }
@@ -284,7 +284,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
             BarColor barColor = data.of("Boss_Bar.Bar_Color").getEnum(BarColor.class, BarColor.RED);
             BarStyle barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BarStyle.class, BarStyle.SOLID);
-            int time = data.of("Boss_Bar.Time").assertExists().assertPositive().get();
+            int time = data.of("Boss_Bar.Time").assertExists().assertPositive().getInt();
             bossBarData = new BossBarData(StringUtil.color(bossBarMessage), barColor, barStyle, time);
         }
 
@@ -293,8 +293,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                     "If you do not want to send any messages, please remove the key from your config.");
         }
 
-        boolean sendGlobally = data.of("Send_Globally").assertType(Boolean.class).get(false);
-        boolean sendGloballyForWorld = data.of("Send_Globally_For_World").assertType(Boolean.class).get(false);
+        boolean sendGlobally = data.of("Send_Globally").getBool(false);
+        boolean sendGloballyForWorld = data.of("Send_Globally_For_World").getBool(false);
 
         return new MessageMechanic(sendGlobally, sendGloballyForWorld, chatData, actionBarMessage, actionBarTime, titleData, bossBarData);
     }

@@ -161,10 +161,10 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     @Nonnull
     public WeaponInfoDisplay serialize(SerializeData data) throws SerializerException {
         MessageMechanic messageMechanic = data.of().serialize(MessageMechanic.class);
-        boolean updateItemName = data.of("Update_Item_Name").assertType(Boolean.class).get(false);
-        boolean expLevel = data.of("Show_Ammo_In.Exp_Level").assertType(Boolean.class).get(false);
-        boolean expProgress = data.of("Show_Ammo_In.Exp_Progress").assertType(Boolean.class).get(false);
-        boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").assertType(Boolean.class).get(messageMechanic != null && messageMechanic.hasBossBar());
+        boolean updateItemName = data.of("Update_Item_Name").getBool(false);
+        boolean expLevel = data.of("Show_Ammo_In.Exp_Level").getBool(false);
+        boolean expProgress = data.of("Show_Ammo_In.Exp_Progress").getBool(false);
+        boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").getBool(messageMechanic != null && messageMechanic.hasBossBar());
 
         if (messageMechanic == null && !updateItemName && !expLevel && !expProgress) {
             throw data.exception(null, "Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");

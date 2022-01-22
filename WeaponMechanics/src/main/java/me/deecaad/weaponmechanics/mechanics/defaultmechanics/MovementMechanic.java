@@ -77,9 +77,9 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
     @Override
     @Nonnull
     public MovementMechanic serialize(SerializeData data) throws SerializerException {
-        double movementSpeed = data.of("Movement_Speed").assertExists().assertPositive().get();
-        boolean towardsTarget = data.of("Towards_Target").assertType(Boolean.class).get(false);
-        double verticalSpeed = data.of("Vertical_Speed").assertExists().assertPositive().get();
+        double movementSpeed = data.of("Movement_Speed").assertExists().assertPositive().getDouble();
+        boolean towardsTarget = data.of("Towards_Target").getBool(false);
+        double verticalSpeed = data.of("Vertical_Speed").assertExists().assertPositive().getDouble();
 
         // Divide by 20 to convert from m/s to m/tick
         movementSpeed /= 20.0;

@@ -50,10 +50,8 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     @Override
     @Nonnull
     public DamageDropoff serialize(SerializeData data) throws SerializerException {
-        String[] temp = data.key.split("\\.");
-        String relative = temp[temp.length - 1];
 
-        List<String[]> list = data.out().ofList(relative)
+        List<String[]> list = data.ofList()
                 .addArgument(double.class, true)
                 .addArgument(double.class, true)
                 .assertExists().assertList().get();

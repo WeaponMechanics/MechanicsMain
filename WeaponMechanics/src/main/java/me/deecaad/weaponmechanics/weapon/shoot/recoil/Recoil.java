@@ -111,8 +111,8 @@ public class Recoil implements Serializer<Recoil> {
         }
 
         ModifyRecoilWhen modifyRecoilWhen = (ModifyRecoilWhen) data.of("Modify_Recoil_When").serialize(new ModifyRecoilWhen());
-        long pushTime = data.of("Push_Time").assertPositive().get(0);
-        long recoverTime = data.of("Recover_Time").assertPositive().get(0);
+        long pushTime = data.of("Push_Time").assertPositive().getNumber(0L).longValue();
+        long recoverTime = data.of("Recover_Time").assertPositive().getNumber(0L).longValue();
 
         return new Recoil(pushTime, recoverTime, randomHorizontal, randomVertical, recoilPattern, modifyRecoilWhen);
     }

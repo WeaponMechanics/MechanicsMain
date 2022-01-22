@@ -120,14 +120,14 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             String symbol = move.of("Symbol").assertType(String.class).get(null);
 
             // Experience
-            int experienceAsAmmoCost = move.of("Experience_As_Ammo_Cost").assertPositive().get(-1);
+            int experienceAsAmmoCost = move.of("Experience_As_Ammo_Cost").assertPositive().getInt(-1);
             if (experienceAsAmmoCost != -1) {
                 ammoTypes.add(new ExperienceAmmo(ammoName, symbol, experienceAsAmmoCost));
                 continue;
             }
 
             // Money
-            int moneyAsAmmoCost = move.of("Money_As_Ammo_Cost").assertPositive().get(-1);
+            int moneyAsAmmoCost = move.of("Money_As_Ammo_Cost").assertPositive().getInt(-1);
             if (moneyAsAmmoCost != -1) {
                 ammoTypes.add(new MoneyAmmo(ammoName, symbol, moneyAsAmmoCost));
                 continue;

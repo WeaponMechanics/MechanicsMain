@@ -131,10 +131,9 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
     @Override
     @Nonnull
     public SoundMechanic serialize(SerializeData data) throws SerializerException {
-        String[] key = data.key.split("\\.");
 
         // Expecting <Sound>-<Volume>-<Pitch>-<Delay>-<Noise>
-        List<String[]> stringSoundList = data.out().ofList(key[key.length - 1])
+        List<String[]> stringSoundList = data.ofList()
                 .addArgument(Sound.class, true, true)
                 .addArgument(double.class, true).assertArgumentPositive()
                 .addArgument(double.class, false).assertArgumentRange(0.5, 2.0)
@@ -167,7 +166,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
                 Sound sound = Sound.valueOf(stringSound);
                 soundList.add(new BukkitSound(sound, volume, pitch, delay, noise));
             } catch (IllegalArgumentException e) {
-                throw new SerializerEnumException(this, Sound.class, stringSound, false, data.out().ofList(key[key.length - 1]).getLocation(i));
+                throw new SerializerEnumException(this, Sound.class, stringSound, false, data.ofList().getLocation(i));
             }
         }
 

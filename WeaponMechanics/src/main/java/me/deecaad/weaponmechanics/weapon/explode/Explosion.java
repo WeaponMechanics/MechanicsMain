@@ -443,7 +443,7 @@ public class Explosion implements Serializer<Explosion> {
         Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class);
 
         Double blockChance = data.of("Block_Damage.Spawn_Falling_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
-        boolean isKnockback = !data.of("Disable_Vanilla_Knockback").assertType(Boolean.class).get(false);
+        boolean isKnockback = !data.of("Disable_Vanilla_Knockback").getBool(false);
 
         // These 4 options are all nullable and not required for an explosion
         // to occur. It is very interesting when they are all used together :p

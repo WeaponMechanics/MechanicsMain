@@ -95,7 +95,7 @@ public class DualWield implements Serializer<DualWield> {
 
         // Saves weapons in lower case
         weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle[0].toLowerCase()));
-        boolean whitelist = data.of("Whitelist").assertType(Boolean.class).get(false);
+        boolean whitelist = data.of("Whitelist").getBool(false);
         Mechanics mechanics = data.of("Mechanics_On_Deny").serialize(Mechanics.class);
         return new DualWield(whitelist, weapons, mechanics);
     }

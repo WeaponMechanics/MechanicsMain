@@ -160,10 +160,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
     @Override
     @NotNull
     public BlockDamage serialize(SerializeData data) throws SerializerException {
-        boolean isBreakBlocks = data.of("Break_Blocks").assertType(Boolean.class).get(false);
-        int damage = data.of("Damage_Per_Hit").assertPositive().get(1);
-        int defaultBlockDurability = data.of("Default_Block_Durability").assertPositive().get(1);
-        boolean isBlacklist = data.of("Blacklist").assertType(Boolean.class).get(false);
+        boolean isBreakBlocks = data.of("Break_Blocks").getBool(false);
+        int damage = data.of("Damage_Per_Hit").assertPositive().getInt(1);
+        int defaultBlockDurability = data.of("Default_Block_Durability").assertPositive().getInt(1);
+        boolean isBlacklist = data.of("Blacklist").getBool(false);
 
         SerializeData.ConfigListAccessor accessor = data.ofList("Block_List")
                 .addArgument(Material.class, true);
@@ -192,7 +192,9 @@ public class BlockDamage implements Serializer<BlockDamage> {
         }
 
         strings = data.ofList("Shots_To_Break_Blocks")
-                .addArgument(Material.class, true).addArgument(int.class, true).assertList().get();
+                .addArgument(Material.class, true)
+                .addArgument(int.class, true)
+                .assertList().get();
         Map<Material, Integer> shotsToBreak = new HashMap<>(strings.size());
 
         if (isBlacklist) {

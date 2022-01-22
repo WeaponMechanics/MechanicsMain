@@ -22,10 +22,10 @@ public class AmmoConverter extends WeaponConverter {
 
     @Override
     public @NotNull AmmoConverter serialize(SerializeData data) throws SerializerException {
-        boolean type = data.of("Type").assertType(Boolean.class).get(false);
-        boolean name = data.of("Name").assertType(Boolean.class).get(false);
-        boolean lore = data.of("Lore").assertType(Boolean.class).get(false);
-        boolean enchantments = data.of("Enchantments").assertType(Boolean.class).get(false);
+        boolean type = data.of("Type").getBool(false);
+        boolean name = data.of("Name").getBool(false);
+        boolean lore = data.of("Lore").getBool(false);
+        boolean enchantments = data.of("Enchantments").getBool(false);
 
         if (!type && !name && !lore && !enchantments) {
             throw data.exception(null, "'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",

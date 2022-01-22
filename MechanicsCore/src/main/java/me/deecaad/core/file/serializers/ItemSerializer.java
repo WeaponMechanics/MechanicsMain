@@ -76,7 +76,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         if (lore != null && !lore.isEmpty()) {
             itemMeta.setLore(convertListObject(lore));
         }
-        short durability = (short) (int) data.of("Durability").assertPositive().get(-99);
+        short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
             if (CompatibilityAPI.getVersion() >= 1.132) {
                 ((org.bukkit.inventory.meta.Damageable) itemMeta).setDamage(durability);
@@ -84,7 +84,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemStack.setDurability(durability);
             }
         }
-        boolean unbreakable = data.of("Unbreakable").assertType(Boolean.class).get(false);
+        boolean unbreakable = data.of("Unbreakable").getBool(false);
         if (CompatibilityAPI.getVersion() >= 1.11) {
             itemMeta.setUnbreakable(unbreakable);
         } else {
@@ -92,12 +92,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
             ReflectionUtil.invokeMethod(setUnbreakable, ReflectionUtil.invokeMethod(spigotMethod, itemMeta), true);
         }
 
-        int customModelData = data.of("Custom_Model_Data").assertPositive().get(-99);
+        int customModelData = data.of("Custom_Model_Data").assertPositive().getInt(-99);
         if (customModelData != -99 && CompatibilityAPI.getVersion() >= 1.14) {
             itemMeta.setCustomModelData(customModelData);
         }
 
-        boolean hideFlags = data.of("Hide_Flags").assertType(Boolean.class).get(false);
+        boolean hideFlags = data.of("Hide_Flags").getBool(false);
         if (hideFlags) {
             itemMeta.addItemFlags(ItemFlag.values());
         }
@@ -238,7 +238,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (data.of("Deny_Use_In_Crafting").assertType(Boolean.class).get(false)) {
+        if (data.of("Deny_Use_In_Crafting").getBool(false)) {
             CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "MechanicsCore", "deny-crafting", 1);
         }
 

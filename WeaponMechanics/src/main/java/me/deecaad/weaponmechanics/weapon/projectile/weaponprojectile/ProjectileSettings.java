@@ -185,20 +185,20 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
             }
         }
 
-        double gravity = data.of("Gravity").assertNumber().get(10.0) / 20.0;
+        double gravity = data.of("Gravity").getDouble(10.0) / 20.0;
 
         // -1 so that CustomProjectile#tick() can understand that minimum or maximum speed isn't used
-        double minimumSpeed = data.of("Minimum.Speed").assertPositive().get(-20.0) / 20.0;
-        boolean removeAtMinimumSpeed = data.of("Minimum.Remove_Projectile_On_Speed_Reached").assertType(Boolean.class).get(false);
-        double maximumSpeed = data.of("Maximum.Speed").assertPositive().get(-20.0) / 20.0;
-        boolean removeAtMaximumSpeed = data.of("Maximum.Remove_Projectile_On_Speed_Reached").assertType(Boolean.class).get(false);
+        double minimumSpeed = data.of("Minimum.Speed").assertPositive().getDouble(-20.0) / 20.0;
+        boolean removeAtMinimumSpeed = data.of("Minimum.Remove_Projectile_On_Speed_Reached").getBool(false);
+        double maximumSpeed = data.of("Maximum.Speed").assertPositive().getDouble(-20.0) / 20.0;
+        boolean removeAtMaximumSpeed = data.of("Maximum.Remove_Projectile_On_Speed_Reached").getBool(false);
 
-        double decrease = data.of("Drag.Base").assertRange(0.0, 3.0).get(0.99);
-        double decreaseInWater = data.of("Drag.In_Water").assertRange(0.0, 3.0).get(0.96);
-        double decreaseWhenRainingOrSnowing = data.of("Drag.When_Raining_Or_Snowing").assertRange(0.0, 3.0).get(0.98);
+        double decrease = data.of("Drag.Base").assertRange(0.0, 3.0).getDouble(0.99);
+        double decreaseInWater = data.of("Drag.In_Water").assertRange(0.0, 3.0).getDouble(0.96);
+        double decreaseWhenRainingOrSnowing = data.of("Drag.When_Raining_Or_Snowing").assertRange(0.0, 3.0).getDouble(0.98);
 
-        boolean disableEntityCollisions = data.of("Disable_Entity_Collisions").assertType(Boolean.class).get(false);
-        int maximumAliveTicks = data.of("Maximum_Alive_Ticks").assertPositive().get(600);
+        boolean disableEntityCollisions = data.of("Disable_Entity_Collisions").getBool(false);
+        int maximumAliveTicks = data.of("Maximum_Alive_Ticks").assertPositive().getInt(600);
 
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
                 removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing, disableEntityCollisions, maximumAliveTicks);

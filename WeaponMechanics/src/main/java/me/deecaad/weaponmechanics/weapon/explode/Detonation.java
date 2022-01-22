@@ -53,15 +53,15 @@ public class Detonation implements Serializer<Detonation> {
         Set<ExplosionTrigger> triggers = new HashSet<>(ExplosionTrigger.values().length, 1.0f);
         for (ExplosionTrigger trigger : ExplosionTrigger.values()) {
             String key = StringUtil.upperSnakeCase(trigger.name());
-            boolean enable = data.of(key).assertType(Boolean.class).get(false);
+            boolean enable = data.of(key).getBool(false);
 
             if (enable)
                 triggers.add(trigger);
         }
 
         // Time after the trigger the explosion occurs
-        int delay = data.of("Delay_After_Impact").assertPositive().get(0);
-        boolean removeProjectileOnDetonation = data.of("Remove_Projectile_On_Detonation").assertType(Boolean.class).get(true);
+        int delay = data.of("Delay_After_Impact").assertPositive().getInt(0);
+        boolean removeProjectileOnDetonation = data.of("Remove_Projectile_On_Detonation").getBool(true);
 
         return new Detonation(triggers, delay, removeProjectileOnDetonation);
     }

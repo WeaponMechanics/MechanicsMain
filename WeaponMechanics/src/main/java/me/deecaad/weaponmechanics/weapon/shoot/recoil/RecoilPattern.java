@@ -69,7 +69,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
             recoilPatternList.add(new ExtraRecoilPatternData(horizontalRecoil, verticalRecoil, chanceToSkip));
         }
 
-        boolean repeatPattern = data.of("Repeat_Pattern").assertType(Boolean.class).get(false);
+        boolean repeatPattern = data.of("Repeat_Pattern").getBool(false);
         return new RecoilPattern(repeatPattern, recoilPatternList);
     }
 

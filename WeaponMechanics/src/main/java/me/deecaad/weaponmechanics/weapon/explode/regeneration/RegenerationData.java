@@ -60,9 +60,9 @@ public class RegenerationData implements Serializer<RegenerationData> {
     @Override
     @Nonnull
     public RegenerationData serialize(SerializeData data) throws SerializerException {
-        int ticksBeforeStart = data.of("Ticks_Before_Start").assertPositive().get(1200); // 1 minute, in ticks
-        int maxBlocksPerUpdate = data.of("Max_Blocks_Per_Update").assertPositive().get(1);
-        int interval = data.of("Ticks_Between_Updates").assertPositive().get(1);
+        int ticksBeforeStart = data.of("Ticks_Before_Start").assertPositive().getInt(1200); // 1 minute, in ticks
+        int maxBlocksPerUpdate = data.of("Max_Blocks_Per_Update").assertPositive().getInt(1);
+        int interval = data.of("Ticks_Between_Updates").assertPositive().getInt(1);
 
         return new RegenerationData(ticksBeforeStart, maxBlocksPerUpdate, interval);
     }

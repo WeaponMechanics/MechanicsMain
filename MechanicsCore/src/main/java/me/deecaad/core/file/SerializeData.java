@@ -154,6 +154,11 @@ public class SerializeData {
         return new SerializerException(serializer, messages, StringUtil.foundAt(file, key, index + 1));
     }
 
+
+    /**
+     * Wraps a configuration KEY (which points to a list of values) to some
+     * helper functions to facilitate data serialization. The
+     */
     public class ConfigListAccessor {
 
         // Stores the class arguments, which is used to check the format
@@ -187,12 +192,6 @@ public class SerializeData {
 
         public ConfigListAccessor assertArgumentPositive() {
             arguments.getLast().positive = true;
-            return this;
-        }
-
-        public ConfigListAccessor assertArgumentRange(int min, int max) {
-            arguments.getLast().min = min;
-            arguments.getLast().max = max;
             return this;
         }
 
@@ -242,7 +241,11 @@ public class SerializeData {
 
                 // Show the user the correct format
                 StringBuilder format = new StringBuilder("<");
-                arguments.forEach(arg -> format.append(arg.clazz.getSimpleName()).append(">-<"));
+                arguments.forEach(arg -> {
+                    format.append(arg.clazz.getSimpleName());
+                    if (arg.required) format.append('*');
+                    format.append(">-<");
+                });
                 format.append('>');
 
                 // Empty string in config is probably a mistake (Perhaps they
@@ -253,8 +256,8 @@ public class SerializeData {
                             "Valid Format: " + format);
                 }
 
-                // We expect each value to be a string in format like:
-                // <String>~<Integer>~<Boolean>
+                // Each element in the list should be a string of values
+                // separated by a standard delimiter (Either '~' or '-' or ' ')
                 String[] split = StringUtil.split(string);
 
                 // Missing required data
@@ -367,6 +370,7 @@ public class SerializeData {
             double max = Double.NaN;
         }
     }
+
 
     /**
      * Wraps a configuration KEY to some helper functions to facilitate data
@@ -546,7 +550,6 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type is not a number.
          */
-        @Nonnull
         public Number getNumber(Number def) throws SerializerException {
             Object value = config.get(key + "." + relative);
 

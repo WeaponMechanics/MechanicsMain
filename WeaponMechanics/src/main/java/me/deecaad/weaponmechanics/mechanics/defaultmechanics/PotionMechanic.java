@@ -60,11 +60,10 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
     public PotionMechanic serialize(SerializeData data) throws SerializerException {
 
         // Uses the format: <PotionEffectType>-<Duration>-<Amplifier>-<Ambient>-<Hide>-<Icon>
-        String[] key = data.key.split("\\.");
-        List<String[]> stringPotionList = data.out().ofList(key[key.length - 1])
+        List<String[]> stringPotionList = data.ofList()
                 .addArgument(PotionEffectType.class, true, true)
-                .addArgument(int.class, true)
-                .addArgument(int.class, true)
+                .addArgument(int.class, true).assertArgumentPositive()
+                .addArgument(int.class, true).assertArgumentPositive()
                 .addArgument(boolean.class, false)
                 .addArgument(boolean.class, false)
                 .addArgument(boolean.class, false)

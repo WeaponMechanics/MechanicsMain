@@ -93,9 +93,9 @@ public class Skin implements Serializer<Skin>  {
     public Skin serialize(SerializeData data) throws SerializerException {
 
         Material type = data.of("Type").getEnum(Material.class, null);
-        byte legacyData = data.of("Legacy_Data").assertPositive().get((byte) -1);
-        short durability = data.of("Durability").assertPositive().get((short) -1);
-        int customModelData = data.of("Custom_Model_Data").assertPositive().get(-1);
+        byte legacyData = (byte) data.of("Legacy_Data").assertPositive().getInt(-1);
+        short durability = (short) data.of("Durability").assertPositive().getInt(-1);
+        int customModelData = data.of("Custom_Model_Data").assertPositive().getInt(-1);
 
         return new Skin(type, legacyData, durability, customModelData);
     }

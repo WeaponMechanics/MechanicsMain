@@ -75,7 +75,7 @@ public class Through implements Serializer<Through> {
             throw data.exception(null, "'Sticky' requires at least one of 'Blocks' or 'Entities'");
         }
 
-        int maximumThroughAmount = data.of("Maximum_Through_Amount").assertPositive().get(1);
+        int maximumThroughAmount = data.of("Maximum_Through_Amount").assertPositive().getInt(1);
 
         return new Through(maximumThroughAmount, blocks, entities);
     }

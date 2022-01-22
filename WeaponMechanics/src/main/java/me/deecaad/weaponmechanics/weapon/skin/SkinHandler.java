@@ -86,7 +86,7 @@ public class SkinHandler implements IValidator {
         // Convert the skins under "Skin" keyword to skin objects
         Skin skinSerializer = new Skin();
         for (String skinName : configurationSection.getConfigurationSection(path).getKeys(false)) {
-            Skin skin = skinSerializer.serialize(new SerializeData(null, file, path + "." + skinName, configurationSection));
+            Skin skin = skinSerializer.serialize(new SerializeData(skinSerializer, file, path + "." + skinName, configurationSection));
             configuration.set(path + "." + skinName, skin);
         }
     }

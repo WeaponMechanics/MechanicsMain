@@ -137,9 +137,9 @@ public class FirearmAction implements Serializer<FirearmAction> {
         FirearmType type = data.of("Type").assertExists().getEnum(FirearmType.class);
 
         // Default to 1 in order to make it easier to use
-        int firearmActionFrequency = data.of("Firearm_Action_Frequency").assertRange(1, Integer.MAX_VALUE).get(1);
-        int openTime = data.of("Open.Time").assertRange(1, Integer.MAX_VALUE).get(1);
-        int closeTime = data.of("Close.Time").assertRange(1, Integer.MAX_VALUE).get(1);
+        int firearmActionFrequency = data.of("Firearm_Action_Frequency").assertRange(1, Integer.MAX_VALUE).getInt(1);
+        int openTime = data.of("Open.Time").assertRange(1, Integer.MAX_VALUE).getInt(1);
+        int closeTime = data.of("Close.Time").assertRange(1, Integer.MAX_VALUE).getInt(1);
 
         Mechanics open = data.of("Open.Mechanics").serialize(Mechanics.class);
         Mechanics close = data.of("Close.Mechanics").serialize(Mechanics.class);
