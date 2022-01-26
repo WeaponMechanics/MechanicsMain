@@ -402,11 +402,11 @@ public class Explosion implements Serializer<Explosion> {
         data.of("Rays").assertPositive();
 
         // We always want at least one.
-        if (!data.config.contains("Explosion_Type_Data")) {
+        if (!data.config.contains(data.key + ".Explosion_Type_Data")) {
             throw new SerializerMissingKeyException(data.serializer, "Explosion_Type_Data", data.of("Explosion_Type_Data").getLocation());
         }
 
-        Map<String, Object> typeData = data.config.getConfigurationSection("Explosion_Type_Data").getValues(false);
+        Map<String, Object> typeData = data.config.getConfigurationSection(data.key + ".Explosion_Type_Data").getValues(false);
 
         // We don't want to require users to define the "Rays" option, since
         // most people will not understand hat it means. Vanilla MC uses 16.

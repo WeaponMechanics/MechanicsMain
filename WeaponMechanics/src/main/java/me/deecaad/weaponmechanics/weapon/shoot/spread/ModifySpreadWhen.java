@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 public class ModifySpreadWhen extends AModifyWhen {
 
@@ -46,7 +47,7 @@ public class ModifySpreadWhen extends AModifyWhen {
     }
 
     private NumberModifier getModifierHandler(SerializeData.ConfigAccessor data) throws SerializerException {
-        String value = data.get(null);
+        String value = Objects.toString(data.get(null), null);
         if (value == null) return null;
         try {
             boolean percentage = value.endsWith("%");

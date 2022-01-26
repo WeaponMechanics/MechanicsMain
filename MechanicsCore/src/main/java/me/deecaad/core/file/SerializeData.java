@@ -38,12 +38,7 @@ public class SerializeData {
         this.serializer = serializer;
         this.file = other.file;
         this.key = other.key + "." + relative;
-        ConfigurationSection temp = other.config.getConfigurationSection(this.key);
-
-        if (temp == null)
-            throw new IllegalArgumentException("No config section at " + this.key);
-        else
-            this.config = temp;
+        this.config = other.config;
     }
 
     /**

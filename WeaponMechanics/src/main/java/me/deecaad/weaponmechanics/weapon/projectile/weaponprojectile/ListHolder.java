@@ -71,13 +71,13 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
     @Override
     @Nonnull
     public @NotNull ListHolder<T> serialize(SerializeData data) throws SerializerException {
-        boolean allowAny = data.of(".Allow_Any").getBool(false);
+        boolean allowAny = data.of("Allow_Any").getBool(false);
 
         Map<T, Double> mapList = new HashMap<>();
         List<String[]> list = data.ofList("List")
                 .addArgument(clazz, true)
                 .addArgument(double.class, false)
-                .assertExists().assertList().get();
+                .assertList().get();
 
         for (String[] split : list) {
             Double speedMultiplier = null;
