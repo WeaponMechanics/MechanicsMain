@@ -2,11 +2,17 @@ package me.deecaad.weaponmechanics;
 
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.map.MinecraftFont;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import static me.deecaad.core.utils.StringUtil.LOWER_ALPHABET;
 
 public class Tools {
 
@@ -18,7 +24,7 @@ public class Tools {
         //
 
         //calculateStats(0.73, 0.75, 0.62, 0.72, 0.58, 0.72);
-        fontData();
+        deleteMe();
     }
 
     private static void calculateStats(double accuracy, double damage, double range,
@@ -104,5 +110,51 @@ public class Tools {
         System.out.println();
         System.out.println("=============== /wm list (Page 1) ===============");
         System.out.println(MinecraftFont.Font.getWidth("================== WeaponMechanics =================="));
+    }
+
+    private static void deleteMe() {
+        String input = "aababca";
+        List<String> returnValue = new ArrayList<>();
+        LinkedList<Character> chars = new LinkedList<>();
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            chars.addLast(c);
+            if (countDifferentCharacters(chars) == 2) {
+                returnValue.add(chars.toString());
+
+            } else if (countDifferentCharacters(chars) > 2) {
+                chars.removeFirst();
+                if (!chars.isEmpty())
+                    chars.removeLast();
+                i--;
+            }
+        }
+
+        System.out.println(returnValue);
+    }
+
+    private static int countDifferentCharacters(LinkedList<Character> characters) {
+        int[] table = mapToCharTable(characters.toString());
+        int count = 0;
+        for (int i : table)
+            count++;
+
+        return count;
+    }
+
+    private static int[] mapToCharTable(String str) {
+        int[] table = new int[LOWER_ALPHABET.length()];
+        for (int i = 0; i < str.length(); i++) {
+            try {
+                table[Character.toLowerCase(str.charAt(i)) - 97]++;
+            } catch (ArrayIndexOutOfBoundsException ignore) {
+                // Sometimes a string will contain something like an underscore.
+                // We can safely ignore those characters and count the ones that
+                // matter.
+            }
+        }
+        return table;
     }
 }

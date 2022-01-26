@@ -7,9 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -25,6 +27,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
     private final LinkedList<AProjectile> projectiles;
     private final LinkedBlockingQueue<AProjectile> asyncProjectiles;
+    private final List<ProjectileScriptManager> managers;
 
     /**
      * Initializes and registers this runnable. This runnable can be cancelled
@@ -40,8 +43,13 @@ public class ProjectilesRunnable extends BukkitRunnable {
     public ProjectilesRunnable(Plugin plugin) {
         projectiles = new LinkedList<>();
         asyncProjectiles = new LinkedBlockingQueue<>();
+        managers = new LinkedList<>();
 
         runTaskTimer(plugin, 0, 0);
+    }
+
+    public void addScriptManager(@Nonnull ProjectileScriptManager manager) {
+        managers.add(manager);
     }
 
     /**
@@ -56,6 +64,9 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
         if (Bukkit.getServer().isPrimaryThread()) {
             projectiles.add(projectile);
+            for (ProjectileScriptManager manager : managers)
+                manager.attach(projectile);
+
             return;
         }
 
@@ -74,6 +85,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
         if (Bukkit.getServer().isPrimaryThread()) {
             this.projectiles.addAll(projectiles);
+            projectiles.forEach(projectile -> managers.forEach(manager -> manager.attach(projectile)));
             return;
         }
 
@@ -92,7 +104,11 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
         // Clears the async projectiles WHILE adding them to the normal projectiles
         while (!asyncProjectiles.isEmpty()) {
-            projectiles.add(asyncProjectiles.remove());
+            AProjectile asyncProjectile = asyncProjectiles.remove();
+            projectiles.add(asyncProjectile);
+
+            for (ProjectileScriptManager manager : managers)
+                manager.attach(asyncProjectile);
         }
 
         Iterator<AProjectile> projectilesIterator = projectiles.iterator();
