@@ -687,10 +687,31 @@ public class SerializeData {
             return (T) config.get(key + "." + relative, defaultValue);
         }
 
+        /**
+         * Shorthand for using {@link #getEnum(Class, Enum)} and returning
+         * <code>null</code> by default.
+         *
+         * @param clazz The non-null enum class that is expected.
+         * @param <T> The enum type.
+         * @return The user input enum value, or null.
+         * @throws SerializerException If the user defined an invalid type.
+         */
         public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz) throws SerializerException {
             return getEnum(clazz, null);
         }
 
+        /**
+         * Serializes an enum value from config. If the key is not defined,
+         * then <code>defaultValue</code> is returned. If the user defines a
+         * string that doesn't match any enum, a {@link SerializerEnumException}
+         * is thrown.
+         *
+         * @param clazz The non-null enum class.
+         * @param defaultValue The default value to use when a key is undefined.
+         * @param <T> The enum type.
+         * @return The serialized enum type, or defaultValue.
+         * @throws SerializerException If there is a misconfiguration in config.
+         */
         public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz, T defaultValue) throws SerializerException {
             String input = config.get(key + "." + relative, "").toString().trim();
 
@@ -748,6 +769,33 @@ public class SerializeData {
             return serializer.serialize(data);
         }
 
+        /**
+         * Usually, all serializers will instantiate an instance of themselves:
+         *
+         * <blockquote><pre>{@code
+         * public class Sound extends Serializer<Sound> {
+         *     // missing implementation
+         * }
+         * }</pre></blockquote>
+         *
+         * But sometimes, a serializer has no choice but to serialize some
+         * other class:
+         *
+         * <blockquote><pre>{@code
+         * public class ColorSerializer extends Serializer<Color> {
+         *     // missing implementation
+         * }
+         * }</pre></blockquote>
+         *
+         * For these situations, this method must be used instead of
+         * {@link #serialize(Serializer)} in order to avoid a compile-time
+         * error.
+         *
+         * @param serializer The non-null serializer to use.
+         * @param <T> The serialized type.
+         * @return The serialized object.
+         * @throws SerializerException If there was an error in config.
+         */
         public <T> T serializeNonStandardSerializer(@Nonnull Serializer<T> serializer) throws SerializerException {
             // Use assertExists for required keys
             if (!config.contains(key + "." + relative))
