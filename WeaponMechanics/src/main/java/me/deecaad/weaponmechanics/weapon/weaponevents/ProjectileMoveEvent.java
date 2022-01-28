@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class outlines the event of a projectile being ticked. This event
@@ -12,11 +14,19 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProje
  */
 public class ProjectileMoveEvent extends ProjectileEvent {
 
+    private static final HandlerList HANDLERS = new HandlerList();
+
     public ProjectileMoveEvent(WeaponProjectile projectile) {
         super(projectile);
     }
 
-    public WeaponProjectile getProjectile() {
-        return projectile;
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

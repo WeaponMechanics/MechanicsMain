@@ -5,7 +5,9 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.HandlerList;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class outlines the event of a projectile hitting a block. If this event
@@ -13,6 +15,8 @@ import org.bukkit.util.Vector;
  * cancel explosions, block damage, etc.
  */
 public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancellable {
+
+    private static final HandlerList HANDLERS = new HandlerList();
 
     private final Block block;
     private final BlockFace hitBlockFace;
@@ -62,5 +66,15 @@ public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancella
     @Override
     public void setCancelled(boolean cancelled) {
         isCancelled = cancelled;
+    }
+
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

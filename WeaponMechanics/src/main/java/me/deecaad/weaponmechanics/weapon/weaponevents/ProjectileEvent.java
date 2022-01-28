@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class outlines convenient methods for any {@link WeaponEvent} that

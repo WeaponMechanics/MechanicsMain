@@ -7,14 +7,16 @@ import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.damage.DamageUtil;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class outlines the event of a weapon damaging a {@link LivingEntity}.
  */
 public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable {
 
-    private static Configuration config = WeaponMechanics.getConfigurations();
+    private static final HandlerList HANDLERS = new HandlerList();
 
     private final LivingEntity victim;
     private double baseDamage;
@@ -59,6 +61,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
     public double getFinalDamage() {
         if (Double.isNaN(finalDamage)) {
+            Configuration config = WeaponMechanics.getConfigurations();
 
             // Calculate the final damage and save its value
             // Final damage value is reset if set point, damage
@@ -151,5 +154,15 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     @Override
     public void setCancelled(boolean cancelled) {
         isCancelled = cancelled;
+    }
+
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

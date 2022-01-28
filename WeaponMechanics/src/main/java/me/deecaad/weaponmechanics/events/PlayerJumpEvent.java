@@ -1,11 +1,15 @@
 package me.deecaad.weaponmechanics.events;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class PlayerJumpEvent extends WeaponMechanicsEvent {
 
-    private Player player;
-    private boolean doubleJump;
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    private final Player player;
+    private final boolean doubleJump;
 
     /**
      * Called when player jumps.
@@ -30,5 +34,15 @@ public class PlayerJumpEvent extends WeaponMechanicsEvent {
      */
     public boolean isDoubleJump() {
         return this.doubleJump;
+    }
+
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }
