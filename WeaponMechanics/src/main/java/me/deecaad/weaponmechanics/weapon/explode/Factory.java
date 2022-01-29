@@ -62,15 +62,28 @@ public class Factory<T> {
             Class<?> clazz = args.argumentTypes[i];
 
             if (!arguments.containsKey(argument)) {
-                String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
+                String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName())[0];
                 throw new SerializerMissingKeyException(name, argument, "FILL_ME")
                         .addMessage("You specified: " + arguments);
             }
 
-            objects[i] = arguments.get(argument);
-            if (clazz != null && clazz.isAssignableFrom(objects[i].getClass())) {
-                String name = StringUtil.splitCapitalLetters(getClass().getSimpleName())[0];
-                throw new SerializerTypeException(name, clazz, objects[i].getClass(), objects[i], "FILL_ME");
+            // The Integer.class should be allowed to be assigned to a Double.class
+            if (clazz != null && !clazz.isAssignableFrom(arguments.get(argument).getClass())) {
+                try {
+                    if (clazz == double.class)
+                        objects[i] = Double.parseDouble(arguments.get(argument).toString());
+                    else if (clazz == int.class)
+                        objects[i] = Integer.parseInt(arguments.get(argument).toString());
+                    else if (clazz == boolean.class)
+                        objects[i] = Boolean.parseBoolean(arguments.get(argument).toString());
+                    else
+                        throw new NumberFormatException();
+                } catch (NumberFormatException ex) {
+                    String name = StringUtil.splitCapitalLetters(args.manufacturedType.getSimpleName())[0];
+                    throw new SerializerTypeException(name, clazz, arguments.get(argument).getClass(), arguments.get(argument), "FILL_ME");
+                }
+            } else {
+                objects[i] = arguments.get(argument);
             }
         }
 

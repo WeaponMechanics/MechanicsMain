@@ -417,13 +417,13 @@ public class Explosion implements Serializer<Explosion> {
         ExplosionShape shape;
 
         try {
-            exposure = ExposureFactory.getInstance().get(data.config.getString("Explosion_Exposure", "DEFAULT"), typeData);
-            shape = ShapeFactory.getInstance().get(data.config.getString("Explosion_Shape", "DEFAULT"), typeData);
+            exposure = ExposureFactory.getInstance().get(data.of("Explosion_Exposure").get("DEFAULT"), typeData);
+            shape = ShapeFactory.getInstance().get(data.of("Explosion_Shape").get("DEFAULT"), typeData);
         } catch (SerializerException ex) {
 
             // We need to manually set the file and path, since the Factory
             // class does not get enough information to fill it.
-            ex.setLocation(data.of().getLocation());
+            ex.setLocation(data.of("Explosion_Type_Data").getLocation());
             throw ex;
         }
 
@@ -443,6 +443,9 @@ public class Explosion implements Serializer<Explosion> {
         Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class);
 
         Double blockChance = data.of("Block_Damage.Spawn_Falling_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
+        if (blockChance == null)
+            blockChance = 0.0;
+
         boolean isKnockback = !data.of("Disable_Vanilla_Knockback").getBool(false);
 
         // These 4 options are all nullable and not required for an explosion

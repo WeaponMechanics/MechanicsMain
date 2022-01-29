@@ -64,7 +64,7 @@ public class Bouncy implements Serializer<Bouncy> {
         }
 
         // Speed modifier null would mean that it wasn't valid material or entity type
-        if (speedModifier == null || (maximumBounceAmount != -1 && maximumBounceAmount - projectile.getBounces() < 1)) {
+        if (speedModifier == null || (maximumBounceAmount > 0 && maximumBounceAmount - projectile.getBounces() < 1)) {
             // Projectile should die
             return false;
         }
@@ -109,7 +109,7 @@ public class Bouncy implements Serializer<Bouncy> {
         projectile.setRolling(true);
 
         Vector motion = projectile.getMotion();
-        if (speedModifier != 1.0) motion.multiply(speedModifier);
+        motion.multiply(speedModifier);
 
         // Remove vertical motion since projectile should start/keep rolling
         motion.setY(0);
@@ -159,7 +159,8 @@ public class Bouncy implements Serializer<Bouncy> {
             throw data.exception(null, "'Bouncy' requires at least one of 'Blocks' or 'Entities'");
         }
 
-        int maximumBounceAmount = data.of("Maximum_Bounce_Amount").assertPositive().getInt(1);
+        // 0 or negative numbers will lead to infinite amounts of bouncing.
+        int maximumBounceAmount = data.of("Maximum_Bounce_Amount").getInt(1);
 
         ListHolder<Material> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Material.class));
         double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertPositive().getDouble(3.0) * 0.05;

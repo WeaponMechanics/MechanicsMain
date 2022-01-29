@@ -1,26 +1,19 @@
 package me.deecaad.weaponmechanics.weapon.skin;
 
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.File;
+import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
-public class SkinHandler implements IValidator {
+public class SkinHandler {
 
     private WeaponHandler weaponHandler;
-
-    public SkinHandler() { }
 
     public SkinHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -32,11 +25,14 @@ public class SkinHandler implements IValidator {
 
     public boolean tryUse(TriggerType triggerType, IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
         HandData hand = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+        Map<String, Skin> skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
+        if (skins == null)
+            return false;
 
         if (hand.getZoomData().isZooming()) {
-            Skin zoomSkin = getConfigurations().getObject(weaponTitle + ".Skin.Scope", Skin.class);
+            Skin zoomSkin = skins.get("Scope");
 
-            Skin stackySkin = getConfigurations().getObject(weaponTitle + ".Skin.Scope_" + hand.getZoomData().getZoomStacks(), Skin.class);
+            Skin stackySkin = skins.get("Scope_" + hand.getZoomData().getZoomStacks());
             if (stackySkin != null) {
                 zoomSkin = stackySkin;
             }
@@ -48,7 +44,7 @@ public class SkinHandler implements IValidator {
         }
 
         if (hand.isReloading()) {
-            Skin reloadSkin = getConfigurations().getObject(weaponTitle + ".Skin.Reload", Skin.class);
+            Skin reloadSkin = skins.get("Reload");
             if (reloadSkin != null) {
                 reloadSkin.apply(weaponStack);
                 return true;
@@ -59,35 +55,19 @@ public class SkinHandler implements IValidator {
         // since the event is also cancellable. This ignores the cancelling of sprint event,
         // it doesn't do anything if its cancelled anyway :p
         if (triggerType == TriggerType.START_SPRINT || triggerType == null && entityWrapper.isSprinting()) {
-            Skin sprintSkin = getConfigurations().getObject(weaponTitle + ".Skin.Sprint", Skin.class);
+            Skin sprintSkin = skins.get("Sprint");
             if (sprintSkin != null) {
                 sprintSkin.apply(weaponStack);
                 return true;
             }
         }
 
-        Skin defaultSkin = getConfigurations().getObject(weaponTitle + ".Skin.Default", Skin.class);
+        Skin defaultSkin = skins.get("Default");
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
             return true;
         }
 
         return false;
-    }
-
-    @Override
-    public String getKeyword() {
-        return "Skin";
-    }
-
-    @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) throws SerializerException {
-
-        // Convert the skins under "Skin" keyword to skin objects
-        Skin skinSerializer = new Skin();
-        for (String skinName : configurationSection.getConfigurationSection(path).getKeys(false)) {
-            Skin skin = skinSerializer.serialize(new SerializeData(skinSerializer, file, path + "." + skinName, configurationSection));
-            configuration.set(path + "." + skinName, skin);
-        }
     }
 }
