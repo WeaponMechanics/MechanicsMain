@@ -12,7 +12,10 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
@@ -40,6 +43,13 @@ public abstract class AProjectile {
     private boolean dead;
     private Map<String, String> stringTags;
     private Map<String, Integer> integerTags;
+
+    /**
+     * @see ProjectileScriptManager
+     * @see ProjectileScript
+     * @see ProjectilesRunnable
+     */
+    public List<ProjectileScript<?>> scripts;
 
     protected AProjectile(Location location, Vector motion) {
         this(null, location, motion);
@@ -332,6 +342,8 @@ public abstract class AProjectile {
             return true;
         }
 
+        scriptEvent(ProjectileScript::onTickStart);
+
         // Update last location here since handle collisions will change the location
         lastLocation = location.clone();
 
@@ -381,7 +393,9 @@ public abstract class AProjectile {
 
         onMove();
         updateDisguise(false);
+        scriptEvent(ProjectileScript::onTickEnd);
         ++aliveTicks;
+
         return false;
     }
 
@@ -449,29 +463,59 @@ public abstract class AProjectile {
     /**
      * Override this method to do something on start
      */
-    public void onStart() {}
+    public void onStart() {
+        scriptEvent(ProjectileScript::onStart);
+    }
 
     /**
      * Override this method to do something on end
      */
-    public void onEnd() {}
+    public void onEnd() {
+        scriptEvent(ProjectileScript::onEnd);
+    }
 
     /**
      * Override this method to do something when projectile moves
      */
-    public void onMove() {}
+    public void onMove() {
+    }
 
     /**
      * Override this method to do something when projectile collides with block.
      *
      * @param block the collided block
      */
-    public void onCollide(Block block) {}
+    public void onCollide(Block block) {
+        scriptEvent(proj -> proj.onCollide(block));
+    }
 
     /**
      * Override this method to do something when projectile collides with entity
      *
      * @param entity the collided entity
      */
-    public void onCollide(LivingEntity entity) {}
+    public void onCollide(LivingEntity entity) {
+        scriptEvent(proj -> proj.onCollide(entity));
+    }
+
+    protected void scriptEvent(Consumer<ProjectileScript<?>> consumer) {
+        Iterator<ProjectileScript<?>> iterator = scripts.iterator();
+        boolean removeProjectile = false;
+
+        while (iterator.hasNext()) {
+            ProjectileScript<?> script = iterator.next();
+
+            // Remove the script if the script has requested to be removed.
+            if (script.isRemoveScript()) {
+                iterator.remove();
+                continue;
+            }
+
+            consumer.accept(script);
+            removeProjectile |= script.isRemoveProjectile();
+        }
+
+        if (removeProjectile)
+            remove();
+    }
 }

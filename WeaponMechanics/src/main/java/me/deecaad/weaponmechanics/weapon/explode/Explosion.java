@@ -214,8 +214,11 @@ public class Explosion implements Serializer<Explosion> {
 
         // This event is not cancellable. If developers want to cancel
         // explosions, they should use ProjectilePreExplodeEvent
-        ProjectileExplodeEvent event = new ProjectileExplodeEvent(shape.getBlocks(origin),
+        ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, shape.getBlocks(origin),
                 new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
+
+        if (projectile != null)
+            Bukkit.getPluginManager().callEvent(event);
 
         List<Block> blocks = event.getBlocks();
         int initialCapacity = Math.max(blocks.size(), 10);

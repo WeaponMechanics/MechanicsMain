@@ -1,11 +1,15 @@
 package me.deecaad.weaponmechanics.events;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class EntityToggleWalkEvent extends WeaponMechanicsEvent {
 
-    private LivingEntity livingEntity;
-    private boolean isWalking;
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    private final LivingEntity livingEntity;
+    private final boolean isWalking;
 
     /**
      * Called when player starts or stops walking.
@@ -30,5 +34,15 @@ public class EntityToggleWalkEvent extends WeaponMechanicsEvent {
      */
     public boolean isWalking() {
         return this.isWalking;
+    }
+
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

@@ -46,11 +46,6 @@ Disabled_Trigger_Checks:
   Drop_Item: false
   Swap_Main_And_Hand_Items: false
 
-# You can disable certain events to improve performance. Any addons that use
-# these events will break.
-Disabled_Events:
-  Projectile_Move_Event: false
-
 # This defines how smooth weapon recoil is. Lower values means smoother recoil,
 # but more packets sent. In default minecraft this value would be 50 (1 tick). In WeaponMechanics, it
 # can be lower. It is recommended to use values divisible by 5.

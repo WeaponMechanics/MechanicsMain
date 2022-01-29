@@ -98,7 +98,8 @@ public class ListWeaponsCommand extends SubCommand {
             builder.append(" \u27A2 ").color(ChatColor.GOLD)
                     .append(cell.toString()).color(ChatColor.GRAY)
                     .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm get " + weapons.get(i)))
-                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.create()));
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.create()))
+                    .reset();
 
             // After filling the 2 columns, we can move to the next row.
             if (i % 2 == 1)
@@ -115,10 +116,12 @@ public class ListWeaponsCommand extends SubCommand {
                 .append("«").color(ChatColor.GRAY).bold(true)
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the previous page")))
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage - 1)))
+                .reset()
                 .append("                   ")
                 .append("»").color(ChatColor.GRAY).bold(true)
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the next page")))
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage + 1)))
+                .reset()
                 .append(" ==================").color(ChatColor.GOLD).bold(false);
 
         sender.spigot().sendMessage(builder.create());

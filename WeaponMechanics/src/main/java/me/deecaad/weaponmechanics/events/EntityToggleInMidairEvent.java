@@ -1,11 +1,15 @@
 package me.deecaad.weaponmechanics.events;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class EntityToggleInMidairEvent extends WeaponMechanicsEvent {
 
-    private LivingEntity livingEntity;
-    private boolean isInMidair;
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    private final LivingEntity livingEntity;
+    private final boolean isInMidair;
 
     /**
      * Called when player goes midair or lands.
@@ -30,5 +34,15 @@ public class EntityToggleInMidairEvent extends WeaponMechanicsEvent {
      */
     public boolean isInMidair() {
         return this.isInMidair;
+    }
+
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

@@ -44,6 +44,8 @@ public final class WeaponMechanicsAPI {
      *
      * @param entity The non-null living entity to check the scope state of.
      * @return The non-negative zoom amount.
+     * @see IEntityWrapper
+     * @see me.deecaad.weaponmechanics.wrappers.IPlayerWrapper
      */
     @Nonnegative
     public static int getScopeLevel(@Nonnull LivingEntity entity) {
@@ -97,6 +99,7 @@ public final class WeaponMechanicsAPI {
      *
      * @param weaponTitle The non-null weapon-title of the weapon to generate.
      * @return The non-null weapon item.
+     * @see me.deecaad.weaponmechanics.weapon.info.InfoHandler
      */
     @Nonnull
     public static ItemStack generateWeapon(@Nonnull String weaponTitle) {

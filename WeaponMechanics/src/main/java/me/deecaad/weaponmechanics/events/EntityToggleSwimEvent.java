@@ -1,11 +1,15 @@
 package me.deecaad.weaponmechanics.events;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class EntityToggleSwimEvent extends WeaponMechanicsEvent {
 
-    private LivingEntity livingEntity;
-    private boolean isSwimming;
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    private final LivingEntity livingEntity;
+    private final boolean isSwimming;
 
     /**
      * Called when player starts or stops swimming
@@ -30,5 +34,15 @@ public class EntityToggleSwimEvent extends WeaponMechanicsEvent {
      */
     public boolean isSwimming() {
         return this.isSwimming;
+    }
+
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }

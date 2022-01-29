@@ -2,13 +2,11 @@ package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -25,7 +23,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class WeaponProjectile extends AProjectile {
 
-    private static final boolean useMoveEvent = !WeaponMechanics.getBasicConfigurations().getBool("Disabled_Events.Projectile_Move_Event");
     private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
     // Storing this reference to be able to use cloneSettingsAndShoot(Location, Motion) method
@@ -54,6 +51,7 @@ public class WeaponProjectile extends AProjectile {
                             Vector motion, ItemStack weaponStack, String weaponTitle,
                             Sticky sticky, Through through, Bouncy bouncy) {
         super(shooter, location, motion);
+
         this.projectileSettings = projectileSettings;
         this.weaponStack = weaponStack;
         this.weaponTitle = weaponTitle;
@@ -447,7 +445,6 @@ public class WeaponProjectile extends AProjectile {
 
     @Override
     public void onMove() {
-        if (useMoveEvent) Bukkit.getPluginManager().callEvent(new ProjectileMoveEvent(this));
     }
 
     @Override

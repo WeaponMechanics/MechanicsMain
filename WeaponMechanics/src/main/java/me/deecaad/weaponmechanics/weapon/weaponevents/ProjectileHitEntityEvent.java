@@ -6,7 +6,9 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.HandlerList;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
@@ -17,6 +19,8 @@ import javax.annotation.Nullable;
  * etc.)
  */
 public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancellable {
+
+    private static final HandlerList HANDLERS = new HandlerList();
 
     private final LivingEntity entity;
     private final Vector exactLocation;
@@ -68,5 +72,15 @@ public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancell
     @Override
     public void setCancelled(boolean cancelled) {
         isCancelled = cancelled;
+    }
+
+    @Override
+    @NotNull
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 }
