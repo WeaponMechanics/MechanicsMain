@@ -107,9 +107,13 @@ public class Mechanics implements Serializer<Mechanics> {
         for (String keyword : registeredMechanics) {
 
             IMechanic<?> mechanicSerializer = mechanicSerializers.get(keyword);
-            if (mechanicSerializer == null) continue;
+            if (mechanicSerializer == null)
+                continue;
 
             Object mechanic = data.of(keyword).serializeNonStandardSerializer(mechanicSerializer);
+            if (mechanic == null)
+                continue;
+
             mechanicsList.add((IMechanic<?>) mechanic);
         }
 

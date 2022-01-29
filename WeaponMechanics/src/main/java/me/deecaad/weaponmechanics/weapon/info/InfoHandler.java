@@ -56,7 +56,17 @@ public class InfoHandler {
      */
     @Nonnull
     public String getWeaponTitle(String weapon) {
-        return StringUtil.didYouMean(weapon, weaponList);
+
+        // Before checking for similarities, do a startsWith check (since
+        // players usually like to press enter before they finish typing
+        // the full weapon-title)
+        List<String> startsWith = new ArrayList<>();
+        for (String title : weaponList) {
+            if (title.toLowerCase(Locale.ROOT).startsWith(weapon.toLowerCase(Locale.ROOT)))
+                startsWith.add(title);
+        }
+
+        return StringUtil.didYouMean(weapon, startsWith.isEmpty() ? weaponList : startsWith);
     }
 
     /**
@@ -152,7 +162,8 @@ public class InfoHandler {
         weaponStack.setItemMeta(weaponMeta);
 
         // Apply default skin
-        Skin defaultSkin = getConfigurations().getObject(weaponTitle + ".Skin.Default", Skin.class);
+        Map skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
+        Skin defaultSkin = (Skin) (skins == null ? null : skins.get("Default"));
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
         }
@@ -180,7 +191,8 @@ public class InfoHandler {
         weaponStack.setItemMeta(weaponMeta);
 
         // Apply default skin
-        Skin defaultSkin = getConfigurations().getObject(weaponTitle + ".Skin.Default", Skin.class);
+        Map skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
+        Skin defaultSkin = (Skin) (skins == null ? null : skins.get("Default"));
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
         }

@@ -13,6 +13,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -62,6 +63,7 @@ public abstract class AProjectile {
         this.lastLocation = this.location.clone();
         this.motion = motion;
         this.motionLength = motion.length();
+        this.scripts = new LinkedList<>();
         onStart();
     }
 

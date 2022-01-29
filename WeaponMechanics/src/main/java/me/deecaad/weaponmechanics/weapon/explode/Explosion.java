@@ -256,8 +256,8 @@ public class Explosion implements Serializer<Explosion> {
         if (blockDamage != null) {
             int timeOffset = regeneration == null ? -1 : (solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate());
 
-            damageBlocks(transparent, true, origin, projectile, timeOffset);
-            damageBlocks(solid, false, origin, projectile, 0);
+            damageBlocks(transparent, true, origin, timeOffset);
+            damageBlocks(solid, false, origin, 0);
         }
 
         DoubleMap<LivingEntity> entities = event.getEntities();
@@ -301,7 +301,7 @@ public class Explosion implements Serializer<Explosion> {
                 projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
     }
 
-    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, WeaponProjectile projectile, int timeOffset) {
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, int timeOffset) {
         boolean isRegenerate = regeneration != null;
 
         if (isRegenerate)

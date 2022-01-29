@@ -58,10 +58,11 @@ public class ListWeaponsCommand extends SubCommand {
         // chat (by default) is 320 pixels wide.
         ComponentBuilder builder = new ComponentBuilder();
         builder.append("==================").color(ChatColor.GOLD)
-                .append(" WeaponMechanics ").color(ChatColor.GRAY).italic(true)
-                .append("==================").color(ChatColor.GOLD).italic(false);
+                .append("  WeaponMechanics  ").color(ChatColor.GRAY).italic(true)
+                .append("==================").color(ChatColor.GOLD).italic(false)
+                .append("\n");
 
-        int cellSize = 320 - MinecraftFont.Font.getWidth(" » ") * 2;
+        int cellSize = 160 - MinecraftFont.Font.getWidth(" » ") * 2;
         int i;
         for (i = requestedPage * maxPerPage; i < (requestedPage + 1) * maxPerPage && i < weapons.size(); i++) {
 
@@ -95,11 +96,10 @@ public class ListWeaponsCommand extends SubCommand {
             }
 
             // Add the weapon-title with hover/click events to the table.
-            builder.append(" \u27A2 ").color(ChatColor.GOLD)
+            builder.append(" \u27A2 ").reset().color(ChatColor.GOLD)
                     .append(cell.toString()).color(ChatColor.GRAY)
                     .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm get " + weapons.get(i)))
-                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.create()))
-                    .reset();
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.create()));
 
             // After filling the 2 columns, we can move to the next row.
             if (i % 2 == 1)
@@ -108,20 +108,18 @@ public class ListWeaponsCommand extends SubCommand {
 
         // If there weren't enough weapons to fill up a row completely, then
         // we need to add a new line for the page selector.
-        if (i % 2 == 0)
+        if (i % 2 == 1)
             builder.append("\n");
 
         // Add the 'previous page' and 'next page' options below the table
-        builder.append("================== ").color(ChatColor.GOLD)
+        builder.append("================== ").reset().color(ChatColor.GOLD)
                 .append("«").color(ChatColor.GRAY).bold(true)
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the previous page")))
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage - 1)))
-                .reset()
-                .append("                   ")
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage)))
+                .append("                   ").reset()
                 .append("»").color(ChatColor.GRAY).bold(true)
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the next page")))
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage + 1)))
-                .reset()
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage + 2)))
                 .append(" ==================").color(ChatColor.GOLD).bold(false);
 
         sender.spigot().sendMessage(builder.create());
