@@ -174,15 +174,15 @@ public class Explosion implements Serializer<Explosion> {
 
         if (!currentDetonation.getTriggers().contains(trigger)) return;
 
-        ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, this);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return;
-
         // Set to 1 to indicate that this projectile has been detonated
         projectile.setIntTag("explosion-detonation", 1);
 
         new BukkitRunnable() {
             public void run() {
+                ProjectilePreExplodeEvent event = new ProjectilePreExplodeEvent(projectile, Explosion.this);
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.isCancelled()) return;
+
                 event.getExplosion().explode(cause, origin != null ? origin : projectile.getLocation().toLocation(projectile.getWorld()), projectile);
 
                 if (currentDetonation.isRemoveProjectileOnDetonation()) {

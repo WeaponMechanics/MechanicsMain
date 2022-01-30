@@ -11,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -52,8 +53,8 @@ public class Detonation implements Serializer<Detonation> {
 
         Set<ExplosionTrigger> triggers = new HashSet<>(ExplosionTrigger.values().length, 1.0f);
         for (ExplosionTrigger trigger : ExplosionTrigger.values()) {
-            String key = StringUtil.upperSnakeCase(trigger.name());
-            boolean enable = data.of(key).getBool(false);
+            String key = StringUtil.upperSnakeCase(trigger.name().toLowerCase(Locale.ROOT));
+            boolean enable = data.of("Impact_When." + key).getBool(false);
 
             if (enable)
                 triggers.add(trigger);

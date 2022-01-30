@@ -40,6 +40,8 @@ public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancel
         isCancelled = cancelled;
     }
 
+
+
     @Override
     @NotNull
     public HandlerList getHandlers() {
