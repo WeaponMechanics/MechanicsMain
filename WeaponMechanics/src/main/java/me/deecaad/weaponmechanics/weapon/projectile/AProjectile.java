@@ -482,7 +482,6 @@ public abstract class AProjectile {
      * Override this method to do something when projectile moves
      */
     public void onMove() {
-        world.spawnParticle(Particle.REDSTONE, getX(), getY(), getZ(), 1, new Particle.DustOptions(Color.RED, 1.0f));
     }
 
     /**

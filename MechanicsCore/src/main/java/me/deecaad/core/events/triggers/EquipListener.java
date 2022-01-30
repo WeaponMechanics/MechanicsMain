@@ -180,7 +180,6 @@ public class EquipListener implements Listener {
 
             // Filters out cancelled PlayerDropItemEvent
             if (dropCancelledPlayers.remove(player)) {
-                System.out.println("Reset ignore next for " + player.getName());
                 return;
             }
 

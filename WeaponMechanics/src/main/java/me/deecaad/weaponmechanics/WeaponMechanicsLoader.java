@@ -49,7 +49,6 @@ public class WeaponMechanicsLoader extends JavaPlugin {
     }
 
     private void ensureMechanicsCore() {
-        getLogger().log(Level.INFO, " testing testing 123");
 
         // WeaponMechanics NEEDS MechanicsCore to run, however, people have the
         // incredible ability of having 0 abilities. AKA, they cannot read
