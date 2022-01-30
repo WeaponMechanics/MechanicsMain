@@ -182,7 +182,6 @@ public class AirStrike implements Serializer<AirStrike> {
                     double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-
                     (
                             getProjectile() == null
                                     ? projectile.clone(location, new Vector(0, 0, 0))

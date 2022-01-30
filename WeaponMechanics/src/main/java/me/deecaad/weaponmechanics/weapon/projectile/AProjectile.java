@@ -3,7 +3,9 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.VectorUtil;
+import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -480,6 +482,7 @@ public abstract class AProjectile {
      * Override this method to do something when projectile moves
      */
     public void onMove() {
+        world.spawnParticle(Particle.REDSTONE, getX(), getY(), getZ(), 1, new Particle.DustOptions(Color.RED, 1.0f));
     }
 
     /**
