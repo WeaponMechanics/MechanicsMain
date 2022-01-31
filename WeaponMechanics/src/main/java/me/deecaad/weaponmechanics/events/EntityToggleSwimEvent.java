@@ -1,10 +1,11 @@
 package me.deecaad.weaponmechanics.events;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class EntityToggleSwimEvent extends WeaponMechanicsEvent {
+public class EntityToggleSwimEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 

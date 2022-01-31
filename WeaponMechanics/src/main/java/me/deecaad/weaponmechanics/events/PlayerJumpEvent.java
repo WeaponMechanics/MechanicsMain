@@ -1,10 +1,11 @@
 package me.deecaad.weaponmechanics.events;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerJumpEvent extends WeaponMechanicsEvent {
+public class PlayerJumpEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 

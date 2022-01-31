@@ -1,10 +1,11 @@
 package me.deecaad.weaponmechanics.events;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class EntityToggleInMidairEvent extends WeaponMechanicsEvent {
+public class EntityToggleInMidairEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
