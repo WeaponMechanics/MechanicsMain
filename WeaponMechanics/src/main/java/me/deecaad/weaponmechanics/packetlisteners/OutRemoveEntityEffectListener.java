@@ -5,7 +5,7 @@ import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 
 import java.lang.reflect.Field;
 
@@ -30,7 +30,7 @@ public class OutRemoveEntityEffectListener extends PacketHandler {
             return;
         }
 
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
 
         if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision()) return;
         if (!WeaponCompatibilityAPI.getScopeCompatibility().isRemoveNightVisionPacket(packet)) return;

@@ -14,8 +14,6 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.explode.Explosion;
-import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
@@ -31,8 +29,8 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreShootEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -103,7 +101,7 @@ public class ShootHandler implements IValidator {
      * @param dualWield     whether this was dual wield
      * @return true if was able to shoot
      */
-    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
@@ -117,7 +115,7 @@ public class ShootHandler implements IValidator {
     /**
      * @return true if was able to shoot
      */
-    private boolean shootWithoutTrigger(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    private boolean shootWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Don't even try if slot is already being used for full auto or burst
@@ -137,7 +135,7 @@ public class ShootHandler implements IValidator {
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
         Location loc = entityWrapper.getEntity().getLocation();
-        if (!worldGuard.testFlag(loc, entityWrapper instanceof IPlayerWrapper ? ((IPlayerWrapper) entityWrapper).getPlayer() : null, "weapon-shoot")) {
+        if (!worldGuard.testFlag(loc, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-shoot")) {
             Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
             if (obj != null && !obj.toString().isEmpty()) {
                 entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
@@ -176,9 +174,9 @@ public class ShootHandler implements IValidator {
                     castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
                     firearmAction.useMechanics(castData, false);
 
-                    if (entityWrapper instanceof IPlayerWrapper) {
+                    if (entityWrapper instanceof PlayerWrapper) {
                         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
                     }
 
                     handData.addFirearmActionTask(new BukkitRunnable() {
@@ -257,7 +255,7 @@ public class ShootHandler implements IValidator {
                 || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
     }
 
-    private boolean singleShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield) {
+    private boolean singleShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield) {
         boolean mainhand = slot == EquipmentSlot.HAND;
         boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
 
@@ -283,7 +281,7 @@ public class ShootHandler implements IValidator {
         return true;
     }
 
-    private boolean burstShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield) {
+    private boolean burstShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield) {
         Configuration config = getConfigurations();
         int shotsPerBurst = config.getInt(weaponTitle + ".Shoot.Burst.Shots_Per_Burst");
         int ticksBetweenEachShot = config.getInt(weaponTitle + ".Shoot.Burst.Ticks_Between_Each_Shot");
@@ -337,7 +335,7 @@ public class ShootHandler implements IValidator {
         return true;
     }
 
-    private boolean fullAutoShot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    private boolean fullAutoShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
         int fullyAutomaticShotsPerSecond = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second");
 
@@ -422,7 +420,7 @@ public class ShootHandler implements IValidator {
         return true;
     }
 
-    public void doShootFirearmActions(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, boolean mainhand) {
+    public void doShootFirearmActions(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, boolean mainhand) {
 
         Configuration config = getConfigurations();
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
@@ -441,9 +439,9 @@ public class ShootHandler implements IValidator {
             public void run() {
                 firearmAction.readyState(weaponStack);
 
-                if (entityWrapper instanceof IPlayerWrapper) {
+                if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
                 }
 
                 handData.stopFirearmActionTasks();
@@ -460,9 +458,9 @@ public class ShootHandler implements IValidator {
             castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
             firearmAction.useMechanics(castData, false);
 
-            if (entityWrapper instanceof IPlayerWrapper) {
+            if (entityWrapper instanceof PlayerWrapper) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
 
             handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
@@ -477,9 +475,9 @@ public class ShootHandler implements IValidator {
         castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
         firearmAction.useMechanics(castData, true);
 
-        if (entityWrapper instanceof IPlayerWrapper) {
+        if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
         }
 
         handData.addFirearmActionTask(new BukkitRunnable() {
@@ -493,9 +491,9 @@ public class ShootHandler implements IValidator {
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
                 firearmAction.useMechanics(castData, false);
 
-                if (entityWrapper instanceof IPlayerWrapper) {
+                if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
                 }
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
@@ -507,7 +505,7 @@ public class ShootHandler implements IValidator {
     /**
      * Checks whether to keep full auto on with given trigger
      */
-    private boolean keepFullAutoOn(IEntityWrapper entityWrapper, TriggerType triggerType) {
+    private boolean keepFullAutoOn(EntityWrapper entityWrapper, TriggerType triggerType) {
         switch (triggerType) {
             case START_SNEAK:
                 return entityWrapper.isSneaking();
@@ -534,7 +532,7 @@ public class ShootHandler implements IValidator {
      * Shoots using weapon.
      * Does not use ammo nor check for it.
      */
-    private void shoot(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange) {
+    private void shoot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange) {
         Configuration config = getConfigurations();
         LivingEntity livingEntity = entityWrapper.getEntity();
 
@@ -544,9 +542,9 @@ public class ShootHandler implements IValidator {
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
         if (shootMechanics != null) shootMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
-        if (entityWrapper instanceof IPlayerWrapper) {
+        if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
         }
 
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
@@ -599,7 +597,7 @@ public class ShootHandler implements IValidator {
     /**
      * Get the shoot location based on dual wield and main hand
      */
-    private Location getShootLocation(IEntityWrapper entityWrapper, boolean dualWield, boolean mainhand) {
+    private Location getShootLocation(EntityWrapper entityWrapper, boolean dualWield, boolean mainhand) {
         LivingEntity livingEntity = entityWrapper.getEntity();
 
         if (!dualWield) return livingEntity.getEyeLocation();

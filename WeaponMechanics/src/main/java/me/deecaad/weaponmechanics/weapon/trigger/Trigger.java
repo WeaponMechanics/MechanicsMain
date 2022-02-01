@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.trigger;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -36,7 +36,7 @@ public class Trigger implements Serializer<Trigger> {
      * @param entityWrapper the entity's wrapper from whom to check
      * @return true if trigger is valid
      */
-    public boolean check(TriggerType triggerType, EquipmentSlot slot, IEntityWrapper entityWrapper) {
+    public boolean check(TriggerType triggerType, EquipmentSlot slot, EntityWrapper entityWrapper) {
         if (slot == EquipmentSlot.HAND
                 // Main and off hand are both optional, but only either one is necessary
                 // Thats why this has null checks also

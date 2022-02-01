@@ -6,7 +6,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -126,7 +126,7 @@ public class TriggerPlayerListeners implements Listener {
             }
         }
 
-        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         boolean rightClick = action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK;
         if (rightClick) {
@@ -197,7 +197,7 @@ public class TriggerPlayerListeners implements Listener {
         EntityEquipment playerEquipment = player.getEquipment();
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
 
-        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         double version = CompatibilityAPI.getVersion();
         if (version >= 1.15 && !NumberUtil.hasMillisPassed(playerWrapper.getLastDropWeaponTime(), 25)) {
@@ -233,7 +233,7 @@ public class TriggerPlayerListeners implements Listener {
 
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
 
-        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         if (playerWrapper.isInventoryOpen()) return;
 

@@ -4,7 +4,12 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.entity.Player;
 
-public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
+/**
+ * Wraps a {@link Player} object to simplify per-player data/methods that
+ * are used by WeaponMechanics. Also contains useful API functionality for
+ * plugins who want to check if an entity is scoped, reloading, etc.
+ */
+public class PlayerWrapper extends EntityWrapper {
 
     private final Player player;
     private boolean inventoryOpen;
@@ -19,27 +24,22 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
         this.player = player;
     }
 
-    @Override
     public Player getPlayer() {
         return this.player;
     }
 
-    @Override
     public boolean isInventoryOpen() {
         return inventoryOpen;
     }
 
-    @Override
     public void setInventoryOpen(boolean isOpen) {
         this.inventoryOpen = isOpen;
     }
 
-    @Override
     public void rightClicked() {
         lastRightClick = System.currentTimeMillis();
     }
 
-    @Override
     public boolean didDoubleSneak() {
         if (lastStartSneak == 0) {
             lastStartSneak = System.currentTimeMillis();
@@ -58,27 +58,22 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
         return false;
     }
 
-    @Override
     public void droppedWeapon() {
         lastWeaponDrop = System.currentTimeMillis();
     }
 
-    @Override
     public long getLastDropWeaponTime() {
         return lastWeaponDrop;
     }
 
-    @Override
     public MessageHelper getMessageHelper() {
         return messageHelper == null ? messageHelper = new MessageHelper() : messageHelper;
     }
 
-    @Override
     public void convertedAmmo() {
         lastAmmoConvert = System.currentTimeMillis();
     }
 
-    @Override
     public long getLastAmmoConvert() {
         return lastAmmoConvert;
     }
@@ -86,9 +81,10 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     @Override
     public boolean isRightClicking() {
 
-        // This already means that player is right clicking.
-        // This is also more accurate way to check right clicking
-        if (player.isBlocking()) return true;
+        // When a player is blocking with a shield or a sword, then they are
+        // definitely right-clicking.
+        if (player.isBlocking())
+            return true;
 
         int ping = CompatibilityAPI.getCompatibility().getPing(player);
         if (ping > 215) {
@@ -103,7 +99,7 @@ public class PlayerWrapper extends EntityWrapper implements IPlayerWrapper {
     public boolean isSneaking() {
         return player.isSneaking();
     }
-    
+
     @Override
     public boolean isSprinting() {
         return player.isSprinting();

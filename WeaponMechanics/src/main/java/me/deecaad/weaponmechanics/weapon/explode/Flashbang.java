@@ -3,25 +3,19 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.Collection;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Flashbang implements Serializer<Flashbang> {
 
@@ -97,7 +91,7 @@ public class Flashbang implements Serializer<Flashbang> {
 
     public void effect(WeaponProjectile projectile, LivingEntity entity) {
         if (mechanics != null) {
-            IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity);
+            EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity);
             mechanics.use(new CastData(wrapper, projectile.getWeaponTitle(), projectile.getWeaponStack()));
         }
     }

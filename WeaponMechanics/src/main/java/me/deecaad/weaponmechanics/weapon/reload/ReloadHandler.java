@@ -21,8 +21,8 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
@@ -55,7 +55,7 @@ public class ReloadHandler implements IValidator {
      * @param dualWield whether this was dual wield
      * @return true if was able to start reloading
      */
-    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Reload.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
@@ -73,7 +73,7 @@ public class ReloadHandler implements IValidator {
      * @param dualWield whether this was dual wield
      * @return true if was able to start reloading
      */
-    public boolean startReloadWithoutTrigger(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
+    public boolean startReloadWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
 
         // This method is called from many places in reload handler and shoot handler as well
         // so that's why even startReloadWithoutTriggerAndWithoutTiming() is a separated method
@@ -85,7 +85,7 @@ public class ReloadHandler implements IValidator {
         return result;
     }
 
-    private boolean startReloadWithoutTriggerAndWithoutTiming(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
+    private boolean startReloadWithoutTriggerAndWithoutTiming(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
 
         // Don't try to reload if either one of the hands is already reloading
         if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
@@ -218,7 +218,7 @@ public class ReloadHandler implements IValidator {
             return false;
         }
 
-        IPlayerWrapper playerWrapper = entityWrapper instanceof IPlayerWrapper ? (IPlayerWrapper) entityWrapper : null;
+        PlayerWrapper playerWrapper = entityWrapper instanceof PlayerWrapper ? (PlayerWrapper) entityWrapper : null;
         // If not player wrapper, don't even try to use ammo
         AmmoTypes ammoTypes = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class) : null;
 
@@ -370,16 +370,16 @@ public class ReloadHandler implements IValidator {
         return true;
     }
 
-    public void finishReload(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot) {
+    public void finishReload(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot) {
 
         handData.finishReload();
 
         Mechanics reloadFinishMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Finish_Mechanics", Mechanics.class);
         if (reloadFinishMechanics != null) reloadFinishMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
-        if (entityWrapper instanceof IPlayerWrapper) {
+        if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
         }
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
@@ -428,7 +428,7 @@ public class ReloadHandler implements IValidator {
      * @param entityWrapper the entity
      * @param weaponStack the item stack to give
      */
-    public void handleWeaponStackAmount(IEntityWrapper entityWrapper, ItemStack weaponStack) {
+    public void handleWeaponStackAmount(EntityWrapper entityWrapper, ItemStack weaponStack) {
 
         int weaponStackAmount = weaponStack.getAmount();
         if (weaponStackAmount > 1) {
@@ -444,7 +444,7 @@ public class ReloadHandler implements IValidator {
     }
 
     private ChainTask getOpenTask(int firearmOpenTime, boolean isPump, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,
-                                  IEntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
+                                  EntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
         return new ChainTask(firearmOpenTime) {
 
             @Override
@@ -469,9 +469,9 @@ public class ReloadHandler implements IValidator {
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
                 firearmAction.useMechanics(castData, true);
 
-                if (entityWrapper instanceof IPlayerWrapper) {
+                if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
                 }
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
@@ -479,7 +479,7 @@ public class ReloadHandler implements IValidator {
         };
     }
 
-    private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, IEntityWrapper entityWrapper,
+    private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
                                    String weaponTitle, boolean mainhand, EquipmentSlot slot, int ammoPerReload, int magazineSize, boolean dualWield) {
         return new ChainTask(firearmCloseTime) {
 
@@ -502,9 +502,9 @@ public class ReloadHandler implements IValidator {
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
                 firearmAction.useMechanics(castData, false);
 
-                if (entityWrapper instanceof IPlayerWrapper) {
+                if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
                 }
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);

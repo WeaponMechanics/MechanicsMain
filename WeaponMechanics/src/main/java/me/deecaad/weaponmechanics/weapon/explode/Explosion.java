@@ -26,8 +26,8 @@ import me.deecaad.weaponmechanics.weapon.projectile.RemoveOnBlockCollisionProjec
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -196,8 +196,8 @@ public class Explosion implements Serializer<Explosion> {
 
         // Handle worldguard flags
         IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(cause);
-        if (!worldGuard.testFlag(origin, entityWrapper instanceof IPlayerWrapper ? ((IPlayerWrapper) entityWrapper).getPlayer() : null, "weapon-explode")) {
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(cause);
+        if (!worldGuard.testFlag(origin, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-explode")) {
             Object obj = worldGuard.getValue(origin, "weapon-explode-message");
             if (obj != null && !obj.toString().isEmpty()) {
                 entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));

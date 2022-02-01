@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -43,7 +43,7 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public boolean hasAmmo(IPlayerWrapper playerWrapper) {
+    public boolean hasAmmo(PlayerWrapper playerWrapper) {
         Player player = playerWrapper.getPlayer();
         PlayerInventory playerInventory = player.getInventory();
 
@@ -107,7 +107,7 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+    public int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         PlayerInventory playerInventory = playerWrapper.getPlayer().getInventory();
 
         int foundMagazineSlot = -1;
@@ -224,7 +224,7 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+    public void giveAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         Player player = playerWrapper.getPlayer();
 
         if (magazineItem != null) {
@@ -248,7 +248,7 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public int getMaximumAmmo(IPlayerWrapper playerWrapper, int maximumMagazineSize) {
+    public int getMaximumAmmo(PlayerWrapper playerWrapper, int maximumMagazineSize) {
         PlayerInventory playerInventory = playerWrapper.getPlayer().getInventory();
 
         int amount = 0;

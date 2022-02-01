@@ -5,7 +5,7 @@ import me.deecaad.core.packetlistener.Packet;
 import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.potion.PotionEffectType;
 
 import java.lang.reflect.Field;
@@ -50,7 +50,7 @@ public class OutEntityEffectListener extends PacketHandler {
             return;
         }
 
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
 
         if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision()) return;
         if ((byte) packet.getFieldValue(dataField) != (byte) (PotionEffectType.NIGHT_VISION.getId() & 255)) return;

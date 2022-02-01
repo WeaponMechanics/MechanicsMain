@@ -44,8 +44,6 @@ import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -73,7 +71,7 @@ public class WeaponMechanics {
 
     private static WeaponMechanics plugin;
     WeaponMechanicsLoader javaPlugin;
-    Map<LivingEntity, IEntityWrapper> entityWrappers;
+    Map<LivingEntity, EntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
     MainCommand mainCommand;
@@ -433,7 +431,7 @@ public class WeaponMechanics {
      * @param entity the entity wrapper to get
      * @return the entity wrapper
      */
-    public static IEntityWrapper getEntityWrapper(LivingEntity entity) {
+    public static EntityWrapper getEntityWrapper(LivingEntity entity) {
         if (entity.getType() == EntityType.PLAYER) {
             return getPlayerWrapper((Player) entity);
         }
@@ -449,8 +447,8 @@ public class WeaponMechanics {
      * @return the entity wrapper or null if no auto add is true and EntityWrapper was not found
      */
     @Nullable
-    public static IEntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
-        IEntityWrapper wrapper = plugin.entityWrappers.get(entity);
+    public static EntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
+        EntityWrapper wrapper = plugin.entityWrappers.get(entity);
         if (wrapper == null) {
             if (noAutoAdd) {
                 return null;
@@ -468,17 +466,17 @@ public class WeaponMechanics {
      * @param player the player wrapper to get
      * @return the player wrapper
      */
-    public static IPlayerWrapper getPlayerWrapper(Player player) {
-        IEntityWrapper wrapper = plugin.entityWrappers.get(player);
+    public static PlayerWrapper getPlayerWrapper(Player player) {
+        EntityWrapper wrapper = plugin.entityWrappers.get(player);
         if (wrapper == null) {
             wrapper = new PlayerWrapper(player);
             plugin.entityWrappers.put(player, wrapper);
         }
-        if (!(wrapper instanceof IPlayerWrapper)) {
+        if (!(wrapper instanceof PlayerWrapper)) {
             // Exception is better in this case as we need to know where this mistake happened
             throw new IllegalArgumentException("Tried to get PlayerWrapper from player which didn't have PlayerWrapper (only EntityWrapper)...?");
         }
-        return (IPlayerWrapper) wrapper;
+        return (PlayerWrapper) wrapper;
     }
 
     /**
@@ -488,9 +486,9 @@ public class WeaponMechanics {
      * @param entity the entity (or player)
      */
     public static void removeEntityWrapper(LivingEntity entity) {
-        IEntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
+        EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
         if (oldWrapper != null) {
-            int oldMoveTask = oldWrapper.getMoveTask();
+            int oldMoveTask = oldWrapper.getMoveTaskId();
             if (oldMoveTask != 0) {
                 Bukkit.getScheduler().cancelTask(oldMoveTask);
             }

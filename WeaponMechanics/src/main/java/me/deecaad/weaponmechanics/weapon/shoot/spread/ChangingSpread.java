@@ -4,7 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.jetbrains.annotations.NotNull;
 
 public class ChangingSpread implements Serializer<ChangingSpread> {
@@ -35,7 +35,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
      * @param updateSpreadChange whether to allow updating current spread change
      * @return the modifier holder with updated horizontal and vertical values
      */
-    public double applyChanges(IEntityWrapper entityWrapper, double tempSpread, boolean mainHand, boolean updateSpreadChange) {
+    public double applyChanges(EntityWrapper entityWrapper, double tempSpread, boolean mainHand, boolean updateSpreadChange) {
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Reset if required

@@ -4,17 +4,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Spread implements Serializer<Spread> {
 
@@ -47,7 +42,7 @@ public class Spread implements Serializer<Spread> {
      * @param updateSpreadChange whether or not to allow updating current spread change
      * @return the normalized spread direction
      */
-    public Vector getNormalizedSpreadDirection(IEntityWrapper entityWrapper, boolean mainHand, boolean updateSpreadChange) {
+    public Vector getNormalizedSpreadDirection(EntityWrapper entityWrapper, boolean mainHand, boolean updateSpreadChange) {
         Location location = entityWrapper.getEntity().getLocation();
         double yaw = location.getYaw(), pitch = location.getPitch();
         if (spreadImage != null) {

@@ -4,7 +4,7 @@ import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -45,7 +45,7 @@ public class RecoilCommand extends SubCommand {
         int shootTime = Integer.parseInt(args[5]);
 
         Recoil recoil = new Recoil(rotationTime, recoverTime, yaws, pitches, null, null);
-        IPlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
+        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) sender);
         new BukkitRunnable() {
             int ticks = 0;
 

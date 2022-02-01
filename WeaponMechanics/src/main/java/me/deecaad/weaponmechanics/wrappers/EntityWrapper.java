@@ -9,8 +9,16 @@ import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
-public class EntityWrapper implements IEntityWrapper {
+import javax.annotation.Nonnull;
+
+/**
+ * Wraps a {@link LivingEntity} object to simplify per-entity data/methods that
+ * are used by WeaponMechanics. Also contains useful API functionality for
+ * plugins who want to check if an entity is scoped, reloading, etc.
+ */
+public class EntityWrapper {
 
     private static final int MOVE_TASK_INTERVAL = 1;
 
@@ -24,6 +32,7 @@ public class EntityWrapper implements IEntityWrapper {
     private HandData mainHandData;
     private HandData offHandData;
 
+
     public EntityWrapper(LivingEntity livingEntity) {
         this.entity = livingEntity;
 
@@ -32,32 +41,35 @@ public class EntityWrapper implements IEntityWrapper {
                 || !config.getBool("Disabled_Trigger_Checks.Standing_And_Walking")
                 || !config.getBool("Disabled_Trigger_Checks.Jump")
                 || !config.getBool("Disabled_Trigger_Checks.Double_Jump")) {
+
             this.moveTask = new MoveTask(this).runTaskTimer(WeaponMechanics.getPlugin(), 0, MOVE_TASK_INTERVAL).getTaskId();
         }
     }
 
-    @Override
     public LivingEntity getEntity() {
         return this.entity;
     }
 
-    @Override
-    public int getMoveTask() {
+    public int getMoveTaskId() {
         return this.moveTask;
     }
 
-    @Override
+    /**
+     * Returns <code>true</code> when the entity is standing still. Returns
+     * <code>false</code> when the entity is moving, swimming, or mid-air.
+     *
+     * @return <code>true</code> if the entity is standing still.
+     */
     public boolean isStanding() {
         return this.standing;
     }
 
-    @Override
-    public void setStanding(boolean standing) {
+    void setStanding(boolean standing) {
         if (this.standing == standing) return;
         this.standing = standing;
 
         if (standing) {
-            // -> Can't be walking, swimming, in mid air at same time
+            // -> Can't be walking, swimming, or mid-air at same time
             setWalking(false);
             setSwimming(false);
             setInMidair(false);
@@ -65,32 +77,42 @@ public class EntityWrapper implements IEntityWrapper {
         Bukkit.getPluginManager().callEvent(new EntityToggleStandEvent(entity, standing));
     }
 
-    @Override
+    /**
+     * Returns <code>true</code> when the entity is moving. Returns
+     * <code>false</code> when the entity is standing still, swimming, or
+     * mid-air.
+     *
+     * @return <code>true</code> if the entity is moving.
+     */
     public boolean isWalking() {
         return this.walking;
     }
 
-    @Override
-    public void setWalking(boolean walking) {
+    void setWalking(boolean walking) {
         if (this.walking == walking) return;
         this.walking = walking;
 
         if (walking) {
-            // -> Can't be standing, swimming, in mid air at same time
+            // -> Can't be standing, swimming, in mid-air at same time
             setStanding(false);
             setSwimming(false);
             setInMidair(false);
         }
         Bukkit.getPluginManager().callEvent(new EntityToggleWalkEvent(entity, walking));
     }
-    
-    @Override
+
+    /**
+     * Returns <code>true</code> when the entity is mid-air (not on the
+     * ground). Returns <code>false</code> when the entity is standing still,
+     * swimming, or walking.
+     *
+     * @return <code>true</code> if the entity is mid-air.
+     */
     public boolean isInMidair() {
         return this.inMidair;
     }
 
-    @Override
-    public void setInMidair(boolean inMidair) {
+    void setInMidair(boolean inMidair) {
         if (this.inMidair == inMidair) return;
         this.inMidair = inMidair;
 
@@ -103,18 +125,24 @@ public class EntityWrapper implements IEntityWrapper {
         Bukkit.getPluginManager().callEvent(new EntityToggleInMidairEvent(entity, inMidair));
     }
 
-    @Override
+    /**
+     * Returns <code>true</code> when the entity is swimming (legs and head are
+     * both in water, also checks 1.13+ sprint swimming). Returns
+     * <code>false</code> when the entity is standing still, mid-air, or
+     * walking.
+     *
+     * @return <code>true</code> if the entity is swimming.
+     */
     public boolean isSwimming() {
         return swimming;
     }
 
-    @Override
-    public void setSwimming(boolean swimming) {
+    void setSwimming(boolean swimming) {
         if (this.swimming == swimming) return;
         this.swimming = swimming;
 
         if (swimming) {
-            // -> Can't be walking, standing, in mid air at same time
+            // -> Can't be walking, standing, in mid-air at same time
             setWalking(false);
             setStanding(false);
             setInMidair(false);
@@ -122,38 +150,64 @@ public class EntityWrapper implements IEntityWrapper {
         Bukkit.getPluginManager().callEvent(new EntityToggleSwimEvent(entity, swimming));
     }
 
-    @Override
+    /**
+     * Returns <code>true</code> if the entity is a player, and the player is
+     * in sneak mode.
+     *
+     * @return <code>true</code> when the player is sneaking.
+     * @see Player#isSneaking()
+     */
     public boolean isSneaking() {
-        // Always false for other entities than players
-        // PlayerWrapper actually checks these
         return false;
     }
 
-    @Override
+    /**
+     * Returns <code>true</code> if the entity is a player, and the player is
+     * sprinting.
+     *
+     * @return <code>true</code> when the player is sprinting.
+     * @see Player#isSprinting()
+     */
     public boolean isSprinting() {
-        // Always false for other entities than players
-        // PlayerWrapper actually checks these
         return false;
     }
 
-    @Override
+    /**
+     * Returns <code>true</code> if the entity is gliding using an elytra.
+     * Apparently, non-player entities CAN glide.
+     *
+     * @return <code>true</code> when the entity is gliding.
+     * @see LivingEntity#isGliding()
+     */
     public boolean isGliding() {
         return CompatibilityAPI.getVersion() >= 1.09 && entity.isGliding();
     }
 
-    @Override
+    /**
+     * Returns <code>true</code> if the entity is a player, and the player has
+     * right-clicked in the past 4 ticks (+- 25 milliseconds). This method also
+     * considers the player's ping ({@link Player#getPing()}) to determine if
+     * they are still right-clicking.
+     *
+     * <p>While this method is usually quite inaccurate (can be up to 4 ticks
+     * late!), it is 100% accurate when the player is blocking (swords in 1.8,
+     * shields in 1.9+).
+     *
+     * @return <code>true</code> when the player is right-clicking.
+     * @see Player#isBlocking()
+     */
     public boolean isRightClicking() {
         // Always false for other entities than players
         // PlayerWrapper actually checks these
         return false;
     }
 
-    @Override
+    @Nonnull
     public HandData getMainHandData() {
         return mainHandData == null ? mainHandData = new HandData(this) : mainHandData;
     }
 
-    @Override
+    @Nonnull
     public HandData getOffHandData() {
         return offHandData == null ? offHandData = new HandData(this) : offHandData;
     }

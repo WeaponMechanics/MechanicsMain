@@ -6,7 +6,7 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
@@ -37,7 +37,7 @@ public class DamageUtil {
         Configuration config = WeaponMechanics.getBasicConfigurations();
 
         AtomicDouble rate = new AtomicDouble(1.0);
-        IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
+        EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
 
         // Apply backstab damage
         if (isBackStab) rate.addAndGet(config.getDouble("Damage.Back"));

@@ -20,13 +20,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class MoveTask extends BukkitRunnable {
 
-    private final IEntityWrapper entityWrapper;
+    private final EntityWrapper entityWrapper;
     private Location from;
     private int sameMatches;
     private int jumps;
     private int groundTicks;
 
-    public MoveTask(IEntityWrapper entityWrapper) {
+    public MoveTask(EntityWrapper entityWrapper) {
         this.entityWrapper = entityWrapper;
         LivingEntity entity = entityWrapper.getEntity();
         this.from = entity.getLocation();

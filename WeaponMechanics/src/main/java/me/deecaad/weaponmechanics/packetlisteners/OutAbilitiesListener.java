@@ -5,7 +5,7 @@ import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 
 import java.lang.reflect.Field;
@@ -26,7 +26,7 @@ public class OutAbilitiesListener extends PacketHandler {
 
     @Override
     public void onPacket(Packet packet) {
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
 
         ZoomData main = entityWrapper.getMainHandData().getZoomData();
         ZoomData off = entityWrapper.getOffHandData().getZoomData();

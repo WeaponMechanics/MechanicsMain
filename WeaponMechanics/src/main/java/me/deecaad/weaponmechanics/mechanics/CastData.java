@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -12,18 +12,18 @@ import java.util.Map;
 
 public class CastData {
 
-    private IEntityWrapper caster;
+    private EntityWrapper caster;
     private WeaponProjectile projectileCaster;
     private Location casterLocation;
     private String weaponTitle;
     private ItemStack weaponStack;
     private Map<String, Object> data;
 
-    public CastData(IEntityWrapper caster) {
+    public CastData(EntityWrapper caster) {
         this.caster = caster;
     }
 
-    public CastData(IEntityWrapper caster, @Nullable String weaponTitle, @Nullable ItemStack weaponStack) {
+    public CastData(EntityWrapper caster, @Nullable String weaponTitle, @Nullable ItemStack weaponStack) {
         this.caster = caster;
         this.weaponTitle = weaponTitle;
         this.weaponStack = weaponStack;
@@ -36,7 +36,7 @@ public class CastData {
     /**
      * Use when you want specific cast location for sounds etc
      */
-    public CastData(IEntityWrapper caster, Location casterLocation, String weaponTitle, ItemStack weaponStack) {
+    public CastData(EntityWrapper caster, Location casterLocation, String weaponTitle, ItemStack weaponStack) {
         this.caster = caster;
         this.casterLocation = casterLocation;
         this.weaponTitle = weaponTitle;
@@ -53,7 +53,7 @@ public class CastData {
      * @return the wrapped caster of this cast, null if only location is used
      */
     @Nullable
-    public IEntityWrapper getCasterWrapper() {
+    public EntityWrapper getCasterWrapper() {
         return caster;
     }
 

@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.core.compatibility.vault.IVaultCompatibility;
 import me.deecaad.core.compatibility.vault.VaultAPI;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -33,12 +33,12 @@ public class MoneyAmmo implements IAmmoType {
     }
 
     @Override
-    public boolean hasAmmo(IPlayerWrapper playerWrapper) {
+    public boolean hasAmmo(PlayerWrapper playerWrapper) {
         return vaultCompatibility.getBalance(playerWrapper.getPlayer()) >= moneyAsAmmoCost;
     }
 
     @Override
-    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+    public int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         if (amount == 0) return 0;
         Player player = playerWrapper.getPlayer();
         double balance = vaultCompatibility.getBalance(player);
@@ -62,13 +62,13 @@ public class MoneyAmmo implements IAmmoType {
     }
 
     @Override
-    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+    public void giveAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         if (amount == 0) return;
         vaultCompatibility.depositBalance(playerWrapper.getPlayer(), this.moneyAsAmmoCost * amount);
     }
 
     @Override
-    public int getMaximumAmmo(IPlayerWrapper playerWrapper, int maximumMagazineSize) {
+    public int getMaximumAmmo(PlayerWrapper playerWrapper, int maximumMagazineSize) {
         double balance = vaultCompatibility.getBalance(playerWrapper.getPlayer());
         if (balance == 0) return 0;
 

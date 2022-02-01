@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.skin;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,11 +19,11 @@ public class SkinHandler {
         this.weaponHandler = weaponHandler;
     }
 
-    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
         return tryUse(null, entityWrapper, weaponTitle, weaponStack, slot);
     }
 
-    public boolean tryUse(TriggerType triggerType, IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
+    public boolean tryUse(TriggerType triggerType, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
         HandData hand = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         Map<String, Skin> skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
         if (skins == null)

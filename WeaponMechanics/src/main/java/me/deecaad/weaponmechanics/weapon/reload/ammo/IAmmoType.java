@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.inventory.ItemStack;
 
 public interface IAmmoType {
@@ -9,11 +9,11 @@ public interface IAmmoType {
 
     String getSymbol();
 
-    boolean hasAmmo(IPlayerWrapper playerWrapper);
+    boolean hasAmmo(PlayerWrapper playerWrapper);
 
-    int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize);
+    int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize);
 
-    void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize);
+    void giveAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize);
 
-    int getMaximumAmmo(IPlayerWrapper playerWrapper, int maximumMagazineSize);
+    int getMaximumAmmo(PlayerWrapper playerWrapper, int maximumMagazineSize);
 }

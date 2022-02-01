@@ -4,7 +4,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -14,7 +14,7 @@ import java.util.TimerTask;
 public class RecoilTask extends TimerTask {
 
     private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
-    private final IPlayerWrapper playerWrapper;
+    private final PlayerWrapper playerWrapper;
     private final HandData handData;
 
     /**
@@ -40,7 +40,7 @@ public class RecoilTask extends TimerTask {
     private float shouldBeLastYaw = -361;
     private float shouldBeLastPitch = -361;
 
-    public RecoilTask(IPlayerWrapper playerWrapper, HandData handData, Recoil recoil) {
+    public RecoilTask(PlayerWrapper playerWrapper, HandData handData, Recoil recoil) {
         this.playerWrapper = playerWrapper;
         this.handData = handData;
 

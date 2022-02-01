@@ -14,8 +14,8 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -51,7 +51,7 @@ public class ScopeHandler implements IValidator {
      * @param triggerType the trigger type trying to activate scope
      * @return true if the scope used successfully to zoom in, our or stack
      */
-    public boolean tryUse(IEntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
 
         // Don't try to scope if either one of the hands is reloading
@@ -110,7 +110,7 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed in or stacked
      */
-    private boolean zoomIn(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+    private boolean zoomIn(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         MCTiming scopeHandlerTiming = WeaponMechanics.timing("Scope Handler").startTiming();
         boolean result = zoomInWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
         scopeHandlerTiming.stopTiming();
@@ -121,7 +121,7 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed in or stacked
      */
-    private boolean zoomInWithoutTiming(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+    private boolean zoomInWithoutTiming(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         Configuration config = getConfigurations();
         LivingEntity entity = entityWrapper.getEntity();
 
@@ -146,7 +146,7 @@ public class ScopeHandler implements IValidator {
                 if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
                 return true;
             } else {
@@ -174,7 +174,7 @@ public class ScopeHandler implements IValidator {
         if (zoomMechanics != null) zoomMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
@@ -186,7 +186,7 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed out
      */
-    private boolean zoomOut(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+    private boolean zoomOut(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         MCTiming scopeHandlerTiming = WeaponMechanics.timing("Scope Handler").startTiming();
         boolean result = zoomOutWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
         scopeHandlerTiming.stopTiming();
@@ -197,7 +197,7 @@ public class ScopeHandler implements IValidator {
     /**
      * @return true if successfully zoomed out
      */
-    private boolean zoomOutWithoutTiming(ItemStack weaponStack, String weaponTitle, IEntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
+    private boolean zoomOutWithoutTiming(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         if (!zoomData.isZooming()) return false;
         LivingEntity entity = entityWrapper.getEntity();
 
@@ -215,7 +215,7 @@ public class ScopeHandler implements IValidator {
         if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
@@ -230,7 +230,7 @@ public class ScopeHandler implements IValidator {
      * @param entityWrapper the entity wrapper from whom to force zoom out
      * @param zoomData the zoom data of entity wrappers hand data
      */
-    public void forceZoomOut(IEntityWrapper entityWrapper, ZoomData zoomData) {
+    public void forceZoomOut(EntityWrapper entityWrapper, ZoomData zoomData) {
         ScopeHandler scopeHandler = WeaponMechanics.getWeaponHandler().getScopeHandler();
         scopeHandler.updateZoom(entityWrapper, zoomData, 0);
         zoomData.setZoomStacks(0);
@@ -240,7 +240,7 @@ public class ScopeHandler implements IValidator {
     /**
      * Updates the zoom amount of entity.
      */
-    private void updateZoom(IEntityWrapper entityWrapper, ZoomData zoomData, int newZoomAmount) {
+    private void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, int newZoomAmount) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for FOV changes
             zoomData.setZoomAmount(newZoomAmount);
@@ -281,7 +281,7 @@ public class ScopeHandler implements IValidator {
     /**
      * Toggles night vision on or off whether it was on before
      */
-    public void useNightVision(IEntityWrapper entityWrapper, ZoomData zoomData) {
+    public void useNightVision(EntityWrapper entityWrapper, ZoomData zoomData) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for night vision
             return;

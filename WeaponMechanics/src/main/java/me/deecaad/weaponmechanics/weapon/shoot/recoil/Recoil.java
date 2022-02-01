@@ -7,7 +7,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -45,7 +45,7 @@ public class Recoil implements Serializer<Recoil> {
     }
 
     public void start(Player player, boolean mainHand) {
-        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
         if (pushTime == 0 && recoverTime == 0) {
             // No need for task as rotation time and recover time are 0
             float rotateYaw = randomHorizontal.get(NumberUtil.random(randomHorizontal.size()));

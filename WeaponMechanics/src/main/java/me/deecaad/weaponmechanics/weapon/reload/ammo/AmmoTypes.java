@@ -7,7 +7,7 @@ import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -53,7 +53,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
         setCurrentAmmoIndex(weaponStack, nextIndex);
     }
 
-    public boolean hasAmmo(String weaponTitle, ItemStack weaponStack, IPlayerWrapper playerWrapper) {
+    public boolean hasAmmo(String weaponTitle, ItemStack weaponStack, PlayerWrapper playerWrapper) {
         int index = getCurrentAmmoIndex(weaponStack);
         if (ammoTypes.get(index).hasAmmo(playerWrapper)) {
             return true;
@@ -84,7 +84,7 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
         return false;
     }
 
-    public int removeAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+    public int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         if (amount == 0) return 0;
         return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).removeAmmo(weaponStack, playerWrapper, amount, maximumMagazineSize);
 
@@ -93,14 +93,14 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
         // which also handles the automatic switch
     }
 
-    public void giveAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+    public void giveAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         if (amount == 0) return;
         ammoTypes.get(getCurrentAmmoIndex(weaponStack)).giveAmmo(weaponStack, playerWrapper, amount, maximumMagazineSize);
 
         // No need to try switching since this will simply give amount of current ammo back
     }
 
-    public int getMaximumAmmo(ItemStack weaponStack, IPlayerWrapper playerWrapper, int maximumMagazineSize) {
+    public int getMaximumAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int maximumMagazineSize) {
         // No need to try switching since this will simply maximum amount of current ammo
         return ammoTypes.get(getCurrentAmmoIndex(weaponStack)).getMaximumAmmo(playerWrapper, maximumMagazineSize);
     }

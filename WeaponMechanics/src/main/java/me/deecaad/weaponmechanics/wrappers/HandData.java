@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class HandData {
 
-    private final IEntityWrapper entityWrapper;
+    private final EntityWrapper entityWrapper;
 
     private int fullAutoTask;
     private int burstTask;
@@ -30,7 +30,7 @@ public class HandData {
     private ZoomData zoomData;
     private final Set<Integer> firearmActionTasks = new HashSet<>();
 
-    public HandData(IEntityWrapper entityWrapper) {
+    public HandData(EntityWrapper entityWrapper) {
         this.entityWrapper = entityWrapper;
     }
 

@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
 import me.deecaad.core.file.Serializer;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 
 public abstract class AModifyWhen implements Serializer<AModifyWhen> {
 
@@ -34,7 +34,7 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
      * @param tempNumber the number
      * @return the modified number
      */
-    public double applyChanges(IEntityWrapper entityWrapper, double tempNumber) {
+    public double applyChanges(EntityWrapper entityWrapper, double tempNumber) {
         if (always != null) {
             tempNumber = always.applyTo(tempNumber);
         }

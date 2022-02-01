@@ -9,8 +9,8 @@ import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponEquipEvent;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -46,7 +46,7 @@ public class WeaponListeners implements Listener {
             return;
 
         LivingEntity entity = (LivingEntity) e.getEntity();
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(entity);
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(entity);
         ItemStack weaponStack = e.getEquipped();
 
         // Also try auto converting to weapon
@@ -55,7 +55,7 @@ public class WeaponListeners implements Listener {
         if (weaponTitle != null) {
             if (e.getEntityType() == EntityType.PLAYER) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((IPlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
             Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
 
@@ -113,14 +113,14 @@ public class WeaponListeners implements Listener {
         // Off hand is also considered as quickbar slot
         if (e.getSlotType() != InventoryType.SlotType.QUICKBAR) return;
 
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getWhoClicked());
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getWhoClicked());
         entityWrapper.getMainHandData().cancelTasks();
         entityWrapper.getOffHandData().cancelTasks();
     }
 
     @EventHandler (ignoreCancelled = true)
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
-        IEntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getPlayer());
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getPlayer());
         entityWrapper.getMainHandData().cancelTasks();
         entityWrapper.getOffHandData().cancelTasks();
     }

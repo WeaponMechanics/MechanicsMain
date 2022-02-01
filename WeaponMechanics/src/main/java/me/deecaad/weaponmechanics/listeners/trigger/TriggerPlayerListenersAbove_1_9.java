@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.listeners.trigger;
 
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -52,7 +52,7 @@ public class TriggerPlayerListenersAbove_1_9 implements Listener {
             toMain = playerEquipment.getItemInOffHand();
         }
 
-        IPlayerWrapper playerWrapper = getPlayerWrapper(player);
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         boolean dualWield = toMainWeapon != null && toOffWeapon != null;
 

@@ -9,7 +9,8 @@ import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
-import me.deecaad.weaponmechanics.wrappers.IEntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -44,15 +45,15 @@ public final class WeaponMechanicsAPI {
      *
      * @param entity The non-null living entity to check the scope state of.
      * @return The non-negative zoom amount.
-     * @see IEntityWrapper
-     * @see me.deecaad.weaponmechanics.wrappers.IPlayerWrapper
+     * @see EntityWrapper
+     * @see PlayerWrapper
      */
     @Nonnegative
     public static int getScopeLevel(@Nonnull LivingEntity entity) {
         checkState();
         notNull(entity);
 
-        IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, true);
+        EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, true);
         if (wrapper == null)
             return 0;
 
@@ -86,7 +87,7 @@ public final class WeaponMechanicsAPI {
         checkState();
         notNull(entity);
 
-        IEntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, true);
+        EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity, true);
         if (wrapper == null)
             return false;
 

@@ -10,7 +10,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.MessageMechanic;
-import me.deecaad.weaponmechanics.wrappers.IPlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.MessageHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BossBar;
@@ -54,7 +54,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         this.showAmmoInExpProgress = showAmmoInExpProgress;
     }
 
-    public void send(IPlayerWrapper playerWrapper, String weaponTitle, ItemStack weaponStack) {
+    public void send(PlayerWrapper playerWrapper, String weaponTitle, ItemStack weaponStack) {
 
         if (messageMechanic != null) {
             CastData castData = new CastData(playerWrapper, weaponTitle, weaponStack);
@@ -128,7 +128,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         }
     }
 
-    private void doChangesIfRequired(ItemStack og, IPlayerWrapper playerWrapper, String weaponTitle, ItemStack weaponStack) {
+    private void doChangesIfRequired(ItemStack og, PlayerWrapper playerWrapper, String weaponTitle, ItemStack weaponStack) {
 
         boolean hasMetaChanges = false;
         ItemMeta meta = weaponStack.getItemMeta();
