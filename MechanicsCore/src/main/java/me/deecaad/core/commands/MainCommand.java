@@ -35,14 +35,13 @@ public abstract class MainCommand extends BukkitCommand {
         super(name);
 
         this.permission = permission;
-        commands = new SubCommands("/" + name);
+        this.commands = new SubCommands("/" + name);
 
         // Get the shortest alias for the help command
         String prefix = name;
         for (String string : super.getAliases()) {
-            if (string.length() < prefix.length()) {
+            if (string.length() < prefix.length())
                 prefix = string;
-            }
         }
 
         SubCommand dummy = new SubCommand(prefix, "help", "General help information for commands", "<args>") {
@@ -51,7 +50,7 @@ public abstract class MainCommand extends BukkitCommand {
             }
         };
 
-        commands.register(dummy);
+        this.commands.register(dummy);
     }
 
     private boolean help(CommandSender sender, String[] args) {
@@ -73,7 +72,6 @@ public abstract class MainCommand extends BukkitCommand {
     public boolean execute(@Nonnull CommandSender sender, @Nonnull String label, @Nonnull String[] args) {
         if (!sender.hasPermission(permission)) {
             sender.sendMessage(ChatColor.RED + "Invalid permissions!");
-            commands.execute("info", sender, new String[0]);
             return true;
         }
 
