@@ -15,41 +15,6 @@ See the [Getting Started](https://github.com/WeaponMechanics/MechanicsMain/wiki#
 ## How to (Developers)
 See [Hooking into WeaponMechanics](https://github.com/WeaponMechanics/MechanicsMain/wiki/API) page on the wiki.  
 
-Maven Repository:
-```xml
-    <repository>
-        <id>fixme</id>
-        <url>fixme</url>
-    </repository>
-
-    <dependency>
-        <groupId>me.deecaad</groupId>
-        <artifactId>MechanicsCore</artifactId>
-        <version>1.0.0</version>
-        <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>me.deecaad</groupId>
-        <artifactId>WeaponMechanics</artifactId>
-        <version>1.0.0</version>
-        <scope>provided</scope>
-    </dependency>
-```
-
-Using Gradle:
-```kotlin
-repositories {
-    maven {
-        url = uri("fix me")
-    }
-}
-
-dependencies {
-    compileOnly("fix me")
-}
-```
-
 ## Donate
 WeaponMechanics is a free to use software, and the combination of hundreds
 of hours of work. If you like WeaponMechanics and want to see new features,
