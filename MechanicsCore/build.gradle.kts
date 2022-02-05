@@ -13,6 +13,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("io.netty:netty-all:4.0.23.Final")
+    compileOnly("com.mojang:brigadier:1.0.18")
 }
 
 tasks.test {
