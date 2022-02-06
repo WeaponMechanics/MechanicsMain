@@ -1,6 +1,7 @@
 package me.deecaad.core.compatibility;
 
 import me.deecaad.core.compatibility.block.BlockCompatibility;
+import me.deecaad.core.compatibility.command.CommandCompatibility;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import org.bukkit.World;
@@ -96,4 +97,7 @@ public interface ICompatibility {
      */
     @Nonnull
     BlockCompatibility getBlockCompatibility();
+
+    @Nonnull
+    CommandCompatibility getCommandCompatibility();
 }

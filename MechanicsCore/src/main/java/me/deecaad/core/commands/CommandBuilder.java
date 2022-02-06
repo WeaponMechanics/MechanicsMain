@@ -1,6 +1,12 @@
 package me.deecaad.core.commands;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.deecaad.core.commands.arguments.Argument;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
@@ -9,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CommandBuilder {
+
+    private boolean lock;
 
     private final String label;
     private Permission permission;
@@ -70,6 +78,26 @@ public class CommandBuilder {
         return this;
     }
 
-    private void flatten() {}
+    public void register() {
+        if (ReflectionUtil.getMCVersion() >= 13)
+            registerBrigadier();
+        else
+            registerLegacy();
+    }
+
+    private void registerLegacy() {
+
+    }
+
+    private void registerBrigadier() {
+        Command<?> command = new Command<Object>() {
+            @Override
+            public int run(CommandContext<Object> context) throws CommandSyntaxException {
+                CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSender(context);
+
+                return 0;
+            }
+        };
+    }
 
 }

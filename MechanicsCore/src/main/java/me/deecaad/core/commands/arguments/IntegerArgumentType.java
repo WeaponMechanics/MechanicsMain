@@ -24,6 +24,11 @@ public class IntegerArgumentType implements CommandArgumentType<Integer> {
     }
 
     @Override
+    public Class<Integer> getDataType() {
+        return Integer.class;
+    }
+
+    @Override
     public ArgumentType<Integer> getBrigadierType() {
         return com.mojang.brigadier.arguments.IntegerArgumentType.integer(min, max);
     }

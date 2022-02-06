@@ -2,6 +2,7 @@ package me.deecaad.core.commands.arguments;
 
 public class Argument<T> {
 
+    private final String name;
     private final CommandArgumentType<T> type;
     private final T defaultValue; // null when isRequired
     private final boolean isRequired;
@@ -12,7 +13,8 @@ public class Argument<T> {
      *
      * @param type The non-null expected type.
      */
-    public Argument(CommandArgumentType<T> type) {
+    public Argument(String name, CommandArgumentType<T> type) {
+        this.name = name;
         this.type = type;
         this.defaultValue = null;
         this.isRequired = true;
@@ -24,7 +26,8 @@ public class Argument<T> {
      * @param type The non-null expected type.
      * @param defaultValue The value to use when the player doesn't define one.
      */
-    public Argument(CommandArgumentType<T> type, T defaultValue) {
+    public Argument(String name, CommandArgumentType<T> type, T defaultValue) {
+        this.name = name;
         this.type = type;
         this.defaultValue = defaultValue;
         this.isRequired = false;

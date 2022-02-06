@@ -8,6 +8,13 @@ import java.util.List;
 
 public interface CommandArgumentType<T> {
 
+    Class<T> getDataType();
+
+    // * ----- BRIGADIER METHODS ----- * //
+    // In versions 1.13+, we use Mojang's "version stable" command api called
+    // brigadier. This is the preferred method of parsing a command, since
+    // brigadier will handle errors.
+
     ArgumentType<T> getBrigadierType();
 
     default boolean isBrigadier() {
@@ -19,7 +26,7 @@ public interface CommandArgumentType<T> {
     // CommandArgumentType which does not implement these methods will not be
     // compatible with legacy versions.
 
-    default T legacyParse() throws LegacyCommandSyntaxException {
+    default T legacyParse(String arg) throws LegacyCommandSyntaxException {
         throw new IllegalStateException(getClass() + " does not support legacy MC versions");
     }
 
