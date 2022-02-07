@@ -1,6 +1,7 @@
 package me.deecaad.core.commands.arguments;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import me.deecaad.core.commands.LegacyCommandSyntaxException;
 import me.deecaad.core.utils.ReflectionUtil;
 
@@ -16,6 +17,8 @@ public interface CommandArgumentType<T> {
     // brigadier will handle errors.
 
     ArgumentType<T> getBrigadierType();
+
+    T parse(CommandContext<Object> context);
 
     default boolean isBrigadier() {
         return ReflectionUtil.getMCVersion() >= 13;

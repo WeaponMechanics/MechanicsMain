@@ -2,20 +2,17 @@ package me.deecaad.core.commands.executors;
 
 import org.bukkit.command.CommandSender;
 
-/**
- * This interface determines which entities can execute a command. For example,
- * if you use a {@link PlayerCommandExecutor} for a command, only players will
- * be able to use the command.
- *
- * <p>Note that it is not supported to implement this class yourself, and
- * undefined behavior will occur. Instead, use one of:
- *
- * <ul>
- *     <li>{@link PlayerCommandExecutor}</li>
- *     <li>{@link EntityCommandExecutor}</li>
- * </ul>
- */
-@FunctionalInterface
-public interface CommandExecutor<T extends CommandSender> {
-    void execute(T sender);
+public abstract class CommandExecutor<T extends CommandSender> {
+
+    private final Class<T> executor;
+
+    public CommandExecutor(Class<T> executor) {
+        this.executor = executor;
+    }
+
+    public final Class<T> getExecutor() {
+        return executor;
+    }
+
+    public abstract void execute(T sender, Object[] arguments);
 }

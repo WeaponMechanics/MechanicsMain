@@ -1,5 +1,9 @@
 package me.deecaad.core.commands.arguments;
 
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.deecaad.core.commands.LegacyCommandSyntaxException;
+
 public class Argument<T> {
 
     private final String name;
@@ -43,5 +47,13 @@ public class Argument<T> {
 
     public boolean isRequired() {
         return isRequired;
+    }
+
+    public T parse(CommandContext<Object> context) throws CommandSyntaxException {
+        return type.parse(context);
+    }
+
+    public T parse(String str) throws LegacyCommandSyntaxException {
+        return type.legacyParse(str);
     }
 }

@@ -5,18 +5,18 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.deecaad.core.commands.arguments.Argument;
 import me.deecaad.core.commands.executors.CommandExecutor;
-import me.deecaad.core.commands.executors.EntityCommandExecutor;
-import me.deecaad.core.commands.executors.InvalidCommandExecutorException;
-import me.deecaad.core.commands.executors.PlayerCommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public class CommandBuilder {
 
@@ -83,19 +83,8 @@ public class CommandBuilder {
     }
 
     public <T extends CommandSender> CommandBuilder executes(CommandExecutor<T> executor) {
-
-        // Devs may override the wrong class when creating an executor, so lets
-        // fail fast instead of failing some point down the line.
-        if (
-                executor instanceof EntityCommandExecutor ||
-                executor instanceof PlayerCommandExecutor// todo fix after adding all executors
-        ) {
-            this.executor = executor;
-            return this;
-
-        } else {
-            throw new InvalidCommandExecutorException(executor);
-        }
+        this.executor = executor;
+        return this;
     }
 
     public void register() {
@@ -106,20 +95,40 @@ public class CommandBuilder {
     }
 
     private void registerLegacy() {
-
     }
 
+    @SuppressWarnings("unchecked")
     private void registerBrigadier() {
         Command<?> command = new Command<Object>() {
             @Override
             public int run(CommandContext<Object> context) throws CommandSyntaxException {
                 CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSender(context);
 
+                if (!sender.getClass().isAssignableFrom(executor.getExecutor())) {
+                    sender.sendMessage(ChatColor.RED + label + " is a " + executor.getExecutor().getSimpleName() + " only command.");
+                    return -1;
+                }
 
-                executor.execute(sender);
-                return 0;
+                try {
+                    ((CommandExecutor<CommandSender>) executor).execute(sender, parseBrigadierArguments(context));
+                    return 0;
+                } catch (CommandSyntaxException ex) {
+                    throw ex;
+                } catch (Exception ex) {
+                    sender.sendMessage(ChatColor.RED + "Some error occurred whilst executing command. Check console for error. ");
+                    ex.printStackTrace();
+                    return -1;
+                }
             }
         };
+    }
+
+    private Object[] parseBrigadierArguments(CommandContext<Object> context) throws Exception {
+        List<Object> temp = new ArrayList<>(args.size());
+        for (Argument<?> argument : args)
+            temp.add(argument.parse(context));
+
+        return temp.toArray();
     }
 
 }
