@@ -4,6 +4,10 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.deecaad.core.commands.arguments.Argument;
+import me.deecaad.core.commands.executors.CommandExecutor;
+import me.deecaad.core.commands.executors.EntityCommandExecutor;
+import me.deecaad.core.commands.executors.InvalidCommandExecutorException;
+import me.deecaad.core.commands.executors.PlayerCommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.command.CommandSender;
@@ -23,7 +27,7 @@ public class CommandBuilder {
     private List<String> aliases;
     private List<Argument<?>> args;
     private List<CommandBuilder> subcommands;
-    private CommandExecutor executor;
+    private CommandExecutor<? extends CommandSender> executor;
     private String description;
 
     public CommandBuilder(String label) {
@@ -78,6 +82,22 @@ public class CommandBuilder {
         return this;
     }
 
+    public <T extends CommandSender> CommandBuilder executes(CommandExecutor<T> executor) {
+
+        // Devs may override the wrong class when creating an executor, so lets
+        // fail fast instead of failing some point down the line.
+        if (
+                executor instanceof EntityCommandExecutor ||
+                executor instanceof PlayerCommandExecutor// todo fix after adding all executors
+        ) {
+            this.executor = executor;
+            return this;
+
+        } else {
+            throw new InvalidCommandExecutorException(executor);
+        }
+    }
+
     public void register() {
         if (ReflectionUtil.getMCVersion() >= 13)
             registerBrigadier();
@@ -95,6 +115,8 @@ public class CommandBuilder {
             public int run(CommandContext<Object> context) throws CommandSyntaxException {
                 CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSender(context);
 
+
+                executor.execute(sender);
                 return 0;
             }
         };
