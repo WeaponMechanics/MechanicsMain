@@ -30,7 +30,7 @@ RPG-7:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 80
+    Projectile_Speed: 50
     Spread:
       Base_Spread: 5.5
       Modify_Spread_When:

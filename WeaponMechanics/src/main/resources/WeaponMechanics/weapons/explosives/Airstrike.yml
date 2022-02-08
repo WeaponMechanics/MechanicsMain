@@ -4,7 +4,6 @@ Airstrike:
       Type: "FEATHER"
       Name: "&6Airstrike"
       Unbreakable: true
-      Custom_Model_Data: 301
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
@@ -14,8 +13,7 @@ Airstrike:
     Projectile_Settings:
       Type: "DROPPED_ITEM"
       Projectile_Item_Or_Block:
-        Type: "FEATHER"
-        Custom_Model_Data: 301
+        Type: "REDSTONE_TORCH"
       Disable_Entity_Collisions: true
     Bouncy:
       Maximum_Bounce_Amount: -1

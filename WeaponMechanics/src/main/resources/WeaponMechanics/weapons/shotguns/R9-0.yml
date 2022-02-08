@@ -18,11 +18,6 @@ R9-0:
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
-  Skin:
-    Default:
-      Custom_Model_Data: 61
-    Scope:
-      Custom_Model_Data: 71
   Projectile: "shotgun.Projectile"
   Shoot:
     Trigger:

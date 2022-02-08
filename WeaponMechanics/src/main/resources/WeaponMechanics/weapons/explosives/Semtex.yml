@@ -4,7 +4,6 @@ Semtex:
       Type: "FEATHER"
       Name: "&6Semtex"
       Unbreakable: true
-      Custom_Model_Data: 271
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
@@ -12,10 +11,7 @@ Semtex:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
   Projectile:
     Projectile_Settings:
-      Type: "DROPPED_ITEM"
-      Projectile_Item_Or_Block:
-        Type: "FEATHER"
-        Custom_Model_Data: 271
+      Type: "PRIMED_TNT"
     Sticky:
       Blocks:
         Allow_Any: true

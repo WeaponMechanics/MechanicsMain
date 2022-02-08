@@ -4,7 +4,6 @@ Flashbang:
       Type: "FEATHER"
       Name: "&6Flashbang"
       Unbreakable: true
-      Custom_Model_Data: 261
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
@@ -12,10 +11,7 @@ Flashbang:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
   Projectile:
     Projectile_Settings:
-      Type: "DROPPED_ITEM"
-      Projectile_Item_Or_Block:
-        Type: "FEATHER"
-        Custom_Model_Data: 261
+      Type: "PRIMED_TNT"
       Disable_Entity_Collisions: true
     Bouncy:
       Maximum_Bounce_Amount: -1

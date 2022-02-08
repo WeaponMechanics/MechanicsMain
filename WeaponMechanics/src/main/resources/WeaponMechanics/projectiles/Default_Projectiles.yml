@@ -74,7 +74,7 @@ rocket_launcher:
         Type: "FEATHER"
         Custom_Model_Data: 341
       Minimum:
-        Speed: 50
+        Speed: 40
       Gravity: 0.02
       Decrease_Motion:
         Base: 0.99

@@ -37,7 +37,7 @@ Disabled_Trigger_Checks:
   In_Midair: false
   Standing_And_Walking: false
   Jump: false
-  Double_Jump: false
+  Double_Jump: true # Disabled by default since this allows players to do slight double jump and go over 2 blocks
   Swim: false
   Glide: false
   Sneak: false
