@@ -204,7 +204,8 @@ public class WeaponMechanics {
         }
 
         try {
-            FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
+            // TODO bad programmars comment out broken code
+            //FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
         } catch (YAMLException e) {
             debug.error("WeaponMechanics jar corruption... This is most likely caused by using /reload after building jar!");
         }
