@@ -61,7 +61,7 @@ public final class CompatibilityAPI {
         return compatibility.getNBTCompatibility();
     }
 
-    public static CommandCompatibility<?> getCommandCompatibility() {
+    public static CommandCompatibility getCommandCompatibility() {
         return compatibility.getCommandCompatibility();
     }
 }

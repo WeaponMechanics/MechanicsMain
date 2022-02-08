@@ -1,12 +1,17 @@
 package me.deecaad.core.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.deecaad.core.commands.arguments.Argument;
 import me.deecaad.core.commands.executors.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
@@ -17,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.function.Predicate;
+
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 public class CommandBuilder {
 
@@ -88,6 +96,9 @@ public class CommandBuilder {
     }
 
     public void register() {
+        if (permission != null)
+            Bukkit.getPluginManager().addPermission(permission);
+
         if (ReflectionUtil.getMCVersion() >= 13)
             registerBrigadier();
         else
@@ -121,6 +132,16 @@ public class CommandBuilder {
                 }
             }
         };
+
+        LiteralCommandNode<Object> result;
+        if (args.size() == 0) {
+
+        } else {
+            ArgumentBuilder<Object, ?> commandArguments = null;
+
+            CommandDispatcher<Object> dispatcher = CompatibilityAPI.getCommandCompatibility().getCommandDispatcher();
+            result = dispatcher.register(literal(label).requires(handlePermissions()));
+        }
     }
 
     private Object[] parseBrigadierArguments(CommandContext<Object> context) throws Exception {
@@ -129,6 +150,17 @@ public class CommandBuilder {
             temp.add(argument.parse(context));
 
         return temp.toArray();
+    }
+
+    private Predicate<Object> handlePermissions() {
+        if (permission == null) {
+            return nms -> true;
+        }
+
+        return nms -> {
+            CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSenderRaw(nms);
+            return sender.hasPermission(permission);
+        };
     }
 
 }

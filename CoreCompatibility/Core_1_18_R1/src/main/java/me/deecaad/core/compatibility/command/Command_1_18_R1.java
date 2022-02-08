@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.command;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import me.deecaad.core.commands.arguments.EntitySelector;
@@ -16,15 +17,20 @@ import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemPredicateArgument;
+import net.minecraft.server.MinecraftServer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
 import org.bukkit.entity.Player;
 
 public class Command_1_18_R1 implements CommandCompatibility {
 
+    public static final MinecraftServer SERVER = ((CraftServer) Bukkit.getServer()).getServer();
+
     @Override
     public SimpleCommandMap getCommandMap() {
-        return null;
+        return SERVER.server.getCommandMap();
     }
 
     @Override
@@ -35,9 +41,18 @@ public class Command_1_18_R1 implements CommandCompatibility {
     @Override
     public CommandSender getCommandSender(CommandContext<Object> context) {
         CommandSourceStack source = (CommandSourceStack) context.getSource();
+        return source.getBukkitSender();
+    }
 
-        CommandSender sender = source.getBukkitSender();
-        return null;
+    @Override
+    public CommandSender getCommandSenderRaw(Object nms) {
+        return ((CommandSourceStack) nms).getBukkitSender();
+    }
+
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public CommandDispatcher<Object> getCommandDispatcher() {
+        return (CommandDispatcher) SERVER.vanillaCommandDispatcher.getDispatcher();
     }
 
     @Override
