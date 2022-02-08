@@ -69,7 +69,10 @@ shotgun:
 rocket_launcher:
   Projectile:
     Projectile_Settings:
-      Type: "WITHER_SKULL"
+      Type: "ARMOR_STAND"
+      Projectile_Item_Or_Block:
+        Type: "FEATHER"
+        Custom_Model_Data: 341
       Minimum:
         Speed: 25
       Gravity: 0.02
