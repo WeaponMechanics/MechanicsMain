@@ -63,7 +63,7 @@ public class WeaponMechanicsLoader extends JavaPlugin {
             boolean installed = false;
 
             // try to install
-            String link = "https://github.com/DeeCaaD/MechanicsMain/releases/download/v0.0.1/MechanicsCore-0.2.0.jar";
+            String link = "https://github.com/DeeCaaD/MechanicsMain/releases/download/v1.0.0/MechanicsCore-1.0.0.jar";
             if (getConfig().getBoolean("Mechanics_Core_Download.Enable", true)) {
                 try {
                     URL url = new URL(link);
