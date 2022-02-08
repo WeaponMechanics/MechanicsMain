@@ -5,7 +5,7 @@ sub_machine_gun:
       Projectile_Item_Or_Block:
         Type: "IRON_NUGGET"
       Maximum:
-        Speed: 40
+        Speed: 80
       Gravity: 0.05
       Decrease_Motion:
         Base: 0.99
@@ -27,7 +27,7 @@ sniper_rifle:
     Projectile_Settings:
       Type: "INVISIBLE"
       Minimum:
-        Speed: 80
+        Speed: 160
       Gravity: 0.05
       Decrease_Motion:
         Base: 0.99
@@ -50,7 +50,7 @@ shotgun:
       Type: "EGG"
       Gravity: 0.08
       Minimum:
-        Speed: 2
+        Speed: 4
       Decrease_Motion:
         Base: 0.9
         In_Water: 0.87
@@ -74,7 +74,7 @@ rocket_launcher:
         Type: "FEATHER"
         Custom_Model_Data: 341
       Minimum:
-        Speed: 25
+        Speed: 50
       Gravity: 0.02
       Decrease_Motion:
         Base: 0.99
@@ -88,7 +88,7 @@ assault_rifle:
       Projectile_Item_Or_Block:
         Type: "IRON_NUGGET"
       Minimum:
-        Speed: 30
+        Speed: 60
       Gravity: 0.05
       Decrease_Motion:
         Base: 0.99
@@ -122,7 +122,7 @@ marksman_rifle:
     Projectile_Settings:
       Type: "INVISIBLE"
       Minimum:
-        Speed: 70
+        Speed: 140
       Gravity: 0.05
       Decrease_Motion:
         Base: 0.99
@@ -146,7 +146,7 @@ light_machine_gun:
       Projectile_Item_Or_Block:
         Type: "IRON_NUGGET"
       Minimum:
-        Speed: 35
+        Speed: 70
       Gravity: 0.04
       Decrease_Motion:
         Base: 0.99

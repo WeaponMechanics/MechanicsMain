@@ -30,7 +30,7 @@ Origin_12:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 30
+    Projectile_Speed: 60
     Projectiles_Per_Shot: 10
     Delay_Between_Shots: 7
     Spread:

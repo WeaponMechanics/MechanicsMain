@@ -30,7 +30,7 @@ AX-50:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 140
+    Projectile_Speed: 280
     Delay_Between_Shots: 20
     Spread:
       Base_Spread: 2.3

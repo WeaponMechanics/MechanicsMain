@@ -35,7 +35,7 @@ Cluster_Grenade:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 18
+    Projectile_Speed: 36
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
     Mechanics:
@@ -59,7 +59,7 @@ Cluster_Grenade:
       Impact_When:
         Spawn: true
     Cluster_Bomb:
-      Projectile_Speed: 14
+      Projectile_Speed: 28
       Number_Of_Bombs: 12
       Detonation:
         Delay_After_Impact: 50

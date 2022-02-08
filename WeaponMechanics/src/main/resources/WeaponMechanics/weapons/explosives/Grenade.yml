@@ -35,7 +35,7 @@ Grenade:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 18
+    Projectile_Speed: 36
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
     Mechanics:
