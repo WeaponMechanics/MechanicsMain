@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.deecaad.core.commands.arguments.Argument;
+import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.commands.executors.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -161,6 +162,12 @@ public class CommandBuilder {
             CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSenderRaw(nms);
             return sender.hasPermission(permission);
         };
+    }
+
+    private ArgumentBuilder<Object, ?> createBuilder(Argument<?> argument) {
+        if (argument.getType() instanceof LiteralArgumentType) {
+
+        }
     }
 
 }
