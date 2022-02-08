@@ -106,7 +106,7 @@ public class JarSearcher {
             Class<?> subclass;
             try {
                 subclass = Class.forName(name, false, clazzLoader);
-            } catch (ClassNotFoundException | NoClassDefFoundError ex) {
+            } catch (ClassNotFoundException | NoClassDefFoundError | UnsupportedClassVersionError ex) {
                 continue;
             }
 
