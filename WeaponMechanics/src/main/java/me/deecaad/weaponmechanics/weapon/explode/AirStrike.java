@@ -17,6 +17,8 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+
 public class AirStrike implements Serializer<AirStrike> {
 
     private Projectile projectile;
@@ -182,10 +184,15 @@ public class AirStrike implements Serializer<AirStrike> {
                     double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
-                    (
-                            getProjectile() == null
-                                    ? projectile.clone(location, new Vector(0, 0, 0))
-                                    : getProjectile().shoot(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())).setIntTag("airstrike-bomb", 1);
+                    // Either use the projectile settings from the "parent" projectile,
+                    // or use the projectile settings for this airstrike
+                    Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
+                    if (projectileHandler != null) {
+                        WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())
+                                : projectile.clone(location, new Vector(0, 0, 0));
+                        newProjectile.setIntTag("airstrike-bomb", 1);
+                        projectileHandler.shoot(newProjectile, location);
+                    }
                 }
 
                 if (++count >= loops) {
