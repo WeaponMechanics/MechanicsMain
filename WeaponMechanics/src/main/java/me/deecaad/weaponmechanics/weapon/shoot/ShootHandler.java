@@ -625,18 +625,13 @@ public class ShootHandler implements IValidator {
                     "Located at file " + file + " in " + path + ".Trigger in configurations.");
         }
 
-        double projectileSpeed = configuration.getDouble(path + ".Projectile_Speed");
+        double projectileSpeed = configuration.getDouble(path + ".Projectile_Speed", 80);
         debug.validate(projectileSpeed >= 0, "Projectile_Speed must be a positive number!",
                 StringUtil.foundAt(file, path + ".Projectile_Speed"));
 
-        if (projectileSpeed == 0) {
-            debug.log(LogLevel.ERROR, "Tried to use shoot without defining projectile speed or it was 0.",
-                    "Located at file " + file + " in " + path + ".Projectile_Speed in configurations.");
-        } else {
-            // Convert from more config friendly speed to normal
-            // E.g. 80 -> 4.0
-            configuration.set(path + ".Projectile_Speed", projectileSpeed / 20);
-        }
+        // Convert from more config friendly speed to normal
+        // E.g. 80 -> 4.0
+        configuration.set(path + ".Projectile_Speed", projectileSpeed / 20);
 
         int delayBetweenShots = configuration.getInt(path + ".Delay_Between_Shots");
         if (delayBetweenShots != 0) {
