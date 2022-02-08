@@ -4,15 +4,16 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.arguments.EntitySelector;
+import me.deecaad.core.commands.arguments.EntitySelectorRename;
 import me.deecaad.core.commands.wrappers.Location2d;
+import me.deecaad.core.commands.wrappers.Rotation;
+import org.apache.commons.lang.math.DoubleRange;
 import org.apache.commons.lang.math.FloatRange;
 import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Particle;
-import org.bukkit.Rotation;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.advancement.Advancement;
@@ -29,8 +30,8 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Collection;
 import java.util.EnumSet;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public interface CommandCompatibility {
@@ -65,7 +66,7 @@ public interface CommandCompatibility {
 
     ArgumentType<?> enchantment();
 
-    ArgumentType<?> entity(EntitySelector selector);
+    ArgumentType<?> entity(EntitySelectorRename selector);
 
     ArgumentType<?> entitySummon();
 
@@ -134,12 +135,12 @@ public interface CommandCompatibility {
 
     Enchantment getEnchantment(CommandContext<Object> context, String key);
 
-    Object getEntitySelector(CommandContext<Object> context, String key, EntitySelector selector)
+    Object getEntitySelector(CommandContext<Object> context, String key, EntitySelectorRename selector)
             throws CommandSyntaxException;
 
     EntityType getEntityType(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
-    FloatRange getFloatRange(CommandContext<Object> context, String key);
+    DoubleRange getDoubleRange(CommandContext<Object> context, String key);
 
     IntRange getIntRange(CommandContext<Object> context, String key);
 
@@ -185,4 +186,9 @@ public interface CommandCompatibility {
 
     Sound getSound(CommandContext<Object> context, String key);
 
+    String getTeam(CommandContext<Object> context, String key) throws CommandSyntaxException;
+
+    int getTime(CommandContext<Object> context, String key);
+
+    UUID getUUID(CommandContext<Object> context, String key);
 }
