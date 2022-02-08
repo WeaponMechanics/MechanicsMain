@@ -634,8 +634,8 @@ public class ShootHandler implements IValidator {
                     "Located at file " + file + " in " + path + ".Projectile_Speed in configurations.");
         } else {
             // Convert from more config friendly speed to normal
-            // E.g. 40 -> 4.0
-            configuration.set(path + ".Projectile_Speed", projectileSpeed * 0.1);
+            // E.g. 80 -> 4.0
+            configuration.set(path + ".Projectile_Speed", projectileSpeed / 20);
         }
 
         int delayBetweenShots = configuration.getInt(path + ".Delay_Between_Shots");
