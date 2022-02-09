@@ -3,14 +3,24 @@ package me.deecaad.core.compatibility;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
+import me.deecaad.core.compatibility.vault.IVaultCompatibility;
+import me.deecaad.core.compatibility.worldguard.NoWorldGuard;
+import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
+import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.Bukkit;
+
+import java.lang.reflect.Constructor;
 
 public final class CompatibilityAPI {
 
     private static final double version;
     private static final ICompatibility compatibility;
+    private static final WorldGuardCompatibility worldGuardCompatibility;
+    private static final IVaultCompatibility vaultCompatibility;
     private static final boolean isPaper;
 
     static {
+        WorldGuardCompatibility worldGuardCompatibility1;
         boolean isPaper1;
         VersionSetup versionSetup = new VersionSetup();
         version = versionSetup.getVersionAsNumber(versionSetup.getVersionAsString());
@@ -23,6 +33,32 @@ public final class CompatibilityAPI {
             isPaper1 = false;
         }
         isPaper = isPaper1;
+
+        // * ----- World Guard ----- * //
+        try {
+            // Check if WorldGuard is there
+            Class.forName("com.sk89q.worldguard.bukkit.WorldGuardPlugin");
+
+            // Kinda hacky way to use reflections on own code, but when V6 module and V7 module was both added into lib of MechanicsCompatibility
+            // I couldn't compile the code because of odd BukkitAdapter thing
+            if (CompatibilityAPI.getVersion() < 1.13) {
+                // V6
+                Constructor<?> worldGuardV6Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV6"));
+                worldGuardCompatibility1 = (WorldGuardCompatibility) ReflectionUtil.newInstance(worldGuardV6Constructor);
+            } else {
+                // V7
+                Constructor<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV7"));
+                worldGuardCompatibility1 = (WorldGuardCompatibility) ReflectionUtil.newInstance(worldGuardV7Constructor);
+            }
+        } catch (ClassNotFoundException e) {
+            worldGuardCompatibility1 = new NoWorldGuard();
+        }
+        worldGuardCompatibility = worldGuardCompatibility1;
+
+        // * ----- Vault ----- * //
+        boolean hasVault = Bukkit.getPluginManager().getPlugin("Vault") != null;
+        String path = "me.deecaad.compatibility.vault." + (hasVault ? "VaultCompatibility" : "NoVaultCompatibility");
+        vaultCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getClass(path));
     }
 
     /**
@@ -58,5 +94,13 @@ public final class CompatibilityAPI {
 
     public static NBTCompatibility getNBTCompatibility() {
         return compatibility.getNBTCompatibility();
+    }
+
+    public static WorldGuardCompatibility getWorldGuardCompatibility() {
+        return worldGuardCompatibility;
+    }
+
+    public static IVaultCompatibility getVaultCompatibility() {
+        return vaultCompatibility;
     }
 }

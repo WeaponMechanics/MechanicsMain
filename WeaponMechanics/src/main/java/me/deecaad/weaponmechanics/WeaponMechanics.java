@@ -3,8 +3,7 @@ package me.deecaad.weaponmechanics;
 import co.aikar.timings.lib.MCTiming;
 import co.aikar.timings.lib.TimingManager;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.Configuration;
@@ -122,16 +121,16 @@ public class WeaponMechanics {
         }
 
         // Register all WorldGuard flags
-        IWorldGuardCompatibility guard = WorldGuardAPI.getWorldGuardCompatibility();
+        WorldGuardCompatibility guard = CompatibilityAPI.getWorldGuardCompatibility();
         if (guard.isInstalled()) {
             debug.info("Detected WorldGuard, registering flags");
-            guard.registerFlag("weapon-shoot", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-shoot-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
-            guard.registerFlag("weapon-explode", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-explode-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
-            guard.registerFlag("weapon-break-block", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-damage", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-damage-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-shoot", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-shoot-message", WorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-explode", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-explode-message", WorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-break-block", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-damage", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-damage-message", WorldGuardCompatibility.FlagType.STRING_FLAG);
         } else {
             debug.debug("No WorldGuard detected!");
         }

@@ -11,7 +11,7 @@ import java.util.Set;
  * This interface outlines an API to use different versions of
  * <a href="https://dev.bukkit.org/projects/worldguard">World Guard</a>.
  */
-public interface IWorldGuardCompatibility {
+public interface WorldGuardCompatibility {
 
     /**
      * Tests the state flag with the given <code>flagName</code>. This method

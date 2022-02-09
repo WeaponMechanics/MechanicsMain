@@ -2,8 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -195,7 +194,7 @@ public class Explosion implements Serializer<Explosion> {
     public void explode(LivingEntity cause, Location origin, WeaponProjectile projectile) {
 
         // Handle worldguard flags
-        IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
+        WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(cause);
         if (!worldGuard.testFlag(origin, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-explode")) {
             Object obj = worldGuard.getValue(origin, "weapon-explode-message");
@@ -318,7 +317,7 @@ public class Explosion implements Serializer<Explosion> {
             // Always use null for player. We could check if the projectile
             // shooter owns the region, but it is best to simply deny for all
             // players (Less confused people).
-            if (!WorldGuardAPI.getWorldGuardCompatibility().testFlag(block.getLocation(temp), null, "weapon-break-block"))
+            if (!CompatibilityAPI.getWorldGuardCompatibility().testFlag(block.getLocation(temp), null, "weapon-break-block"))
                 continue;
 
             // We need the BlockState for falling blocks. If we get the state

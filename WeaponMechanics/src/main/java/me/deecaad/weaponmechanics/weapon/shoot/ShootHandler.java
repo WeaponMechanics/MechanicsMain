@@ -1,8 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
 import co.aikar.timings.lib.MCTiming;
-import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
@@ -133,7 +133,7 @@ public class ShootHandler implements IValidator {
         boolean mainhand = slot == EquipmentSlot.HAND;
 
         // Handle worldguard flags
-        IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
+        WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
         Location loc = entityWrapper.getEntity().getLocation();
         if (!worldGuard.testFlag(loc, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-shoot")) {
             Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
