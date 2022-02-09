@@ -3,13 +3,13 @@ package me.deecaad.core.compatibility.entity;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_9_R2.*;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R2.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -21,16 +21,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.minecraft.server.v1_12_R1.PacketPlayOutEntity.PacketPlayOutEntityLook;
-import static net.minecraft.server.v1_12_R1.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
+import static net.minecraft.server.v1_9_R2.PacketPlayOutEntity.PacketPlayOutEntityLook;
+import static net.minecraft.server.v1_9_R2.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
 
-public class FakeEntity_1_12_R1 extends FakeEntity {
+public class FakeEntity_1_9_R2 extends FakeEntity {
 
     static {
-        if (ReflectionUtil.getMCVersion() != 12) {
+        if (ReflectionUtil.getMCVersion() != 9) {
             me.deecaad.core.MechanicsCore.debug.log(
                     LogLevel.ERROR,
-                    "Loaded " + FakeEntity_1_12_R1.class + " when not using Minecraft 12",
+                    "Loaded " + FakeEntity_1_9_R2.class + " when not using Minecraft 9",
                     new InternalError()
             );
         }
@@ -46,7 +46,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
     private IBlockData block;
     private ItemStack item;
 
-    public FakeEntity_1_12_R1(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
+    public FakeEntity_1_9_R2(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
         super(location, type);
         if (location.getWorld() == null)
             throw new IllegalArgumentException();
@@ -71,7 +71,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
                 case FALLING_BLOCK:
                     if (data.getClass() == Material.class) {
                         entity = new EntityFallingBlock(world.getHandle(), x, y, z,
-                                block = net.minecraft.server.v1_12_R1.Block.getByCombinedId(((Material) data).getId()));
+                                block = net.minecraft.server.v1_9_R2.Block.getByCombinedId(((Material) data).getId()));
                     } else {
                         WorldServer server = world.getHandle();
                         org.bukkit.block.BlockState state = (org.bukkit.block.BlockState) data;
@@ -123,7 +123,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
     @Override
     public void setGravity(boolean gravity) {
-        entity.setNoGravity(!gravity);
+        entity.c(!gravity);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
         // Needed for teleport packet.
         entity.setPosition(x, y, z);
-        entity.setHeadRotation(yaw);
+        entity.h(yaw);
         entity.yaw = yaw;
         entity.pitch = pitch;
     }
@@ -156,7 +156,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
         location.setYaw(yaw);
         location.setPitch(pitch);
-        entity.setHeadRotation(yaw);
+        entity.h(yaw);
         entity.yaw = yaw;
         entity.pitch = pitch;
 
@@ -271,7 +271,6 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
     @Override
     public void playEffect(EntityEffect effect) {
-        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
         sendPackets(new PacketPlayOutEntityStatus(entity, effect.getData()));
     }
 
@@ -322,7 +321,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
         for (EnumItemSlot slot : SLOTS) {
             ItemStack item = livingEntity.getEquipment(slot);
 
-            if (item != null && !item.isEmpty()) {
+            if (item != null && item.count != 0 && item.getItem() != null) {
                 temp.add(new PacketPlayOutEntityEquipment(cache, slot, item));
             }
         }

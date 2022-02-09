@@ -3,13 +3,13 @@ package me.deecaad.core.compatibility.entity;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_12_R1.*;
+import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -21,23 +21,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.minecraft.server.v1_12_R1.PacketPlayOutEntity.PacketPlayOutEntityLook;
-import static net.minecraft.server.v1_12_R1.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
+import static net.minecraft.server.v1_8_R3.PacketPlayOutEntity.PacketPlayOutEntityLook;
+import static net.minecraft.server.v1_8_R3.PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook;
 
-public class FakeEntity_1_12_R1 extends FakeEntity {
+public class FakeEntity_1_8_R3 extends FakeEntity {
 
     static {
-        if (ReflectionUtil.getMCVersion() != 12) {
+        if (ReflectionUtil.getMCVersion() != 8) {
             me.deecaad.core.MechanicsCore.debug.log(
                     LogLevel.ERROR,
-                    "Loaded " + FakeEntity_1_12_R1.class + " when not using Minecraft 12",
+                    "Loaded " + FakeEntity_1_8_R3.class + " when not using Minecraft 8",
                     new InternalError()
             );
         }
     }
-
-    // Store this since using Enum#values() is especially slow
-    public static final EnumItemSlot[] SLOTS = EnumItemSlot.values();
 
     private final Entity entity;
     private final List<PlayerConnection> connections; // store the player connection to avoid type cast
@@ -46,7 +43,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
     private IBlockData block;
     private ItemStack item;
 
-    public FakeEntity_1_12_R1(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
+    public FakeEntity_1_8_R3(@NotNull Location location, @NotNull EntityType type, @Nullable Object data) {
         super(location, type);
         if (location.getWorld() == null)
             throw new IllegalArgumentException();
@@ -71,12 +68,12 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
                 case FALLING_BLOCK:
                     if (data.getClass() == Material.class) {
                         entity = new EntityFallingBlock(world.getHandle(), x, y, z,
-                                block = net.minecraft.server.v1_12_R1.Block.getByCombinedId(((Material) data).getId()));
+                                block = net.minecraft.server.v1_8_R3.Block.getByCombinedId(((Material) data).getId()));
                     } else {
                         WorldServer server = world.getHandle();
                         org.bukkit.block.BlockState state = (org.bukkit.block.BlockState) data;
                         BlockPosition pos = new BlockPosition(state.getX(), state.getY(), state.getZ());
-                        block = server.c(pos).getBlock().getBlockData();
+                        block = server.c(pos).getBlockData();
                         entity = new EntityFallingBlock(world.getHandle(), x, y, z, block);
                     }
                     break;
@@ -98,12 +95,19 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
     @Override
     public boolean getMeta(int metaFlag) {
-        return entity.getFlag(metaFlag);
+        byte b = entity.getDataWatcher().getByte(0);
+       return (b & (1 << metaFlag)) > 0;
     }
 
     @Override
     public void setMeta(int metaFlag, boolean isEnabled) {
-        entity.setFlag(metaFlag, isEnabled);
+        byte b = entity.getDataWatcher().getByte(0);
+        if (isEnabled)
+            b |= (1 << metaFlag);
+        else
+            b &= ~(1 << metaFlag);
+
+        entity.getDataWatcher().watch(0, b);
     }
 
     @Override
@@ -123,7 +127,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
     @Override
     public void setGravity(boolean gravity) {
-        entity.setNoGravity(!gravity);
+        // todo Doesn't exist in 1.8? Armor stands have the option (meta index 10) but nothing else.
     }
 
     @Override
@@ -132,7 +136,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
         // Needed for teleport packet.
         entity.setPosition(x, y, z);
-        entity.setHeadRotation(yaw);
+        entity.f(yaw);
         entity.yaw = yaw;
         entity.pitch = pitch;
     }
@@ -156,7 +160,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
         location.setYaw(yaw);
         location.setPitch(pitch);
-        entity.setHeadRotation(yaw);
+        entity.f(yaw);
         entity.yaw = yaw;
         entity.pitch = pitch;
 
@@ -271,7 +275,6 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
 
     @Override
     public void playEffect(EntityEffect effect) {
-        if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
         sendPackets(new PacketPlayOutEntityStatus(entity, effect.getData()));
     }
 
@@ -280,32 +283,12 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
         if (!type.isAlive())
             throw new IllegalStateException("Cannot set equipment of " + type);
 
-        EnumItemSlot slot;
-        switch (equipmentSlot) {
-            case HAND:
-                slot = EnumItemSlot.MAINHAND;
-                break;
-            case OFF_HAND:
-                slot = EnumItemSlot.OFFHAND;
-                break;
-            case FEET:
-                slot = EnumItemSlot.FEET;
-                break;
-            case CHEST:
-                slot = EnumItemSlot.CHEST;
-                break;
-            case LEGS:
-                slot = EnumItemSlot.LEGS;
-                break;
-            case HEAD:
-                slot = EnumItemSlot.HEAD;
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
+        // TODO check if this is correct. NMS doesn't have an enum for equipment
+        // TODO slot, it is just magic numbers.
+        int slot = equipmentSlot.ordinal();
 
         EntityLiving livingEntity = (EntityLiving) entity;
-        livingEntity.setSlot(slot, CraftItemStack.asNMSCopy(itemStack));
+        livingEntity.setEquipment(slot, CraftItemStack.asNMSCopy(itemStack));
     }
 
     @Override
@@ -318,12 +301,12 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
         if (!type.isAlive()) return null;
         EntityLiving livingEntity = (EntityLiving) entity;
 
-        List<PacketPlayOutEntityEquipment> temp = new ArrayList<>(SLOTS.length);
-        for (EnumItemSlot slot : SLOTS) {
-            ItemStack item = livingEntity.getEquipment(slot);
+        List<PacketPlayOutEntityEquipment> temp = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            ItemStack item = livingEntity.getEquipment(i);
 
-            if (item != null && !item.isEmpty()) {
-                temp.add(new PacketPlayOutEntityEquipment(cache, slot, item));
+            if (item != null && item.count != 0 && item.getItem() != null) {
+                temp.add(new PacketPlayOutEntityEquipment(cache, i, item));
             }
         }
 

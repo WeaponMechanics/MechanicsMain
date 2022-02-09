@@ -47,17 +47,23 @@ public final class FileUtil {
      * this method will be called recursively until all subdirectories are
      * copied.
      *
-     * @throws InternalError            If this method fails for an unknown
-     *                                  reason.
-     * @throws IllegalArgumentException If the resource does not exist.
-     * @throws IllegalStateException    If this method is called from outside a
-     *                                  jar file.
+     * @param source The non-null resource folder that contains the files to
+     *               copy. No need to start this with a '/' character.
+     *               Depending on the .jar file, you may need to append
+     *               'resources/' before your resource. Use
+     *               {@link ClassLoader#getResource(String)}.
+     * @param target The non-null target file to write all the resource files
+     *               to. Use {@link File#toPath()}.
+     *
+     * @throws IOException If any kind of IO exception occurs.
+     * @throws URISyntaxException If the URL cannot be converted to a URI.
      */
     public static void copyResourcesTo(URL source, Path target) throws IOException, URISyntaxException {
         PathReference pathReference = PathReference.of(source.toURI());
 
         Files.walkFileTree(pathReference.getPath(), new SimpleFileVisitor<Path>() {
 
+            // "Visit" directories first so we can create the directory.
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 Path currentTarget = target.resolve(pathReference.getPath().relativize(dir).toString());
@@ -65,6 +71,7 @@ public final class FileUtil {
                 return FileVisitResult.CONTINUE;
             }
 
+            // "Visit" each file and copy the relative path
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.copy(file, target.resolve(pathReference.getPath().relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
