@@ -60,6 +60,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -199,8 +200,12 @@ public class WeaponMechanics {
 
         // Create files
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
-            debug.info("Copying files from jar (This process may take between 10 and 30 seconds during the first load!)");
-            FileUtil.copyResourcesTo(getClass(), getClassLoader(), "WeaponMechanics", getDataFolder());
+            debug.info("Copying files from jar (This process may take up to 30 seconds during the first load!)");
+            try {
+                FileUtil.copyResourcesTo(getClassLoader().getResource("WeaponMechanics"), getDataFolder().toPath());
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
 
         try {
