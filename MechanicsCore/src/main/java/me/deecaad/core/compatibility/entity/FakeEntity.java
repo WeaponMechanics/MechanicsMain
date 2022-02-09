@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.entity;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -271,10 +272,10 @@ public abstract class FakeEntity {
 
         double lengthSquared = raw ? 0.0 : square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
 
-        // When the change of position >8, then we cannot use the move-look
+        // When the change of position >8 (>4 in 1.8), then we cannot use the move-look
         // packet since it is limited by the size of a short. When we cannot
         // use move-look, we use a teleport packet instead.
-        if (raw || lengthSquared == 0.0 || lengthSquared > 64.0) {
+        if (raw || lengthSquared == 0.0 || (CompatibilityAPI.getVersion() < 1.09 ? lengthSquared > 16.0 : lengthSquared > 64.0)) {
             setLocation(x, y, z, yaw, pitch);
             setPositionRaw(x, y, z, yaw, pitch);
         } else {
@@ -287,6 +288,10 @@ public abstract class FakeEntity {
 
     // private since nobody should use this method
     private void setPositionRotation(double dx, double dy, double dz, float yaw, float pitch) {
+        if (CompatibilityAPI.getVersion() < 1.09) {
+            setPositionRotation(floor(dx * 32), floor(dy * 32), floor(dz * 32), convertYaw(yaw), convertPitch(pitch));
+            return;
+        }
         setPositionRotation((short) (dx * 4096), (short) (dy * 4096), (short) (dz * 4096), convertYaw(yaw), convertPitch(pitch));
     }
 
@@ -406,4 +411,9 @@ public abstract class FakeEntity {
      * should be used after any modifications to {@link #setEquipment(EquipmentSlot, ItemStack)}.
      */
     public abstract void updateEquipment();
+
+    private int floor(double toFloor) {
+        int flooredValue = (int) toFloor;
+        return toFloor < flooredValue ? flooredValue - 1 : flooredValue;
+    }
 }

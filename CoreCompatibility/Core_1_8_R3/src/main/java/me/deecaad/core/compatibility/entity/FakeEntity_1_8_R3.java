@@ -183,7 +183,7 @@ public class FakeEntity_1_8_R3 extends FakeEntity {
 
     @Override
     public void setPositionRotation(short dx, short dy, short dz, byte yaw, byte pitch) {
-        PacketPlayOutRelEntityMoveLook packet = new PacketPlayOutRelEntityMoveLook(cache, dx, dy, dz, yaw, pitch, false);
+        PacketPlayOutRelEntityMoveLook packet = new PacketPlayOutRelEntityMoveLook(cache, (byte) dx, (byte) dy, (byte) dz, yaw, pitch, false);
         PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(yaw));
 
         sendPackets(packet, head);
