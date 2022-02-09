@@ -2,6 +2,8 @@ package me.deecaad.core.compatibility.block;
 
 import org.bukkit.block.Block;
 
+import java.util.Objects;
+
 /**
  * In 1_16_R2 and higher, PacketPlayOutMultiBlockMask uses "subchunks" (16 x 16 x 16 area)
  * instead of chunks (16 x 256 x 16 area). This class defines that 16 x 16 x 16 area. Note
@@ -19,16 +21,17 @@ class SubChunk {
         this.z = z;
     }
 
-    int getX() {
-        return x;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SubChunk subChunk = (SubChunk) o;
+        return x == subChunk.x && y == subChunk.y && z == subChunk.z;
     }
 
-    int getY() {
-        return y;
-    }
-
-    int getZ() {
-        return z;
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
     }
 
     static SubChunk byBlock(Block block) {
