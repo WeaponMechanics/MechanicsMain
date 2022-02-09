@@ -1,4 +1,13 @@
-# Weapon Mechanics [![Discord](https://img.shields.io/discord/306158221473742848.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://google.com)
+<div align="center">
+  
+# Weapon Mechanics 
+  [![Discord](https://img.shields.io/discord/306158221473742848.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/ERVgpfg)
+  [![Download](https://img.shields.io/github/downloads/WeaponMechanics/MechanicsMain/total?color=green)](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
+  [![Version](https://img.shields.io/github/v/release/WeaponMechanics/MechanicsMain?include_prereleases&label=version)](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
+  [![Wiki](https://img.shields.io/badge/-wiki%20-blueviolet)](https://github.com/WeaponMechanics/MechanicsMain/wiki)
+  [![License](https://img.shields.io/github/license/WeaponMechanics/MechanicsMain)](https://github.com/WeaponMechanics/MechanicsMain/blob/master/LICENSE)
+</div>
+
 
 High performance, fully featured gun plugin for newer Minecraft versions.
 
@@ -7,7 +16,6 @@ High performance, fully featured gun plugin for newer Minecraft versions.
 * [Download](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
 * [Getting Support](https://discord.gg/ERVgpfg)
 * [Bug Report](https://github.com/WeaponMechanics/MechanicsMain/issues/new/choose)
-* [Donate](#Donate)
 
 ## How to (Server Owners)
 See the [Getting Started](https://github.com/WeaponMechanics/MechanicsMain/wiki#getting-started) section on the wiki.
@@ -16,9 +24,9 @@ See the [Getting Started](https://github.com/WeaponMechanics/MechanicsMain/wiki#
 See [Hooking into WeaponMechanics](https://github.com/WeaponMechanics/MechanicsMain/wiki/API) page on the wiki.  
 
 ## Donate
-WeaponMechanics is a free to use software, and the combination of hundreds
-of hours of work. If you like WeaponMechanics and want to see new features,
-please consider donating.
+WeaponMechanics is the combination of a team of people working for hundreds of hours. If
+you like the project and want to see it continued, please consider donating. Otherwise, we
+always appreciate positive reviews.
 
 * Donate Link 1
 
