@@ -349,9 +349,9 @@ public class SerializeData {
 
         public String getLocation(int index) {
             if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key, index);
+                return StringUtil.foundAt(file, key, index + 1);
             } else {
-                return StringUtil.foundAt(file, key + "." + relative, index);
+                return StringUtil.foundAt(file, key + "." + relative, index + 1);
             }
         }
 
