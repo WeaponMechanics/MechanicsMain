@@ -36,7 +36,7 @@ Flashbang:
     Consume_Item_On_Shoot: true
     Mechanics:
       Sounds:
-        - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
+        - "ENTITY_EGG_THROW-0.5-1-0-0.1"
   Explosion:
     Disable_Vanilla_Knockback: true
     Explosion_Exposure: "DEFAULT"
