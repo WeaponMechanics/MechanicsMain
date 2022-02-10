@@ -5,6 +5,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,5 +91,20 @@ class StringUtilTest {
     @MethodSource("provide_split")
     void test_split(String input, String[] expected) {
         assertArrayEquals(expected, StringUtil.split(input));
+    }
+
+    private static Stream<Arguments> provide_didYouMean() {
+        return Stream.of(
+                Arguments.of("endermen", Arrays.asList("cat", "dog", "enderman", "endermite", "ender", "man"), "enderman"),
+                Arguments.of("dirt", Arrays.asList("dirt", "dirty", "dirts", "trid", "treat", "cat", "dog"), "dirt"),
+                Arguments.of("block_sand_break", Arrays.asList("sand_break", "block_snad_break", "sand", "block", "cat"), "block_snad_break")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provide_didYouMean")
+    void test_didYouMean(String input, List<String> options, String expected) {
+        String actual = StringUtil.didYouMean(input, options);
+        assertEquals(expected, actual);
     }
 }
