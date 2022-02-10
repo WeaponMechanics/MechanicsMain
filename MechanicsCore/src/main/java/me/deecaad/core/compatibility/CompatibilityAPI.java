@@ -16,7 +16,7 @@ public final class CompatibilityAPI {
     private static final double version;
     private static final ICompatibility compatibility;
     private static final WorldGuardCompatibility worldGuardCompatibility;
-    private static final IVaultCompatibility vaultCompatibility;
+    private static IVaultCompatibility vaultCompatibility;
     private static final boolean isPaper;
 
     static {
@@ -54,11 +54,6 @@ public final class CompatibilityAPI {
             worldGuardCompatibility1 = new NoWorldGuard();
         }
         worldGuardCompatibility = worldGuardCompatibility1;
-
-        // * ----- Vault ----- * //
-        boolean hasVault = Bukkit.getPluginManager().getPlugin("Vault") != null;
-        String path = "me.deecaad.core.compatibility.vault." + (hasVault ? "VaultCompatibility" : "NoVaultCompatibility");
-        vaultCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getClass(path));
     }
 
     /**
@@ -101,6 +96,12 @@ public final class CompatibilityAPI {
     }
 
     public static IVaultCompatibility getVaultCompatibility() {
+        if (vaultCompatibility == null) {
+            // * ----- Vault ----- * //
+            boolean hasVault = Bukkit.getPluginManager().getPlugin("Vault") != null;
+            String path = "me.deecaad.core.compatibility.vault." + (hasVault ? "VaultCompatibility" : "NoVaultCompatibility");
+            vaultCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getClass(path));
+        }
         return vaultCompatibility;
     }
 }
