@@ -57,7 +57,7 @@ public final class CompatibilityAPI {
 
         // * ----- Vault ----- * //
         boolean hasVault = Bukkit.getPluginManager().getPlugin("Vault") != null;
-        String path = "me.deecaad.compatibility.vault." + (hasVault ? "VaultCompatibility" : "NoVaultCompatibility");
+        String path = "me.deecaad.core.compatibility.vault." + (hasVault ? "VaultCompatibility" : "NoVaultCompatibility");
         vaultCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getClass(path));
     }
 
