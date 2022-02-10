@@ -347,12 +347,12 @@ public class WeaponMechanics {
 
             debug.debug("Checking for updates");
             try {
-                Integer.parseInt("%%__RESOURCE__%%");
+                //Integer.parseInt("%%__RESOURCE__%%");
 
                 int majorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Major", 1);
                 int minorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Minor", 3);
                 int patchesBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Patch", 1);
-                SpigotResource spigotResource = new SpigotResource(getPlugin(), "%%__RESOURCE__%%");
+                SpigotResource spigotResource = new SpigotResource(getPlugin(), "99913");
                 updateChecker = new UpdateChecker(spigotResource, majorsBehind, minorsBehind, patchesBehind);
             } catch (NumberFormatException e) {
                 // %%__RESOURCE__%% is converted to resource ID on download (only in premium resources)
