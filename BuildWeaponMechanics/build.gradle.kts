@@ -76,4 +76,4 @@ tasks.named("assemble").configure {
 }
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.0.0-BETA"
+version = "1.0.1-BETA"
