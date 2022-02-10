@@ -160,21 +160,24 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         if (bossBarData != null) {
             String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle());
 
+            BarColor color = (BarColor) bossBarData.barColor;
+            BarStyle style = (BarStyle) bossBarData.barStyle;
+
             if (isWeaponInfoCast) {
 
                 // This is here to only use ONE boss bar for weapon info displaying
                 BossBar bossBar = messageHelper.getCurrentInfoBossBar();
                 if (bossBar == null) {
                     // Not found, create new one
-                    bossBar = Bukkit.createBossBar(bossBarMessage, bossBarData.barColor, bossBarData.barStyle);
+                    bossBar = Bukkit.createBossBar(bossBarMessage, color, style);
                     bossBar.addPlayer(player);
                     messageHelper.setCurrentInfoBossBar(bossBar);
                 } else {
                     // Found, cancel last one's cancel task and set new title and other things
                     Bukkit.getScheduler().cancelTask(messageHelper.getCurrentInfoBossBarTask());
                     bossBar.setTitle(bossBarMessage);
-                    bossBar.setColor(bossBarData.barColor);
-                    bossBar.setStyle(bossBarData.barStyle);
+                    bossBar.setColor(color);
+                    bossBar.setStyle(style);
                 }
                 // Update the cancel task id
                 messageHelper.setCurrentInfoBossBarTask(new BukkitRunnable() {
@@ -188,7 +191,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                     }
                 }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), bossBarData.time).getTaskId());
             } else {
-                BossBar bossBar = Bukkit.createBossBar(bossBarMessage, bossBarData.barColor, bossBarData.barStyle);
+                BossBar bossBar = Bukkit.createBossBar(bossBarMessage, color, style);
 
                 bossBar.addPlayer(player);
                 new BukkitRunnable() {
@@ -338,11 +341,11 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     private static class BossBarData {
 
         public String title;
-        public BarColor barColor;
-        public BarStyle barStyle;
+        public Object barColor;
+        public Object barStyle;
         public int time;
 
-        public BossBarData(String title, BarColor barColor, BarStyle barStyle, int time) {
+        public BossBarData(String title, Object barColor, Object barStyle, int time) {
             this.title = title;
             this.barColor = barColor == null ? BarColor.WHITE : barColor;
             this.barStyle = barStyle == null ? BarStyle.SOLID : barStyle;
