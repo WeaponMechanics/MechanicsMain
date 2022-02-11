@@ -91,7 +91,7 @@ public class CrackShotConverter {
 
         // SNEAK
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
-        SNEAK_BULLET_SPREAD("Sneak.Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Sneaking", new ValueDoubleConvert(x -> -(x / 2 * 10))),
+        SNEAK_BULLET_SPREAD("Sneak.Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Sneaking", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         SNEAK_BEFORE_SHOOTING("Shooting.Sneak_Before_Shooting", "Shoot.Only_Shoot_While_Scoped"),
 
         // FULLY_AUTOMATIC
@@ -157,7 +157,7 @@ public class CrackShotConverter {
         NIGHT_VISION("Scope.Night_Vision", "Scope.Night_Vision"),
         ZOOM_AMOUNT("Scope.Zoom_Amount", "Scope.Zoom_Amount", new ValueDoubleConvert(x -> (double) ((int) NumberUtil.lerp(1, 32, ((x > 6 ? 6 : x) / 6))))),
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
-        SCOPE_BULLET_SPREAD("Scope.Zoom_Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Zooming", new ValueDoubleConvert(x -> -(x / 2 * 10))),
+        SCOPE_BULLET_SPREAD("Scope.Zoom_Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Zooming", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics.Sounds", new SoundConvert()),
 
         // HIT_EVENTS
