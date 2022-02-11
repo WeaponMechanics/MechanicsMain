@@ -46,9 +46,9 @@ public abstract class AUpdateChecker implements Listener {
      * @return whether there is update available
      */
     public boolean hasUpdate() {
-        return this.requiredMajorVersionsBehind >= spigotResource.getMajorVersionsBehind()
-                || this.requiredMinorVersionsBehind >= spigotResource.getMinorVersionsBehind()
-                || this.requiredPatchVersionsBehind >= spigotResource.getPatchVersionsBehind();
+        return this.requiredMajorVersionsBehind <= spigotResource.getMajorVersionsBehind()
+                || this.requiredMinorVersionsBehind <= spigotResource.getMinorVersionsBehind()
+                || this.requiredPatchVersionsBehind <= spigotResource.getPatchVersionsBehind();
     }
 
     /**

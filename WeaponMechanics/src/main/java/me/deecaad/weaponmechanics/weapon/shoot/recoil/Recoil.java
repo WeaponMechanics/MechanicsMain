@@ -19,7 +19,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
 
 public class Recoil implements Serializer<Recoil> {
 
-    public static long MILLIS_BETWEEN_ROTATIONS = 5;
+    public static long MILLIS_BETWEEN_ROTATIONS = 20;
     private static final Timer TIMER = new Timer();
     private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
