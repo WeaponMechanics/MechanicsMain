@@ -27,6 +27,7 @@ Airstrike:
           Default_Speed_Multiplier: 0.9
           List:
             - "$_ICE-0.99"
+            - "ICE-0.99"
     Mechanics:
       Sounds:
         - "ENTITY_WOLF_HOWL-6-2-100"

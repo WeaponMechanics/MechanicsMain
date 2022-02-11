@@ -25,6 +25,7 @@ Grenade:
           Default_Speed_Multiplier: 0.9
           List:
             - "$_ICE-0.99"
+            - "ICE-0.99"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
