@@ -77,14 +77,14 @@ public class CrackShotConverter {
 
         // SHOOTING
         RIGHT_CLICK_TO_SHOOT("Shooting.Right_Click_To_Shoot", "Shoot.Trigger.Main_Hand", new ValueBooleanConvert("right_click", "left_click")),
-        DELAY_BETWEEN_SHOTS("Shooting.Delay_Between_Shots", "Shoot.Delay_Between_Shots"),
+        DELAY_BETWEEN_SHOTS("Shooting.Delay_Between_Shots", "Shoot.Delay_Between_Shots", new ValueNonZeroConvert()),
         RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
-        PROJECTILE_AMOUNT("Shooting.Projectile_Amount", "Shoot.Projectiles_Per_Shot"),
+        PROJECTILE_AMOUNT("Shooting.Projectile_Amount", "Shoot.Projectiles_Per_Shot", new ValueNonZeroConvert()),
         PROJECTILE_TYPE("Shooting.", "Projectile.", new ProjectileTypeConvert()),
         REMOVE_BULLET_DROP("Shooting.Remove_Bullet_Drop", "Projectile.Projectile_Settings.Gravity", new ValueBooleanConvert(0.0, null)),
         PROJECTILE_SPEED("Shooting.Projectile_Speed", "Shoot.Projectile_Speed", new ValueDoubleConvert(x -> x * 2)),
-        PROJECTILE_DAMAGE("Shooting.Projectile_Damage", "Damage.Base_Damage"),
-        PROJECTILE_INCENDIARY("Shooting.Projectile_Incendiary.Duration", "Damage.Fire_Ticks"),
+        PROJECTILE_DAMAGE("Shooting.Projectile_Damage", "Damage.Base_Damage", new ValueNonZeroConvert()),
+        PROJECTILE_INCENDIARY("Shooting.Projectile_Incendiary.Duration", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         BULLET_SPREAD("Shooting.Bullet_Spread", "Shoot.Spread.Base_Spread", new ValueDoubleConvert(x -> x * 10)),
         SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics.Sounds", new SoundConvert()),
         SOUNDS_SHOOT("Shooting.Sounds_Shoot", "Shoot.Mechanics.Sounds", new SoundConvert()),
@@ -98,8 +98,8 @@ public class CrackShotConverter {
         FIRE_RATE("Fully_Automatic.Fire_Rate", "Shoot.Fully_Automatic_Shots_Per_Second", new ValueDoubleConvert(x -> (x * 60 + 240) / 60)),
 
         // BURSTFIRE
-        SHOTS_PER_BURST("Burstfire.Shots_Per_Burst", "Shoot.Burst.Shots_Per_Burst"),
-        DELAY_BETWEEN_SHOTS_IN_BURST("Burstfire.Delay_Between_Shots_In_Burst", "Shoot.Burst.Ticks_Between_Each_Shot"),
+        SHOTS_PER_BURST("Burstfire.Shots_Per_Burst", "Shoot.Burst.Shots_Per_Burst", new ValueNonZeroConvert()),
+        DELAY_BETWEEN_SHOTS_IN_BURST("Burstfire.Delay_Between_Shots_In_Burst", "Shoot.Burst.Ticks_Between_Each_Shot", new ValueNonZeroConvert()),
 
         // AMMO
         AMMO("Ammo.", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo", new AmmoConverter()),
@@ -111,15 +111,15 @@ public class CrackShotConverter {
         // RELOAD
         RELOAD_TRIGGER("Reload.Enable", "Reload.Trigger.Main_Hand", new ValueBooleanConvert("drop_item", null)),
         DROP_ITEM_DENY("Reload.Enable", "Info.Cancel.Drop_Item", new ValueBooleanConvert(true, null)),
-        RELOAD_AMOUNT("Reload.Reload_Amount", "Reload.Magazine_Size"),
+        RELOAD_AMOUNT("Reload.Reload_Amount", "Reload.Magazine_Size", new ValueNonZeroConvert()),
         RELOAD_BULLET_INDIVIDUALLY("Reload.Reload_Bullets_Individually", "Reload.Ammo_Per_Reload", new ValueBooleanConvert(1, null)),
-        RELOAD_DURATION("Reload.Reload_Duration", "Reload.Reload_Duration"),
+        RELOAD_DURATION("Reload.Reload_Duration", "Reload.Reload_Duration", new ValueNonZeroConvert()),
         SOUNDS_RELOADING("Reload.Sounds_Reloading", "Reload.Start_Mechanics.Sounds", new SoundConvert()),
 
         // FIREARM_ACTION
         FIREARM_ACTION_TYPE("Firearm_Action.Type", "Firearm_Action.Type", new FirearmActionConvert()),
-        OPEN_DURATION("Firearm_Action.Open_Duration", "Firearm_Action.Open.Time"),
-        CLOSE_DURATION("Firearm_Action.Close_Duration", "Firearm_Action.Close.Time"),
+        OPEN_DURATION("Firearm_Action.Open_Duration", "Firearm_Action.Open.Time", new ValueNonZeroConvert()),
+        CLOSE_DURATION("Firearm_Action.Close_Duration", "Firearm_Action.Close.Time", new ValueNonZeroConvert()),
         SOUND_OPEN("Firearm_Action.Sound_Open", "Firearm_Action.Open.Mechanics.Sounds", new SoundConvert()),
         SOUND_CLOSE("Firearm_Action.Sound_Close", "Firearm_Action.Close.Mechanics.Sounds", new SoundConvert()),
 
@@ -168,7 +168,7 @@ public class CrackShotConverter {
 
         // CRITICAL_HITS
         CRIT_BONUS_DAMAGE("Critical_Hits.Bonus_Damage", "Damage.Critical_Hit.Bonus_Damage"),
-        CHANCE("Critical_Hits.Chance", "Damage.Critical_Hit.Chance"),
+        CHANCE("Critical_Hits.Chance", "Damage.Critical_Hit.Chance", new ValueNonZeroConvert()),
         CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Message.Chat.Message"),
         CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Victim_Mechanics.Message.Chat.Message"),
         CRIT_SOUNDS_SHOOTER("Critical_Hits.Sounds_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Sounds", new SoundConvert()),
@@ -179,27 +179,27 @@ public class CrackShotConverter {
         AREA("Airstrikes.Area", "Explosion.Airstrike.Maximum_Distance_From_Center", new ValueDoubleConvert(x -> x * x * 2)),
         MINIMUM_BOMBS("Airstrikes.Area", "Explosion.Airstrike.Minimum_Bombs", new ValueDoubleConvert(x -> x * 2)),
         MAXIMUM_BOMBS("Airstrikes.Area", "Explosion.Airstrike.Maximum_Bombs", new ValueDoubleConvert(x -> x * 2)),
-        DISTANCE_BETWEEN_BOMBS("Airstrikes.Distance_Between_Bombs", "Explosion.Airstrike.Distance_Between_Bombs"),
-        HEIGHT_DROPPED("Airstrikes.Height_Dropped", "Explosion.Airstrike.Height"),
-        VERTICAL_VARIATION("Airstrikes.Vertical_Variation", "Explosion.Airstrike.Vertical_Randomness"),
-        NUMBER_OF_STRIKES("Airstrikes.Multiple_Strikes.Number_Of_Strikes", "Explosion.Airstrike.Layers"),
-        DELAY_BETWEEN_STRIKES("Airstrikes.Multiple_Strikes.Delay_Between_Strikes", "Explosion.Airstrike.Delay_Between_Layers"),
+        DISTANCE_BETWEEN_BOMBS("Airstrikes.Distance_Between_Bombs", "Explosion.Airstrike.Distance_Between_Bombs", new ValueNonZeroConvert()),
+        HEIGHT_DROPPED("Airstrikes.Height_Dropped", "Explosion.Airstrike.Height", new ValueNonZeroConvert()),
+        VERTICAL_VARIATION("Airstrikes.Vertical_Variation", "Explosion.Airstrike.Vertical_Randomness", new ValueNonZeroConvert()),
+        NUMBER_OF_STRIKES("Airstrikes.Multiple_Strikes.Number_Of_Strikes", "Explosion.Airstrike.Layers", new ValueNonZeroConvert()),
+        DELAY_BETWEEN_STRIKES("Airstrikes.Multiple_Strikes.Delay_Between_Strikes", "Explosion.Airstrike.Delay_Between_Layers", new ValueNonZeroConvert()),
 
         // CLUSTER_BOMBS
         CLUSTER_BOMB("Cluster_Bombs.", "Explosion.", new ClusterBombConverter()),
-        NUMBER_OF_SPLITS("Cluster_Bombs.Number_Of_Splits", "Explosion.Cluster_Bomb.Number_Of_Splits"),
-        NUMBER_OF_BOMBLETS("Cluster_Bombs.Number_Of_Bomblets", "Explosion.Cluster_Bomb.Number_Of_Bombs"),
+        NUMBER_OF_SPLITS("Cluster_Bombs.Number_Of_Splits", "Explosion.Cluster_Bomb.Number_Of_Splits", new ValueNonZeroConvert()),
+        NUMBER_OF_BOMBLETS("Cluster_Bombs.Number_Of_Bomblets", "Explosion.Cluster_Bomb.Number_Of_Bombs", new ValueNonZeroConvert()),
         SPEED_OF_BOMBLETS("Cluster_Bombs.Speed_Of_Bomblets", "Explosion.Cluster_Bomb.Projectile_Speed", new ValueDoubleConvert(x -> x * 2)),
 
         // EXPLOSIONS
         EXPLOSIONS("Explosions.", "Explosion.", new ExplosionConverter()),
-        IGNITE_VICTIMS("Explosions.Ignite_Victims", "Damage.Fire_Ticks"),
+        IGNITE_VICTIMS("Explosions.Ignite_Victims", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         ENABLE_FRIENDLY_FIRE("Explosions.Enable_Friendly_Fire", "Damage.Enable_Friendly_Fire"),
         ENABLE_OWNER_IMMUNITY("Explosions.Enable_Owner_Immunity", "Damage.Enable_Owner_Immunity"),
         EXPLOSION_NO_DAMAGE("Explosions.Explosion_No_Damage", "Damage.Base_Explosion_Damage", new ValueBooleanConvert(0, null)),
         EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Victim_Mechanics.Potion_Effects", new PotionEffectConvert()),
-        EXPLOSION_RADIUS("Explosions.Explosion_Radius", "Explosion.Explosion_Type_Data.Yield"),
-        EXPLOSION_DELAY("Explosions.Explosion_Delay", "Explosion.Detonation.Delay_After_Impact"),
+        EXPLOSION_RADIUS("Explosions.Explosion_Radius", "Explosion.Explosion_Type_Data.Yield", new ValueNonZeroConvert()),
+        EXPLOSION_DELAY("Explosions.Explosion_Delay", "Explosion.Detonation.Delay_After_Impact", new ValueNonZeroConvert()),
         EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat.Message"),
         EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Victim_Mechanics.Message.Chat.Message"),
         EXP_SOUNDS_SHOOTER("Explosions.Sounds_Shooter", "Damage.Shooter_Mechanics.Sounds", new SoundConvert()),
@@ -246,6 +246,27 @@ public class CrackShotConverter {
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             Object value = fromConfig.get(from);
             if (value == null) return;
+
+            toConfig.set(to, value);
+        }
+    }
+
+    private static class ValueNonZeroConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            Object value = fromConfig.get(from);
+            if (value == null) return;
+
+            if (value instanceof Number) {
+                double dvalue = ((Number) value).doubleValue();
+                if (dvalue < 1) {
+                    toConfig.set(to, 1);
+                } else {
+                    toConfig.set(to, value);
+                }
+                return;
+            }
 
             toConfig.set(to, value);
         }
