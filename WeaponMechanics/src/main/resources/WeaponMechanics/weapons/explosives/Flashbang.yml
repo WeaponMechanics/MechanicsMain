@@ -19,12 +19,13 @@ Flashbang:
         Allow_Any: true
         Default_Speed_Multiplier: 0.6
       Rolling:
-        Required_Motion_To_Start_Rolling: 3
+        Required_Motion_To_Start_Rolling: 6
         Blocks:
           Allow_Any: true
           Default_Speed_Multiplier: 0.9
           List:
             - "$_ICE-0.99"
+            - "ICE-0.99"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"

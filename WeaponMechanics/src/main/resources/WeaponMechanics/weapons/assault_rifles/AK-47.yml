@@ -40,7 +40,6 @@ AK-47:
         In_Midair: 150%
     Recoil:
       Push_Time: 200
-      Recover_Time: 200
       Horizontal:
         - 3.2
         - -3.2
