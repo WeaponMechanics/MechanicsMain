@@ -105,6 +105,18 @@ public class SerializeData {
     }
 
     /**
+     * Returns <code>true</code> if the given relative config key exists.
+     * Otherwise, this method will return false. Usually, you should use
+     * {@link ConfigAccessor#assertExists()}.
+     *
+     * @param relative The non-null relative key.
+     * @return <code>true</code> if the key exists.
+     */
+    public boolean has(String relative) {
+        return config.contains(key + "." + relative);
+    }
+
+    /**
      * When there is no method in {@link ConfigAccessor} to match a specific
      * configuration error, you may check for it manually and use this method
      * to throw a "general" exception.
