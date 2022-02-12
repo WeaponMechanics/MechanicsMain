@@ -1,6 +1,6 @@
 name: Feature Request
 description: If you have features request, post it here
-labels: [ needs triage ]
+labels: [ enhancement ]
 body:
 
   - type: textarea
