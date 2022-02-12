@@ -97,8 +97,10 @@ public class SpigotResource {
     private int getVersionsBehind(int index) {
         if (remoteVersion == null) return 0;
 
-        // Splits first with whitespaces just in case if version is something like "1.33.753 BETA"
-        int local = Integer.parseInt(plugin.getDescription().getVersion().split(" ")[0].split("\\.")[index]);
+        // Works for versions like "v1.33.753-BETA"
+        // -> 1, 33, 753
+        // Lazy implementation for splits (can be changed to regex, but performance isn't priority here)
+        int local = Integer.parseInt(plugin.getDescription().getVersion().replaceFirst("v", "").split(" ")[0].split("-")[0].split("\\.")[index]);
         int remote = Integer.parseInt(remoteVersion.split(" ")[0].split("\\.")[index]);
 
         int behind = remote - local;

@@ -36,7 +36,7 @@ Semtex:
     Consume_Item_On_Shoot: true
     Mechanics:
       Sounds:
-        - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
+        - "ENTITY_EGG_THROW-0.5-1-0-0.1"
   Damage:
     Base_Explosion_Damage: 19
     Fire_Ticks: 60

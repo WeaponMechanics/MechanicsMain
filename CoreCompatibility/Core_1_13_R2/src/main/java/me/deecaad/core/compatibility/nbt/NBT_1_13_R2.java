@@ -131,6 +131,6 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     private NamespacedKey getKey(String key) {
-        return new NamespacedKey(MechanicsCore.getPlugin(), "MechanicsCore:" + key);
+        return new NamespacedKey(MechanicsCore.getPlugin(), key);
     }
 }

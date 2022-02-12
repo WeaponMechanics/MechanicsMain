@@ -33,6 +33,7 @@ public final class ReflectionUtil {
     private static final String ERR = "This is probably caused by your minecraft server version. Contact a DEV for more help.";
 
     static {
+        int javaVersion1;
 
         // Occurs when run without a server (e.x. In intellij)
         //noinspection ConstantConditions
@@ -47,20 +48,22 @@ public final class ReflectionUtil {
         nmsVersion = "net.minecraft.server." + versionString + '.';
         cbVersion = "org.bukkit.craftbukkit." + versionString + '.';
 
-        int temp;
         try {
-            String jvm = System.getProperty("java.version");
-            if (jvm.startsWith("1.")) {
-                temp = Integer.parseInt(jvm.substring(2, 3));
+            String version = System.getProperty("java.version");
+            if(version.startsWith("1.")) {
+                version = version.substring(2, 3);
             } else {
-                temp = Integer.parseInt(jvm.substring(0, jvm.indexOf(".")));
+                int dot = version.indexOf(".");
+                if(dot != -1)
+                    version = version.substring(0, dot);
             }
+
+            javaVersion1 =  Integer.parseInt(version);
         } catch (Throwable throwable) {
-            temp = -1;
+            javaVersion1 = -1;
             throwable.printStackTrace();
         }
-
-        javaVersion = temp;
+        javaVersion = javaVersion1;
 
         if (javaVersion < 12) {
             modifiersField = getField(Field.class, "modifiers");

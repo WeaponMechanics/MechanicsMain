@@ -17,6 +17,7 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
+import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.LayerDistanceSorter;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
@@ -211,15 +212,24 @@ public class Explosion implements Serializer<Explosion> {
             return;
         }
 
-        // This event is not cancellable. If developers want to cancel
-        // explosions, they should use ProjectilePreExplodeEvent
-        ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, shape.getBlocks(origin),
-                new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
-
-        if (projectile != null)
+        List<Block> blocks;
+        BlockRegenSorter sorter;
+        DoubleMap<LivingEntity> entities;
+        if (projectile != null) {
+            // This event is not cancellable. If developers want to cancel
+            // explosions, they should use ProjectilePreExplodeEvent
+            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, shape.getBlocks(origin),
+                    new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
             Bukkit.getPluginManager().callEvent(event);
+            blocks = event.getBlocks();
+            sorter = event.getSorter();
+            entities = event.getEntities();
+        } else {
+            blocks = shape.getBlocks(origin);
+            sorter = new LayerDistanceSorter(origin, this);
+            entities = exposure.mapExposures(origin, shape);
+        }
 
-        List<Block> blocks = event.getBlocks();
         int initialCapacity = Math.max(blocks.size(), 10);
         List<Block> transparent = new ArrayList<>(initialCapacity);
         List<Block> solid = new ArrayList<>(initialCapacity);
@@ -228,10 +238,11 @@ public class Explosion implements Serializer<Explosion> {
         // reliable). In the future, this may also be used to filter out
         // redstone contraptions.
         for (Block block : blocks) {
-            if (block.getType().isSolid())
+            if (block.getType().isSolid()) {
                 solid.add(block);
-            else if (!block.isEmpty())
+            } else if (!block.isEmpty()) {
                 transparent.add(block);
+            }
         }
 
         // Sorting the blocks is crucial to making block regeneration look
@@ -240,14 +251,14 @@ public class Explosion implements Serializer<Explosion> {
         // the sorting stage will be skipped, but this will cause blocks to
         // regenerate in a random order.
         try {
-            if (event.getSorter() == null) {
+            if (sorter == null) {
                 debug.debug("Null sorter used while regenerating explosion... Was this intentional?");
             } else {
-                solid.sort(event.getSorter());
+                solid.sort(sorter);
             }
         } catch (IllegalArgumentException e) {
             debug.log(LogLevel.ERROR, "A plugin modified the explosion block sorter with an illegal sorter! " +
-                    "Please report this error to the developers of that plugin. Sorter: " + event.getSorter().getClass(), e);
+                    "Please report this error to the developers of that plugin. Sorter: " + sorter.getClass(), e);
         }
 
         // When blockDamage is null, we should not attempt to damage blocks or
@@ -259,7 +270,6 @@ public class Explosion implements Serializer<Explosion> {
             damageBlocks(solid, false, origin, 0);
         }
 
-        DoubleMap<LivingEntity> entities = event.getEntities();
         if (projectile != null && projectile.getWeaponTitle() != null) {
             WeaponMechanics.getWeaponHandler().getDamageHandler().tryUseExplosion(projectile, origin, entities);
 

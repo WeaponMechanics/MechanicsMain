@@ -50,7 +50,7 @@ public abstract class AProjectile {
      * @see ProjectileScript
      * @see ProjectilesRunnable
      */
-    public List<ProjectileScript<?>> scripts;
+    private List<ProjectileScript<?>> scripts;
 
     protected AProjectile(Location location, Vector motion) {
         this(null, location, motion);
@@ -63,7 +63,7 @@ public abstract class AProjectile {
         this.lastLocation = this.location.clone();
         this.motion = motion;
         this.motionLength = motion.length();
-        this.scripts = new LinkedList<>();
+        this.scripts = new LinkedList<>(); //dynamic, O(1) resize
         onStart();
     }
 
@@ -313,6 +313,10 @@ public abstract class AProjectile {
      */
     public boolean isDead() {
         return dead;
+    }
+
+    public void addProjectileScript(ProjectileScript<?> script) {
+        scripts.add(script);
     }
 
     /**

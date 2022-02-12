@@ -347,7 +347,14 @@ public abstract class PacketListener {
 
         if (interceptor == null) {
             interceptor = new PacketInterceptor();
-            channel.pipeline().addBefore("packet_handler", handlerName, interceptor);
+
+            // TODO need to investigate a rare NoSuchElementException for "packet_handler"
+            try {
+                channel.pipeline().addBefore("packet_handler", handlerName, interceptor);
+            } catch (Throwable e) {
+                debug.log(LogLevel.ERROR, "An error occurred whilst injecting: " + channel, e);
+                debug.log(LogLevel.ERROR, "Pipeline: " + channel.pipeline());
+            }
         }
 
         return interceptor;

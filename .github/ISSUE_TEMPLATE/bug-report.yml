@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report any errors or bugs or other behavior related issues here.
-labels: [ needs triage ]
+labels: [ bug ]
 body:
   - type: checkboxes
     attributes:

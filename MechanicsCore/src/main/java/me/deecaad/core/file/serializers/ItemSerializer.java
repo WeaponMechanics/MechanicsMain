@@ -215,6 +215,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     .assertExists().assertList().get();
 
             FireworkMeta meta = (FireworkMeta) itemMeta;
+            meta.setPower(data.of("Firework.Power").assertPositive().getInt(1));
             for (String[] split : list) {
 
                 FireworkEffect.Builder builder = FireworkEffect.builder();
@@ -236,6 +237,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // Add the newly constructed firework effect to the list.
                 meta.addEffect(builder.build());
             }
+            itemStack.setItemMeta(meta);
         }
 
         if (data.of("Deny_Use_In_Crafting").getBool(false)) {

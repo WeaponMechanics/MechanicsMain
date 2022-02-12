@@ -14,7 +14,6 @@ dependencies {
     implementation(project(":WeaponMechanics"))
     implementation(project(":WeaponCompatibility"))
 
-    implementation(project(":Weapon_1_8_R3" ))
     implementation(project(":Weapon_1_9_R2" ))
     implementation(project(":Weapon_1_10_R1"))
     implementation(project(":Weapon_1_11_R1"))
@@ -53,7 +52,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":WeaponMechanics"))
         include(project(":WeaponCompatibility"))
 
-        include(project(":Weapon_1_8_R3" ))
         include(project(":Weapon_1_9_R2" ))
         include(project(":Weapon_1_10_R1"))
         include(project(":Weapon_1_11_R1"))
@@ -76,4 +74,4 @@ tasks.named("assemble").configure {
 }
 
 description = "A New Age of Weapons in Minecraft"
-version = "v1.0.0-BETA"
+version = "1.1.2-BETA"
