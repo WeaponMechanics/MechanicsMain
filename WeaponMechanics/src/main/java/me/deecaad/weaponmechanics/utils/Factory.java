@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.weapon.explode;
+package me.deecaad.weaponmechanics.utils;
 
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerMissingKeyException;

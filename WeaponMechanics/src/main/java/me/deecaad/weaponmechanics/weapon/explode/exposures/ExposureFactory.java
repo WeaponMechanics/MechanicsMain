@@ -1,12 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
-import me.deecaad.weaponmechanics.weapon.explode.Factory;
+import me.deecaad.weaponmechanics.utils.Factory;
 
 /**
  * Factory class to provide explosion exposures to the
  * {@link me.deecaad.weaponmechanics.weapon.explode.Explosion}'s serializer.
  * In order to add your own exposure, use
- * {@link #set(String, me.deecaad.weaponmechanics.weapon.explode.Factory.Arguments)}.
+ * {@link #set(String, Factory.Arguments)}.
  */
 public final class ExposureFactory extends Factory<ExplosionExposure> {
 
