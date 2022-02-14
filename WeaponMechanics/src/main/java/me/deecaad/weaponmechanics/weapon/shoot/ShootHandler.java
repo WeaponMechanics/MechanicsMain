@@ -679,5 +679,16 @@ public class ShootHandler implements IValidator {
                     "You need to define at least other of them.",
                     "Located at file " + file + " in " + path + " in configurations.");
         }
+
+        String defaultSelectiveFire = configuration.getString(path + ".Selective_Fire.Default");
+        if (defaultSelectiveFire != null) {
+            if (!defaultSelectiveFire.equalsIgnoreCase("SINGLE")
+                    && !defaultSelectiveFire.equalsIgnoreCase("BURST")
+                    && !defaultSelectiveFire.equalsIgnoreCase("AUTO") ) {
+                debug.log(LogLevel.ERROR, "Tried to use selective fire default with invalid type.",
+                        "You need to use one of the following: SINGLE, BURST or AUTO, now there was " + defaultSelectiveFire,
+                        "Located at file " + file + " in " + path + " in configurations.");
+            }
+        }
     }
 }
