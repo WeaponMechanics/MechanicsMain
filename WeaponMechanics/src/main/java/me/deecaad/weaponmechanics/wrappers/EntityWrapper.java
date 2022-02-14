@@ -180,7 +180,7 @@ public class EntityWrapper {
      * @see LivingEntity#isGliding()
      */
     public boolean isGliding() {
-        return CompatibilityAPI.getVersion() >= 1.09 && entity.isGliding();
+        return entity.isGliding();
     }
 
     /**

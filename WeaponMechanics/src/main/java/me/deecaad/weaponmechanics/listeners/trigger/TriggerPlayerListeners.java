@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -104,26 +105,22 @@ public class TriggerPlayerListeners implements Listener {
         if (action == Action.PHYSICAL || e.useItemInHand() == Event.Result.DENY) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
-        boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
-
         // Basically this just cancel double call to player interact event
-        if (useOffHand) {
-            EquipmentSlot hand = e.getHand();
+        EquipmentSlot hand = e.getHand();
 
-            // Only if main hand is air (off hand can be whatever
-            if (playerEquipment.getItemInMainHand().getType() == Material.AIR) {
+        // Only if main hand is air (off hand can be whatever
+        if (playerEquipment.getItemInMainHand().getType() == Material.AIR) {
 
-                // Check if the action was right click block AND hand used was main hand
-                // -> Cancel
-                if (action == Action.RIGHT_CLICK_BLOCK && hand == EquipmentSlot.HAND) {
-                    return;
-                }
-                // This basically means that hand is now OFF_HAND, but it doesn't let HAND calls pass
-
-            } else if (hand == EquipmentSlot.OFF_HAND) {
-                // If main hand had item, then we can always just cancel OFF_HAND call since HAND is guaranteed to be used
+            // Check if the action was right click block AND hand used was main hand
+            // -> Cancel
+            if (action == Action.RIGHT_CLICK_BLOCK && hand == EquipmentSlot.HAND) {
                 return;
             }
+            // This basically means that hand is now OFF_HAND, but it doesn't let HAND calls pass
+
+        } else if (hand == EquipmentSlot.OFF_HAND) {
+            // If main hand had item, then we can always just cancel OFF_HAND call since HAND is guaranteed to be used
+            return;
         }
 
         PlayerWrapper playerWrapper = getPlayerWrapper(player);
@@ -137,18 +134,11 @@ public class TriggerPlayerListeners implements Listener {
             return;
         }
 
-        // 1.8 support...
-        ItemStack mainStack = useOffHand ? playerEquipment.getItemInMainHand() : playerEquipment.getItemInHand();
-
+        ItemStack mainStack = playerEquipment.getItemInMainHand();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, true);
 
-        // Only get off hand things is server is 1.9 or newer
-        ItemStack offStack = null;
-        String offWeapon = null;
-        if (useOffHand) {
-            offStack = playerEquipment.getItemInOffHand();
-            offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, true);
-        }
+        ItemStack offStack = playerEquipment.getItemInOffHand();
+        String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, true);
 
         if (mainWeapon == null && offWeapon == null) return;
 
@@ -165,22 +155,18 @@ public class TriggerPlayerListeners implements Listener {
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
         if (rightClick) {
-            // Only do dual wield check if server is 1.9 or newer
-            if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
+            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
 
             if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield);
 
-            // Off weapon is automatically null at this point if server is using 1.8
             if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield);
             return;
         }
 
-        // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
+        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
 
         if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield);
 
-        // Off weapon is automatically null at this point if server is using 1.8
         if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield);
     }
 
@@ -205,19 +191,13 @@ public class TriggerPlayerListeners implements Listener {
             return;
         }
 
-        boolean useOffHand = version >= 1.09;
-
-        // getItemInMainHand didn't exist in 1.8
-        ItemStack mainStack = useOffHand ? playerEquipment.getItemInMainHand() : playerEquipment.getItemInHand();
+        ItemStack mainStack = playerEquipment.getItemInMainHand();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
 
         if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Arm_Swing_Animation")) {
             e.setCancelled(true);
             return;
         }
-
-        // 1.8 shall not pass
-        if (!useOffHand) return;
 
         ItemStack offStack = playerEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
@@ -240,18 +220,11 @@ public class TriggerPlayerListeners implements Listener {
         EntityEquipment playerEquipment = player.getEquipment();
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
 
-        boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
-
         ItemStack mainStack = e.getItemDrop().getItemStack();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
 
-        // Only get off hand things is server is 1.9 or newer
-        ItemStack offStack = null;
-        String offWeapon = null;
-        if (useOffHand) {
-            offStack = playerEquipment.getItemInOffHand();
-            offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
-        }
+        ItemStack offStack = playerEquipment.getItemInOffHand();
+        String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
         if (mainWeapon == null && offWeapon == null) return;
 
@@ -266,8 +239,7 @@ public class TriggerPlayerListeners implements Listener {
             e.setCancelled(true);
         }
 
-        // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
+        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
@@ -278,14 +250,60 @@ public class TriggerPlayerListeners implements Listener {
             // - 1 item in slot when dropping -> reference changes
             // - 2 items or more in slot when dropping -> reference stays same
             Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, mainWeapon,
-                    useOffHand ? playerEquipment.getItemInMainHand() : playerEquipment.getItemInHand(),
-                    EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield));
+                    playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield));
         }
 
-        // Off weapon is automatically null at this point if server is using 1.8
         if (offWeapon != null) {
             playerWrapper.droppedWeapon();
             weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
+        }
+    }
+
+    // Event priority LOW to ensure that this is ran before.
+    // Weapon listeners PlayerSwapHandItemsEvent is ran.
+    // Basically lower priority means that it will be one of the first EventHandlers to run.
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.LOW)
+    public void swapHandItems(PlayerSwapHandItemsEvent e) {
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items")) return;
+
+        Player player = e.getPlayer();
+        EntityEquipment playerEquipment = player.getEquipment();
+
+        if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
+
+        ItemStack toMain = e.getMainHandItem();
+        String toMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toMain, false);
+
+        ItemStack toOff = e.getOffHandItem();
+        String toOffWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toOff, false);
+        if (toMainWeapon == null && toOffWeapon == null) return;
+
+        if (toMainWeapon != null && getConfigurations().getBool(toMainWeapon + ".Info.Cancel.Swap_Hands")
+                || toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands")) {
+
+            e.setCancelled(true);
+
+            toOff = playerEquipment.getItemInMainHand();
+            toMain = playerEquipment.getItemInOffHand();
+        }
+
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
+
+        boolean dualWield = toMainWeapon != null && toOffWeapon != null;
+
+        if (isValid(toMain)) {
+            // SWAP_TO_MAIN_HAND
+            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_TO_MAIN_HAND, player, toMainWeapon, toOffWeapon)) return;
+
+            // Only check off hand going to main hand
+            if (toMainWeapon != null) weaponHandler.tryUses(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_TO_MAIN_HAND, dualWield);
+        }
+        if (isValid(toOff)) {
+            // SWAP_TO_OFF_HAND
+            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_TO_OFF_HAND, player, toMainWeapon, toOffWeapon)) return;
+
+            // Only check main hand going to off hand
+            if (toOffWeapon != null) weaponHandler.tryUses(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND, TriggerType.SWAP_TO_OFF_HAND, dualWield);
         }
     }
 
@@ -302,5 +320,9 @@ public class TriggerPlayerListeners implements Listener {
     @EventHandler
     public void close(InventoryCloseEvent e) {
         getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(false);
+    }
+
+    private boolean isValid(ItemStack itemStack) {
+        return itemStack != null && itemStack.getType() != Material.AIR;
     }
 }

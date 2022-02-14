@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
-import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -60,7 +59,7 @@ public class WeaponHandler {
      * This is used with the exceptions off 
      * {@link TriggerPlayerListeners#dropItem(PlayerDropItemEvent)}, 
      * {@link TriggerPlayerListeners#interact(PlayerInteractEvent)}
-     * and {@link TriggerPlayerListenersAbove_1_9#swapHandItems(PlayerSwapHandItemsEvent)}.
+     * and {@link TriggerPlayerListeners#swapHandItems(PlayerSwapHandItemsEvent)}.
      *
      * @param livingEntity the living entity which caused trigger
      * @param triggerType the trigger type
@@ -75,35 +74,26 @@ public class WeaponHandler {
 
         if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
 
-        boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
         EntityEquipment entityEquipment = livingEntity.getEquipment();
         if (entityEquipment == null) return;
 
-        // getItemInMainHand didn't exist in 1.8
-        ItemStack mainStack = useOffHand ? entityEquipment.getItemInMainHand() : entityEquipment.getItemInHand();
+        ItemStack mainStack = entityEquipment.getItemInMainHand();
 
         String mainWeapon = infoHandler.getWeaponTitle(mainStack, autoConvert);
 
-        // Only get off hand things is server is 1.9 or newer
-        ItemStack offStack = null;
-        String offWeapon = null;
-        if (useOffHand) {
-            offStack = entityEquipment.getItemInOffHand();
-            offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
-        }
+        ItemStack offStack = entityEquipment.getItemInOffHand();
+        String offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
 
         if (mainWeapon == null && offWeapon == null) {
             return;
         }
 
-        // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
+        if (infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
         if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield);
 
-        // Off weapon is automatically null at this point if server is using 1.8
         if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
     }
 

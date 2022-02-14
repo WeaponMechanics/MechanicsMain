@@ -106,8 +106,7 @@ public class WeaponListeners implements Listener {
     @EventHandler
     public void damage(EntityDamageByEntityEvent e) {
         EntityDamageEvent.DamageCause cause = e.getCause();
-        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK
-                && (CompatibilityAPI.getVersion() < 1.09 || cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
             return;
         }
 
