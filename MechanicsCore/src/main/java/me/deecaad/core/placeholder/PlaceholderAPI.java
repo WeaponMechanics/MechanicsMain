@@ -52,14 +52,39 @@ public class PlaceholderAPI {
      * @return the string with applied placeholders
      */
     public static String applyPlaceholders(String to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
+        return applyPlaceholders(to, player, itemStack, weaponTitle, null);
+    }
+
+    /**
+     * Applies all possible placeholders. Includes Clip's PlaceholderAPI support.
+     * Also colorizes string.
+     *
+     * @param to the string where to apply placeholders
+     * @param player the player involved in event or null
+     * @param itemStack the item stack involved in event or null
+     * @param weaponTitle the weapon title involved in this request, can be null
+     * @param temp the temporary placeholders to be used
+     * @return the string with applied placeholders
+     */
+    public static String applyPlaceholders(String to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable Map<String, String> temp) {
         if (to == null) {
             return null;
         }
         if (!placeholderHandlers.isEmpty()) {
             Matcher matcher = PLACEHOLDERS.matcher(to);
             while (matcher.find()) {
-                String currentPlaceholder = matcher.group(1);
-                PlaceholderHandler placeholderHandler = placeholderHandlers.get("%" + currentPlaceholder.toLowerCase() + "%");
+                String currentPlaceholder = matcher.group(1).toLowerCase();
+
+                // Check for temp placeholders
+                if (temp != null) {
+                    String request = temp.get("%" + currentPlaceholder + "%");
+                    if (request != null) {
+                        to = to.replace("%" + currentPlaceholder + "%", request);
+                        continue;
+                    }
+                }
+
+                PlaceholderHandler placeholderHandler = placeholderHandlers.get("%" + currentPlaceholder + "%");
                 if (placeholderHandler == null) {
                     continue;
                 }

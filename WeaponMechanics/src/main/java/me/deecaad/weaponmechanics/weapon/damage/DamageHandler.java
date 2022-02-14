@@ -76,9 +76,13 @@ public class DamageHandler {
 
         CastData shooterCast = new CastData(WeaponMechanics.getEntityWrapper(shooter), projectile.getWeaponTitle(), projectile.getWeaponStack());
         shooterCast.setData(CommonDataTags.TARGET_LOCATION.name(), victim.getLocation());
+        shooterCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
+        shooterCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
 
         CastData victimCast = new CastData(WeaponMechanics.getEntityWrapper(victim), projectile.getWeaponTitle(), projectile.getWeaponStack());
         victimCast.setData(CommonDataTags.TARGET_LOCATION.name(), shooter.getLocation());
+        victimCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
+        victimCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
 
         // On all damage
         useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");

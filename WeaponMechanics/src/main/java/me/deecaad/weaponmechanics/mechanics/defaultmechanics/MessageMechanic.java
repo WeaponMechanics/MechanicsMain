@@ -30,6 +30,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MessageMechanic implements IMechanic<MessageMechanic> {
 
@@ -95,17 +97,28 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         Boolean fetchWeaponInfoValue = castData.getData(CommonDataTags.WEAPON_INFO.name(), Boolean.class);
         boolean isWeaponInfoCast = fetchWeaponInfoValue != null && fetchWeaponInfoValue;
 
+        Map<String, String> tempPlaceholders = null;
+        String shooterName = castData.getData(CommonDataTags.SHOOTER_NAME.name(), String.class);
+        String victimName = castData.getData(CommonDataTags.VICTIM_NAME.name(), String.class);
+        if (shooterName != null || victimName != null) {
+            tempPlaceholders = new HashMap<>();
+            tempPlaceholders.put("%shooter%", shooterName != null ? shooterName : player.getName());
+            tempPlaceholders.put("%victim%", victimName);
+        }
+
         if (chatData != null) {
-            String chatMessage = PlaceholderAPI.applyPlaceholders(chatData.message, player, castData.getWeaponStack(), castData.getWeaponTitle());
+            String chatMessage = PlaceholderAPI.applyPlaceholders(chatData.message, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             if (CompatibilityAPI.getVersion() < 1.09) {
                 player.sendMessage(chatMessage);
             } else {
                 TextComponent chatMessageComponent = new TextComponent(chatMessage);
                 if (chatData.clickEventAction != null) {
-                    chatMessageComponent.setClickEvent(new ClickEvent(chatData.clickEventAction, PlaceholderAPI.applyPlaceholders(chatData.clickEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle())));
+                    chatMessageComponent.setClickEvent(new ClickEvent(chatData.clickEventAction,
+                            PlaceholderAPI.applyPlaceholders(chatData.clickEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders)));
                 }
                 if (chatData.hoverEventValue != null) {
-                    Content content = new Text(TextComponent.fromLegacyText(PlaceholderAPI.applyPlaceholders(chatData.hoverEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle())));
+                    Content content = new Text(TextComponent.fromLegacyText(
+                            PlaceholderAPI.applyPlaceholders(chatData.hoverEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders)));
                     chatMessageComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, content));
                 }
                 player.spigot().sendMessage(ChatMessageType.CHAT, chatMessageComponent);
@@ -114,19 +127,20 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
         if (actionBar != null && (!isWeaponInfoCast || !messageHelper.denyInfoActionBar())) {
 
-            sendActionBar(player, castData.getWeaponStack(), castData.getWeaponTitle());
+            sendActionBar(player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             if (!isWeaponInfoCast) {
                 if (actionBarTime > 40) {
 
                     messageHelper.updateActionBarTime(actionBarTime);
 
+                    Map<String, String> finalTempPlaceholders = tempPlaceholders;
                     new BukkitRunnable() {
                         int ticker = 0;
 
                         @Override
                         public void run() {
 
-                            sendActionBar(player, castData.getWeaponStack(), castData.getWeaponTitle());
+                            sendActionBar(player, castData.getWeaponStack(), castData.getWeaponTitle(), finalTempPlaceholders);
 
                             ticker += 40;
                             if (ticker >= actionBarTime) {
@@ -141,8 +155,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (titleData != null && (!isWeaponInfoCast || !messageHelper.denyInfoTitle())) {
-            String titleMessage = PlaceholderAPI.applyPlaceholders(titleData.title, player, castData.getWeaponStack(), castData.getWeaponTitle());
-            String subtitleMessage = PlaceholderAPI.applyPlaceholders(titleData.subtitle, player, castData.getWeaponStack(), castData.getWeaponTitle());
+            String titleMessage = PlaceholderAPI.applyPlaceholders(titleData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            String subtitleMessage = PlaceholderAPI.applyPlaceholders(titleData.subtitle, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             if (CompatibilityAPI.getVersion() < 1.11) {
 
                 // By default it fade in, stay and fade out takes 60 ticks
@@ -158,7 +172,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (bossBarData != null) {
-            String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle());
+            String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
 
             BarColor color = (BarColor) bossBarData.barColor;
             BarStyle style = (BarStyle) bossBarData.barStyle;
@@ -207,8 +221,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         return bossBarData != null;
     }
 
-    private void sendActionBar(Player player, ItemStack weaponStack, String weaponTitle) {
-        String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, weaponStack, weaponTitle);
+    private void sendActionBar(Player player, ItemStack weaponStack, String weaponTitle, Map<String, String> tempPlaceholders) {
+        String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, weaponStack, weaponTitle, tempPlaceholders);
         if (CompatibilityAPI.getVersion() < 1.09) {
             CompatibilityAPI.getCompatibility().sendPackets(player,
                     ReflectionUtil.newInstance(packetPlayOutChatConstructor,
