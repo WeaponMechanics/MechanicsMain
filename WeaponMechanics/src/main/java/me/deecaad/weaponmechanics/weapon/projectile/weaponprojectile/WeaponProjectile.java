@@ -445,6 +445,7 @@ public class WeaponProjectile extends AProjectile {
 
     @Override
     public void onEnd() {
+        super.onEnd();
         Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(this));
     }
 }

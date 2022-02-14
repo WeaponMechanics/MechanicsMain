@@ -329,12 +329,12 @@ public abstract class AProjectile {
 
         this.dead = true;
 
-        // Call one last time on move
-        onMove();
         updateDisguise(true);
 
         onEnd();
         if (disguise != null) disguise.remove();
+
+        scriptEvent(ProjectileScript::onTickEnd);
     }
 
     /**
@@ -370,8 +370,8 @@ public abstract class AProjectile {
 
             if (motionLength != 0) motionLength = 0;
 
-            onMove();
             updateDisguise(true);
+            scriptEvent(ProjectileScript::onTickEnd);
             ++aliveTicks;
             return false;
         }
@@ -397,7 +397,6 @@ public abstract class AProjectile {
             setMotion(getNormalizedMotion().multiply(getMaximumSpeed()));
         }
 
-        onMove();
         updateDisguise(false);
         scriptEvent(ProjectileScript::onTickEnd);
         ++aliveTicks;
@@ -478,12 +477,6 @@ public abstract class AProjectile {
      */
     public void onEnd() {
         scriptEvent(ProjectileScript::onEnd);
-    }
-
-    /**
-     * Override this method to do something when projectile moves
-     */
-    public void onMove() {
     }
 
     /**

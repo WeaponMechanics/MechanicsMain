@@ -76,16 +76,14 @@ public abstract class ProjectileScript<T extends AProjectile> {
      * method is called after the projectile is shot, so getting the shooter
      * (for WeaponProjectile) is a safe operation.
      */
-    public void onStart() {
-    }
+    public void onStart() {}
 
     /**
      * Called towards the beginning of {@link AProjectile#tick()}. This method
      * <i>probably</i> should be used instead of {@link #onTickEnd()} when you
      * are modifying projectile values (Changing speed/location, for example).
      */
-    public void onTickStart() {
-    }
+    public void onTickStart() {}
 
     /**
      * Called towards the end of {@link AProjectile#tick()}. This method
@@ -93,22 +91,19 @@ public abstract class ProjectileScript<T extends AProjectile> {
      * you only want to read the result of a tick method (See how a projectile
      * moved, for example).
      */
-    public void onTickEnd() {
-    }
+    public void onTickEnd() {}
 
     /**
      * Called when the projectile is removed.
      */
-    public void onEnd() {
-    }
+    public void onEnd() {}
 
     /**
      * Called when the projectile collides with a block.
      *
      * @param block The non-null block.
      */
-    public void onCollide(@Nonnull Block block) {
-    }
+    public void onCollide(@Nonnull Block block) {}
 
     /**
      * Called when the projectile collides with an entity. Note that
@@ -116,6 +111,5 @@ public abstract class ProjectileScript<T extends AProjectile> {
      *
      * @param entity The non-null entity.
      */
-    public void onCollide(@Nonnull Entity entity) {
-    }
+    public void onCollide(@Nonnull Entity entity) {}
 }
