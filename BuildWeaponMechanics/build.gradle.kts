@@ -44,6 +44,8 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
+    dependsOn("versionFile")
+
     baseName = "WeaponMechanics" // Since we don't want to use "BuildWeaponMechanics"
     classifier = null;
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
@@ -69,9 +71,14 @@ tasks.named<ShadowJar>("shadowJar") {
     }
 }
 
+tasks.register("versionFile").configure {
+    val file = file("../WeaponMechanics/src/main/resources/version.txt")
+    file.writeText(project(":BuildMechanicsCore").version.toString());
+}
+
 tasks.named("assemble").configure {
     dependsOn("shadowJar")
 }
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.1.2-BETA"
+version = "1.2.0-BETA"

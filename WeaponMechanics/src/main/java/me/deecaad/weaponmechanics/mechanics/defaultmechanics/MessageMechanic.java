@@ -7,7 +7,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerVersionException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -25,26 +24,13 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MessageMechanic implements IMechanic<MessageMechanic> {
-
-    /**
-     * Reflection support for 1.8 action bar
-     */
-    private static Constructor<?> packetPlayOutChatConstructor;
-    private static Constructor<?> chatComponentTextConstructor;
-
-    static {
-        if (CompatibilityAPI.getVersion() < 1.09) {
-            packetPlayOutChatConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getPacketClass("PacketPlayOutChat"), ReflectionUtil.getNMSClass("network.chat", "IChatBaseComponent"), byte.class);
-            chatComponentTextConstructor = ReflectionUtil.getConstructor(ReflectionUtil.getNMSClass("network.chat", "ChatComponentText"), String.class);
-        }
-    }
 
     private boolean sendGlobally;
     private boolean sendGloballyForWorld;
@@ -95,38 +81,49 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         Boolean fetchWeaponInfoValue = castData.getData(CommonDataTags.WEAPON_INFO.name(), Boolean.class);
         boolean isWeaponInfoCast = fetchWeaponInfoValue != null && fetchWeaponInfoValue;
 
+        Map<String, String> tempPlaceholders = null;
+        String shooterName = castData.getData(CommonDataTags.SHOOTER_NAME.name(), String.class);
+        String victimName = castData.getData(CommonDataTags.VICTIM_NAME.name(), String.class);
+        if (shooterName != null || victimName != null) {
+            tempPlaceholders = new HashMap<>();
+            tempPlaceholders.put("%shooter%", shooterName != null ? shooterName : player.getName());
+            tempPlaceholders.put("%victim%", victimName);
+        }
+
         if (chatData != null) {
-            String chatMessage = PlaceholderAPI.applyPlaceholders(chatData.message, player, castData.getWeaponStack(), castData.getWeaponTitle());
-            if (CompatibilityAPI.getVersion() < 1.09) {
-                player.sendMessage(chatMessage);
-            } else {
-                TextComponent chatMessageComponent = new TextComponent(chatMessage);
-                if (chatData.clickEventAction != null) {
-                    chatMessageComponent.setClickEvent(new ClickEvent(chatData.clickEventAction, PlaceholderAPI.applyPlaceholders(chatData.clickEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle())));
-                }
-                if (chatData.hoverEventValue != null) {
-                    Content content = new Text(TextComponent.fromLegacyText(PlaceholderAPI.applyPlaceholders(chatData.hoverEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle())));
-                    chatMessageComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, content));
-                }
-                player.spigot().sendMessage(ChatMessageType.CHAT, chatMessageComponent);
+            String chatMessage = PlaceholderAPI.applyPlaceholders(chatData.message, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            TextComponent chatMessageComponent = new TextComponent(chatMessage);
+            if (chatData.clickEventAction != null) {
+                chatMessageComponent.setClickEvent(new ClickEvent(chatData.clickEventAction,
+                        PlaceholderAPI.applyPlaceholders(chatData.clickEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders)));
             }
+            if (chatData.hoverEventValue != null) {
+                Content content = new Text(TextComponent.fromLegacyText(
+                        PlaceholderAPI.applyPlaceholders(chatData.hoverEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders)));
+                chatMessageComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, content));
+            }
+            player.spigot().sendMessage(ChatMessageType.CHAT, chatMessageComponent);
         }
 
         if (actionBar != null && (!isWeaponInfoCast || !messageHelper.denyInfoActionBar())) {
 
-            sendActionBar(player, castData.getWeaponStack(), castData.getWeaponTitle());
+            String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
+
             if (!isWeaponInfoCast) {
                 if (actionBarTime > 40) {
 
                     messageHelper.updateActionBarTime(actionBarTime);
 
+                    Map<String, String> finalTempPlaceholders = tempPlaceholders;
                     new BukkitRunnable() {
                         int ticker = 0;
 
                         @Override
                         public void run() {
 
-                            sendActionBar(player, castData.getWeaponStack(), castData.getWeaponTitle());
+                            String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), finalTempPlaceholders);
+                            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
 
                             ticker += 40;
                             if (ticker >= actionBarTime) {
@@ -141,8 +138,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (titleData != null && (!isWeaponInfoCast || !messageHelper.denyInfoTitle())) {
-            String titleMessage = PlaceholderAPI.applyPlaceholders(titleData.title, player, castData.getWeaponStack(), castData.getWeaponTitle());
-            String subtitleMessage = PlaceholderAPI.applyPlaceholders(titleData.subtitle, player, castData.getWeaponStack(), castData.getWeaponTitle());
+            String titleMessage = PlaceholderAPI.applyPlaceholders(titleData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            String subtitleMessage = PlaceholderAPI.applyPlaceholders(titleData.subtitle, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             if (CompatibilityAPI.getVersion() < 1.11) {
 
                 // By default it fade in, stay and fade out takes 60 ticks
@@ -158,7 +155,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (bossBarData != null) {
-            String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle());
+            String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
 
             BarColor color = (BarColor) bossBarData.barColor;
             BarStyle style = (BarStyle) bossBarData.barStyle;
@@ -205,17 +202,6 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
     public boolean hasBossBar() {
         return bossBarData != null;
-    }
-
-    private void sendActionBar(Player player, ItemStack weaponStack, String weaponTitle) {
-        String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, weaponStack, weaponTitle);
-        if (CompatibilityAPI.getVersion() < 1.09) {
-            CompatibilityAPI.getCompatibility().sendPackets(player,
-                    ReflectionUtil.newInstance(packetPlayOutChatConstructor,
-                            ReflectionUtil.newInstance(chatComponentTextConstructor, actionBarMessage), (byte) 2));
-        } else {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
-        }
     }
 
     @Override
@@ -281,10 +267,6 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         BossBarData bossBarData = null;
         String bossBarMessage = data.of("Boss_Bar.Title").assertType(String.class).get(null);
         if (bossBarMessage != null) {
-            if (CompatibilityAPI.getVersion() < 1.09) {
-                throw new SerializerVersionException(this, 9, "Boss Bar Mechanic", data.of("Boss_Bar").getLocation());
-            }
-
             BarColor barColor = data.of("Boss_Bar.Bar_Color").getEnum(BarColor.class, BarColor.RED);
             BarStyle barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BarStyle.class, BarStyle.SOLID);
             int time = data.of("Boss_Bar.Time").assertExists().assertPositive().getInt();

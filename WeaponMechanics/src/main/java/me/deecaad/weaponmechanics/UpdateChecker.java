@@ -28,8 +28,12 @@ public class UpdateChecker extends AUpdateChecker {
                 "&" + (patchesBehind >= 5 ? 'c': patchesBehind >= 3 ? 'e' : 'a'));
 
         sender.sendMessage("" + ChatColor.GRAY + InfoCommand.SYM + ChatColor.GOLD + "  There is an update available for WeaponMechanics");
-        sender.sendMessage("" + ChatColor.GRAY + InfoCommand.SYM + ChatColor.GOLD + "    Major versions behind: " + majorColor + majorsBehind);
-        sender.sendMessage("" + ChatColor.GRAY + InfoCommand.SYM + ChatColor.GOLD + "    Minor versions behind: " + minorColor + minorsBehind);
-        sender.sendMessage("" + ChatColor.GRAY + InfoCommand.SYM + ChatColor.GOLD + "    Patch versions behind: " + patchColor + patchesBehind);
+        if (majorsBehind > 0) {
+            sender.sendMessage("" + ChatColor.GRAY + InfoCommand.SYM + ChatColor.GOLD + "    Major versions behind: " + majorColor + majorsBehind);
+        } else if (minorsBehind > 0) {
+            sender.sendMessage("" + ChatColor.GRAY + InfoCommand.SYM + ChatColor.GOLD + "    Minor versions behind: " + minorColor + minorsBehind);
+        } else {
+            sender.sendMessage("" + ChatColor.GRAY + InfoCommand.SYM + ChatColor.GOLD + "    Patch versions behind: " + patchColor + patchesBehind);
+        }
     }
 }

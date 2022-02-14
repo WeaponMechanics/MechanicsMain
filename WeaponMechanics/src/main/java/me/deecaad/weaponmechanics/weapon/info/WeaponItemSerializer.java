@@ -34,6 +34,17 @@ public class WeaponItemSerializer extends ItemSerializer {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, magazineSize);
         }
 
+        String defaultSelectiveFire = data.config.getString(weaponTitle + ".Shoot.Selective_Fire.Default");
+        if (defaultSelectiveFire != null) {
+            if (defaultSelectiveFire.equalsIgnoreCase("BURST")) {
+                CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, 1);
+            } else if (defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
+                CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, 2);
+            } else {
+                CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, 0);
+            }
+        }
+
         CustomTag.WEAPON_TITLE.setString(weaponStack, weaponTitle);
         weaponStack = super.serializeRecipe(data, weaponStack);
         return weaponStack;

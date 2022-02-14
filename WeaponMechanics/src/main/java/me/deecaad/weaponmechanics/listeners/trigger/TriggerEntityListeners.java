@@ -7,9 +7,13 @@ import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class TriggerEntityListeners implements Listener {
 
@@ -47,5 +51,13 @@ public class TriggerEntityListeners implements Listener {
     public void toggleSwim(EntityToggleSwimEvent e) {
         // Whether this is used its checked already in MoveTask class
         weaponHandler.useTrigger(e.getLivingEntity(), e.isSwimming() ? TriggerType.START_SWIM : TriggerType.END_SWIM, false);
+    }
+
+    @EventHandler (ignoreCancelled = true)
+    public void toggleGlide(EntityToggleGlideEvent e) {
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide")) return;
+
+        if (!e.getEntityType().isAlive()) return;
+        weaponHandler.useTrigger((LivingEntity) e.getEntity(), e.isGliding() ? TriggerType.START_GLIDE : TriggerType.END_GLIDE, false);
     }
 }

@@ -7,11 +7,13 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.util.Scanner;
 import java.util.logging.Level;
 
 public class WeaponMechanicsLoader extends JavaPlugin {
@@ -62,9 +64,15 @@ public class WeaponMechanicsLoader extends JavaPlugin {
                     "To disable this, go to the WeaponMechanics config.yml file");
             boolean installed = false;
 
-            // try to install
-            String link = "https://github.com/DeeCaaD/MechanicsMain/releases/download/v1.0.0/MechanicsCore-1.0.0.jar";
-            if (getConfig().getBoolean("Mechanics_Core_Download.Enable", true)) {
+            // try to install the latest mechanics core version
+            InputStream stream = getClassLoader().getResourceAsStream("version.txt");
+            if (stream == null) {
+                getLogger().log(Level.SEVERE, "Missing version.txt, did the jar corrupt?");
+            }
+
+            String version = stream == null ? null : new Scanner(stream).nextLine();
+            String link = "https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/MechanicsCore-" + version + ".jar";
+            if (version != null && getConfig().getBoolean("Mechanics_Core_Download.Enable", true)) {
                 try {
                     URL url = new URL(link);
                     URLConnection connection = url.openConnection();
@@ -80,6 +88,8 @@ public class WeaponMechanicsLoader extends JavaPlugin {
                     plugin.onLoad();
                     installed = true;
 
+                } catch (FileNotFoundException ex) {
+                    getLogger().log(Level.SEVERE, "Could not find MechanicsCore-" + version + ".jar. This happens when your WeaponMechanics is outdated.");
                 } catch (IOException ex) {
                     getLogger().log(Level.SEVERE, "Some error occurred while downloading MechanicsCore.jar automatically...",
                             "Please try downloading it manually from " + link);

@@ -29,14 +29,11 @@ import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
-import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
-import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
 import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
-import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
@@ -296,10 +293,6 @@ public class WeaponMechanics {
         // TRIGGER EVENTS
         Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), getPlugin());
         Bukkit.getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), getPlugin());
-        if (CompatibilityAPI.getVersion() >= 1.09) {
-            Bukkit.getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), getPlugin());
-            Bukkit.getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), getPlugin());
-        }
 
         // WEAPON EVENTS
         Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), getPlugin());
@@ -312,7 +305,6 @@ public class WeaponMechanics {
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
         packetListener = new PacketHandlerListener(getPlugin(), debug);
-        packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
