@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
-import me.deecaad.weaponmechanics.weapon.explode.Factory;
+import me.deecaad.weaponmechanics.utils.Factory;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;

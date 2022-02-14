@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
-import me.deecaad.weaponmechanics.weapon.explode.Factory;
+import me.deecaad.weaponmechanics.utils.Factory;
 
 public final class ShapeFactory extends Factory<ExplosionShape> {
 
