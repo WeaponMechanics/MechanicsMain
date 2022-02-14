@@ -5,6 +5,8 @@ import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
@@ -51,15 +53,31 @@ public class WeaponListeners implements Listener {
 
         // Also try auto converting to weapon
         String weaponTitle = weaponHandler.getInfoHandler().getWeaponTitle(weaponStack, true);
+        boolean alreadyUsedEquipMechanics = false;
 
         if (weaponTitle != null) {
             if (e.getEntityType() == EntityType.PLAYER) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
-            Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());
+
+            Mechanics equipMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Equip_Mechanics", Mechanics.class);
+            if (equipMechanics != null) {
+                equipMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+                alreadyUsedEquipMechanics = true;
+            }
+
+            Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
+        }
+
+        // Don't use holster mechanics is equip mechanics were already used
+        if (alreadyUsedEquipMechanics) return;
+
+        if (weaponHandler.getInfoHandler().getWeaponTitle(e.getDequipped(), false) != null) {
+            Mechanics holsterMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Holster_Mechanics", Mechanics.class);
+            if (holsterMechanics != null) holsterMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
         }
     }
 
