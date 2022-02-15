@@ -36,6 +36,7 @@ import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
@@ -61,10 +62,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
@@ -175,6 +173,9 @@ public class WeaponMechanics {
                 loadConfig();
                 registerPlaceholders();
                 registerListeners();
+
+                // Start here to ensure config values have been filled
+                handleBStats();
 
                 double seconds = NumberUtil.getAsRounded(((System.currentTimeMillis() - millisCurrent) + tookMillis) * 0.001, 2);
                 debug.info("Enabled WeaponMechanics in " + seconds + "s");
@@ -389,6 +390,31 @@ public class WeaponMechanics {
             }
         }));
 
+        metrics.addCustomChart(new SimplePie("uses_default_weapons", () -> {
+            List<String> defaultWeapons = Arrays.asList("AK-47", "FN_FAL", "FR_5_56", "M4A1",
+                    "Stim",
+                    "Airstrike", "Cluster_Grenade", "Flashbang", "Grenade", "Semtex",
+                    "MG34",
+                    "Kar98k",
+                    "50_GS", "357_Magnum",
+                    "RPG-7",
+                    "Origin_12", "R9-0",
+                    "AX-50",
+                    "AUG", "Uzi");
+
+            InfoHandler infoHandler = getWeaponHandler().getInfoHandler();
+            if (defaultWeapons.size() != infoHandler.getSortedWeaponList().size()) {
+                return "false";
+            }
+
+            for (String defaultWeapon : defaultWeapons) {
+                if (!infoHandler.hasWeapon(defaultWeapon)) {
+                    return "false";
+                }
+            }
+
+            return "true";
+        }));
     }
 
     public TaskChain onReload() {
