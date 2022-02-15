@@ -65,8 +65,12 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_17_R1"))
         include(project(":Weapon_1_18_R1"))
 
-        relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.timingslib") {
+        relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
             include(dependency("co.aikar:minecraft-timings"))
+        }
+
+        relocate ("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
+            include(dependency("org.bstats:"))
         }
     }
 }

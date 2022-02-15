@@ -41,6 +41,9 @@ import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.DrilldownPie;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
@@ -49,6 +52,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -352,6 +356,39 @@ public class WeaponMechanics {
                 // -> If its not converted its localhost test version most likely
             }
         }
+    }
+
+    void handleBStats() {
+
+        // See https://bstats.org/plugin/bukkit/WeaponMechanics/14323. This is
+        // the bStats plugin id used to track information.
+        int id = 14323;
+
+        Metrics metrics = new Metrics((JavaPlugin) getPlugin(), id);
+
+        // Tracks the number of weapons that are used in the plugin. Since each
+        // server uses a relatively random number of weapons, we should track
+        // ranges of weapons (As in, <10, >10 & <20, >20 & <30, etc). This way,
+        // the pie chart will look tolerable.
+        // https://bstats.org/help/custom-charts
+        metrics.addCustomChart(new SimplePie("registered_weapons", () -> {
+            int weapons = getWeaponHandler().getInfoHandler().getSortedWeaponList().size();
+
+            if (weapons < 10) {
+                return "0-10";
+            } else if (weapons < 20) {
+                return "11-20";
+            } else if (weapons < 30) {
+                return "21-30";
+            } else if (weapons < 50) {
+                return "31-50";
+            } else if (weapons < 100) {
+                return "51-100";
+            } else {
+                return ">100";
+            }
+        }));
+
     }
 
     public TaskChain onReload() {
