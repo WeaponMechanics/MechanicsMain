@@ -3,14 +3,20 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +27,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
     private int damage;
     private int defaultBlockDurability;
     private boolean isBlacklist;
+    private double dropBlockChance;
     private Map<Material, Integer> blockList;
     private Map<Material, Integer> shotsToBreak;
 
@@ -49,11 +56,12 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * @param shotsToBreak           When <code>blacklist == true</code>, then use
      *                               this parameter to specify block durability.
      */
-    public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, Map<Material, Integer> blockList, Map<Material, Integer> shotsToBreak) {
+    public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, double dropBlockChance, Map<Material, Integer> blockList, Map<Material, Integer> shotsToBreak) {
         this.isBreakBlocks = isBreakBlocks;
         this.damage = damage;
         this.defaultBlockDurability = defaultBlockDurability;
         this.isBlacklist = isBlacklist;
+        this.dropBlockChance = dropBlockChance;
         this.blockList = blockList;
         this.shotsToBreak = shotsToBreak;
     }
@@ -88,6 +96,14 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
     public void setBlacklist(boolean blacklist) {
         isBlacklist = blacklist;
+    }
+
+    public double getDropBlockChance() {
+        return dropBlockChance;
+    }
+
+    public void setDropBlockChance(double dropBlockChance) {
+        this.dropBlockChance = dropBlockChance;
     }
 
     @Nonnull
@@ -146,7 +162,16 @@ public class BlockDamage implements Serializer<BlockDamage> {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
             int max = getMaxDurability(block);
 
-            return BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
+            Collection<ItemStack> drops = dropBlockChance > 0.0 ? block.getDrops() : Collections.emptyList();
+            BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
+            if (data.isBroken() && NumberUtil.chance(dropBlockChance)) {
+                Location location = block.getLocation();
+                for (ItemStack item : drops) {
+                    block.getWorld().dropItem(location, item);
+                }
+            }
+
+            return data;
         }
 
         return null;
@@ -164,6 +189,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
         int damage = data.of("Damage_Per_Hit").assertPositive().getInt(1);
         int defaultBlockDurability = data.of("Default_Block_Durability").assertPositive().getInt(1);
         boolean isBlacklist = data.of("Blacklist").getBool(false);
+        Double dropChance = data.of("Drop_Broken_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
 
         SerializeData.ConfigListAccessor accessor = data.ofList("Block_List")
                 .addArgument(Material.class, true);
@@ -211,6 +237,6 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     "Instead, copy and paste your values from 'Shots_To_Break_Blocks' to 'Block_List'");
         }
 
-        return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, blockList, shotsToBreak);
+        return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, dropChance == null ? 0.0 : dropChance, blockList, shotsToBreak);
     }
 }
