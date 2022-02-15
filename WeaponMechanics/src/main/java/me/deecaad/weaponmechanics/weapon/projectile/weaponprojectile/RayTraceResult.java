@@ -16,6 +16,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -91,6 +92,25 @@ public class RayTraceResult {
      */
     public boolean handleHit(WeaponProjectile projectile) {
         return this.block != null ? handleBlockHit(projectile) : handleEntityHit(projectile);
+    }
+
+    public boolean handleMeleeHit(LivingEntity shooter, Vector shooterDirection, String weaponTitle, ItemStack weaponStack) {
+        // Handle worldguard flags
+        WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
+        Location loc = hitLocation.clone().toLocation(shooter.getWorld());
+
+        if (!worldGuard.testFlag(loc, shooter instanceof Player ? (Player) shooter : null, "weapon-damage")) { // is cancelled check
+            Object obj = worldGuard.getValue(loc, "weapon-damage-message");
+            if (obj != null && !obj.toString().isEmpty() && shooter != null) {
+                shooter.sendMessage(StringUtil.color(obj.toString()));
+            }
+            return true;
+        }
+
+        boolean backstab = livingEntity.getLocation().getDirection().dot(shooterDirection) > 0.0;
+
+        return !damageHandler.tryUse(livingEntity, getConfigurations().getDouble(weaponTitle + ".Damage.Base_Damage"),
+                hitPoint, backstab, shooter, weaponTitle, weaponStack, getDistanceTravelled());
     }
 
     private boolean handleBlockHit(WeaponProjectile projectile) {

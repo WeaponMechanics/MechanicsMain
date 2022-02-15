@@ -21,6 +21,8 @@ public class HandData {
     private long lastShotTime;
     private double spreadChange;
     private RecoilTask recoilTask;
+    private long lastMeleeTime;
+    private long lastMeleeMissTime;
 
     private long reloadStart;
     private final Set<Integer> reloadTasks = new HashSet<>();
@@ -108,6 +110,22 @@ public class HandData {
 
     public void setRecoilTask(RecoilTask recoilTask) {
         this.recoilTask = recoilTask;
+    }
+
+    public long getLastMeleeTime() {
+        return lastMeleeTime;
+    }
+
+    public void setLastMeleeTime(long lastMeleeTime) {
+        this.lastMeleeTime = lastMeleeTime;
+    }
+
+    public long getLastMeleeMissTime() {
+        return lastMeleeMissTime;
+    }
+
+    public void setLastMeleeMissTime(long lastMeleeMissTime) {
+        this.lastMeleeMissTime = lastMeleeMissTime;
     }
 
     public void addReloadTask(int reloadTask) {

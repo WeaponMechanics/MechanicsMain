@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -9,6 +8,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
+import me.deecaad.weaponmechanics.weapon.melee.MeleeHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
@@ -29,6 +29,8 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
+
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
 import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
@@ -44,6 +46,7 @@ public class WeaponHandler {
     private final ScopeHandler scopeHandler;
     private final DamageHandler damageHandler;
     private final SkinHandler skinHandler;
+    private final MeleeHandler meleeHandler;
 
     public WeaponHandler() {
         infoHandler = new InfoHandler(this);
@@ -52,6 +55,7 @@ public class WeaponHandler {
         scopeHandler = new ScopeHandler(this);
         damageHandler = new DamageHandler(this);
         skinHandler = new SkinHandler(this);
+        meleeHandler = new MeleeHandler(this);
     }
 
     /**
@@ -78,23 +82,20 @@ public class WeaponHandler {
         if (entityEquipment == null) return;
 
         ItemStack mainStack = entityEquipment.getItemInMainHand();
-
         String mainWeapon = infoHandler.getWeaponTitle(mainStack, autoConvert);
 
         ItemStack offStack = entityEquipment.getItemInOffHand();
         String offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
 
-        if (mainWeapon == null && offWeapon == null) {
-            return;
-        }
+        if (mainWeapon == null && offWeapon == null) return;
 
         if (infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
-        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield);
+        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield, null);
 
-        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
+        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield, null);
     }
 
     /**
@@ -114,12 +115,20 @@ public class WeaponHandler {
      * @param triggerType the trigger which caused this
      * @param dualWield whether or not this was dual wield
      */
-    public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
 
-        // Try shooting
-        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
-            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
-            return;
+        if (triggerType != TriggerType.MELEE) {
+            // Try shooting
+            if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
+                if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+                return;
+            }
+        } else {
+            // Try melee
+            // Most of the time this shouldn't happen since melee directly go to MeleeHandler
+            if (meleeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)) {
+                return;
+            }
         }
 
         // Shooting wasn't valid, try reloading
@@ -258,5 +267,12 @@ public class WeaponHandler {
      */
     public SkinHandler getSkinHandler() {
         return skinHandler;
+    }
+
+    /**
+     * @return the melee handler
+     */
+    public MeleeHandler getMeleeHandler() {
+        return meleeHandler;
     }
 }

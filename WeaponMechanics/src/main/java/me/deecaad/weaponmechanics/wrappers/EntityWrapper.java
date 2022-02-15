@@ -32,7 +32,6 @@ public class EntityWrapper {
     private HandData mainHandData;
     private HandData offHandData;
 
-
     public EntityWrapper(LivingEntity livingEntity) {
         this.entity = livingEntity;
 

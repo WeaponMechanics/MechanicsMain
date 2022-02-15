@@ -588,7 +588,7 @@ public class ShootHandler implements IValidator {
      * @param weaponStack the weapon stack
      * @return true if weapon stack amount is now 0
      */
-    private boolean handleConsumeItemOnShoot(ItemStack weaponStack) {
+    public boolean handleConsumeItemOnShoot(ItemStack weaponStack) {
         int amount = weaponStack.getAmount() - 1;
         weaponStack.setAmount(amount);
         return amount <= 0;

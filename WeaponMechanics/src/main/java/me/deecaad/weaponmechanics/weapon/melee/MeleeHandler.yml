@@ -1,0 +1,10 @@
+Melee:
+  Enable_Melee: <true/false>
+  Melee_Attachment: <melee weapon name>
+  Melee_Range: <maximum melee range>
+  Melee_Hit_Delay: <ticks>
+  Consume_On_Hit: <true/false>
+  Melee_Miss:
+    Mechanics: <MechanicsSerializer>
+    Melee_Miss_Delay: <ticks>
+    Consume_On_Miss: <true/false>

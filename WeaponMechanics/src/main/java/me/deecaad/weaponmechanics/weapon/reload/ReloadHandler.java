@@ -98,7 +98,6 @@ public class ReloadHandler implements IValidator {
 
         Configuration config = getConfigurations();
 
-
         int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
         int tempMagazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
         if (tempMagazineSize <= 0 || reloadDuration <= 0) {

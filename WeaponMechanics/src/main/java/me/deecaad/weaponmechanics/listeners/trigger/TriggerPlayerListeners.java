@@ -108,7 +108,7 @@ public class TriggerPlayerListeners implements Listener {
         // Basically this just cancel double call to player interact event
         EquipmentSlot hand = e.getHand();
 
-        // Only if main hand is air (off hand can be whatever
+        // Only if main hand is air (off hand can be whatever)
         if (playerEquipment.getItemInMainHand().getType() == Material.AIR) {
 
             // Check if the action was right click block AND hand used was main hand
@@ -157,17 +157,24 @@ public class TriggerPlayerListeners implements Listener {
         if (rightClick) {
             if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
 
-            if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield);
+            if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield, null);
 
-            if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield);
+            if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield, null);
             return;
         }
 
         if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
 
-        if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield);
+        if (mainWeapon != null) {
+            weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield, null);
 
-        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield);
+            if (mainStack.getAmount() != 0) {
+                // Try melee if main weapon isn't null
+                weaponHandler.getMeleeHandler().tryUse(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.MELEE, dualWield, null);
+            }
+        }
+
+        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield, null);
     }
 
     /**
@@ -250,12 +257,12 @@ public class TriggerPlayerListeners implements Listener {
             // - 1 item in slot when dropping -> reference changes
             // - 2 items or more in slot when dropping -> reference stays same
             Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, mainWeapon,
-                    playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield));
+                    playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.DROP_ITEM, dualWield, null));
         }
 
         if (offWeapon != null) {
             playerWrapper.droppedWeapon();
-            weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield);
+            weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield, null);
         }
     }
 
@@ -296,14 +303,14 @@ public class TriggerPlayerListeners implements Listener {
             if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_TO_MAIN_HAND, player, toMainWeapon, toOffWeapon)) return;
 
             // Only check off hand going to main hand
-            if (toMainWeapon != null) weaponHandler.tryUses(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_TO_MAIN_HAND, dualWield);
+            if (toMainWeapon != null) weaponHandler.tryUses(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_TO_MAIN_HAND, dualWield, null);
         }
         if (isValid(toOff)) {
             // SWAP_TO_OFF_HAND
             if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_TO_OFF_HAND, player, toMainWeapon, toOffWeapon)) return;
 
             // Only check main hand going to off hand
-            if (toOffWeapon != null) weaponHandler.tryUses(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND, TriggerType.SWAP_TO_OFF_HAND, dualWield);
+            if (toOffWeapon != null) weaponHandler.tryUses(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND, TriggerType.SWAP_TO_OFF_HAND, dualWield, null);
         }
     }
 

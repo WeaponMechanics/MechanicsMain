@@ -11,6 +11,7 @@ public enum TriggerType {
 
     RIGHT_CLICK,
     LEFT_CLICK,
+    MELEE,
 
     DROP_ITEM,
 

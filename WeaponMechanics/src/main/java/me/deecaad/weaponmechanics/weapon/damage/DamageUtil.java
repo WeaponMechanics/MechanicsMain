@@ -30,8 +30,7 @@ public class DamageUtil {
     /**
      * Do not let anyone instantiate this class
      */
-    private DamageUtil() {
-    }
+    private DamageUtil() { }
 
     public static double calculateFinalDamage(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
         Configuration config = WeaponMechanics.getBasicConfigurations();
@@ -97,16 +96,17 @@ public class DamageUtil {
     /**
      * @param cause The cause of the entity's damage
      * @param victim The entity being damaged
+     * @return true if damage was cancelled
      */
-    public static void apply(LivingEntity cause, LivingEntity victim, double damage) {
+    public static boolean apply(LivingEntity cause, LivingEntity victim, double damage) {
 
         if (victim.isInvulnerable() || victim.isDead()) {
-            return;
+            return true;
         } else if (victim.getType() == EntityType.PLAYER) {
             GameMode gamemode = ((Player) victim).getGameMode();
 
             if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR) {
-                return;
+                return true;
             }
         }
 
@@ -117,7 +117,7 @@ public class DamageUtil {
         EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
         Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
         if (entityDamageByEntityEvent.isCancelled()) {
-            return;
+            return true;
         }
 
         // Calculate the amount of damage to absorption hearts, and
@@ -140,6 +140,7 @@ public class DamageUtil {
         // Spigot api things
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
+        return false;
     }
     
     public static void damageArmor(LivingEntity victim, int amount) {
