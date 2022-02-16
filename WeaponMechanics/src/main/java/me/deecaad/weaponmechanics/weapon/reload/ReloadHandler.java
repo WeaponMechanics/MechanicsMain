@@ -105,8 +105,8 @@ public class ReloadHandler implements IValidator {
             return false;
         }
 
-        int ammoLeft = getAmmoLeft(weaponStack);
-        if (ammoLeft == -1) { // This shouldn't be -1, perhaps ammo was added for weapon in configs later in server...
+        int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
+        if (ammoLeft == -1) { // This shouldn't be -1 at this point since reload should be used, perhaps ammo was added for weapon in configs later in server...
             CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             ammoLeft = 0;
         }
@@ -239,7 +239,7 @@ public class ReloadHandler implements IValidator {
             @Override
             public void task() {
 
-                int ammoLeft = getAmmoLeft(weaponStack);
+                int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
 
                 // Here creating this again since this may change if there isn't enough ammo...
                 int ammoToAdd = finalAmmoToAdd + unloadedAmount;
@@ -281,7 +281,7 @@ public class ReloadHandler implements IValidator {
                 } else {
                     finishReload(entityWrapper, weaponTitle, weaponStack, handData, slot);
 
-                    if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
+                    if (ammoPerReload != -1 && getAmmoLeft(weaponStack, weaponTitle) < magazineSize) {
                         startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
                     }
                 }
@@ -389,10 +389,11 @@ public class ReloadHandler implements IValidator {
      * If returned value is -1, then ammo is not used in this weapon stack
      *
      * @param weaponStack the weapon stack
+     * @param weaponTitle the weapon title
      * @return -1 if infinity, otherwise current ammo amount
      */
-    public int getAmmoLeft(ItemStack weaponStack) {
-        if (CustomTag.AMMO_LEFT.hasInteger(weaponStack)) {
+    public int getAmmoLeft(ItemStack weaponStack, String weaponTitle) {
+        if (CustomTag.AMMO_LEFT.hasInteger(weaponStack) && getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size") != 0) {
             return CustomTag.AMMO_LEFT.getInteger(weaponStack);
         } else {
             return -1;
@@ -402,8 +403,8 @@ public class ReloadHandler implements IValidator {
     /**
      * @return false if can't consume ammo (no enough ammo left)
      */
-    public boolean consumeAmmo(ItemStack weaponStack, int amount) {
-        int ammoLeft = getAmmoLeft(weaponStack);
+    public boolean consumeAmmo(ItemStack weaponStack, String weaponTitle, int amount) {
+        int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
 
         // -1 means infinite ammo
         if (ammoLeft != -1) {
@@ -487,7 +488,7 @@ public class ReloadHandler implements IValidator {
                 firearmAction.readyState(weaponStack);
                 finishReload(entityWrapper, weaponTitle, weaponStack, handData, slot);
 
-                if (ammoPerReload != -1 && getAmmoLeft(weaponStack) < magazineSize) {
+                if (ammoPerReload != -1 && getAmmoLeft(weaponStack, weaponTitle) < magazineSize) {
                     startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
                 }
             }

@@ -70,7 +70,7 @@ public class TriggerEntityListeners implements Listener {
                 livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
 
         if (mainStack.getAmount() != 0) {
-            weaponHandler.getMeleeHandler().tryUse(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.MELEE, mainWeapon != null && offWeapon != null, (LivingEntity) victim);
+            weaponHandler.tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.MELEE, mainWeapon != null && offWeapon != null, (LivingEntity) victim);
         }
     }
 

@@ -170,7 +170,7 @@ public class TriggerPlayerListeners implements Listener {
 
             if (mainStack.getAmount() != 0) {
                 // Try melee if main weapon isn't null
-                weaponHandler.getMeleeHandler().tryUse(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.MELEE, dualWield, null);
+                weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.MELEE, dualWield, null);
             }
         }
 

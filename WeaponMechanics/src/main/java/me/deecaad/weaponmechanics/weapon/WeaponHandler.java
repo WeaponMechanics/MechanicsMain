@@ -117,18 +117,10 @@ public class WeaponHandler {
      */
     public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
 
-        if (triggerType != TriggerType.MELEE) {
-            // Try shooting
-            if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
-                if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
-                return;
-            }
-        } else {
-            // Try melee
-            // Most of the time this shouldn't happen since melee directly go to MeleeHandler
-            if (meleeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)) {
-                return;
-            }
+        // Try shooting
+        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)) {
+            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+            return;
         }
 
         // Shooting wasn't valid, try reloading

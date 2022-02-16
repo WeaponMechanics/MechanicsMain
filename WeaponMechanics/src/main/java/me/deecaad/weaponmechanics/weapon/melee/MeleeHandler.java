@@ -1,27 +1,21 @@
 package me.deecaad.weaponmechanics.weapon.melee;
 
 import co.aikar.timings.lib.MCTiming;
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
-import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -58,52 +52,26 @@ public class MeleeHandler implements IValidator {
      * Tries to use melee
      *
      * @param entityWrapper the entity who used trigger
-     * @param weaponTitle the weapon title
-     * @param weaponStack the weapon stack
-     * @param slot the slot used on trigger
-     * @param triggerType the trigger type trying to activate scope
-     * @param victim the victim hit, or null
-     * @return true if the melee was used
+     * @param weaponTitle   the weapon title
+     * @param weaponStack   the weapon stack
+     * @param slot          the slot used on trigger
+     * @param triggerType   the trigger type trying to activate melee
+     * @param dualWield     whether this was dual wield
+     * @return true if was able to shoot
      */
-    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot,
-                          TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
-        
-        if (!getConfigurations().getBool(weaponTitle + ".Melee.Enable_Melee")) {
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity knownVictim) {
+        Configuration config = getConfigurations();
+        if (!config.getBool(weaponTitle + ".Melee.Enable_Melee")) {
 
             // Change weapon title to match the attachment
-            weaponTitle = getConfigurations().getString(weaponTitle + ".Melee.Melee_Attachment");
+            weaponTitle = config.getString(weaponTitle + ".Melee.Melee_Attachment");
 
             // Melee isn't used for this weapon nor the melee attachment is defined
             if (weaponTitle == null) return false;
         }
 
-
         MCTiming meleeHandlerTiming = WeaponMechanics.timing("Melee Handler").startTiming();
-        boolean result = meleeWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim);
-        meleeHandlerTiming.stopTiming();
 
-        return result || weaponStack.getAmount() == 0;
-    }
-
-    /**
-     * @return true if was able to melee
-     */
-    private boolean meleeWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot,
-                                        TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
-
-        // Handle worldguard flags
-        WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
-        Location loc = entityWrapper.getEntity().getLocation();
-        if (!worldGuard.testFlag(loc, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-shoot")) {
-            Object obj = worldGuard.getValue(loc, "weapon-shoot-message");
-            if (obj != null && !obj.toString().isEmpty()) {
-                entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
-            }
-
-            return false;
-        }
-
-        Configuration config = getConfigurations();
         HandData handData = entityWrapper.getMainHandData();
 
         int meleeHitDelay = config.getInt(weaponTitle + ".Melee.Melee_Hit_Delay");
@@ -113,94 +81,33 @@ public class MeleeHandler implements IValidator {
         if (meleeMissDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastMeleeMissTime(), meleeMissDelay)) return false;
 
         double meleeRange = config.getDouble(weaponTitle + ".Melee.Melee_Range");
-
         LivingEntity shooter = entityWrapper.getEntity();
         Location eyeLocation = shooter.getEyeLocation();
         Vector direction = eyeLocation.getDirection();
-        RayTraceResult hit = null;
+        RayTraceResult hit = getHit(shooter, eyeLocation, direction, meleeRange, knownVictim);
 
-        if (victim == null) {
-            hit = getHit(shooter, eyeLocation, direction, meleeRange, null);
-            if (hit != null) victim = hit.getLivingEntity();
-        } else if (meleeRange != 0) {
-            hit = getHit(shooter, eyeLocation, direction, meleeRange, victim);
+        boolean result = false;
+        if (hit != null) {
+            result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+            if (result) {
+                if (meleeHitDelay != 0) handData.setLastMeleeTime(System.currentTimeMillis());
+                hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack);
+            }
+        } else {
+            // Handle miss
+            Mechanics meleeMissMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
+            if (meleeMissMechanics != null) meleeMissMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+
+            if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {
+                weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+                result = true;
+            }
+
+            if (meleeMissDelay != 0) handData.setLastMeleeMissTime(System.currentTimeMillis());
         }
+        meleeHandlerTiming.stopTiming();
 
-        if (victim == null || hit == null) {
-            handleMiss(entityWrapper, weaponTitle, weaponStack, dualWield, handData, meleeMissDelay);
-            return false;
-        }
-
-        ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
-
-        boolean consumeOnHit = getConfigurations().getBool(weaponTitle + ".Melee.Consume_On_Hit");
-        boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
-        if (consumeOnHit) {
-            if (!consumeItemOnShoot) {
-                reloadHandler.handleWeaponStackAmount(entityWrapper, weaponStack);
-            }
-
-            if (reloadHandler.getAmmoLeft(weaponStack) == 0) {
-                reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
-                return false;
-            }
-        }
-
-
-        // HitBox.handleMeleeHit() = true = cancelled
-        if (hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack)) return false;
-
-        if (meleeHitDelay != 0) handData.setLastMeleeTime(System.currentTimeMillis());
-
-        if (consumeOnHit) {
-
-            // Ammo has already been checked above
-            reloadHandler.consumeAmmo(weaponStack, 1);
-
-            if (consumeItemOnShoot && weaponHandler.getShootHandler().handleConsumeItemOnShoot(weaponStack)) {
-                return true;
-            }
-
-            if (reloadHandler.getAmmoLeft(weaponStack) == 0) {
-                reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, EquipmentSlot.HAND, dualWield);
-                return true;
-            }
-        }
-
-        if (entityWrapper instanceof PlayerWrapper) {
-            WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
-        }
-
-        return true;
-    }
-    
-    private void handleMiss(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, boolean dualWield, HandData handData, int meleeMissDelay) {
-        if (meleeMissDelay != 0) handData.setLastMeleeMissTime(System.currentTimeMillis());
-
-        Mechanics meleeMissMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
-        if (meleeMissMechanics != null) meleeMissMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-        if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {
-
-            // Here we don't really have to care whether there is ammo left since this was miss anyway
-            ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
-            reloadHandler.consumeAmmo(weaponStack, 1);
-
-            if (getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot") && weaponHandler.getShootHandler().handleConsumeItemOnShoot(weaponStack)) {
-                // Item was fully consumed
-                return;
-            }
-
-            if (entityWrapper instanceof PlayerWrapper) {
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
-            }
-
-            if (reloadHandler.getAmmoLeft(weaponStack) == 0) {
-                reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, EquipmentSlot.HAND, dualWield);
-            }
-        }
+        return result;
     }
 
     private RayTraceResult getHit(LivingEntity shooter, Location eyeLocation, Vector direction, double range, @Nullable LivingEntity knownVictim) {

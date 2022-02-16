@@ -94,6 +94,9 @@ public class RayTraceResult {
         return this.block != null ? handleBlockHit(projectile) : handleEntityHit(projectile);
     }
 
+    /**
+     * @return true if hit was cancelled
+     */
     public boolean handleMeleeHit(LivingEntity shooter, Vector shooterDirection, String weaponTitle, ItemStack weaponStack) {
         // Handle worldguard flags
         WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
