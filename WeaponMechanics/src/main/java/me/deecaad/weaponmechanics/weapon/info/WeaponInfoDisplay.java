@@ -66,7 +66,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
         if (showAmmoInBossBarProgress || showAmmoInExpLevel || showAmmoInExpProgress) {
             int magazineSize = WeaponMechanics.getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size");
-            int ammoLeft = WeaponMechanics.getWeaponHandler().getReloadHandler().getAmmoLeft(weaponStack);
+            int ammoLeft = WeaponMechanics.getWeaponHandler().getReloadHandler().getAmmoLeft(weaponStack, weaponTitle);
             double progress = (double) ammoLeft / (double) magazineSize;
 
             if (showAmmoInBossBarProgress) {
