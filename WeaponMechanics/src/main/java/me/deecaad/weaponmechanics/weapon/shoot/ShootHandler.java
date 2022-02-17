@@ -240,10 +240,14 @@ public class ShootHandler implements IValidator {
             }
         }
 
-        // Only check if selective fire doesn't have auto selected
-        if (!isSelectiveFireAuto) {
+        // Only check if selective fire doesn't have auto selected and it isn't melee
+        if (!isSelectiveFireAuto && !isMelee) {
             int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
             if (delayBetweenShots != 0 && !NumberUtil.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
+        }
+
+        if (isMelee) {
+            return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
         }
 
         if (usesSelectiveFire) {
@@ -636,7 +640,7 @@ public class ShootHandler implements IValidator {
         }
 
         double projectileSpeed = configuration.getDouble(path + ".Projectile_Speed", 80);
-        debug.validate(projectileSpeed >= 0, "Projectile_Speed must be a positive number!",
+        debug.validate(projectileSpeed > 0, "Projectile_Speed must be a positive number!",
                 StringUtil.foundAt(file, path + ".Projectile_Speed"));
 
         // Convert from more config friendly speed to normal

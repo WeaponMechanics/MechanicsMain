@@ -117,7 +117,7 @@ public class WeaponHandler {
      */
     public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
 
-        // Try shooting
+        // Try shooting (and melee)
         if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)) {
             if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
             return;

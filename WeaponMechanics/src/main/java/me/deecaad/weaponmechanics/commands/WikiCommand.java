@@ -41,7 +41,8 @@ public class WikiCommand extends SubCommand {
         builder.append("  " + SYM + " ").color(GRAY).append(build("Damage", hover)).append("\n");
         builder.append("  " + SYM + " ").color(GRAY).append(build("Explosion", hover)).append("\n");
         builder.append("  " + SYM + " ").color(GRAY).append(build("Scoping", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(GRAY).append(build("Firearms", hover));
+        builder.append("  " + SYM + " ").color(GRAY).append(build("Firearms", hover)).append("\n");
+        builder.append("  " + SYM + " ").color(GRAY).append(build("Melee", hover));
 
         sender.spigot().sendMessage(builder.create());
     }

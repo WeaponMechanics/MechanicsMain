@@ -1,0 +1,55 @@
+Combat_Knife:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6Combat Knife"
+      Unbreakable: true
+      Hide_Flags: true
+      Attributes:
+        - "GENERIC_MOVEMENT_SPEED-0.004"
+        - "GENERIC_ATTACK_SPEED--1"
+      Deny_Use_In_Crafting: true
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+  Skin:
+    Default:
+      Custom_Model_Data: 351
+  Damage:
+    Base_Damage: 13
+    Armor_Damage: 4
+    Victim_Mechanics:
+      Sounds:
+        - "ENTITY_ARROW_SHOOT-1-1"
+        - "ENTITY_SLIME_JUMP-1-1"
+    Head:
+      Bonus_Damage: 7
+      Victim_Mechanics:
+        Firework:
+          Location_Adjuster: "0~2~0"
+          Item:
+            Type: "FIREWORK_ROCKET"
+            Firework:
+              Power: 0
+              Effects:
+                - "BALL-RED-false-true"
+    Backstab:
+      Bonus_Damage: 10
+      Victim_Mechanics:
+        Firework:
+          Location_Adjuster: "0~2~0"
+          Item:
+            Type: "FIREWORK_ROCKET"
+            Firework:
+              Power: 0
+              Effects:
+                - "BURST-BLACK-false-true"
+  Melee:
+    Enable_Melee: true
+    Melee_Range: 4
+    Melee_Hit_Delay: 20
+    Melee_Miss:
+      Mechanics:
+        Sounds:
+          - "BLOCK_ANVIL_HIT-1-1-0-0.1"
+      Melee_Miss_Delay: 20
