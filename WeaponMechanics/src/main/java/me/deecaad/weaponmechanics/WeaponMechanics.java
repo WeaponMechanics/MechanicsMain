@@ -389,32 +389,6 @@ public class WeaponMechanics {
                 return ">100";
             }
         }));
-
-        metrics.addCustomChart(new SimplePie("uses_default_weapons", () -> {
-            List<String> defaultWeapons = Arrays.asList("AK-47", "FN_FAL", "FR_5_56", "M4A1",
-                    "Stim",
-                    "Airstrike", "Cluster_Grenade", "Flashbang", "Grenade", "Semtex",
-                    "MG34",
-                    "Kar98k",
-                    "50_GS", "357_Magnum",
-                    "RPG-7",
-                    "Origin_12", "R9-0",
-                    "AX-50",
-                    "AUG", "Uzi");
-
-            InfoHandler infoHandler = getWeaponHandler().getInfoHandler();
-            if (defaultWeapons.size() != infoHandler.getSortedWeaponList().size()) {
-                return "false";
-            }
-
-            for (String defaultWeapon : defaultWeapons) {
-                if (!infoHandler.hasWeapon(defaultWeapon)) {
-                    return "false";
-                }
-            }
-
-            return "true";
-        }));
     }
 
     public TaskChain onReload() {
