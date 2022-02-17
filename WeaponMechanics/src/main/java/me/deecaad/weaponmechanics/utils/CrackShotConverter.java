@@ -74,6 +74,9 @@ public class CrackShotConverter {
         WEAPON_LORE("Item_Information.Item_Lore", "Info.Weapon_Item.Lore", new LoreConvert()),
         SKIP_NAME_CHECK("Item_Information.Skip_Name_Check", "Info.Weapon_Converter_Check.Type"),
         SOUNDS_ACQUIRED("Item_Information.Sounds_Acquired", "Info.Weapon_Get_Mechanics.Sounds", new SoundConvert()),
+        MELEE_MODE("Item_Information.Melee_Mode", "Melee.Enable_Melee"),
+        MELEE_ATTACHMENT("Item_Information.Melee_Attachment", "Melee.Melee_Attachment"),
+        MELEE_HIT_DELAY("", "Melee.Melee_Hit_Delay", new MeleeHitDelayConverter()),
 
         // SHOOTING
         RIGHT_CLICK_TO_SHOOT("Shooting.Right_Click_To_Shoot", "Shoot.Trigger.Main_Hand", new ValueBooleanConvert("right_click", "left_click")),
@@ -648,6 +651,21 @@ public class CrackShotConverter {
             } else {
                 toConfig.set(to, "right_click");
             }
+        }
+    }
+
+    private static class MeleeHitDelayConverter implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            if (!fromConfig.getBoolean(from + "Item_Information.Melee_Mode")) {
+                return;
+            }
+
+            int delayBetweenShots = fromConfig.getInt(from + "Shooting.Delay_Between_Shots");
+            if (delayBetweenShots < 1) return;
+
+            toConfig.set(to, delayBetweenShots);
         }
     }
 }
