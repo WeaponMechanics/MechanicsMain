@@ -14,9 +14,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class StringUtilTest {
 
     @ParameterizedTest
-    @CsvSource({"bob,b,2", "deecaad,d,2", "cjcrafter,z,0", "darkman,k,1","mississippi,i,4"})
+    @CsvSource({"bob,b,2", "deecaad,d,2", "cjcrafter,z,0", "darkman,k,1", "mississippi,i,4"})
     void test_countChars(String str, char c, int expected) {
         assertEquals(expected, StringUtil.countChars(c, str));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"  ,2,    ", "a,3,aaa", ",10,", "hello,0,", "bob,1,bob"})
+    void test_repeat(String str, int count, String expected) {
+        if (str == null)
+            str = "";
+        if (expected == null)
+            expected = "";
+
+        assertEquals(expected, StringUtil.repeat(str, count));
     }
 
     @ParameterizedTest

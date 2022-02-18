@@ -44,6 +44,26 @@ public final class StringUtil {
     }
 
     /**
+     * Repeats the given string a given number of times.
+     *
+     * @param str   The non-null string to repeat.
+     * @param count The non-negative number of times to repeat.
+     * @return The non-null repeated string.
+     */
+    public static String repeat(String str, int count) {
+        if (count == 0 || str.isEmpty()) {
+            return "";
+        } else if (count == 1) {
+            return str;
+        } else {
+            StringBuilder builder = new StringBuilder(str.length() * count);
+            while (count-- > 0)
+                builder.append(str);
+            return builder.toString();
+        }
+    }
+
+    /**
      * Matches the first possible string for a given regular expression in the
      * given <code>string</code>. If the expression's matcher does not match
      * any string, then this method will return <code>null</code>.
