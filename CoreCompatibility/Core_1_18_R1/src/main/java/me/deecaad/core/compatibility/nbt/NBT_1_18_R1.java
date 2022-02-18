@@ -83,6 +83,7 @@ public class NBT_1_18_R1 implements NBTCompatibility {
                 // Add a new line after each element, and indent each line
                 // depending on the number of nested CompoundTags.
                 if (i != 0)
+                    builder.append('\n');
 
                 builder.append(StringUtil.repeat("  ", indents));
 
