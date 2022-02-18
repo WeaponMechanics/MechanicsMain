@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTagVisitor;
 import net.minecraft.nbt.Tag;
@@ -45,7 +46,7 @@ public class NBT_1_18_R1 implements NBTCompatibility {
     @Override
     public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
         CompoundTag nbt = getNMSStack(bukkitStack).getTag();
-        return nbt == null ? "null" : new TagColorVisitor(0).visit(nbt);
+        return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
     }
 
     private static class TagColorVisitor extends StringTagVisitor {
@@ -57,13 +58,17 @@ public class NBT_1_18_R1 implements NBTCompatibility {
         // Stores how many nested compound tags there currently are. Used to
         // determine curly brace color, as well as spacing.
         private final int indents;
+        private final int colorOffset;
 
-        public TagColorVisitor(int indents) {
-            super(); // The parent's StringBuilder is set in the constructor
+        public TagColorVisitor() {
+            this(0, 0);
+        }
 
-            Field field = ReflectionUtil.getField(super.getClass(), StringBuilder.class);
+        public TagColorVisitor(int indents, int colorOffset) {
+            Field field = ReflectionUtil.getField(StringTagVisitor.class, StringBuilder.class);
             this.builder = (StringBuilder) ReflectionUtil.invokeField(field, this);
             this.indents = indents;
+            this.colorOffset = colorOffset;
         }
 
         @Override
@@ -78,19 +83,19 @@ public class NBT_1_18_R1 implements NBTCompatibility {
                 // Add a new line after each element, and indent each line
                 // depending on the number of nested CompoundTags.
                 if (i != 0)
-                    builder.append('\n');
-                builder.append("  ".repeat(indents));
+
+                builder.append(StringUtil.repeat("  ", indents));
 
                 String key = list.get(i);
                 Tag value = Objects.requireNonNull(compound.get(key), "This is impossible");
-                String color = "&" + VALUE_COLORS.charAt(indents % VALUE_COLORS.length());
+                String color = "&" + VALUE_COLORS.charAt((i + colorOffset) % VALUE_COLORS.length());
 
                 builder.append(color).append(handleEscape(key))
                         .append("&f&l: ").append(color)
-                        .append(new TagColorVisitor(value instanceof CompoundTag ? indents + 1 : indents).visit(value));
+                        .append(new TagColorVisitor(value instanceof CompoundTag ? indents + 1 : indents, colorOffset + i).visit(value));
             }
 
-            builder.append("}\n");
+            builder.append(braceColor).append("}\n");
         }
     }
 }
