@@ -23,10 +23,10 @@ See the [Getting Started](https://github.com/WeaponMechanics/MechanicsMain/wiki#
 ## How to (Developers)
 See [Hooking into WeaponMechanics](https://github.com/WeaponMechanics/MechanicsMain/wiki/API) page on the wiki.  
 
-## Donate
-WeaponMechanics is the combination of a team of people working for hundreds of hours. If
-you like the project and want to see it continued, please consider donating. Otherwise, we
-always appreciate positive reviews.
+## Support the Developers
+WeaponMechanics is the combination of hundreds of hours of work. If you appreciate
+the work that was put into the plugin, please consider donating.
+[Positive Reviews](https://www.spigotmc.org/resources/weaponmechanics-1-9-4-1-18-1.99913/reviews) 
+are also encouraging. 
 
-* Donate Link 1
-
+* [CJCrafter's Donation Link](https://www.paypal.com/paypalme/cjcrafter)
