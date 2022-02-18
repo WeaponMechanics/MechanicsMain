@@ -26,6 +26,7 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -239,19 +240,26 @@ public class ReloadHandler implements IValidator {
             @Override
             public void task() {
 
-                int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (taskReference == weaponStack) {
+                    taskReference = weaponStack;
+                } else {
+                    handData.setReloadData(weaponTitle, taskReference);
+                }
+
+                int ammoLeft = getAmmoLeft(taskReference, weaponTitle);
 
                 // Here creating this again since this may change if there isn't enough ammo...
                 int ammoToAdd = finalAmmoToAdd + unloadedAmount;
 
                 if (ammoTypes != null) {
 
-                    int removedAmount = ammoTypes.removeAmmo(weaponStack, playerWrapper, ammoToAdd, magazineSize);
+                    int removedAmount = ammoTypes.removeAmmo(taskReference, playerWrapper, ammoToAdd, magazineSize);
 
                     // Just check if for some reason ammo disappeared from entity before reaching reload "complete" state
                     if (removedAmount <= 0) {
                         Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
-                        if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+                        if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(entityWrapper, weaponTitle, taskReference));
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);
@@ -267,22 +275,22 @@ public class ReloadHandler implements IValidator {
 
                 int finalAmmoSet = ammoLeft + ammoToAdd;
 
-                handleWeaponStackAmount(entityWrapper, weaponStack);
+                handleWeaponStackAmount(entityWrapper, taskReference);
 
-                CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet);
+                CustomTag.AMMO_LEFT.setInteger(taskReference, finalAmmoSet);
 
                 if (firearmAction != null) {
                     if (isPump) {
-                        firearmAction.openReloadState(weaponStack);
+                        firearmAction.openReloadState(taskReference);
                     } else {
-                        firearmAction.closeReloadState(weaponStack);
+                        firearmAction.closeReloadState(taskReference);
                     }
 
                 } else {
-                    finishReload(entityWrapper, weaponTitle, weaponStack, handData, slot);
+                    finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
 
-                    if (ammoPerReload != -1 && getAmmoLeft(weaponStack, weaponTitle) < magazineSize) {
-                        startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    if (ammoPerReload != -1 && getAmmoLeft(taskReference, weaponTitle) < magazineSize) {
+                        startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
                     }
                 }
             }
@@ -449,10 +457,18 @@ public class ReloadHandler implements IValidator {
 
             @Override
             public void task() {
-                if (isPump) {
-                    firearmAction.closeReloadState(weaponStack);
+
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (taskReference == weaponStack) {
+                    taskReference = weaponStack;
                 } else {
-                    firearmAction.reloadState(weaponStack);
+                    handData.setReloadData(weaponTitle, taskReference);
+                }
+
+                if (isPump) {
+                    firearmAction.closeReloadState(taskReference);
+                } else {
+                    firearmAction.reloadState(taskReference);
                 }
             }
 
@@ -485,11 +501,18 @@ public class ReloadHandler implements IValidator {
 
             @Override
             public void task() {
-                firearmAction.readyState(weaponStack);
-                finishReload(entityWrapper, weaponTitle, weaponStack, handData, slot);
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (taskReference == weaponStack) {
+                    taskReference = weaponStack;
+                } else {
+                    handData.setReloadData(weaponTitle, taskReference);
+                }
 
-                if (ammoPerReload != -1 && getAmmoLeft(weaponStack, weaponTitle) < magazineSize) {
-                    startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                firearmAction.readyState(taskReference);
+                finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
+
+                if (ammoPerReload != -1 && getAmmoLeft(taskReference, weaponTitle) < magazineSize) {
+                    startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
                 }
             }
 

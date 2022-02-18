@@ -190,7 +190,12 @@ public class ShootHandler implements IValidator {
                     handData.addFirearmActionTask(new BukkitRunnable() {
                         @Override
                         public void run() {
-                            firearmAction.readyState(weaponStack);
+                            ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                            if (taskReference == weaponStack) {
+                                taskReference = weaponStack;
+                            }
+
+                            firearmAction.readyState(taskReference);
                             handData.stopFirearmActionTasks();
                         }
                     }.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
@@ -309,24 +314,28 @@ public class ShootHandler implements IValidator {
 
             @Override
             public void run() {
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (taskReference == weaponStack) {
+                    taskReference = weaponStack;
+                }
 
                 // START RELOAD STUFF
 
                 ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
-                if (!reloadHandler.consumeAmmo(weaponStack, weaponTitle, 1)) {
+                if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, 1)) {
                     handData.setBurstTask(0);
                     cancel();
 
-                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
                     return;
                 }
 
                 // END RELOAD STUFF
 
                 // Only make the first projectile of burst modify spread change if its used
-                shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, shots == 0, false);
+                shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, shots == 0, false);
 
-                if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack)) {
+                if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
                     handData.setBurstTask(0);
                     cancel();
                     return;
@@ -336,10 +345,10 @@ public class ShootHandler implements IValidator {
                     handData.setBurstTask(0);
                     cancel();
 
-                    if (reloadHandler.getAmmoLeft(weaponStack, weaponTitle) == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                    if (reloadHandler.getAmmoLeft(taskReference, weaponTitle) == 0) {
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
                     } else {
-                        doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+                        doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, mainhand);
                     }
                 }
             }
@@ -363,17 +372,21 @@ public class ShootHandler implements IValidator {
         handData.setFullAutoTask(new BukkitRunnable() {
             int tick = 0;
             public void run() {
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (taskReference == weaponStack) {
+                    taskReference = weaponStack;
+                }
 
-                int ammoLeft = reloadHandler.getAmmoLeft(weaponStack, weaponTitle);
+                int ammoLeft = reloadHandler.getAmmoLeft(taskReference, weaponTitle);
 
                 if (!keepFullAutoOn(entityWrapper, triggerType)) {
                     handData.setFullAutoTask(0);
                     cancel();
 
                     if (ammoLeft == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
                     } else {
-                        doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+                        doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, mainhand);
                     }
 
                     return;
@@ -395,11 +408,11 @@ public class ShootHandler implements IValidator {
                         shootAmount = ammoLeft;
                     }
 
-                    if (!reloadHandler.consumeAmmo(weaponStack, weaponTitle, shootAmount)) {
+                    if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, shootAmount)) {
                         handData.setFullAutoTask(0);
                         cancel();
 
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
                         return;
                     }
                 }
@@ -407,16 +420,16 @@ public class ShootHandler implements IValidator {
                 // END RELOAD STUFF
 
                 if (shootAmount == 1) {
-                    shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true, false);
-                    if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack)) {
+                    shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true, false);
+                    if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
                         handData.setFullAutoTask(0);
                         cancel();
                         return;
                     }
                 } else if (shootAmount > 1) { // Don't try to shoot in this tick if shoot amount is 0
                     for (int i = 0; i < shootAmount; ++i) {
-                        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true, false);
-                        if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack)) {
+                        shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true, false);
+                        if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
                             handData.setFullAutoTask(0);
                             cancel();
                             return;
@@ -449,11 +462,16 @@ public class ShootHandler implements IValidator {
         BukkitRunnable closeRunnable = new BukkitRunnable() {
             @Override
             public void run() {
-                firearmAction.readyState(weaponStack);
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (taskReference == weaponStack) {
+                    taskReference = weaponStack;
+                }
+
+                firearmAction.readyState(taskReference);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, taskReference);
                 }
 
                 handData.stopFirearmActionTasks();
@@ -495,17 +513,21 @@ public class ShootHandler implements IValidator {
         handData.addFirearmActionTask(new BukkitRunnable() {
             @Override
             public void run() {
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
+                if (taskReference == weaponStack) {
+                    taskReference = weaponStack;
+                }
 
-                firearmAction.closeShootState(weaponStack);
+                firearmAction.closeShootState(taskReference);
 
-                CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
+                CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
                 // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
                 firearmAction.useMechanics(castData, false);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, taskReference);
                 }
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
