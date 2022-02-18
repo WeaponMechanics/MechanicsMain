@@ -30,6 +30,8 @@ Resource_Pack_Download:
   Connection_Timeout: 10
   Read_Timeout: 30
   Automatically_Send_To_Player: true
+  Force_Player_Download: false # When this is true, the player will be kicked from the server if they don't download the pack
+  Kick_Message: "You must download the resource pack! (WeaponMechanics)"
 
 # If you don't use a specific trigger, it can be disabled here. The performance
 # boost is minor, but it's here if you need it.
