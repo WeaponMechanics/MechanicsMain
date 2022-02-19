@@ -14,14 +14,12 @@ import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
@@ -33,7 +31,7 @@ public class CommandBuilder {
     private final String label;
     private Permission permission;
     private List<String> aliases;
-    private List<Argument<?>> args;
+    private List<Argument<Object>> args;
     private List<CommandBuilder> subcommands;
     private CommandExecutor<? extends CommandSender> executor;
     private String description;
@@ -70,12 +68,12 @@ public class CommandBuilder {
         return this;
     }
 
-    public CommandBuilder withArgument(Argument<?> argument) {
+    public CommandBuilder withArgument(Argument<Object> argument) {
         this.args.add(argument);
         return this;
     }
 
-    public CommandBuilder withArguments(Argument<?>... arguments) {
+    public CommandBuilder withArguments(Argument<Object>... arguments) {
         this.args.addAll(Arrays.asList(arguments));
         return this;
     }
@@ -95,64 +93,44 @@ public class CommandBuilder {
         return this;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    public Permission getPermission() {
+        return permission;
+    }
+
+    public List<String> getAliases() {
+        return aliases;
+    }
+
+    public List<Argument<Object>> getArgs() {
+        return args;
+    }
+
+    public List<CommandBuilder> getSubcommands() {
+        return subcommands;
+    }
+
+    public CommandExecutor<? extends CommandSender> getExecutor() {
+        return executor;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public void register() {
         if (permission != null)
             Bukkit.getPluginManager().addPermission(permission);
-
-        if (ReflectionUtil.getMCVersion() >= 13)
-            registerBrigadier();
-        else
-            registerLegacy();
     }
 
-    private void registerLegacy() {
-    }
 
-    @SuppressWarnings("unchecked")
-    private void registerBrigadier() {
-        Command<?> command = new Command<Object>() {
-            @Override
-            public int run(CommandContext<Object> context) throws CommandSyntaxException {
-                CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSender(context);
 
-                if (!sender.getClass().isAssignableFrom(executor.getExecutor())) {
-                    sender.sendMessage(ChatColor.RED + label + " is a " + executor.getExecutor().getSimpleName() + " only command.");
-                    return -1;
-                }
 
-                try {
-                    ((CommandExecutor<CommandSender>) executor).execute(sender, parseBrigadierArguments(context));
-                    return 0;
-                } catch (CommandSyntaxException ex) {
-                    throw ex;
-                } catch (Exception ex) {
-                    sender.sendMessage(ChatColor.RED + "Some error occurred whilst executing command. Check console for error. ");
-                    ex.printStackTrace();
-                    return -1;
-                }
-            }
-        };
 
-        LiteralCommandNode<Object> result;
-        if (args.size() == 0) {
-
-        } else {
-            ArgumentBuilder<Object, ?> commandArguments = null;
-
-            CommandDispatcher<Object> dispatcher = CompatibilityAPI.getCommandCompatibility().getCommandDispatcher();
-            result = dispatcher.register(literal(label).requires(handlePermissions()));
-        }
-    }
-
-    private Object[] parseBrigadierArguments(CommandContext<Object> context) throws Exception {
-        List<Object> temp = new ArrayList<>(args.size());
-        for (Argument<?> argument : args)
-            temp.add(argument.parse(context));
-
-        return temp.toArray();
-    }
-
-    private Predicate<Object> handlePermissions() {
+    public Predicate<Object> requirements() {
         if (permission == null) {
             return nms -> true;
         }

@@ -37,6 +37,10 @@ public class Argument<T> {
         this.isRequired = false;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public CommandArgumentType<T> getType() {
         return type;
     }
