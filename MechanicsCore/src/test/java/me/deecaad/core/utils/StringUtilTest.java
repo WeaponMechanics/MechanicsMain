@@ -5,6 +5,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,9 +14,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class StringUtilTest {
 
     @ParameterizedTest
-    @CsvSource({"bob,b,2", "deecaad,d,2", "cjcrafter,z,0", "darkman,k,1","mississippi,i,4"})
+    @CsvSource({"bob,b,2", "deecaad,d,2", "cjcrafter,z,0", "darkman,k,1", "mississippi,i,4"})
     void test_countChars(String str, char c, int expected) {
         assertEquals(expected, StringUtil.countChars(c, str));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"  ,2,    ", "a,3,aaa", ",10,", "hello,0,", "bob,1,bob"})
+    void test_repeat(String str, int count, String expected) {
+        if (str == null)
+            str = "";
+        if (expected == null)
+            expected = "";
+
+        assertEquals(expected, StringUtil.repeat(str, count));
     }
 
     @ParameterizedTest
@@ -89,5 +102,20 @@ class StringUtilTest {
     @MethodSource("provide_split")
     void test_split(String input, String[] expected) {
         assertArrayEquals(expected, StringUtil.split(input));
+    }
+
+    private static Stream<Arguments> provide_didYouMean() {
+        return Stream.of(
+                Arguments.of("endermen", Arrays.asList("cat", "dog", "enderman", "endermite", "ender", "man"), "enderman"),
+                Arguments.of("dirt", Arrays.asList("dirt", "dirty", "dirts", "trid", "treat", "cat", "dog"), "dirt"),
+                Arguments.of("block_sand_break", Arrays.asList("sand_break", "block_snad_break", "sand", "block", "cat"), "block_snad_break")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provide_didYouMean")
+    void test_didYouMean(String input, List<String> options, String expected) {
+        String actual = StringUtil.didYouMean(input, options);
+        assertEquals(expected, actual);
     }
 }

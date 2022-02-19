@@ -1,0 +1,29 @@
+name: Feature Request
+description: If you have features request, post it here
+labels: [ enhancement ]
+body:
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        Explain what kind of feature you want to be added
+      value: |
+        Describe as well as you can about the feature you're requesting
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Configuration
+      description: |
+        How do you imagine this feature would look like in configurations?
+      value: |
+        ```yaml
+        My_Feature:
+          Feature_Option: <true/false>
+          Other_Option: <amount>
+          etc.
+        ```
+    validations:
+      required: true

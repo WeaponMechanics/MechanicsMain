@@ -32,7 +32,7 @@ FR_5_56:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 40
+    Projectile_Speed: 80
     Selective_Fire:
       Trigger:
         Main_Hand: "DOUBLE_SNEAK"

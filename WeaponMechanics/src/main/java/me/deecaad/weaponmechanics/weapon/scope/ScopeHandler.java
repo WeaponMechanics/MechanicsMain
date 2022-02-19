@@ -249,33 +249,10 @@ public class ScopeHandler implements IValidator {
 
         Player player = (Player) entityWrapper.getEntity();
 
-        // First 12 levels:
-        // -> PacketPlayOutUpdateAttributes (generic.movementSpeed)
-        // Rest 20 levels:
-        // -> PacketPlayOutAbilities (walk speed)
-
-        int lastZoomAmount = zoomData.getZoomAmount();
         zoomData.setZoomAmount(newZoomAmount);
-        if (lastZoomAmount < 13 && newZoomAmount > 12 || lastZoomAmount > 12 && newZoomAmount < 13) {
-            // If last zoom was with attributes AND new one should be with abilities
-            // -> Update both
-            // OR
-            // If last zoom was with abilities AND new one should be with attributes
-            // This might happen in rare cases.
-            // E.g. negative zoom increases when stacking
-            // -> Update both
 
-            // Update attributes
-            scopeCompatibility.updateAttributesFor(player);
-            // Update abilities
-            scopeCompatibility.updateAbilities(player);
-        } else if (newZoomAmount < 13) {
-            // Update attributes
-            scopeCompatibility.updateAttributesFor(player);
-        } else {
-            // Update abilities
-            scopeCompatibility.updateAbilities(player);
-        }
+        // Update abilities sets the FOV change
+        scopeCompatibility.updateAbilities(player);
     }
 
     /**

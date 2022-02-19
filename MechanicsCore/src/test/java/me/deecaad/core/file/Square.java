@@ -32,9 +32,9 @@ public class Square implements Serializer<Square> {
     public Square serialize(SerializeData data) throws SerializerException {
         Vec2 offset = data.of("Offset").serialize(Vec2.class);
         int length = data.of("Length").assertExists().assertPositive().get();
-        double r = data.of("R").assertRange(0.0, 1.0).get(0.0);
-        double g = data.of("G").assertRange(0.0, 1.0).get(0.0);
-        double b = data.of("B").assertRange(0.0, 1.0).get(0.0);
+        double r = data.of("R").assertRange(0.0, 1.0).getDouble(0.0);
+        double g = data.of("G").assertRange(0.0, 1.0).getDouble(0.0);
+        double b = data.of("B").assertRange(0.0, 1.0).getDouble(0.0);
 
         if (length == 0)
             throw data.exception("Length", "'Length' may not be '0'");
@@ -73,9 +73,9 @@ public class Square implements Serializer<Square> {
         @Nonnull
         @Override
         public Vec2 serialize(SerializeData data) throws SerializerException {
-            int x = data.of("X").assertExists().assertType(int.class).get();
-            int y = data.of("Y").assertExists().assertType(Integer.class).get();
-            boolean absolute = data.of("Absolute").assertType(boolean.class).get(true);
+            int x = data.of("X").assertExists().assertType(int.class).getInt();
+            int y = data.of("Y").assertExists().assertType(Integer.class).getInt();
+            boolean absolute = data.of("Absolute").assertType(boolean.class).getBool(true);
 
             return new Vec2(x, y, absolute);
         }

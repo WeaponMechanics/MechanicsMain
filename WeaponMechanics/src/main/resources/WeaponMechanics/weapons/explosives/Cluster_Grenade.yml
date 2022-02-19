@@ -4,7 +4,6 @@ Cluster_Grenade:
       Type: "FEATHER"
       Name: "&6Cluster Grenade"
       Unbreakable: true
-      Custom_Model_Data: 291
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
@@ -12,10 +11,7 @@ Cluster_Grenade:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
   Projectile:
     Projectile_Settings:
-      Type: "DROPPED_ITEM"
-      Projectile_Item_Or_Block:
-        Type: "FEATHER"
-        Custom_Model_Data: 291
+      Type: "PRIMED_TNT"
       Disable_Entity_Collisions: true
     Bouncy:
       Maximum_Bounce_Amount: -1
@@ -23,24 +19,25 @@ Cluster_Grenade:
         Allow_Any: true
         Default_Speed_Multiplier: 0.6
       Rolling:
-        Required_Motion_To_Start_Rolling: 3
+        Required_Motion_To_Start_Rolling: 6
         Blocks:
           Allow_Any: true
           Default_Speed_Multiplier: 0.9
           List:
             - "$_ICE-0.99"
+            - "ICE-0.99"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 18
+    Projectile_Speed: 36
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
     Mechanics:
       Sounds:
-        - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
+        - "ENTITY_EGG_THROW-0.5-1-0-0.1"
   Damage:
     Base_Explosion_Damage: 8
     Fire_Ticks: 60
@@ -59,7 +56,7 @@ Cluster_Grenade:
       Impact_When:
         Spawn: true
     Cluster_Bomb:
-      Projectile_Speed: 14
+      Projectile_Speed: 28
       Number_Of_Bombs: 12
       Detonation:
         Delay_After_Impact: 50

@@ -1,8 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.entity.BitMutator;
-import me.deecaad.core.compatibility.entity.EntityMetaFlag;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
@@ -13,7 +11,6 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
@@ -21,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 

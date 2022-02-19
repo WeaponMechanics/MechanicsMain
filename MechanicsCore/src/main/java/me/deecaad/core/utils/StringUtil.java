@@ -1,7 +1,5 @@
 package me.deecaad.core.utils;
 
-import me.deecaad.core.MechanicsCore;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
@@ -43,6 +41,26 @@ public final class StringUtil {
             }
         }
         return count;
+    }
+
+    /**
+     * Repeats the given string a given number of times.
+     *
+     * @param str   The non-null string to repeat.
+     * @param count The non-negative number of times to repeat.
+     * @return The non-null repeated string.
+     */
+    public static String repeat(String str, int count) {
+        if (count == 0 || str.isEmpty()) {
+            return "";
+        } else if (count == 1) {
+            return str;
+        } else {
+            StringBuilder builder = new StringBuilder(str.length() * count);
+            while (count-- > 0)
+                builder.append(str);
+            return builder.toString();
+        }
     }
 
     /**
@@ -335,7 +353,7 @@ public final class StringUtil {
 
         for (String str : options) {
             int[] localTable = mapToCharTable(str.toLowerCase());
-            int localDifference = 0;
+            int localDifference = Math.abs(str.length() - input.length());
 
             for (int i = 0; i < table.length; i++) {
                 localDifference += Math.abs(table[i] - localTable[i]);
@@ -353,14 +371,18 @@ public final class StringUtil {
     private static int[] mapToCharTable(String str) {
         int[] table = new int[LOWER_ALPHABET.length()];
         for (int i = 0; i < str.length(); i++) {
-            try {
-                table[Character.toLowerCase(str.charAt(i)) - 97]++;
-            } catch (ArrayIndexOutOfBoundsException ignore) {
-                // Sometimes a string will contain something like an underscore.
-                // We can safely ignore those characters and count the ones that
-                // matter.
-            }
+
+            // For performance reasons, we should check if the character is
+            // in the array. We can ignore these characters, since they are
+            // not as important as the a-z characters when identifying enums
+            // and other options.
+            int index = Character.toLowerCase(str.charAt(i)) - 97;
+            if (index < 0 || index >= table.length)
+                continue;
+
+            table[index]++;
         }
+
         return table;
     }
 }

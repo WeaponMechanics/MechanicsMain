@@ -30,7 +30,7 @@ Kar98k:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 110
+    Projectile_Speed: 220
     Delay_Between_Shots: 18
     Spread:
       Base_Spread: 3

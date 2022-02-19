@@ -18,11 +18,16 @@ import java.net.URLConnection;
 import java.nio.file.CopyOption;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -42,91 +47,70 @@ public final class FileUtil {
      * this method will be called recursively until all subdirectories are
      * copied.
      *
-     * @param clazz    The non-null loading plugin class.
-     * @param loader   The non-null loading plugin's class loader.
-     * @param resource The non-null name of the resource to copy.
-     * @param output   The non-null directory. It is important that
-     *                 {@link File#isDirectory()} returns true for this file.
-     * @throws InternalError            If this method fails for an unknown
-     *                                  reason.
-     * @throws IllegalArgumentException If the resource does not exist.
-     * @throws IllegalStateException    If this method is called from outside a
-     *                                  jar file.
+     * @param source The non-null resource folder that contains the files to
+     *               copy. No need to start this with a '/' character.
+     *               Depending on the .jar file, you may need to append
+     *               'resources/' before your resource. Use
+     *               {@link ClassLoader#getResource(String)}.
+     * @param target The non-null target file to write all the resource files
+     *               to. Use {@link File#toPath()}.
+     *
+     * @throws IOException If any kind of IO exception occurs.
+     * @throws URISyntaxException If the URL cannot be converted to a URI.
      */
-    public static void copyResourcesTo(Class<?> clazz, ClassLoader loader, String resource, File output) {
+    public static void copyResourcesTo(URL source, Path target) throws IOException, URISyntaxException {
+        PathReference pathReference = PathReference.of(source.toURI());
 
-        // The the output folder doesn't exist, create it's parent directories
-        // then the directory defined by folder.
-        if (!output.mkdirs() && !output.exists()) {
-            throw new InternalError("Failed to create directory: " + output);
-        }
+        Files.walkFileTree(pathReference.getPath(), new SimpleFileVisitor<Path>() {
 
-        // Determine if the resource exists
-        URL url = loader.getResource(resource);
-        if (url == null) {
-            throw new IllegalArgumentException("Invalid resource: " + resource);
-        }
-
-        // URIs can point to resources, even if the resources are in a jar file.
-        URL jar;
-        Path pathToJar;
-        try {
-            URI uri = url.toURI();
-
-            // This method does not support being run from outside of a jar
-            // file. Does this method really need to support plugins running
-            // from an IDE?
-            if (!uri.getScheme().equals("jar")) {
-                throw new IllegalStateException("This method only supports copying files from a JAR file");
+            // "Visit" directories first so we can create the directory.
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                Path currentTarget = target.resolve(pathReference.getPath().relativize(dir).toString());
+                Files.createDirectories(currentTarget);
+                return FileVisitResult.CONTINUE;
             }
 
-            jar = clazz.getProtectionDomain().getCodeSource().getLocation();
-            pathToJar = Paths.get(jar.toURI());
+            // "Visit" each file and copy the relative path
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.copy(file, target.resolve(pathReference.getPath().relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
 
-        } catch (URISyntaxException e) {
-            throw new InternalError(e);
+    public static class PathReference {
+        private final Path path;
+        private final FileSystem fileSystem;
+
+        private PathReference(Path path, FileSystem fileSystem) {
+            this.path = path;
+            this.fileSystem = fileSystem;
         }
 
-        // The "working" part of the method. This creates a filesystem in the
-        // jar, and copies files immediately in that file system. For any
-        // folders in the file system, this method will be called recursively.
-        try (
-                FileSystem fs = FileSystems.newFileSystem(pathToJar, (ClassLoader) null);
-                DirectoryStream<Path> directories = Files.newDirectoryStream(fs.getPath(resource));
-        ) {
-            for (Path p : directories) {
-                String path = p.toString();
-                String fullPath = path.startsWith("/") ? path.substring(1) : path;
-                path = path.substring(path.lastIndexOf('/'));
+        public Path getPath() {
+            return path;
+        }
 
-                // Handle nested folders
-                File file = new File(output, path);
-                if (path.indexOf('.') == -1) {
-                    copyResourcesTo(clazz, loader, fullPath, file);
-                    continue;
-                }
+        public FileSystem getFileSystem() {
+            return fileSystem;
+        }
 
-                URL streamHolder = loader.getResource(fullPath);
-                if (streamHolder == null) {
-                    // This should never occur
-                    throw new InternalError("Unknown resource: " + p);
-                }
-
-                // Handle hard files
-                try (
-                        InputStream in = streamHolder.openStream();
-                        FileOutputStream out = new FileOutputStream(file)
-                ) {
-                    int data;
-                    while ((data = in.read()) != -1) {
-                        out.write(data);
-                    }
-                } catch (IOException e) {
-                    throw new InternalError(e);
-                }
+        public static PathReference of(URI resource) throws IOException {
+            try
+            {
+                // first try getting a path via existing file systems
+                return new PathReference(Paths.get(resource), null);
             }
-        } catch (IOException e) {
-            throw new InternalError(e);
+            catch (final FileSystemNotFoundException e)
+            {
+                // This generally occurs when the file is in a .jar file.
+                final Map<String, ?> env = Collections.emptyMap();
+                final FileSystem fs = FileSystems.newFileSystem(resource, env);
+                return new PathReference(fs.provider().getPath(resource), fs);
+            }
+
         }
     }
 

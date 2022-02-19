@@ -119,6 +119,15 @@ public class SpreadImage implements Serializer<SpreadImage> {
         File spritesFolder = new File(dataFolder, "spread_patterns");
         File spriteFile = new File(spritesFolder, imageName);
 
+        if (!spritesFolder.exists()) {
+            spritesFolder.mkdirs();
+            WeaponMechanics.debug.warn("The spread image folder seems to be missing",
+                    "Perhaps you accidentally deleted it? Or perhaps the plugin failed on first load?",
+                    "We'll add one back for you, make sure you drag and drop your images into it.",
+                    "You are going to see an error on the next line. This is because the folder is empty.",
+                    ""); // + empty line for spacing
+        }
+
         if (!spriteFile.exists()) {
             throw data.exception("Name", "No spread image '" + spriteFile + "' exists",
                     "Make sure you spelled the name correctly",

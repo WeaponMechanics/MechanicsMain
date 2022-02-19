@@ -30,7 +30,7 @@ M4A1:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 40
+    Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 14
     Spread:
       Base_Spread: 3.6
@@ -40,7 +40,6 @@ M4A1:
         In_Midair: 150%
     Recoil:
       Push_Time: 200
-      Recover_Time: 200
       Horizontal:
         - 2.9
         - -2.9

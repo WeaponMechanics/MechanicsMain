@@ -30,3 +30,6 @@ target/
 # Spigot depends
 lib/nms
 lib/BuildTools
+
+# No need to commit this, it gets auto generated for each version
+/WeaponMechanics/src/main/resources/version.txt

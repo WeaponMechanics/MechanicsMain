@@ -14,7 +14,6 @@ dependencies {
     implementation(project(":WeaponMechanics"))
     implementation(project(":WeaponCompatibility"))
 
-    implementation(project(":Weapon_1_8_R3" ))
     implementation(project(":Weapon_1_9_R2" ))
     implementation(project(":Weapon_1_10_R1"))
     implementation(project(":Weapon_1_11_R1"))
@@ -45,6 +44,8 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
+    dependsOn("versionFile")
+
     baseName = "WeaponMechanics" // Since we don't want to use "BuildWeaponMechanics"
     classifier = null;
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
@@ -53,7 +54,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":WeaponMechanics"))
         include(project(":WeaponCompatibility"))
 
-        include(project(":Weapon_1_8_R3" ))
         include(project(":Weapon_1_9_R2" ))
         include(project(":Weapon_1_10_R1"))
         include(project(":Weapon_1_11_R1"))
@@ -65,10 +65,19 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_17_R1"))
         include(project(":Weapon_1_18_R1"))
 
-        relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.timingslib") {
+        relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
             include(dependency("co.aikar:minecraft-timings"))
         }
+
+        relocate ("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
+            include(dependency("org.bstats:"))
+        }
     }
+}
+
+tasks.register("versionFile").configure {
+    val file = file("../WeaponMechanics/src/main/resources/version.txt")
+    file.writeText(project(":BuildMechanicsCore").version.toString());
 }
 
 tasks.named("assemble").configure {
@@ -76,4 +85,4 @@ tasks.named("assemble").configure {
 }
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.0.0"
+version = "1.4.0-BETA"

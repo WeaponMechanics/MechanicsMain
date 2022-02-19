@@ -35,15 +35,6 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
     // treated the same as 0.5.
     private static final float MIN_PITCH = 0.5f;
     private static final float MAX_PITCH = 2.0f;
-    private static Method worldGetHandle;
-    private static Method makeSoundMethod;
-
-    static {
-        if (CompatibilityAPI.getVersion() < 1.09) {
-            worldGetHandle = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftWorld"), "getHandle");
-            makeSoundMethod = ReflectionUtil.getMethod(ReflectionUtil.getNMSClass("world.level", "World"), "makeSound", double.class, double.class, double.class, String.class, float.class, float.class);
-        }
-    }
 
     private int delayCounter;
     private List<SoundMechanicData> soundList;
@@ -248,12 +239,8 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             Location castLocation = castData.getCastLocation();
             if (CompatibilityAPI.getVersion() >= 1.11) {
                 castLocation.getWorld().playSound(castLocation, sound, SoundCategory.PLAYERS, getVolume(), getRandomPitch());
-            } else if (CompatibilityAPI.getVersion() >= 1.09) {
-                castLocation.getWorld().playSound(castLocation, sound, getVolume(), getRandomPitch());
             } else {
-                Object worldServer = ReflectionUtil.invokeMethod(worldGetHandle, castLocation.getWorld());
-                double x = castLocation.getX(), y = castLocation.getY(), z = castLocation.getZ();
-                ReflectionUtil.invokeMethod(makeSoundMethod, worldServer, x, y, z, sound, getVolume(), getRandomPitch());
+                castLocation.getWorld().playSound(castLocation, sound, getVolume(), getRandomPitch());
             }
         }
     }

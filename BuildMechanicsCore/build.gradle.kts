@@ -16,7 +16,6 @@ dependencies {
     implementation(project(":WorldGuardV6"))
     implementation(project(":WorldGuardV7"))
 
-    implementation(project(":Core_1_8_R3" ))
     implementation(project(":Core_1_9_R2" ))
     implementation(project(":Core_1_10_R1"))
     implementation(project(":Core_1_11_R1"))
@@ -57,7 +56,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":WorldGuardV6"))
         include(project(":WorldGuardV7"))
 
-        include(project(":Core_1_8_R3" ))
         include(project(":Core_1_9_R2" ))
         include(project(":Core_1_10_R1"))
         include(project(":Core_1_11_R1"))
@@ -76,4 +74,4 @@ tasks.named("assemble").configure {
 }
 
 description = "Library plugin for WeaponMechanics"
-version = "1.0.0"
+version = "1.0.4-BETA"

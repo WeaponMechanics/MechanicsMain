@@ -1,14 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.vault.IVaultCompatibility;
-import me.deecaad.core.compatibility.vault.VaultAPI;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class MoneyAmmo implements IAmmoType {
 
-    private static final IVaultCompatibility vaultCompatibility = VaultAPI.getVaultCompatibility();
+    private static final IVaultCompatibility vaultCompatibility = CompatibilityAPI.getVaultCompatibility();
 
     // Defined in ammo types list
     private String ammoName;

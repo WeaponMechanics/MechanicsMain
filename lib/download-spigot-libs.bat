@@ -12,13 +12,6 @@ set Path=%JAVA_HOME%\bin;%Path%
 
 curl -z BuildTools.jar -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
 
-:: 1_8_R3
-IF NOT EXIST 1_8_R3 (
-    mkdir 1_8_R3
-)
-cd 1_8_R3
-java -jar ../BuildTools.jar --rev 1.8.8 --output-dir ../../nms
-
 
 :: 1_9_R2
 IF NOT EXIST "../1_9_R2" (

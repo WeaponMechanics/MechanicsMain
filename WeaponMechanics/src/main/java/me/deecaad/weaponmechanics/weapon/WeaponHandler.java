@@ -1,15 +1,14 @@
 package me.deecaad.weaponmechanics.weapon;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
-import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
+import me.deecaad.weaponmechanics.weapon.melee.MeleeHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
@@ -30,6 +29,8 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
+
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
 import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
@@ -45,6 +46,7 @@ public class WeaponHandler {
     private final ScopeHandler scopeHandler;
     private final DamageHandler damageHandler;
     private final SkinHandler skinHandler;
+    private final MeleeHandler meleeHandler;
 
     public WeaponHandler() {
         infoHandler = new InfoHandler(this);
@@ -53,6 +55,7 @@ public class WeaponHandler {
         scopeHandler = new ScopeHandler(this);
         damageHandler = new DamageHandler(this);
         skinHandler = new SkinHandler(this);
+        meleeHandler = new MeleeHandler(this);
     }
 
     /**
@@ -60,7 +63,7 @@ public class WeaponHandler {
      * This is used with the exceptions off 
      * {@link TriggerPlayerListeners#dropItem(PlayerDropItemEvent)}, 
      * {@link TriggerPlayerListeners#interact(PlayerInteractEvent)}
-     * and {@link TriggerPlayerListenersAbove_1_9#swapHandItems(PlayerSwapHandItemsEvent)}.
+     * and {@link TriggerPlayerListeners#swapHandItems(PlayerSwapHandItemsEvent)}.
      *
      * @param livingEntity the living entity which caused trigger
      * @param triggerType the trigger type
@@ -75,36 +78,24 @@ public class WeaponHandler {
 
         if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
 
-        boolean useOffHand = CompatibilityAPI.getVersion() >= 1.09;
         EntityEquipment entityEquipment = livingEntity.getEquipment();
         if (entityEquipment == null) return;
 
-        // getItemInMainHand didn't exist in 1.8
-        ItemStack mainStack = useOffHand ? entityEquipment.getItemInMainHand() : entityEquipment.getItemInHand();
-
+        ItemStack mainStack = entityEquipment.getItemInMainHand();
         String mainWeapon = infoHandler.getWeaponTitle(mainStack, autoConvert);
 
-        // Only get off hand things is server is 1.9 or newer
-        ItemStack offStack = null;
-        String offWeapon = null;
-        if (useOffHand) {
-            offStack = entityEquipment.getItemInOffHand();
-            offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
-        }
+        ItemStack offStack = entityEquipment.getItemInOffHand();
+        String offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
 
-        if (mainWeapon == null && offWeapon == null) {
-            return;
-        }
+        if (mainWeapon == null && offWeapon == null) return;
 
-        // Only do dual wield check if server is 1.9 or newer
-        if (useOffHand && infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
+        if (infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
-        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield);
+        if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield, null);
 
-        // Off weapon is automatically null at this point if server is using 1.8
-        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield);
+        if (offWeapon != null) tryUses(entityWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, triggerType, dualWield, null);
     }
 
     /**
@@ -124,10 +115,10 @@ public class WeaponHandler {
      * @param triggerType the trigger which caused this
      * @param dualWield whether or not this was dual wield
      */
-    public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
 
-        // Try shooting
-        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
+        // Try shooting (and melee)
+        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)) {
             if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
             return;
         }
@@ -268,5 +259,12 @@ public class WeaponHandler {
      */
     public SkinHandler getSkinHandler() {
         return skinHandler;
+    }
+
+    /**
+     * @return the melee handler
+     */
+    public MeleeHandler getMeleeHandler() {
+        return meleeHandler;
     }
 }

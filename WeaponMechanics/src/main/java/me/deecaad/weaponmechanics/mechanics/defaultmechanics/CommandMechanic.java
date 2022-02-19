@@ -15,7 +15,9 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CommandMechanic implements IMechanic<CommandMechanic> {
 
@@ -35,9 +37,19 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
 
     @Override
     public void use(CastData castData) {
+
+        Map<String, String> tempPlaceholders = null;
+        String shooterName = castData.getData(CommonDataTags.SHOOTER_NAME.name(), String.class);
+        String victimName = castData.getData(CommonDataTags.VICTIM_NAME.name(), String.class);
+        if (shooterName != null || victimName != null) {
+            tempPlaceholders = new HashMap<>();
+            tempPlaceholders.put("%shooter%", shooterName != null ? shooterName : castData.getCaster().getName());
+            tempPlaceholders.put("%victim%", victimName);
+        }
+
         Player player = castData.getCaster() instanceof Player ? (Player) castData.getCaster() : null;
         for (CommandData commandData : commandList) {
-            String command = PlaceholderAPI.applyPlaceholders(commandData.getCommand(), player, castData.getWeaponStack(), castData.getWeaponTitle());
+            String command = PlaceholderAPI.applyPlaceholders(commandData.getCommand(), player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             if (commandData.isConsole()) {
                 Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
             } else if (player != null) {

@@ -15,14 +15,14 @@ import java.util.List;
 public class ShootCommand extends SubCommand {
 
     public ShootCommand() {
-        super("wm test", "shoot", "Shoot with given values", "<10.0,20.0,30.0,40.0,50.0> <entity-type> <0.05>");
+        super("wm test", "shoot", "Shoot with given values", "<10.0,20.0,30.0,40.0,80.0> <entity-type> <0.05>");
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
 
         Player player = (Player) sender;
-        double speed = Double.parseDouble(args[0]) * 0.1;
+        double speed = Double.parseDouble(args[0]) / 20;
         double gravity = 0.05;
         EntityType entityType = null;
         if (args.length > 1) {
@@ -34,7 +34,7 @@ public class ShootCommand extends SubCommand {
 
         ProjectileSettings projectileSettings = new ProjectileSettings(entityType, null,
                 gravity, false, -1, false,
-                -1, 0.99, 0.96, 0.98, false, 600);
+                -1, 0.99, 0.96, 0.98, false, 600, -1);
         Projectile projectile = new Projectile(projectileSettings, null, null, null, null);
         projectile.shoot(player, player.getEyeLocation(), player.getLocation().getDirection().multiply(speed), null, null);
     }

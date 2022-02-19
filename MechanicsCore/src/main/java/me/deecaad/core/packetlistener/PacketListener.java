@@ -7,6 +7,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -292,6 +293,21 @@ public abstract class PacketListener {
             Object connection = ReflectionUtil.invokeField(playerConnectionField, nmsPlayer);
             Object manager = ReflectionUtil.invokeField(networkManagerField, connection);
 
+            if (manager == null) {
+                debug.error("Player was missing a network manager!",
+                        "The cause is unknown, and " + getHandlerName() + " is now in a broken state!",
+                        "Please report the following information to developers");
+
+                debug.error(
+                        "Channel cache: " + channelCache,
+                        "Bukkit Player: " + player,
+                        "NMS Player: " + nmsPlayer,
+                        "PlayerConnection: " + connection,
+                        "Server Channels: " + serverChannels,
+                        "Version: " + Bukkit.getName() + " " + Bukkit.getVersion()
+                );
+            }
+
             channel = (Channel) ReflectionUtil.invokeField(channelField, manager);
 
             channelCache.put(player.getName(), channel);
@@ -331,7 +347,14 @@ public abstract class PacketListener {
 
         if (interceptor == null) {
             interceptor = new PacketInterceptor();
-            channel.pipeline().addBefore("packet_handler", handlerName, interceptor);
+
+            // TODO need to investigate a rare NoSuchElementException for "packet_handler"
+            try {
+                channel.pipeline().addBefore("packet_handler", handlerName, interceptor);
+            } catch (Throwable e) {
+                debug.log(LogLevel.ERROR, "An error occurred whilst injecting: " + channel, e);
+                debug.log(LogLevel.ERROR, "Pipeline: " + channel.pipeline());
+            }
         }
 
         return interceptor;
