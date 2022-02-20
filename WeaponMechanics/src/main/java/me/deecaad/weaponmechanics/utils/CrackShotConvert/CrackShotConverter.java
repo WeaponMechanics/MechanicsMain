@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.utils;
+package me.deecaad.weaponmechanics.utils.CrackShotConvert;
 
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -83,7 +83,7 @@ public class CrackShotConverter {
         DELAY_BETWEEN_SHOTS("Shooting.Delay_Between_Shots", "Shoot.Delay_Between_Shots", new ValueNonZeroConvert()),
         RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
         PROJECTILE_AMOUNT("Shooting.Projectile_Amount", "Shoot.Projectiles_Per_Shot", new ValueNonZeroConvert()),
-        PROJECTILE_TYPE("Shooting.", "Projectile.", new ProjectileTypeConvert()),
+        PROJECTILE_TYPE("Shooting.", "", new ProjectileTypeConvert()),
         REMOVE_BULLET_DROP("Shooting.Remove_Bullet_Drop", "Projectile.Projectile_Settings.Gravity", new ValueBooleanConvert(0.0, null)),
         PROJECTILE_SPEED("Shooting.Projectile_Speed", "Shoot.Projectile_Speed", new ValueDoubleConvert(x -> x * 2)),
         PROJECTILE_DAMAGE("Shooting.Projectile_Damage", "Damage.Base_Damage", new ValueNonZeroConvert()),
@@ -365,27 +365,65 @@ public class CrackShotConverter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            String type = fromConfig.getString(from + "Projectile_Type");
+            String type = fromConfig.getString(from + ".Projectile_Type");
             if (type == null) return;
 
-            if (type.equalsIgnoreCase("splash") || type.equalsIgnoreCase("energy")) {
-                WeaponMechanics.debug.error("Can't convert splash or energy: " + from);
+            if (type.equalsIgnoreCase("splash")) {
+                WeaponMechanics.debug.error("Can't convert splash: " + from);
+                return;
+            }
+
+            if (type.equalsIgnoreCase("energy")) {
+
+                toConfig.set(to + "Projectile.Projectile_Settings.Type", "INVISIBLE");
+                toConfig.set(to + "Projectile.Projectile_Settings.Gravity", 0.0);
+
+                // Projectile_Subtype: RANGE-RADIUS-WALLS-VICTIMS
+                String[] energySettings = fromConfig.getString(from + "Projectile_Subtype").split("-");
+
+                try {
+                    int range = Integer.parseInt(energySettings[0]);
+                    toConfig.set(to + "Shoot.Projectile_Speed", range * 5);
+                    toConfig.set(to + "Projectile.Projectile_Settings.Maximum_Travel_Distance", range);
+
+                    int victims = Integer.parseInt(energySettings[3]);
+                    if (victims == 0) {
+                        toConfig.set(to + "Projectile.Through.Entities.Allow_Any", true);
+                        toConfig.set(to + "Projectile.Through.Maximum_Through_Amount", -1);
+                    } else {
+                        toConfig.set(to + "Projectile.Through.Entities.Allow_Any", true);
+                        toConfig.set(to + "Projectile.Through.Maximum_Through_Amount", victims);
+                    }
+
+                    String walls = energySettings[2];
+                    if (walls.equalsIgnoreCase("ALL")) {
+                        toConfig.set(to + "Projectile.Through.Blocks.Allow_Any", true);
+                        toConfig.set(to + "Projectile.Through.Maximum_Through_Amount", -1);
+                    } else if (!walls.equalsIgnoreCase("NONE")) {
+                        toConfig.set(to + "Projectile.Through.Blocks.Allow_Any", true);
+                        toConfig.set(to + "Projectile.Through.Maximum_Through_Amount", Integer.parseInt(energySettings[2]));
+                    }
+
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    WeaponMechanics.debug.error("Energy projectile subtype invalid: " + from + " " + Arrays.toString(energySettings));
+                }
+
                 return;
             }
 
             if (type.equalsIgnoreCase("grenade") || type.equalsIgnoreCase("flare")) {
 
-                toConfig.set(to + "Projectile_Settings.Type", "DROPPED_ITEM");
-                toConfig.set(to + "Projectile_Settings.Projectile_Item_Or_Block.Type", fromConfig.getString(from + "Projectile_Subtype"));
-                toConfig.set(to + "Projectile_Settings.Disable_Entity_Collisions", true);
+                toConfig.set(to + "Projectile.Projectile_Settings.Type", "DROPPED_ITEM");
+                toConfig.set(to + "Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", fromConfig.getString(from + "Projectile_Subtype"));
+                toConfig.set(to + "Projectile.Projectile_Settings.Disable_Entity_Collisions", true);
 
-                toConfig.set(to + "Bouncy.Blocks.Allow_Any", true);
-                toConfig.set(to + "Bouncy.Blocks.Default_Speed_Multiplier", 0.6);
+                toConfig.set(to + "Projectile.Bouncy.Blocks.Allow_Any", true);
+                toConfig.set(to + "Projectile.Bouncy.Blocks.Default_Speed_Multiplier", 0.6);
 
-                toConfig.set(to + "Bouncy.Rolling.Required_Motion_To_Start_Rolling", 6);
-                toConfig.set(to + "Bouncy.Rolling.Blocks.Allow_Any", true);
-                toConfig.set(to + "Bouncy.Rolling.Blocks.Default_Speed_Multiplier", 0.9);
-                toConfig.set(to + "Bouncy.Rolling.Blocks.List", Arrays.asList("$_ICE-0.99", "ICE-0.99"));
+                toConfig.set(to + "Projectile.Bouncy.Rolling.Required_Motion_To_Start_Rolling", 6);
+                toConfig.set(to + "Projectile.Bouncy.Rolling.Blocks.Allow_Any", true);
+                toConfig.set(to + "Projectile.Bouncy.Rolling.Blocks.Default_Speed_Multiplier", 0.9);
+                toConfig.set(to + "Projectile.Bouncy.Rolling.Blocks.List", Arrays.asList("$_ICE-0.99", "ICE-0.99"));
 
                 return;
             }
@@ -394,7 +432,7 @@ public class CrackShotConverter {
                 type = "WITHER_SKULL";
             }
 
-            toConfig.set(to + "Projectile_Settings.Type", type);
+            toConfig.set(to + "Projectile.Projectile_Settings.Type", type);
         }
     }
 
