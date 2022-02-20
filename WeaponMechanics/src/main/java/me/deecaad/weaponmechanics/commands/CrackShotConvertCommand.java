@@ -5,7 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.file.TaskChain;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
-import me.deecaad.weaponmechanics.utils.CrackShotConverter;
+import me.deecaad.weaponmechanics.utils.CrackShotConvert.CrackShotConverter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

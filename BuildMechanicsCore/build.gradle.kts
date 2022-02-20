@@ -74,4 +74,4 @@ tasks.named("assemble").configure {
 }
 
 description = "Library plugin for WeaponMechanics"
-version = "1.0.4-BETA"
+version = "1.0.5-BETA"
