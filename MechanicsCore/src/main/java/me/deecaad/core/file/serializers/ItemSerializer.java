@@ -131,7 +131,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         List<String[]> attributes = data.ofList("Attributes")
                 .addArgument(AttributeType.class, true)
                 .addArgument(double.class, true)
-                .addArgument(AttributeType.class, false)
+                .addArgument(NBTCompatibility.AttributeSlot.class, false)
                 .get();
 
         if (attributes != null) {
