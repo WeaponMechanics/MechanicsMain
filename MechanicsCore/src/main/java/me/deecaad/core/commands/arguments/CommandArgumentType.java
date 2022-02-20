@@ -2,7 +2,10 @@ package me.deecaad.core.commands.arguments;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.deecaad.core.commands.LegacyCommandSyntaxException;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.command.CommandCompatibility;
 import me.deecaad.core.utils.ReflectionUtil;
 
 import java.util.List;
@@ -18,7 +21,7 @@ public interface CommandArgumentType<T> {
 
     ArgumentType<T> getBrigadierType();
 
-    T parse(CommandContext<Object> context);
+    T parse(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     default boolean isBrigadier() {
         return ReflectionUtil.getMCVersion() >= 13;
@@ -35,5 +38,9 @@ public interface CommandArgumentType<T> {
 
     default List<String> legacySuggestions(String input) {
         throw new IllegalStateException(getClass() + " does not support legacy MC versions");
+    }
+
+    default CommandCompatibility compatibility() {
+        return CompatibilityAPI.getCommandCompatibility();
     }
 }

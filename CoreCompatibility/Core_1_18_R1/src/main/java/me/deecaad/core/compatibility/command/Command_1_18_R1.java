@@ -1,11 +1,10 @@
 package me.deecaad.core.compatibility.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.arguments.EntitySelectorRename;
+import me.deecaad.core.commands.arguments.EntitySelectorType;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -37,7 +36,6 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang.math.DoubleRange;
-import org.apache.commons.lang.math.FloatRange;
 import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Axis;
 import org.bukkit.Bukkit;
@@ -59,20 +57,17 @@ import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R1.CraftSound;
 import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_18_R1.enchantments.CraftEnchantment;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftComplexRecipe;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_18_R1.potion.CraftPotionEffectType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ComplexRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -155,7 +150,7 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public ArgumentType<?> entity(EntitySelectorRename selector) {
+    public ArgumentType<?> entity(EntitySelectorType selector) {
         return switch (selector) {
             case ENTITY -> EntityArgument.entity();
             case ENTITIES -> EntityArgument.entities();
@@ -353,7 +348,7 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Object getEntitySelector(CommandContext<Object> context, String key, EntitySelectorRename selectorType) throws CommandSyntaxException {
+    public Object getEntitySelector(CommandContext<Object> context, String key, EntitySelectorType selectorType) throws CommandSyntaxException {
         EntitySelector selector = cast(context).getArgument(key, EntitySelector.class);
 
         // Setting this field allows non-op users to use entity selectors.

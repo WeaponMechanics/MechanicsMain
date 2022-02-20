@@ -12,11 +12,11 @@ public class WeaponMechanicsMainCommand extends MainCommand {
         setAliases(StringUtil.getList("wea", "weapon", "wm"));
 
         commands.register(new TestCommand());
-        commands.register(new GiveCommand());
-        commands.register(new InfoCommand());
-        commands.register(new ReloadCommand());
-        commands.register(new WikiCommand());
-        commands.register(new ListWeaponsCommand());
+        commands.register(new LegacyGiveCommand());
+        commands.register(new LegacyInfoCommand());
+        commands.register(new LegacyReloadCommand());
+        commands.register(new LegacyWikiCommand());
+        commands.register(new LegacyListWeaponsCommand());
         commands.register(new CrackShotConvertCommand());
     }
 }

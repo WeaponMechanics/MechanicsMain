@@ -29,7 +29,7 @@ public class LiteralArgumentType implements CommandArgumentType<String> {
     }
 
     @Override
-    public String parse(CommandContext<Object> context) {
+    public String parse(CommandContext<Object> context, String key) {
         return literal;
     }
 }

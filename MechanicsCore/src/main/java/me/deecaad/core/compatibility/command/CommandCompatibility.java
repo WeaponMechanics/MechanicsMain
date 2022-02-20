@@ -4,11 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.arguments.EntitySelectorRename;
+import me.deecaad.core.commands.arguments.EntitySelectorType;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import org.apache.commons.lang.math.DoubleRange;
-import org.apache.commons.lang.math.FloatRange;
 import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Axis;
 import org.bukkit.Location;
@@ -66,7 +65,7 @@ public interface CommandCompatibility {
 
     ArgumentType<?> enchantment();
 
-    ArgumentType<?> entity(EntitySelectorRename selector);
+    ArgumentType<?> entity(EntitySelectorType selector);
 
     ArgumentType<?> entitySummon();
 
@@ -135,7 +134,7 @@ public interface CommandCompatibility {
 
     Enchantment getEnchantment(CommandContext<Object> context, String key);
 
-    Object getEntitySelector(CommandContext<Object> context, String key, EntitySelectorRename selector)
+    Object getEntitySelector(CommandContext<Object> context, String key, EntitySelectorType selector)
             throws CommandSyntaxException;
 
     EntityType getEntityType(CommandContext<Object> context, String key) throws CommandSyntaxException;

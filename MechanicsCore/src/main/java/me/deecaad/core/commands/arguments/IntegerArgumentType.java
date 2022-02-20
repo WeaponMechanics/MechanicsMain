@@ -22,7 +22,7 @@ public class IntegerArgumentType implements CommandArgumentType<Integer> {
     }
 
     public IntegerArgumentType(int min, int max) {
-        if (max > min)
+        if (max < min)
             throw new IllegalArgumentException("max > min");
 
         this.min = min;
@@ -40,8 +40,8 @@ public class IntegerArgumentType implements CommandArgumentType<Integer> {
     }
 
     @Override
-    public Integer parse(CommandContext<Object> context) {
-        return null;
+    public Integer parse(CommandContext<Object> context, String key) {
+        return context.getArgument(key, getDataType());
     }
 
     @Override

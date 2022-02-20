@@ -23,11 +23,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @CommandPermission(permission = "weaponmechanics.commands.list")
-public class ListWeaponsCommand extends SubCommand {
+@Deprecated
+public class LegacyListWeaponsCommand extends SubCommand {
 
     // wm list <page>
 
-    public ListWeaponsCommand() {
+    public LegacyListWeaponsCommand() {
         super("wm", "list", "List all weapons by weapon title", "<page>");
     }
 

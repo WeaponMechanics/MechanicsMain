@@ -68,8 +68,8 @@ public class CommandBuilder {
         return this;
     }
 
-    public CommandBuilder withArgument(Argument<Object> argument) {
-        this.args.add(argument);
+    public CommandBuilder withArgument(Argument<?> argument) {
+        this.args.add((Argument<Object>) argument);
         return this;
     }
 
@@ -124,11 +124,11 @@ public class CommandBuilder {
     public void register() {
         if (permission != null)
             Bukkit.getPluginManager().addPermission(permission);
+
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            new BrigadierCommand(this);
+        }
     }
-
-
-
-
 
     public Predicate<Object> requirements() {
         if (permission == null) {

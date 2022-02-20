@@ -2,12 +2,16 @@ package me.deecaad.core.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.Message;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.deecaad.core.commands.arguments.Argument;
 import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.commands.executors.CommandExecutor;
@@ -17,6 +21,8 @@ import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
@@ -66,7 +72,7 @@ public class BrigadierCommand implements Command<Object> {
     private Object[] parseBrigadierArguments(CommandContext<Object> context) throws Exception {
         List<Object> temp = new ArrayList<>(builder.getArgs().size());
         for (Argument<?> argument : builder.getArgs())
-            temp.add(argument.parse(context));
+            temp.add(argument.parse(context, argument.getName()));
 
         return temp.toArray();
     }
@@ -89,15 +95,73 @@ public class BrigadierCommand implements Command<Object> {
 
             // All other argument types can be parsed normally
             else {
-                temp = RequiredArgumentBuilder.argument(argument.getName(), argument.getType().getBrigadierType());
+                RequiredArgumentBuilder<Object, ?> required = RequiredArgumentBuilder.argument(argument.getName(), argument.getType().getBrigadierType());
+
+                // When an argument wants to REPLACE suggestions, only include
+                // "buildSuggestionProvider" (which builds custom suggestions).
+                if (argument.isReplaceSuggestions()) {
+                    required.suggests(buildSuggestionProvider(argument.getName()));
+                }
+
+                // When an argument wants to ADD suggestions, we should include
+                // the argument's default suggestions as well as the custom
+                // suggestions.
+                else if (argument.getSuggestions() != null) {
+                    required.suggests((context, suggestionsBuilder) -> {
+                        argument.getType().getBrigadierType().listSuggestions(context, suggestionsBuilder);
+                        buildSuggestionProvider(argument.getName()).getSuggestions(context, suggestionsBuilder);
+                        return suggestionsBuilder.buildFuture();
+                    });
+                }
+
+                // When the argument doesn't have any custom suggestions, we
+                // don't need to mess with the suggestions.
+                temp = required;
             }
 
             if (builder == null)
                 temp.requires(this.builder.requirements()).executes(this);
             else
                 temp.requires(this.builder.requirements()).then(builder);
+
             builder = temp;
         }
         return builder;
+    }
+
+    /**
+     * This method is used whenever a command has custom arguments.
+     *
+     * @param nodeName The name of the argument.
+     * @return The non-null suggestions provider.
+     */
+    private SuggestionProvider<Object> buildSuggestionProvider(String nodeName) {
+        return (CommandContext<Object> context, SuggestionsBuilder builder) -> {
+            CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSender(context);
+            List<Object> previousArguments = new ArrayList<>();
+            Argument<?> current = null;
+
+            for (Argument<?> argument : this.builder.getArgs()) {
+                current = argument;
+                if (current.getName().equals(nodeName))
+                    break;
+
+                previousArguments.add(current.parse(context, nodeName));
+            }
+
+            CommandData data = new CommandData(sender, previousArguments.toArray(), builder.getInput(), builder.getRemaining());
+            return getSuggestionsBuilder(builder, current.getSuggestions() == null ? new Tooltip[0] : current.getSuggestions().apply(data));
+        };
+    }
+
+    private CompletableFuture<Suggestions> getSuggestionsBuilder(SuggestionsBuilder builder, Tooltip[] suggestions) {
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        for (Tooltip suggestion : suggestions) {
+            if (suggestion.suggestion().toLowerCase(Locale.ROOT).startsWith(remaining)) {
+                Message tooltipMsg = suggestion.tip() == null ? null : new LiteralMessage(suggestion.tip());
+                builder.suggest(suggestion.suggestion(), tooltipMsg);
+            }
+        }
+        return builder.buildFuture();
     }
 }

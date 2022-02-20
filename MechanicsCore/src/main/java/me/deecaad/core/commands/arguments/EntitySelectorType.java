@@ -1,5 +1,5 @@
 package me.deecaad.core.commands.arguments;
 
-public enum EntitySelectorRename {
+public enum EntitySelectorType {
     ENTITY, PLAYER, ENTITIES, PLAYERS
 }

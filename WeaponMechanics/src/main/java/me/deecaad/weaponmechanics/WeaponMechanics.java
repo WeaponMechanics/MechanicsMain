@@ -24,6 +24,7 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
+import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
@@ -73,7 +74,6 @@ public class WeaponMechanics {
     Map<LivingEntity, EntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
-    MainCommand mainCommand;
     WeaponHandler weaponHandler;
     UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
@@ -317,26 +317,7 @@ public class WeaponMechanics {
     }
 
     void registerCommands() {
-        debug.debug("Registering commands");
-        Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
-        SimpleCommandMap commands = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
-
-        // This can occur onReload, or if another plugin registered the
-        // command. We use the try-catch to determine if the command was
-        // registered by another plugin.
-        Command registered = commands.getCommand("weaponmechanics");
-        if (registered != null) {
-            try {
-                mainCommand = (MainCommand) registered;
-            } catch (ClassCastException ex) {
-                debug.error("/weaponmechanics command was already registered... does another plugin use /wm?",
-                        "The registered command: " + registered,
-                        "Do not ignore this error! The weapon mechanics commands will not work at all!");
-            }
-        } else {
-            commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
-        }
-
+        WeaponMechanicsCommand.build();
     }
 
     void registerUpdateChecker() {
@@ -434,7 +415,6 @@ public class WeaponMechanics {
         weaponHandler = null;
         updateChecker = null;
         entityWrappers = null;
-        mainCommand = null;
         configurations = null;
         basicConfiguration = null;
         projectilesRunnable = null;
@@ -547,13 +527,6 @@ public class WeaponMechanics {
      */
     public static Configuration getBasicConfigurations() {
         return plugin.basicConfiguration;
-    }
-
-    /**
-     * @return the main command instance of WeaponMechanics
-     */
-    public static MainCommand getMainCommand() {
-        return plugin.mainCommand;
     }
 
     /**

@@ -16,11 +16,12 @@ import java.util.Set;
 import static org.bukkit.ChatColor.*;
 
 @CommandPermission(permission = "weaponmechanics.commands.info")
-public class InfoCommand extends SubCommand {
+@Deprecated
+public class LegacyInfoCommand extends SubCommand {
 
     public static char SYM = '\u27A2';
 
-    public InfoCommand() {
+    public LegacyInfoCommand() {
         super("wm", "info", "General plugin information");
     }
     
