@@ -91,6 +91,7 @@ public class CrackShotConverter {
         BULLET_SPREAD("Shooting.Bullet_Spread", "Shoot.Spread.Base_Spread", new ValueDoubleConvert(x -> x * 10)),
         SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics.Sounds", new SoundConvert()),
         SOUNDS_SHOOT("Shooting.Sounds_Shoot", "Shoot.Mechanics.Sounds", new SoundConvert()),
+        REMOVAL_OR_DRAG_DELAY(".Shooting.Removal_Or_Drag_Delay", ".Projectile.Projectile_Settings.Maximum_Alive_Ticks", new RemovalOrDragDelayConverter()),
 
         // SNEAK
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
@@ -704,6 +705,27 @@ public class CrackShotConverter {
             if (delayBetweenShots < 1) return;
 
             toConfig.set(to, delayBetweenShots);
+        }
+    }
+
+    private static class RemovalOrDragDelayConverter implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String removalOrDragDelay = fromConfig.getString(from);
+            if (removalOrDragDelay == null) return;
+
+            String[] split = removalOrDragDelay.split("-");
+
+            // Removal_Or_Drag_Delay: 4-true will remove the projectile after 4 ticks.
+            // Removal_Or_Drag_Delay: 3-false will drastically slow the projectile after 3 ticks.
+
+            if (split[1].equalsIgnoreCase("false")) {
+                WeaponMechanics.debug.error("Can't convert Removal_Or_Drag_Delay false option " + from);
+                return;
+            }
+
+            toConfig.set(to, split[0]);
         }
     }
 }
