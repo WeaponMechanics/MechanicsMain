@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -83,12 +84,24 @@ public class DamageHandler {
             victim.setFireTicks(fireTicks);
         }
 
-        CastData shooterCast = new CastData(WeaponMechanics.getEntityWrapper(shooter), weaponTitle, weaponStack);
+        EntityWrapper shooterWrapper = WeaponMechanics.getEntityWrapper(shooter, true);
+        CastData shooterCast;
+        if (shooterWrapper != null) {
+            shooterCast = new CastData(shooterWrapper, weaponTitle, weaponStack);
+        } else {
+            shooterCast = new CastData(shooter, weaponTitle, weaponStack);
+        }
         shooterCast.setData(CommonDataTags.TARGET_LOCATION.name(), victim.getLocation());
         shooterCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
         shooterCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
 
-        CastData victimCast = new CastData(WeaponMechanics.getEntityWrapper(victim), weaponTitle, weaponStack);
+        EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim, true);
+        CastData victimCast;
+        if (victimWrapper != null) {
+            victimCast = new CastData(victimWrapper, weaponTitle, weaponStack);
+        } else {
+            victimCast = new CastData(victim, weaponTitle, weaponStack);
+        }
         victimCast.setData(CommonDataTags.TARGET_LOCATION.name(), shooter.getLocation());
         victimCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
         victimCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
