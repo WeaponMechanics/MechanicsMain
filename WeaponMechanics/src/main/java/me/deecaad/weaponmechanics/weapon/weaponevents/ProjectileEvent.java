@@ -2,8 +2,9 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
-import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nullable;
 
 /**
  * This class outlines convenient methods for any {@link WeaponEvent} that
@@ -26,6 +27,19 @@ public abstract class ProjectileEvent extends WeaponEvent {
      */
     public WeaponProjectile getProjectile() {
         return projectile;
+    }
+
+    /**
+     * Returns the weapon item which caused the event. This should always be an
+     * item in the player's main hand, or off hand. If API is used to shoot projectile
+     * this will be null.
+     *
+     * @return The nullable weapon item.
+     */
+    @Nullable
+    @Override
+    public ItemStack getWeaponStack() {
+        return super.getWeaponStack();
     }
 
     /**

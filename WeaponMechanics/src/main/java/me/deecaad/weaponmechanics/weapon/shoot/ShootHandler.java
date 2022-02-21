@@ -20,7 +20,6 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
@@ -283,7 +282,7 @@ public class ShootHandler implements IValidator {
 
         // END RELOAD STUFF
 
-        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true, isMelee);
+        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, isMelee);
 
         if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack)) {
             return true;
@@ -333,7 +332,7 @@ public class ShootHandler implements IValidator {
                 // END RELOAD STUFF
 
                 // Only make the first projectile of burst modify spread change if its used
-                shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, shots == 0, false);
+                shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, shots == 0, false);
 
                 if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
                     handData.setBurstTask(0);
@@ -420,7 +419,7 @@ public class ShootHandler implements IValidator {
                 // END RELOAD STUFF
 
                 if (shootAmount == 1) {
-                    shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true, false);
+                    shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
                     if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
                         handData.setFullAutoTask(0);
                         cancel();
@@ -428,7 +427,7 @@ public class ShootHandler implements IValidator {
                     }
                 } else if (shootAmount > 1) { // Don't try to shoot in this tick if shoot amount is 0
                     for (int i = 0; i < shootAmount; ++i) {
-                        shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, dualWield, mainhand), mainhand, true, false);
+                        shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
                         if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
                             handData.setFullAutoTask(0);
                             cancel();
@@ -566,7 +565,7 @@ public class ShootHandler implements IValidator {
      * Shoots using weapon.
      * Does not use ammo nor check for it.
      */
-    private void shoot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange, boolean isMelee) {
+    public void shoot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange, boolean isMelee) {
         Configuration config = getConfigurations();
         LivingEntity livingEntity = entityWrapper.getEntity();
 
@@ -602,12 +601,43 @@ public class ShootHandler implements IValidator {
                     ? spread.getNormalizedSpreadDirection(entityWrapper, mainHand, i == 0 && updateSpreadChange).multiply(projectileSpeed)
                     : livingEntity.getLocation().getDirection().multiply(projectileSpeed);
 
-            if (recoil != null && i == 0 && entityWrapper.getEntity() instanceof Player) {
-                recoil.start((Player) entityWrapper.getEntity(), mainHand);
+            if (recoil != null && i == 0 && livingEntity instanceof Player) {
+                recoil.start((Player) livingEntity, mainHand);
             }
 
             // Only create bullet first if WeaponShootEvent changes
             WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
+
+            WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
+            Bukkit.getPluginManager().callEvent(shootEvent);
+            bullet = shootEvent.getProjectile();
+
+            // Shoot the given bullet
+            projectile.shoot(bullet, shootLocation);
+        }
+    }
+
+    /**
+     * Shoots using weapon.
+     * Does not use ammo nor check for it.
+     * Does not apply recoil nor anything that would require EntityWrapper.
+     */
+    public void shoot(LivingEntity livingEntity, String weaponTitle, Vector normalizedDirection) {
+        Configuration config = getConfigurations();
+
+        Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
+        if (shootMechanics != null) shootMechanics.use(new CastData(livingEntity, weaponTitle, null));
+
+        Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
+        if (projectile == null) return;
+
+        Location shootLocation = getShootLocation(livingEntity, false, true);
+        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
+
+        for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
+
+            // Only create bullet first if WeaponShootEvent changes
+            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, normalizedDirection.clone().multiply(projectileSpeed), null, weaponTitle);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
@@ -633,8 +663,7 @@ public class ShootHandler implements IValidator {
     /**
      * Get the shoot location based on dual wield and main hand
      */
-    private Location getShootLocation(EntityWrapper entityWrapper, boolean dualWield, boolean mainhand) {
-        LivingEntity livingEntity = entityWrapper.getEntity();
+    private Location getShootLocation(LivingEntity livingEntity, boolean dualWield, boolean mainhand) {
 
         if (!dualWield) return livingEntity.getEyeLocation();
 

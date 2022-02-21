@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -122,8 +123,11 @@ public class WeaponProjectile extends AProjectile {
     }
 
     /**
+     * Can be null if for example API is used to shoot this projectile.
+     *
      * @return the item stack used to shoot this projectile
      */
+    @Nullable
     public ItemStack getWeaponStack() {
         return weaponStack;
     }
