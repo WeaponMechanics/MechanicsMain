@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import org.bukkit.entity.Entity;
 
-public class EntityArgumentType implements CommandArgumentType<Entity> {
+public class EntityArgumentType extends CommandArgumentType<Entity> {
 
     @Override
     public Class<Entity> getDataType() {

@@ -3,7 +3,7 @@ package me.deecaad.core.commands.arguments;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 
-public class StringArgumentType implements CommandArgumentType<String> {
+public class StringArgumentType extends CommandArgumentType<String> {
 
     @Override
     public Class<String> getDataType() {

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class IntegerArgumentType implements CommandArgumentType<Integer> {
+public class IntegerArgumentType extends CommandArgumentType<Integer> {
 
     private final int min;
     private final int max;

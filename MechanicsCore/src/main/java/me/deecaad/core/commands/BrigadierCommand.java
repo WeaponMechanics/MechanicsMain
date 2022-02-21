@@ -12,10 +12,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.arguments.Argument;
 import me.deecaad.core.commands.arguments.LiteralArgumentType;
+import me.deecaad.core.commands.arguments.MultiLiteralArgumentType;
 import me.deecaad.core.commands.executors.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -23,8 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 public class BrigadierCommand implements Command<Object> {
 
@@ -34,7 +39,6 @@ public class BrigadierCommand implements Command<Object> {
         this.builder = builder;
 
         CommandDispatcher<Object> dispatcher = CompatibilityAPI.getCommandCompatibility().getCommandDispatcher();
-
         LiteralArgumentBuilder<Object> result = literal(builder.getLabel()).requires(builder.requirements());
         if (builder.getArgs().isEmpty())
             result.executes(this);
@@ -42,6 +46,8 @@ public class BrigadierCommand implements Command<Object> {
             result.then(buildArguments(builder.getArgs()));
 
         dispatcher.register(result);
+
+        MechanicsCore.debug.error("Registering Command: /" + builder.getLabel() + " " + builder.getArgs().stream().map(Argument::getName).collect(Collectors.toList()));
     }
 
     @Override
@@ -51,7 +57,7 @@ public class BrigadierCommand implements Command<Object> {
         // Ensure that the CommandSender is the proper type. This is typically
         // used for Player only commands, but it may also be used for console
         // or command-block only commands, for example.
-        if (!sender.getClass().isAssignableFrom(builder.getExecutor().getExecutor())) {
+        if (!builder.getExecutor().getExecutor().isInstance(sender)) {
             sender.sendMessage(ChatColor.RED + builder.getLabel() + " is a " + builder.getExecutor().getExecutor().getSimpleName() + " only command.");
             return -1;
         }
@@ -72,7 +78,8 @@ public class BrigadierCommand implements Command<Object> {
     private Object[] parseBrigadierArguments(CommandContext<Object> context) throws Exception {
         List<Object> temp = new ArrayList<>(builder.getArgs().size());
         for (Argument<?> argument : builder.getArgs())
-            temp.add(argument.parse(context, argument.getName()));
+            if (argument.isListed())
+                temp.add(argument.parse(context, argument.getName()));
 
         return temp.toArray();
     }
@@ -95,7 +102,7 @@ public class BrigadierCommand implements Command<Object> {
 
             // All other argument types can be parsed normally
             else {
-                RequiredArgumentBuilder<Object, ?> required = RequiredArgumentBuilder.argument(argument.getName(), argument.getType().getBrigadierType());
+                RequiredArgumentBuilder<Object, ?> required = argument(argument.getName(), argument.getType().getBrigadierType());
 
                 // When an argument wants to REPLACE suggestions, only include
                 // "buildSuggestionProvider" (which builds custom suggestions).
@@ -115,14 +122,17 @@ public class BrigadierCommand implements Command<Object> {
                 }
 
                 // When the argument doesn't have any custom suggestions, we
-                // don't need to mess with the suggestions.
+                // don't need to mess with the suggestions. I explicitly set
+                // the value to null here to show this.
+                required.suggests(null);
+
                 temp = required;
             }
 
             if (builder == null)
-                temp.requires(this.builder.requirements()).executes(this);
+                temp.requires(argument.requirements()).executes(this);
             else
-                temp.requires(this.builder.requirements()).then(builder);
+                temp.requires(argument.requirements()).then(builder);
 
             builder = temp;
         }
@@ -146,7 +156,7 @@ public class BrigadierCommand implements Command<Object> {
                 if (current.getName().equals(nodeName))
                     break;
 
-                previousArguments.add(current.parse(context, nodeName));
+                previousArguments.add(current.isListed() ? current.parse(context, argument.getName()) : null);
             }
 
             CommandData data = new CommandData(sender, previousArguments.toArray(), builder.getInput(), builder.getRemaining());
@@ -164,4 +174,6 @@ public class BrigadierCommand implements Command<Object> {
         }
         return builder.buildFuture();
     }
+
+
 }

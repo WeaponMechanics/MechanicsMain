@@ -5,8 +5,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.deecaad.core.commands.CommandData;
 import me.deecaad.core.commands.LegacyCommandSyntaxException;
 import me.deecaad.core.commands.Tooltip;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.permissions.Permission;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Argument<T> {
 
@@ -16,7 +21,10 @@ public class Argument<T> {
     private final boolean isRequired;
 
     private Function<CommandData, Tooltip[]> suggestions;
+    private Permission permission;
+    private Predicate<CommandSender> requirements;
     private boolean isReplaceSuggestions;
+    private boolean listed;
 
     /**
      * Construct an argument that the {@link org.bukkit.command.CommandSender}
@@ -28,6 +36,7 @@ public class Argument<T> {
         this.type = type;
         this.defaultValue = null;
         this.isRequired = true;
+        this.listed = true;
 
         if (!name.startsWith("<"))
             this.name = "<" + name + ">";
@@ -45,6 +54,7 @@ public class Argument<T> {
         this.type = type;
         this.defaultValue = defaultValue;
         this.isRequired = false;
+        this.listed = true;
 
         if (!name.startsWith("<"))
             this.name = "<" + name + ">";
@@ -121,6 +131,7 @@ public class Argument<T> {
      */
     public Argument<T> append(Function<CommandData, Tooltip[]> suggestions) {
         this.suggestions = suggestions;
+        this.isReplaceSuggestions = false;
         return this;
     }
 
@@ -128,11 +139,49 @@ public class Argument<T> {
      * Replaced the pre-defined list of suggestions with the given suggestions.
      *
      * @param suggestions The suggestions to add to the list.
-     * @return A non-null reference pointing to this argument (builder pattern).
+     * @return A non-null reference to this (builder pattern).
      */
     public Argument<T> replace(Function<CommandData, Tooltip[]> suggestions) {
         this.suggestions = suggestions;
         this.isReplaceSuggestions = true;
+        return this;
+    }
+
+    /**
+     * When a {@link CommandSender} does not have the given permission, they
+     * will not be able to see or use this command. If the permission was not
+     * previously registered, this method will register it.
+     *
+     * @param permission The permission to require, or null.
+     * @return A non-null reference to this (builder pattern).
+     */
+    public Argument<T> withPermission(Permission permission) {
+        this.permission = permission;
+        if (permission != null && Bukkit.getPluginManager().getPermission(permission.getName()) == null)
+            Bukkit.getPluginManager().addPermission(permission);
+        return this;
+    }
+
+    /**
+     * When a {@link CommandSender} does not test <code>true</code> to the
+     * given predicate, they will not be able to see or use this command. While
+     * this can be used for {@link Permission}, you should use
+     * {@link #withPermission(Permission)} instead.
+     *
+     * @param requirements The predicate to use, or null.
+     * @return A non-null reference to this (builder pattern).
+     */
+    public Argument<T> withRequirements(Predicate<CommandSender> requirements) {
+        this.requirements = requirements;
+        return this;
+    }
+
+    public boolean isListed() {
+        return listed;
+    }
+
+    public Argument<T> setListed(boolean listed) {
+        this.listed = listed;
         return this;
     }
 
@@ -142,5 +191,22 @@ public class Argument<T> {
 
     public T parse(String str) throws LegacyCommandSyntaxException {
         return type.legacyParse(str);
+    }
+
+    public Predicate<Object> requirements() {
+        return nms -> {
+            CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSenderRaw(nms);
+            if (permission != null && !sender.hasPermission(permission))
+                return false;
+            else if (requirements != null && !requirements.test(sender))
+                return false;
+            else
+                return true;
+        };
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
