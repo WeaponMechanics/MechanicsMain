@@ -29,7 +29,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -202,7 +201,7 @@ public class ReloadHandler implements IValidator {
                     // shoot firearm actions can't reach this point and weapon is full
                     if (state == FirearmState.RELOAD_OPEN) {
 
-                        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
                             CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmOpenTime + firearmCloseTime);
                         }
 
@@ -211,7 +210,7 @@ public class ReloadHandler implements IValidator {
                         openTask.startChain();
                     } else if (state == FirearmState.RELOAD_CLOSE) {
 
-                        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
                             CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmCloseTime);
                         }
 
@@ -221,7 +220,7 @@ public class ReloadHandler implements IValidator {
                     // If LEVER or REVOLVER it can only be close state at this point since
                     // shoot firearm actions can't reach this point and weapon is full
 
-                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
                         CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmCloseTime);
                     }
 
@@ -347,7 +346,7 @@ public class ReloadHandler implements IValidator {
             }
         };
 
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
             CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), reloadEvent.getReloadCompleteTime());
         }
 

@@ -46,6 +46,11 @@ public class InfoHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
+    /**
+     * Validator instance
+     */
+    public InfoHandler() { }
+
     public InfoHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
     }

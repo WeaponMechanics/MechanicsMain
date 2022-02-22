@@ -49,9 +49,6 @@ public class WeaponListeners implements Listener {
         boolean alreadyUsedEquipMechanics = false;
 
         if (weaponTitle != null) {
-            if (CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, weaponStack.getType())) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, weaponStack.getType(), 0);
-            }
 
             if (e.getEntityType() == EntityType.PLAYER) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -72,6 +69,8 @@ public class WeaponListeners implements Listener {
             if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Weapon_Equip_Delay") && e.getEntityType() == EntityType.PLAYER) {
                 CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, weaponStack.getType(),
                         getConfigurations().getInt(weaponTitle + ".Info.Weapon_Equip_Delay") / 50);
+            } else if (CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, weaponStack.getType())) {
+                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, weaponStack.getType(), 0);
             }
 
             Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
@@ -86,7 +85,7 @@ public class WeaponListeners implements Listener {
                 if (holsterMechanics != null) holsterMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
             }
 
-            if ((weaponStack == null || weaponStack.getType() != dequipped.getType()) && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, dequipped.getType())) {
+            if (weaponTitle == null && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, dequipped.getType())) {
                 CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, dequipped.getType(), 0);
             }
         }

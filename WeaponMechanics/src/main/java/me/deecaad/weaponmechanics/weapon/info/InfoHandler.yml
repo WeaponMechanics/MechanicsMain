@@ -11,8 +11,8 @@ Info:
     Delay_Between_Shots: <true/false>
     Shoot_Delay_After_Scope: <true/false>
     Weapon_Equip_Delay: <true/false>
-    Reload: <true/false>
-    Firearm_Actions: <true/false>
+    Reload_Time: <true/false>
+    Firearm_Actions_Time: <true/false>
     Melee_Hit_Delay: <true/false>
     Melee_Miss_Delay: <true/false>
   Cancel:

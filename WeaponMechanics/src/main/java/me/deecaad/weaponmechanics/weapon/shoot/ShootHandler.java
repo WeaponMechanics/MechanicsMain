@@ -187,7 +187,7 @@ public class ShootHandler implements IValidator {
                         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
                     }
 
-                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
                         CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmAction.getCloseTime());
                     }
 
@@ -503,7 +503,7 @@ public class ShootHandler implements IValidator {
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
 
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
                 CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmAction.getCloseTime());
             }
 
@@ -524,7 +524,7 @@ public class ShootHandler implements IValidator {
             if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
         }
 
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
             CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(),
                     firearmAction.getOpenTime() + firearmAction.getCloseTime());
         }

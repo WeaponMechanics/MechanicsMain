@@ -18,8 +18,8 @@ R9-0:
     Weapon_Equip_Delay: 20
     Show_Cooldown:
       Weapon_Equip_Delay: true
-      Reload: true
-      Firearm_Actions: true
+      Reload_Time: true
+      Firearm_Actions_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true

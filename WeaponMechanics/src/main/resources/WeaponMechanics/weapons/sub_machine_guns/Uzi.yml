@@ -18,7 +18,7 @@ Uzi:
     Weapon_Equip_Delay: 20
     Show_Cooldown:
       Weapon_Equip_Delay: true
-      Reload: true
+      Reload_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
