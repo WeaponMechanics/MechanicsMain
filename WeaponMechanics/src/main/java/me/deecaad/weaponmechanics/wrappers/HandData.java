@@ -19,6 +19,8 @@ public class HandData {
     private int fullAutoTask;
     private int burstTask;
     private long lastShotTime;
+    private long lastScopeTime;
+    private long lastEquipTime;
     private double spreadChange;
     private RecoilTask recoilTask;
     private long lastMeleeTime;
@@ -94,6 +96,22 @@ public class HandData {
 
     public boolean shouldReset() {
         return NumberUtil.hasMillisPassed(lastShotTime, ShootHandler.RESET_MILLIS);
+    }
+
+    public long getLastScopeTime() {
+        return lastScopeTime;
+    }
+
+    public void setLastScopeTime(long lastScopeTime) {
+        this.lastScopeTime = lastScopeTime;
+    }
+
+    public long getLastEquipTime() {
+        return lastEquipTime;
+    }
+
+    public void setLastEquipTime(long lastEquipTime) {
+        this.lastEquipTime = lastEquipTime;
     }
 
     public double getSpreadChange() {

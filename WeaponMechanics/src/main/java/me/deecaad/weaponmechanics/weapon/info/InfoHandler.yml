@@ -5,7 +5,16 @@ Info:
   Weapon_Converter_Check: <weapon converter serializer>
   Weapon_Get_Mechanics: <MechanicsSerializer>
   Weapon_Equip_Mechanics: <MechanicsSerializer>
+  Weapon_Equip_Delay: <ticks>
   Weapon_Holster_Mechanics: <MechanicsSerializer>
+  Show_Cooldown:
+    Delay_Between_Shots: <true/false>
+    Shoot_Delay_After_Scope: <true/false>
+    Weapon_Equip_Delay: <true/false>
+    Reload: <true/false>
+    Firearm_Actions: <true/false>
+    Melee_Hit_Delay: <true/false>
+    Melee_Miss_Delay: <true/false>
   Cancel:
     Block_Interactions: <true/false>
     Item_Interactions: <true/false>

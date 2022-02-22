@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponEquipEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
@@ -59,6 +60,9 @@ public class WeaponListeners implements Listener {
                 equipMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
                 alreadyUsedEquipMechanics = true;
             }
+
+            HandData handData = e.getSlot() == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+            handData.setLastEquipTime(System.currentTimeMillis());
 
             Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
         }
