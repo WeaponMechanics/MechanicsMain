@@ -14,6 +14,10 @@ import java.util.List;
 
 public interface EntityCompatibility {
 
+    default boolean hasCooldown(Player player, Material material) {
+        return player.hasCooldown(material);
+    }
+
     default void setCooldown(Player player, Material material, int ticks) {
         player.setCooldown(material, ticks);
     }

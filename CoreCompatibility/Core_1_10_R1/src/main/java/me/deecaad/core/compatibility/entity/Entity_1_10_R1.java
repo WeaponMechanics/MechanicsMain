@@ -28,6 +28,11 @@ public class Entity_1_10_R1 implements EntityCompatibility {
     }
 
     @Override
+    public boolean hasCooldown(Player player, Material material) {
+        return ((CraftPlayer) player).getHandle().df().a(CraftMagicNumbers.getItem(material));
+    }
+
+    @Override
     public void setCooldown(Player player, Material material, int ticks) {
         ((CraftPlayer) player).getHandle().df().a(CraftMagicNumbers.getItem(material), ticks);
     }
