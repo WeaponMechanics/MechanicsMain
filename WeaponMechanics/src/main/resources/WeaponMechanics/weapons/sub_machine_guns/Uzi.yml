@@ -15,6 +15,10 @@ Uzi:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Weapon_Equip_Delay: 20
+    Show_Cooldown:
+      Weapon_Equip_Delay: true
+      Reload: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true

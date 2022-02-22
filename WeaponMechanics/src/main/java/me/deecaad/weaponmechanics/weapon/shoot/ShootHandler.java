@@ -34,6 +34,7 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -168,7 +169,7 @@ public class ShootHandler implements IValidator {
 
             if (firearmAction.hasReloadState(weaponStack)) {
 
-                // If its revolver
+                // If its NOT revolver
                 if (ammoLeft > 0 && firearmAction.getFirearmType() != FirearmType.REVOLVER) {
 
                     // Close if ammo left is more than 0
@@ -184,6 +185,10 @@ public class ShootHandler implements IValidator {
                     if (entityWrapper instanceof PlayerWrapper) {
                         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
                         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                    }
+
+                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                        CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmAction.getCloseTime());
                     }
 
                     handData.addFirearmActionTask(new BukkitRunnable() {
@@ -498,6 +503,10 @@ public class ShootHandler implements IValidator {
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
             }
 
+            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmAction.getCloseTime());
+            }
+
             handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 
             return;
@@ -513,6 +522,11 @@ public class ShootHandler implements IValidator {
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
             if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+        }
+
+        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(),
+                    firearmAction.getOpenTime() + firearmAction.getCloseTime());
         }
 
         handData.addFirearmActionTask(new BukkitRunnable() {
@@ -578,6 +592,11 @@ public class ShootHandler implements IValidator {
         if (!isMelee) {
             HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
             handData.setLastShotTime(System.currentTimeMillis());
+
+            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Delay_Between_Shots") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper, weaponStack.getType(),
+                        config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots") / 50);
+            }
         }
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);

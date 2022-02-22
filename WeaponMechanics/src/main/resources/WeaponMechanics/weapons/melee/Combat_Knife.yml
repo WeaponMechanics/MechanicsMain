@@ -12,6 +12,9 @@ Combat_Knife:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Show_Cooldown:
+      Melee_Hit_Delay: true
+      Melee_Miss_Delay: true
   Skin:
     Default:
       Custom_Model_Data: 351
