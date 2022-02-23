@@ -1,11 +1,11 @@
 package me.deecaad.weaponmechanics.utils.CrackShotConvert;
 
+import com.shampaggon.crackshot.MaterialManager;
+import com.shampaggon.crackshot.SoundManager;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,56 +13,19 @@ import java.util.function.Function;
 
 public class CrackShotConverter {
 
-    public void convertAllFiles(File outputDirectory) {
-        File crackShotDirectory = new File("plugins/CrackShot/weapons");
-        if (crackShotDirectory == null || crackShotDirectory.listFiles() == null) {
-            throw new IllegalArgumentException("Did not find CrackShot weapons directory or it was empty!");
-        }
-        convertAllFiles(crackShotDirectory, outputDirectory);
-    }
+    public void convertOneKey(YamlConfiguration configuration, String key, YamlConfiguration outputConfiguration) {
 
-    public void convertAllFiles(File directory, File outputDirectory) {
-        if (directory == null || directory.listFiles() == null) {
-            throw new IllegalArgumentException("The given file MUST be a directory!");
-        }
-
-        for (File directoryFile : directory.listFiles()) {
-            if (directoryFile.isDirectory()) {
-                convertAllFiles(directory, outputDirectory);
-            } else if (directoryFile.getName().endsWith(".yml")) {
-                convertOneFile(directoryFile, outputDirectory);
+        if (configuration.get(key + ".Reload.Reload_Amount") != null) {
+            if (configuration.get(key + ".Firearm_Action.Type") != null) {
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + "%firearm-state% &7«&6%ammo-left%&7»&6%reload%");
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
+            } else {
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + " &7«&6%ammo-left%&7»&6%reload%");
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
             }
         }
-    }
-
-    public void convertOneFile(File file, File outputDirectory) {
-        YamlConfiguration outputConfiguration = new YamlConfiguration();
-
-        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-        for (String key : configuration.getKeys(false)) {
-
-            if (configuration.get(key + ".Reload.Reload_Amount") != null) {
-
-                if (configuration.get(key + ".Firearm_Action.Type") != null) {
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + "%firearm-state% &7«&6%ammo-left%&7»&6%reload%");
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
-                } else {
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + " &7«&6%ammo-left%&7»&6%reload%");
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
-                }
-
-            }
-
-            for (Paths path : Paths.values()) {
-                path.convert(key + "." + path.from, key + "." + path.to, configuration, outputConfiguration);
-            }
-        }
-
-        String pathInOutput = outputDirectory.getPath() + "/" + file.getName();
-        try {
-            outputConfiguration.save(new File(pathInOutput));
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (CrackShotConverter.Paths path : CrackShotConverter.Paths.values()) {
+            path.convert(key + "." + path.from, key + "." + path.to, configuration, outputConfiguration);
         }
     }
 
@@ -70,7 +33,7 @@ public class CrackShotConverter {
 
         // ITEM INFORMATION
         WEAPON_NAME("Item_Information.Item_Name", "Info.Weapon_Item.Name"),
-        WEAPON_TYPE("Item_Information.Item_Type", "Info.Weapon_Item.Type"),
+        WEAPON_TYPE("Item_Information.Item_Type", "Info.Weapon_Item.Type", new MaterialConvert()),
         WEAPON_LORE("Item_Information.Item_Lore", "Info.Weapon_Item.Lore", new LoreConvert()),
         SKIP_NAME_CHECK("Item_Information.Skip_Name_Check", "Info.Weapon_Converter_Check.Type"),
         SOUNDS_ACQUIRED("Item_Information.Sounds_Acquired", "Info.Weapon_Get_Mechanics.Sounds", new SoundConvert()),
@@ -87,6 +50,7 @@ public class CrackShotConverter {
         REMOVE_BULLET_DROP("Shooting.Remove_Bullet_Drop", "Projectile.Projectile_Settings.Gravity", new ValueBooleanConvert(0.0, null)),
         PROJECTILE_SPEED("Shooting.Projectile_Speed", "Shoot.Projectile_Speed", new ValueDoubleConvert(x -> x * 2)),
         PROJECTILE_DAMAGE("Shooting.Projectile_Damage", "Damage.Base_Damage", new ValueNonZeroConvert()),
+        PROJECTILE_DAMAGE_ARMOR("Shooting.Projectile_Damage", "Damage.Armor_Damage", new ValueDoubleConvert(x -> 3.0)),
         PROJECTILE_INCENDIARY("Shooting.Projectile_Incendiary.Duration", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         BULLET_SPREAD("Shooting.Bullet_Spread", "Shoot.Spread.Base_Spread", new ValueDoubleConvert(x -> x * 10)),
         SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics.Sounds", new SoundConvert()),
@@ -107,7 +71,7 @@ public class CrackShotConverter {
 
         // AMMO
         AMMO("Ammo.", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo", new AmmoConverter()),
-        AMMO_ITEM("Ammo.Ammo_Item_ID", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo.Bullet_Item.Type"),
+        AMMO_ITEM("Ammo.Ammo_Item_ID", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo.Bullet_Item.Type", new MaterialConvert()),
         AMMO_NAME_CHECK("Ammo.Ammo_Name_Check", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo.Bullet_Item.Name"),
         SOUNDS_OUT_OF_AMMO("Ammo.Sounds_Out_Of_Ammo", "Reload.Ammo.Out_Of_Ammo.Sounds", new SoundConvert()),
         SOUNDS_SHOOT_WITH_NO_AMMO("Ammo.Sounds_Shoot_With_No_Ammo", "Reload.Ammo.Out_Of_Ammo.Sounds", new SoundConvert()),
@@ -340,6 +304,17 @@ public class CrackShotConverter {
         }
     }
 
+    private static class MaterialConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String value = fromConfig.getString(from);
+            if (value == null) return;
+
+            toConfig.set(to, MaterialManager.getMaterial(value));
+        }
+    }
+
     private static class SoundConvert implements Converter {
 
         @Override
@@ -347,7 +322,32 @@ public class CrackShotConverter {
             String value = fromConfig.getString(from);
             if (value == null) return;
 
-            toConfig.set(to, Arrays.asList(value.replaceFirst("0", "1").replaceAll(" ", "").split(",")));
+            // SOUND-VOLUME-PITCH-DELAY
+
+            List<String> sounds = new ArrayList<>();
+            for (String sound : value.replaceAll(" ", "").split(",")) {
+                String[] splitted = sound.split("-");
+
+                String soundName = SoundManager.get(splitted[0]).name();
+                String volume = splitted[1];
+                if (Double.parseDouble(volume) <= 0.05) {
+                    volume = "1";
+                }
+                String pitch = splitted[2];
+                if (Double.parseDouble(pitch) <= 0.05) {
+                    pitch = "1";
+                }
+                String delay = splitted[3];
+                if (Integer.parseInt(delay) < 1) {
+                    delay = "";
+                } else {
+                    delay = "-" + splitted[3];
+                }
+
+                sounds.add(soundName + "-" + volume + "-" + pitch + delay);
+            }
+
+            toConfig.set(to, sounds);
         }
     }
 
@@ -564,7 +564,7 @@ public class CrackShotConverter {
             String blockType = fromConfig.getString(from + "Block_Type");
             if (blockType != null) {
                 toConfig.set(to + "Airstrike.Dropped_Projectile.Projectile_Settings.Type", "FALLING_BLOCK");
-                toConfig.set(to + "Airstrike.Dropped_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", blockType);
+                toConfig.set(to + "Airstrike.Dropped_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", MaterialManager.getMaterial(blockType).name());
                 toConfig.set(to + "Airstrike.Dropped_Projectile.Disable_Entity_Collisions", true);
             }
         }
@@ -597,7 +597,7 @@ public class CrackShotConverter {
             String bombletType = fromConfig.getString(from + "Bomblet_Type");
             if (bombletType != null) {
                 toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Type", "DROPPED_ITEM");
-                toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", bombletType);
+                toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", MaterialManager.getMaterial(bombletType).name());
                 toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Disable_Entity_Collisions", true);
 
                 toConfig.set(to + "Cluster_Bomb.Split_Projectile.Bouncy.Blocks.Allow_Any", true);

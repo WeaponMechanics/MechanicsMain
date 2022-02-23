@@ -12,6 +12,8 @@ dependencies {
     implementation("co.aikar:minecraft-timings:1.0.4")
     implementation("org.bstats:bstats-bukkit:2.2.1")
     implementation("io.lumine.xikage:MythicMobs:4.9.1")
+    compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
+    compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
 }
 
 tasks.test {

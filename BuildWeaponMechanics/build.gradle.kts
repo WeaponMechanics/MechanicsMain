@@ -40,7 +40,7 @@ bukkit {
     apiVersion = "1.13"
 
     authors = listOf("DeeCaaD", "CJCrafter")
-    softDepend = listOf("MechanicsCore", "MythicMobs")
+    softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus")
 }
 
 tasks.named<ShadowJar>("shadowJar") {

@@ -5,8 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.file.TaskChain;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
-import me.deecaad.weaponmechanics.utils.CrackShotConvert.CrackShotConverter;
-import org.bukkit.ChatColor;
+import me.deecaad.weaponmechanics.utils.CrackShotConvert.Converter;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
@@ -22,8 +21,6 @@ public class CrackShotConvertCommand extends SubCommand {
     public void execute(CommandSender sender, String[] args) {
         WeaponMechanics plugin = WeaponMechanicsAPI.getInstance();
         File outputPath = new File(plugin.getDataFolder().getPath() + "/crackshotconvert/");
-        new TaskChain(WeaponMechanics.getPlugin())
-                .thenRunAsync(() -> new CrackShotConverter().convertAllFiles(outputPath))
-                .thenRunSync(() -> sender.sendMessage(ChatColor.GREEN + "CrackShot configurations converted to folder WeaponMechanics/crackshotconvert/. This is still experimental."));
+        new TaskChain(WeaponMechanics.getPlugin()).thenRunAsync(() -> new Converter(sender).convertAllFiles(outputPath));
     }
 }
