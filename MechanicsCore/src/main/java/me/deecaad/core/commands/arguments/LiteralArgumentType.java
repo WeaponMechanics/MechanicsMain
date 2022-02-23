@@ -19,12 +19,7 @@ public class LiteralArgumentType extends CommandArgumentType<String> {
     }
 
     @Override
-    public Class<String> getDataType() {
-        return String.class;
-    }
-
-    @Override
-    public ArgumentType<String> getBrigadierType() {
+    public ArgumentType<?> getBrigadierType() {
         return null;
     }
 

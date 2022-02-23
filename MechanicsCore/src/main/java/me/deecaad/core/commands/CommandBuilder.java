@@ -1,9 +1,5 @@
 package me.deecaad.core.commands;
 
-import me.deecaad.core.commands.arguments.Argument;
-import me.deecaad.core.commands.arguments.LiteralArgumentType;
-import me.deecaad.core.commands.arguments.MultiLiteralArgumentType;
-import me.deecaad.core.commands.executors.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
@@ -13,20 +9,23 @@ import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class CommandBuilder implements Cloneable {
 
-    private final String label;
-    private Permission permission;
-    private Predicate<CommandSender> requirements;
-    private List<String> aliases;
-    private List<Argument<Object>> args;
-    private List<CommandBuilder> subcommands;
-    private CommandExecutor<? extends CommandSender> executor;
-    private String description;
+    // Package private for internal usage
+    String label;
+    Permission permission;
+    Predicate<CommandSender> requirements;
+    List<String> aliases;
+    List<Argument<Object>> args;
+    List<CommandBuilder> subcommands;
+    CommandExecutor<? extends CommandSender> executor;
+    String description;
+
+    // For internal usage, stores the default values of optional arguments.
+    Object[] optionalDefaultValues;
 
     public CommandBuilder(String label) {
         if (label == null || label.trim().isEmpty())
@@ -38,6 +37,7 @@ public class CommandBuilder implements Cloneable {
         this.args = new ArrayList<>();
         this.subcommands = new ArrayList<>();
         this.executor = null;
+        this.optionalDefaultValues = new Object[0];
     }
 
     public CommandBuilder withPermission(String permission) {
@@ -75,14 +75,15 @@ public class CommandBuilder implements Cloneable {
 
     @SuppressWarnings("all")
     public CommandBuilder withArguments(Argument<Object>... arguments) {
-        this.args.addAll(Arrays.asList(arguments));
+        for (Argument<Object> argument : arguments)
+            this.withArgument(argument);
         return this;
     }
 
     @SuppressWarnings("all")
     public CommandBuilder withArguments(List<Argument<?>> arguments) {
-        //noinspection unchecked
-        this.args.addAll((Collection) arguments);
+        for (Argument<?> argument : arguments)
+            this.withArgument(argument);
         return this;
     }
 
@@ -101,74 +102,25 @@ public class CommandBuilder implements Cloneable {
         return this;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public Permission getPermission() {
-        return permission;
-    }
-
-    public Predicate<CommandSender> getRequirements() {
-        return requirements;
-    }
-
-    public List<String> getAliases() {
-        return aliases;
-    }
-
-    public List<Argument<Object>> getArgs() {
-        return args;
-    }
-
-    public List<CommandBuilder> getSubcommands() {
-        return subcommands;
-    }
-
-    public CommandExecutor<? extends CommandSender> getExecutor() {
-        return executor;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
     public void register() {
-        if (ReflectionUtil.getMCVersion() >= 13) {
-            if (executor != null)
-                new BrigadierCommand(this);
 
-            for (CommandBuilder subcommand : subcommands)
-                flatten(this.clone(), new ArrayList<>(), subcommand);
+        // First things first: Validation
+        // A command may not have both *arguments* AND *sub-commands*
+        // A command with sub-commands MAY NOT have an executor (subcommands handle that!)
+        // A command without sub-commands MUST have an executor
+        if (!args.isEmpty() && !subcommands.isEmpty())
+            throw new CommandException("Cannot use arguments and sub-commands at the same time!");
+        if (!subcommands.isEmpty() && executor != null)
+            throw new CommandException("Cannot use an executor with subcommands! Register the executor with the subcommands, not the root command!");
+        if (subcommands.isEmpty() && executor == null)
+            throw new CommandException("You forgot to add an executor or sub-commands to your command!");
+
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            BrigadierCommand.register(this);
         }
         else {
             throw new IllegalStateException("oops forgot to add legacy");
         }
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void flatten(CommandBuilder root, List<Argument<?>> arguments, CommandBuilder subcommand) {
-
-        LiteralArgumentType literals = new LiteralArgumentType(subcommand.label);
-        Argument<?> argument = new Argument<>("sub-command", literals)
-                .withPermission(subcommand.getPermission())
-                .withRequirements(subcommand.getRequirements())
-                .setListed(false);
-
-        arguments.add(argument);
-
-        if(subcommand.getExecutor() != null) {
-            root.args = (List) arguments;
-            root.withArguments((List) subcommand.getArgs());
-            root.executes(subcommand.getExecutor());
-
-            root.subcommands = new ArrayList<>();
-            new BrigadierCommand(root);
-        }
-
-        // Flatten all subcommands
-        for (CommandBuilder subsubcommand : subcommand.getSubcommands())
-            flatten(subcommand, new ArrayList<>(arguments), subsubcommand);
     }
 
     public Predicate<Object> requirements() {

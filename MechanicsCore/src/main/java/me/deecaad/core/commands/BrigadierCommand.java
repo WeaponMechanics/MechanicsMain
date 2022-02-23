@@ -13,16 +13,15 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.commands.arguments.Argument;
 import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.commands.arguments.MultiLiteralArgumentType;
-import me.deecaad.core.commands.executors.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -39,15 +38,16 @@ public class BrigadierCommand implements Command<Object> {
         this.builder = builder;
 
         CommandDispatcher<Object> dispatcher = CompatibilityAPI.getCommandCompatibility().getCommandDispatcher();
-        LiteralArgumentBuilder<Object> result = literal(builder.getLabel()).requires(builder.requirements());
-        if (builder.getArgs().isEmpty())
+        LiteralArgumentBuilder<Object> result = literal(builder.label).requires(builder.requirements());
+        if (builder.args.isEmpty())
             result.executes(this);
         else
-            result.then(buildArguments(builder.getArgs()));
+            result.then(buildArguments(builder.args));
 
         dispatcher.register(result);
 
-        MechanicsCore.debug.error("Registering Command: /" + builder.getLabel() + " " + builder.getArgs().stream().map(Argument::getName).collect(Collectors.toList()));
+        MechanicsCore.debug.error("Registering Command: /" + builder.label + " " + builder.args.stream().map(Argument::getName)
+                .map(s -> "<" + s + ">").collect(Collectors.joining(" ")) + " " + Arrays.toString(builder.optionalDefaultValues));
     }
 
     @Override
@@ -57,14 +57,14 @@ public class BrigadierCommand implements Command<Object> {
         // Ensure that the CommandSender is the proper type. This is typically
         // used for Player only commands, but it may also be used for console
         // or command-block only commands, for example.
-        if (!builder.getExecutor().getExecutor().isInstance(sender)) {
-            sender.sendMessage(ChatColor.RED + builder.getLabel() + " is a " + builder.getExecutor().getExecutor().getSimpleName() + " only command.");
+        if (!builder.executor.getExecutor().isInstance(sender)) {
+            sender.sendMessage(ChatColor.RED + builder.label + " is a " + builder.executor.getExecutor().getSimpleName() + " only command.");
             return -1;
         }
 
         try {
             //noinspection unchecked
-            ((CommandExecutor<CommandSender>) builder.getExecutor()).execute(sender, parseBrigadierArguments(context));
+            ((CommandExecutor<CommandSender>) builder.executor).execute(sender, parseBrigadierArguments(context));
             return 0;
         } catch (CommandSyntaxException ex) {
             throw ex;
@@ -76,11 +76,12 @@ public class BrigadierCommand implements Command<Object> {
     }
 
     private Object[] parseBrigadierArguments(CommandContext<Object> context) throws Exception {
-        List<Object> temp = new ArrayList<>(builder.getArgs().size());
-        for (Argument<?> argument : builder.getArgs())
+        List<Object> temp = new ArrayList<>(builder.args.size());
+        for (Argument<?> argument : builder.args)
             if (argument.isListed())
                 temp.add(argument.parse(context, argument.getName()));
 
+        Collections.addAll(temp, builder.optionalDefaultValues);
         return temp.toArray();
     }
 
@@ -106,14 +107,14 @@ public class BrigadierCommand implements Command<Object> {
 
                 // When an argument wants to REPLACE suggestions, only include
                 // "buildSuggestionProvider" (which builds custom suggestions).
-                if (argument.isReplaceSuggestions()) {
+                if (argument.isReplaceSuggestions) {
                     required.suggests(buildSuggestionProvider(argument.getName()));
                 }
 
                 // When an argument wants to ADD suggestions, we should include
                 // the argument's default suggestions as well as the custom
                 // suggestions.
-                else if (argument.getSuggestions() != null) {
+                else if (argument.suggestions != null) {
                     required.suggests((context, suggestionsBuilder) -> {
                         argument.getType().getBrigadierType().listSuggestions(context, suggestionsBuilder);
                         buildSuggestionProvider(argument.getName()).getSuggestions(context, suggestionsBuilder);
@@ -151,7 +152,7 @@ public class BrigadierCommand implements Command<Object> {
             List<Object> previousArguments = new ArrayList<>();
             Argument<?> current = null;
 
-            for (Argument<?> argument : this.builder.getArgs()) {
+            for (Argument<?> argument : this.builder.args) {
                 current = argument;
                 if (current.getName().equals(nodeName))
                     break;
@@ -160,7 +161,7 @@ public class BrigadierCommand implements Command<Object> {
             }
 
             CommandData data = new CommandData(sender, previousArguments.toArray(), builder.getInput(), builder.getRemaining());
-            return getSuggestionsBuilder(builder, current.getSuggestions() == null ? new Tooltip[0] : current.getSuggestions().apply(data));
+            return getSuggestionsBuilder(builder, current.suggestions == null ? new Tooltip[0] : current.suggestions.apply(data));
         };
     }
 
@@ -175,5 +176,115 @@ public class BrigadierCommand implements Command<Object> {
         return builder.buildFuture();
     }
 
+    @SuppressWarnings("unchecked")
+    static void register(CommandBuilder builder) {
 
+        // Now we need to "unpack" the command. This means converting the
+        // CommandBuilder format into a brigadier command format.
+        // 1. Aliases do not exist in brigadier. We need to register multiple commands
+        // 2. Aliases do not exist for sub-commands, we need to register multiple sub-commands for each sub-command.
+        // 3. Sub-commands do not exist. Instead, sub-commands are registered as "LiteralArguments" (which are just strings).
+        // 4. Arguments are registered as RequiredArguments
+        // 5. Optional arguments do not exist. Instead, we must register an additional command for each argument.
+
+        // This handles '3', sub-commands need to be converted into "multi-literals".
+        if (!builder.subcommands.isEmpty()) {
+            for (CommandBuilder subcommand : builder.subcommands) {
+                CommandBuilder rootClone = builder.clone();
+                unPack(rootClone, new ArrayList<>(), subcommand);
+            }
+        }
+
+        // For each literal in a multi-literal, we need to register a command
+        // for it. Sometimes an argument will have multiple multi-literals,
+        // like /wm multi multi args => /wm test explosion args. We use
+        // recursion to handle this.
+        for (int i = 0; i < builder.args.size(); i++) {
+            Argument<?> arg = builder.args.get(i);
+            if (arg.getType() instanceof MultiLiteralArgumentType) {
+                for (String literal : ((MultiLiteralArgumentType) arg.getType()).getLiterals()) {
+                    List<Argument<Object>> copy = new ArrayList<>(builder.args);
+
+                    // Replace the multi-literal with the literal
+                    Argument<?> replace = new Argument<>(literal, new LiteralArgumentType(literal))
+                            .withPermission(arg.permission)
+                            .withRequirements(arg.requirements)
+                            .setListed(arg.listed);
+
+                    copy.set(i, (Argument<Object>) replace);
+                    CommandBuilder clone = builder.clone();
+                    clone.args = copy;
+                    register(clone);
+                }
+
+                // When we find a multi-argument type, we have to return. For
+                // multiple multi-arguments, the recursion will handle it.
+                return;
+            }
+        }
+
+        // This handles '5', optional arguments need to generate new commands.
+        // Consider the command: /wm give CJCafter AK-47 1 scope_attachment
+        // 'CJCrafter' and 'AK-47' are required arguments. '1' and
+        // 'scope_attachment' are not required arguments.
+        // In order to allow optional arguments, we must register each command:
+        // /wm give CJCrafter AK-47
+        // /wm give CJCrafter AK-47 1
+        // /wm give CJCrafter AK-47 1 scope_attachment
+        for (int i = builder.args.size() - 1; i >= 0; i--) {
+            Argument<?> arg = builder.args.get(i);
+
+            if (!arg.isRequired()) {
+                CommandBuilder clone = builder.clone();
+                clone.args = new ArrayList<>(clone.args.subList(0, i));
+
+                Object[] defaults = new Object[clone.optionalDefaultValues.length + 1];
+                System.arraycopy(clone.optionalDefaultValues, 0, defaults, 0, clone.optionalDefaultValues.length);
+                defaults[defaults.length - 1] = arg.getDefaultValue();
+                clone.optionalDefaultValues = defaults;
+
+                register(clone);
+                break;
+            }
+        }
+
+        new BrigadierCommand(builder);
+
+        // Now we need to handle aliases. Simply register each alias as if they
+        // are the main command.
+        for (String alias : builder.aliases) {
+            CommandBuilder clone = builder.clone();
+            clone.label = alias;
+
+            new BrigadierCommand(clone);
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void unPack(CommandBuilder root, List<Argument<?>> arguments, CommandBuilder subcommand) {
+
+        MultiLiteralArgumentType literals = new MultiLiteralArgumentType(subcommand.label, subcommand.aliases.toArray(new String[0]));
+        Argument<?> argument = new Argument<>("sub-command", literals)
+                .withPermission(subcommand.permission)
+                .withRequirements(subcommand.requirements)
+                .setListed(false);
+
+        arguments.add(argument);
+
+        // When we reach the outer-most branch of the tree, there must be an
+        // executor (Otherwise the command won't work). TODO add validation.
+        if(subcommand.executor != null) {
+            root.args = (List) arguments;
+            root.withArguments((List) subcommand.args);
+            root.executes(subcommand.executor);
+
+            root.subcommands = new ArrayList<>();
+            register(root);
+            return;
+        }
+
+        // Flatten all subcommands
+        for (CommandBuilder subsubcommand : subcommand.subcommands)
+            unPack(subcommand, new ArrayList<>(arguments), subsubcommand);
+    }
 }

@@ -2,7 +2,8 @@ package me.deecaad.core.commands.arguments;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import me.deecaad.core.commands.LegacyCommandSyntaxException;
+import me.deecaad.core.commands.CommandData;
+import me.deecaad.core.commands.CommandException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,34 +31,28 @@ public class IntegerArgumentType extends CommandArgumentType<Integer> {
     }
 
     @Override
-    public Class<Integer> getDataType() {
-        return Integer.class;
-    }
-
-    @Override
     public ArgumentType<Integer> getBrigadierType() {
         return com.mojang.brigadier.arguments.IntegerArgumentType.integer(min, max);
     }
 
     @Override
     public Integer parse(CommandContext<Object> context, String key) {
-        return context.getArgument(key, getDataType());
+        return context.getArgument(key, Integer.class);
     }
 
     @Override
-    public Integer legacyParse(String arg) throws LegacyCommandSyntaxException {
+    public Integer legacyParse(String arg) throws CommandException {
         try {
             return Integer.parseInt(arg);
         } catch (NumberFormatException ex) {
-            throw new LegacyCommandSyntaxException("Expected integer, got: " + arg, ex);
+            throw new CommandException("Expected integer, got: " + arg, ex);
         }
     }
 
     @Override
-    public List<String> legacySuggestions(String input) {
+    public List<String> legacySuggestions(CommandData input) {
         return IntStream.range(min, max + 1)
                 .mapToObj(String::valueOf)
-                .filter(str -> str.startsWith(input))
                 .collect(Collectors.toList());
     }
 }

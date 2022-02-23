@@ -1,10 +1,8 @@
-package me.deecaad.core.commands.arguments;
+package me.deecaad.core.commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.CommandData;
-import me.deecaad.core.commands.LegacyCommandSyntaxException;
-import me.deecaad.core.commands.Tooltip;
+import me.deecaad.core.commands.arguments.CommandArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -20,11 +18,12 @@ public class Argument<T> {
     private final T defaultValue; // null when isRequired
     private final boolean isRequired;
 
-    private Function<CommandData, Tooltip[]> suggestions;
-    private Permission permission;
-    private Predicate<CommandSender> requirements;
-    private boolean isReplaceSuggestions;
-    private boolean listed;
+    // Package private for internal use
+    Function<CommandData, Tooltip[]> suggestions;
+    Permission permission;
+    Predicate<CommandSender> requirements;
+    boolean isReplaceSuggestions;
+    boolean listed;
 
     /**
      * Construct an argument that the {@link org.bukkit.command.CommandSender}
@@ -33,15 +32,14 @@ public class Argument<T> {
      * @param type The non-null expected type.
      */
     public Argument(String name, CommandArgumentType<T> type) {
+        if (name == null || name.isEmpty())
+            throw new IllegalArgumentException("bad name");
+
+        this.name = name;
         this.type = type;
         this.defaultValue = null;
         this.isRequired = true;
         this.listed = true;
-
-        if (!name.startsWith("<"))
-            this.name = "<" + name + ">";
-        else
-            this.name = name;
     }
 
     /**
@@ -51,15 +49,14 @@ public class Argument<T> {
      * @param defaultValue The value to use when the player doesn't define one.
      */
     public Argument(String name, CommandArgumentType<T> type, T defaultValue) {
+        if (name == null || name.isEmpty())
+            throw new IllegalArgumentException("bad name");
+
+        this.name = name;
         this.type = type;
         this.defaultValue = defaultValue;
         this.isRequired = false;
         this.listed = true;
-
-        if (!name.startsWith("<"))
-            this.name = "<" + name + ">";
-        else
-            this.name = name;
     }
 
     /**
@@ -101,25 +98,6 @@ public class Argument<T> {
      */
     public boolean isRequired() {
         return isRequired;
-    }
-
-    /**
-     * Returns the extra suggestion provider, or else null.
-     *
-     * @return The nullable extra suggestion provider.
-     */
-    public Function<CommandData, Tooltip[]> getSuggestions() {
-        return suggestions;
-    }
-
-    /**
-     * Returns <code>true</code> if the suggestions should replace the default
-     * suggestions.
-     *
-     * @return true to override the default suggestions.
-     */
-    public boolean isReplaceSuggestions() {
-        return isReplaceSuggestions;
     }
 
     /**
@@ -189,7 +167,7 @@ public class Argument<T> {
         return type.parse(context, key);
     }
 
-    public T parse(String str) throws LegacyCommandSyntaxException {
+    public T parse(String str) throws CommandException {
         return type.legacyParse(str);
     }
 

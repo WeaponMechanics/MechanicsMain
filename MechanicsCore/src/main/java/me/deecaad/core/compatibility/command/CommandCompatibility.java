@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.arguments.EntitySelectorType;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import org.apache.commons.lang.math.DoubleRange;
@@ -22,6 +21,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +30,7 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -65,7 +66,13 @@ public interface CommandCompatibility {
 
     ArgumentType<?> enchantment();
 
-    ArgumentType<?> entity(EntitySelectorType selector);
+    ArgumentType<?> entity();
+
+    ArgumentType<?> entities();
+
+    ArgumentType<?> player();
+
+    ArgumentType<?> players();
 
     ArgumentType<?> entitySummon();
 
@@ -134,8 +141,13 @@ public interface CommandCompatibility {
 
     Enchantment getEnchantment(CommandContext<Object> context, String key);
 
-    Object getEntitySelector(CommandContext<Object> context, String key, EntitySelectorType selector)
-            throws CommandSyntaxException;
+    Entity getEntitySelector(CommandContext<Object> context, String key) throws CommandSyntaxException;
+
+    List<Entity> getEntitiesSelector(CommandContext<Object> context, String key) throws CommandSyntaxException;
+
+    Player getPlayerSelector(CommandContext<Object> context, String key) throws CommandSyntaxException;
+
+    List<Player> getPlayersSelector(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     EntityType getEntityType(CommandContext<Object> context, String key) throws CommandSyntaxException;
 

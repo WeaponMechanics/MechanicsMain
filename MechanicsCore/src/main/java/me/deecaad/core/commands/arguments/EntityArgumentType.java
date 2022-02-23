@@ -8,18 +8,12 @@ import org.bukkit.entity.Entity;
 public class EntityArgumentType extends CommandArgumentType<Entity> {
 
     @Override
-    public Class<Entity> getDataType() {
-        return Entity.class;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public ArgumentType<Entity> getBrigadierType() {
-        return (ArgumentType<Entity>) compatibility().entity(EntitySelectorType.ENTITY);
+    public ArgumentType<?> getBrigadierType() {
+        return compatibility().entity();
     }
 
     @Override
     public Entity parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
-        return (Entity) compatibility().getEntitySelector(context, key, EntitySelectorType.ENTITY);
+        return compatibility().getEntitySelector(context, key);
     }
 }

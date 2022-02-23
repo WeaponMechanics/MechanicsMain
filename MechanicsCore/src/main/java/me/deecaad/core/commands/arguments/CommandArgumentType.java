@@ -3,10 +3,10 @@ package me.deecaad.core.commands.arguments;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.LegacyCommandSyntaxException;
+import me.deecaad.core.commands.CommandData;
+import me.deecaad.core.commands.CommandException;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.command.CommandCompatibility;
-import me.deecaad.core.utils.ReflectionUtil;
 
 import java.util.List;
 
@@ -16,14 +16,12 @@ public abstract class CommandArgumentType<T> {
         return CompatibilityAPI.getCommandCompatibility();
     }
 
-    public abstract Class<T> getDataType();
-
     // * ----- BRIGADIER METHODS ----- * //
     // In versions 1.13+, we use Mojang's "version stable" command api called
     // brigadier. This is the preferred method of parsing a command, since
     // brigadier will handle errors.
 
-    public abstract ArgumentType<T> getBrigadierType();
+    public abstract ArgumentType<?> getBrigadierType();
 
     public abstract T parse(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
@@ -33,11 +31,11 @@ public abstract class CommandArgumentType<T> {
     // CommandArgumentType which does not implement these methods will not be
     // compatible with legacy versions.
 
-    public T legacyParse(String arg) throws LegacyCommandSyntaxException {
+    public T legacyParse(String arg) throws CommandException {
         throw new IllegalStateException(getClass() + " does not support legacy MC versions");
     }
 
-    public List<String> legacySuggestions(String input) {
+    public List<String> legacySuggestions(CommandData data) {
         throw new IllegalStateException(getClass() + " does not support legacy MC versions");
     }
 
