@@ -14,7 +14,7 @@ import java.io.File;
 public class CrackShotConvertCommand extends SubCommand {
 
     public CrackShotConvertCommand() {
-        super("wm", "convert", "Converts CrackShot files to WeaponMechanics");
+        super("wm", "convert", "Converts CrackShot and CrackShotPlus files to WeaponMechanics");
     }
 
     @Override

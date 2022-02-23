@@ -260,15 +260,15 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
             int stay = data.of("Title.Stay").assertPositive().getInt(40);
             int fadeOut = data.of("Title.Fade_Out").assertPositive().getInt(0);
 
-            titleData = new TitleData(StringUtil.color(titleMessage), StringUtil.color(subtitleMessage), fadeIn, stay, fadeOut);
+            titleData = new TitleData(titleMessage != null ? StringUtil.color(titleMessage) : null, subtitleMessage != null ? StringUtil.color(subtitleMessage) : null, fadeIn, stay, fadeOut);
         }
 
         // BOSS BAR
         BossBarData bossBarData = null;
         String bossBarMessage = data.of("Boss_Bar.Title").assertType(String.class).get(null);
         if (bossBarMessage != null) {
-            BarColor barColor = data.of("Boss_Bar.Bar_Color").getEnum(BarColor.class, BarColor.RED);
-            BarStyle barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BarStyle.class, BarStyle.SOLID);
+            BarColor barColor = data.of("Boss_Bar.Bar_Color").getEnum(BarColor.class, BarColor.WHITE);
+            BarStyle barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BarStyle.class, BarStyle.SEGMENTED_20);
             int time = data.of("Boss_Bar.Time").assertExists().assertPositive().getInt();
             bossBarData = new BossBarData(StringUtil.color(bossBarMessage), barColor, barStyle, time);
         }
