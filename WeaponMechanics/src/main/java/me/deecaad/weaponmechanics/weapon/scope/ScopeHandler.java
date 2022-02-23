@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
 import co.aikar.timings.lib.MCTiming;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
@@ -15,6 +16,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import org.bukkit.Bukkit;
@@ -180,6 +182,7 @@ public class ScopeHandler implements IValidator {
 
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
 
+
         return true;
     }
 
@@ -220,6 +223,14 @@ public class ScopeHandler implements IValidator {
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
+
+        HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+        handData.setLastScopeTime(System.currentTimeMillis());
+
+        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Shoot_Delay_After_Scope")) {
+            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, weaponStack.getType(),
+                    getConfigurations().getInt(weaponTitle + ".Scope.Shoot_Delay_After_Scope") / 50);
+        }
 
         return true;
     }
@@ -302,5 +313,10 @@ public class ScopeHandler implements IValidator {
                     "Located at file " + file + " in " + path + ".Zoom_Stacking in configurations.");
         }
 
+        int shootDelayAfterScope = configuration.getInt(path + ".Shoot_Delay_After_Scope");
+        if (shootDelayAfterScope != 0) {
+            // Convert to millis
+            configuration.set(path + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
+        }
     }
 }

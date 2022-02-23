@@ -2,15 +2,25 @@ package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
 public interface EntityCompatibility {
+
+    default boolean hasCooldown(Player player, Material material) {
+        return player.hasCooldown(material);
+    }
+
+    default void setCooldown(Player player, Material material, int ticks) {
+        player.setCooldown(material, ticks);
+    }
 
     /**
      * Returns the amount of absorption hearts that the entity currently has.

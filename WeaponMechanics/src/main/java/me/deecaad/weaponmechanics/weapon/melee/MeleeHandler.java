@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.melee;
 
 import co.aikar.timings.lib.MCTiming;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.utils.LogLevel;
@@ -22,7 +23,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
@@ -98,7 +101,12 @@ public class MeleeHandler implements IValidator {
         if (hit != null) {
             result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
             if (result) {
-                if (meleeHitDelay != 0) handData.setLastMeleeTime(System.currentTimeMillis());
+                if (meleeHitDelay != 0) {
+                    handData.setLastMeleeTime(System.currentTimeMillis());
+                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Hit_Delay") && shooter.getType() == EntityType.PLAYER) {
+                        CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeHitDelay / 50);
+                    }
+                }
                 hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack);
             }
         } else {
@@ -111,7 +119,13 @@ public class MeleeHandler implements IValidator {
                 result = true;
             }
 
-            if (meleeMissDelay != 0) handData.setLastMeleeMissTime(System.currentTimeMillis());
+            if (meleeMissDelay != 0) {
+                handData.setLastMeleeMissTime(System.currentTimeMillis());
+
+                if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Miss_Delay") && shooter.getType() == EntityType.PLAYER) {
+                    CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeMissDelay / 50);
+                }
+            }
         }
         return result;
     }

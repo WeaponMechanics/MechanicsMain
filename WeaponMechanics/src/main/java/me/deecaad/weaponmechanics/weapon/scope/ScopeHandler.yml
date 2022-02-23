@@ -3,6 +3,7 @@ Scope:
   Night_Vision: <true/false>
   Zoom_Amount: <1-32>
   Mechanics: <MechanicsSerializer>
+  Shoot_Delay_After_Scope: <ticks>
   Zoom_Off:
     Trigger: <trigger serializer>
     Mechanics: <MechanicsSerializer>

@@ -40,7 +40,7 @@ bukkit {
     apiVersion = "1.13"
 
     authors = listOf("DeeCaaD", "CJCrafter")
-    softDepend = listOf("MechanicsCore")
+    softDepend = listOf("MechanicsCore", "MythicMobs")
 }
 
 tasks.named<ShadowJar>("shadowJar") {
@@ -85,4 +85,4 @@ tasks.named("assemble").configure {
 }
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.4.1-BETA"
+version = "1.4.5-BETA"

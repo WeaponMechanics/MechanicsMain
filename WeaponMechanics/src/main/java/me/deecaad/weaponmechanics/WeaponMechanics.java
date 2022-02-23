@@ -356,15 +356,56 @@ public class WeaponMechanics {
         metrics.addCustomChart(new SimplePie("registered_weapons", () -> {
             int weapons = getWeaponHandler().getInfoHandler().getSortedWeaponList().size();
 
-            if (weapons < 10) {
+            if (weapons <= 10) {
                 return "0-10";
-            } else if (weapons < 20) {
+            } else if (weapons <= 20) {
                 return "11-20";
-            } else if (weapons < 30) {
+            } else if (weapons <= 30) {
                 return "21-30";
-            } else if (weapons < 50) {
+            } else if (weapons <= 50) {
                 return "31-50";
-            } else if (weapons < 100) {
+            } else if (weapons <= 100) {
+                return "51-100";
+            } else {
+                return ">100";
+            }
+        }));
+
+        metrics.addCustomChart(new SimplePie("custom_weapons", () -> {
+            Set<String> defaultWeapons = new HashSet<>(Arrays.asList("AK-47", "FN_FAL", "FR_5_56", "M4A1",
+                    "Stim",
+                    "Airstrike", "Cluster_Grenade", "Flashbang", "Grenade", "Semtex",
+                    "MG34",
+                    "Kar98k",
+                    "Combat_Knife",
+                    "50_GS", "357_Magnum",
+                    "RPG-7",
+                    "Origin_12", "R9-0",
+                    "AX-50",
+                    "AUG", "Uzi"));
+
+            InfoHandler infoHandler = getWeaponHandler().getInfoHandler();
+            int counter = 0;
+
+            for (String weapon : infoHandler.getSortedWeaponList()) {
+                if (!defaultWeapons.contains(weapon)) {
+                    ++counter;
+                }
+            }
+
+            if (counter <= 0) {
+                return "0";
+            } else if (counter <= 5) {
+                return "1-5";
+            } else if (counter <= 10) {
+                return "6-10";
+            } else if (counter <= 20) {
+                return "11-20";
+            } else if (counter <= 30) {
+                return "16-30";
+            } else if (counter <= 50) {
+                return "31-50";
+            } else if (counter <= 100) {
                 return "51-100";
             } else {
                 return ">100";

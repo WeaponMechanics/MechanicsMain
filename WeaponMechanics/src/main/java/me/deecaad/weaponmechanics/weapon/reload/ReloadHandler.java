@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
 import co.aikar.timings.lib.MCTiming;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializerException;
@@ -25,8 +26,9 @@ import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -198,15 +200,29 @@ public class ReloadHandler implements IValidator {
                     // If pump it can be either open or close state at this point since
                     // shoot firearm actions can't reach this point and weapon is full
                     if (state == FirearmState.RELOAD_OPEN) {
+
+                        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmOpenTime + firearmCloseTime);
+                        }
+
                         ChainTask openTask = getOpenTask(firearmOpenTime, isPump, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot);
                         openTask.setNextTask(getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, ammoPerReload, magazineSize, dualWield));
                         openTask.startChain();
                     } else if (state == FirearmState.RELOAD_CLOSE) {
+
+                        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmCloseTime);
+                        }
+
                         getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, ammoPerReload, magazineSize, dualWield).startChain();
                     }
                 } else {
                     // If LEVER or REVOLVER it can only be close state at this point since
                     // shoot firearm actions can't reach this point and weapon is full
+
+                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+                        CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmCloseTime);
+                    }
 
                     getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, ammoPerReload, magazineSize, dualWield).startChain();
                 }
@@ -329,6 +345,10 @@ public class ReloadHandler implements IValidator {
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
         };
+
+        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
+            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), reloadEvent.getReloadCompleteTime());
+        }
 
         if (firearmAction == null || state == null) {
 

@@ -14,6 +14,7 @@ public class CastData {
 
     private EntityWrapper caster;
     private WeaponProjectile projectileCaster;
+    private LivingEntity livingEntityCaster;
     private Location casterLocation;
     private String weaponTitle;
     private ItemStack weaponStack;
@@ -49,6 +50,12 @@ public class CastData {
         weaponStack = caster.getWeaponStack();
     }
 
+    public CastData(LivingEntity caster, @Nullable String weaponTitle, @Nullable ItemStack weaponStack) {
+        this.livingEntityCaster = caster;
+        this.weaponTitle = weaponTitle;
+        this.weaponStack = weaponStack;
+    }
+
     /**
      * @return the wrapped caster of this cast, null if only location is used
      */
@@ -71,6 +78,9 @@ public class CastData {
      */
     @Nullable
     public LivingEntity getCaster() {
+        if (this.livingEntityCaster != null) {
+            return this.livingEntityCaster;
+        }
         return caster == null ? null : caster.getEntity();
     }
 
@@ -79,6 +89,7 @@ public class CastData {
      */
     public Location getCastLocation() {
         if (casterLocation != null) return casterLocation;
+        if (this.livingEntityCaster != null) return this.livingEntityCaster.getLocation();
 
         return projectileCaster != null ? projectileCaster.getLocation().toLocation(projectileCaster.getWorld()) : caster.getEntity().getLocation();
     }

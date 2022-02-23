@@ -86,7 +86,7 @@ public class Flashbang implements Serializer<Flashbang> {
         }
 
         // Check if the explosion exposure can effect the entity
-        return exposure.canSee(origin, entity);
+        return exposure.canSee(origin.add(0, 0.5, 0), entity);
     }
 
     public void effect(WeaponProjectile projectile, LivingEntity entity) {

@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
@@ -7,6 +8,9 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
@@ -19,6 +23,8 @@ public class HandData {
     private int fullAutoTask;
     private int burstTask;
     private long lastShotTime;
+    private long lastScopeTime;
+    private long lastEquipTime;
     private double spreadChange;
     private RecoilTask recoilTask;
     private long lastMeleeTime;
@@ -96,6 +102,22 @@ public class HandData {
         return NumberUtil.hasMillisPassed(lastShotTime, ShootHandler.RESET_MILLIS);
     }
 
+    public long getLastScopeTime() {
+        return lastScopeTime;
+    }
+
+    public void setLastScopeTime(long lastScopeTime) {
+        this.lastScopeTime = lastScopeTime;
+    }
+
+    public long getLastEquipTime() {
+        return lastEquipTime;
+    }
+
+    public void setLastEquipTime(long lastEquipTime) {
+        this.lastEquipTime = lastEquipTime;
+    }
+
     public double getSpreadChange() {
         return spreadChange;
     }
@@ -162,6 +184,11 @@ public class HandData {
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
 
+            LivingEntity entity = entityWrapper.getEntity();
+            if (reloadWeaponStack != null && entity.getType() == EntityType.PLAYER && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, reloadWeaponStack.getType())) {
+                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, reloadWeaponStack.getType(), 0);
+            }
+
             reloadStart = 0;
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
@@ -176,6 +203,11 @@ public class HandData {
             reloadTasks.clear();
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), getReloadElapsedTime()));
+
+            LivingEntity entity = entityWrapper.getEntity();
+            if (reloadWeaponStack != null && entity.getType() == EntityType.PLAYER && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, reloadWeaponStack.getType())) {
+                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, reloadWeaponStack.getType(), 0);
+            }
 
             reloadStart = 0;
             reloadWeaponStack = null;

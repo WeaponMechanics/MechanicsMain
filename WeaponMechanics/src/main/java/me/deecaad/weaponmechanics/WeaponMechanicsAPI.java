@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.ICompatibility;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -17,6 +18,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -35,8 +37,7 @@ public final class WeaponMechanicsAPI {
     private static WeaponMechanics plugin;
 
     // Don't let anyone instantiate this class
-    private WeaponMechanicsAPI() {
-    }
+    private WeaponMechanicsAPI() { }
 
     /**
      * Returns how far the <code>entity</code> is zooming in. 0 means that the
@@ -197,6 +198,27 @@ public final class WeaponMechanicsAPI {
         if (ammoTypes == null) return null;
 
         return ammoTypes.getCurrentAmmoName(weaponStack);
+    }
+
+    public static void shoot(LivingEntity shooter, String weaponTitle, Location target) {
+        shoot(shooter, weaponTitle, target.toVector().subtract(shooter.getEyeLocation().toVector()));
+    }
+
+    public static void shoot(LivingEntity shooter, String weaponTitle) {
+        shoot(shooter, weaponTitle, shooter.getLocation().getDirection());
+    }
+
+    public static void shoot(LivingEntity shooter, String weaponTitle, Vector direction) {
+        checkState();
+        notNull(shooter);
+        notNull(weaponTitle);
+        notNull(direction);
+
+        if (!plugin.weaponHandler.getInfoHandler().hasWeapon(weaponTitle)) {
+            throw new IllegalArgumentException("Weapon " + weaponTitle + " does not exist");
+        }
+
+        plugin.weaponHandler.getShootHandler().shoot(shooter, weaponTitle, direction.clone().normalize());
     }
 
     /**
