@@ -306,7 +306,9 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new MythicMobsLoader(), getPlugin());
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
+            Bukkit.getPluginManager().registerEvents(new MythicMobsLoader(), getPlugin());
+        }
     }
 
     void registerPacketListeners() {
