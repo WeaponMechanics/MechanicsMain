@@ -257,7 +257,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         if (titleMessage != null || subtitleMessage != null) {
 
             int fadeIn = data.of("Title.Fade_In").assertPositive().getInt(0);
-            int stay = data.of("Title.Stay").assertExists().assertPositive().getInt();
+            int stay = data.of("Title.Stay").assertPositive().getInt(40);
             int fadeOut = data.of("Title.Fade_Out").assertPositive().getInt(0);
 
             titleData = new TitleData(StringUtil.color(titleMessage), StringUtil.color(subtitleMessage), fadeIn, stay, fadeOut);
