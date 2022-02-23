@@ -108,7 +108,7 @@ public class BrigadierCommand implements Command<Object> {
                 // When an argument wants to REPLACE suggestions, only include
                 // "buildSuggestionProvider" (which builds custom suggestions).
                 if (argument.isReplaceSuggestions) {
-                    required.suggests(buildSuggestionProvider(argument.getName()));
+                    required.suggests(buildSuggestionProvider(argument));
                 }
 
                 // When an argument wants to ADD suggestions, we should include
@@ -117,15 +117,16 @@ public class BrigadierCommand implements Command<Object> {
                 else if (argument.suggestions != null) {
                     required.suggests((context, suggestionsBuilder) -> {
                         argument.getType().getBrigadierType().listSuggestions(context, suggestionsBuilder);
-                        buildSuggestionProvider(argument.getName()).getSuggestions(context, suggestionsBuilder);
+                        buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
                         return suggestionsBuilder.buildFuture();
                     });
                 }
 
                 // When the argument doesn't have any custom suggestions, we
-                // don't need to mess with the suggestions. I explicitly set
-                // the value to null here to show this.
-                required.suggests(null);
+                // don't need to mess with the suggestions.
+                else {
+                    required.suggests((context, suggestionsBuilder) -> argument.getType().getBrigadierType().listSuggestions(context, suggestionsBuilder));
+                }
 
                 temp = required;
             }
@@ -140,40 +141,29 @@ public class BrigadierCommand implements Command<Object> {
         return builder;
     }
 
-    /**
-     * This method is used whenever a command has custom arguments.
-     *
-     * @param nodeName The name of the argument.
-     * @return The non-null suggestions provider.
-     */
-    private SuggestionProvider<Object> buildSuggestionProvider(String nodeName) {
+    private SuggestionProvider<Object> buildSuggestionProvider(Argument<?> argument) {
         return (CommandContext<Object> context, SuggestionsBuilder builder) -> {
             CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSender(context);
             List<Object> previousArguments = new ArrayList<>();
-            Argument<?> current = null;
 
-            for (Argument<?> argument : this.builder.args) {
-                current = argument;
-                if (current.getName().equals(nodeName))
+            for (Argument<?> arg : this.builder.args) {
+                if (arg.getName().equals(argument.getName()))
                     break;
 
-                previousArguments.add(current.isListed() ? current.parse(context, argument.getName()) : null);
+                previousArguments.add(arg.isListed() ? arg.parse(context, arg.getName()) : null);
             }
 
             CommandData data = new CommandData(sender, previousArguments.toArray(), builder.getInput(), builder.getRemaining());
-            return getSuggestionsBuilder(builder, current.suggestions == null ? new Tooltip[0] : current.suggestions.apply(data));
-        };
-    }
 
-    private CompletableFuture<Suggestions> getSuggestionsBuilder(SuggestionsBuilder builder, Tooltip[] suggestions) {
-        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
-        for (Tooltip suggestion : suggestions) {
-            if (suggestion.suggestion().toLowerCase(Locale.ROOT).startsWith(remaining)) {
-                Message tooltipMsg = suggestion.tip() == null ? null : new LiteralMessage(suggestion.tip());
-                builder.suggest(suggestion.suggestion(), tooltipMsg);
+            String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+            for (Tooltip suggestion : argument.suggestions == null ? new Tooltip[0] : argument.suggestions.apply(data)) {
+                if (suggestion.suggestion().toLowerCase(Locale.ROOT).startsWith(remaining)) {
+                    Message tooltipMsg = suggestion.tip() == null ? null : new LiteralMessage(suggestion.tip());
+                    builder.suggest(suggestion.suggestion(), tooltipMsg);
+                }
             }
-        }
-        return builder.buildFuture();
+            return builder.buildFuture();
+        };
     }
 
     @SuppressWarnings("unchecked")

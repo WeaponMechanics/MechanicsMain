@@ -1,6 +1,7 @@
 package me.deecaad.core.commands;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.function.BiConsumer;
@@ -29,6 +30,22 @@ public abstract class CommandExecutor<T extends CommandSender> {
         return new CommandExecutor<CommandSender>(CommandSender.class) {
             @Override
             public void execute(CommandSender sender, Object[] arguments) {
+                command.accept(sender, arguments);
+            }
+        };
+    }
+
+    /**
+     * Shorthand to create an entity only command using lambda expressions.
+     *
+     * @param command The non-null command to execute (which takes the entity
+     *                who sent the command and the Object[] arguments).
+     * @return The non-null constructed CommandExecutor.
+     */
+    public static CommandExecutor<Entity> entity(BiConsumer<Entity, Object[]> command) {
+        return new CommandExecutor<Entity>(Entity.class) {
+            @Override
+            public void execute(Entity sender, Object[] arguments) {
                 command.accept(sender, arguments);
             }
         };
