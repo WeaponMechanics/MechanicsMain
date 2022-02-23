@@ -6,12 +6,6 @@ plugins {
     id("me.deecaad.java-conventions")
 }
 
-repositories {
-    maven {
-        url = uri("https://mvn.lumine.io/repository/maven-public/")
-    }
-}
-
 dependencies {
     api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))

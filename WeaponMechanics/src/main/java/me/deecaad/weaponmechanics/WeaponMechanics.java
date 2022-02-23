@@ -25,6 +25,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
+import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
@@ -305,6 +306,7 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new MythicMobsLoader(), getPlugin());
     }
 
     void registerPacketListeners() {
