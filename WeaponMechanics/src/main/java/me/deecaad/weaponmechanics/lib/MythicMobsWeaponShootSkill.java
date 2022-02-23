@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.libs;
+package me.deecaad.weaponmechanics.lib;
 
 import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
 import io.lumine.xikage.mythicmobs.adapters.AbstractLocation;
@@ -11,6 +11,7 @@ import io.lumine.xikage.mythicmobs.skills.SkillMetadata;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -44,6 +45,7 @@ public class MythicMobsWeaponShootSkill extends SkillMechanic implements ITarget
             target = ((LivingEntity) entity).getEyeLocation();
         } else {
             target = entity.getLocation();
+            target.setY(target.getY() + WeaponCompatibilityAPI.getWeaponCompatibility().getHeight(entity) / 2.0);
         }
 
         return castAtLocation(skillMetadata, BukkitAdapter.adapt(target));

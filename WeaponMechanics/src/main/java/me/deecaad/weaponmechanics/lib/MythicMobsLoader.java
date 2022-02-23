@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.libs;
+package me.deecaad.weaponmechanics.lib;
 
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMechanicLoadEvent;
 import org.bukkit.event.EventHandler;
