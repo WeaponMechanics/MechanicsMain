@@ -37,6 +37,7 @@ public class TriggerEntityListeners implements Listener {
     public void damage(EntityDamageByEntityEvent e) {
         EntityDamageEvent.DamageCause cause = e.getCause();
         if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) return;
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         Entity damager = e.getDamager();
         Entity victim = e.getEntity();
@@ -56,12 +57,19 @@ public class TriggerEntityListeners implements Listener {
         ItemStack offStack = entityEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null) {
+            entityWrapper.getMainHandData().setCurrentWeaponTitle(null);
+            entityWrapper.getOffHandData().setCurrentWeaponTitle(null);
+            return;
+        }
 
         if (mainWeapon != null) {
             // Cancel melee with weapons by default
             e.setCancelled(true);
         }
+
+        entityWrapper.getMainHandData().setCurrentWeaponTitle(mainWeapon);
+        entityWrapper.getOffHandData().setCurrentWeaponTitle(offWeapon);
 
         // When sweep hit we don't want to do actual melee casts
         if (cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) return;

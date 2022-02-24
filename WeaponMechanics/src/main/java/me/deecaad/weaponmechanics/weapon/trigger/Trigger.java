@@ -11,6 +11,8 @@ import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+
 public class Trigger implements Serializer<Trigger> {
 
     private TriggerType mainhand;
@@ -141,6 +143,9 @@ public class Trigger implements Serializer<Trigger> {
             throw data.exception(null, "At least one of Main_Hand or Off_Hand should be used");
         }
 
+        if (isDisabled(main)) throw data.exception("Main_Hand", "Tried to use trigger which is disabled in config.yml");
+        if (isDisabled(off)) throw data.exception("Off_Hand", "Tried to use trigger which is disabled in config.yml");
+
         Set<String> denyWhen = new HashSet<>();
         ConfigurationSection denySection = data.config.getConfigurationSection(data.key + ".Deny_When");
         if (denySection != null) {
@@ -159,5 +164,45 @@ public class Trigger implements Serializer<Trigger> {
         }
 
         return new Trigger(main, off, denyWhen);
+    }
+
+    private boolean isDisabled(TriggerType trigger) {
+        switch (trigger) {
+            case START_SNEAK:
+            case END_SNEAK:
+            case DOUBLE_SNEAK:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak");
+            case START_SPRINT:
+            case END_SPRINT:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint");
+            case RIGHT_CLICK:
+            case LEFT_CLICK:
+            case MELEE:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click");
+            case DROP_ITEM:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item");
+            case JUMP:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump");
+            case DOUBLE_JUMP:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump");
+            case START_SWIM:
+            case END_SWIM:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim");
+            case START_GLIDE:
+            case END_GLIDE:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide");
+            case SWAP_TO_MAIN_HAND:
+            case SWAP_TO_OFF_HAND:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items");
+            case START_WALK:
+            case END_WALK:
+            case START_STAND:
+            case END_STAND:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
+            case START_IN_MIDAIR:
+            case END_IN_MIDAIR:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair");
+        }
+        return false;
     }
 }
