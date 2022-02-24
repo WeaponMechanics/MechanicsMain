@@ -58,6 +58,13 @@ Recoil_Millis_Between_Rotations: 20
 # Use ticks, 20 ticks = 1 second.
 Check_For_New_Player_Rate: 50
 
+# Defines whether accurate block and entity hitboxes are used.
+# Most of the time block or entity only has one hitbox, but for
+# example blocks such as STAIRS, CAULDRON, LECTERN or entities such as
+# ENDER_DRAGON have multiple hitboxes. Disabling this option saves a bit
+# of resources when ray tracing blocks or entities with multiple hitboxes.
+Check_Accurate_Hitboxes: true
+
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but
 # they improve smaller ones.
@@ -342,13 +349,13 @@ Entity_Hitboxes:
     ARMS: false
     LEGS: 0.0
     FEET: 0.0
-  ENDER_DRAGON:
-    Horizontal_Entity: true
+  ENDER_DRAGON: # Consider whole ender dragon as body due to how it's hitboxes are constructed
+    Horizontal_Entity: false
     HEAD: 0.0
-    BODY: 0.8
-    ARMS: true
-    LEGS: 0.11
-    FEET: 0.09
+    BODY: 1.0
+    ARMS: false
+    LEGS: 0.0
+    FEET: 0.0
   WITHER:
     Horizontal_Entity: false
     HEAD: 0.365

@@ -239,6 +239,6 @@ public class Ray {
     private static boolean contains(HitBox hitbox, Vector point) {
         if (hitbox == null) return false;
 
-        return hitbox.contains(point);
+        return hitbox.collides(point);
     }
 }

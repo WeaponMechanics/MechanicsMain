@@ -44,7 +44,6 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

@@ -1,14 +1,18 @@
 package me.deecaad.weaponmechanics.compatibility;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.VoxelShape;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 
 public interface IWeaponCompatibility {
 
@@ -33,6 +37,14 @@ public interface IWeaponCompatibility {
         BoundingBox boundingBox = entity.getBoundingBox();
         HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
         hitBox.setLivingEntity((LivingEntity) entity);
+
+        if (entity instanceof ComplexLivingEntity && WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
+            for (ComplexEntityPart entityPart : ((ComplexLivingEntity) entity).getParts()) {
+                BoundingBox boxPart = entityPart.getBoundingBox();
+                hitBox.addVoxelShapePart(new HitBox(boxPart.getMinX(), boxPart.getMinY(), boxPart.getMinZ(), boxPart.getMaxX(), boxPart.getMaxY(), boxPart.getMaxZ()));
+            }
+        }
+
         return hitBox;
     }
 
@@ -46,12 +58,27 @@ public interface IWeaponCompatibility {
      */
     default HitBox getHitBox(Block block) {
 
-        // This default should only be used after 1.13 R2
-
+        // This default should only be used after 1.17
         if (block.isEmpty() || block.isLiquid() || block.isPassable()) return null;
+
         BoundingBox boundingBox = block.getBoundingBox();
         HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
         hitBox.setBlockHitBox(block);
+
+        // This default should only be used after 1.17 R1
+        if (WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
+            Collection<BoundingBox> voxelShape = block.getCollisionShape().getBoundingBoxes();
+            if (voxelShape.size() > 1) {
+                int x = block.getX();
+                int y = block.getY();
+                int z = block.getZ();
+                for (BoundingBox boxPart : voxelShape) {
+                    hitBox.addVoxelShapePart(new HitBox(x + boxPart.getMinX(), y + boxPart.getMinY(), z + boxPart.getMinZ(),
+                            x + boxPart.getMaxX(), y + boxPart.getMaxY(), z + boxPart.getMaxZ()));
+                }
+            }
+        }
+
         return hitBox;
     }
 
