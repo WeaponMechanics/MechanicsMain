@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;

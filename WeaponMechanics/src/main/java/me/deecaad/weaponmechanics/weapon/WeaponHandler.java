@@ -87,11 +87,18 @@ public class WeaponHandler {
         ItemStack offStack = entityEquipment.getItemInOffHand();
         String offWeapon = infoHandler.getWeaponTitle(offStack, autoConvert);
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null) {
+            entityWrapper.getMainHandData().setCurrentWeaponTitle(null);
+            entityWrapper.getOffHandData().setCurrentWeaponTitle(null);
+            return;
+        }
 
         if (infoHandler.denyDualWielding(triggerType, livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
+
+        entityWrapper.getMainHandData().setCurrentWeaponTitle(mainWeapon);
+        entityWrapper.getOffHandData().setCurrentWeaponTitle(offWeapon);
 
         if (mainWeapon != null) tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, triggerType, dualWield, null);
 

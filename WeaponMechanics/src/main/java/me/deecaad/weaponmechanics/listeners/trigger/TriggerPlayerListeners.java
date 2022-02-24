@@ -140,7 +140,11 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack offStack = playerEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, true);
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null) {
+            playerWrapper.getMainHandData().setCurrentWeaponTitle(null);
+            playerWrapper.getOffHandData().setCurrentWeaponTitle(null);
+            return;
+        }
 
         if ((mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Block_Interactions")
                 || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Block_Interactions"))) {
@@ -153,6 +157,9 @@ public class TriggerPlayerListeners implements Listener {
         }
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
+
+        playerWrapper.getMainHandData().setCurrentWeaponTitle(mainWeapon);
+        playerWrapper.getOffHandData().setCurrentWeaponTitle(offWeapon);
 
         if (rightClick) {
             if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
@@ -233,7 +240,11 @@ public class TriggerPlayerListeners implements Listener {
         ItemStack offStack = playerEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
-        if (mainWeapon == null && offWeapon == null) return;
+        if (mainWeapon == null && offWeapon == null) {
+            playerWrapper.getMainHandData().setCurrentWeaponTitle(null);
+            playerWrapper.getOffHandData().setCurrentWeaponTitle(null);
+            return;
+        }
 
         // Cancel reload (and other tasks) since drop item will most of the time cause
         // itemstack reference change which will cause other bugs (e.g. infinite reload bug)
@@ -249,6 +260,9 @@ public class TriggerPlayerListeners implements Listener {
         if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
+
+        playerWrapper.getMainHandData().setCurrentWeaponTitle(mainWeapon);
+        playerWrapper.getOffHandData().setCurrentWeaponTitle(offWeapon);
 
         if (mainWeapon != null) {
             playerWrapper.droppedWeapon();
@@ -278,12 +292,18 @@ public class TriggerPlayerListeners implements Listener {
 
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
 
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
+
         ItemStack toMain = e.getMainHandItem();
         String toMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toMain, false);
 
         ItemStack toOff = e.getOffHandItem();
         String toOffWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toOff, false);
-        if (toMainWeapon == null && toOffWeapon == null) return;
+        if (toMainWeapon == null && toOffWeapon == null) {
+            playerWrapper.getMainHandData().setCurrentWeaponTitle(null);
+            playerWrapper.getOffHandData().setCurrentWeaponTitle(null);
+            return;
+        }
 
         if (toMainWeapon != null && getConfigurations().getBool(toMainWeapon + ".Info.Cancel.Swap_Hands")
                 || toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands")) {
@@ -294,9 +314,10 @@ public class TriggerPlayerListeners implements Listener {
             toMain = playerEquipment.getItemInOffHand();
         }
 
-        PlayerWrapper playerWrapper = getPlayerWrapper(player);
-
         boolean dualWield = toMainWeapon != null && toOffWeapon != null;
+
+        playerWrapper.getMainHandData().setCurrentWeaponTitle(toMainWeapon);
+        playerWrapper.getOffHandData().setCurrentWeaponTitle(toOffWeapon);
 
         if (isValid(toMain)) {
             // SWAP_TO_MAIN_HAND

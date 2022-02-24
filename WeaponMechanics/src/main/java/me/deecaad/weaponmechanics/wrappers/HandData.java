@@ -38,6 +38,8 @@ public class HandData {
     private ZoomData zoomData;
     private final Set<Integer> firearmActionTasks = new HashSet<>();
 
+    private String currentWeaponTitle;
+
     public HandData(EntityWrapper entityWrapper) {
         this.entityWrapper = entityWrapper;
     }
@@ -245,5 +247,13 @@ public class HandData {
             }
             firearmActionTasks.clear();
         }
+    }
+
+    public String getCurrentWeaponTitle() {
+        return currentWeaponTitle;
+    }
+
+    public void setCurrentWeaponTitle(String currentWeaponTitle) {
+        this.currentWeaponTitle = currentWeaponTitle;
     }
 }
