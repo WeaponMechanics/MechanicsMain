@@ -43,7 +43,6 @@ R9-0:
         Field_Of_View_Height: 17
     Recoil:
       Push_Time: 200
-      Recover_Time: 200
       Horizontal:
         - 7.5
         - -7.5

@@ -44,7 +44,6 @@
         In_Midair: 150%
     Recoil:
       Push_Time: 200
-      Recover_Time: 200
       Horizontal:
         - 3.5
         - -3.5

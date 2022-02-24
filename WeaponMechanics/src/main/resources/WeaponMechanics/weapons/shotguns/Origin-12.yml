@@ -44,7 +44,6 @@ Origin_12:
         Field_Of_View_Height: 19
     Recoil:
       Push_Time: 200
-      Recover_Time: 200
       Horizontal:
         - 3
         - -3
