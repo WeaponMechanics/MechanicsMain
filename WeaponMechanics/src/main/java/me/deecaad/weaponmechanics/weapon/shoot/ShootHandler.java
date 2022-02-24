@@ -184,7 +184,7 @@ public class ShootHandler implements IValidator {
 
                     if (entityWrapper instanceof PlayerWrapper) {
                         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, slot);
                     }
 
                     if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
@@ -481,7 +481,7 @@ public class ShootHandler implements IValidator {
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, taskReference);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, taskReference, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
                 }
 
                 handData.stopFirearmActionTasks();
@@ -500,7 +500,7 @@ public class ShootHandler implements IValidator {
 
             if (entityWrapper instanceof PlayerWrapper) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
             }
 
             if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
@@ -521,7 +521,7 @@ public class ShootHandler implements IValidator {
 
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
@@ -546,7 +546,7 @@ public class ShootHandler implements IValidator {
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, taskReference);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, taskReference, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
                 }
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
@@ -604,7 +604,7 @@ public class ShootHandler implements IValidator {
 
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);

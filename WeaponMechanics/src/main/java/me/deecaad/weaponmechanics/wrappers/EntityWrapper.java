@@ -200,6 +200,16 @@ public class EntityWrapper {
         return false;
     }
 
+    /**
+     * Returns <code>true</code> if the entity is dual wielding
+     * meaning when they have weapons equipped in both hands.
+     *
+     * @return <code>true</code> when the entity is dual wielding.
+     */
+    public boolean isDualWielding() {
+        return getMainHandData().getCurrentWeaponTitle() != null && getOffHandData().getCurrentWeaponTitle() != null;
+    }
+
     @Nonnull
     public HandData getMainHandData() {
         return mainHandData == null ? mainHandData = new HandData(this) : mainHandData;

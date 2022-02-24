@@ -37,8 +37,7 @@ public class WeaponListeners implements Listener {
 
     @EventHandler
     public void equip(EntityEquipmentEvent e) {
-        if (e.isArmor())
-            return;
+        if (e.isArmor()) return;
 
         LivingEntity entity = (LivingEntity) e.getEntity();
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(entity);
@@ -48,11 +47,17 @@ public class WeaponListeners implements Listener {
         String weaponTitle = weaponHandler.getInfoHandler().getWeaponTitle(weaponStack, true);
         boolean alreadyUsedEquipMechanics = false;
 
+        if (e.getSlot() == EquipmentSlot.HAND) {
+            entityWrapper.getMainHandData().setCurrentWeaponTitle(weaponTitle);
+        } else {
+            entityWrapper.getOffHandData().setCurrentWeaponTitle(weaponTitle);
+        }
+
         if (weaponTitle != null) {
 
             if (e.getEntityType() == EntityType.PLAYER) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponTitle, weaponStack);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, e.getSlot());
             }
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());

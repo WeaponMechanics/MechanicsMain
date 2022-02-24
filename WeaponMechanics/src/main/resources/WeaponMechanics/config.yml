@@ -95,6 +95,7 @@ Placeholder_Symbols:
     SINGLE: "S"
     BURST: "B"
     AUTO: "A"
+  Dual_Wield_Split: " &7| "
 
 # This is the global damaging system. It defines how bullets damage entities
 # with potion effects, armor, and other statuses.

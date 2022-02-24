@@ -12,7 +12,6 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import me.deecaad.weaponmechanics.wrappers.MessageHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -75,11 +74,6 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     }
 
     private void send(CastData castData, Player player) {
-        MessageHelper messageHelper = WeaponMechanics.getPlayerWrapper(player).getMessageHelper();
-
-        // If this would be "boolean" it would throw null pointer
-        Boolean fetchWeaponInfoValue = castData.getData(CommonDataTags.WEAPON_INFO.name(), Boolean.class);
-        boolean isWeaponInfoCast = fetchWeaponInfoValue != null && fetchWeaponInfoValue;
 
         Map<String, String> tempPlaceholders = null;
         String shooterName = castData.getData(CommonDataTags.SHOOTER_NAME.name(), String.class);
@@ -105,98 +99,50 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
             player.spigot().sendMessage(ChatMessageType.CHAT, chatMessageComponent);
         }
 
-        if (actionBar != null && (!isWeaponInfoCast || !messageHelper.denyInfoActionBar())) {
+        if (actionBar != null) {
 
             String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
+            if (actionBarTime > 40) {
 
-            if (!isWeaponInfoCast) {
-                if (actionBarTime > 40) {
+                Map<String, String> finalTempPlaceholders = tempPlaceholders;
+                new BukkitRunnable() {
+                    int ticker = 0;
 
-                    messageHelper.updateActionBarTime(actionBarTime);
+                    @Override
+                    public void run() {
 
-                    Map<String, String> finalTempPlaceholders = tempPlaceholders;
-                    new BukkitRunnable() {
-                        int ticker = 0;
+                        String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), finalTempPlaceholders);
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
 
-                        @Override
-                        public void run() {
-
-                            String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), finalTempPlaceholders);
-                            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
-
-                            ticker += 40;
-                            if (ticker >= actionBarTime) {
-                                cancel();
-                            }
+                        ticker += 40;
+                        if (ticker >= actionBarTime) {
+                            cancel();
                         }
-                    }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 40, 40);
-                } else {
-                    messageHelper.updateActionBarTime(40);
-                }
+                    }
+                }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 40, 40);
             }
         }
 
-        if (titleData != null && (!isWeaponInfoCast || !messageHelper.denyInfoTitle())) {
+        if (titleData != null) {
             String titleMessage = PlaceholderAPI.applyPlaceholders(titleData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             String subtitleMessage = PlaceholderAPI.applyPlaceholders(titleData.subtitle, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
             if (CompatibilityAPI.getVersion() < 1.11) {
-
-                // By default it fade in, stay and fade out takes 60 ticks
-                if (!isWeaponInfoCast) messageHelper.updateTitleTime(60);
-
                 player.sendTitle(titleMessage, subtitleMessage);
             } else {
-
-                if (!isWeaponInfoCast) messageHelper.updateTitleTime(titleData.fadeIn + titleData.stay + titleData.fadeOut);
-
                 player.sendTitle(titleMessage, subtitleMessage, titleData.fadeIn, titleData.stay, titleData.fadeOut);
             }
         }
 
         if (bossBarData != null) {
             String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
-
-            BarColor color = (BarColor) bossBarData.barColor;
-            BarStyle style = (BarStyle) bossBarData.barStyle;
-
-            if (isWeaponInfoCast) {
-
-                // This is here to only use ONE boss bar for weapon info displaying
-                BossBar bossBar = messageHelper.getCurrentInfoBossBar();
-                if (bossBar == null) {
-                    // Not found, create new one
-                    bossBar = Bukkit.createBossBar(bossBarMessage, color, style);
-                    bossBar.addPlayer(player);
-                    messageHelper.setCurrentInfoBossBar(bossBar);
-                } else {
-                    // Found, cancel last one's cancel task and set new title and other things
-                    Bukkit.getScheduler().cancelTask(messageHelper.getCurrentInfoBossBarTask());
-                    bossBar.setTitle(bossBarMessage);
-                    bossBar.setColor(color);
-                    bossBar.setStyle(style);
+            BossBar bossBar = Bukkit.createBossBar(bossBarMessage, bossBarData.barColor, bossBarData.barStyle);
+            bossBar.addPlayer(player);
+            new BukkitRunnable() {
+                public void run() {
+                    bossBar.removeAll();
                 }
-                // Update the cancel task id
-                messageHelper.setCurrentInfoBossBarTask(new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        // Remove all players, remove boss bar from MessageHandler and remove task id
-                        // If this code is reached, new boss bar will be made next time
-                        messageHelper.getCurrentInfoBossBar().removeAll();
-                        messageHelper.setCurrentInfoBossBar(null);
-                        messageHelper.setCurrentInfoBossBarTask(0);
-                    }
-                }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), bossBarData.time).getTaskId());
-            } else {
-                BossBar bossBar = Bukkit.createBossBar(bossBarMessage, color, style);
-
-                bossBar.addPlayer(player);
-                new BukkitRunnable() {
-                    public void run() {
-                        bossBar.removeAll();
-                    }
-                }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), bossBarData.time);
-            }
+            }.runTaskLaterAsynchronously(WeaponMechanics.getPlugin(), bossBarData.time);
         }
     }
 
@@ -323,11 +269,11 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     private static class BossBarData {
 
         public String title;
-        public Object barColor;
-        public Object barStyle;
+        public BarColor barColor;
+        public BarStyle barStyle;
         public int time;
 
-        public BossBarData(String title, Object barColor, Object barStyle, int time) {
+        public BossBarData(String title, BarColor barColor, BarStyle barStyle, int time) {
             this.title = title;
             this.barColor = barColor == null ? BarColor.WHITE : barColor;
             this.barStyle = barStyle == null ? BarStyle.SOLID : barStyle;
