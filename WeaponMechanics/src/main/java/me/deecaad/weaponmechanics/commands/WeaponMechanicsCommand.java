@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.CommandBuilder;
+import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
 import me.deecaad.core.commands.Argument;
 import me.deecaad.core.commands.arguments.EntityListArgumentType;
@@ -51,43 +52,59 @@ public class WeaponMechanicsCommand {
     public static void build() {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 
-        CommandBuilder command = new CommandBuilder("wm")
-                .withAliases("weaponmechanics", "weapon")
-                .withPermission("weaponmechanics.command")
+        CommandBuilder command = new CommandBuilder("weaponmechanics")
+                .withAliases("wm")
+                .withPermission("weaponmechanics.admin")
+                .withDescription("WeaponMechanics' main command")
                 .withSubCommand(new CommandBuilder("give")
-                        .withPermission("weaponmechanics.command.give")
+                        .withPermission("weaponmechanics.commands.give")
+                        .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()))
-                        .withArgument(new Argument<>("weapon", new StringArgumentType())
-                                .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(true))
+                                .replace(SuggestionsBuilder.from(info.getSortedWeaponList())))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
-                                .append(data -> Stream.of(1, 16, 32, 64).map(Tooltip::of).toArray(Tooltip[]::new)))
+                                .append(SuggestionsBuilder.from(1, 16, 32, 64)))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
                 .withSubCommand(new CommandBuilder("get")
-                        .withPermission("weaponmechanics.command.get")
-                        .withArgument(new Argument<>("weapon", new StringArgumentType())
-                                .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
+                        .withPermission("weaponmechanics.commands.get")
+                        .withDescription("Gives you the requested weapon(s)")
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(true))
+                                .replace(SuggestionsBuilder.from(info.getSortedWeaponList())))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
-                                .append(data -> Stream.of(1, 16, 32, 64).map(Tooltip::of).toArray(Tooltip[]::new)))
+                                .append(SuggestionsBuilder.from(1, 16, 32, 64)))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
 
                 .withSubCommand(new CommandBuilder("info")
-                        .withPermission("weaponmechanics.command.info")
+                        .withPermission("weaponmechanics.commands.info")
+                        .withDescription("Displays version/debug information about WeaponMechanics and your server")
                         .executes(CommandExecutor.any((sender, args) -> info(sender))))
 
                 .withSubCommand(new CommandBuilder("list")
-                        .withPermission("weaponmechanics.command.list")
+                        .withPermission("weaponmechanics.commands.list")
+                        .withDescription("Lists a table of weapons loaded by WeaponMechanics")
                         .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1)
                                 .append(data -> IntStream.range(1, 1 + info.getSortedWeaponList().size() / 16).mapToObj(Tooltip::of).toArray(Tooltip[]::new))))
 
                 .withSubCommand(new CommandBuilder("wiki")
-                        .withPermission("weaponmechanics.command.wiki")
+                        .withPermission("weaponmechanics.commands.wiki")
+                        .withDescription("Shows useful (clickable) links to specific useful areas on the wiki")
                         .executes(CommandExecutor.any((sender, args) -> wiki(sender))))
 
                 .withSubCommand(new CommandBuilder("reload")
-                        .withPermission("weaponmechanics.command.reload")
+                        .withPermission("weaponmechanics.commands.reload")
+                        .withDescription("Reloads WeaponMechanics' weapon configuration without restarting the server")
                         .executes(CommandExecutor.any((sender, args) -> WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(ChatColor.GREEN + "Reloaded configuration")))));
 
+
+        CommandBuilder test = new CommandBuilder("test")
+                .withPermission("weaponmechanics.commands.test")
+                .withDescription("Contains useful commands for developers and testing and debugging")
+                .withSubCommand(new CommandBuilder("nbt")
+                        .withPermission("weaponmechanics.commands.test.nbt")
+                        .withDescription(""));
+
+        command.withSubCommand(test);
         command.register();
     }
 
