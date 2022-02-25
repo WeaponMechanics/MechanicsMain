@@ -286,7 +286,10 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     }
 
     private double getMagazineProgress(ItemStack weaponStack, String weaponTitle) {
-        return (double) getWeaponHandler().getReloadHandler().getAmmoLeft(weaponStack, weaponTitle) / (double) getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size");
+        double progress = (double) getWeaponHandler().getReloadHandler().getAmmoLeft(weaponStack, weaponTitle) / (double) getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size");
+        if (progress > 1.0) progress = 1.0;
+        if (progress < 0.0) progress = 0.0;
+        return progress;
     }
 
     @Override
