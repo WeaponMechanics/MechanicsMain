@@ -163,7 +163,7 @@ public class Bouncy implements Serializer<Bouncy> {
         int maximumBounceAmount = data.of("Maximum_Bounce_Amount").getInt(1);
 
         ListHolder<Material> rollingBlocks = data.of("Rolling.Blocks").serialize(new ListHolder<>(Material.class));
-        double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertPositive().getDouble(3.0) * 0.05;
+        double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertPositive().getDouble(6.0) / 20;
 
         return new Bouncy(maximumBounceAmount, blocks, entities, requiredMotionToStartRolling, rollingBlocks);
     }

@@ -30,6 +30,8 @@ Resource_Pack_Download:
   Connection_Timeout: 10
   Read_Timeout: 30
   Automatically_Send_To_Player: true
+  Force_Player_Download: false # When this is true, the player will be kicked from the server if they don't download the pack
+  Kick_Message: "You must download the resource pack! (WeaponMechanics)"
 
 # If you don't use a specific trigger, it can be disabled here. The performance
 # boost is minor, but it's here if you need it.
@@ -37,7 +39,7 @@ Disabled_Trigger_Checks:
   In_Midair: false
   Standing_And_Walking: false
   Jump: false
-  Double_Jump: false
+  Double_Jump: true # Disabled by default since this allows players to do slight double jump and go over 2 blocks
   Swim: false
   Glide: false
   Sneak: false
@@ -49,7 +51,7 @@ Disabled_Trigger_Checks:
 # This defines how smooth weapon recoil is. Lower values means smoother recoil,
 # but more packets sent. In default minecraft this value would be 50 (1 tick). In WeaponMechanics, it
 # can be lower. It is recommended to use values divisible by 5.
-Recoil_Millis_Between_Rotations: 5
+Recoil_Millis_Between_Rotations: 20
 
 # Defines the new player check rate for fake entities.
 # For example fake entities are used with projectiles.

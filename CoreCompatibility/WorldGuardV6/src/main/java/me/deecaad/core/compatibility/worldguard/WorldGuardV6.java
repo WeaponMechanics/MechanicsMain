@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class WorldGuardV6 implements IWorldGuardCompatibility {
+public class WorldGuardV6 implements WorldGuardCompatibility {
 
     private final Map<String, Flag<?>> flags;
     private final FlagRegistry registry;

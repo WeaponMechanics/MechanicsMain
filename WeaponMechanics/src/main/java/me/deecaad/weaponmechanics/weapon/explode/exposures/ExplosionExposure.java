@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleMap;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
@@ -103,7 +104,7 @@ public interface ExplosionExposure {
                 } else if (name.equals("SLIME_BLOCK")) {
                     return false;
                 } else {
-                    return super.canHit(block);
+                    return WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(block) != null;
                 }
             }
 

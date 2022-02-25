@@ -1,0 +1,19 @@
+# Header 0
+# Header 1
+# Header 2
+
+# Config line
+Key: Value # Inline hi
+
+# Before config 1
+# Before config 2
+# Before config 3
+Keys: Value # Inline bye
+
+Escaped_1: "#HI# hey" # Inline config 1
+
+Escaped_2: '#HI# hey' # Inline config 2
+
+Escaped_3: 'testing ''hi''' # Inline config 3
+
+Escaped_4: "testing ''hi''" # Inline config 4

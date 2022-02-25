@@ -15,6 +15,10 @@ AUG:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Weapon_Equip_Delay: 20
+    Show_Cooldown:
+      Weapon_Equip_Delay: true
+      Reload_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
@@ -30,7 +34,7 @@ AUG:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 40
+    Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 13
     Spread:
       Base_Spread: 4.1
@@ -40,7 +44,6 @@ AUG:
         In_Midair: 150%
     Recoil:
       Push_Time: 200
-      Recover_Time: 200
       Horizontal:
         - 2.8
         - -2.8

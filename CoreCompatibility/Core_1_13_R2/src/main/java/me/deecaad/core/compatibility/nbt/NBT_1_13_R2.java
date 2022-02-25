@@ -3,6 +3,8 @@ package me.deecaad.core.compatibility.nbt;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
+import net.minecraft.server.v1_13_R2.NBTBase;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftCustomTagTypeRegistry;
@@ -15,6 +17,10 @@ import org.bukkit.inventory.meta.tags.ItemTagType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("deprecation")
 public class NBT_1_13_R2 implements NBTCompatibility {
@@ -111,7 +117,40 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     @Override
     public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
-        return nbt == null ? "null" : nbt.toString();
+        if (nbt == null)
+            return "null";
+
+        return visit(nbt, 0, 0).toString();
+    }
+
+    private static final String BRACE_COLORS = "f780"; // grayscale colors
+    private static final String VALUE_COLORS = "6abcdef"; // bright colors
+
+    private StringBuilder visit(NBTTagCompound nbt, int indents, int colorOffset) {
+        String braceColor = "&" + BRACE_COLORS.charAt(indents % BRACE_COLORS.length());
+        StringBuilder builder = new StringBuilder(braceColor).append('{');
+
+        List<String> keys = new ArrayList<>(nbt.getKeys());
+        Collections.sort(keys);
+
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.get(i);
+            NBTBase value = Objects.requireNonNull(nbt.get(key), "This is impossible");
+
+            if (i != 0)
+                builder.append('\n');
+
+            builder.append(StringUtil.repeat("  ", indents));
+            String color = "&" + VALUE_COLORS.charAt((i + colorOffset) % VALUE_COLORS.length());
+            builder.append(color).append(key).append("&f&l: ").append(color);
+
+            if (value instanceof NBTTagCompound)
+                builder.append(visit((NBTTagCompound) value, indents + 1, colorOffset + i));
+            else
+                builder.append(value);
+        }
+
+        return builder.append(braceColor).append("}\n");
     }
 
     private CustomItemTagContainer getBukkitCompound(ItemMeta meta, String plugin) {
@@ -131,6 +170,6 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     private NamespacedKey getKey(String key) {
-        return new NamespacedKey(MechanicsCore.getPlugin(), "MechanicsCore:" + key);
+        return new NamespacedKey(MechanicsCore.getPlugin(), key);
     }
 }

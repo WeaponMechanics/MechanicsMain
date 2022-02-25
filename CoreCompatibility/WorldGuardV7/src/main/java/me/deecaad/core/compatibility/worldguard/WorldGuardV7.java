@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class WorldGuardV7 implements IWorldGuardCompatibility {
+public class WorldGuardV7 implements WorldGuardCompatibility {
 
     private final Map<String, Flag<?>> flags;
     private final FlagRegistry registry;

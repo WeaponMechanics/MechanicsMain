@@ -15,6 +15,10 @@ RPG-7:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Weapon_Equip_Delay: 40
+    Show_Cooldown:
+      Weapon_Equip_Delay: true
+      Reload_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
@@ -30,7 +34,7 @@ RPG-7:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 40
+    Projectile_Speed: 50
     Spread:
       Base_Spread: 5.5
       Modify_Spread_When:
@@ -86,9 +90,12 @@ RPG-7:
     Block_Damage:
       Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.75
-      Blacklist: false
+      Blacklist: true
       Block_List:
-        - "$GLASS"
+        - "BEDROCK"
+        - "$WATER" # stationary_water and moving_water
+        - "OBSIDIAN"
+        - "$LAVA" # stationary_lava and moving_lava
     Regeneration:
       Ticks_Before_Start: 300
       Max_Blocks_Per_Update: 3

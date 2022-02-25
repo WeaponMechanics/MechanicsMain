@@ -4,7 +4,6 @@ Airstrike:
       Type: "FEATHER"
       Name: "&6Airstrike"
       Unbreakable: true
-      Custom_Model_Data: 301
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
@@ -14,8 +13,7 @@ Airstrike:
     Projectile_Settings:
       Type: "DROPPED_ITEM"
       Projectile_Item_Or_Block:
-        Type: "FEATHER"
-        Custom_Model_Data: 301
+        Type: "REDSTONE_TORCH"
       Disable_Entity_Collisions: true
     Bouncy:
       Maximum_Bounce_Amount: -1
@@ -23,12 +21,13 @@ Airstrike:
         Allow_Any: true
         Default_Speed_Multiplier: 0.6
       Rolling:
-        Required_Motion_To_Start_Rolling: 3
+        Required_Motion_To_Start_Rolling: 6
         Blocks:
           Allow_Any: true
           Default_Speed_Multiplier: 0.9
           List:
             - "$_ICE-0.99"
+            - "ICE-0.99"
     Mechanics:
       Sounds:
         - "ENTITY_WOLF_HOWL-6-2-100"
@@ -38,12 +37,12 @@ Airstrike:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 18
+    Projectile_Speed: 36
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
     Mechanics:
       Sounds:
-        - "ENTITY_ENDER_PEARL_THROW-0.5-1-0-0.1"
+        - "ENTITY_EGG_THROW-0.5-1-0-0.1"
   Damage:
     Base_Explosion_Damage: 7
     Fire_Ticks: 60

@@ -15,6 +15,10 @@
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Weapon_Equip_Delay: 10
+    Show_Cooldown:
+      Weapon_Equip_Delay: true
+      Reload_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
@@ -30,7 +34,7 @@
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 40
+    Projectile_Speed: 80
     Delay_Between_Shots: 9
     Spread:
       Base_Spread: 5

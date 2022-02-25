@@ -1,7 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
@@ -10,20 +10,16 @@ import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.Set;
-
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
 
 public class RayTraceResult {
 
@@ -98,6 +94,28 @@ public class RayTraceResult {
         return this.block != null ? handleBlockHit(projectile) : handleEntityHit(projectile);
     }
 
+    /**
+     * @return true if hit was cancelled
+     */
+    public boolean handleMeleeHit(LivingEntity shooter, Vector shooterDirection, String weaponTitle, ItemStack weaponStack) {
+        // Handle worldguard flags
+        WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
+        Location loc = hitLocation.clone().toLocation(shooter.getWorld());
+
+        if (!worldGuard.testFlag(loc, shooter instanceof Player ? (Player) shooter : null, "weapon-damage")) { // is cancelled check
+            Object obj = worldGuard.getValue(loc, "weapon-damage-message");
+            if (obj != null && !obj.toString().isEmpty() && shooter != null) {
+                shooter.sendMessage(StringUtil.color(obj.toString()));
+            }
+            return true;
+        }
+
+        boolean backstab = livingEntity.getLocation().getDirection().dot(shooterDirection) > 0.0;
+
+        return !damageHandler.tryUse(livingEntity, getConfigurations().getDouble(weaponTitle + ".Damage.Base_Damage"),
+                hitPoint, backstab, shooter, weaponTitle, weaponStack, getDistanceTravelled());
+    }
+
     private boolean handleBlockHit(WeaponProjectile projectile) {
         ProjectileHitBlockEvent hitBlockEvent = new ProjectileHitBlockEvent(projectile, block, hitFace, hitLocation.clone());
         Bukkit.getPluginManager().callEvent(hitBlockEvent);
@@ -111,7 +129,7 @@ public class RayTraceResult {
 
     private boolean handleEntityHit(WeaponProjectile projectile) {
         // Handle worldguard flags
-        IWorldGuardCompatibility worldGuard = WorldGuardAPI.getWorldGuardCompatibility();
+        WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
         Location loc = hitLocation.clone().toLocation(projectile.getWorld());
         LivingEntity shooter = projectile.getShooter();
 

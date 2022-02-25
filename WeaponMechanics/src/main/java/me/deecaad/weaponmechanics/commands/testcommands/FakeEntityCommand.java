@@ -2,8 +2,6 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.entity.BitMutator;
-import me.deecaad.core.compatibility.entity.EntityMetaFlag;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.StringUtil;

@@ -3,9 +3,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.VectorUtil;
-import org.bukkit.Color;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -52,7 +50,7 @@ public abstract class AProjectile {
      * @see ProjectileScript
      * @see ProjectilesRunnable
      */
-    public List<ProjectileScript<?>> scripts;
+    private List<ProjectileScript<?>> scripts;
 
     protected AProjectile(Location location, Vector motion) {
         this(null, location, motion);
@@ -65,7 +63,7 @@ public abstract class AProjectile {
         this.lastLocation = this.location.clone();
         this.motion = motion;
         this.motionLength = motion.length();
-        this.scripts = new LinkedList<>();
+        this.scripts = new LinkedList<>(); //dynamic, O(1) resize
         onStart();
     }
 
@@ -317,6 +315,10 @@ public abstract class AProjectile {
         return dead;
     }
 
+    public void addProjectileScript(ProjectileScript<?> script) {
+        scripts.add(script);
+    }
+
     /**
      * Marks projectile for removal and will be removed on next tick
      * or in this tick if this method is called within the tick method.
@@ -327,12 +329,12 @@ public abstract class AProjectile {
 
         this.dead = true;
 
-        // Call one last time on move
-        onMove();
         updateDisguise(true);
 
         onEnd();
         if (disguise != null) disguise.remove();
+
+        scriptEvent(ProjectileScript::onTickEnd);
     }
 
     /**
@@ -368,8 +370,8 @@ public abstract class AProjectile {
 
             if (motionLength != 0) motionLength = 0;
 
-            onMove();
             updateDisguise(true);
+            scriptEvent(ProjectileScript::onTickEnd);
             ++aliveTicks;
             return false;
         }
@@ -395,7 +397,6 @@ public abstract class AProjectile {
             setMotion(getNormalizedMotion().multiply(getMaximumSpeed()));
         }
 
-        onMove();
         updateDisguise(false);
         scriptEvent(ProjectileScript::onTickEnd);
         ++aliveTicks;
@@ -476,12 +477,6 @@ public abstract class AProjectile {
      */
     public void onEnd() {
         scriptEvent(ProjectileScript::onEnd);
-    }
-
-    /**
-     * Override this method to do something when projectile moves
-     */
-    public void onMove() {
     }
 
     /**

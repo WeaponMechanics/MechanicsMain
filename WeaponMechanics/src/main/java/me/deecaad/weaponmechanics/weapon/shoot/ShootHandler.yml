@@ -5,6 +5,7 @@ Shoot:
   Only_Shoot_While_Scoped: <true/false>
   Selective_Fire:
     Trigger: <TriggerSerializer>
+    Default: <SINGLE/BURST/AUTO>
     Mechanics: <MechanicsSerializer>
   Delay_Between_Shots: <ticks>
   Fully_Automatic_Shots_Per_Second: <amount>

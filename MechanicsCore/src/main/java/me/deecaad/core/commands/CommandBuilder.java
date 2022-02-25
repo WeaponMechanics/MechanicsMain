@@ -1,43 +1,31 @@
 package me.deecaad.core.commands;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import me.deecaad.core.commands.arguments.Argument;
-import me.deecaad.core.commands.arguments.LiteralArgumentType;
-import me.deecaad.core.commands.executors.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+public class CommandBuilder implements Cloneable {
 
-public class CommandBuilder {
+    // Package private for internal usage
+    String label;
+    Permission permission;
+    Predicate<CommandSender> requirements;
+    List<String> aliases;
+    List<Argument<Object>> args;
+    List<CommandBuilder> subcommands;
+    CommandExecutor<? extends CommandSender> executor;
+    String description;
 
-    private boolean lock;
-
-    private final String label;
-    private Permission permission;
-    private List<String> aliases;
-    private List<Argument<?>> args;
-    private List<CommandBuilder> subcommands;
-    private CommandExecutor<? extends CommandSender> executor;
-    private String description;
+    // For internal usage, stores the default values of optional arguments.
+    Object[] optionalDefaultValues;
 
     public CommandBuilder(String label) {
         if (label == null || label.trim().isEmpty())
@@ -49,20 +37,28 @@ public class CommandBuilder {
         this.args = new ArrayList<>();
         this.subcommands = new ArrayList<>();
         this.executor = null;
+        this.optionalDefaultValues = new Object[0];
     }
 
     public CommandBuilder withPermission(String permission) {
-        this.permission = new Permission(permission);
-        return this;
+        Permission temp = new Permission(permission);
+        return withPermission(temp);
     }
 
     public CommandBuilder withPermission(String permission, PermissionDefault def) {
-        this.permission = new Permission(permission, def);
-        return this;
+        Permission temp = new Permission(permission, def);
+        return withPermission(temp);
     }
 
     public CommandBuilder withPermission(Permission permission) {
         this.permission = permission;
+        if (permission != null && Bukkit.getPluginManager().getPermission(permission.getName()) == null)
+            Bukkit.getPluginManager().addPermission(permission);
+        return this;
+    }
+
+    public CommandBuilder withRequirements(Predicate<CommandSender> requirements) {
+        this.requirements = requirements;
         return this;
     }
 
@@ -71,13 +67,23 @@ public class CommandBuilder {
         return this;
     }
 
+    @SuppressWarnings("all")
     public CommandBuilder withArgument(Argument<?> argument) {
-        this.args.add(argument);
+        this.args.add((Argument<Object>) argument);
         return this;
     }
 
-    public CommandBuilder withArguments(Argument<?>... arguments) {
-        this.args.addAll(Arrays.asList(arguments));
+    @SuppressWarnings("all")
+    public CommandBuilder withArguments(Argument<Object>... arguments) {
+        for (Argument<Object> argument : arguments)
+            this.withArgument(argument);
+        return this;
+    }
+
+    @SuppressWarnings("all")
+    public CommandBuilder withArguments(List<Argument<?>> arguments) {
+        for (Argument<?> argument : arguments)
+            this.withArgument(argument);
         return this;
     }
 
@@ -97,77 +103,47 @@ public class CommandBuilder {
     }
 
     public void register() {
-        if (permission != null)
-            Bukkit.getPluginManager().addPermission(permission);
 
-        if (ReflectionUtil.getMCVersion() >= 13)
-            registerBrigadier();
-        else
-            registerLegacy();
-    }
+        // First things first: Validation
+        // A command may not have both *arguments* AND *sub-commands*
+        // A command with sub-commands MAY NOT have an executor (subcommands handle that!)
+        // A command without sub-commands MUST have an executor
+        if (!args.isEmpty() && !subcommands.isEmpty())
+            throw new CommandException("Cannot use arguments and sub-commands at the same time!");
+        if (!subcommands.isEmpty() && executor != null)
+            throw new CommandException("Cannot use an executor with subcommands! Register the executor with the subcommands, not the root command!");
+        if (subcommands.isEmpty() && executor == null)
+            throw new CommandException("You forgot to add an executor or sub-commands to your command!");
 
-    private void registerLegacy() {
-    }
-
-    @SuppressWarnings("unchecked")
-    private void registerBrigadier() {
-        Command<?> command = new Command<Object>() {
-            @Override
-            public int run(CommandContext<Object> context) throws CommandSyntaxException {
-                CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSender(context);
-
-                if (!sender.getClass().isAssignableFrom(executor.getExecutor())) {
-                    sender.sendMessage(ChatColor.RED + label + " is a " + executor.getExecutor().getSimpleName() + " only command.");
-                    return -1;
-                }
-
-                try {
-                    ((CommandExecutor<CommandSender>) executor).execute(sender, parseBrigadierArguments(context));
-                    return 0;
-                } catch (CommandSyntaxException ex) {
-                    throw ex;
-                } catch (Exception ex) {
-                    sender.sendMessage(ChatColor.RED + "Some error occurred whilst executing command. Check console for error. ");
-                    ex.printStackTrace();
-                    return -1;
-                }
-            }
-        };
-
-        LiteralCommandNode<Object> result;
-        if (args.size() == 0) {
-
-        } else {
-            ArgumentBuilder<Object, ?> commandArguments = null;
-
-            CommandDispatcher<Object> dispatcher = CompatibilityAPI.getCommandCompatibility().getCommandDispatcher();
-            result = dispatcher.register(literal(label).requires(handlePermissions()));
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            BrigadierCommand.register(this);
+        }
+        else {
+            throw new IllegalStateException("oops forgot to add legacy");
         }
     }
 
-    private Object[] parseBrigadierArguments(CommandContext<Object> context) throws Exception {
-        List<Object> temp = new ArrayList<>(args.size());
-        for (Argument<?> argument : args)
-            temp.add(argument.parse(context));
-
-        return temp.toArray();
-    }
-
-    private Predicate<Object> handlePermissions() {
-        if (permission == null) {
-            return nms -> true;
-        }
-
+    public Predicate<Object> requirements() {
         return nms -> {
             CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSenderRaw(nms);
-            return sender.hasPermission(permission);
+            if (permission != null && !sender.hasPermission(permission))
+                return false;
+            else if (requirements != null && !requirements.test(sender))
+                return false;
+            else
+                return true;
         };
     }
 
-    private ArgumentBuilder<Object, ?> createBuilder(Argument<?> argument) {
-        if (argument.getType() instanceof LiteralArgumentType) {
-
+    @Override
+    public CommandBuilder clone() {
+        try {
+            CommandBuilder builder = (CommandBuilder) super.clone();
+            builder.subcommands = new ArrayList<>(builder.subcommands);
+            builder.args = new ArrayList<>(builder.args);
+            return builder;
+        } catch (CloneNotSupportedException ex) {
+            throw new RuntimeException(ex);
         }
     }
-
 }

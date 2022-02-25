@@ -64,12 +64,24 @@ public class PacketHandlerListener extends PacketListener {
 
     @Override
     protected void onPacketIn(Packet wrapper) {
+        if (inHandlers == null) {
+            debug.warn("PacketHandlerListener: inHandlers were null. . . This should only occur once... maybe after /reload?",
+                    "You can ignore this warning if it doesn't spam your console.");
+            return;
+        }
+
         handle(wrapper, inHandlers.get(wrapper.getPacket().getClass()));
         handle(wrapper, inHandlers.get(null));
     }
 
     @Override
     protected void onPacketOut(Packet wrapper) {
+        if (outHandlers == null) {
+            debug.warn("PacketHandlerListener: outHandlers were null. . . This should only occur once... maybe after /reload?",
+                    "You can ignore this warning if it doesn't spam your console.");
+            return;
+        }
+
         handle(wrapper, outHandlers.get(wrapper.getPacket().getClass()));
         handle(wrapper, outHandlers.get(null));
     }

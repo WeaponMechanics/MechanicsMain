@@ -16,6 +16,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -39,8 +42,13 @@ public class MechanicsCore extends JavaPlugin {
     @Override
     public void onEnable() {
         debug.debug("Loading config.yml");
-        if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0)
-            FileUtil.copyResourcesTo(getClass(), getClassLoader(), "MechanicsCore", getDataFolder());
+        if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
+            try {
+                FileUtil.copyResourcesTo(getClassLoader().getResource("MechanicsCore"), getDataFolder().toPath());
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
         FileUtil.ensureDefaults(getClassLoader(), "MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
 
         try {

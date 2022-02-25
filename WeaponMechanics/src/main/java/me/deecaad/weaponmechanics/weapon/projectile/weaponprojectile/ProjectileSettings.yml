@@ -23,3 +23,4 @@ Projectile_Settings:
     When_Raining_Or_Snowing: <multiplier>
   Disable_Entity_Collisions: <true/false>
   Maximum_Alive_Ticks: <ticks>
+  Maximum_Travel_Distance: <distance>

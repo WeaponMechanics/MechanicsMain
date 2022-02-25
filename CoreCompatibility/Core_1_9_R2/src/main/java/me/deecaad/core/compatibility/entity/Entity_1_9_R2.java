@@ -4,9 +4,13 @@ import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_9_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -21,6 +25,16 @@ public class Entity_1_9_R2 implements EntityCompatibility {
                     new InternalError()
             );
         }
+    }
+
+    @Override
+    public boolean hasCooldown(Player player, Material material) {
+        return ((CraftPlayer) player).getHandle().db().a(CraftMagicNumbers.getItem(material));
+    }
+
+    @Override
+    public void setCooldown(Player player, Material material, int ticks) {
+        ((CraftPlayer) player).getHandle().db().a(CraftMagicNumbers.getItem(material), ticks);
     }
 
     @Override
@@ -40,6 +54,6 @@ public class Entity_1_9_R2 implements EntityCompatibility {
 
     @Override
     public FakeEntity generateFakeEntity(Location location, EntityType type, Object data) {
-        return null;
+        return new FakeEntity_1_9_R2(location, type, data);
     }
 }

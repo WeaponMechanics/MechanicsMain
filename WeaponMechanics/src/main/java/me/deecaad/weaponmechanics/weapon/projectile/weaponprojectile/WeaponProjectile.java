@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -116,9 +117,17 @@ public class WeaponProjectile extends AProjectile {
         return projectileSettings.getMaximumAliveTicks();
     }
 
+    public boolean hasTravelledMaximumDistance() {
+        double maximum = projectileSettings.getMaximumTravelDistance();
+        return maximum != -1 && getDistanceTravelled() >= maximum;
+    }
+
     /**
+     * Can be null if for example API is used to shoot this projectile.
+     *
      * @return the item stack used to shoot this projectile
      */
+    @Nullable
     public ItemStack getWeaponStack() {
         return weaponStack;
     }
@@ -221,6 +230,7 @@ public class WeaponProjectile extends AProjectile {
                 // Update location and update distance travelled if living entity
                 setRawLocation(newLocation);
                 addDistanceTravelled(getLastLocation().distance(newLocation));
+                return hasTravelledMaximumDistance();
             }
             return false;
         }
@@ -239,7 +249,7 @@ public class WeaponProjectile extends AProjectile {
             setRawLocation(possibleNextLocation);
             addDistanceTravelled(getMotionLength());
 
-            return false;
+            return hasTravelledMaximumDistance();
         }
 
         double cacheMotionLength = getMotionLength();
@@ -251,6 +261,11 @@ public class WeaponProjectile extends AProjectile {
             setRawLocation(hit.getHitLocation());
             double add = hit.getDistanceTravelled() - distanceAlreadyAdded;
             addDistanceTravelled(distanceAlreadyAdded += add);
+
+            if (hasTravelledMaximumDistance()) {
+                // Kill projectile since it can't go this far
+                return true;
+            }
 
             if (hit.isBlock()) {
                 onCollide(hit.getBlock());
@@ -306,7 +321,7 @@ public class WeaponProjectile extends AProjectile {
         setRawLocation(possibleNextLocation);
         addDistanceTravelled(cacheMotionLength - distanceAlreadyAdded);
 
-        return false;
+        return hasTravelledMaximumDistance();
     }
 
     private void updateLastHit(RayTraceResult hit) {
@@ -445,6 +460,7 @@ public class WeaponProjectile extends AProjectile {
 
     @Override
     public void onEnd() {
+        super.onEnd();
         Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(this));
     }
 }

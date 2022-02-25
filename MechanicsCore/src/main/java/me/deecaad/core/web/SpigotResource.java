@@ -95,17 +95,23 @@ public class SpigotResource {
      * 0 = major, 1 = minor, 2 = patch
      */
     private int getVersionsBehind(int index) {
-        if (remoteVersion == null) return 0;
+        if (remoteVersion == null || remoteVersion.equalsIgnoreCase("Failed")) return 0;
 
-        // Splits first with whitespaces just in case if version is something like "1.33.753 BETA"
-        int local = Integer.parseInt(plugin.getDescription().getVersion().split(" ")[0].split("\\.")[index]);
-        int remote = Integer.parseInt(remoteVersion.split(" ")[0].split("\\.")[index]);
+        // Works for versions like "v1.33.753-BETA"
+        // -> 1, 33, 753
+        // Lazy implementation for splits (can be changed to regex, but performance isn't priority here)
+        int local = Integer.parseInt(plugin.getDescription().getVersion().replaceFirst("v", "").split(" ")[0].split("-")[0].split("\\.")[index]);
+        try {
+            int remote = Integer.parseInt(remoteVersion.split(" ")[0].split("\\.")[index]);
 
-        int behind = remote - local;
+            int behind = remote - local;
 
-        // IntelliJ suggested using Math.max(), does the trick though.
-        // This check because otherwise behind could be negative
-        // when we do tests locally before publishing new version.
-        return Math.max(0, behind);
+            // IntelliJ suggested using Math.max(), does the trick though.
+            // This check because otherwise behind could be negative
+            // when we do tests locally before publishing new version.
+            return Math.max(0, behind);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

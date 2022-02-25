@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Used when WorldGuard is not installed
  */
-public class NoWorldGuard implements IWorldGuardCompatibility {
+public class NoWorldGuard implements WorldGuardCompatibility {
 
     @Override
     public boolean testFlag(Location location, @Nullable Player player, String flagName) {

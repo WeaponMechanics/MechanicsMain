@@ -15,14 +15,14 @@ AX-50:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Weapon_Equip_Delay: 40
+    Show_Cooldown:
+      Weapon_Equip_Delay: true
+      Reload_Time: true
+      Firearm_Actions_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
-  Skin:
-    Default:
-      Custom_Model_Data: 41
-    Scope:
-      Custom_Model_Data: 51
   Projectile: "sniper_rifle.Projectile"
   Shoot:
     Trigger:
@@ -30,7 +30,7 @@ AX-50:
       Off_Hand: "RIGHT_CLICK"
       Deny_When:
         Swimming: true
-    Projectile_Speed: 140
+    Projectile_Speed: 280
     Delay_Between_Shots: 20
     Spread:
       Base_Spread: 2.3

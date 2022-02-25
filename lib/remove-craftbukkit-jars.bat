@@ -11,7 +11,6 @@ echo Deleting craftbukkit jar files in nms
 
 :: We only need to delete jar files from 1.8 -> 1.13.2 since 1.14 stopped
 :: building them by default.
-del "craftbukkit-1.8.8.jar"
 del "craftbukkit-1.9.2.jar"
 del "craftbukkit-1.9.4.jar"
 del "craftbukkit-1.10.2.jar"

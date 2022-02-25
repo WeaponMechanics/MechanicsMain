@@ -3,26 +3,28 @@ package me.deecaad.core.commands.arguments;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 
-public class LiteralArgumentType implements CommandArgumentType<String> {
+public class LiteralArgumentType extends CommandArgumentType<String> {
 
     private final String literal;
 
     public LiteralArgumentType(String literal) {
         this.literal = literal;
+
+        if (literal == null || literal.isEmpty())
+            throw new IllegalArgumentException("Bad literal");
+    }
+
+    public String getLiteral() {
+        return literal;
     }
 
     @Override
-    public Class<String> getDataType() {
-        return String.class;
-    }
-
-    @Override
-    public ArgumentType<String> getBrigadierType() {
+    public ArgumentType<?> getBrigadierType() {
         return null;
     }
 
     @Override
-    public String parse(CommandContext<Object> context) {
+    public String parse(CommandContext<Object> context, String key) {
         return literal;
     }
 }

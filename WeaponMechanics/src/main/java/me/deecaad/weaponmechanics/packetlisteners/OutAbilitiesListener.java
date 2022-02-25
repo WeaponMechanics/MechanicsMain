@@ -36,9 +36,6 @@ public class OutAbilitiesListener extends PacketHandler {
 
         int zoomAmount = main.isZooming() ? main.getZoomAmount() : off.getZoomAmount();
 
-        // If zoom amount is 1-12, its only for attributes (not for this packet)
-        if (zoomAmount < 13) return;
-
         // Set the f field to scope level amount.
         // f field means walk speed field
         packet.setFieldValue(walkSpeedField, ScopeLevel.getScope(zoomAmount));

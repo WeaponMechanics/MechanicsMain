@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -33,6 +34,6 @@ public class NBTCommand extends SubCommand {
         String tags = CompatibilityAPI.getNBTCompatibility().getNBTDebug(item);
 
         WeaponMechanics.debug.debug(tags);
-        sender.sendMessage(tags);
+        sender.sendMessage(StringUtil.color(tags));
     }
 }

@@ -146,7 +146,7 @@ public abstract class SubCommand extends BukkitCommand {
 
     protected boolean sendHelp(CommandSender sender, String[] args) {
         if (commands.isEmpty()) {
-            if (CompatibilityAPI.getVersion() < 1.09 || !(sender instanceof Player)) {
+            if (!(sender instanceof Player)) {
                 sender.sendMessage(StringUtil.color(toString()));
             } else {
                 ComponentBuilder builder = new ComponentBuilder();

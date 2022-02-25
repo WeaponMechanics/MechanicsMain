@@ -3,8 +3,7 @@ package me.deecaad.weaponmechanics;
 import co.aikar.timings.lib.MCTiming;
 import co.aikar.timings.lib.TimingManager;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.worldguard.IWorldGuardCompatibility;
-import me.deecaad.core.compatibility.worldguard.WorldGuardAPI;
+import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.file.Configuration;
@@ -25,26 +24,28 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
+import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
-import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListenersAbove_1_9;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
-import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListenersAbove_1_9;
 import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
-import me.deecaad.weaponmechanics.packetlisteners.OutUpdateAttributesListener;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.DrilldownPie;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
@@ -53,6 +54,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -60,10 +62,8 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.URISyntaxException;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
@@ -74,7 +74,6 @@ public class WeaponMechanics {
     Map<LivingEntity, EntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
-    MainCommand mainCommand;
     WeaponHandler weaponHandler;
     UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
@@ -121,16 +120,16 @@ public class WeaponMechanics {
         }
 
         // Register all WorldGuard flags
-        IWorldGuardCompatibility guard = WorldGuardAPI.getWorldGuardCompatibility();
+        WorldGuardCompatibility guard = CompatibilityAPI.getWorldGuardCompatibility();
         if (guard.isInstalled()) {
             debug.info("Detected WorldGuard, registering flags");
-            guard.registerFlag("weapon-shoot", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-shoot-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
-            guard.registerFlag("weapon-explode", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-explode-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
-            guard.registerFlag("weapon-break-block", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-damage", IWorldGuardCompatibility.FlagType.STATE_FLAG);
-            guard.registerFlag("weapon-damage-message", IWorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-shoot", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-shoot-message", WorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-explode", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-explode-message", WorldGuardCompatibility.FlagType.STRING_FLAG);
+            guard.registerFlag("weapon-break-block", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-damage", WorldGuardCompatibility.FlagType.STATE_FLAG);
+            guard.registerFlag("weapon-damage-message", WorldGuardCompatibility.FlagType.STRING_FLAG);
         } else {
             debug.debug("No WorldGuard detected!");
         }
@@ -175,6 +174,9 @@ public class WeaponMechanics {
                 registerPlaceholders();
                 registerListeners();
 
+                // Start here to ensure config values have been filled
+                handleBStats();
+
                 double seconds = NumberUtil.getAsRounded(((System.currentTimeMillis() - millisCurrent) + tookMillis) * 0.001, 2);
                 debug.info("Enabled WeaponMechanics in " + seconds + "s");
 
@@ -199,12 +201,17 @@ public class WeaponMechanics {
 
         // Create files
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
-            debug.info("Copying files from jar (This process may take between 10 and 30 seconds during the first load!)");
-            FileUtil.copyResourcesTo(getClass(), getClassLoader(), "WeaponMechanics", getDataFolder());
+            debug.info("Copying files from jar (This process may take up to 30 seconds during the first load!)");
+            try {
+                FileUtil.copyResourcesTo(getClassLoader().getResource("WeaponMechanics"), getDataFolder().toPath());
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
 
         try {
-            FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
+            // TODO bad programmars comment out broken code
+            //FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
         } catch (YAMLException e) {
             debug.error("WeaponMechanics jar corruption... This is most likely caused by using /reload after building jar!");
         }
@@ -291,10 +298,6 @@ public class WeaponMechanics {
         // TRIGGER EVENTS
         Bukkit.getPluginManager().registerEvents(new TriggerPlayerListeners(weaponHandler), getPlugin());
         Bukkit.getPluginManager().registerEvents(new TriggerEntityListeners(weaponHandler), getPlugin());
-        if (CompatibilityAPI.getVersion() >= 1.09) {
-            Bukkit.getPluginManager().registerEvents(new TriggerPlayerListenersAbove_1_9(weaponHandler), getPlugin());
-            Bukkit.getPluginManager().registerEvents(new TriggerEntityListenersAbove_1_9(weaponHandler), getPlugin());
-        }
 
         // WEAPON EVENTS
         Bukkit.getPluginManager().registerEvents(new WeaponListeners(weaponHandler), getPlugin());
@@ -307,7 +310,6 @@ public class WeaponMechanics {
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
         packetListener = new PacketHandlerListener(getPlugin(), debug);
-        packetListener.addPacketHandler(new OutUpdateAttributesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
         packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
@@ -315,26 +317,7 @@ public class WeaponMechanics {
     }
 
     void registerCommands() {
-        debug.debug("Registering commands");
-        Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
-        SimpleCommandMap commands = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
-
-        // This can occur onReload, or if another plugin registered the
-        // command. We use the try-catch to determine if the command was
-        // registered by another plugin.
-        Command registered = commands.getCommand("weaponmechanics");
-        if (registered != null) {
-            try {
-                mainCommand = (MainCommand) registered;
-            } catch (ClassCastException ex) {
-                debug.error("/weaponmechanics command was already registered... does another plugin use /wm?",
-                        "The registered command: " + registered,
-                        "Do not ignore this error! The weapon mechanics commands will not work at all!");
-            }
-        } else {
-            commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
-        }
-
+        WeaponMechanicsCommand.build();
     }
 
     void registerUpdateChecker() {
@@ -342,12 +325,12 @@ public class WeaponMechanics {
 
             debug.debug("Checking for updates");
             try {
-                Integer.parseInt("%%__RESOURCE__%%");
+                //Integer.parseInt("%%__RESOURCE__%%");
 
                 int majorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Major", 1);
                 int minorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Minor", 3);
                 int patchesBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Patch", 1);
-                SpigotResource spigotResource = new SpigotResource(getPlugin(), "%%__RESOURCE__%%");
+                SpigotResource spigotResource = new SpigotResource(getPlugin(), "99913");
                 updateChecker = new UpdateChecker(spigotResource, majorsBehind, minorsBehind, patchesBehind);
             } catch (NumberFormatException e) {
                 // %%__RESOURCE__%% is converted to resource ID on download (only in premium resources)
@@ -355,6 +338,79 @@ public class WeaponMechanics {
                 // -> If its not converted its localhost test version most likely
             }
         }
+    }
+
+    void handleBStats() {
+
+        // See https://bstats.org/plugin/bukkit/WeaponMechanics/14323. This is
+        // the bStats plugin id used to track information.
+        int id = 14323;
+
+        Metrics metrics = new Metrics((JavaPlugin) getPlugin(), id);
+
+        // Tracks the number of weapons that are used in the plugin. Since each
+        // server uses a relatively random number of weapons, we should track
+        // ranges of weapons (As in, <10, >10 & <20, >20 & <30, etc). This way,
+        // the pie chart will look tolerable.
+        // https://bstats.org/help/custom-charts
+        metrics.addCustomChart(new SimplePie("registered_weapons", () -> {
+            int weapons = getWeaponHandler().getInfoHandler().getSortedWeaponList().size();
+
+            if (weapons <= 10) {
+                return "0-10";
+            } else if (weapons <= 20) {
+                return "11-20";
+            } else if (weapons <= 30) {
+                return "21-30";
+            } else if (weapons <= 50) {
+                return "31-50";
+            } else if (weapons <= 100) {
+                return "51-100";
+            } else {
+                return ">100";
+            }
+        }));
+
+        metrics.addCustomChart(new SimplePie("custom_weapons", () -> {
+            Set<String> defaultWeapons = new HashSet<>(Arrays.asList("AK-47", "FN_FAL", "FR_5_56", "M4A1",
+                    "Stim",
+                    "Airstrike", "Cluster_Grenade", "Flashbang", "Grenade", "Semtex",
+                    "MG34",
+                    "Kar98k",
+                    "Combat_Knife",
+                    "50_GS", "357_Magnum",
+                    "RPG-7",
+                    "Origin_12", "R9-0",
+                    "AX-50",
+                    "AUG", "Uzi"));
+
+            InfoHandler infoHandler = getWeaponHandler().getInfoHandler();
+            int counter = 0;
+
+            for (String weapon : infoHandler.getSortedWeaponList()) {
+                if (!defaultWeapons.contains(weapon)) {
+                    ++counter;
+                }
+            }
+
+            if (counter <= 0) {
+                return "0";
+            } else if (counter <= 5) {
+                return "1-5";
+            } else if (counter <= 10) {
+                return "6-10";
+            } else if (counter <= 20) {
+                return "11-20";
+            } else if (counter <= 30) {
+                return "16-30";
+            } else if (counter <= 50) {
+                return "31-50";
+            } else if (counter <= 100) {
+                return "51-100";
+            } else {
+                return ">100";
+            }
+        }));
     }
 
     public TaskChain onReload() {
@@ -400,7 +456,6 @@ public class WeaponMechanics {
         weaponHandler = null;
         updateChecker = null;
         entityWrappers = null;
-        mainCommand = null;
         configurations = null;
         basicConfiguration = null;
         projectilesRunnable = null;
@@ -513,13 +568,6 @@ public class WeaponMechanics {
      */
     public static Configuration getBasicConfigurations() {
         return plugin.basicConfiguration;
-    }
-
-    /**
-     * @return the main command instance of WeaponMechanics
-     */
-    public static MainCommand getMainCommand() {
-        return plugin.mainCommand;
     }
 
     /**

@@ -23,8 +23,8 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
-        //calculateStats(0.73, 0.75, 0.62, 0.72, 0.58, 0.72);
-        deleteMe();
+        calculateStats(0, 0.9, 0.05, 0.0, 0.8, 0);
+        //deleteMe();
     }
 
     private static void calculateStats(double accuracy, double damage, double range,

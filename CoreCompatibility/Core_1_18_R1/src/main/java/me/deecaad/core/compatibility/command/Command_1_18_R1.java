@@ -1,11 +1,9 @@
 package me.deecaad.core.compatibility.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.arguments.EntitySelectorRename;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -37,7 +35,6 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang.math.DoubleRange;
-import org.apache.commons.lang.math.FloatRange;
 import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Axis;
 import org.bukkit.Bukkit;
@@ -59,13 +56,11 @@ import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R1.CraftSound;
 import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_18_R1.enchantments.CraftEnchantment;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftComplexRecipe;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_18_R1.potion.CraftPotionEffectType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ComplexRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.loot.LootTable;
@@ -155,13 +150,23 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public ArgumentType<?> entity(EntitySelectorRename selector) {
-        return switch (selector) {
-            case ENTITY -> EntityArgument.entity();
-            case ENTITIES -> EntityArgument.entities();
-            case PLAYER -> EntityArgument.player();
-            case PLAYERS -> EntityArgument.players();
-        };
+    public ArgumentType<?> entity() {
+        return EntityArgument.entity();
+    }
+
+    @Override
+    public ArgumentType<?> entities() {
+        return EntityArgument.entities();
+    }
+
+    @Override
+    public ArgumentType<?> player() {
+        return EntityArgument.player();
+    }
+
+    @Override
+    public ArgumentType<?> players() {
+        return EntityArgument.players();
     }
 
     @Override
@@ -353,26 +358,59 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Object getEntitySelector(CommandContext<Object> context, String key, EntitySelectorRename selectorType) throws CommandSyntaxException {
+    public org.bukkit.entity.Entity getEntitySelector(CommandContext<Object> context, String key) throws CommandSyntaxException {
         EntitySelector selector = cast(context).getArgument(key, EntitySelector.class);
 
         // Setting this field allows non-op users to use entity selectors.
         // We let command permissions handle the permission system. We may have
         // to check if a vanished player can be seen in this list. TODO.
-        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, "o"), selector, false);
+        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
 
         CommandSourceStack source = (CommandSourceStack) context.getSource();
+        return selector.findSingleEntity(source).getBukkitEntity();
+    }
 
-        return switch (selectorType) {
-            case ENTITY -> selector.findSingleEntity(source).getBukkitEntity();
-            case PLAYER -> selector.findSinglePlayer(source).getBukkitEntity();
-            case ENTITIES -> selector.findEntities(source).stream()
-                    .map(Entity::getBukkitEntity)
-                    .collect(Collectors.toList());
-            case PLAYERS -> selector.findPlayers(source).stream()
-                    .map(ServerPlayer::getBukkitEntity)
-                    .collect(Collectors.toList());
-        };
+    @Override
+    public List<org.bukkit.entity.Entity> getEntitiesSelector(CommandContext<Object> context, String key) throws CommandSyntaxException {
+        EntitySelector selector = cast(context).getArgument(key, EntitySelector.class);
+
+        // Setting this field allows non-op users to use entity selectors.
+        // We let command permissions handle the permission system. We may have
+        // to check if a vanished player can be seen in this list. TODO.
+        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
+
+        CommandSourceStack source = (CommandSourceStack) context.getSource();
+        return selector.findEntities(source).stream()
+                .map(Entity::getBukkitEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Player getPlayerSelector(CommandContext<Object> context, String key) throws CommandSyntaxException {
+        EntitySelector selector = cast(context).getArgument(key, EntitySelector.class);
+
+        // Setting this field allows non-op users to use entity selectors.
+        // We let command permissions handle the permission system. We may have
+        // to check if a vanished player can be seen in this list. TODO.
+        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
+
+        CommandSourceStack source = (CommandSourceStack) context.getSource();
+        return selector.findSinglePlayer(source).getBukkitEntity();
+    }
+
+    @Override
+    public List<Player> getPlayersSelector(CommandContext<Object> context, String key) throws CommandSyntaxException {
+        EntitySelector selector = cast(context).getArgument(key, EntitySelector.class);
+
+        // Setting this field allows non-op users to use entity selectors.
+        // We let command permissions handle the permission system. We may have
+        // to check if a vanished player can be seen in this list. TODO.
+        ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
+
+        CommandSourceStack source = (CommandSourceStack) context.getSource();
+        return selector.findPlayers(source).stream()
+                .map(ServerPlayer::getBukkitEntity)
+                .collect(Collectors.toList());
     }
 
     @Override

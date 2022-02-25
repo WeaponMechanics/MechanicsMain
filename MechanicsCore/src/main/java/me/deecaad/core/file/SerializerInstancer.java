@@ -37,6 +37,9 @@ public class SerializerInstancer extends JarSearcher {
                 }
 
                 continue;
+            } catch (Throwable ex) {
+                debug.log(LogLevel.ERROR, validClass + " serializer failed to load. Perhaps a version mismatch?", ex);
+                continue;
             }
 
             try {

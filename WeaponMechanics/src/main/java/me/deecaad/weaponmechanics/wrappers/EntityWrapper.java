@@ -32,7 +32,6 @@ public class EntityWrapper {
     private HandData mainHandData;
     private HandData offHandData;
 
-
     public EntityWrapper(LivingEntity livingEntity) {
         this.entity = livingEntity;
 
@@ -180,7 +179,7 @@ public class EntityWrapper {
      * @see LivingEntity#isGliding()
      */
     public boolean isGliding() {
-        return CompatibilityAPI.getVersion() >= 1.09 && entity.isGliding();
+        return entity.isGliding();
     }
 
     /**

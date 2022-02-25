@@ -28,7 +28,7 @@ public class Entity_1_13_R2 implements EntityCompatibility {
 
     @Override
     public FakeEntity generateFakeEntity(Location location, EntityType type, Object data) {
-        return null;
+        return new FakeEntity_1_13_R2(location, type, data);
     }
 }
 

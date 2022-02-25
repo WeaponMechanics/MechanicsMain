@@ -105,6 +105,18 @@ public class SerializeData {
     }
 
     /**
+     * Returns <code>true</code> if the given relative config key exists.
+     * Otherwise, this method will return false. Usually, you should use
+     * {@link ConfigAccessor#assertExists()}.
+     *
+     * @param relative The non-null relative key.
+     * @return <code>true</code> if the key exists.
+     */
+    public boolean has(String relative) {
+        return config.contains(key + "." + relative);
+    }
+
+    /**
      * When there is no method in {@link ConfigAccessor} to match a specific
      * configuration error, you may check for it manually and use this method
      * to throw a "general" exception.
@@ -288,18 +300,28 @@ public class SerializeData {
                             argument.clazz = Integer.class; // Set class to be more human-readable in error
                             int parseInt = Integer.parseInt(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseInt < argument.min || parseInt > argument.max))
-                                throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i));
+                                throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i))
+                                        .addMessage("Full List Element: " + string)
+                                        .addMessage("Valid List Format: " + format);
+
                             if (argument.positive && parseInt < 0)
-                                throw new SerializerNegativeException(serializer, parseInt, getLocation(i));
+                                throw new SerializerNegativeException(serializer, parseInt, getLocation(i))
+                                        .addMessage("Full List Element: " + string)
+                                        .addMessage("Valid List Format: " + format);
                         }
 
                         else if (argument.clazz == double.class) {
                             argument.clazz = Double.class;
                             double parseDouble = Double.parseDouble(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseDouble < argument.min || parseDouble > argument.max))
-                                throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i));
+                                throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i))
+                                        .addMessage("Full List Element: " + string)
+                                        .addMessage("Valid List Format: " + format);
+
                             if (argument.positive && parseDouble < 0.0)
-                                throw new SerializerNegativeException(serializer, parseDouble, getLocation(i));
+                                throw new SerializerNegativeException(serializer, parseDouble, getLocation(i))
+                                        .addMessage("Full List Element: " + string)
+                                        .addMessage("Valid List Format: " + format);
 
                         } else if (argument.clazz == boolean.class) {
                             argument.clazz = Boolean.class;
@@ -349,9 +371,9 @@ public class SerializeData {
 
         public String getLocation(int index) {
             if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key, index);
+                return StringUtil.foundAt(file, key, index + 1);
             } else {
-                return StringUtil.foundAt(file, key + "." + relative, index);
+                return StringUtil.foundAt(file, key + "." + relative, index + 1);
             }
         }
 

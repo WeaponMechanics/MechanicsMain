@@ -57,7 +57,7 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
         }
 
         // These are normalized at this point
-        if (verticalSpeed != -9.9) {
+        if (verticalSpeed != -25) {
             livingEntity.setVelocity(direction.multiply(movementSpeed).setY(verticalSpeed));
         } else {
             livingEntity.setVelocity(direction.multiply(movementSpeed));
@@ -77,9 +77,9 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
     @Override
     @Nonnull
     public MovementMechanic serialize(SerializeData data) throws SerializerException {
-        double movementSpeed = data.of("Movement_Speed").assertExists().assertPositive().getDouble();
+        double movementSpeed = data.of("Movement_Speed").assertExists().getDouble();
         boolean towardsTarget = data.of("Towards_Target").getBool(false);
-        double verticalSpeed = data.of("Vertical_Speed").assertExists().assertPositive().getDouble();
+        double verticalSpeed = data.of("Vertical_Speed").getDouble(-500);
 
         // Divide by 20 to convert from m/s to m/tick
         movementSpeed /= 20.0;

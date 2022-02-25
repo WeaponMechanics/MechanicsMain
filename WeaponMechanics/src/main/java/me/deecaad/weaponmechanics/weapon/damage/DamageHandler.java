@@ -12,12 +12,12 @@ import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
-import javax.annotation.Nonnull;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -34,11 +34,17 @@ public class DamageHandler {
     /**
      * @return false if damaging was cancelled
      */
-    public boolean tryUse(LivingEntity victim, @Nonnull WeaponProjectile projectile, double damage, DamagePoint point, boolean isBackstab) {
-        Configuration config = getConfigurations();
+    public boolean tryUse(LivingEntity victim, WeaponProjectile projectile, double damage, DamagePoint point, boolean isBackstab) {
+        return tryUse(victim, damage, point, isBackstab, projectile.getShooter(), projectile.getWeaponTitle(),
+                projectile.getWeaponStack(), projectile.getDistanceTravelled());
+    }
 
-        LivingEntity shooter = projectile.getShooter();
-        String weaponTitle = projectile.getWeaponTitle();
+    /**
+     * @return false if damaging was cancelled
+     */
+    public boolean tryUse(LivingEntity victim, double damage, DamagePoint point, boolean isBackstab,
+                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, double distanceTravelled) {
+        Configuration config = getConfigurations();
 
         boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
         if (!isFriendlyFire && !DamageUtil.canHarm(shooter, victim)) {
@@ -57,8 +63,8 @@ public class DamageHandler {
         int armorDamage = config.getInt(weaponTitle + ".Damage.Armor_Damage");
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
 
-        WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim,
-                damage, isBackstab, isCritical, point, armorDamage, fireTicks, projectile.getDistanceTravelled());
+        WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, victim,
+                damage, isBackstab, isCritical, point, armorDamage, fireTicks, distanceTravelled);
         Bukkit.getPluginManager().callEvent(damageEntityEvent);
 
         if (damageEntityEvent.isCancelled()) return false;
@@ -66,7 +72,11 @@ public class DamageHandler {
         fireTicks = damageEntityEvent.getFireTicks();
         point = damageEntityEvent.getPoint();
 
-        DamageUtil.apply(shooter, victim, damageEntityEvent.getFinalDamage());
+        if (DamageUtil.apply(shooter, victim, damageEntityEvent.getFinalDamage())) {
+            // Damage was cancelled
+            return false;
+        }
+
         DamageUtil.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
 
         // Fire ticks
@@ -74,11 +84,27 @@ public class DamageHandler {
             victim.setFireTicks(fireTicks);
         }
 
-        CastData shooterCast = new CastData(WeaponMechanics.getEntityWrapper(shooter), projectile.getWeaponTitle(), projectile.getWeaponStack());
+        EntityWrapper shooterWrapper = WeaponMechanics.getEntityWrapper(shooter, true);
+        CastData shooterCast;
+        if (shooterWrapper != null) {
+            shooterCast = new CastData(shooterWrapper, weaponTitle, weaponStack);
+        } else {
+            shooterCast = new CastData(shooter, weaponTitle, weaponStack);
+        }
         shooterCast.setData(CommonDataTags.TARGET_LOCATION.name(), victim.getLocation());
+        shooterCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
+        shooterCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
 
-        CastData victimCast = new CastData(WeaponMechanics.getEntityWrapper(victim), projectile.getWeaponTitle(), projectile.getWeaponStack());
+        EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim, true);
+        CastData victimCast;
+        if (victimWrapper != null) {
+            victimCast = new CastData(victimWrapper, weaponTitle, weaponStack);
+        } else {
+            victimCast = new CastData(victim, weaponTitle, weaponStack);
+        }
         victimCast.setData(CommonDataTags.TARGET_LOCATION.name(), shooter.getLocation());
+        victimCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
+        victimCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
 
         // On all damage
         useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");
@@ -97,7 +123,7 @@ public class DamageHandler {
         }
 
         if (victim.isDead() || victim.getHealth() <= 0.0) {
-            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, projectile.getWeaponStack(), shooter, victim, damageEntityEvent));
+            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, weaponStack, shooter, victim, damageEntityEvent));
 
             // On kill
             useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Kill");

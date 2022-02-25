@@ -1,0 +1,24 @@
+Stim:
+  Info:
+    Weapon_Item:
+      Type: "FEATHER"
+      Name: "&6Stim"
+      Unbreakable: true
+      Hide_Flags: true
+      Deny_Use_In_Crafting: true
+    Weapon_Get_Mechanics:
+      Sounds:
+        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+  Shoot:
+    Trigger:
+      Main_Hand: "RIGHT_CLICK"
+      Off_Hand: "RIGHT_CLICK"
+      Deny_When:
+        Swimming: true
+    Consume_Item_On_Shoot: true
+    Delay_Between_Shots: 20
+    Mechanics:
+      Sounds:
+        - "ENTITY_GENERIC_DRINK-1-1-0-0.1"
+      Potion_Effects:
+        - "HEAL-1-3"

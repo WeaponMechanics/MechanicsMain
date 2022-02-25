@@ -30,6 +30,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
     private boolean disableEntityCollisions;
     private int maximumAliveTicks;
+    private double maximumTravelDistance;
 
     /**
      * Empty constructor to be used as serializer
@@ -39,7 +40,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     public ProjectileSettings(EntityType projectileDisguise, Object disguiseData, double gravity,
                               boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
                               double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions,
-                              int maximumAliveTicks) {
+                              int maximumAliveTicks, double maximumTravelDistance) {
         this.projectileDisguise = projectileDisguise;
         this.disguiseData = disguiseData;
         this.gravity = gravity;
@@ -52,6 +53,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         this.decreaseWhenRainingOrSnowing = decreaseWhenRainingOrSnowing;
         this.disableEntityCollisions = disableEntityCollisions;
         this.maximumAliveTicks = maximumAliveTicks;
+        this.maximumTravelDistance = maximumTravelDistance;
     }
 
     /**
@@ -145,6 +147,13 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return maximumAliveTicks;
     }
 
+    /**
+     * @return the maximum travel distance of projectile, -1 if not used
+     */
+    public double getMaximumTravelDistance() {
+        return maximumTravelDistance;
+    }
+
     @Override
     public String getKeyword() {
         return "Projectile_Settings";
@@ -185,7 +194,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
             }
         }
 
-        double gravity = data.of("Gravity").getDouble(10.0) / 200.0;
+        double gravity = data.of("Gravity").getDouble(0.05);
 
         // -1 so that CustomProjectile#tick() can understand that minimum or maximum speed isn't used
         double minimumSpeed = data.of("Minimum.Speed").assertPositive().getDouble(-20.0) / 20.0;
@@ -199,8 +208,10 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
         boolean disableEntityCollisions = data.of("Disable_Entity_Collisions").getBool(false);
         int maximumAliveTicks = data.of("Maximum_Alive_Ticks").assertPositive().getInt(600);
+        double maximumTravelDistance = data.of("Maximum_Travel_Distance").assertPositive().getDouble(-1);
 
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
-                removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing, disableEntityCollisions, maximumAliveTicks);
+                removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing,
+                disableEntityCollisions, maximumAliveTicks, maximumTravelDistance);
     }
 }

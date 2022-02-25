@@ -3,25 +3,14 @@ package me.deecaad.weaponmechanics.compatibility.scope;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
-import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Abilities;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.craftbukkit.v1_17_R1.attribute.CraftAttributeMap;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.potion.PotionEffectType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class Scope_1_17_R1 implements IScopeCompatibility {
 
@@ -39,37 +28,6 @@ public class Scope_1_17_R1 implements IScopeCompatibility {
     public void updateAbilities(org.bukkit.entity.Player player) {
         ServerPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         entityPlayer.connection.send(new ClientboundPlayerAbilitiesPacket(entityPlayer.getAbilities()));
-    }
-
-    @Override
-    public void updateAttributesFor(org.bukkit.entity.Player player) {
-        ServerPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        List<AttributeInstance> list = new ArrayList<>();
-        list.add(entityPlayer.getAttributes().getInstance(CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)));
-
-        // Negative entity id for identifying packet
-        entityPlayer.connection.send(new ClientboundUpdateAttributesPacket(entityPlayer.getId(), list));
-    }
-
-    @Override
-    public void modifyUpdateAttributesPacket(me.deecaad.core.packetlistener.Packet packet, int zoomAmount) {
-
-        List<ClientboundUpdateAttributesPacket.AttributeSnapshot> attributeSnapshots = ((ClientboundUpdateAttributesPacket) packet.getPacket()).getValues();
-
-        if (attributeSnapshots.size() > 1) {
-            // Don't let external things such as sprint modify movement speed
-            attributeSnapshots.removeIf(next -> next.getAttribute() == CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED));
-            return;
-        }
-
-        // Don't modify other attributes than movement speed
-        if (attributeSnapshots.get(0).getAttribute() != CraftAttributeMap.toMinecraft(Attribute.GENERIC_MOVEMENT_SPEED)) return;
-
-        ClientboundUpdateAttributesPacket.AttributeSnapshot attributeSnapshot = attributeSnapshots.get(0);
-
-        List<AttributeModifier> list = new ArrayList<>();
-        list.add(new AttributeModifier(UUID.randomUUID(), () -> "WM_SCOPE", ScopeLevel.getScope(zoomAmount), AttributeModifier.Operation.ADDITION));
-        attributeSnapshots.add(new ClientboundUpdateAttributesPacket.AttributeSnapshot(attributeSnapshot.getAttribute(), attributeSnapshot.getBase(), list));
     }
 
     @Override
