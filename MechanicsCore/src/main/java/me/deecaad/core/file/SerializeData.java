@@ -223,6 +223,22 @@ public class SerializeData {
             return this;
         }
 
+        /**
+         * If the <code>exists = true</code>, then this method will call
+         * {@link #assertExists()}. This is useful for when an argument is only
+         * required when another argument is present.
+         *
+         * @param exists true to assert if the argument exists.
+         * @return A non-null reference to this accessor (builder pattern).
+         * @throws SerializerException If the key is not explicitly defined.
+         */
+        public ConfigListAccessor assertExists(boolean exists) throws SerializerException {
+            if (exists)
+                return assertExists();
+            else
+                return this;
+        }
+
         @Nonnull
         @SuppressWarnings({"unchecked", "rawtypes"})
         public ConfigListAccessor assertList() throws SerializerException {
@@ -419,6 +435,22 @@ public class SerializeData {
 
             exists = true;
             return this;
+        }
+
+        /**
+         * If the <code>exists = true</code>, then this method will call
+         * {@link #assertExists()}. This is useful for when an argument is only
+         * required when another argument is present.
+         *
+         * @param exists true to assert if the argument exists.
+         * @return A non-null reference to this accessor (builder pattern).
+         * @throws SerializerException If the key is not explicitly defined.
+         */
+        public ConfigAccessor assertExists(boolean exists) throws SerializerException {
+            if (exists)
+                return assertExists();
+            else
+                return this;
         }
 
         /**
