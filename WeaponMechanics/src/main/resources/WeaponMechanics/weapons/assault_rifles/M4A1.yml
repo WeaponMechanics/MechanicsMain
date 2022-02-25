@@ -11,7 +11,6 @@ M4A1:
     Weapon_Info_Display:
       Action_Bar:
         Message: "&6M4A1 &7«&6%ammo-left%&7»&6%reload%"
-        Time: 40
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"

@@ -5,6 +5,8 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
@@ -32,6 +34,7 @@ public class AirStrike implements Serializer<AirStrike> {
     private int loops;
     private int delay;
     private Detonation detonation;
+    private Mechanics mechanics;
 
     /**
      * Default constructor for serializer
@@ -56,7 +59,7 @@ public class AirStrike implements Serializer<AirStrike> {
      * @param delay      The amount of time (in ticks) between each layer of bombs.
      */
     public AirStrike(Projectile projectile, int min, int max, double height, double yVariation,
-                     double distance, double radius, int loops, int delay, Detonation detonation) {
+                     double distance, double radius, int loops, int delay, Detonation detonation, Mechanics mechanics) {
 
         this.projectile = projectile;
         this.min = min;
@@ -68,6 +71,7 @@ public class AirStrike implements Serializer<AirStrike> {
         this.loops = loops;
         this.delay = delay;
         this.detonation = detonation;
+        this.mechanics = mechanics;
     }
 
     public Projectile getProjectile() {
@@ -151,6 +155,8 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
+
+        if (mechanics != null) mechanics.use(new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack()));
         new BukkitRunnable() {
 
             int count = 0;
@@ -226,8 +232,9 @@ public class AirStrike implements Serializer<AirStrike> {
         int interval = data.of("Delay_Between_Layers").assertPositive().getInt(40);
 
         Detonation detonation = data.of("Detonation").serialize(Detonation.class);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
 
-        return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval, detonation);
+        return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval, detonation, mechanics);
     }
 
     static class Vector2d {

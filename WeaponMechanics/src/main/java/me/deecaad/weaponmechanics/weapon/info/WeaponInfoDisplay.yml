@@ -1,7 +1,17 @@
 # me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay
 Weapon_Info_Display:
-  # Message mechanic serializer
-  Update_Item_Name: <true/false>
+  Action_Bar:
+    Message: <string>
+    Dual_Wield:
+      Main_Hand: <string>
+      Off_Hand: <string>
+  Boss_Bar:
+    Title: <string>
+    Bar_Color: <string>
+    Bar_Style: <string>
+    Dual_Wield:
+      Main_Hand: <string>
+      Off_Hand: <string>
   Show_Ammo_In:
     Boss_Bar_Progress: <true/false>
     Exp_Level: <true/false>

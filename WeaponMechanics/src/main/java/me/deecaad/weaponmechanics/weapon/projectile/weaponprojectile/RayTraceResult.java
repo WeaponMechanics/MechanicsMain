@@ -11,7 +11,9 @@ import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
@@ -159,5 +161,16 @@ public class RayTraceResult {
         if (explosion != null) explosion.handleExplosion(projectile.getShooter(), hitLocation.clone().toLocation(projectile.getWorld()), projectile, ExplosionTrigger.ENTITY);
 
         return false;
+    }
+
+    public void outlineOnlyHitPosition(Player player) {
+        double x = hitLocation.getX();
+        double y = hitLocation.getY();
+        double z = hitLocation.getZ();
+        if (CompatibilityAPI.getVersion() < 1.13) {
+            player.getWorld().spawnParticle(Particle.CRIT, x, y, z, 1, 0, 0, 0, 0.0001);
+        } else {
+            player.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.BLACK, 1.5f), true);
+        }
     }
 }

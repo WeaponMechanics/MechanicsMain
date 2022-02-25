@@ -37,6 +37,7 @@ Explosion:
     Number_Of_Bombs: <Integer> # The number of bombs to spawn
     Number_Of_Splits: <Integer> # How many times should the bombs split
     Detonation: <DetonationSerializer>
+    Mechanics: <MechanicsSerializer>
   Airstrike:
     Dropped_Projectile: <ProjectileSerializer> # The projectile to spawn for each dropped bomb, defaults to the shot projectile
     Minimum_Bombs: <Integer> # The minimum number of bombs to spawn
@@ -48,6 +49,7 @@ Explosion:
     Layers: <Integer> # How many airstrikes to spawn in
     Delay_Between_Layers: <Integer> # The delay (in ticks) between volleys of bombs
     Detonation: <DetonationSerializer>
+    Mechanics: <MechanicsSerializer>
   Flashbang:
     Effect_Distance: <Double>
     Mechanics: <MechanicsSerializer>

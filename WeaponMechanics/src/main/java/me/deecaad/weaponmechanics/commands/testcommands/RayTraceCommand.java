@@ -26,7 +26,7 @@ import java.util.Collection;
 public class RayTraceCommand extends SubCommand {
 
     RayTraceCommand() {
-        super("wm test", "raytrace", "Shows the hitbox of current entity and/or block in sight", "<distance> <time>");
+        super("wm test", "raytrace", "Shows the hitbox of current entity and/or block in sight", "<only_hit_position> <distance> <time>");
     }
 
     @Override
@@ -38,12 +38,13 @@ public class RayTraceCommand extends SubCommand {
 
         Player player = (Player) sender;
 
-        int distance = (args.length > 0) ? Integer.parseInt(args[0]) : 5;
+        boolean onlyHitPosition = args.length > 0 && Boolean.parseBoolean(args[0]);
+        int distance = (args.length > 1) ? Integer.parseInt(args[1]) : 5;
         if (distance < 1) {
             sender.sendMessage(ChatColor.RED + "Distance was less than 1");
             return;
         }
-        int time = (args.length > 1) ? Integer.parseInt(args[1]) : 200;
+        int time = (args.length > 2) ? Integer.parseInt(args[2]) : 200;
 
         sender.sendMessage(ChatColor.GREEN + "Showing hitboxes in distance " + distance + " for " + time + " ticks");
         IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
@@ -65,7 +66,11 @@ public class RayTraceCommand extends SubCommand {
                     RayTraceResult rayTraceResult = blockBox.rayTrace(location.toVector(), direction);
                     if (rayTraceResult == null) continue;
 
-                    outline(blockBox, player);
+                    if (onlyHitPosition) {
+                        rayTraceResult.outlineOnlyHitPosition(player);
+                    } else {
+                        blockBox.outlineAllBoxes(player);
+                    }
                     player.sendMessage("Block: " + block.getType());
                     break;
                 }
@@ -81,7 +86,11 @@ public class RayTraceCommand extends SubCommand {
                         RayTraceResult rayTraceResult = entityBox.rayTrace(location.toVector(), direction);
                         if (rayTraceResult == null) continue;
 
-                        outline(entityBox, player);
+                        if (onlyHitPosition) {
+                            rayTraceResult.outlineOnlyHitPosition(player);
+                        } else {
+                            entityBox.outlineAllBoxes(player);
+                        }
                         player.sendMessage("Entity: " + entity.getType());
 
                         break;
@@ -94,31 +103,5 @@ public class RayTraceCommand extends SubCommand {
             }
         }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
 
-    }
-
-    private void outline(HitBox hitBox, Player player) {
-        double maxX = hitBox.getMaxX();
-        double minX = hitBox.getMinX();
-
-        double maxY = hitBox.getMaxY();
-        double minY = hitBox.getMinY();
-
-        double maxZ = hitBox.getMaxZ();
-        double minZ = hitBox.getMinZ();
-
-        double step = 0.1;
-        for (double x = minX; x <= maxX; x += step) {
-            for (double y = minY; y <= maxY; y += step) {
-                for (double z = minZ; z <= maxZ; z += step) {
-                    int components = 0;
-                    if (x == minX || x + step > maxX) components++;
-                    if (y == minY || y + step > maxY) components++;
-                    if (z == minZ || z + step > maxZ) components++;
-                    if (components >= 2) {
-                        player.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.RED, 0.5f), true);
-                    }
-                }
-            }
-        }
     }
 }

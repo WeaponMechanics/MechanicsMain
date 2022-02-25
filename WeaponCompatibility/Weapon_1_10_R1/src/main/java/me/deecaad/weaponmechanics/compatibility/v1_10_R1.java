@@ -11,9 +11,8 @@ import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -61,6 +60,13 @@ public class v1_10_R1 implements IWeaponCompatibility {
         AxisAlignedBB aabb = ((CraftEntity) entity).getHandle().getBoundingBox();
         HitBox hitBox = new HitBox(aabb.a, aabb.b, aabb.c, aabb.d, aabb.e, aabb.f);
         hitBox.setLivingEntity((LivingEntity) entity);
+
+        if (entity instanceof ComplexLivingEntity && WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
+            for (ComplexEntityPart entityPart : ((ComplexLivingEntity) entity).getParts()) {
+                AxisAlignedBB boxPart = ((CraftEntity) entityPart).getHandle().getBoundingBox();
+                hitBox.addVoxelShapePart(new HitBox(boxPart.a, boxPart.b, boxPart.c, boxPart.d, boxPart.e, boxPart.f));
+            }
+        }
         return hitBox;
     }
 

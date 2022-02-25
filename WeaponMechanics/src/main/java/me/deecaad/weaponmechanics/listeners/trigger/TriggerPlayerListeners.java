@@ -28,7 +28,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class TriggerPlayerListeners implements Listener {
 
-    private WeaponHandler weaponHandler;
+    private final WeaponHandler weaponHandler;
 
     public TriggerPlayerListeners(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -262,7 +262,8 @@ public class TriggerPlayerListeners implements Listener {
 
         if (offWeapon != null) {
             playerWrapper.droppedWeapon();
-            weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield, null);
+            Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, offWeapon,
+                    playerEquipment.getItemInOffHand(), EquipmentSlot.OFF_HAND, TriggerType.DROP_ITEM, dualWield, null));
         }
     }
 
@@ -277,6 +278,8 @@ public class TriggerPlayerListeners implements Listener {
         EntityEquipment playerEquipment = player.getEquipment();
 
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
+
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         ItemStack toMain = e.getMainHandItem();
         String toMainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toMain, false);
@@ -294,8 +297,6 @@ public class TriggerPlayerListeners implements Listener {
             toMain = playerEquipment.getItemInOffHand();
         }
 
-        PlayerWrapper playerWrapper = getPlayerWrapper(player);
-
         boolean dualWield = toMainWeapon != null && toOffWeapon != null;
 
         if (isValid(toMain)) {
@@ -303,14 +304,20 @@ public class TriggerPlayerListeners implements Listener {
             if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_TO_MAIN_HAND, player, toMainWeapon, toOffWeapon)) return;
 
             // Only check off hand going to main hand
-            if (toMainWeapon != null) weaponHandler.tryUses(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_TO_MAIN_HAND, dualWield, null);
+            if (toMainWeapon != null) {
+                Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, toMainWeapon,
+                        playerEquipment.getItemInMainHand(), EquipmentSlot.OFF_HAND, TriggerType.SWAP_TO_MAIN_HAND, dualWield, null));
+            }
         }
         if (isValid(toOff)) {
             // SWAP_TO_OFF_HAND
             if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_TO_OFF_HAND, player, toMainWeapon, toOffWeapon)) return;
 
             // Only check main hand going to off hand
-            if (toOffWeapon != null) weaponHandler.tryUses(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND, TriggerType.SWAP_TO_OFF_HAND, dualWield, null);
+            if (toOffWeapon != null) {
+                Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, toOffWeapon,
+                        playerEquipment.getItemInOffHand(), EquipmentSlot.HAND, TriggerType.SWAP_TO_OFF_HAND, dualWield, null));
+            }
         }
     }
 

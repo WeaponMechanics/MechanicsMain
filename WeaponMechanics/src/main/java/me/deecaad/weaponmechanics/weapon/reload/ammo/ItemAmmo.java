@@ -17,12 +17,12 @@ import java.util.List;
 public class ItemAmmo implements IAmmoType {
 
     // Defined in ammo types list
-    private String ammoName;
+    private final String ammoName;
 
-    private String symbol;
-    private ItemStack bulletItem;
-    private ItemStack magazineItem;
-    private AmmoConverter ammoConverter;
+    private final String symbol;
+    private final ItemStack bulletItem;
+    private final ItemStack magazineItem;
+    private final AmmoConverter ammoConverter;
 
     public ItemAmmo(String ammoName, String symbol, ItemStack bulletItem, ItemStack magazineItem, AmmoConverter ammoConverter) {
         this.ammoName = ammoName;
@@ -316,8 +316,8 @@ public class ItemAmmo implements IAmmoType {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta == null) return;
 
-        itemMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(itemMeta.getDisplayName(), player, itemStack, null));
-        itemMeta.setLore(PlaceholderAPI.applyPlaceholders(itemMeta.getLore(), player, itemStack, null));
+        itemMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(itemMeta.getDisplayName(), player, itemStack, null, null));
+        itemMeta.setLore(PlaceholderAPI.applyPlaceholders(itemMeta.getLore(), player, itemStack, null, null));
         itemStack.setItemMeta(itemMeta);
     }
 }

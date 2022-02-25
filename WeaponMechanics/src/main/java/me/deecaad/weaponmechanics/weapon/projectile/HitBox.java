@@ -1,20 +1,29 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
@@ -35,6 +44,8 @@ public class HitBox implements IValidator {
     private double maxX;
     private double maxY;
     private double maxZ;
+
+    private Collection<HitBox> voxelShape;
 
     /**
      * Empty constructor be used as validator
@@ -60,11 +71,26 @@ public class HitBox implements IValidator {
     }
 
     public void setBlockHitBox(Block block) {
+        if (livingEntity != null) throw new IllegalArgumentException("Can't set living entity for block hitbox");
         this.block = block;
     }
 
     public void setLivingEntity(LivingEntity livingEntity) {
+        if (block != null) throw new IllegalArgumentException("Can't set block for living entity hitbox");
         this.livingEntity = livingEntity;
+    }
+
+    public void addVoxelShapeParts(Collection<HitBox> hitBoxes) {
+        if (voxelShape == null) {
+            voxelShape = hitBoxes;
+        } else {
+            voxelShape = new ArrayList<>(hitBoxes);
+        }
+    }
+
+    public void addVoxelShapePart(HitBox hitBox) {
+        if (voxelShape == null) voxelShape = new ArrayList<>(2);
+        voxelShape.add(hitBox);
     }
 
     public double getMinX() {
@@ -124,19 +150,23 @@ public class HitBox implements IValidator {
     }
 
     /**
-     * Returns <code>true</code> if the given location <code>loc</code> is inside
-     * this hitbox.
+     * Check whether point collides with this hitbox
      *
-     * @param loc The point to test
-     * @return If the point is in this hitbox
-     * @throws IllegalArgumentException If the given point is null
+     * @param point the point to check
+     * @return true if collides
      */
-    public boolean contains(Vector loc) {
-        if (loc == null) throw new IllegalArgumentException("loc cannot be null");
+    public boolean collides(Vector point) {
+        if (point == null) return false;
+        return point.getX() >= minX
+                && point.getX() <= maxX
+                && point.getY() >= minY
+                && point.getY() <= maxY
+                && point.getZ() >= minZ
+                && point.getZ() <= maxZ;
+    }
 
-        return loc.getX() > minX && loc.getX() < maxX &&
-                loc.getY() > minY && loc.getY() < maxY &&
-                loc.getZ() > minZ && loc.getZ() < maxZ;
+    public DamagePoint getDamagePoint(Vector hitLocation, Vector normalizedMotion) {
+        return getDamagePoint(hitLocation, normalizedMotion, livingEntity);
     }
 
     /**
@@ -144,8 +174,8 @@ public class HitBox implements IValidator {
      * @param normalizedMotion the normalized direction
      * @return the damage point or null if tried to cast when living entity was not defined
      */
-    public DamagePoint getDamagePoint(Vector hitLocation, Vector normalizedMotion) {
-        if (this.livingEntity == null) return null;
+    private DamagePoint getDamagePoint(Vector hitLocation, Vector normalizedMotion, LivingEntity livingEntity) {
+        if (livingEntity == null) return null;
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
 
         EntityType type = livingEntity.getType();
@@ -199,19 +229,26 @@ public class HitBox implements IValidator {
         return DamagePoint.BODY;
     }
 
-    /**
-     * Check whether point collides with this hitbox
-     *
-     * @param point the point to check
-     * @return true if collides
-     */
-    public boolean collides(Vector point) {
-        return point.getX() >= minX
-                && point.getX() <= maxX
-                && point.getY() >= minY
-                && point.getY() <= maxY
-                && point.getZ() >= minZ
-                && point.getZ() <= maxZ;
+    public RayTraceResult rayTrace(Vector location, Vector normalizedMotion) {
+        RayTraceResult mainBoxHit = rayTrace(location, normalizedMotion, block, livingEntity);
+
+        // Voxel shape not used or didn't hit main hitbox
+        if (voxelShape == null || mainBoxHit == null) return mainBoxHit;
+
+        // Here we know main hitbox was hit, now check all voxel shapes
+        RayTraceResult hit = null;
+        double closestHit = -1;
+        for (HitBox boxPart : voxelShape) {
+            RayTraceResult boxPartHit = boxPart.rayTrace(location, normalizedMotion, block, livingEntity);
+            if (boxPartHit == null) continue;
+
+            // Only closes hit
+            if (closestHit == -1 || boxPartHit.getDistanceTravelled() < closestHit) {
+                closestHit = boxPartHit.getDistanceTravelled();
+                hit = boxPartHit;
+            }
+        }
+        return hit;
     }
 
     /**
@@ -222,7 +259,7 @@ public class HitBox implements IValidator {
      * @param normalizedMotion the normalized direction
      * @return the ray trace result or null if there is no hit
      */
-    public RayTraceResult rayTrace(Vector location, Vector normalizedMotion) {
+    private RayTraceResult rayTrace(Vector location, Vector normalizedMotion, Block block, LivingEntity livingEntity) {
 
         double startX = location.getX();
         double startY = location.getY();
@@ -314,12 +351,12 @@ public class HitBox implements IValidator {
             hitBlockFace = hitBlockFaceMin;
         }
 
-        if (this.block != null) {
-            return new RayTraceResult(normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace, this.block);
+        if (block != null) {
+            return new RayTraceResult(normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace, block);
         }
 
         Vector hitLocation = normalizedMotion.clone().multiply(t).add(location);
-        return new RayTraceResult(hitLocation, t, hitBlockFace, this.livingEntity, getDamagePoint(hitLocation, normalizedMotion));
+        return new RayTraceResult(hitLocation, t, hitBlockFace, livingEntity, getDamagePoint(hitLocation, normalizedMotion, livingEntity));
     }
 
     /**
@@ -393,6 +430,44 @@ public class HitBox implements IValidator {
         double positiveY = dirY > 0.0D ? dirY * expansion : 0.0D;
         double positiveZ = dirZ > 0.0D ? dirZ * expansion : 0.0D;
         return this.expand(negativeX, negativeY, negativeZ, positiveX, positiveY, positiveZ);
+    }
+
+    public void outlineAllBoxes(Player player) {
+        if (voxelShape != null) {
+            outlineMainBox(player, Color.BLACK);
+            ColorSerializer.ColorType[] colors = ColorSerializer.ColorType.values();
+
+            int i = 1;
+            for (HitBox voxel : voxelShape) {
+                voxel.outlineMainBox(player, colors[i].getBukkitColor());
+                if (++i >= colors.length) {
+                    i = 1;
+                }
+            }
+        } else {
+            outlineMainBox(player, Color.BLACK);
+        }
+    }
+
+    public void outlineMainBox(Player player, Color color) {
+        double step = 0.05;
+        for (double x = minX; x <= maxX; x += step) {
+            for (double y = minY; y <= maxY; y += step) {
+                for (double z = minZ; z <= maxZ; z += step) {
+                    int components = 0;
+                    if (x == minX || x + step > maxX) components++;
+                    if (y == minY || y + step > maxY) components++;
+                    if (z == minZ || z + step > maxZ) components++;
+                    if (components >= 2) {
+                        if (CompatibilityAPI.getVersion() < 1.13) {
+                            player.getWorld().spawnParticle(Particle.CRIT, x, y, z, 1, 0, 0, 0, 0.0001);
+                        } else {
+                            player.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(color, 0.5f), true);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override

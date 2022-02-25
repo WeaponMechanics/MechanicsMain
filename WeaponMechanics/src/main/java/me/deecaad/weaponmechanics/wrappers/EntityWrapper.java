@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
@@ -199,6 +198,16 @@ public class EntityWrapper {
         // Always false for other entities than players
         // PlayerWrapper actually checks these
         return false;
+    }
+
+    /**
+     * Returns <code>true</code> if the entity is dual wielding
+     * meaning when they have weapons equipped in both hands.
+     *
+     * @return <code>true</code> when the entity is dual wielding.
+     */
+    public boolean isDualWielding() {
+        return getMainHandData().getCurrentWeaponTitle() != null && getOffHandData().getCurrentWeaponTitle() != null;
     }
 
     @Nonnull
