@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -287,9 +288,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
     private double getMagazineProgress(ItemStack weaponStack, String weaponTitle) {
         double progress = (double) getWeaponHandler().getReloadHandler().getAmmoLeft(weaponStack, weaponTitle) / (double) getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size");
-        if (progress > 1.0) progress = 1.0;
-        if (progress < 0.0) progress = 0.0;
-        return progress;
+        return NumberUtil.minMax(0.0, progress, 1.0);
     }
 
     @Override
