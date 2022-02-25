@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.utils.CrackShotConvert;
+package me.deecaad.weaponmechanics.lib.CrackShotConvert;
 
 import com.shampaggon.crackshot.MaterialManager;
 import com.shampaggon.crackshot.SoundManager;
@@ -22,10 +22,8 @@ public class CrackShotConverter {
         if (configuration.get(key + ".Reload.Reload_Amount") != null) {
             if (configuration.get(key + ".Firearm_Action.Type") != null) {
                 outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + "%firearm-state% &7«&6%ammo-left%&7»&6%reload%");
-                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
             } else {
                 outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + " &7«&6%ammo-left%&7»&6%reload%");
-                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
             }
         }
         for (Paths path : Paths.values()) {

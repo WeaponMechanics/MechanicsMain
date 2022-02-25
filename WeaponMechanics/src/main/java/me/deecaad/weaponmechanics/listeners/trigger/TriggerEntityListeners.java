@@ -57,19 +57,12 @@ public class TriggerEntityListeners implements Listener {
         ItemStack offStack = entityEquipment.getItemInOffHand();
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
-        if (mainWeapon == null && offWeapon == null) {
-            entityWrapper.getMainHandData().setCurrentWeaponTitle(null);
-            entityWrapper.getOffHandData().setCurrentWeaponTitle(null);
-            return;
-        }
+        if (mainWeapon == null && offWeapon == null) return;
 
         if (mainWeapon != null) {
             // Cancel melee with weapons by default
             e.setCancelled(true);
         }
-
-        entityWrapper.getMainHandData().setCurrentWeaponTitle(mainWeapon);
-        entityWrapper.getOffHandData().setCurrentWeaponTitle(offWeapon);
 
         // When sweep hit we don't want to do actual melee casts
         if (cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) return;

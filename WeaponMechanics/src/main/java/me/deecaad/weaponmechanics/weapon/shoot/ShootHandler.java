@@ -39,6 +39,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MainHand;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -184,7 +185,7 @@ public class ShootHandler implements IValidator {
 
                     if (entityWrapper instanceof PlayerWrapper) {
                         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, slot);
+                        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
                     }
 
                     if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
@@ -481,7 +482,7 @@ public class ShootHandler implements IValidator {
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, taskReference, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
                 }
 
                 handData.stopFirearmActionTasks();
@@ -500,7 +501,7 @@ public class ShootHandler implements IValidator {
 
             if (entityWrapper instanceof PlayerWrapper) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
             }
 
             if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
@@ -521,7 +522,7 @@ public class ShootHandler implements IValidator {
 
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
@@ -546,7 +547,7 @@ public class ShootHandler implements IValidator {
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, taskReference, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
                 }
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
@@ -604,7 +605,7 @@ public class ShootHandler implements IValidator {
 
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
@@ -693,7 +694,12 @@ public class ShootHandler implements IValidator {
         if (!dualWield) return livingEntity.getEyeLocation();
 
         double dividedWidth = WeaponCompatibilityAPI.getWeaponCompatibility().getWidth(livingEntity) / 2.0;
+
         double distance = mainhand ? 2.0 : 0.0;
+        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getMainHand() == MainHand.LEFT) {
+            // This rarely happens, but some players use main hand LEFT
+            distance = mainhand ? 0.0 : 2.0;
+        }
 
         Location eyeLocation = livingEntity.getEyeLocation();
         double yawToRad = Math.toRadians(eyeLocation.getYaw() + 90 * distance);

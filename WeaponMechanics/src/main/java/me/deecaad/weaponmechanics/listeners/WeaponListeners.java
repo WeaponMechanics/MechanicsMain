@@ -47,17 +47,16 @@ public class WeaponListeners implements Listener {
         String weaponTitle = weaponHandler.getInfoHandler().getWeaponTitle(weaponStack, true);
         boolean alreadyUsedEquipMechanics = false;
 
-        if (e.getSlot() == EquipmentSlot.HAND) {
-            entityWrapper.getMainHandData().setCurrentWeaponTitle(weaponTitle);
-        } else {
-            entityWrapper.getOffHandData().setCurrentWeaponTitle(weaponTitle);
-        }
+        boolean mainhand = e.getSlot() == EquipmentSlot.HAND;
+
+        HandData handData = mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+        handData.setCurrentWeaponTitle(weaponTitle);
 
         if (weaponTitle != null) {
 
             if (e.getEntityType() == EntityType.PLAYER) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, weaponStack, e.getSlot());
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, e.getSlot());
             }
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());
@@ -68,7 +67,6 @@ public class WeaponListeners implements Listener {
                 alreadyUsedEquipMechanics = true;
             }
 
-            HandData handData = e.getSlot() == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
             handData.setLastEquipTime(System.currentTimeMillis());
 
             if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Weapon_Equip_Delay") && e.getEntityType() == EntityType.PLAYER) {

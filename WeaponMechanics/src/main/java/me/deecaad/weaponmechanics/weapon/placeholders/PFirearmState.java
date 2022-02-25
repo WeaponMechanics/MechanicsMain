@@ -4,6 +4,7 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
@@ -19,7 +20,7 @@ public class PFirearmState extends PlaceholderHandler {
 
     @Nullable
     @Override
-    public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle) {
+    public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot) {
         if (itemStack == null || weaponTitle == null) return null;
 
         FirearmAction firearmAction = getConfigurations().getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);

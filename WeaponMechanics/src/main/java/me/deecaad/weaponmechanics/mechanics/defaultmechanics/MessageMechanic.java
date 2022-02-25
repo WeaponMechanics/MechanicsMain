@@ -85,15 +85,15 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (chatData != null) {
-            String chatMessage = PlaceholderAPI.applyPlaceholders(chatData.message, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            String chatMessage = PlaceholderAPI.applyPlaceholders(chatData.message, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders);
             TextComponent chatMessageComponent = new TextComponent(chatMessage);
             if (chatData.clickEventAction != null) {
                 chatMessageComponent.setClickEvent(new ClickEvent(chatData.clickEventAction,
-                        PlaceholderAPI.applyPlaceholders(chatData.clickEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders)));
+                        PlaceholderAPI.applyPlaceholders(chatData.clickEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders)));
             }
             if (chatData.hoverEventValue != null) {
                 Content content = new Text(TextComponent.fromLegacyText(
-                        PlaceholderAPI.applyPlaceholders(chatData.hoverEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders)));
+                        PlaceholderAPI.applyPlaceholders(chatData.hoverEventValue, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders)));
                 chatMessageComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, content));
             }
             player.spigot().sendMessage(ChatMessageType.CHAT, chatMessageComponent);
@@ -101,7 +101,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
         if (actionBar != null) {
 
-            String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders);
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
             if (actionBarTime > 40) {
 
@@ -112,7 +112,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                     @Override
                     public void run() {
 
-                        String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), finalTempPlaceholders);
+                        String actionBarMessage = PlaceholderAPI.applyPlaceholders(actionBar, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, finalTempPlaceholders);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
 
                         ticker += 40;
@@ -125,8 +125,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (titleData != null) {
-            String titleMessage = PlaceholderAPI.applyPlaceholders(titleData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
-            String subtitleMessage = PlaceholderAPI.applyPlaceholders(titleData.subtitle, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            String titleMessage = PlaceholderAPI.applyPlaceholders(titleData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders);
+            String subtitleMessage = PlaceholderAPI.applyPlaceholders(titleData.subtitle, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders);
             if (CompatibilityAPI.getVersion() < 1.11) {
                 player.sendTitle(titleMessage, subtitleMessage);
             } else {
@@ -135,7 +135,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         }
 
         if (bossBarData != null) {
-            String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            String bossBarMessage = PlaceholderAPI.applyPlaceholders(bossBarData.title, player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders);
             BossBar bossBar = Bukkit.createBossBar(bossBarMessage, bossBarData.barColor, bossBarData.barStyle);
             bossBar.addPlayer(player);
             new BukkitRunnable() {

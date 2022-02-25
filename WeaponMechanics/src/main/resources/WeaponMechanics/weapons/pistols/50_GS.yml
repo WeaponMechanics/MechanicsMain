@@ -11,12 +11,9 @@
     Weapon_Info_Display:
       Action_Bar:
         Message: "&6.50 GS &7«&6%ammo-left%&7»&6%reload%"
-        Time: 40
-      Dual_Wield:
-        Main_Hand:
-          Action_Bar_Message: "&6%ammo-left%&7»&6%reload% &6.50 GS"
-        Off_Hand:
-          Action_Bar_Message: "&6.50 GS &6%reload%&7«&6%ammo-left%"
+        Dual_Wield:
+          Main_Hand: "&6%ammo-left%&7»&6%reload% &6.50 GS"
+          Off_Hand: "&6.50 GS &6%reload%&7«&6%ammo-left%"
     Dual_Wield:
       Whitelist: true
       Weapons:
@@ -54,6 +51,7 @@
         Zooming: 50%
         Sneaking: 50%
         In_Midair: 150%
+        Dual_Wielding: 150%
     Recoil:
       Push_Time: 200
       Horizontal:
@@ -91,8 +89,8 @@
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
-    Deny_When:
-      Dual_Wielding: true
+      Deny_When:
+        Dual_Wielding: true
     Zoom_Amount: 5
     Mechanics:
       Sounds:

@@ -5,7 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.file.TaskChain;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
-import me.deecaad.weaponmechanics.utils.CrackShotConvert.Converter;
+import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;

@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.utils.CrackShotConvert;
+package me.deecaad.weaponmechanics.lib.CrackShotConvert;
 
 import me.DeeCaaD.CrackShotPlus.CSPapi;
 import me.deecaad.core.utils.NumberUtil;

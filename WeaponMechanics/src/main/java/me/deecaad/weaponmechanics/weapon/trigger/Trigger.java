@@ -5,7 +5,11 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.MainHand;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -18,16 +22,20 @@ public class Trigger implements Serializer<Trigger> {
     private TriggerType mainhand;
     private TriggerType offhand;
     private Set<String> denyWhen;
+    private TriggerType dualWieldMainHand;
+    private TriggerType dualWieldOffHand;
 
     /**
      * Empty constructor to be used as serializer
      */
     public Trigger() {}
 
-    public Trigger(TriggerType mainhand, TriggerType offhand, Set<String> denyWhen) {
+    public Trigger(TriggerType mainhand, TriggerType offhand, Set<String> denyWhen, TriggerType dualWieldMainHand, TriggerType dualWieldOffHand) {
         this.mainhand = mainhand;
         this.offhand = offhand;
         this.denyWhen = denyWhen;
+        this.dualWieldMainHand = dualWieldMainHand;
+        this.dualWieldOffHand = dualWieldOffHand;
     }
 
     /**
@@ -39,15 +47,41 @@ public class Trigger implements Serializer<Trigger> {
      * @return true if trigger is valid
      */
     public boolean check(TriggerType triggerType, EquipmentSlot slot, EntityWrapper entityWrapper) {
-        if (slot == EquipmentSlot.HAND
-                // Main and off hand are both optional, but only either one is necessary
-                // Thats why this has null checks also
-                // Null should mean that check is NOT valid
-                ? (this.mainhand == null || this.mainhand != triggerType)
-                : (this.offhand == null || this.offhand != triggerType)) {
-            // Not the same trigger type
-            return false;
+        TriggerType typeCheck;
+        boolean isDual = entityWrapper.isDualWielding();
+        LivingEntity livingEntity = entityWrapper.getEntity();
+
+        if (slot == EquipmentSlot.HAND) {
+            if (isDual && dualWieldMainHand != null) {
+                typeCheck = dualWieldMainHand;
+                if (typeCheck.isRightOrLeft() && livingEntity.getType() == EntityType.PLAYER &&((Player) livingEntity).getMainHand() == MainHand.LEFT) {
+                    // Invert if player has inverted main hand...
+                    typeCheck = typeCheck == TriggerType.RIGHT_CLICK ? TriggerType.LEFT_CLICK : TriggerType.RIGHT_CLICK;
+                }
+            } else {
+                typeCheck = mainhand;
+            }
+        } else {
+            if (isDual && dualWieldOffHand != null) {
+                typeCheck = dualWieldOffHand;
+                if (typeCheck.isRightOrLeft() && livingEntity.getType() == EntityType.PLAYER &&((Player) livingEntity).getMainHand() == MainHand.LEFT) {
+                    // Invert if player has inverted main hand...
+                    typeCheck = typeCheck == TriggerType.RIGHT_CLICK ? TriggerType.LEFT_CLICK : TriggerType.RIGHT_CLICK;
+                }
+            } else {
+                typeCheck = offhand;
+            }
         }
+
+        if (typeCheck == null || typeCheck != triggerType) return false;
+
+        return checkDeny(entityWrapper);
+    }
+
+    /**
+     * @return true if valid
+     */
+    public boolean checkDeny(EntityWrapper entityWrapper) {
         if (denyWhenReloading() && (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading())) return false;
         if (denyWhenZooming() && (entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming())) return false;
         if (denyWhenSneaking() && entityWrapper.isSneaking()) return false;
@@ -55,6 +89,7 @@ public class Trigger implements Serializer<Trigger> {
         if (denyWhenWalking() && entityWrapper.isWalking()) return false;
         if (denyWhenSwimming() && entityWrapper.isSwimming()) return false;
         if (denyWhenInMidair() && entityWrapper.isInMidair()) return false;
+        if (denyWhenDualWielding() && entityWrapper.isDualWielding()) return false;
         return !denyWhenGliding() || !entityWrapper.isGliding();
     }
 
@@ -128,6 +163,13 @@ public class Trigger implements Serializer<Trigger> {
         return denyWhen.contains("Gliding");
     }
 
+    /**
+     * @return true if trigger should be cancelled when dual wielding
+     */
+    public boolean denyWhenDualWielding() {
+        return denyWhen.contains("Dual_Wielding");
+    }
+
     @Override
     public String getKeyword() {
         return "Trigger";
@@ -143,8 +185,13 @@ public class Trigger implements Serializer<Trigger> {
             throw data.exception(null, "At least one of Main_Hand or Off_Hand should be used");
         }
 
+        TriggerType dualMain = data.of("Dual_Wield.Main_Hand").getEnum(TriggerType.class, null);
+        TriggerType dualOff = data.of("Dual_Wield.Off_Hand").getEnum(TriggerType.class, null);
+
         if (isDisabled(main)) throw data.exception("Main_Hand", "Tried to use trigger which is disabled in config.yml");
         if (isDisabled(off)) throw data.exception("Off_Hand", "Tried to use trigger which is disabled in config.yml");
+        if (isDisabled(dualMain)) throw data.exception("Dual_Wield.Main_Hand", "Tried to use trigger which is disabled in config.yml");
+        if (isDisabled(dualOff)) throw data.exception("Dual_Wield.Off_Hand", "Tried to use trigger which is disabled in config.yml");
 
         Set<String> denyWhen = new HashSet<>();
         ConfigurationSection denySection = data.config.getConfigurationSection(data.key + ".Deny_When");
@@ -152,7 +199,8 @@ public class Trigger implements Serializer<Trigger> {
             for (String denyName : denySection.getKeys(false)) {
 
                 if (!denyName.equals("Reloading") && !denyName.equals("Zooming") && !denyName.equals("Sneaking") && !denyName.equals("Standing")
-                        && !denyName.equals("Walking") && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")) {
+                        && !denyName.equals("Walking") && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")
+                        && !denyName.equals("Dual_Wielding")) {
 
                     throw data.exception("Deny_When", "Unknown key: " + denyName);
                 }
@@ -163,10 +211,11 @@ public class Trigger implements Serializer<Trigger> {
             }
         }
 
-        return new Trigger(main, off, denyWhen);
+        return new Trigger(main, off, denyWhen, dualMain, dualOff);
     }
 
     private boolean isDisabled(TriggerType trigger) {
+        if (trigger == null) return false;
         switch (trigger) {
             case START_SNEAK:
             case END_SNEAK:

@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.utils.CrackShotConvert;
+package me.deecaad.weaponmechanics.lib.CrackShotConvert;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

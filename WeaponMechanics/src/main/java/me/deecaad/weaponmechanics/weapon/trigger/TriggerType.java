@@ -39,4 +39,8 @@ public enum TriggerType {
     public boolean isSprintType() {
         return this == TriggerType.START_SPRINT || this == TriggerType.END_SPRINT;
     }
+
+    public boolean isRightOrLeft() {
+        return this == RIGHT_CLICK || this == LEFT_CLICK;
+    }
 }

@@ -49,7 +49,7 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
 
         Player player = castData.getCaster() instanceof Player ? (Player) castData.getCaster() : null;
         for (CommandData commandData : commandList) {
-            String command = PlaceholderAPI.applyPlaceholders(commandData.getCommand(), player, castData.getWeaponStack(), castData.getWeaponTitle(), tempPlaceholders);
+            String command = PlaceholderAPI.applyPlaceholders(commandData.getCommand(), player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders);
             if (commandData.isConsole()) {
                 Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
             } else if (player != null) {
