@@ -1,6 +1,7 @@
 package me.deecaad.core.commands;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -21,7 +22,9 @@ public class SuggestionsBuilder {
      * simple, human-readable result.
      *
      * <p>For example, 'DOG', 'HOUSE', 'ALL', and 'GLASS' are all readable, but
-     * 'MyObject@3423', 'MyObject{a=2, b=3, c=4}' are not readable.
+     * 'MyObject@3423', 'MyObject{a=2, b=3, c=4}' are not readable. In general,
+     * suggestions should not include special characters or spaces (See
+     * {@link com.mojang.brigadier.StringReader#isAllowedInUnquotedString(char)}).
      *
      * @param option The non-null option to add to the suggestions list.
      * @return A non-null reference to this (builder-pattern).
@@ -36,8 +39,8 @@ public class SuggestionsBuilder {
         // support nested arrays/lists.
         if (option instanceof Tooltip)
             options.add((Tooltip) option);
-        else if (option instanceof List)
-            with((List<Object>) option);
+        else if (option instanceof Collection)
+            with((Collection<Object>) option);
         else if (option.getClass().isArray())
             with((Object[]) option);
         else
@@ -65,7 +68,7 @@ public class SuggestionsBuilder {
      * @param options The non-null list of options to add.
      * @return A non-null reference to this (builder pattern).
      */
-    public SuggestionsBuilder with(List<Object> options) {
+    public SuggestionsBuilder with(Collection<Object> options) {
         for (Object obj : options)
             with(obj);
 
@@ -102,12 +105,8 @@ public class SuggestionsBuilder {
         };
     }
 
-    // Shorthand functions for common simple usages
+    // Shorthand function for common simple usages
     public static Function<CommandData, Tooltip[]> from(Object... options) {
-        return new SuggestionsBuilder().with(options).build();
-    }
-
-    public static Function<CommandData, Tooltip[]> from(List<Object> options) {
         return new SuggestionsBuilder().with(options).build();
     }
 }

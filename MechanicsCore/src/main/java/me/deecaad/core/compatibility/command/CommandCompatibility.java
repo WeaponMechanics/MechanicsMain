@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import org.apache.commons.lang.math.DoubleRange;
@@ -118,9 +119,13 @@ public interface CommandCompatibility {
 
     ArgumentType<?> uuid();
 
-    ArgumentType<?> vec2();
+    ArgumentType<?> location();
 
-    ArgumentType<?> vec3();
+    ArgumentType<?> location2();
+
+    ArgumentType<?> block();
+
+    ArgumentType<?> block2();
 
     // * ----- Parsing Argument Types ----- * //
 
@@ -162,13 +167,13 @@ public interface CommandCompatibility {
 
     String getKeyedAsString(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
-    Location2d getLocation2DBlock(CommandContext<Object> context, String key)
+    Column getLocation2DBlock(CommandContext<Object> context, String key)
             throws CommandSyntaxException;
 
     Location2d getLocation2DPrecise(CommandContext<Object> context, String key)
             throws CommandSyntaxException;
 
-    Location getLocationBlock(CommandContext<Object> context, String str) throws CommandSyntaxException;
+    Block getLocationBlock(CommandContext<Object> context, String str) throws CommandSyntaxException;
 
     Location getLocationPrecise(CommandContext<Object> context, String str)
             throws CommandSyntaxException;
