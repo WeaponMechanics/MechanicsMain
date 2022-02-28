@@ -8,6 +8,7 @@ import me.deecaad.core.commands.Argument;
 import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.commands.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.UpdateChecker;
@@ -35,10 +36,12 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -79,16 +82,17 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.give")
                         .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()))
-                        .withArgument(new Argument<>("weapon", new StringArgumentType(true))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType())
                                 .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
+                        .withArgument(new Argument<>("data", new NBTArgumentType(), null))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
                 .withSubCommand(new CommandBuilder("get")
                         .withPermission("weaponmechanics.commands.get")
                         .withDescription("Gives you the requested weapon(s)")
-                        .withArgument(new Argument<>("weapon", new StringArgumentType(true))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType())
                                 .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
@@ -166,9 +170,10 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("entity", new EntityTypeArgumentType()))
                         .withArgument(new Argument<>("location", new LocationArgumentType()))
                         .withArgument(new Argument<>("move", new StringArgumentType()).append(SuggestionsBuilder.from("none", "spin", "flash", "x", "y", "z")))
-                        .withArgument(new Argument<>("time", new TimeArgumentType()))
-                        .withArgument(new Argument<>("gravity", new BooleanArgumentType()))
-                        .withArgument(new Argument<>("name", )));
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 600))
+                        .withArgument(new Argument<>("gravity", new BooleanArgumentType(), true))
+                        .withArgument(new Argument<>("name", new GreedyArgumentType(), null))
+                        .executes(CommandExecutor.player((sender, args) -> spawn(sender, (Location) args[1], (EntityType) args[0], (String) args[2], (int) args[3], (boolean) args[4], (String) args[5]))));
 
         command.withSubCommand(test);
         command.register();
@@ -417,5 +422,54 @@ public class WeaponMechanicsCommand {
                 explosion.explode(cause, origin, null);
             }
         }.runTaskLater(WeaponMechanics.getPlugin(), 100);
+    }
+
+    public static void spawn(Player player, Location location, EntityType type, String moveType, int time, boolean gravity, String name) {
+        FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, type == EntityType.DROPPED_ITEM ? new ItemStack(Material.STONE_AXE) : null);
+        entity.setGravity(gravity);
+        entity.setDisplay(name);
+        entity.show(player);
+        entity.setMotion(0, 0, 0);
+
+        new BukkitRunnable() {
+
+            // Some temp vars for the different move types
+            int ticksAlive = 0;
+            boolean flash = true;
+
+            @Override
+            public void run() {
+                if (ticksAlive++ >= time) {
+                    entity.remove();
+                    cancel();
+                    return;
+                }
+
+                switch (moveType) {
+                    case "spin":
+                        entity.setRotation(entity.getYaw() + 5.0f, entity.getYaw() / 2.0f);
+                        break;
+                    case "flash":
+                        if (ticksAlive % 10 == 0) {
+                            flash = !flash;
+                            entity.setGlowing(flash);
+                            entity.updateMeta();
+                        }
+                        break;
+                    case "y":
+                        //entity.setMotion(0, 0.08, 0);
+                        entity.setPosition(entity.getX(), entity.getY() + 0.1, entity.getZ());
+                        break;
+                    case "x":
+                        //entity.setMotion(0.08, 0, 0);
+                        entity.setPosition(entity.getX() + 0.1, entity.getY(), entity.getZ());
+                        break;
+                    case "z":
+                        //entity.setMotion(0.08, 0, 0);
+                        entity.setPosition(entity.getX(), entity.getY(), entity.getZ() + 0.1);
+                        break;
+                }
+            }
+        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
     }
 }
