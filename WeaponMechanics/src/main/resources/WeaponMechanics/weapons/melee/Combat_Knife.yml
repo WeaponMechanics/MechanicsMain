@@ -7,7 +7,7 @@ Combat_Knife:
       Hide_Flags: true
       Attributes:
         - "GENERIC_MOVEMENT_SPEED-0.004"
-        - "GENERIC_ATTACK_SPEED--1"
+        - "GENERIC_ATTACK_SPEED--3"
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
       Sounds:

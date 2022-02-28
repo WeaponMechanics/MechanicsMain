@@ -1,11 +1,15 @@
-package me.deecaad.weaponmechanics.utils.CrackShotConvert;
+package me.deecaad.weaponmechanics.lib.CrackShotConvert;
 
+import com.shampaggon.crackshot.MaterialManager;
+import com.shampaggon.crackshot.SoundManager;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,56 +17,17 @@ import java.util.function.Function;
 
 public class CrackShotConverter {
 
-    public void convertAllFiles(File outputDirectory) {
-        File crackShotDirectory = new File("plugins/CrackShot/weapons");
-        if (crackShotDirectory == null || crackShotDirectory.listFiles() == null) {
-            throw new IllegalArgumentException("Did not find CrackShot weapons directory or it was empty!");
-        }
-        convertAllFiles(crackShotDirectory, outputDirectory);
-    }
+    public void convertOneKey(YamlConfiguration configuration, String key, YamlConfiguration outputConfiguration) {
 
-    public void convertAllFiles(File directory, File outputDirectory) {
-        if (directory == null || directory.listFiles() == null) {
-            throw new IllegalArgumentException("The given file MUST be a directory!");
-        }
-
-        for (File directoryFile : directory.listFiles()) {
-            if (directoryFile.isDirectory()) {
-                convertAllFiles(directory, outputDirectory);
-            } else if (directoryFile.getName().endsWith(".yml")) {
-                convertOneFile(directoryFile, outputDirectory);
+        if (configuration.get(key + ".Reload.Reload_Amount") != null) {
+            if (configuration.get(key + ".Firearm_Action.Type") != null) {
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + "%firearm-state% &7«&6%ammo-left%&7»&6%reload%");
+            } else {
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + " &7«&6%ammo-left%&7»&6%reload%");
             }
         }
-    }
-
-    public void convertOneFile(File file, File outputDirectory) {
-        YamlConfiguration outputConfiguration = new YamlConfiguration();
-
-        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-        for (String key : configuration.getKeys(false)) {
-
-            if (configuration.get(key + ".Reload.Reload_Amount") != null) {
-
-                if (configuration.get(key + ".Firearm_Action.Type") != null) {
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + "%firearm-state% &7«&6%ammo-left%&7»&6%reload%");
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
-                } else {
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + " &7«&6%ammo-left%&7»&6%reload%");
-                    outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Time", 40);
-                }
-
-            }
-
-            for (Paths path : Paths.values()) {
-                path.convert(key + "." + path.from, key + "." + path.to, configuration, outputConfiguration);
-            }
-        }
-
-        String pathInOutput = outputDirectory.getPath() + "/" + file.getName();
-        try {
-            outputConfiguration.save(new File(pathInOutput));
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (Paths path : Paths.values()) {
+            path.convert(key + "." + path.from, key + "." + path.to, configuration, outputConfiguration);
         }
     }
 
@@ -70,13 +35,13 @@ public class CrackShotConverter {
 
         // ITEM INFORMATION
         WEAPON_NAME("Item_Information.Item_Name", "Info.Weapon_Item.Name"),
-        WEAPON_TYPE("Item_Information.Item_Type", "Info.Weapon_Item.Type"),
+        WEAPON_TYPE("Item_Information.Item_Type", "Info.Weapon_Item.Type", new MaterialConvert()),
         WEAPON_LORE("Item_Information.Item_Lore", "Info.Weapon_Item.Lore", new LoreConvert()),
         SKIP_NAME_CHECK("Item_Information.Skip_Name_Check", "Info.Weapon_Converter_Check.Type"),
         SOUNDS_ACQUIRED("Item_Information.Sounds_Acquired", "Info.Weapon_Get_Mechanics.Sounds", new SoundConvert()),
         MELEE_MODE("Item_Information.Melee_Mode", "Melee.Enable_Melee"),
         MELEE_ATTACHMENT("Item_Information.Melee_Attachment", "Melee.Melee_Attachment"),
-        MELEE_HIT_DELAY("", "Melee.Melee_Hit_Delay", new MeleeHitDelayConverter()),
+        MELEE_HIT_DELAY("", "Melee.Melee_Hit_Delay", new MeleeHitDelayConvert()),
 
         // SHOOTING
         RIGHT_CLICK_TO_SHOOT("Shooting.Right_Click_To_Shoot", "Shoot.Trigger.Main_Hand", new ValueBooleanConvert("right_click", "left_click")),
@@ -87,11 +52,12 @@ public class CrackShotConverter {
         REMOVE_BULLET_DROP("Shooting.Remove_Bullet_Drop", "Projectile.Projectile_Settings.Gravity", new ValueBooleanConvert(0.0, null)),
         PROJECTILE_SPEED("Shooting.Projectile_Speed", "Shoot.Projectile_Speed", new ValueDoubleConvert(x -> x * 2)),
         PROJECTILE_DAMAGE("Shooting.Projectile_Damage", "Damage.Base_Damage", new ValueNonZeroConvert()),
+        PROJECTILE_DAMAGE_ARMOR("Shooting.Projectile_Damage", "Damage.Armor_Damage", new ValueDoubleConvert(x -> 3.0)),
         PROJECTILE_INCENDIARY("Shooting.Projectile_Incendiary.Duration", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         BULLET_SPREAD("Shooting.Bullet_Spread", "Shoot.Spread.Base_Spread", new ValueDoubleConvert(x -> x * 10)),
         SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics.Sounds", new SoundConvert()),
         SOUNDS_SHOOT("Shooting.Sounds_Shoot", "Shoot.Mechanics.Sounds", new SoundConvert()),
-        REMOVAL_OR_DRAG_DELAY(".Shooting.Removal_Or_Drag_Delay", ".Projectile.Projectile_Settings.Maximum_Alive_Ticks", new RemovalOrDragDelayConverter()),
+        REMOVAL_OR_DRAG_DELAY("Shooting.Removal_Or_Drag_Delay", "Projectile.Projectile_Settings.Maximum_Alive_Ticks", new RemovalOrDragDelayConvert()),
 
         // SNEAK
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
@@ -107,7 +73,7 @@ public class CrackShotConverter {
 
         // AMMO
         AMMO("Ammo.", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo", new AmmoConverter()),
-        AMMO_ITEM("Ammo.Ammo_Item_ID", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo.Bullet_Item.Type"),
+        AMMO_ITEM("Ammo.Ammo_Item_ID", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo.Bullet_Item.Type", new MaterialConvert()),
         AMMO_NAME_CHECK("Ammo.Ammo_Name_Check", "Reload.Ammo.Ammo_Types.1_Ammo_Type.Item_Ammo.Bullet_Item.Name"),
         SOUNDS_OUT_OF_AMMO("Ammo.Sounds_Out_Of_Ammo", "Reload.Ammo.Out_Of_Ammo.Sounds", new SoundConvert()),
         SOUNDS_SHOOT_WITH_NO_AMMO("Ammo.Sounds_Shoot_With_No_Ammo", "Reload.Ammo.Out_Of_Ammo.Sounds", new SoundConvert()),
@@ -143,21 +109,23 @@ public class CrackShotConverter {
 
         // ABILITIES
         KNOCKBACK("Abilities.Knockback", "Damage.Victim_Mechanics.Movement.", new KnockbackConvert()),
-        NO_VERTICAL_RECOIL("Abilities.No_Vertical_Recoil", "Shoot.Mechanics.Movement.Vertical_Speed", new ValueBooleanConvert(0, null)),
+        NO_VERTICAL_RECOIL("", "Shoot.Mechanics.Movement.Vertical_Speed", new NoVerticalRecoilConvert()),
+
+        // RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
 
         // POTION_EFFECTS
         POTION_EFFECTS("Potion_Effects.", "", new PotionEffectsConvert()),
 
         // FIREWORKS
-        FIREWORK_PLAYER_SHOOT("Fireworks.Firework_Player_Shoot", "Shoot.Mechanics.Firework.Item.", new FireworkConverter()),
-        FIREWORK_EXPLODE("Fireworks.Firework_Explode", "Explosion.Mechanics.Firework.Item.", new FireworkConverter()),
-        FIREWORK_HIT("Fireworks.Firework_Hit", "Damage.Victim_Mechanics.Firework.Item.", new FireworkConverter()),
-        FIREWORK_HEADSHOT("Fireworks.Firework_Headshot", "Damage.Head.Victim_Mechanics.Firework.Item.", new FireworkConverter()),
-        FIREWORK_CRITICAL("Fireworks.Firework_Critical", "Damage.Critical_Hit.Victim_Mechanics.Firework.Item.", new FireworkConverter()),
-        FIREWORK_BACKSTAB("Fireworks.Firework_Backstab", "Damage.Backstab.Victim_Mechanics.Firework.Item.", new FireworkConverter()),
+        FIREWORK_PLAYER_SHOOT("Fireworks.Firework_Player_Shoot", "Shoot.Mechanics.Firework.Item.", new FireworkConvert()),
+        FIREWORK_EXPLODE("Fireworks.Firework_Explode", "Explosion.Mechanics.Firework.Item.", new FireworkConvert()),
+        FIREWORK_HIT("Fireworks.Firework_Hit", "Damage.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
+        FIREWORK_HEADSHOT("Fireworks.Firework_Headshot", "Damage.Head.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
+        FIREWORK_CRITICAL("Fireworks.Firework_Critical", "Damage.Critical_Hit.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
+        FIREWORK_BACKSTAB("Fireworks.Firework_Backstab", "Damage.Backstab.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
 
         // SCOPE
-        SCOPE_TRIGGER("", "Scope.Trigger.Main_Hand", new ScopeConverter()),
+        SCOPE_TRIGGER("", "Scope.Trigger.Main_Hand", new ScopeConvert()),
         NIGHT_VISION("Scope.Night_Vision", "Scope.Night_Vision"),
         ZOOM_AMOUNT("Scope.Zoom_Amount", "Scope.Zoom_Amount", new ValueDoubleConvert(x -> (double) ((int) NumberUtil.lerp(1, 32, ((x > 6 ? 6 : x) / 6))))),
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
@@ -179,7 +147,7 @@ public class CrackShotConverter {
         CRIT_SOUNDS_VICTIM("Critical_Hits.Sounds_Victim", "Damage.Critical_Hit.Victim_Mechanics.Sounds", new SoundConvert()),
 
         // AIRSTRIKES
-        AIRSTRIKE("Airstrikes.", "Explosion.", new AirstrikeConverter()),
+        AIRSTRIKE("Airstrikes.", "Explosion.", new AirstrikeConvert()),
         AREA("Airstrikes.Area", "Explosion.Airstrike.Maximum_Distance_From_Center", new ValueDoubleConvert(x -> x * x * 2)),
         MINIMUM_BOMBS("Airstrikes.Area", "Explosion.Airstrike.Minimum_Bombs", new ValueDoubleConvert(x -> x * 2)),
         MAXIMUM_BOMBS("Airstrikes.Area", "Explosion.Airstrike.Maximum_Bombs", new ValueDoubleConvert(x -> x * 2)),
@@ -190,13 +158,13 @@ public class CrackShotConverter {
         DELAY_BETWEEN_STRIKES("Airstrikes.Multiple_Strikes.Delay_Between_Strikes", "Explosion.Airstrike.Delay_Between_Layers", new ValueNonZeroConvert()),
 
         // CLUSTER_BOMBS
-        CLUSTER_BOMB("Cluster_Bombs.", "Explosion.", new ClusterBombConverter()),
+        CLUSTER_BOMB("Cluster_Bombs.", "Explosion.", new ClusterBombConvert()),
         NUMBER_OF_SPLITS("Cluster_Bombs.Number_Of_Splits", "Explosion.Cluster_Bomb.Number_Of_Splits", new ValueNonZeroConvert()),
         NUMBER_OF_BOMBLETS("Cluster_Bombs.Number_Of_Bomblets", "Explosion.Cluster_Bomb.Number_Of_Bombs", new ValueNonZeroConvert()),
         SPEED_OF_BOMBLETS("Cluster_Bombs.Speed_Of_Bomblets", "Explosion.Cluster_Bomb.Projectile_Speed", new ValueDoubleConvert(x -> x * 2)),
 
         // EXPLOSIONS
-        EXPLOSIONS("Explosions.", "Explosion.", new ExplosionConverter()),
+        EXPLOSIONS("Explosions.", "Explosion.", new ExplosionConvert()),
         IGNITE_VICTIMS("Explosions.Ignite_Victims", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         ENABLE_FRIENDLY_FIRE("Explosions.Enable_Friendly_Fire", "Damage.Enable_Friendly_Fire"),
         ENABLE_OWNER_IMMUNITY("Explosions.Enable_Owner_Immunity", "Damage.Enable_Owner_Immunity"),
@@ -340,6 +308,20 @@ public class CrackShotConverter {
         }
     }
 
+    private static class MaterialConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String value = fromConfig.getString(from);
+            if (value == null) return;
+
+            String material = getMaterial(value);
+            if (material == null) return;
+
+            toConfig.set(to, material);
+        }
+    }
+
     private static class SoundConvert implements Converter {
 
         @Override
@@ -347,7 +329,63 @@ public class CrackShotConverter {
             String value = fromConfig.getString(from);
             if (value == null) return;
 
-            toConfig.set(to, Arrays.asList(value.replaceFirst("0", "1").replaceAll(" ", "").split(",")));
+            // SOUND-VOLUME-PITCH-DELAY
+
+            List<String> sounds = new ArrayList<>();
+            for (String sound : value.replaceAll(" ", "").split(",")) {
+                String[] splitted = sound.split("-");
+
+                if (sound.isEmpty()) {
+                    continue;
+                }
+
+                String soundName;
+                try {
+                    soundName = SoundManager.get(splitted[0]).name();
+                } catch (Exception e) {
+                    soundName = StringUtil.didYouMean(splitted[0], EnumUtil.getOptions(Sound.class));
+                    WeaponMechanics.debug.error("Invalid sound: " + splitted[0] + " swapped to: " + soundName);
+                }
+                String volume = "1";
+                if (splitted.length > 1) {
+                    volume = splitted[1];
+                    try {
+                        if (Double.parseDouble(volume) <= 0.05) {
+                            volume = "1";
+                        }
+                    } catch (NumberFormatException e) {
+                        volume = "1";
+                    }
+                }
+                String pitch = "1";
+                if (splitted.length > 2) {
+                    pitch = splitted[2];
+                    try {
+                        if (Double.parseDouble(pitch) <= 0.5) {
+                            pitch = "0.5";
+                        }
+                    } catch (NumberFormatException e) {
+                        pitch = "1";
+                    }
+                }
+                String delay = "";
+                if (splitted.length > 3) {
+                    delay = splitted[3];
+                    try {
+                        if (Integer.parseInt(delay) < 1) {
+                            delay = "";
+                        } else {
+                            delay = "-" + splitted[3];
+                        }
+                    } catch (NumberFormatException e) {
+                        delay = "";
+                    }
+                }
+
+                sounds.add(soundName + "-" + volume + "-" + pitch + delay);
+            }
+
+            toConfig.set(to, sounds);
         }
     }
 
@@ -414,8 +452,15 @@ public class CrackShotConverter {
 
             if (type.equalsIgnoreCase("grenade") || type.equalsIgnoreCase("flare")) {
 
+                String material = getMaterial(fromConfig.getString(from + "Projectile_Subtype"));
+                if (material == null) {
+                    WeaponMechanics.debug.error("Type " + type + " didn't have Projectile_Subtype... " + from);
+                    return;
+                }
+
                 toConfig.set(to + "Projectile.Projectile_Settings.Type", "DROPPED_ITEM");
-                toConfig.set(to + "Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", fromConfig.getString(from + "Projectile_Subtype"));
+
+                toConfig.set(to + "Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", material);
                 toConfig.set(to + "Projectile.Projectile_Settings.Disable_Entity_Collisions", true);
 
                 toConfig.set(to + "Projectile.Bouncy.Blocks.Allow_Any", true);
@@ -521,15 +566,15 @@ public class CrackShotConverter {
         }
     }
 
-    private static class FireworkConverter implements Converter {
+    private static class FireworkConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String fireworks = fromConfig.getString(from);
             if (fireworks == null) return;
 
-            fromConfig.set(to + "Type", "firework_rocket");
-            fromConfig.set(to + "Firework.Power", 1);
+            toConfig.set(to + "Type", "firework_rocket");
+            toConfig.set(to + "Firework.Power", 1);
 
             List<String> values = new ArrayList<>();
 
@@ -544,7 +589,7 @@ public class CrackShotConverter {
         }
     }
 
-    private static class AirstrikeConverter implements Converter {
+    private static class AirstrikeConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -563,14 +608,20 @@ public class CrackShotConverter {
 
             String blockType = fromConfig.getString(from + "Block_Type");
             if (blockType != null) {
+                String material = getMaterial(blockType);
+                if (material == null) {
+                    WeaponMechanics.debug.error("Block_Type was invalid... " + from);
+                    return;
+                }
+
                 toConfig.set(to + "Airstrike.Dropped_Projectile.Projectile_Settings.Type", "FALLING_BLOCK");
-                toConfig.set(to + "Airstrike.Dropped_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", blockType);
+                toConfig.set(to + "Airstrike.Dropped_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", material);
                 toConfig.set(to + "Airstrike.Dropped_Projectile.Disable_Entity_Collisions", true);
             }
         }
     }
 
-    private static class ClusterBombConverter implements Converter {
+    private static class ClusterBombConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -596,8 +647,14 @@ public class CrackShotConverter {
 
             String bombletType = fromConfig.getString(from + "Bomblet_Type");
             if (bombletType != null) {
+                String material = getMaterial(bombletType);
+                if (material == null) {
+                    WeaponMechanics.debug.error("Bomblet_Type was invalid... " + from);
+                    return;
+                }
+
                 toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Type", "DROPPED_ITEM");
-                toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", bombletType);
+                toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Projectile_Item_Or_Block.Type", material);
                 toConfig.set(to + "Cluster_Bomb.Split_Projectile.Projectile_Settings.Disable_Entity_Collisions", true);
 
                 toConfig.set(to + "Cluster_Bomb.Split_Projectile.Bouncy.Blocks.Allow_Any", true);
@@ -611,7 +668,7 @@ public class CrackShotConverter {
         }
     }
 
-    private static class ExplosionConverter implements Converter {
+    private static class ExplosionConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -678,7 +735,7 @@ public class CrackShotConverter {
         }
     }
 
-    private static class ScopeConverter implements Converter {
+    private static class ScopeConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -693,7 +750,7 @@ public class CrackShotConverter {
         }
     }
 
-    private static class MeleeHitDelayConverter implements Converter {
+    private static class MeleeHitDelayConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -708,7 +765,7 @@ public class CrackShotConverter {
         }
     }
 
-    private static class RemovalOrDragDelayConverter implements Converter {
+    private static class RemovalOrDragDelayConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -725,7 +782,34 @@ public class CrackShotConverter {
                 return;
             }
 
-            toConfig.set(to, split[0]);
+            toConfig.set(to, Integer.parseInt(split[0]));
         }
+    }
+
+    private static class NoVerticalRecoilConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean("Abilities.No_Vertical_Recoil")) {
+                toConfig.set(to, 0);
+            }
+        }
+    }
+
+    private static String getMaterial(String type) {
+        if (type == null) return null;
+
+        try {
+            Material material = MaterialManager.getMaterial(type);
+            if (material != null) return material.name();
+        } catch (Exception e) {
+            String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
+            WeaponMechanics.debug.error("Invalid sound: " + type + " swapped to: " + materialName);
+            return materialName;
+        }
+
+        String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
+        WeaponMechanics.debug.error("Invalid sound: " + type + " swapped to: " + materialName);
+        return materialName;
     }
 }

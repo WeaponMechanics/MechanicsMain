@@ -2,15 +2,31 @@ package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.CommandBuilder;
+import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
 import me.deecaad.core.commands.Argument;
-import me.deecaad.core.commands.arguments.EntityListArgumentType;
-import me.deecaad.core.commands.arguments.IntegerArgumentType;
-import me.deecaad.core.commands.arguments.StringArgumentType;
+import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.commands.CommandExecutor;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
+import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
+import me.deecaad.weaponmechanics.weapon.explode.Explosion;
+import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
+import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;
+import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
+import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -19,20 +35,27 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -51,43 +74,108 @@ public class WeaponMechanicsCommand {
     public static void build() {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 
-        CommandBuilder command = new CommandBuilder("wm")
-                .withAliases("weaponmechanics", "weapon")
-                .withPermission("weaponmechanics.command")
+        CommandBuilder command = new CommandBuilder("weaponmechanics")
+                .withAliases("wm")
+                .withPermission("weaponmechanics.admin")
+                .withDescription("WeaponMechanics' main command")
                 .withSubCommand(new CommandBuilder("give")
-                        .withPermission("weaponmechanics.command.give")
+                        .withPermission("weaponmechanics.commands.give")
+                        .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()))
                         .withArgument(new Argument<>("weapon", new StringArgumentType())
                                 .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
-                                .append(data -> Stream.of(1, 16, 32, 64).map(Tooltip::of).toArray(Tooltip[]::new)))
+                                .append(SuggestionsBuilder.from(1, 16, 32, 64)))
+                        .withArgument(new Argument<>("data", new NBTArgumentType(), null))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
                 .withSubCommand(new CommandBuilder("get")
-                        .withPermission("weaponmechanics.command.get")
+                        .withPermission("weaponmechanics.commands.get")
+                        .withDescription("Gives you the requested weapon(s)")
                         .withArgument(new Argument<>("weapon", new StringArgumentType())
                                 .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
-                                .append(data -> Stream.of(1, 16, 32, 64).map(Tooltip::of).toArray(Tooltip[]::new)))
+                                .append(SuggestionsBuilder.from(1, 16, 32, 64)))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
 
                 .withSubCommand(new CommandBuilder("info")
-                        .withPermission("weaponmechanics.command.info")
+                        .withPermission("weaponmechanics.commands.info")
+                        .withDescription("Displays version/debug information about WeaponMechanics and your server")
                         .executes(CommandExecutor.any((sender, args) -> info(sender))))
 
                 .withSubCommand(new CommandBuilder("list")
-                        .withPermission("weaponmechanics.command.list")
+                        .withPermission("weaponmechanics.commands.list")
+                        .withDescription("Lists a table of weapons loaded by WeaponMechanics")
                         .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1)
                                 .append(data -> IntStream.range(1, 1 + info.getSortedWeaponList().size() / 16).mapToObj(Tooltip::of).toArray(Tooltip[]::new))))
 
                 .withSubCommand(new CommandBuilder("wiki")
-                        .withPermission("weaponmechanics.command.wiki")
+                        .withPermission("weaponmechanics.commands.wiki")
+                        .withDescription("Shows useful (clickable) links to specific useful areas on the wiki")
                         .executes(CommandExecutor.any((sender, args) -> wiki(sender))))
 
                 .withSubCommand(new CommandBuilder("reload")
-                        .withPermission("weaponmechanics.command.reload")
+                        .withPermission("weaponmechanics.commands.reload")
+                        .withDescription("Reloads WeaponMechanics' weapon configuration without restarting the server")
                         .executes(CommandExecutor.any((sender, args) -> WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(ChatColor.GREEN + "Reloaded configuration")))));
 
+
+        // Explosion subcommands *mostly* share the same arguments, so we store
+        // them in an array to avoid repetitive code.
+        Argument<?>[] explosionArgs = new Argument<?>[]{
+                new Argument<>("location", new LocationArgumentType()),
+                new Argument<>("exposure", new StringArgumentType(), "DEFAULT").replace(SuggestionsBuilder.from(ExposureFactory.getInstance().getOptions())),
+                new Argument<>("break", new BooleanArgumentType(), true),
+                new Argument<>("blacklist", new BlockPredicateType(), block -> true),
+                new Argument<>("regeneration", new TimeArgumentType(), 200) // 20 minutes max
+        };
+
+        CommandBuilder test = new CommandBuilder("test")
+                .withPermission("weaponmechanics.commands.test")
+                .withDescription("Contains useful commands for developers and testing and debugging")
+                .withSubCommand(new CommandBuilder("nbt")
+                        .withPermission("weaponmechanics.commands.test.nbt")
+                        .withDescription("Shows every NBT tag for the target's held item")
+                        .withArgument(new Argument<>("target", new PlayerArgumentType(), null))
+                        .executes(CommandExecutor.any((sender, args) -> nbt(sender, (Entity) args[0]))))
+
+                .withSubCommand(new CommandBuilder("explosion")
+                        .withPermission("weaponmechanics.commands.test.explosion")
+                        .withRequirements(LivingEntity.class::isInstance)
+                        .withDescription("Spawns in an explosion that regenerates")
+                        .withSubCommand(new CommandBuilder("sphere")
+                                .withArgument(new Argument<>("radius", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                                .withArguments(explosionArgs)
+                                .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new SphericalExplosion((double) args[0]), (Location) args[1], args[2].toString(), (boolean) args[3], (Predicate<Block>) args[4], (int) args[5]))))
+                        .withSubCommand(new CommandBuilder("cube")
+                                .withArgument(new Argument<>("width", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                                .withArgument(new Argument<>("height", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                                .withArguments(explosionArgs)
+                                .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new CuboidExplosion((double) args[0], (double) args[1]), (Location) args[2], args[3].toString(), (boolean) args[4], (Predicate<Block>) args[5], (int) args[6]))))
+                        .withSubCommand(new CommandBuilder("parabola")
+                                .withArgument(new Argument<>("angle", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(0, 0.25, 0.5, 0.75, 1.0)))
+                                .withArgument(new Argument<>("depth", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                                .withArguments(explosionArgs)
+                                .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new ParabolicExplosion((double) args[0], (double) args[1]), (Location) args[2], args[3].toString(), (boolean) args[4], (Predicate<Block>) args[5], (int) args[6]))))
+                        .withSubCommand(new CommandBuilder("vanilla")
+                                .withArgument(new Argument<>("yield", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(0, 0.25, 0.5, 0.75, 1.0)))
+                                .withArgument(new Argument<>("depth", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                                .withArguments(explosionArgs)
+                                .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new DefaultExplosion((double) args[0]), (Location) args[1], args[2].toString(), (boolean) args[3], (Predicate<Block>) args[4], (int) args[5])))))
+
+                .withSubCommand(new CommandBuilder("fakeentity")
+                        .withPermission("weaponmechanics.commands.test.fakeentity")
+                        .withRequirements(LivingEntity.class::isInstance)
+                        .withDescription("Spawns in a fake entity")
+                        .withArgument(new Argument<>("entity", new EntityTypeArgumentType()))
+                        .withArgument(new Argument<>("location", new LocationArgumentType()))
+                        .withArgument(new Argument<>("move", new StringArgumentType()).append(SuggestionsBuilder.from("none", "spin", "flash", "x", "y", "z")))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 600))
+                        .withArgument(new Argument<>("gravity", new BooleanArgumentType(), true))
+                        .withArgument(new Argument<>("name", new GreedyArgumentType(), null))
+                        .executes(CommandExecutor.player((sender, args) -> spawn(sender, (Location) args[1], (EntityType) args[0], (String) args[2], (int) args[3], (boolean) args[4], (String) args[5]))));
+
+        command.withSubCommand(test);
         command.register();
     }
 
@@ -255,6 +343,7 @@ public class WeaponMechanicsCommand {
                 .append("Click to go to Wiki.").color(net.md_5.bungee.api.ChatColor.GRAY).italic(true)
                 .create();
 
+        // We cannot add any more lines than this since 
         builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Information", hover)).append("\n");
         builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Skins", hover)).append("\n");
         builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Projectile", hover)).append("\n");
@@ -275,5 +364,112 @@ public class WeaponMechanicsCommand {
         component.setClickEvent(new ClickEvent(OPEN_URL, WIKI + "/" + name));
         component.setHoverEvent(new HoverEvent(SHOW_TEXT, hover));
         return component;
+    }
+
+    public static void nbt(CommandSender sender, Entity target) {
+        LivingEntity entity;
+
+        // When target is null, the command sender should be used as the target
+        if (target == null) {
+            if (sender instanceof LivingEntity) {
+                target = (LivingEntity) sender;
+            } else {
+                sender.sendMessage(RED + "NBT is an Entity only command!");
+                return;
+            }
+        }
+
+        if (target instanceof LivingEntity) {
+            entity = (LivingEntity) target;
+        } else {
+            sender.sendMessage(RED + "Target must be a creature, player, or armor stand! Got: " + target.getType());
+            return;
+        }
+
+        if (entity.getEquipment() == null) {
+            sender.sendMessage(RED + entity.getName() + " did not have any equipment");
+            return;
+        }
+
+        ItemStack item = entity.getEquipment().getItemInMainHand();
+        if (!item.hasItemMeta()) {
+            sender.sendMessage(RED + entity.getName() + "'s " + item.getType() + " did not have any NBT data.");
+            return;
+        }
+
+        String tags = CompatibilityAPI.getNBTCompatibility().getNBTDebug(item);
+        WeaponMechanics.debug.debug(tags);
+        sender.sendMessage(StringUtil.color(tags));
+    }
+
+    public static void explode(LivingEntity cause, ExplosionShape shape, Location origin, String exposureString, boolean isBreakBlocks, Predicate<Block> blackList, int regen) {
+        cause.sendMessage(GREEN + "Spawning explosion in 5 seconds");
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                RegenerationData regeneration = new RegenerationData(regen, Math.max(0, (int) shape.getArea() / 100), 1);
+                BlockDamage blockDamage = new BlockDamage(isBreakBlocks, 1, 1, true, 0.0, new HashMap<>(), new HashMap<>()) {
+                    @Override
+                    public boolean isBlacklisted(Block block) {
+                        return blackList.test(block);
+                    }
+                };
+
+                ExplosionExposure exposure = ReflectionUtil.newInstance(ExposureFactory.getInstance().getMap().get(exposureString));
+                Explosion explosion = new Explosion(shape, exposure, blockDamage, regeneration, null, 0.0, true,
+                        null, null, new Flashbang(10.0, null), null);
+                explosion.explode(cause, origin, null);
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), 100);
+    }
+
+    public static void spawn(Player player, Location location, EntityType type, String moveType, int time, boolean gravity, String name) {
+        FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, type, type == EntityType.DROPPED_ITEM ? new ItemStack(Material.STONE_AXE) : null);
+        entity.setGravity(gravity);
+        entity.setDisplay(name);
+        entity.show(player);
+        entity.setMotion(0, 0, 0);
+
+        new BukkitRunnable() {
+
+            // Some temp vars for the different move types
+            int ticksAlive = 0;
+            boolean flash = true;
+
+            @Override
+            public void run() {
+                if (ticksAlive++ >= time) {
+                    entity.remove();
+                    cancel();
+                    return;
+                }
+
+                switch (moveType) {
+                    case "spin":
+                        entity.setRotation(entity.getYaw() + 5.0f, entity.getYaw() / 2.0f);
+                        break;
+                    case "flash":
+                        if (ticksAlive % 10 == 0) {
+                            flash = !flash;
+                            entity.setGlowing(flash);
+                            entity.updateMeta();
+                        }
+                        break;
+                    case "y":
+                        //entity.setMotion(0, 0.08, 0);
+                        entity.setPosition(entity.getX(), entity.getY() + 0.1, entity.getZ());
+                        break;
+                    case "x":
+                        //entity.setMotion(0.08, 0, 0);
+                        entity.setPosition(entity.getX() + 0.1, entity.getY(), entity.getZ());
+                        break;
+                    case "z":
+                        //entity.setMotion(0.08, 0, 0);
+                        entity.setPosition(entity.getX(), entity.getY(), entity.getZ() + 0.1);
+                        break;
+                }
+            }
+        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
     }
 }

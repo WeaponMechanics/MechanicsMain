@@ -4,6 +4,8 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
@@ -25,15 +27,17 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     private int splits;
     private int bombs;
     private Detonation detonation;
+    private Mechanics mechanics;
 
     public ClusterBomb() { }
 
-    public ClusterBomb(Projectile projectile, double speed, int splits, int bombs, Detonation detonation) {
+    public ClusterBomb(Projectile projectile, double speed, int splits, int bombs, Detonation detonation, Mechanics mechanics) {
         this.projectile = projectile;
         this.speed = speed;
         this.splits = splits;
         this.bombs = bombs;
         this.detonation = detonation;
+        this.mechanics = mechanics;
     }
 
     public Projectile getProjectile() {
@@ -66,6 +70,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         }
 
         debug.debug("Splitting cluster bomb");
+        if (mechanics != null) mechanics.use(new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack()));
 
         for (int i = 0; i < bombs; i++) {
             Vector vector = VectorUtil.random(speed);
@@ -100,7 +105,8 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         double speed = data.of("Projectile_Speed").assertPositive().getDouble(30.0) / 20.0;
         int splits = data.of("Number_Of_Splits").assertPositive().getInt(1);
         Detonation detonation = data.of("Detonation").serialize(Detonation.class);
+        Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
 
-        return new ClusterBomb(projectileSettings, speed, splits, bombs, detonation);
+        return new ClusterBomb(projectileSettings, speed, splits, bombs, detonation, mechanics);
     }
 }

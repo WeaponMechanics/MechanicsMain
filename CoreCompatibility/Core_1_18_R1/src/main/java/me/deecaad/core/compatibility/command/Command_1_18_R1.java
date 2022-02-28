@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -280,16 +281,24 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public ArgumentType<?> vec2() {
+    public ArgumentType<?> location() {
         return Vec2Argument.vec2();
     }
 
     @Override
-    public ArgumentType<?> vec3() {
-        return Vec3Argument.vec3();
+    public ArgumentType<?> location2() {
+        return Vec2Argument.vec2();
     }
 
+    @Override
+    public ArgumentType<?> block() {
+        return BlockPosArgument.blockPos();
+    }
 
+    @Override
+    public ArgumentType<?> block2() {
+        return ColumnPosArgument.columnPos();
+    }
 
 
 
@@ -452,10 +461,10 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Location2d getLocation2DBlock(CommandContext<Object> context, String key) throws CommandSyntaxException {
+    public Column getLocation2DBlock(CommandContext<Object> context, String key) throws CommandSyntaxException {
         ColumnPos column = ColumnPosArgument.getColumnPos(cast(context), key);
         World world = cast(context).getSource().getLevel().getWorld();
-        return new Location2d(world, column.x, column.z);
+        return new Column(world, column.x, column.z);
     }
 
     @Override
@@ -466,10 +475,10 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Location getLocationBlock(CommandContext<Object> context, String key) throws CommandSyntaxException {
+    public Block getLocationBlock(CommandContext<Object> context, String key) throws CommandSyntaxException {
         BlockPos block = BlockPosArgument.getLoadedBlockPos(cast(context), key);
         World world = cast(context).getSource().getLevel().getWorld();
-        return new Location(world, block.getX(), block.getY(), block.getZ());
+        return world.getBlockAt(block.getX(), block.getY(), block.getZ());
     }
 
     @Override

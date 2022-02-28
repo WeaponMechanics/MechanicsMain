@@ -2,6 +2,9 @@
 Trigger:
   Main_Hand: <TriggerType>
   Off_Hand: <TriggerType>
+  Dual_Wield:
+    Main_Hand: <TriggerType>
+    Off_Hand: <TriggerType>
   Deny_When:
     Reloading: <true/false>
     Zooming: <true/false>
@@ -11,3 +14,4 @@ Trigger:
     Swimming: <true/false>
     In_Midair: <true/false>
     Gliding: <true/false>
+    Dual_Wielding: <true/false>

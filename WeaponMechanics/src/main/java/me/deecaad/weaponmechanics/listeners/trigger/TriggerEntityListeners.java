@@ -37,6 +37,7 @@ public class TriggerEntityListeners implements Listener {
     public void damage(EntityDamageByEntityEvent e) {
         EntityDamageEvent.DamageCause cause = e.getCause();
         if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) return;
+        if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         Entity damager = e.getDamager();
         Entity victim = e.getEntity();

@@ -73,6 +73,8 @@ public class DamageHandler {
         point = damageEntityEvent.getPoint();
 
         if (DamageUtil.apply(shooter, victim, damageEntityEvent.getFinalDamage())) {
+            WeaponMechanics.debug.debug("Damage was cancelled");
+
             // Damage was cancelled
             return false;
         }

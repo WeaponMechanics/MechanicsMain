@@ -74,8 +74,8 @@ public class CommandBuilder implements Cloneable {
     }
 
     @SuppressWarnings("all")
-    public CommandBuilder withArguments(Argument<Object>... arguments) {
-        for (Argument<Object> argument : arguments)
+    public CommandBuilder withArguments(Argument<?>... arguments) {
+        for (Argument<?> argument : arguments)
             this.withArgument(argument);
         return this;
     }

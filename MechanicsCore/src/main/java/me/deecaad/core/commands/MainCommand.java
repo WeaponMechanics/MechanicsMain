@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  *
  * @see SubCommand#register()
  */
+@Deprecated()
 public abstract class MainCommand extends BukkitCommand {
 
     protected String permission;

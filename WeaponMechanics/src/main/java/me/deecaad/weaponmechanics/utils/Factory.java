@@ -100,6 +100,11 @@ public class Factory<T> {
         return map.keySet();
     }
 
+    public Map<String, Class<T>> getMap() {
+        HashMap<String, Class<T>> temp = new HashMap<>(map.size());
+        map.forEach((key, value) -> temp.put(key, value.manufacturedType));
+        return temp;
+    }
 
     public class Arguments {
 

@@ -13,10 +13,13 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
     private NumberModifier swimming;
     private NumberModifier inMidair;
     private NumberModifier gliding;
+    private NumberModifier dualWielding;
 
     public AModifyWhen() { }
 
-    public AModifyWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking, NumberModifier standing, NumberModifier walking, NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
+    public AModifyWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
+                       NumberModifier standing, NumberModifier walking, NumberModifier swimming,
+                       NumberModifier inMidair, NumberModifier gliding, NumberModifier dualWielding) {
         this.always = always;
         this.zooming = zooming;
         this.sneaking = sneaking;
@@ -25,6 +28,7 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
         this.swimming = swimming;
         this.inMidair = inMidair;
         this.gliding = gliding;
+        this.dualWielding = dualWielding;
     }
 
     /**
@@ -58,6 +62,9 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
         }
         if (gliding != null && entityWrapper.isGliding()) {
             tempNumber = gliding.applyTo(tempNumber);
+        }
+        if (dualWielding != null && entityWrapper.isDualWielding()) {
+            tempNumber = dualWielding.applyTo(tempNumber);
         }
 
         return Math.max(tempNumber, 0.0);

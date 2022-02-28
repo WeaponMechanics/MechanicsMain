@@ -31,6 +31,7 @@ import static me.deecaad.core.MechanicsCore.debug;
  * command, but it should instead belong to the instantiating plugin's
  * {@link MainCommand}.
  */
+@Deprecated()
 public abstract class SubCommand extends BukkitCommand {
 
     protected static final String PLAYERS = "<player>";
