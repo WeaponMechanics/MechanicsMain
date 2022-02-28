@@ -30,3 +30,6 @@ the work that was put into the plugin, please consider donating.
 are also encouraging. 
 
 * [CJCrafter's Donation Link](https://www.paypal.com/paypalme/cjcrafter)
+
+
+[![](https://bstats.org/signatures/bukkit/WeaponMechanics.svg)](https://bstats.org/plugin/bukkit/WeaponMechanics/14323)
