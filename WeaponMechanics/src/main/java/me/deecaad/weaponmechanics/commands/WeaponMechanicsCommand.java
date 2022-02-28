@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.CommandBuilder;
+import me.deecaad.core.commands.CommandData;
 import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
 import me.deecaad.core.commands.Argument;
@@ -9,6 +10,7 @@ import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.commands.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.UpdateChecker;
@@ -19,13 +21,11 @@ import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
-import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.CuboidExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.DefaultExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
-import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -34,7 +34,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -50,20 +49,21 @@ import org.bukkit.map.MinecraftFont;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
-import static net.md_5.bungee.api.ChatColor.GOLD;
 import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
 import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
 import static org.bukkit.ChatColor.*;
-import static org.bukkit.ChatColor.GRAY;
 
 @SuppressWarnings("unchecked")
 public class WeaponMechanicsCommand {
@@ -71,8 +71,24 @@ public class WeaponMechanicsCommand {
     public static String WIKI = "https://github.com/WeaponMechanics/MechanicsMain/wiki";
     public static char SYM = '\u27A2';
 
-    public static void build() {
+    public static Function<CommandData, Tooltip[]> WEAPON_SUGGESTIONS = (data) -> {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
+        List<String> weapons = info.getSortedWeaponList();
+        List<Tooltip> temp = new ArrayList<>(weapons.size() + 3);
+
+        // Some extra options, mostly for fun
+        temp.add(Tooltip.of("*", "Gives target(s) all weapons, until inventory is filled"));
+        temp.add(Tooltip.of("*r", "Gives target(s) a random weapon"));
+        temp.add(Tooltip.of("**", "Gives target(s) all weapons, dropping extra on the ground"));
+
+        // Add in the actual weapons
+        weapons.forEach(weapon -> temp.add(Tooltip.of(weapon)));
+
+        return temp.toArray(new Tooltip[0]);
+    };
+
+    public static void build() {
+
 
         CommandBuilder command = new CommandBuilder("weaponmechanics")
                 .withAliases("wm")
@@ -82,8 +98,7 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.give")
                         .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()))
-                        .withArgument(new Argument<>("weapon", new StringArgumentType())
-                                .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType()).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
                         .withArgument(new Argument<>("data", new NBTArgumentType(), null))
@@ -92,8 +107,7 @@ public class WeaponMechanicsCommand {
                 .withSubCommand(new CommandBuilder("get")
                         .withPermission("weaponmechanics.commands.get")
                         .withDescription("Gives you the requested weapon(s)")
-                        .withArgument(new Argument<>("weapon", new StringArgumentType())
-                                .replace(data -> info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new)))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType()).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
@@ -107,7 +121,7 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.list")
                         .withDescription("Lists a table of weapons loaded by WeaponMechanics")
                         .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1)
-                                .append(data -> IntStream.range(1, 1 + info.getSortedWeaponList().size() / 16).mapToObj(Tooltip::of).toArray(Tooltip[]::new))))
+                                .append(data -> IntStream.range(1, 1 + WeaponMechanics.getWeaponHandler().getInfoHandler().getSortedWeaponList().size() / 16).mapToObj(Tooltip::of).toArray(Tooltip[]::new))))
 
                 .withSubCommand(new CommandBuilder("wiki")
                         .withPermission("weaponmechanics.commands.wiki")
@@ -117,7 +131,7 @@ public class WeaponMechanicsCommand {
                 .withSubCommand(new CommandBuilder("reload")
                         .withPermission("weaponmechanics.commands.reload")
                         .withDescription("Reloads WeaponMechanics' weapon configuration without restarting the server")
-                        .executes(CommandExecutor.any((sender, args) -> WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(ChatColor.GREEN + "Reloaded configuration")))));
+                        .executes(CommandExecutor.any((sender, args) -> WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration")))));
 
 
         // Explosion subcommands *mostly* share the same arguments, so we store
@@ -180,12 +194,27 @@ public class WeaponMechanicsCommand {
     }
 
     public static void give(CommandSender sender, List<Entity> targets, String weaponTitle, int amount) {
+
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-        weaponTitle = info.getWeaponTitle(weaponTitle);
-        ItemStack weapon = info.generateWeapon(weaponTitle, amount);
+        List<ItemStack> weapons;
+
+        switch (weaponTitle) {
+            case "*":
+            case "**":
+                weapons = info.getSortedWeaponList().stream()
+                        .map(weapon -> info.generateWeapon(weapon, amount))
+                        .collect(Collectors.toList());
+                break;
+            case "*r":
+                weapons = Collections.singletonList(info.generateWeapon(NumberUtil.random(info.getSortedWeaponList()), amount));
+                break;
+            default:
+                weaponTitle = info.getWeaponTitle(weaponTitle);
+                weapons = Collections.singletonList(info.generateWeapon(weaponTitle, amount));
+        }
 
         if (targets.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "No entities were found");
+            sender.sendMessage(RED + "No entities were found");
             return;
         }
 
@@ -193,23 +222,29 @@ public class WeaponMechanicsCommand {
         for (Entity entity : targets) {
             if (entity instanceof Player) {
                 Player player = (Player) entity;
-                player.getInventory().addItem(weapon);
                 player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.0f);
+
+                Map<Integer, ItemStack> overflow = player.getInventory().addItem(weapons.toArray(new ItemStack[0]));
+                if (weaponTitle.equals("**"))
+                    overflow.values().forEach(item -> entity.getWorld().dropItem(entity.getLocation(), item));
+                else if (!weaponTitle.equals("*"))
+                    sender.sendMessage(RED + entity.getName() + "'s inventory was full!");
+
                 count++;
 
             } else if (entity instanceof LivingEntity) {
-                ((LivingEntity) entity).getEquipment().setItemInMainHand(weapon);
+                ((LivingEntity) entity).getEquipment().setItemInMainHand(weapons.get(0));
                 count++;
 
             }
         }
 
         if (count > 1) {
-            sender.sendMessage(ChatColor.GRAY + "" + count + ChatColor.GREEN + " entities were given " + ChatColor.GRAY + amount + " " + weaponTitle + ChatColor.GREEN + "s");
+            sender.sendMessage(GRAY + "" + count + GREEN + " entities were given " + GRAY + amount + " " + weaponTitle + GREEN + "s");
         } else if (count == 1) {
-            sender.sendMessage(ChatColor.GRAY + targets.get(0).getName() + ChatColor.GREEN + " was given " + ChatColor.GRAY + amount + " " + weaponTitle + ChatColor.GREEN + "s");
+            sender.sendMessage(GRAY + targets.get(0).getName() + GREEN + " was given " + GRAY + amount + " " + weaponTitle + GREEN + "s");
         } else {
-            sender.sendMessage(ChatColor.RED + "No entities were given a weapon");
+            sender.sendMessage(RED + "No entities were given a weapon");
         }
     }
 
@@ -334,7 +369,7 @@ public class WeaponMechanicsCommand {
     public static void wiki(CommandSender sender) {
 
         ComponentBuilder builder = new ComponentBuilder();
-        builder.append("Weapon").color(GOLD).bold(true)
+        builder.append("Weapon").color(net.md_5.bungee.api.ChatColor.GOLD).bold(true)
                 .append("Mechanics").color(net.md_5.bungee.api.ChatColor.GRAY).bold(true)
                 .append(" Wiki (Click an option)").bold(false).color(net.md_5.bungee.api.ChatColor.GRAY).italic(true)
                 .append("\n").italic(false);
@@ -343,7 +378,8 @@ public class WeaponMechanicsCommand {
                 .append("Click to go to Wiki.").color(net.md_5.bungee.api.ChatColor.GRAY).italic(true)
                 .create();
 
-        // We cannot add any more lines than this since 
+        // We cannot add any more lines than this since the player's chat will
+        // overflow (hiding information from the user).
         builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Information", hover)).append("\n");
         builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Skins", hover)).append("\n");
         builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Projectile", hover)).append("\n");
@@ -360,7 +396,7 @@ public class WeaponMechanicsCommand {
 
     private static BaseComponent build(String name, BaseComponent[] hover) {
         BaseComponent component = new TextComponent(name);
-        component.setColor(GOLD);
+        component.setColor(net.md_5.bungee.api.ChatColor.GOLD);
         component.setClickEvent(new ClickEvent(OPEN_URL, WIKI + "/" + name));
         component.setHoverEvent(new HoverEvent(SHOW_TEXT, hover));
         return component;
