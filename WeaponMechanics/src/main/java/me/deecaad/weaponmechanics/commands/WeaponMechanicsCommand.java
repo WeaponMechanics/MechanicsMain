@@ -77,9 +77,9 @@ public class WeaponMechanicsCommand {
         List<Tooltip> temp = new ArrayList<>(weapons.size() + 3);
 
         // Some extra options, mostly for fun
-        temp.add(Tooltip.of("*", "Gives target(s) all weapons, until inventory is filled"));
-        temp.add(Tooltip.of("*r", "Gives target(s) a random weapon"));
-        temp.add(Tooltip.of("**", "Gives target(s) all weapons, dropping extra on the ground"));
+        temp.add(Tooltip.of("\"*\"", "Gives target(s) all weapons, until inventory is filled"));
+        temp.add(Tooltip.of("\"*r\"", "Gives target(s) a random weapon"));
+        temp.add(Tooltip.of("\"**\"", "Gives target(s) all weapons, dropping extra on the ground"));
 
         // Add in the actual weapons
         weapons.forEach(weapon -> temp.add(Tooltip.of(weapon)));
@@ -101,7 +101,7 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.give")
                         .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()))
-                        .withArgument(new Argument<>("weapon", new StringArgumentType()).replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
                         .withArgument(new Argument<>("data", weaponDataMap, null).replace(weaponDataMap.suggestions()))
@@ -110,7 +110,7 @@ public class WeaponMechanicsCommand {
                 .withSubCommand(new CommandBuilder("get")
                         .withPermission("weaponmechanics.commands.get")
                         .withDescription("Gives you the requested weapon(s)")
-                        .withArgument(new Argument<>("weapon", new StringArgumentType()).replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
                         .withArgument(new Argument<>("data", weaponDataMap, null).replace(weaponDataMap.suggestions()))

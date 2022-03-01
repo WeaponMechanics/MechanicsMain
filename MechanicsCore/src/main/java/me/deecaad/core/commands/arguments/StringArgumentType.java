@@ -5,6 +5,15 @@ import com.mojang.brigadier.context.CommandContext;
 
 public class StringArgumentType extends CommandArgumentType<String> {
 
+    boolean quotes;
+
+    public StringArgumentType() {
+    }
+
+    public StringArgumentType(boolean quotes) {
+        this.quotes = quotes;
+    }
+
     @Override
     public ArgumentType<String> getBrigadierType() {
         return com.mojang.brigadier.arguments.StringArgumentType.word();
