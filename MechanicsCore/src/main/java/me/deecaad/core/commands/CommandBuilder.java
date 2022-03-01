@@ -1,5 +1,6 @@
 package me.deecaad.core.commands;
 
+import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class CommandBuilder implements Cloneable {
 
@@ -102,18 +104,11 @@ public class CommandBuilder implements Cloneable {
         return this;
     }
 
-    public void register() {
+    public CommandBuilder register() {
 
-        // First things first: Validation
-        // A command may not have both *arguments* AND *sub-commands*
-        // A command with sub-commands MAY NOT have an executor (subcommands handle that!)
-        // A command without sub-commands MUST have an executor
-        if (!args.isEmpty() && !subcommands.isEmpty())
-            throw new CommandException("Cannot use arguments and sub-commands at the same time!");
-        if (!subcommands.isEmpty() && executor != null)
-            throw new CommandException("Cannot use an executor with subcommands! Register the executor with the subcommands, not the root command!");
-        if (subcommands.isEmpty() && executor == null)
-            throw new CommandException("You forgot to add an executor or sub-commands to your command!");
+        // Handle this command's validations, as well as sub-command
+        // validations. This is to help developers debug issues.
+        this.validate();
 
         if (ReflectionUtil.getMCVersion() >= 13) {
             BrigadierCommand.register(this);
@@ -121,6 +116,80 @@ public class CommandBuilder implements Cloneable {
         else {
             throw new IllegalStateException("oops forgot to add legacy");
         }
+
+        return this;
+    }
+
+    /**
+     * Consider the command: /wm test explosion sphere 5.0 3 DEFAULT #logs
+     * It is relatively intuitive, but what is 'test'? 'explosion'? What other
+     * options do we have? What do they all do?
+     *
+     * <p>We want to be able to use /wm help, /wm help test,
+     * /wm help test explosion, and /wm help test explosion sphere.
+     *
+     * <p>For any
+     * command with sub-commands, 'help' should list the sub-commands with
+     * their descriptions. Therefore, /wm help test explosion produces:
+     * <blockquote><pre>{@code
+     *      /wm test explosion: Spawns in an explosion that regenerates
+     *
+     *      <sphere>: Causes a spherical explosion
+     *      <cube>: Causes a cubical explosion
+     *      <parabola>: Causes a parabolic explosion
+     *      <default>: Causes a vanilla MC explosion
+     * }</pre></blockquote>
+     *
+     *
+     * <p>For any command without sub-commands, we should give the user
+     * information on the arguments of the command. Therefore, /wm help give
+     * produces:
+     * <blockquote><pre>{@code
+     *      /wm give: Gives the target(s) with requested weapon(s)
+     *      Usage: /wm give <target*> <weapon*> <amount> <data>
+     *
+     *      <target*>: Who is given the weapon(s).
+     *      <weapon*>: Which weapon to choose, use "*" to give all.
+     *      <amount>: How many weapons should be given. Default: 1
+     *      <data>: Should any extra data be added to the weapon? Default: {}
+     * }</pre></blockquote>
+     *
+     * @return A non-null reference to this (builder pattern).
+     */
+    public CommandBuilder registerHelp() {
+        CommandBuilder help = new CommandBuilder("help");
+        for (CommandBuilder subcommand : subcommands) {
+            help.withSubCommand(new CommandBuilder(subcommand.label)
+                    .withPermission(subcommand.permission)
+                    .withRequirements(subcommand.requirements));
+        }
+
+        if (!subcommands.isEmpty()) {
+
+
+
+            subcommands.forEach(CommandBuilder::registerHelp);
+            return this;
+        }
+
+
+    }
+
+    private static void a(CommandBuilder parent) {}
+
+
+    /**
+     * A command not can have both <b>arguments</b> and <b>sub-commands</b>.
+     * If a command is without sub-commands, it must have an executor.
+     * These rules apply to sub-commands.
+     */
+    private void validate() {
+        if (!args.isEmpty() && !subcommands.isEmpty())
+            throw new CommandException("Cannot use arguments and sub-commands at the same time!");
+        if (subcommands.isEmpty() && executor == null)
+            throw new CommandException("You forgot to add an executor or sub-commands to your command!");
+
+        subcommands.forEach(CommandBuilder::validate);
     }
 
     public Predicate<Object> requirements() {
@@ -145,5 +214,18 @@ public class CommandBuilder implements Cloneable {
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "/" + label + " " + args.stream()
+                .map(Argument::getName)
+                .map(s -> "<" + s + ">")
+                .collect(Collectors.joining(" "))
+                + " "
+                + Arrays.stream(optionalDefaultValues)
+                .map(Object::toString)
+                .map(s -> "<" + s + ">")
+                .collect(Collectors.joining(" "));
     }
 }

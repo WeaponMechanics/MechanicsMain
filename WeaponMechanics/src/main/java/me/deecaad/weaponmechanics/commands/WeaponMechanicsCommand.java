@@ -125,7 +125,8 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.list")
                         .withDescription("Lists a table of weapons loaded by WeaponMechanics")
                         .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1)
-                                .append(data -> IntStream.range(1, 1 + WeaponMechanics.getWeaponHandler().getInfoHandler().getSortedWeaponList().size() / 16).mapToObj(Tooltip::of).toArray(Tooltip[]::new))))
+                                .append(data -> IntStream.range(1, 1 + WeaponMechanics.getWeaponHandler().getInfoHandler().getSortedWeaponList().size() / 16).mapToObj(Tooltip::of).toArray(Tooltip[]::new)))
+                        .executes(CommandExecutor.any((sender, args) -> list(sender, (int) args[0]))))
 
                 .withSubCommand(new CommandBuilder("wiki")
                         .withPermission("weaponmechanics.commands.wiki")
@@ -448,7 +449,7 @@ public class WeaponMechanicsCommand {
         new BukkitRunnable() {
             @Override
             public void run() {
-                RegenerationData regeneration = new RegenerationData(regen, Math.max(0, (int) shape.getArea() / 100), 1);
+                RegenerationData regeneration = new RegenerationData(regen, Math.max(1, (int) shape.getArea() / 100), 1);
                 BlockDamage blockDamage = new BlockDamage(isBreakBlocks, 1, 1, true, 0.0, new HashMap<>(), new HashMap<>()) {
                     @Override
                     public boolean isBlacklisted(Block block) {

@@ -46,8 +46,7 @@ public class BrigadierCommand implements Command<Object> {
 
         dispatcher.register(result);
 
-        MechanicsCore.debug.error("Registering Command: /" + builder.label + " " + builder.args.stream().map(Argument::getName)
-                .map(s -> "<" + s + ">").collect(Collectors.joining(" ")) + " " + Arrays.toString(builder.optionalDefaultValues));
+        MechanicsCore.debug.error("Registering Command: " + builder);
     }
 
     @Override
