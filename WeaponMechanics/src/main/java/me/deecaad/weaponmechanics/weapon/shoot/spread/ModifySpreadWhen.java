@@ -18,9 +18,10 @@ public class ModifySpreadWhen extends AModifyWhen {
     public ModifySpreadWhen() { }
 
     public ModifySpreadWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
-                            NumberModifier standing, NumberModifier walking, NumberModifier swimming,
-                            NumberModifier inMidair, NumberModifier gliding, NumberModifier dualWielding) {
-        super(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding, dualWielding);
+                            NumberModifier standing, NumberModifier walking, NumberModifier sprinting,
+                            NumberModifier dualWielding, NumberModifier swimming, NumberModifier inMidair,
+                            NumberModifier gliding) {
+        super(always, zooming, sneaking, standing, walking, sprinting, dualWielding, swimming, inMidair, gliding);
     }
 
     @Override
@@ -31,22 +32,24 @@ public class ModifySpreadWhen extends AModifyWhen {
     @Override
     @Nonnull
     public @NotNull ModifySpreadWhen serialize(SerializeData data) throws SerializerException {
-        NumberModifier always   = getModifierHandler(data.of("Always"));
-        NumberModifier zooming  = getModifierHandler(data.of("Zooming"));
+        NumberModifier always = getModifierHandler(data.of("Always"));
+        NumberModifier zooming = getModifierHandler(data.of("Zooming"));
         NumberModifier sneaking = getModifierHandler(data.of("Sneaking"));
         NumberModifier standing = getModifierHandler(data.of("Standing"));
-        NumberModifier walking  = getModifierHandler(data.of("Walking"));
+        NumberModifier walking = getModifierHandler(data.of("Walking"));
+        NumberModifier sprinting = getModifierHandler(data.of("Sprinting"));
+        NumberModifier dualWielding = getModifierHandler(data.of("Dual_Wielding"));
         NumberModifier swimming = getModifierHandler(data.of("Swimming"));
         NumberModifier inMidair = getModifierHandler(data.of("In_Midair"));
-        NumberModifier gliding  = getModifierHandler(data.of("Gliding"));
-        NumberModifier dualWielding  = getModifierHandler(data.of("Dual_Wielding"));
+        NumberModifier gliding = getModifierHandler(data.of("Gliding"));
 
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
-                && swimming == null && inMidair == null && gliding == null && dualWielding == null) {
+                && sprinting == null && dualWielding == null
+                && swimming == null && inMidair == null && gliding == null) {
 
             throw data.exception(null, "Tried to use Modify_Spread_When without any arguments");
         }
-        return new ModifySpreadWhen(always, zooming, sneaking, standing, walking, swimming, inMidair, gliding, dualWielding);
+        return new ModifySpreadWhen(always, zooming, sneaking, standing, walking, sprinting, dualWielding, swimming, inMidair, gliding);
     }
 
     private NumberModifier getModifierHandler(SerializeData.ConfigAccessor data) throws SerializerException {

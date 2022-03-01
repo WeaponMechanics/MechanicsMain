@@ -11,7 +11,8 @@ Trigger:
     Sneaking: <true/false>
     Standing: <true/false>
     Walking: <true/false>
+    Sprinting: <true/false>
+    Dual_Wielding: <true/false>
     Swimming: <true/false>
     In_Midair: <true/false>
     Gliding: <true/false>
-    Dual_Wielding: <true/false>

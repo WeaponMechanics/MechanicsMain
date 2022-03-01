@@ -10,25 +10,28 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
     private NumberModifier sneaking;
     private NumberModifier standing;
     private NumberModifier walking;
+    private NumberModifier sprinting;
+    private NumberModifier dualWielding;
     private NumberModifier swimming;
     private NumberModifier inMidair;
     private NumberModifier gliding;
-    private NumberModifier dualWielding;
 
     public AModifyWhen() { }
 
     public AModifyWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
-                       NumberModifier standing, NumberModifier walking, NumberModifier swimming,
-                       NumberModifier inMidair, NumberModifier gliding, NumberModifier dualWielding) {
+                       NumberModifier standing, NumberModifier walking, NumberModifier sprinting,
+                       NumberModifier dualWielding, NumberModifier swimming, NumberModifier inMidair,
+                       NumberModifier gliding) {
         this.always = always;
         this.zooming = zooming;
         this.sneaking = sneaking;
         this.standing = standing;
         this.walking = walking;
+        this.sprinting = sprinting;
+        this.dualWielding = dualWielding;
         this.swimming = swimming;
         this.inMidair = inMidair;
         this.gliding = gliding;
-        this.dualWielding = dualWielding;
     }
 
     /**
@@ -54,6 +57,12 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
         if (walking != null && entityWrapper.isWalking()) {
             tempNumber = walking.applyTo(tempNumber);
         }
+        if (sprinting != null && entityWrapper.isSprinting()) {
+            tempNumber = sprinting.applyTo(tempNumber);
+        }
+        if (dualWielding != null && entityWrapper.isDualWielding()) {
+            tempNumber = dualWielding.applyTo(tempNumber);
+        }
         if (swimming != null && entityWrapper.isSwimming()) {
             tempNumber = swimming.applyTo(tempNumber);
         }
@@ -62,9 +71,6 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
         }
         if (gliding != null && entityWrapper.isGliding()) {
             tempNumber = gliding.applyTo(tempNumber);
-        }
-        if (dualWielding != null && entityWrapper.isDualWielding()) {
-            tempNumber = dualWielding.applyTo(tempNumber);
         }
 
         return Math.max(tempNumber, 0.0);
