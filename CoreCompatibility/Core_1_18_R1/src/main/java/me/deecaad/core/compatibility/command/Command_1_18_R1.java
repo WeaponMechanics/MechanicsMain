@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.deecaad.core.commands.Argument;
 import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
@@ -27,6 +28,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.nbt.CollectionTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
@@ -67,9 +74,13 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -559,5 +570,38 @@ public class Command_1_18_R1 implements CommandCompatibility {
     @Override
     public UUID getUUID(CommandContext<Object> context, String key) {
         return UuidArgument.getUuid(cast(context), key);
+    }
+
+    @Override
+    public Map<String, Object> getCompound(CommandContext<Object> context, String key) {
+        CompoundTag nbt = CompoundTagArgument.getCompoundTag(context, key);
+        return convertMap(nbt);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object convert(Tag tag) {
+        return switch (tag.getId()) {
+            case Tag.TAG_BYTE, Tag.TAG_SHORT, Tag.TAG_INT, Tag.TAG_LONG -> ((NumericTag) tag).getAsInt();
+            case Tag.TAG_FLOAT, Tag.TAG_DOUBLE -> ((NumericTag) tag).getAsDouble();
+            case Tag.TAG_STRING -> ((StringTag) tag).toString();
+            case Tag.TAG_BYTE_ARRAY, Tag.TAG_INT_ARRAY, Tag.TAG_LONG_ARRAY, Tag.TAG_LIST -> convertList((CollectionTag<Tag>) tag);
+            case Tag.TAG_COMPOUND -> (CompoundTag) convertMap((CompoundTag) tag);
+            default -> throw new IllegalStateException("Unexpected value: " + tag);
+        };
+    }
+
+    private Map<String, Object> convertMap(CompoundTag nbt) {
+        Map<String, Object> temp = new HashMap<>(nbt.size());
+
+        for (String key : nbt.getAllKeys()) {
+            Object value = convert(Objects.requireNonNull(nbt.get(key)));
+            temp.put(key, value);
+        }
+
+        return temp;
+    }
+
+    private List<Object> convertList(CollectionTag<Tag> values) {
+        return values.stream().map(this::convert).collect(Collectors.toList());
     }
 }

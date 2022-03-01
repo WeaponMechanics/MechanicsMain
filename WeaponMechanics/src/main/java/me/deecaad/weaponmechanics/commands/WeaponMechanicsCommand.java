@@ -89,6 +89,9 @@ public class WeaponMechanicsCommand {
 
     public static void build() {
 
+        MapArgumentType weaponDataMap = new MapArgumentType()
+                .with("attachment", MapArgumentType.LIST.apply(SuggestionsBuilder.from("scope", "grip", "silencer")))
+                .with("ammo", MapArgumentType.INT.apply(SuggestionsBuilder.from(1, 10, 30)));
 
         CommandBuilder command = new CommandBuilder("weaponmechanics")
                 .withAliases("wm")
@@ -101,7 +104,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType()).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
-                        .withArgument(new Argument<>("data", new NBTArgumentType(), null))
+                        .withArgument(new Argument<>("data", weaponDataMap, null).replace(weaponDataMap.suggestions()))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
                 .withSubCommand(new CommandBuilder("get")
@@ -110,6 +113,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType()).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
+                        .withArgument(new Argument<>("data", weaponDataMap, null).replace(weaponDataMap.suggestions()))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
 
                 .withSubCommand(new CommandBuilder("info")

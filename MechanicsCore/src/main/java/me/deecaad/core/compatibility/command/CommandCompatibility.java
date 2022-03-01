@@ -32,6 +32,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -207,4 +208,6 @@ public interface CommandCompatibility {
     int getTime(CommandContext<Object> context, String key);
 
     UUID getUUID(CommandContext<Object> context, String key);
+
+    Map<String, Object> getCompound(CommandContext<Object> context, String key);
 }

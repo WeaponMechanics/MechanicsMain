@@ -183,6 +183,10 @@ public class BrigadierCommand implements Command<Object> {
                 CommandBuilder rootClone = builder.clone();
                 unPack(rootClone, new ArrayList<>(), subcommand);
             }
+
+            // If a command has subcommands, it may not have arguments or an
+            // executor. Thus, we can exit right now.
+            return;
         }
 
         // For each literal in a multi-literal, we need to register a command
@@ -275,6 +279,6 @@ public class BrigadierCommand implements Command<Object> {
 
         // Flatten all subcommands
         for (CommandBuilder subsubcommand : subcommand.subcommands)
-            unPack(subcommand, new ArrayList<>(arguments), subsubcommand);
+            unPack(root, new ArrayList<>(arguments), subsubcommand);
     }
 }
