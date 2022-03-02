@@ -19,4 +19,32 @@ public class BlockPredicateType extends CommandArgumentType<Predicate<Block>> {
     public Predicate<Block> parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
         return CompatibilityAPI.getCommandCompatibility().getBlockPredicate(context, key);
     }
+
+    public static Predicate<Block> TRUE(String name) {
+        return new Predicate<Block>() {
+            @Override
+            public boolean test(Block o) {
+                return true;
+            }
+
+            @Override
+            public String toString() {
+                return name;
+            }
+        };
+    }
+
+    public static Predicate<Block> FALSE(String name) {
+        return new Predicate<Block>() {
+            @Override
+            public boolean test(Block o) {
+                return false;
+            }
+
+            @Override
+            public String toString() {
+                return name;
+            }
+        };
+    }
 }

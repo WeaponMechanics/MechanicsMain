@@ -104,7 +104,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true)).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
-                        .withArgument(new Argument<>("data", weaponDataMap, null).replace(weaponDataMap.suggestions()))
+                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).replace(weaponDataMap.suggestions()))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
                 .withSubCommand(new CommandBuilder("get")
@@ -113,7 +113,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true)).replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
                                 .append(SuggestionsBuilder.from(1, 16, 32, 64)))
-                        .withArgument(new Argument<>("data", weaponDataMap, null).replace(weaponDataMap.suggestions()))
+                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).replace(weaponDataMap.suggestions()))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
 
                 .withSubCommand(new CommandBuilder("info")
@@ -145,7 +145,7 @@ public class WeaponMechanicsCommand {
                 new Argument<>("location", new LocationArgumentType()),
                 new Argument<>("exposure", new StringArgumentType(), "DEFAULT").replace(SuggestionsBuilder.from(ExposureFactory.getInstance().getOptions())),
                 new Argument<>("break", new BooleanArgumentType(), true),
-                new Argument<>("blacklist", new BlockPredicateType(), block -> true),
+                new Argument<>("blacklist", new BlockPredicateType(), BlockPredicateType.FALSE("none")),
                 new Argument<>("regeneration", new TimeArgumentType(), 200) // 20 minutes max
         };
 

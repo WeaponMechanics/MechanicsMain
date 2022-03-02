@@ -293,7 +293,7 @@ public class Command_1_18_R1 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> location() {
-        return Vec2Argument.vec2();
+        return Vec3Argument.vec3();
     }
 
     @Override

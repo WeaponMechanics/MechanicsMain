@@ -16,7 +16,10 @@ public class StringArgumentType extends CommandArgumentType<String> {
 
     @Override
     public ArgumentType<String> getBrigadierType() {
-        return com.mojang.brigadier.arguments.StringArgumentType.word();
+        if (quotes)
+            return com.mojang.brigadier.arguments.StringArgumentType.string();
+        else
+            return com.mojang.brigadier.arguments.StringArgumentType.word();
     }
 
     @Override

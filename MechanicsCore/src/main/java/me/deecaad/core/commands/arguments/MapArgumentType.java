@@ -9,6 +9,7 @@ import me.deecaad.core.commands.CommandData;
 import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,27 +65,36 @@ public class MapArgumentType extends CommandArgumentType<Map<String, Object>> {
 
             char delimiter = 0;
             int stop;
-            for (stop = data.current.length() - 1; stop >= 0 && "{,;=:".indexOf(delimiter) == -1; stop--)
+            for (stop = data.current.length() - 1; stop >= 0 && "{,:".indexOf(delimiter) == -1; stop--)
                 delimiter = data.current.charAt(stop);
 
             switch (delimiter) {
                 case '{':
-                case ';':
                 case ',':
                     return SuggestionsBuilder.from(types.keySet()).apply(data);
                 case ':':
-                case '=':
                     int start;
-                    for (start = stop; start >= 0 && "{=:".indexOf(delimiter) == -1; start--)
+                    delimiter = data.current.charAt(stop);
+                    for (start = stop; start >= 0 && "{,:".indexOf(delimiter) == -1; start--)
                         delimiter = data.current.charAt(start);
 
                     String key = data.current.substring(start + 1, stop + 1);
                     String value = data.current.substring(stop + 2);
+
+                    System.out.println("Current: " + data.current + ",   " + key + ": " + value);
+                    if (!types.containsKey(key))
+                        break;
+
                     for (Tooltip tip : types.get(key).suggestions.apply(data)) {
                         if (tip.suggestion().equalsIgnoreCase(value))
                             return new Tooltip[]{ Tooltip.of("}", "Close tag"), Tooltip.of(",", "Add another argument") };
                     }
-                    return types.get(key).suggestions.apply(data);
+
+
+                    int finalStop = stop;
+                    return Arrays.stream(types.get(key).suggestions.apply(data))
+                            .map(tip -> Tooltip.of(data.current.substring(0, finalStop + 1) + tip.suggestion(), tip.tip()))
+                            .toArray(Tooltip[]::new);
             }
 
             return new Tooltip[]{  };

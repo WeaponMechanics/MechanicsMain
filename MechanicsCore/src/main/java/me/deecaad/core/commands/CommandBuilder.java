@@ -11,6 +11,7 @@ import org.bukkit.permissions.PermissionDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -172,7 +173,7 @@ public class CommandBuilder implements Cloneable {
             return this;
         }
 
-
+        return this;
     }
 
     private static void a(CommandBuilder parent) {}
@@ -224,8 +225,7 @@ public class CommandBuilder implements Cloneable {
                 .collect(Collectors.joining(" "))
                 + " "
                 + Arrays.stream(optionalDefaultValues)
-                .map(Object::toString)
-                .map(s -> "<" + s + ">")
+                .map(Objects::toString)
                 .collect(Collectors.joining(" "));
     }
 }
