@@ -3,9 +3,12 @@ package me.deecaad.core.commands;
 import me.deecaad.core.commands.arguments.GreedyArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -31,6 +34,10 @@ public class CommandBuilder implements Cloneable {
 
     // For internal usage, stores the default values of optional arguments.
     Object[] optionalDefaultValues;
+
+    // Use for saving performance on the help command
+    BaseComponent[] cache;
+
 
     public CommandBuilder(String label) {
         if (label == null || label.trim().isEmpty())
@@ -187,33 +194,106 @@ public class CommandBuilder implements Cloneable {
             buildHelp(subHelp, subcommand, color);
         }
 
+        // When a command has no sub-commands, we need to build an argument-based
+        // help command (Which will show the player how to use command arguments)
         if (help.subcommands.isEmpty()) {
             help.executes(CommandExecutor.any((sender, args) -> {
-                ComponentBuilder builder = new ComponentBuilder();
-                builder.append("/" + help.description).color(color.a.asBungee());
-                builder.append(": " + parent.description).color(color.b.asBungee()).append("\n");
+                if (parent.cache == null)
+                    parent.cache = buildCommandWithoutSubcommands(help, parent, color);
 
-                builder.append("Usage: ").color(color.a.asBungee());
-                builder.append("/" + help.description);
-                for (Argument<?> arg : parent.args) {
-                    if (arg.isRequired()) {
-                        builder.append(" <" + arg.getName()).color(color.b.asBungee());
-                        builder.append("*").color(net.md_5.bungee.api.ChatColor.RED);
-                        builder.append(">").color(color.b.asBungee());
-                    } else {
-                        builder.append(" <" + arg.getName() + ">").color(color.b.asBungee());
-                    }
-                }
-
-                if (parent.)
-
-                if (!parent.args.isEmpty()) {
-
-                }
-
-                sender.spigot().sendMessage(builder.create());
+                sender.spigot().sendMessage(parent.cache);
             }));
         }
+
+        // When a command has sub-commands, we need to build a list-based
+        // help command (Which will show the player which commands they can use)
+        else {
+            help.executes(CommandExecutor.any((sender, args) -> {
+                if (parent.cache == null)
+                    parent.cache = buildCommandWithSubcommands(help, parent, color);
+
+                sender.spigot().sendMessage(parent.cache);
+            }));
+        }
+    }
+
+    private static BaseComponent[] buildCommandWithSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.append("/" + help.description + ": ").color(color.a);
+        builder.append(parent.description).color(color.b).append("\n");
+
+        // If a permission is present, lets add "click to copy" support.
+        if (parent.permission != null) {
+            builder.append("Permission: ").color(color.a)
+                    .retain(ComponentBuilder.FormatRetention.EVENTS)
+                    .event(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, parent.permission.getName()))
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to copy").create()));
+            builder.append(parent.permission.getName()).color(color.b);
+            builder.append("\n");
+        }
+
+        if (!parent.aliases.isEmpty()) {
+            builder.reset().append("Aliases: ").color(color.a);
+            builder.append(parent.aliases.toString()).color(color.b);
+            builder.append("\n");
+        }
+
+        builder.reset().append("\n\n");
+        for (CommandBuilder subcommand : parent.subcommands) {
+            builder.append("<" +subcommand.label + ">: ")
+                    .color(color.a)
+                    .retain(ComponentBuilder.FormatRetention.EVENTS)
+                    .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND))
+        }
+    }
+
+    private static BaseComponent[] buildCommandWithoutSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.append("/" + help.description + ": ").color(color.a);
+        builder.append(parent.description).color(color.b).append("\n");
+
+        // If a permission is present, lets add "click to copy" support.
+        if (parent.permission != null) {
+            builder.append("Permission: ").color(color.a)
+                    .retain(ComponentBuilder.FormatRetention.EVENTS)
+                    .event(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, parent.permission.getName()))
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to copy").create()));
+            builder.append(parent.permission.getName()).color(color.b);
+            builder.append("\n");
+        }
+
+        if (!parent.aliases.isEmpty()) {
+            builder.reset().append("Aliases: ").color(color.a);
+            builder.append(parent.aliases.toString()).color(color.b);
+            builder.append("\n");
+        }
+
+        // Show how to use the command + allow them to click to auto-fill
+        builder.reset().append("Usage: ").color(color.a);
+        builder.append("/" + help.description).color(color.b)
+                .retain(ComponentBuilder.FormatRetention.EVENTS)
+                .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, help.description))
+                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to suggest").create()));
+
+        // Shows <arg1*> <arg2*> <arg3> <arg4> <...>
+        for (Argument<?> arg : parent.args)
+            arg.append(builder.color(color.a));
+
+        // When a command has arguments, we should show the descriptions of
+        // each argument
+        if (!parent.args.isEmpty()) {
+            builder.reset().append("\n\n");
+
+            // Shows <arg1*>: <desc>\n <arg2>: <desc>\n...
+            for (Argument<?> arg : parent.args) {
+                arg.append(builder.color(color.a));
+                builder.append(": ").color(color.a);
+                builder.append(arg.description).color(color.b);
+                builder.append("\n");
+            }
+        }
+
+        return builder.create();
     }
 
     public static final class HelpColor {
@@ -261,6 +341,7 @@ public class CommandBuilder implements Cloneable {
             CommandBuilder builder = (CommandBuilder) super.clone();
             builder.subcommands = new ArrayList<>(builder.subcommands);
             builder.args = new ArrayList<>(builder.args);
+            builder.cache = null; // This can be skipped, by why store it anyway?
             return builder;
         } catch (CloneNotSupportedException ex) {
             throw new RuntimeException(ex);

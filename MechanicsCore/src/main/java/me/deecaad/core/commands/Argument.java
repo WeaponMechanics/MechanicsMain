@@ -4,6 +4,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.deecaad.core.commands.arguments.CommandArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -199,5 +201,19 @@ public class Argument<T> {
     @Override
     public String toString() {
         return name;
+    }
+
+    public ComponentBuilder append(ComponentBuilder builder) {
+        ChatColor color = builder.getCurrentComponent().getColor();
+
+        if (isRequired()) {
+            builder.append(" <" + name).color(color);
+            builder.append("*").color(net.md_5.bungee.api.ChatColor.RED);
+            builder.append(">").color(color);
+        } else {
+            builder.append(" <" + name + ">").color(color);
+        }
+
+        return builder;
     }
 }
