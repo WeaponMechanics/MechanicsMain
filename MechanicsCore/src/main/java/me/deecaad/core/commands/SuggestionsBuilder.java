@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 public class SuggestionsBuilder {
 
@@ -108,5 +109,9 @@ public class SuggestionsBuilder {
     // Shorthand function for common simple usages
     public static Function<CommandData, Tooltip[]> from(Object... options) {
         return new SuggestionsBuilder().with(options).build();
+    }
+
+    public static Function<CommandData, Tooltip[]> range(int min, int max) {
+        return data -> IntStream.rangeClosed(min, max).mapToObj(Tooltip::of).toArray(Tooltip[]::new);
     }
 }

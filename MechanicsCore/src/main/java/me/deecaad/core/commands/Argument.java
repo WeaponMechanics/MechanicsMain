@@ -24,6 +24,7 @@ public class Argument<T> {
     Predicate<CommandSender> requirements;
     boolean isReplaceSuggestions;
     boolean listed;
+    String description;
 
     /**
      * Construct an argument that the {@link org.bukkit.command.CommandSender}
@@ -122,6 +123,18 @@ public class Argument<T> {
     public Argument<T> replace(Function<CommandData, Tooltip[]> suggestions) {
         this.suggestions = suggestions;
         this.isReplaceSuggestions = true;
+        return this;
+    }
+
+    /**
+     * Used for the help command. Shows this short description for this
+     * argument. The description should be relatively short (<10 words).
+     *
+     * @param description The description to use, or null.
+     * @return A non-null reference to this (builder pattern).
+     */
+    public Argument<T> withDesc(String description) {
+        this.description = description;
         return this;
     }
 

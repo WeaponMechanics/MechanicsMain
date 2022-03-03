@@ -86,8 +86,10 @@ public class WeaponMechanicsCommand {
 
         return temp.toArray(new Tooltip[0]);
     };
+    public static Function<CommandData, Tooltip[]> ITEM_COUNT_SUGGESTIONS = (data) -> IntStream.rangeClosed(1, 64).mapToObj(Tooltip::of).toArray(Tooltip[]::new);
 
     public static void build() {
+        InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 
         MapArgumentType weaponDataMap = new MapArgumentType()
                 .with("attachment", MapArgumentType.LIST.apply(SuggestionsBuilder.from("scope", "grip", "silencer")))
@@ -97,43 +99,41 @@ public class WeaponMechanicsCommand {
                 .withAliases("wm")
                 .withPermission("weaponmechanics.admin")
                 .withDescription("WeaponMechanics' main command")
-                .withSubCommand(new CommandBuilder("give")
+                .withSubcommand(new CommandBuilder("give")
                         .withPermission("weaponmechanics.commands.give")
                         .withDescription("Gives the target(s) with requested weapon(s)")
-                        .withArgument(new Argument<>("target", new EntityListArgumentType()))
-                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).replace(WEAPON_SUGGESTIONS))
-                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1)
-                                .append(SuggestionsBuilder.from(1, 16, 32, 64)))
-                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).replace(weaponDataMap.suggestions()))
+                        .withArgument(new Argument<>("target", new EntityListArgumentType()).withDesc("Who to give the weapon(s) to"))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
+                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon").replace(weaponDataMap.suggestions()))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
-                .withSubCommand(new CommandBuilder("get")
+                .withSubcommand(new CommandBuilder("get")
                         .withPermission("weaponmechanics.commands.get")
                         .withDescription("Gives you the requested weapon(s)")
-                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).replace(WEAPON_SUGGESTIONS))
-                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1), 1)
-                                .append(SuggestionsBuilder.from(1, 16, 32, 64)))
-                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).replace(weaponDataMap.suggestions()))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
+                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon").replace(weaponDataMap.suggestions()))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
 
-                .withSubCommand(new CommandBuilder("info")
+                .withSubcommand(new CommandBuilder("info")
                         .withPermission("weaponmechanics.commands.info")
                         .withDescription("Displays version/debug information about WeaponMechanics and your server")
                         .executes(CommandExecutor.any((sender, args) -> info(sender))))
 
-                .withSubCommand(new CommandBuilder("list")
+                .withSubcommand(new CommandBuilder("list")
                         .withPermission("weaponmechanics.commands.list")
                         .withDescription("Lists a table of weapons loaded by WeaponMechanics")
-                        .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1)
-                                .append(data -> IntStream.range(1, 1 + WeaponMechanics.getWeaponHandler().getInfoHandler().getSortedWeaponList().size() / 16).mapToObj(Tooltip::of).toArray(Tooltip[]::new)))
+                        .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1).withDesc("Which page to display")
+                                .append(SuggestionsBuilder.range(1, 1 + info.getSortedWeaponList().size() / 16)))
                         .executes(CommandExecutor.any((sender, args) -> list(sender, (int) args[0]))))
 
-                .withSubCommand(new CommandBuilder("wiki")
+                .withSubcommand(new CommandBuilder("wiki")
                         .withPermission("weaponmechanics.commands.wiki")
                         .withDescription("Shows useful (clickable) links to specific useful areas on the wiki")
                         .executes(CommandExecutor.any((sender, args) -> wiki(sender))))
 
-                .withSubCommand(new CommandBuilder("reload")
+                .withSubcommand(new CommandBuilder("reload")
                         .withPermission("weaponmechanics.commands.reload")
                         .withDescription("Reloads WeaponMechanics' weapon configuration without restarting the server")
                         .executes(CommandExecutor.any((sender, args) -> WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration")))));
@@ -142,47 +142,47 @@ public class WeaponMechanicsCommand {
         // Explosion subcommands *mostly* share the same arguments, so we store
         // them in an array to avoid repetitive code.
         Argument<?>[] explosionArgs = new Argument<?>[]{
-                new Argument<>("location", new LocationArgumentType()),
-                new Argument<>("exposure", new StringArgumentType(), "DEFAULT").replace(SuggestionsBuilder.from(ExposureFactory.getInstance().getOptions())),
-                new Argument<>("break", new BooleanArgumentType(), true),
-                new Argument<>("blacklist", new BlockPredicateType(), BlockPredicateType.FALSE("none")),
-                new Argument<>("regeneration", new TimeArgumentType(), 200) // 20 minutes max
+                new Argument<>("origin", new LocationArgumentType()).withDesc("Where the center of explosion is"),
+                new Argument<>("exposure", new StringArgumentType(), "DEFAULT").withDesc("How to calculate entity damage").replace(SuggestionsBuilder.from(ExposureFactory.getInstance().getOptions())),
+                new Argument<>("break", new BooleanArgumentType(), true).withDesc("true to have the explosion break blocks"),
+                new Argument<>("blacklist", new BlockPredicateType(), BlockPredicateType.FALSE("none")).withDesc("Which blocks should not be broken"),
+                new Argument<>("regeneration", new TimeArgumentType(), 200).withDesc("How long after should the blocks regenerate") // 20 minutes max
         };
 
         CommandBuilder test = new CommandBuilder("test")
                 .withPermission("weaponmechanics.commands.test")
                 .withDescription("Contains useful commands for developers and testing and debugging")
-                .withSubCommand(new CommandBuilder("nbt")
+                .withSubcommand(new CommandBuilder("nbt")
                         .withPermission("weaponmechanics.commands.test.nbt")
                         .withDescription("Shows every NBT tag for the target's held item")
-                        .withArgument(new Argument<>("target", new PlayerArgumentType(), null))
+                        .withArgument(new Argument<>("target", new EntityArgumentType(), null).withDesc("Whose item should we investigate"))
                         .executes(CommandExecutor.any((sender, args) -> nbt(sender, (Entity) args[0]))))
 
-                .withSubCommand(new CommandBuilder("explosion")
+                .withSubcommand(new CommandBuilder("explosion")
                         .withPermission("weaponmechanics.commands.test.explosion")
-                        .withRequirements(LivingEntity.class::isInstance)
+                        .withRequirements(LivingEntity.class::isInstance) // Only living entities can cause explosions
                         .withDescription("Spawns in an explosion that regenerates")
-                        .withSubCommand(new CommandBuilder("sphere")
-                                .withArgument(new Argument<>("radius", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                        .withSubcommand(new CommandBuilder("sphere")
+                                .withArgument(new Argument<>("radius", new DoubleArgumentType(0.1)).withDesc("The radius of the sphere").append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
                                 .withArguments(explosionArgs)
                                 .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new SphericalExplosion((double) args[0]), (Location) args[1], args[2].toString(), (boolean) args[3], (Predicate<Block>) args[4], (int) args[5]))))
-                        .withSubCommand(new CommandBuilder("cube")
-                                .withArgument(new Argument<>("width", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
-                                .withArgument(new Argument<>("height", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                        .withSubcommand(new CommandBuilder("cube")
+                                .withArgument(new Argument<>("width", new DoubleArgumentType(0.1)).withDesc("The horizontal size of the cube").append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                                .withArgument(new Argument<>("height", new DoubleArgumentType(0.1)).withDesc("The vertical size of the cube").append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
                                 .withArguments(explosionArgs)
                                 .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new CuboidExplosion((double) args[0], (double) args[1]), (Location) args[2], args[3].toString(), (boolean) args[4], (Predicate<Block>) args[5], (int) args[6]))))
-                        .withSubCommand(new CommandBuilder("parabola")
-                                .withArgument(new Argument<>("angle", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(0, 0.25, 0.5, 0.75, 1.0)))
-                                .withArgument(new Argument<>("depth", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                        .withSubcommand(new CommandBuilder("parabola")
+                                .withArgument(new Argument<>("angle", new DoubleArgumentType(0.1)).withDesc("The slope of the parabola").append(SuggestionsBuilder.from(0.25, 0.5, 0.75, 1.0)))
+                                .withArgument(new Argument<>("depth", new DoubleArgumentType(0.1)).withDesc("How far down to start the parabola").append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
                                 .withArguments(explosionArgs)
                                 .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new ParabolicExplosion((double) args[0], (double) args[1]), (Location) args[2], args[3].toString(), (boolean) args[4], (Predicate<Block>) args[5], (int) args[6]))))
-                        .withSubCommand(new CommandBuilder("vanilla")
-                                .withArgument(new Argument<>("yield", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(0, 0.25, 0.5, 0.75, 1.0)))
-                                .withArgument(new Argument<>("depth", new DoubleArgumentType(0.1)).append(SuggestionsBuilder.from(5.0, 10.0, 15.0)))
+                        .withSubcommand(new CommandBuilder("vanilla")
+                                .withArgument(new Argument<>("yield", new DoubleArgumentType(0.1)).withDesc("How big the explosion is").append(SuggestionsBuilder.from(0, 0.25, 0.5, 0.75, 1.0)))
+                                .withArgument(new Argument<>("rays", new IntegerArgumentType(1)).withDesc("How accurate to ray-trace, should scale with <yield>").append(SuggestionsBuilder.from(8, 16, 24, 32)))
                                 .withArguments(explosionArgs)
-                                .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new DefaultExplosion((double) args[0]), (Location) args[1], args[2].toString(), (boolean) args[3], (Predicate<Block>) args[4], (int) args[5])))))
+                                .executes(CommandExecutor.entity((entity, args) -> explode((LivingEntity) entity, new DefaultExplosion((double) args[0], (int) args[1]), (Location) args[2], args[3].toString(), (boolean) args[4], (Predicate<Block>) args[5], (int) args[6])))))
 
-                .withSubCommand(new CommandBuilder("fakeentity")
+                .withSubcommand(new CommandBuilder("fakeentity")
                         .withPermission("weaponmechanics.commands.test.fakeentity")
                         .withRequirements(LivingEntity.class::isInstance)
                         .withDescription("Spawns in a fake entity")
@@ -194,7 +194,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("name", new GreedyArgumentType(), null))
                         .executes(CommandExecutor.player((sender, args) -> spawn(sender, (Location) args[1], (EntityType) args[0], (String) args[2], (int) args[3], (boolean) args[4], (String) args[5]))));
 
-        command.withSubCommand(test);
+        command.withSubcommand(test);
         command.register();
     }
 

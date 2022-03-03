@@ -1,9 +1,11 @@
 package me.deecaad.core.commands;
 
-import me.deecaad.core.commands.arguments.LiteralArgumentType;
+import me.deecaad.core.commands.arguments.GreedyArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -72,6 +74,14 @@ public class CommandBuilder implements Cloneable {
 
     @SuppressWarnings("all")
     public CommandBuilder withArgument(Argument<?> argument) {
+        Argument<?> previous = this.args.size() == 0 ? null : this.args.get(this.args.size() - 1);
+
+        if (argument.isRequired() && !previous.isRequired())
+            throw new CommandException("Cannot have a required argument after optional argument. For: " + this + " + " + argument);
+        if (argument.getType() instanceof GreedyArgumentType)
+            if (this.args.stream().anyMatch(a -> GreedyArgumentType.class.isInstance(argument.getType())))
+                throw new CommandException("Cannot have multiple greedy arguments. For: " + this + " + " + argument);
+
         this.args.add((Argument<Object>) argument);
         return this;
     }
@@ -90,7 +100,7 @@ public class CommandBuilder implements Cloneable {
         return this;
     }
 
-    public CommandBuilder withSubCommand(CommandBuilder builder) {
+    public CommandBuilder withSubcommand(CommandBuilder builder) {
         this.subcommands.add(builder);
         return this;
     }
@@ -148,6 +158,8 @@ public class CommandBuilder implements Cloneable {
      * <blockquote><pre>{@code
      *      /wm give: Gives the target(s) with requested weapon(s)
      *      Usage: /wm give <target*> <weapon*> <amount> <data>
+     *      Permission: weaponmechanics.commands.give
+     *      Aliases: [] #
      *
      *      <target*>: Who is given the weapon(s).
      *      <weapon*>: Which weapon to choose, use "*" to give all.
@@ -157,26 +169,64 @@ public class CommandBuilder implements Cloneable {
      *
      * @return A non-null reference to this (builder pattern).
      */
-    public CommandBuilder registerHelp() {
-        CommandBuilder help = new CommandBuilder("help");
-        for (CommandBuilder subcommand : subcommands) {
-            help.withSubCommand(new CommandBuilder(subcommand.label)
-                    .withPermission(subcommand.permission)
-                    .withRequirements(subcommand.requirements));
-        }
-
-        if (!subcommands.isEmpty()) {
-
-
-
-            subcommands.forEach(CommandBuilder::registerHelp);
-            return this;
-        }
-
+    public CommandBuilder registerHelp(HelpColor color) {
+        CommandBuilder help = new CommandBuilder("help").withDescription("Shows useful information about the commands");
+        buildHelp(help, this, color);
+        withSubcommand(help);
         return this;
     }
 
-    private static void a(CommandBuilder parent) {}
+    private static void buildHelp(CommandBuilder help, CommandBuilder parent, HelpColor color) {
+        for (CommandBuilder subcommand : parent.subcommands) {
+            CommandBuilder subHelp = new CommandBuilder(subcommand.label)
+                    .withPermission(subcommand.permission)
+                    .withRequirements(subcommand.requirements)
+                    .withDescription(help.description + " " + subcommand.label);
+            help.withSubcommand(subHelp);
+
+            buildHelp(subHelp, subcommand, color);
+        }
+
+        if (help.subcommands.isEmpty()) {
+            help.executes(CommandExecutor.any((sender, args) -> {
+                ComponentBuilder builder = new ComponentBuilder();
+                builder.append("/" + help.description).color(color.a.asBungee());
+                builder.append(": " + parent.description).color(color.b.asBungee()).append("\n");
+
+                builder.append("Usage: ").color(color.a.asBungee());
+                builder.append("/" + help.description);
+                for (Argument<?> arg : parent.args) {
+                    if (arg.isRequired()) {
+                        builder.append(" <" + arg.getName()).color(color.b.asBungee());
+                        builder.append("*").color(net.md_5.bungee.api.ChatColor.RED);
+                        builder.append(">").color(color.b.asBungee());
+                    } else {
+                        builder.append(" <" + arg.getName() + ">").color(color.b.asBungee());
+                    }
+                }
+
+                if (parent.)
+
+                if (!parent.args.isEmpty()) {
+
+                }
+
+                sender.spigot().sendMessage(builder.create());
+            }));
+        }
+    }
+
+    public static final class HelpColor {
+        public ChatColor a;
+        public ChatColor b;
+        public String symbol;
+
+        public HelpColor(ChatColor a, ChatColor b, String symbol) {
+            this.a = a;
+            this.b = b;
+            this.symbol = symbol;
+        }
+    }
 
 
     /**
