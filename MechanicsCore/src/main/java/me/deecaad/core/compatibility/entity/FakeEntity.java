@@ -1,6 +1,5 @@
 package me.deecaad.core.compatibility.entity;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;

@@ -3,8 +3,8 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.jetbrains.annotations.NotNull;
 
 public class ChangingSpread implements Serializer<ChangingSpread> {

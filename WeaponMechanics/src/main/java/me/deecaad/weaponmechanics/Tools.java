@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics;
 
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.map.MinecraftFont;

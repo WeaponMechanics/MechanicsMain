@@ -4,25 +4,18 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class PotionMechanic implements IMechanic<PotionMechanic> {
 

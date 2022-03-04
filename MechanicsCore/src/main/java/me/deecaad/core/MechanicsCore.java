@@ -1,8 +1,8 @@
 package me.deecaad.core;
 
 import me.deecaad.core.events.triggers.EquipListener;
-import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.listeners.ItemCraftListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
@@ -16,9 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;

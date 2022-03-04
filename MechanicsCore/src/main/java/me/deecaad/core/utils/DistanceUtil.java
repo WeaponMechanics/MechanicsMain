@@ -4,12 +4,10 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 

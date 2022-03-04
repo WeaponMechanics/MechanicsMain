@@ -10,11 +10,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SerializerListTest {
 

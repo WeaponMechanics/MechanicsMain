@@ -5,11 +5,9 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 
 /**
  * Simple class to handle weapon item serialization a bit differently.

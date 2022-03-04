@@ -1,7 +1,10 @@
 package me.deecaad.core.utils;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

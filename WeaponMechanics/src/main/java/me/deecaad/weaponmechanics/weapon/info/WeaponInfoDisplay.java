@@ -26,9 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 

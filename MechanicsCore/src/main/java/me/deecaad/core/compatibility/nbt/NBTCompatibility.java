@@ -2,7 +2,6 @@ package me.deecaad.core.compatibility.nbt;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -11,12 +10,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * This interface outlines a version dependant api that return values based on

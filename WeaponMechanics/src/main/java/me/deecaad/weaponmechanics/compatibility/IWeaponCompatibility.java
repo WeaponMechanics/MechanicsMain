@@ -1,15 +1,15 @@
 package me.deecaad.weaponmechanics.compatibility;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ComplexEntityPart;
+import org.bukkit.entity.ComplexLivingEntity;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
-import org.bukkit.util.VoxelShape;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;

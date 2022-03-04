@@ -8,7 +8,10 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
-import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -38,7 +41,9 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 

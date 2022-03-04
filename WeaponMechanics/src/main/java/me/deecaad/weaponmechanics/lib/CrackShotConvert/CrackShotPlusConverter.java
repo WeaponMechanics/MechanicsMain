@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.lib.CrackShotConvert;
 
 import me.DeeCaaD.CrackShotPlus.CSPapi;
-import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;

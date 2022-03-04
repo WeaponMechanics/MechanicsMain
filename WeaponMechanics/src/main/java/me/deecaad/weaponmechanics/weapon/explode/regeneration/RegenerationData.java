@@ -3,12 +3,8 @@ package me.deecaad.weaponmechanics.weapon.explode.regeneration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class RegenerationData implements Serializer<RegenerationData> {
 

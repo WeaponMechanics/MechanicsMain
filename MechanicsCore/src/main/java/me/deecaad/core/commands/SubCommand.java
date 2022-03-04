@@ -1,9 +1,12 @@
 package me.deecaad.core.commands;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
-import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -22,8 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-
-import static me.deecaad.core.MechanicsCore.debug;
 
 /**
  * This immutable abstract class outlines a subsection or small section of a
