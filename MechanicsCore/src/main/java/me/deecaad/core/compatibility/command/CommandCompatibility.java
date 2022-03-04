@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
@@ -78,10 +79,6 @@ public interface CommandCompatibility {
 
     ArgumentType<?> entitySummon();
 
-    ArgumentType<?> floatRange();
-
-    ArgumentType<?> intRange();
-
     ArgumentType<?> itemPredicate();
 
     ArgumentType<?> itemStack();
@@ -127,6 +124,22 @@ public interface CommandCompatibility {
     ArgumentType<?> block();
 
     ArgumentType<?> block2();
+
+    ArgumentType<?> key();
+
+    // * ----- Suggestion Providers ----- * //
+
+    SuggestionProvider<Object> biomeKey();
+
+    SuggestionProvider<Object> recipeKey();
+
+    SuggestionProvider<Object> soundKey();
+
+    SuggestionProvider<Object> entityKey();
+
+    SuggestionProvider<Object> advancementKey();
+
+    SuggestionProvider<Object> lootKey();
 
     // * ----- Parsing Argument Types ----- * //
 

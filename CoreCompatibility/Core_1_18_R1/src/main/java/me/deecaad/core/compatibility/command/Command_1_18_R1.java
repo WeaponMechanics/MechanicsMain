@@ -4,13 +4,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.Argument;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.*;
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
@@ -24,13 +25,13 @@ import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemPredicateArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CollectionTag;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -74,7 +75,6 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +85,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class Command_1_18_R1 implements CommandCompatibility {
 
     public static final MinecraftServer SERVER = ((CraftServer) Bukkit.getServer()).getServer();
@@ -184,16 +185,6 @@ public class Command_1_18_R1 implements CommandCompatibility {
     @Override
     public ArgumentType<?> entitySummon() {
         return EntitySummonArgument.id();
-    }
-
-    @Override
-    public ArgumentType<?> floatRange() {
-        return RangeArgument.floatRange();
-    }
-
-    @Override
-    public ArgumentType<?> intRange() {
-        return RangeArgument.intRange();
     }
 
     @Override
@@ -311,9 +302,40 @@ public class Command_1_18_R1 implements CommandCompatibility {
         return ColumnPosArgument.columnPos();
     }
 
+    @Override
+    public ArgumentType<?> key() {
+        return ResourceLocationArgument.id();
+    }
 
+    @Override
+    public SuggestionProvider<Object> biomeKey() {
+        return (SuggestionProvider) SuggestionProviders.AVAILABLE_BIOMES;
+    }
 
+    @Override
+    public SuggestionProvider<Object> recipeKey() {
+        return (SuggestionProvider) SuggestionProviders.ALL_RECIPES;
+    }
 
+    @Override
+    public SuggestionProvider<Object> soundKey() {
+        return (SuggestionProvider) SuggestionProviders.AVAILABLE_SOUNDS;
+    }
+
+    @Override
+    public SuggestionProvider<Object> entityKey() {
+        return (SuggestionProvider) SuggestionProviders.SUMMONABLE_ENTITIES;
+    }
+
+    @Override
+    public SuggestionProvider<Object> advancementKey() {
+        return (context, builder) -> SharedSuggestionProvider.suggestResource(SERVER.getAdvancements().getAllAdvancements().stream().map(net.minecraft.advancements.Advancement::getId), builder);
+    }
+
+    @Override
+    public SuggestionProvider<Object> lootKey() {
+        return (context, builder) -> SharedSuggestionProvider.suggestResource(SERVER.getLootTables().getIds(), builder);
+    }
 
     private static NamespacedKey fromResourceLocation(ResourceLocation key) {
         return NamespacedKey.fromString(key.getNamespace() + ":" + key.getPath());

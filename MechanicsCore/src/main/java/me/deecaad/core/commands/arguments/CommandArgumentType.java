@@ -26,7 +26,7 @@ public abstract class CommandArgumentType<T> {
 
     public abstract T parse(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
-    public CompletableFuture<Suggestions> suggestions(CommandContext<Object> context, SuggestionsBuilder builder) {
+    public CompletableFuture<Suggestions> suggestions(CommandContext<Object> context, SuggestionsBuilder builder) throws CommandSyntaxException {
         return getBrigadierType().listSuggestions(context, builder);
     }
 

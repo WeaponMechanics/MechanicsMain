@@ -1,14 +1,27 @@
 package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.commands.Argument;
 import me.deecaad.core.commands.CommandBuilder;
 import me.deecaad.core.commands.CommandData;
+import me.deecaad.core.commands.CommandExecutor;
 import me.deecaad.core.commands.HelpCommandBuilder;
 import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
-import me.deecaad.core.commands.Argument;
-import me.deecaad.core.commands.arguments.*;
-import me.deecaad.core.commands.CommandExecutor;
+import me.deecaad.core.commands.arguments.BlockPredicateArgumentType;
+import me.deecaad.core.commands.arguments.BooleanArgumentType;
+import me.deecaad.core.commands.arguments.ColorArgumentType;
+import me.deecaad.core.commands.arguments.DoubleArgumentType;
+import me.deecaad.core.commands.arguments.EntityArgumentType;
+import me.deecaad.core.commands.arguments.EntityListArgumentType;
+import me.deecaad.core.commands.arguments.EntityTypeArgumentType;
+import me.deecaad.core.commands.arguments.EnumArgumentType;
+import me.deecaad.core.commands.arguments.GreedyArgumentType;
+import me.deecaad.core.commands.arguments.IntegerArgumentType;
+import me.deecaad.core.commands.arguments.LocationArgumentType;
+import me.deecaad.core.commands.arguments.MapArgumentType;
+import me.deecaad.core.commands.arguments.StringArgumentType;
+import me.deecaad.core.commands.arguments.TimeArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
@@ -38,7 +51,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -59,7 +71,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -156,7 +167,7 @@ public class WeaponMechanicsCommand {
                 new Argument<>("origin", new LocationArgumentType()).withDesc("Where the center of explosion is"),
                 new Argument<>("exposure", new StringArgumentType(), "DEFAULT").withDesc("How to calculate entity damage").replace(SuggestionsBuilder.from(ExposureFactory.getInstance().getOptions())),
                 new Argument<>("break", new BooleanArgumentType(), true).withDesc("true to have the explosion break blocks"),
-                new Argument<>("blacklist", new BlockPredicateType(), BlockPredicateType.FALSE("none")).withDesc("Which blocks should not be broken"),
+                new Argument<>("blacklist", new BlockPredicateArgumentType(), BlockPredicateArgumentType.FALSE("none")).withDesc("Which blocks should not be broken"),
                 new Argument<>("regeneration", new TimeArgumentType(), 200).withDesc("How long after should the blocks regenerate") // 20 minutes max
         };
 

@@ -8,7 +8,7 @@ import org.bukkit.block.Block;
 
 import java.util.function.Predicate;
 
-public class BlockPredicateType extends CommandArgumentType<Predicate<Block>> {
+public class BlockPredicateArgumentType extends CommandArgumentType<Predicate<Block>> {
 
     @Override
     public ArgumentType<?> getBrigadierType() {
