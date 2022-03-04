@@ -87,9 +87,10 @@ public class Trigger implements Serializer<Trigger> {
         if (denyWhenSneaking() && entityWrapper.isSneaking()) return false;
         if (denyWhenStanding() && entityWrapper.isStanding()) return false;
         if (denyWhenWalking() && entityWrapper.isWalking()) return false;
+        if (denyWhenSprinting() && entityWrapper.isSprinting()) return false;
+        if (denyWhenDualWielding() && entityWrapper.isDualWielding()) return false;
         if (denyWhenSwimming() && entityWrapper.isSwimming()) return false;
         if (denyWhenInMidair() && entityWrapper.isInMidair()) return false;
-        if (denyWhenDualWielding() && entityWrapper.isDualWielding()) return false;
         return !denyWhenGliding() || !entityWrapper.isGliding();
     }
 
@@ -143,6 +144,20 @@ public class Trigger implements Serializer<Trigger> {
     }
 
     /**
+     * @return true if trigger should be cancelled when sprinting
+     */
+    public boolean denyWhenSprinting() {
+        return denyWhen.contains("Sprinting");
+    }
+
+    /**
+     * @return true if trigger should be cancelled when dual wielding
+     */
+    public boolean denyWhenDualWielding() {
+        return denyWhen.contains("Dual_Wielding");
+    }
+
+    /**
      * @return true if trigger should be cancelled while swimming
      */
     public boolean denyWhenSwimming() {
@@ -161,13 +176,6 @@ public class Trigger implements Serializer<Trigger> {
      */
     public boolean denyWhenGliding() {
         return denyWhen.contains("Gliding");
-    }
-
-    /**
-     * @return true if trigger should be cancelled when dual wielding
-     */
-    public boolean denyWhenDualWielding() {
-        return denyWhen.contains("Dual_Wielding");
     }
 
     @Override
@@ -199,8 +207,8 @@ public class Trigger implements Serializer<Trigger> {
             for (String denyName : denySection.getKeys(false)) {
 
                 if (!denyName.equals("Reloading") && !denyName.equals("Zooming") && !denyName.equals("Sneaking") && !denyName.equals("Standing")
-                        && !denyName.equals("Walking") && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")
-                        && !denyName.equals("Dual_Wielding")) {
+                        && !denyName.equals("Walking") && !denyName.equals("Sprinting") && !denyName.equals("Dual_Wielding")
+                        && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")) {
 
                     throw data.exception("Deny_When", "Unknown key: " + denyName);
                 }

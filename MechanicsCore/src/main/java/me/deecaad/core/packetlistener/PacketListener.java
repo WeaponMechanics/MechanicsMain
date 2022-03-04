@@ -292,25 +292,22 @@ public abstract class PacketListener {
             CompatibilityAPI.getCompatibility().getEntityPlayer(player);
             Object nmsPlayer = CompatibilityAPI.getCompatibility().getEntityPlayer(player);
             Object connection = ReflectionUtil.invokeField(playerConnectionField, nmsPlayer);
-            Object manager = ReflectionUtil.invokeField(networkManagerField, connection);
+            Object manager = connection == null ? null : ReflectionUtil.invokeField(networkManagerField, connection);
 
             if (manager == null) {
-                debug.error("Player was missing a network manager!",
+                debug.error("Player was missing a network manager or player connection!",
                         "The cause is unknown, and " + getHandlerName() + " is now in a broken state!",
-                        "Please report the following information to developers");
-
-                debug.error(
-                        "Channel cache: " + channelCache,
-                        "Bukkit Player: " + player,
-                        "NMS Player: " + nmsPlayer,
-                        "PlayerConnection: " + connection,
-                        "Server Channels: " + serverChannels,
-                        "Version: " + Bukkit.getName() + " " + Bukkit.getVersion()
+                        "Please report the following information to developers:",
+                        "  Channel cache: " + channelCache,
+                        "  Bukkit Player: " + player,
+                        "  NMS Player: " + nmsPlayer,
+                        "  PlayerConnection: " + connection,
+                        "  Server Channels: " + serverChannels,
+                        "  Version: " + Bukkit.getName() + " " + Bukkit.getVersion()
                 );
             }
 
             channel = (Channel) ReflectionUtil.invokeField(channelField, manager);
-
             channelCache.put(player.getName(), channel);
         }
 
@@ -386,6 +383,7 @@ public abstract class PacketListener {
      */
     public final void close() {
         if (!isClosed) {
+            debug.debug("Closing packet listener: " + getHandlerName());
             HandlerList.unregisterAll(listener);
 
             for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -432,6 +430,7 @@ public abstract class PacketListener {
             if (LOGIN_PACKET.isInstance(msg)) {
                 GameProfile profile = (GameProfile) GAME_PROFILE.get(msg);
                 channelCache.put(profile.getName(), channel);
+                debug.debug("Login Packet: " + msg);
             }
 
             Packet packet = new Packet(player, msg);

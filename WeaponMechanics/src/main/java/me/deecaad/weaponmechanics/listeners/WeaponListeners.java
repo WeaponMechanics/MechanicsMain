@@ -80,12 +80,13 @@ public class WeaponListeners implements Listener {
         }
 
         ItemStack dequipped = e.getDequipped();
-        if (weaponHandler.getInfoHandler().getWeaponTitle(dequipped, false) != null) {
+        String dequippedWeapon = weaponHandler.getInfoHandler().getWeaponTitle(dequipped, false);
+        if (dequippedWeapon != null) {
 
             // Don't use holster mechanics is equip mechanics were already used
             if (!alreadyUsedEquipMechanics) {
-                Mechanics holsterMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Holster_Mechanics", Mechanics.class);
-                if (holsterMechanics != null) holsterMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+                Mechanics holsterMechanics = getConfigurations().getObject(dequippedWeapon + ".Info.Weapon_Holster_Mechanics", Mechanics.class);
+                if (holsterMechanics != null) holsterMechanics.use(new CastData(entityWrapper, dequippedWeapon, dequipped));
             }
 
             if (weaponTitle == null && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, dequipped.getType())) {

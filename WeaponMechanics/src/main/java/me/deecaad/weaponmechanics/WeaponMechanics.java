@@ -405,7 +405,7 @@ public class WeaponMechanics {
             } else if (counter <= 20) {
                 return "11-20";
             } else if (counter <= 30) {
-                return "16-30";
+                return "21-30";
             } else if (counter <= 50) {
                 return "31-50";
             } else if (counter <= 100) {
@@ -414,6 +414,8 @@ public class WeaponMechanics {
                 return ">100";
             }
         }));
+
+        metrics.addCustomChart(new SimplePie("core_version", () -> MechanicsCore.getPlugin().getDescription().getVersion()));
     }
 
     public TaskChain onReload() {
