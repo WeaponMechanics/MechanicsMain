@@ -90,8 +90,11 @@ public class ReloadHandler implements IValidator {
 
     private boolean startReloadWithoutTriggerAndWithoutTiming(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
 
-        // Don't try to reload if either one of the hands is already reloading
-        if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+        // Don't try to reload if either one of the hands is already reloading / full autoing
+        HandData mainHandData = entityWrapper.getMainHandData();
+        HandData offHandData = entityWrapper.getOffHandData();
+        if (mainHandData.isReloading() || mainHandData.isUsingFullAuto() || mainHandData.isUsingBurst()
+                || offHandData.isReloading() || offHandData.isUsingFullAuto() || offHandData.isUsingBurst()) {
             return false;
         }
 

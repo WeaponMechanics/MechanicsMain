@@ -333,6 +333,13 @@ public class ShootHandler implements IValidator {
                 // START RELOAD STUFF
 
                 ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+
+                if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+                    handData.setBurstTask(0);
+                    cancel();
+                    return;
+                }
+
                 if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, 1)) {
                     handData.setBurstTask(0);
                     cancel();
@@ -386,6 +393,12 @@ public class ShootHandler implements IValidator {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (taskReference == weaponStack) {
                     taskReference = weaponStack;
+                }
+
+                if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+                    handData.setFullAutoTask(0);
+                    cancel();
+                    return;
                 }
 
                 int ammoLeft = reloadHandler.getAmmoLeft(taskReference, weaponTitle);
