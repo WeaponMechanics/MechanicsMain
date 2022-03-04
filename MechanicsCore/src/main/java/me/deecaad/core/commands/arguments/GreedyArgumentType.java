@@ -16,4 +16,9 @@ public class GreedyArgumentType extends CommandArgumentType<String> {
     public String parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
         return StringArgumentType.getString(context, key);
     }
+
+    @Override
+    public boolean includeName() {
+        return true;
+    }
 }

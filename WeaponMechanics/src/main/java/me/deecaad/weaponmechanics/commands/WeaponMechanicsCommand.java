@@ -10,12 +10,15 @@ import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.commands.CommandExecutor;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.file.Configuration;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
+import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.Flashbang;
@@ -34,8 +37,12 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -48,8 +55,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -61,6 +70,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
 import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
 import static org.bukkit.ChatColor.*;
@@ -186,13 +196,41 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.test.fakeentity")
                         .withRequirements(LivingEntity.class::isInstance)
                         .withDescription("Spawns in a fake entity")
-                        .withArgument(new Argument<>("entity", new EntityTypeArgumentType()))
-                        .withArgument(new Argument<>("location", new LocationArgumentType()))
-                        .withArgument(new Argument<>("move", new StringArgumentType()).append(SuggestionsBuilder.from("none", "spin", "flash", "x", "y", "z")))
-                        .withArgument(new Argument<>("time", new TimeArgumentType(), 600))
-                        .withArgument(new Argument<>("gravity", new BooleanArgumentType(), true))
-                        .withArgument(new Argument<>("name", new GreedyArgumentType(), null))
-                        .executes(CommandExecutor.player((sender, args) -> spawn(sender, (Location) args[1], (EntityType) args[0], (String) args[2], (int) args[3], (boolean) args[4], (String) args[5]))));
+                        .withArgument(new Argument<>("entity", new EntityTypeArgumentType()).withDesc("Which entity to spawn"))
+                        .withArgument(new Argument<>("location", new LocationArgumentType()).withDesc("Where should the entity be spawned"))
+                        .withArgument(new Argument<>("move", new StringArgumentType()).withDesc("How should the entity act").append(SuggestionsBuilder.from("none", "spin", "flash", "x", "y", "z")))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 600).withDesc("How long should the entity exist"))
+                        .withArgument(new Argument<>("gravity", new BooleanArgumentType(), true).withDesc("Should the entity be effected by gravity"))
+                        .withArgument(new Argument<>("name", new GreedyArgumentType(), null).withDesc("What is the entity's custom name"))
+                        .executes(CommandExecutor.player((sender, args) -> spawn(sender, (Location) args[1], (EntityType) args[0], (String) args[2], (int) args[3], (boolean) args[4], (String) args[5]))))
+
+                .withSubcommand(new CommandBuilder("firework")
+                        .withPermission("weaponmechanics.commands.test.firework")
+                        .withDescription("Spawns in a fake firework")
+                        .withArgument(new Argument<>("location", new LocationArgumentType()).withDesc("Where to spawn the firework"))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 60).withDesc("How long before the firework explodes"))
+                        .withArgument(new Argument<>("shape", new EnumArgumentType<>(FireworkEffect.Type.class), FireworkEffect.Type.BURST).withDesc("Which shape should the particles be spread"))
+                        .withArgument(new Argument<>("color", new ColorArgumentType(), Color.RED).withDesc("Color of the particles"))
+                        .withArgument(new Argument<>("fade", new ColorArgumentType(), Color.RED).withDesc("Fade color of the particles"))
+                        .withArgument(new Argument<>("flicker", new BooleanArgumentType(), true).withDesc("Should the particles flash"))
+                        .withArgument(new Argument<>("trail", new BooleanArgumentType(), true).withDesc("Should the firework have a trail"))
+                        .executes(CommandExecutor.any((sender, args) -> {
+
+                        })))
+
+
+                .withSubcommand(new CommandBuilder("hitbox")
+                        .withPermission("weaponmechanics.commands.test.hitbox")
+                        .withDescription("Shows the hitboxes of nearby entities using particles")
+                        .withArgument(new Argument<>("targets", new EntityListArgumentType()))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 200))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            hitbox(sender, (List<Entity>) args[0], (int) args[1]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("mask")
+                        .withPermission("weaponmechanics.commands.test.mask")
+                        .withArgument());
 
         command.withSubcommand(test);
         command.register();
@@ -207,7 +245,7 @@ public class WeaponMechanicsCommand {
             case "*":
             case "**":
                 weapons = info.getSortedWeaponList().stream()
-                        .map(weapon -> info.generateWeapon(weapon, amount))
+                            .map(weapon -> info.generateWeapon(weapon, amount))
                         .collect(Collectors.toList());
                 break;
             case "*r":
@@ -230,11 +268,12 @@ public class WeaponMechanicsCommand {
                 player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.0f);
 
                 Map<Integer, ItemStack> overflow = player.getInventory().addItem(weapons.toArray(new ItemStack[0]));
-                if (weaponTitle.equals("**"))
-                    overflow.values().forEach(item -> entity.getWorld().dropItem(entity.getLocation(), item));
-                else if (!weaponTitle.equals("*"))
-                    sender.sendMessage(RED + entity.getName() + "'s inventory was full!");
-
+                if (!overflow.isEmpty()) {
+                    if (weaponTitle.equals("**"))
+                        overflow.values().forEach(item -> entity.getWorld().dropItem(entity.getLocation(), item));
+                    else if (!weaponTitle.equals("*"))
+                        sender.sendMessage(RED + player.getName() + "'s inventory was full");
+                }
                 count++;
 
             } else if (entity instanceof LivingEntity) {
@@ -244,10 +283,16 @@ public class WeaponMechanicsCommand {
             }
         }
 
+        int weaponCount = weapons.size();
+        if ("*".equals(weaponTitle) || "**".equals(weaponTitle)) {
+            weaponTitle = "of each weapon";
+            weaponCount = 1;
+        }
+
         if (count > 1) {
-            sender.sendMessage(GRAY + "" + count + GREEN + " entities were given " + GRAY + amount + " " + weaponTitle + GREEN + "s");
+            sender.sendMessage(GRAY + "" + count + GREEN + " entities were given " + GRAY + amount + " " + weaponTitle + GREEN + (weaponCount > 1 ? "s" : ""));
         } else if (count == 1) {
-            sender.sendMessage(GRAY + targets.get(0).getName() + GREEN + " was given " + GRAY + amount + " " + weaponTitle + GREEN + "s");
+            sender.sendMessage(GRAY + targets.get(0).getName() + GREEN + " was given " + GRAY + amount + " " + weaponTitle + GREEN + (count > 1 ? "s" : ""));
         } else {
             sender.sendMessage(RED + "No entities were given a weapon");
         }
@@ -267,19 +312,15 @@ public class WeaponMechanicsCommand {
             updateChecker.onUpdateFound(sender, updateChecker.getSpigotResource());
         }
 
-        // Sends information about the server version
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Server: " + GRAY + Bukkit.getName() + " " + Bukkit.getVersion());
-
-        // Information about MechanicsCore
         sender.sendMessage("  " + GRAY + SYM + GOLD + " MechanicsCore: " + GRAY + MechanicsCore.getPlugin().getDescription().getVersion());
-
-        // Information about java
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Java: " + GRAY + System.getProperty("java.version"));
 
         // Gets all supported plugins
         Set<String> softDepends = new LinkedHashSet<>(desc.getSoftDepend());
         softDepends.addAll(MechanicsCore.getPlugin().getDescription().getSoftDepend());
         softDepends.remove("MechanicsCore");
+        softDepends.removeIf(name -> Bukkit.getPluginManager().getPlugin(name) == null);
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Supported plugins: " + GRAY + String.join(", ", softDepends));
     }
 
@@ -512,5 +553,72 @@ public class WeaponMechanicsCommand {
                 }
             }
         }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
+    }
+
+    public static void hitbox(CommandSender sender, List<Entity> targets, int ticks) {
+        Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
+        new BukkitRunnable() {
+            int ticksPassed = 0;
+            public void run() {
+
+                for (Entity entity : targets) {
+                    if (!(entity instanceof LivingEntity)) continue;
+                    if (entity.equals(sender)) continue;
+
+                    EntityType type = entity.getType();
+
+                    double head = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.HEAD.name(), -1);
+                    double body = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.BODY.name(), -1);
+                    double legs = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.LEGS.name(), -1);
+                    double feet = basicConfiguration.getDouble("Entity_Hitboxes." + type.name() + "." + DamagePoint.FEET.name(), -1);
+
+                    if (head == -1 || body == -1 || legs == -1 || feet == -1) {
+                        debug.log(LogLevel.ERROR, "Entity type " + type.name() + " is missing some of its damage point values, please add it",
+                                "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
+                                "Its missing one of these: HEAD, BODY, LEGS or FEET");
+                        continue;
+                    }
+                    double sumOf = head + body + legs + feet;
+                    if (NumberUtil.equals(sumOf, 0.0)) { // If the numbers are not super close together (floating point issues)
+                        debug.log(LogLevel.ERROR, "Entity type " + type.name() + " hit box values sum doesn't match 1.0",
+                                "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
+                                "Now the total sum was " + sumOf + ", please make it 1.0.");
+                        continue;
+                    }
+
+                    BoundingBox box = entity.getBoundingBox();
+                    double max = box.getMaxY();
+                    double height = box.getHeight();
+
+                    double headY = max - (height * head);
+                    double bodyY = max - (height * (head + body));
+                    double legsY = max - (height * (head + body + legs));
+                    double feetY = max - (height * (head + body + legs + feet)); // this could also be just box.getMinY()
+
+                    for (double x = box.getMinX(); x <= box.getMaxX(); x += 0.25) {
+                        for (double z = box.getMinZ(); z <= box.getMaxZ(); z += 0.25) {
+
+                            if (head > 0.0) {
+                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, headY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.RED, 1.0f), true);
+                            }
+                            if (body > 0.0) {
+                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, bodyY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.ORANGE, 1.0f), true);
+                            }
+                            if (legs > 0.0) {
+                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, legsY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.YELLOW, 1.0f), true);
+                            }
+                            if (feet > 0.0) {
+                                entity.getWorld().spawnParticle(Particle.REDSTONE, x, feetY, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.GREEN, 1.0f), true);
+                            }
+                        }
+                    }
+                }
+
+                ticksPassed += 5;
+                if (ticksPassed >= ticks) {
+                    cancel();
+                }
+            }
+        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 5);
     }
 }

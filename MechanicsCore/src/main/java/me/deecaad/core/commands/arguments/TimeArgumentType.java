@@ -15,4 +15,9 @@ public class TimeArgumentType extends CommandArgumentType<Integer> {
     public Integer parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
         return compatibility().getTime(context, key);
     }
+
+    @Override
+    public boolean includeName() {
+        return true;
+    }
 }

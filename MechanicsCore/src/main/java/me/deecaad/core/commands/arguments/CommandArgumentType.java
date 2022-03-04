@@ -3,12 +3,13 @@ package me.deecaad.core.commands.arguments;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.deecaad.core.commands.CommandData;
-import me.deecaad.core.commands.CommandException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import me.deecaad.core.commands.Argument;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.command.CommandCompatibility;
 
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class CommandArgumentType<T> {
 
@@ -25,19 +26,23 @@ public abstract class CommandArgumentType<T> {
 
     public abstract T parse(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
-
-    // * ----- LEGACY METHODS ----- * //
-    // In versions older then 1.13, these methods are used. Any
-    // CommandArgumentType which does not implement these methods will not be
-    // compatible with legacy versions.
-
-    public T legacyParse(String arg) throws CommandException {
-        throw new IllegalStateException(getClass() + " does not support legacy MC versions");
+    public CompletableFuture<Suggestions> suggestions(CommandContext<Object> context, SuggestionsBuilder builder) {
+        return getBrigadierType().listSuggestions(context, builder);
     }
 
-    public List<String> legacySuggestions(CommandData data) {
-        throw new IllegalStateException(getClass() + " does not support legacy MC versions");
+    /**
+     * Usually, an argument's datatype is pretty intuitive. For example, an
+     * {@link EntityArgumentType} is usually used as a target selector. An
+     * {@link IntegerArgumentType} is never as intuitive, so it should override
+     * this method to return <code>true</code>.
+     *
+     * @return true to include the {@link Argument#getName()}
+     */
+    public boolean includeName() {
+        return false;
     }
+
+    // * ----- OTHER METHODS ----- * //
 
     @Override
     public String toString() {

@@ -31,4 +31,9 @@ public class DoubleArgumentType extends CommandArgumentType<Double> {
     public Double parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
         return com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(context, key);
     }
+
+    @Override
+    public boolean includeName() {
+        return true;
+    }
 }

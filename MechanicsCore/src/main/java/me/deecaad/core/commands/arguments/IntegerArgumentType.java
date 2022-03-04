@@ -41,18 +41,7 @@ public class IntegerArgumentType extends CommandArgumentType<Integer> {
     }
 
     @Override
-    public Integer legacyParse(String arg) throws CommandException {
-        try {
-            return Integer.parseInt(arg);
-        } catch (NumberFormatException ex) {
-            throw new CommandException("Expected integer, got: " + arg, ex);
-        }
-    }
-
-    @Override
-    public List<String> legacySuggestions(CommandData input) {
-        return IntStream.range(min, max + 1)
-                .mapToObj(String::valueOf)
-                .collect(Collectors.toList());
+    public boolean includeName() {
+        return true;
     }
 }

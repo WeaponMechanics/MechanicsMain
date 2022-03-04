@@ -107,7 +107,12 @@ public class BrigadierCommand implements Command<Object> {
                 // When an argument wants to REPLACE suggestions, only include
                 // "buildSuggestionProvider" (which builds custom suggestions).
                 if (argument.isReplaceSuggestions) {
-                    required.suggests(buildSuggestionProvider(argument));
+                    required.suggests((context, suggestionsBuilder) -> {
+                        buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
+                        if (argument.getType().includeName())
+                            suggestionsBuilder.suggest(argument.getName(), new LiteralMessage(argument.description));
+                        return suggestionsBuilder.buildFuture();
+                    });
                 }
 
                 // When an argument wants to ADD suggestions, we should include
@@ -115,8 +120,10 @@ public class BrigadierCommand implements Command<Object> {
                 // suggestions.
                 else if (argument.suggestions != null) {
                     required.suggests((context, suggestionsBuilder) -> {
-                        argument.getType().getBrigadierType().listSuggestions(context, suggestionsBuilder);
+                        argument.getType().suggestions(context, suggestionsBuilder);
                         buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
+                        if (argument.getType().includeName())
+                            suggestionsBuilder.suggest(argument.getName(), new LiteralMessage(argument.description));
                         return suggestionsBuilder.buildFuture();
                     });
                 }
@@ -124,7 +131,12 @@ public class BrigadierCommand implements Command<Object> {
                 // When the argument doesn't have any custom suggestions, we
                 // don't need to mess with the suggestions.
                 else {
-                    required.suggests((context, suggestionsBuilder) -> argument.getType().getBrigadierType().listSuggestions(context, suggestionsBuilder));
+                    required.suggests((context, suggestionsBuilder) -> {
+                        argument.getType().suggestions(context, suggestionsBuilder);
+                        if (argument.getType().includeName())
+                            suggestionsBuilder.suggest(argument.getName(), new LiteralMessage(argument.description));
+                        return suggestionsBuilder.buildFuture();
+                    });
                 }
 
                 temp = required;
