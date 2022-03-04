@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.commands;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.CommandBuilder;
 import me.deecaad.core.commands.CommandData;
+import me.deecaad.core.commands.HelpCommandBuilder;
 import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
 import me.deecaad.core.commands.Argument;
@@ -115,7 +116,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("target", new EntityListArgumentType()).withDesc("Who to give the weapon(s) to"))
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
-                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon").replace(weaponDataMap.suggestions()))
+                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
                 .withSubcommand(new CommandBuilder("get")
@@ -123,7 +124,7 @@ public class WeaponMechanicsCommand {
                         .withDescription("Gives you the requested weapon(s)")
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
-                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon").replace(weaponDataMap.suggestions()))
+                        .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
 
                 .withSubcommand(new CommandBuilder("info")
@@ -226,13 +227,11 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200))
                         .executes(CommandExecutor.any((sender, args) -> {
                             hitbox(sender, (List<Entity>) args[0], (int) args[1]);
-                        })))
+                        })));
 
-                .withSubcommand(new CommandBuilder("mask")
-                        .withPermission("weaponmechanics.commands.test.mask")
-                        .withArgument());
 
         command.withSubcommand(test);
+        command.registerHelp(new HelpCommandBuilder.HelpColor(GOLD.asBungee(), GRAY.asBungee(), "" + SYM));
         command.register();
     }
 

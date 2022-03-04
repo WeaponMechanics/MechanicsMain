@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.Suggestions;
 import me.deecaad.core.commands.CommandData;
 import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class MapArgumentType extends CommandArgumentType<Map<String, Object>> {
@@ -58,47 +60,55 @@ public class MapArgumentType extends CommandArgumentType<Map<String, Object>> {
         return nbt;
     }
 
-    public Function<CommandData, Tooltip[]> suggestions() {
-        return (data) -> {
-            if (data.current.isEmpty())
-                return new Tooltip[]{ Tooltip.of("{", "Open tag") };
+    @Override
+    public CompletableFuture<Suggestions> suggestions(CommandContext<Object> context, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
+        String current = builder.getRemaining();
+        CommandData data = new CommandData(compatibility().getCommandSender(context), new Object[0], builder.getInput(), builder.getRemaining());
 
-            char delimiter = 0;
-            int stop;
-            for (stop = data.current.length() - 1; stop >= 0 && "{,:".indexOf(delimiter) == -1; stop--)
-                delimiter = data.current.charAt(stop);
+        if (current.isEmpty()) {
+            builder.suggest("{", new LiteralMessage("Open tag"));
+            return builder.buildFuture();
+        }
 
-            switch (delimiter) {
-                case '{':
-                case ',':
-                    return SuggestionsBuilder.from(types.keySet()).apply(data);
-                case ':':
-                    int start;
-                    delimiter = data.current.charAt(stop);
-                    for (start = stop; start >= 0 && "{,:".indexOf(delimiter) == -1; start--)
-                        delimiter = data.current.charAt(start);
+        char delimiter = 0;
+        int stop;
+        for (stop = current.length() - 1; stop >= 0 && "{,:".indexOf(delimiter) == -1; stop--)
+            delimiter = current.charAt(stop);
 
-                    String key = data.current.substring(start + 1, stop + 1);
-                    String value = data.current.substring(stop + 2);
+        switch (delimiter) {
+            case '{':
+            case ',':
+                for (String str : types.keySet())
+                    builder.suggest(str);
+                return builder.buildFuture();
+            case ':':
+                int start;
+                delimiter = current.charAt(stop);
+                for (start = stop; start >= 0 && "{,:".indexOf(delimiter) == -1; start--)
+                    delimiter = current.charAt(start);
 
-                    System.out.println("Current: " + data.current + ",   " + key + ": " + value);
-                    if (!types.containsKey(key))
-                        break;
+                String key = current.substring(start + 1, stop + 1);
+                String value = current.substring(stop + 2);
 
-                    for (Tooltip tip : types.get(key).suggestions.apply(data)) {
-                        if (tip.suggestion().equalsIgnoreCase(value))
-                            return new Tooltip[]{ Tooltip.of("}", "Close tag"), Tooltip.of(",", "Add another argument") };
+                System.out.println("Current: " + current + ",   " + key + ": " + value);
+                if (!types.containsKey(key))
+                    break;
+
+                for (Tooltip tip : types.get(key).suggestions.apply(data)) {
+                    if (tip.suggestion().equalsIgnoreCase(value)) {
+                        builder.suggest("}", new LiteralMessage("Close tag"));
+                        builder.suggest(",", new LiteralMessage("Add another element"));
+                        return builder.buildFuture();
                     }
+                }
 
+                int finalStop = stop;
+                Arrays.stream(types.get(key).suggestions.apply(data))
+                        .map(tip -> Tooltip.of(data.current.substring(0, finalStop + 1) + tip.suggestion(), tip.tip()))
+                        .forEach(tip -> builder.suggest(tip.suggestion(), new LiteralMessage(tip.tip())));
+        }
 
-                    int finalStop = stop;
-                    return Arrays.stream(types.get(key).suggestions.apply(data))
-                            .map(tip -> Tooltip.of(data.current.substring(0, finalStop + 1) + tip.suggestion(), tip.tip()))
-                            .toArray(Tooltip[]::new);
-            }
-
-            return new Tooltip[]{  };
-        };
+        return builder.buildFuture();
     }
 
     public static class MapValueType<T> {

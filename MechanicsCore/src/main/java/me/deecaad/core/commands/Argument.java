@@ -182,10 +182,6 @@ public class Argument<T> {
         return type.parse(context, key);
     }
 
-    public T parse(String str) throws CommandException {
-        return type.legacyParse(str);
-    }
-
     public Predicate<Object> requirements() {
         return nms -> {
             CommandSender sender = CompatibilityAPI.getCommandCompatibility().getCommandSenderRaw(nms);

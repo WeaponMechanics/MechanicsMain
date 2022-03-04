@@ -83,10 +83,10 @@ public class CommandBuilder implements Cloneable {
     public CommandBuilder withArgument(Argument<?> argument) {
         Argument<?> previous = this.args.size() == 0 ? null : this.args.get(this.args.size() - 1);
 
-        if (argument.isRequired() && !previous.isRequired())
+        if (argument.isRequired() && previous != null && !previous.isRequired())
             throw new CommandException("Cannot have a required argument after optional argument. For: " + this + " + " + argument);
         if (argument.getType() instanceof GreedyArgumentType)
-            if (this.args.stream().anyMatch(a -> GreedyArgumentType.class.isInstance(argument.getType())))
+            if (this.args.stream().anyMatch(a -> GreedyArgumentType.class.isInstance(a.getType())))
                 throw new CommandException("Cannot have multiple greedy arguments. For: " + this + " + " + argument);
 
         this.args.add((Argument<Object>) argument);

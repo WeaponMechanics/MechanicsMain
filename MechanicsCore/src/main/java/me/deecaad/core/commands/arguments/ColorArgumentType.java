@@ -10,7 +10,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.deecaad.core.utils.EnumUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
-import sun.tools.jstat.Literal;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
