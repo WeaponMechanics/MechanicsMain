@@ -24,6 +24,7 @@ dependencies {
     implementation(project(":Weapon_1_16_R3"))
     implementation(project(":Weapon_1_17_R1", "reobf"))
     implementation(project(":Weapon_1_18_R1", "reobf"))
+    implementation(project(":Weapon_1_18_R2", "reobf"))
 }
 
 tasks {
@@ -64,6 +65,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_16_R3"))
         include(project(":Weapon_1_17_R1"))
         include(project(":Weapon_1_18_R1"))
+        include(project(":Weapon_1_18_R2"))
 
         relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
             include(dependency("co.aikar:minecraft-timings"))
