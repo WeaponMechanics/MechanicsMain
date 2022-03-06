@@ -230,7 +230,6 @@ public class WeaponMechanicsCommand {
 
                         })))
 
-
                 .withSubcommand(new CommandBuilder("hitbox")
                         .withPermission("weaponmechanics.commands.test.hitbox")
                         .withDescription("Shows the hitboxes of nearby entities using particles")
@@ -242,7 +241,7 @@ public class WeaponMechanicsCommand {
 
 
         command.withSubcommand(test);
-        command.registerHelp(new HelpCommandBuilder.HelpColor(GOLD.asBungee(), GRAY.asBungee(), "" + SYM));
+        command.registerHelp(HelpCommandBuilder.HelpColor.from(GOLD, GRAY, SYM));
         command.register();
     }
 

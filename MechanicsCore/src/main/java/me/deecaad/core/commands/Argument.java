@@ -4,6 +4,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.deecaad.core.commands.arguments.CommandArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
@@ -199,15 +205,14 @@ public class Argument<T> {
         return name;
     }
 
-    public ComponentBuilder append(ComponentBuilder builder) {
-        ChatColor color = builder.getCurrentComponent().getColor();
+    public TextComponent.Builder append(TextComponent.Builder builder, Style style) {
 
         if (isRequired()) {
-            builder.append(" <" + name).color(color);
-            builder.append("*").color(net.md_5.bungee.api.ChatColor.RED);
-            builder.append(">").color(color);
+            builder.append(Component.text().content(" <" + name).style(style));
+            builder.append(Component.text().content("*").color(NamedTextColor.RED).decorate(TextDecoration.BOLD, TextDecoration.ITALIC));
+            builder.append(Component.text().content(">").style(style));
         } else {
-            builder.append(" <" + name + ">").color(color);
+            builder.append(Component.text().content(" <" + name + ">").style(style));
         }
 
         return builder;

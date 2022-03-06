@@ -12,6 +12,8 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.10.10")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     compileOnly("com.mojang:authlib:1.5.21")
+    implementation("net.kyori:adventure-api:4.10.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.1.0")
     compileOnly("io.netty:netty-all:4.0.23.Final")
     compileOnly("com.mojang:brigadier:1.0.18")
 }

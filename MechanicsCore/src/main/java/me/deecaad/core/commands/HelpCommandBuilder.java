@@ -1,10 +1,13 @@
 package me.deecaad.core.commands;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
+import me.deecaad.core.MechanicsCore;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.event.ClickEvent;
+import org.bukkit.ChatColor;
+
+import static net.kyori.adventure.text.Component.*;
 
 /**
  * Consider the command: /wm test explosion sphere 5.0 3 DEFAULT #logs
@@ -72,125 +75,114 @@ public class HelpCommandBuilder {
         // When a command has no sub-commands, we need to build an argument-based
         // help command (Which will show the player how to use command arguments)
         if (help.subcommands.isEmpty()) {
+            help.cache = buildCommandWithoutSubcommands(help, parent, color).build();
             help.executes(CommandExecutor.any((sender, args) -> {
-                if (parent.cache == null)
-                    parent.cache = buildCommandWithoutSubcommands(help, parent, color);
-
-                sender.spigot().sendMessage(parent.cache);
+                MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
             }));
         }
 
         // When a command has sub-commands, we need to build a list-based
         // help command (Which will show the player which commands they can use)
         else {
+            help.cache = buildCommandWithSubcommands(help, parent, color).build();
             help.executes(CommandExecutor.any((sender, args) -> {
-                if (parent.cache == null)
-                    parent.cache = buildCommandWithSubcommands(help, parent, color);
-
-                sender.spigot().sendMessage(parent.cache);
+                MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
             }));
         }
     }
 
-    private static BaseComponent[] buildCommandWithSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append("/" + help.description + ": ").color(color.a);
-        builder.append(parent.description).color(color.b).append("\n");
+    private static TextComponent.Builder buildCommandWithSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
+        TextComponent.Builder builder = text();
+        builder.append(text().content("/" + help.description + ": ").style(color.a));
+        builder.append(text().content(parent.description).style(color.b));
+        builder.append(newline());
 
         // If a permission is present, lets add "click to copy" support.
         if (parent.permission != null) {
-            builder.append("Permission: ").color(color.a)
-                    .retain(ComponentBuilder.FormatRetention.EVENTS)
-                    .event(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, parent.permission.getName()))
-                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to copy").create()));
-            builder.append(parent.permission.getName()).color(color.b);
-            builder.append("\n");
+            builder.append(text().content("Permission: ").style(color.a).clickEvent(ClickEvent.copyToClipboard(parent.permission.getName())).hoverEvent(text("Click to copy")));
+            builder.append(text().content(parent.permission.getName()).style(color.b).clickEvent(ClickEvent.copyToClipboard(parent.permission.getName())).hoverEvent(text("Click to copy")));
+            builder.append(newline());
         }
 
         if (!parent.aliases.isEmpty()) {
-            builder.reset().append("Aliases: ").color(color.a);
-            builder.append(parent.aliases.toString()).color(color.b);
-            builder.append("\n");
+            builder.append(text().content("Aliases: ").style(color.a));
+            builder.append(text().content(String.join(", ", parent.aliases)).style(color.b));
+            builder.append(newline());
         }
 
-        builder.reset().append("\n\n");
+        builder.append(newline());
         for (CommandBuilder subcommand : parent.subcommands) {
-            builder.append("<" +subcommand.label + ">: ")
-                    .color(color.a)
-                    .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + help.description + " " + subcommand.label));
-
-            if (subcommand.cache == null) {
-                if (subcommand.subcommands.isEmpty())
-                    subcommand.cache = buildCommandWithoutSubcommands(help, parent, color);
-                else
-                    subcommand.cache = buildCommandWithSubcommands(help, parent, color);
-            }
-
-            builder.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, subcommand.cache));
+            builder.append(text().content("<" + subcommand.label + ">: ").style(color.a).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(subcommand.cache));
         }
 
-        return builder.create();
+        return builder;
     }
 
-    private static BaseComponent[] buildCommandWithoutSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append("/" + help.description + ": ").color(color.a);
-        builder.append(parent.description).color(color.b).append("\n");
+    private static TextComponent.Builder buildCommandWithoutSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
+        TextComponent.Builder builder = text();
+
+        builder.append(text().content("/" + help.description + ": ").style(color.a));
+        builder.append(text().content(parent.description).style(color.b));
+        builder.append(newline());
 
         // If a permission is present, lets add "click to copy" support.
         if (parent.permission != null) {
-            builder.append("Permission: ").color(color.a)
-                    .retain(ComponentBuilder.FormatRetention.EVENTS)
-                    .event(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, parent.permission.getName()))
-                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to copy").create()));
-            builder.append(parent.permission.getName()).color(color.b);
-            builder.append("\n");
+            builder.append(text().content("Permission: ").style(color.a).clickEvent(ClickEvent.copyToClipboard(parent.permission.getName())).hoverEvent(text("Click to copy")));
+            builder.append(text().content(parent.permission.getName()).style(color.b).clickEvent(ClickEvent.copyToClipboard(parent.permission.getName())).hoverEvent(text("Click to copy")));
+            builder.append(newline());
         }
 
         if (!parent.aliases.isEmpty()) {
-            builder.reset().append("Aliases: ").color(color.a);
-            builder.append(parent.aliases.toString()).color(color.b);
-            builder.append("\n");
+            builder.append(text().content("Aliases: ").style(color.a));
+            builder.append(text().content(String.join(", ", parent.aliases)).style(color.b));
+            builder.append(newline());
         }
 
         // Show how to use the command + allow them to click to auto-fill
-        builder.reset().append("Usage: ").color(color.a);
-        builder.append("/" + help.description).color(color.b)
-                .retain(ComponentBuilder.FormatRetention.EVENTS)
-                .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, help.description))
-                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to suggest").create()));
+        builder.append(text().content("Usage").style(color.a));
+        builder.append(text().content("/" + help.description).style(color.b).clickEvent(ClickEvent.suggestCommand(help.description)).hoverEvent(text("Click to suggest")));
 
         // Shows <arg1*> <arg2*> <arg3> <arg4> <...>
         for (Argument<?> arg : parent.args)
-            arg.append(builder.color(color.a));
+            arg.append(builder, color.a);
 
         // When a command has arguments, we should show the descriptions of
         // each argument
         if (!parent.args.isEmpty()) {
-            builder.reset().append("\n\n");
+            builder.append(newline());
 
             // Shows <arg1*>: <desc>\n <arg2>: <desc>\n...
             for (Argument<?> arg : parent.args) {
-                arg.append(builder.color(color.a));
-                builder.append(": ").color(color.a);
-                builder.append(arg.description).color(color.b);
-                builder.append("\n");
+                arg.append(builder, color.a);
+
+                builder.append(text().content(": ").style(color.a));
+                builder.append(text().content(arg.description).style(color.b));
+                builder.append(newline());
             }
         }
 
-        return builder.create();
+        return builder;
     }
 
 
     public static final class HelpColor {
-        public ChatColor a;
-        public ChatColor b;
+
+        public Style a;
+        public Style b;
         public String symbol;
 
-        public HelpColor(ChatColor a, ChatColor b, String symbol) {
+        public HelpColor(Style a, Style b, String symbol) {
             this.a = a;
             this.b = b;
             this.symbol = symbol;
+        }
+
+        public static HelpColor from(ChatColor a, ChatColor b, char c) {
+            return new HelpColor(
+                    Style.style(NamedTextColor.NAMES.value(a.name())),
+                    Style.style(NamedTextColor.NAMES.value(b.name())),
+                    String.valueOf(c)
+            );
         }
     }
 }

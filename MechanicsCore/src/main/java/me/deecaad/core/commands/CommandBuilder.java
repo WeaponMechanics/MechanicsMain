@@ -1,13 +1,10 @@
 package me.deecaad.core.commands;
 
 import me.deecaad.core.commands.arguments.GreedyArgumentType;
+import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -36,7 +33,7 @@ public class CommandBuilder implements Cloneable {
     Object[] optionalDefaultValues;
 
     // Use for saving performance on the help command
-    BaseComponent[] cache;
+    TextComponent cache;
 
 
     public CommandBuilder(String label) {
@@ -186,8 +183,7 @@ public class CommandBuilder implements Cloneable {
     @Override
     public String toString() {
         return "/" + label + " " + args.stream()
-                .map(Argument::getName)
-                .map(s -> "<" + s + ">")
+                .map(arg -> LiteralArgumentType.class.isInstance(arg.getType()) ? arg.getName() : "<" + arg.getName() + ">")
                 .collect(Collectors.joining(" "))
                 + " "
                 + Arrays.stream(optionalDefaultValues)

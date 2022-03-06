@@ -108,9 +108,9 @@ public class BrigadierCommand implements Command<Object> {
                 // "buildSuggestionProvider" (which builds custom suggestions).
                 if (argument.isReplaceSuggestions) {
                     required.suggests((context, suggestionsBuilder) -> {
-                        buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
                         if (argument.getType().includeName())
-                            suggestionsBuilder.suggest(argument.getName(), new LiteralMessage(argument.description));
+                            suggestionsBuilder.suggest("<" + argument.getName() + ">", new LiteralMessage(argument.description));
+                        buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
                         return suggestionsBuilder.buildFuture();
                     });
                 }
@@ -120,10 +120,10 @@ public class BrigadierCommand implements Command<Object> {
                 // suggestions.
                 else if (argument.suggestions != null) {
                     required.suggests((context, suggestionsBuilder) -> {
+                        if (argument.getType().includeName())
+                            suggestionsBuilder.suggest("<" + argument.getName() + ">", new LiteralMessage(argument.description));
                         argument.getType().suggestions(context, suggestionsBuilder);
                         buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
-                        if (argument.getType().includeName())
-                            suggestionsBuilder.suggest(argument.getName(), new LiteralMessage(argument.description));
                         return suggestionsBuilder.buildFuture();
                     });
                 }
@@ -132,9 +132,9 @@ public class BrigadierCommand implements Command<Object> {
                 // don't need to mess with the suggestions.
                 else {
                     required.suggests((context, suggestionsBuilder) -> {
-                        argument.getType().suggestions(context, suggestionsBuilder);
                         if (argument.getType().includeName())
-                            suggestionsBuilder.suggest(argument.getName(), new LiteralMessage(argument.description));
+                            suggestionsBuilder.suggest("<" + argument.getName() + ">", new LiteralMessage(argument.description));
+                        argument.getType().suggestions(context, suggestionsBuilder);
                         return suggestionsBuilder.buildFuture();
                     });
                 }
@@ -244,8 +244,8 @@ public class BrigadierCommand implements Command<Object> {
                 clone.args = new ArrayList<>(clone.args.subList(0, i));
 
                 Object[] defaults = new Object[clone.optionalDefaultValues.length + 1];
-                System.arraycopy(clone.optionalDefaultValues, 0, defaults, 0, clone.optionalDefaultValues.length);
-                defaults[defaults.length - 1] = arg.getDefaultValue();
+                System.arraycopy(clone.optionalDefaultValues, 0, defaults, 1, defaults.length - 1);
+                defaults[0] = arg.getDefaultValue();
                 clone.optionalDefaultValues = defaults;
 
                 register(clone);
