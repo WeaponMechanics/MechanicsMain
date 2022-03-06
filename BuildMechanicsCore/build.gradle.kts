@@ -26,6 +26,7 @@ dependencies {
     implementation(project(":Core_1_16_R3"))
     implementation(project(":Core_1_17_R1", "reobf"))
     implementation(project(":Core_1_18_R1", "reobf"))
+    implementation(project(":Core_1_18_R2", "reobf"))
 }
 
 tasks {
@@ -65,6 +66,8 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_15_R1"))
         include(project(":Core_1_16_R3"))
         include(project(":Core_1_17_R1"))
+        include(project(":Core_1_18_R1"))
+        include(project(":Core_1_18_R2"))
         include(project(":Core_1_18_R1")) // compiled paper user-dev
 
         relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure") {
@@ -79,4 +82,4 @@ tasks.named("assemble").configure {
 }
 
 description = "Library plugin for WeaponMechanics"
-version = "1.1.0-BETA"
+version = "1.1.1-BETA"

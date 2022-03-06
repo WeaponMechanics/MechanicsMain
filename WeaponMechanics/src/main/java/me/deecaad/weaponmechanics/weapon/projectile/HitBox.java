@@ -3,13 +3,11 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -23,7 +21,6 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 

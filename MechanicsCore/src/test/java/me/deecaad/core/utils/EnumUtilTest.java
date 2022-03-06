@@ -14,7 +14,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static me.deecaad.core.utils.EnumUtilTest.TestEnum.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EnumUtilTest {
 

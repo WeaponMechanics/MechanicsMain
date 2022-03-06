@@ -2,7 +2,11 @@ package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.IBlockData;
+import net.minecraft.server.v1_16_R3.PacketPlayOutBlockBreakAnimation;
+import net.minecraft.server.v1_16_R3.PacketPlayOutMultiBlockChange;
+import net.minecraft.server.v1_16_R3.SectionPosition;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;

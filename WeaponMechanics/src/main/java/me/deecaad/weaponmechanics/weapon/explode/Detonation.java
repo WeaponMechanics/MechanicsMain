@@ -3,18 +3,12 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
-import org.bukkit.FireworkEffect;
-import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class Detonation implements Serializer<Detonation> {
 

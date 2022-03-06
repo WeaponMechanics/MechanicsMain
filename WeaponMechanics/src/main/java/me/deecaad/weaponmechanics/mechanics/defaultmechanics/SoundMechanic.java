@@ -4,10 +4,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
@@ -17,16 +14,12 @@ import me.deecaad.weaponmechanics.weapon.reload.ReloadSound;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
 
 public class SoundMechanic implements IMechanic<SoundMechanic> {

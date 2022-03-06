@@ -3,17 +3,11 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
-import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class DamageDropoff implements Serializer<DamageDropoff> {
 

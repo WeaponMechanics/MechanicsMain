@@ -7,12 +7,10 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 
 public class MovementMechanic implements IMechanic<MovementMechanic> {
 

@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.ICompatibility;
-import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.CustomTag;

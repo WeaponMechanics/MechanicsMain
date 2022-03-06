@@ -3,17 +3,12 @@ package me.deecaad.weaponmechanics.weapon.firearm;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-
-import static me.deecaad.core.MechanicsCore.debug;
 
 public class FirearmAction implements Serializer<FirearmAction> {
 

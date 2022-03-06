@@ -21,8 +21,8 @@ import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
-import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -90,8 +90,11 @@ public class ReloadHandler implements IValidator {
 
     private boolean startReloadWithoutTriggerAndWithoutTiming(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield) {
 
-        // Don't try to reload if either one of the hands is already reloading
-        if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+        // Don't try to reload if either one of the hands is already reloading / full autoing
+        HandData mainHandData = entityWrapper.getMainHandData();
+        HandData offHandData = entityWrapper.getOffHandData();
+        if (mainHandData.isReloading() || mainHandData.isUsingFullAuto() || mainHandData.isUsingBurst()
+                || offHandData.isReloading() || offHandData.isUsingFullAuto() || offHandData.isUsingBurst()) {
             return false;
         }
 

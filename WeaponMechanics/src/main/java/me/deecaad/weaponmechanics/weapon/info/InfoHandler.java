@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -22,7 +21,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
