@@ -191,13 +191,8 @@ public class BrigadierCommand implements Command<Object> {
         // This handles '3', sub-commands need to be converted into "multi-literals".
         if (!builder.subcommands.isEmpty()) {
             for (CommandBuilder subcommand : builder.subcommands) {
-                CommandBuilder rootClone = builder.clone();
-                unPack(rootClone, new ArrayList<>(), subcommand);
+                unPack(builder.clone(), new ArrayList<>(), subcommand);
             }
-
-            // If a command has subcommands, it may not have arguments or an
-            // executor. Thus, we can exit right now.
-            return;
         }
 
         // For each literal in a multi-literal, we need to register a command
@@ -253,7 +248,12 @@ public class BrigadierCommand implements Command<Object> {
             }
         }
 
-        new BrigadierCommand(builder);
+        if (builder.executor == null) {
+            MechanicsCore.debug.warn("No executor for: " + builder);
+            return;
+        }
+
+        new BrigadierCommand(builder.clone());
 
         // Now we need to handle aliases. Simply register each alias as if they
         // are the main command.
@@ -285,7 +285,6 @@ public class BrigadierCommand implements Command<Object> {
 
             root.subcommands = new ArrayList<>();
             register(root);
-            return;
         }
 
         // Flatten all subcommands

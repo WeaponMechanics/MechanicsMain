@@ -16,4 +16,9 @@ public class BooleanArgumentType extends CommandArgumentType<Boolean> {
     public Boolean parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
         return BoolArgumentType.getBool(context, key);
     }
+
+    @Override
+    public boolean includeName() {
+        return true;
+    }
 }

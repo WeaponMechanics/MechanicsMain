@@ -71,8 +71,11 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_18_R1")) // compiled paper user-dev
 
         relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure") {
-            include(dependency("net.kyori:adventure-api"))
             include(dependency("net.kyori:adventure-platform-bukkit"))
+            include(dependency("net.kyori:adventure-platform-api"))
+            include(dependency("net.kyori:adventure-api"))
+            include(dependency("net.kyori:adventure-key"))
+            include(dependency("net.kyori:adventure-platform-facet"))
         }
     }
 }

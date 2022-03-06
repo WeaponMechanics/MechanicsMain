@@ -91,10 +91,11 @@ public class HelpCommandBuilder {
         }
     }
 
-    private static TextComponent.Builder buildCommandWithSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
+    private static TextComponent.Builder universal(CommandBuilder help, CommandBuilder parent, HelpColor color) {
         TextComponent.Builder builder = text();
+
         builder.append(text().content("/" + help.description + ": ").style(color.a));
-        builder.append(text().content(parent.description).style(color.b));
+        builder.append(text().content(String.valueOf(parent.description)).style(color.b));
         builder.append(newline());
 
         // If a permission is present, lets add "click to copy" support.
@@ -109,6 +110,12 @@ public class HelpCommandBuilder {
             builder.append(text().content(String.join(", ", parent.aliases)).style(color.b));
             builder.append(newline());
         }
+
+        return builder;
+    }
+
+    private static TextComponent.Builder buildCommandWithSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
+        TextComponent.Builder builder = universal(help, parent, color);
 
         builder.append(newline());
         for (CommandBuilder subcommand : parent.subcommands) {
@@ -119,24 +126,7 @@ public class HelpCommandBuilder {
     }
 
     private static TextComponent.Builder buildCommandWithoutSubcommands(CommandBuilder help, CommandBuilder parent, HelpColor color) {
-        TextComponent.Builder builder = text();
-
-        builder.append(text().content("/" + help.description + ": ").style(color.a));
-        builder.append(text().content(parent.description).style(color.b));
-        builder.append(newline());
-
-        // If a permission is present, lets add "click to copy" support.
-        if (parent.permission != null) {
-            builder.append(text().content("Permission: ").style(color.a).clickEvent(ClickEvent.copyToClipboard(parent.permission.getName())).hoverEvent(text("Click to copy")));
-            builder.append(text().content(parent.permission.getName()).style(color.b).clickEvent(ClickEvent.copyToClipboard(parent.permission.getName())).hoverEvent(text("Click to copy")));
-            builder.append(newline());
-        }
-
-        if (!parent.aliases.isEmpty()) {
-            builder.append(text().content("Aliases: ").style(color.a));
-            builder.append(text().content(String.join(", ", parent.aliases)).style(color.b));
-            builder.append(newline());
-        }
+        TextComponent.Builder builder = universal(help, parent, color);
 
         // Show how to use the command + allow them to click to auto-fill
         builder.append(text().content("Usage").style(color.a));
@@ -156,7 +146,7 @@ public class HelpCommandBuilder {
                 arg.append(builder, color.a);
 
                 builder.append(text().content(": ").style(color.a));
-                builder.append(text().content(arg.description).style(color.b));
+                builder.append(text().content(String.valueOf(arg.description)).style(color.b));
                 builder.append(newline());
             }
         }
