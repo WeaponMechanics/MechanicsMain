@@ -140,24 +140,24 @@ public class WeaponMechanicsCommand {
 
                 .withSubcommand(new CommandBuilder("info")
                         .withPermission("weaponmechanics.commands.info")
-                        .withDescription("Displays version/debug information about WeaponMechanics and your server")
+                        .withDescription("Displays information about WeaponMechanics")
                         .executes(CommandExecutor.any((sender, args) -> info(sender))))
 
                 .withSubcommand(new CommandBuilder("list")
                         .withPermission("weaponmechanics.commands.list")
-                        .withDescription("Lists a table of weapons loaded by WeaponMechanics")
+                        .withDescription("Displays a table of weapons")
                         .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1).withDesc("Which page to display")
                                 .append(SuggestionsBuilder.range(1, 1 + info.getSortedWeaponList().size() / 16)))
                         .executes(CommandExecutor.any((sender, args) -> list(sender, (int) args[0]))))
 
                 .withSubcommand(new CommandBuilder("wiki")
                         .withPermission("weaponmechanics.commands.wiki")
-                        .withDescription("Shows useful (clickable) links to specific useful areas on the wiki")
+                        .withDescription("Gives you wiki links (click!)")
                         .executes(CommandExecutor.any((sender, args) -> wiki(sender))))
 
                 .withSubcommand(new CommandBuilder("reload")
                         .withPermission("weaponmechanics.commands.reload")
-                        .withDescription("Reloads WeaponMechanics' weapon configuration without restarting the server")
+                        .withDescription("Reloads config")
                         .executes(CommandExecutor.any((sender, args) -> WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration")))));
 
 
@@ -173,7 +173,7 @@ public class WeaponMechanicsCommand {
 
         CommandBuilder test = new CommandBuilder("test")
                 .withPermission("weaponmechanics.commands.test")
-                .withDescription("Contains useful commands for developers and testing and debugging")
+                .withDescription("Contains useful testing dev commands")
                 .withSubcommand(new CommandBuilder("nbt")
                         .withPermission("weaponmechanics.commands.test.nbt")
                         .withDescription("Shows every NBT tag for the target's held item")
@@ -232,7 +232,7 @@ public class WeaponMechanicsCommand {
 
                 .withSubcommand(new CommandBuilder("hitbox")
                         .withPermission("weaponmechanics.commands.test.hitbox")
-                        .withDescription("Shows the hitboxes of nearby entities using particles")
+                        .withDescription("Shows the hitboxes of nearby entities")
                         .withArgument(new Argument<>("targets", new EntityListArgumentType()))
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200))
                         .executes(CommandExecutor.any((sender, args) -> {

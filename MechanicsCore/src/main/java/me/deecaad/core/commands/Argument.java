@@ -209,7 +209,7 @@ public class Argument<T> {
 
         if (isRequired()) {
             builder.append(Component.text().content(" <" + name).style(style));
-            builder.append(Component.text().content("*").color(NamedTextColor.RED).decorate(TextDecoration.BOLD, TextDecoration.ITALIC));
+            builder.append(Component.text().content("*").color(NamedTextColor.RED).decorate(TextDecoration.ITALIC));
             builder.append(Component.text().content(">").style(style));
         } else {
             builder.append(Component.text().content(" <" + name + ">").style(style));

@@ -5,7 +5,10 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
+
+import java.util.Locale;
 
 import static net.kyori.adventure.text.Component.*;
 
@@ -56,8 +59,9 @@ public class HelpCommandBuilder {
     public static void register(CommandBuilder command, HelpColor color) {
         CommandBuilder help = new CommandBuilder("help")
                 .withAliases("?")
-                .withDescription("Displays useful help information");
+                .withDescription(command.label);
         buildHelp(help, command, color);
+        help.withDescription("Displays useful information about how to use the commands");
         command.withSubcommand(help);
     }
 
@@ -88,6 +92,14 @@ public class HelpCommandBuilder {
             help.executes(CommandExecutor.any((sender, args) -> {
                 MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
             }));
+
+            // Consider the command '/wm'. It doesn't have an executor, and it
+            // should show useful information.
+            if (parent.executor == null) {
+                parent.executes(CommandExecutor.any((sender, args) -> {
+                    MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
+                }));
+            }
         }
     }
 
@@ -120,6 +132,8 @@ public class HelpCommandBuilder {
         builder.append(newline());
         for (CommandBuilder subcommand : parent.subcommands) {
             builder.append(text().content("<" + subcommand.label + ">: ").style(color.a).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(subcommand.cache));
+            builder.append(text().content(String.valueOf(subcommand.description)).style(color.b).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(subcommand.cache));
+            builder.append(newline());
         }
 
         return builder;
@@ -129,16 +143,17 @@ public class HelpCommandBuilder {
         TextComponent.Builder builder = universal(help, parent, color);
 
         // Show how to use the command + allow them to click to auto-fill
-        builder.append(text().content("Usage").style(color.a));
-        builder.append(text().content("/" + help.description).style(color.b).clickEvent(ClickEvent.suggestCommand(help.description)).hoverEvent(text("Click to suggest")));
+        builder.append(text().content("Usage: ").style(color.a));
+        builder.append(text().content("/" + help.description).style(color.b).clickEvent(ClickEvent.suggestCommand("/" + help.description)).hoverEvent(text("Click to run")));
 
         // Shows <arg1*> <arg2*> <arg3> <arg4> <...>
         for (Argument<?> arg : parent.args)
-            arg.append(builder, color.a);
+            arg.append(builder, color.b);
 
         // When a command has arguments, we should show the descriptions of
         // each argument
         if (!parent.args.isEmpty()) {
+            builder.append(newline());
             builder.append(newline());
 
             // Shows <arg1*>: <desc>\n <arg2>: <desc>\n...
@@ -169,8 +184,8 @@ public class HelpCommandBuilder {
 
         public static HelpColor from(ChatColor a, ChatColor b, char c) {
             return new HelpColor(
-                    Style.style(NamedTextColor.NAMES.value(a.name())),
-                    Style.style(NamedTextColor.NAMES.value(b.name())),
+                    Style.style(NamedTextColor.NAMES.value(a.name().toLowerCase(Locale.ROOT)), TextDecoration.BOLD),
+                    Style.style(NamedTextColor.NAMES.value(b.name().toLowerCase(Locale.ROOT))),
                     String.valueOf(c)
             );
         }
