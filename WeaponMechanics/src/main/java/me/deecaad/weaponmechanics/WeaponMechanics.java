@@ -157,7 +157,7 @@ public class WeaponMechanics {
         projectilesRunnable = new ProjectilesRunnable(getPlugin());
 
         // Set millis between recoil rotations
-        Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 5);
+        Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
         registerCommands();
         registerUpdateChecker();
