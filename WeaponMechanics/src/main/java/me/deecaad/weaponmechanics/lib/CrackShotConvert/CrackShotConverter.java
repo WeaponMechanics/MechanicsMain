@@ -491,10 +491,11 @@ public class CrackShotConverter {
 
             if (value.equalsIgnoreCase("break")) {
                 value = "revolver";
-                WeaponMechanics.debug.error("Firearm " + from);
+                WeaponMechanics.debug.error("Firearm action break was changed to revolver " + from);
 
             } else if (value.equalsIgnoreCase("bolt")) {
                 value = "lever";
+                WeaponMechanics.debug.error("Firearm action bolt was changed to lever " + from);
             }
 
             toConfig.set(to, value);
