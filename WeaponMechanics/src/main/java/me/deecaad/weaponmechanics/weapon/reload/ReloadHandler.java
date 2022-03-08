@@ -202,6 +202,7 @@ public class ReloadHandler implements IValidator {
 
                 if (!isPump) {
                     // Ensure that the state is set to CLOSE if the firearm actions isn't pump
+                    // Since with pump we want to first OPEN and then CLOSE
                     if (state != FirearmState.CLOSE) firearmAction.changeState(weaponStack, FirearmState.CLOSE);
                 }
 

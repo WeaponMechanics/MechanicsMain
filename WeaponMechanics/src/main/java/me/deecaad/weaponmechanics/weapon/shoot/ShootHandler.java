@@ -183,9 +183,6 @@ public class ShootHandler implements IValidator {
                     // Cancel reload if its running
                     handData.stopReloadingTasks();
 
-                    // Ensure that the state is set to CLOSE
-                    if (state != FirearmState.CLOSE) firearmAction.changeState(weaponStack, FirearmState.CLOSE);
-
                     // Call shoot firearm actions, so they can complete firearm actions
                     doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
                 } else {
