@@ -34,8 +34,6 @@ public class RecoilTask extends TimerTask {
     private float yawPerIteration;
     private float pitchPerIteration;
     private long recoverTime;
-    private float shouldBeLastYaw = -361;
-    private float shouldBeLastPitch = -361;
 
     public RecoilTask(PlayerWrapper playerWrapper, HandData handData, Recoil recoil) {
         this.playerWrapper = playerWrapper;
@@ -65,8 +63,6 @@ public class RecoilTask extends TimerTask {
             if (isRotating) {
                 Location location = playerWrapper.getPlayer().getLocation();
                 float pitch = location.getPitch() < -80 ? 0 : pitchPerIteration;
-                shouldBeLastPitch -= pitch;
-                shouldBeLastYaw += yawPerIteration;
                 weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitch, false);
             } else {
                 // Let recovering happen normally without checking any maximum pitch changes
@@ -172,19 +168,6 @@ public class RecoilTask extends TimerTask {
         }
 
         recoverTime = tempRecoil.getRecoverTime();
-
-        Location playerLocation = playerWrapper.getPlayer().getLocation();
-
-        // Calculate where last yaw spot should be
-        if (shouldBeLastYaw == -361) {
-            shouldBeLastYaw = playerLocation.getYaw();
-        }
-
-        // Calculate where last pitch spot should be
-        if (shouldBeLastPitch == -361) {
-            shouldBeLastPitch = playerLocation.getPitch();
-        }
-
         tempRecoil = null;
         counter = 0;
         isRotating = true;
