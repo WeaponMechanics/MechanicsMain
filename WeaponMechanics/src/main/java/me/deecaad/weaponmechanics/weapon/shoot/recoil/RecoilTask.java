@@ -33,21 +33,13 @@ public class RecoilTask extends TimerTask {
     private int rotations;
     private float yawPerIteration;
     private float pitchPerIteration;
-    private int waitRotations;
     private long recoverTime;
-    private final float recoverToYaw;
-    private final float recoverToPitch;
     private float shouldBeLastYaw = -361;
     private float shouldBeLastPitch = -361;
 
     public RecoilTask(PlayerWrapper playerWrapper, HandData handData, Recoil recoil) {
         this.playerWrapper = playerWrapper;
         this.handData = handData;
-
-        Location location = playerWrapper.getPlayer().getLocation();
-        recoverToYaw = location.getYaw();
-        recoverToPitch = location.getPitch();
-
         this.tempRecoil = recoil;
     }
 
@@ -76,7 +68,7 @@ public class RecoilTask extends TimerTask {
                 shouldBeLastPitch -= pitch;
                 shouldBeLastYaw += yawPerIteration;
                 weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitch, false);
-            } else if (counter >= waitRotations) {
+            } else {
                 // Let recovering happen normally without checking any maximum pitch changes
                 weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), yawPerIteration, pitchPerIteration, false);
             }
@@ -94,29 +86,16 @@ public class RecoilTask extends TimerTask {
 
             // Rotation finished, start recovering
 
-            // Wait for 60 millis before starting recovery
-            waitRotations = (int) (60 / Recoil.MILLIS_BETWEEN_ROTATIONS) - 1;
-
             rotations = (int) (recoverTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
-
-            Location location = playerWrapper.getPlayer().getLocation();
-            float yaw = location.getYaw();
-            float pitch = location.getPitch();
 
             if (yawPerIteration == 0 && pitchPerIteration == 0) {
                 // Non-repeating pattern which reached its end was used, meaning we don't really want to do recovery anymore
                 yawPerIteration = 0;
                 pitchPerIteration = 0;
             } else {
-                // If user input changed yaw more than 45 deg
-                // -> don't recover yaw
-                yawPerIteration = Math.abs(calculateYawUserInput(yaw)) > 45 ? 0 : calculateYawDifference(yaw) / rotations;
-
-                pitchPerIteration = calculatePitchUserInput(pitch) > 45 ? 0 : calculatePitchDifference(pitch) / rotations * -1;
+                yawPerIteration *= -1;
+                pitchPerIteration *= -1;
             }
-
-            // Last add that wait time for rotations
-            rotations += waitRotations;
 
             counter = 0;
             isRotating = false;
@@ -209,7 +188,6 @@ public class RecoilTask extends TimerTask {
         tempRecoil = null;
         counter = 0;
         isRotating = true;
-        waitRotations = 0;
         return false;
     }
 
@@ -240,37 +218,5 @@ public class RecoilTask extends TimerTask {
             }
         }
         return nextData;
-    }
-
-    private float calculateYawUserInput(float currentYaw) {
-        float userInputYawCheck = Math.abs(currentYaw - shouldBeLastYaw);
-        userInputYawCheck -= (userInputYawCheck > 180 ? 360 : 0);
-
-        return userInputYawCheck;
-    }
-
-    private float calculateYawDifference(float currentYaw) {
-        // Recover normally as user input didn't change yaw too much
-        float yawDifference = Math.abs(currentYaw - recoverToYaw);
-        yawDifference -= (yawDifference > 180 ? 360 : 0);
-
-        if (currentYaw > recoverToYaw) {
-            yawDifference *= -1;
-        }
-
-        return yawDifference;
-    }
-
-    private float calculatePitchUserInput(float currentPitch) {
-        return Math.abs(currentPitch - shouldBeLastPitch);
-    }
-
-    private float calculatePitchDifference(float currentPitch) {
-        float pitchDifference = Math.abs(currentPitch - recoverToPitch);
-
-        if (currentPitch > recoverToPitch) {
-            pitchDifference *= -1;
-        }
-        return pitchDifference;
     }
 }
