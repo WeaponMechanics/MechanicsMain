@@ -3,6 +3,17 @@ FR_5_56:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6FR 5.56"
+      Lore:
+        - "&73 round burst bullpup battle rifle."
+        - "&7A well placed burst can be extremely deadly at intermittent range."
+        - ""
+        - "&7Weapon Statistics &6-&7 68.7"
+        - "&6➣&7 73 &6⟸ &7Accuracy"
+        - "&6➣&7 75 &6⟸ &7Damage"
+        - "&6➣&7 62 &6⟸ &7Range"
+        - "&6➣&7 72 &6⟸ &7Fire Rate"
+        - "&6➣&7 58 &6⟸ &7Mobility"
+        - "&6➣&7 72 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -40,6 +51,7 @@ FR_5_56:
       Trigger:
         Main_Hand: "DOUBLE_SNEAK"
         Off_Hand: "DOUBLE_SNEAK"
+      Default: "BURST"
       Mechanics:
         Sounds:
           - "BLOCK_NOTE_BLOCK_HAT-1-2"

@@ -3,6 +3,16 @@ MG34:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6MG34"
+      Lore:
+        - "&7Fully automatic weapon with a high rate of fire and punishing 7.92 Mauser ammunition."
+        - ""
+        - "&7Weapon Statistics &6-&7 69.4"
+        - "&6➣&7 72 &6⟸ &7Accuracy"
+        - "&6➣&7 77 &6⟸ &7Damage"
+        - "&6➣&7 78 &6⟸ &7Range"
+        - "&6➣&7 70 &6⟸ &7Fire Rate"
+        - "&6➣&7 48 &6⟸ &7Mobility"
+        - "&6➣&7 72 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:

@@ -3,6 +3,13 @@ Combat_Knife:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6Combat Knife"
+      Lore:
+        - "&7Standard military issue, employed for fast, quiet, and deadly wetwork."
+        - ""
+        - "&7Weapon Statistics &6-&7 29.2"
+        - "&6➣&7 90 &6⟸ &7Damage"
+        - "&6➣&7 4 &6⟸ &7Range in blocks"
+        - "&6➣&7 80 &6⟸ &7Mobility"
       Unbreakable: true
       Hide_Flags: true
       Attributes:

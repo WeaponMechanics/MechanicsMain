@@ -3,6 +3,16 @@ FN_FAL:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6FN FAL"
+      Lore:
+        - "&7Semi-automatic battle rifle with a high rate of fire for faster follow up shots."
+        - ""
+        - "&7Weapon Statistics &6-&7 68.3"
+        - "&6➣&7 74 &6⟸ &7Accuracy"
+        - "&6➣&7 79 &6⟸ &7Damage"
+        - "&6➣&7 70 &6⟸ &7Range"
+        - "&6➣&7 59 &6⟸ &7Fire Rate"
+        - "&6➣&7 60 &6⟸ &7Mobility"
+        - "&6➣&7 68 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
