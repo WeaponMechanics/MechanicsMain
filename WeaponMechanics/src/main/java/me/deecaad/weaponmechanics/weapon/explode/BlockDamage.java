@@ -161,13 +161,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
     public BlockDamageData.DamageData damage(Block block) {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
             int max = getMaxDurability(block);
-
-            Collection<ItemStack> drops = dropBlockChance > 0.0 ? block.getDrops() : Collections.emptyList();
             BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
-            if (data.isBroken() && NumberUtil.chance(dropBlockChance)) {
+            if (data.isBroken() && dropBlockChance > 0.0) {
                 Location location = block.getLocation();
-                for (ItemStack item : drops) {
-                    block.getWorld().dropItem(location, item);
+                for (ItemStack item : block.getDrops()) {
+                    block.getWorld().dropItemNaturally(location, item);
                 }
             }
 
@@ -237,6 +235,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     "Instead, copy and paste your values from 'Shots_To_Break_Blocks' to 'Block_List'");
         }
 
-        return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, dropChance == null ? 0.0 : dropChance, blockList, shotsToBreak);
+        if (dropChance == null || NumberUtil.equals(dropChance, 0.0)) {
+            dropChance = 0.0;
+        }
+
+        return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, dropChance, blockList, shotsToBreak);
     }
 }
