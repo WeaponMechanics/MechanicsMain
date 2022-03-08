@@ -90,6 +90,9 @@ Placeholder_Symbols:
   LEVER:
     Open: " □"
     Close: " ■"
+  SLIDE:
+    Open: " □"
+    Close: " ■"
   Reload: "ᴿ"
   Selective_Fire:
     SINGLE: "S"

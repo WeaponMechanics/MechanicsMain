@@ -41,66 +41,19 @@ public class FirearmAction implements Serializer<FirearmAction> {
         if (close != null) close.use(castData);
     }
 
-    /**
-     * @return whether the state is READY
-     */
-    public boolean hasReadyFirearmActions(ItemStack weaponStack) {
-        return getState(weaponStack) == FirearmState.READY;
-    }
-
-    public boolean hasReloadState(ItemStack weaponStack) {
-        FirearmState state = getState(weaponStack);
-        return state == FirearmState.RELOAD_OPEN || state == FirearmState.RELOAD || state == FirearmState.RELOAD_CLOSE;
-    }
-
-    public boolean hasShootState(ItemStack weaponStack) {
-        FirearmState state = getState(weaponStack);
-        return state == FirearmState.SHOOT_OPEN || state == FirearmState.SHOOT_CLOSE;
-    }
-
     public FirearmState getState(ItemStack weaponStack) {
         int state = CustomTag.FIREARM_ACTION_STATE.getInteger(weaponStack);
         switch (state) {
             case 1:
-                return FirearmState.RELOAD_OPEN;
+                return FirearmState.OPEN;
             case 2:
-                return FirearmState.RELOAD;
-            case 3:
-                return FirearmState.RELOAD_CLOSE;
-            case 4:
-                return FirearmState.SHOOT_OPEN;
-            case 5:
-                return FirearmState.SHOOT_CLOSE;
+                return FirearmState.CLOSE;
             default:
                 return FirearmState.READY;
         }
     }
 
-    public void readyState(ItemStack weaponStack) {
-        changeState(weaponStack, FirearmState.READY);
-    }
-
-    public void openReloadState(ItemStack weaponStack) {
-        changeState(weaponStack, FirearmState.RELOAD_OPEN);
-    }
-
-    public void reloadState(ItemStack weaponStack) {
-        changeState(weaponStack, FirearmState.RELOAD);
-    }
-
-    public void closeReloadState(ItemStack weaponStack) {
-        changeState(weaponStack, FirearmState.RELOAD_CLOSE);
-    }
-
-    public void openShootState(ItemStack weaponStack) {
-        changeState(weaponStack, FirearmState.SHOOT_OPEN);
-    }
-
-    public void closeShootState(ItemStack weaponStack) {
-        changeState(weaponStack, FirearmState.SHOOT_CLOSE);
-    }
-
-    private void changeState(ItemStack weaponStack, FirearmState state) {
+    public void changeState(ItemStack weaponStack, FirearmState state) {
         CustomTag.FIREARM_ACTION_STATE.setInteger(weaponStack, state.getId());
     }
 

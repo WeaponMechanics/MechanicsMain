@@ -491,7 +491,9 @@ public class CrackShotConverter {
 
             if (value.equalsIgnoreCase("break")) {
                 value = "revolver";
-            } else if (value.equalsIgnoreCase("bolt") || value.equalsIgnoreCase("slide")) {
+                WeaponMechanics.debug.error("Firearm " + from);
+
+            } else if (value.equalsIgnoreCase("bolt")) {
                 value = "lever";
             }
 

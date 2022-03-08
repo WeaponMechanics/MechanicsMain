@@ -226,20 +226,36 @@ public class HandData {
         return zoomData == null ? zoomData = new ZoomData() : zoomData;
     }
 
+    /**
+     * Only used with shoot firearm actions.
+     * Reload firearm actions use addReloadTask()
+     */
     public void addFirearmActionTask(int firearmTask) {
         firearmActionTasks.add(firearmTask);
     }
 
+    /**
+     * Only used with shoot firearm actions
+     * Reload firearm actions use addReloadTask()
+     */
     public void addFirearmActionTasks(int... firearmTask) {
         for (int i : firearmTask) {
             firearmActionTasks.add(i);
         }
     }
 
+    /**
+     * Only used with shoot firearm actions
+     * Reload firearm actions use addReloadTask()
+     */
     public boolean hasRunningFirearmAction() {
         return !firearmActionTasks.isEmpty();
     }
 
+    /**
+     * Only used with shoot firearm actions
+     * Reload firearm actions use addReloadTask()
+     */
     public void stopFirearmActionTasks() {
         if (!firearmActionTasks.isEmpty()) {
             for (int task : firearmActionTasks) {

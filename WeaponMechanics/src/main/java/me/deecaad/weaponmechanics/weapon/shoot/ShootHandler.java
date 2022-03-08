@@ -17,7 +17,6 @@ import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
-import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -138,7 +137,6 @@ public class ShootHandler implements IValidator {
         // Cancel shooting if we can only shoot while scoped.
         if (config.getBool(weaponTitle + ".Shoot.Only_Shoot_While_Scoped") && !handData.getZoomData().isZooming()) return false;
 
-        boolean mainhand = slot == EquipmentSlot.HAND;
         boolean isMelee = triggerType == TriggerType.MELEE;
 
         // Handle worldguard flags
@@ -161,64 +159,6 @@ public class ShootHandler implements IValidator {
 
         int ammoLeft = reloadHandler.getAmmoLeft(weaponStack, weaponTitle);
 
-        // FIREARM START
-
-        FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
-
-        if (firearmAction != null && !firearmAction.hasReadyFirearmActions(weaponStack)) {
-            // Don't let shoot if they aren't ready
-
-            if (firearmAction.hasReloadState(weaponStack)) {
-
-                // If its NOT revolver
-                if (ammoLeft > 0 && firearmAction.getFirearmType() != FirearmType.REVOLVER) {
-
-                    // Close if ammo left is more than 0
-                    handData.stopReloadingTasks();
-
-                    firearmAction.closeShootState(weaponStack);
-
-                    CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
-                    // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-                    castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
-                    firearmAction.useMechanics(castData, false);
-
-                    if (entityWrapper instanceof PlayerWrapper) {
-                        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-                    }
-
-                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-                        CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmAction.getCloseTime());
-                    }
-
-                    handData.addFirearmActionTask(new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                            if (taskReference == weaponStack) {
-                                taskReference = weaponStack;
-                            }
-
-                            firearmAction.readyState(taskReference);
-                            handData.stopFirearmActionTasks();
-                        }
-                    }.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
-
-                } else {
-                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
-                }
-            } else if (!handData.hasRunningFirearmAction()) {
-                // Meaning that firearm actions were probably cancelled by switching hand
-                // -> Continue where they left on
-                doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
-            }
-
-            return false;
-        }
-
-        // FIREARM END
-
         // RELOAD START
 
         // Check if other hand is reloading and deny shooting if it is
@@ -230,11 +170,41 @@ public class ShootHandler implements IValidator {
             return false;
         }
 
+        // FIREARM START
+        FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
+        if (firearmAction != null) {
+            FirearmState state = firearmAction.getState(weaponStack);
+            if (state != FirearmState.READY) {
+                // Firearm actions were left OPEN or CLOSE
+
+                if (ammoLeft > 0) {
+                    // Since weapon still has ammo, only CLOSE weapon and let it shoot AFTER that
+
+                    // Cancel reload if its running
+                    handData.stopReloadingTasks();
+
+                    // Ensure that the state is set to CLOSE
+                    if (state != FirearmState.CLOSE) firearmAction.changeState(weaponStack, FirearmState.CLOSE);
+
+                    // Call shoot firearm actions, so they can complete firearm actions
+                    doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
+                } else {
+                    // Else continue to reload from where it left on...
+                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+                }
+
+                // Return false since firearm state wasn't ready, and they need to be completed
+                return false;
+            }
+        }
+        // FIREARM END
+
         // If no ammo left, start reloading
         if (ammoLeft == 0) {
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
             return false;
         } else if (handData.isReloading()) {
+            // Else if reloading, cancel it
             handData.stopReloadingTasks();
         }
 
@@ -301,9 +271,9 @@ public class ShootHandler implements IValidator {
         }
 
         if (reloadHandler.getAmmoLeft(weaponStack, weaponTitle) == 0) {
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield);
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
         } else {
-            doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, mainhand);
+            doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
         }
 
         return true;
@@ -326,9 +296,7 @@ public class ShootHandler implements IValidator {
             @Override
             public void run() {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) {
-                    taskReference = weaponStack;
-                }
+                if (taskReference == weaponStack) taskReference = weaponStack;
 
                 // START RELOAD STUFF
 
@@ -344,7 +312,7 @@ public class ShootHandler implements IValidator {
                     handData.setBurstTask(0);
                     cancel();
 
-                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
+                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     return;
                 }
 
@@ -364,9 +332,9 @@ public class ShootHandler implements IValidator {
                     cancel();
 
                     if (reloadHandler.getAmmoLeft(taskReference, weaponTitle) == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     } else {
-                        doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, mainhand);
+                        doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
                     }
                 }
             }
@@ -391,9 +359,7 @@ public class ShootHandler implements IValidator {
             int tick = 0;
             public void run() {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) {
-                    taskReference = weaponStack;
-                }
+                if (taskReference == weaponStack) taskReference = weaponStack;
 
                 if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
                     handData.setFullAutoTask(0);
@@ -408,9 +374,9 @@ public class ShootHandler implements IValidator {
                     cancel();
 
                     if (ammoLeft == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     } else {
-                        doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, mainhand);
+                        doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
                     }
 
                     return;
@@ -436,7 +402,7 @@ public class ShootHandler implements IValidator {
                         handData.setFullAutoTask(0);
                         cancel();
 
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield);
+                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                         return;
                     }
                 }
@@ -469,20 +435,25 @@ public class ShootHandler implements IValidator {
         return true;
     }
 
-    public void doShootFirearmActions(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, boolean mainhand) {
-
-        Configuration config = getConfigurations();
-        FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
+    public void doShootFirearmActions(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot) {
+        FirearmAction firearmAction = getConfigurations().getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
         if (firearmAction == null || handData.hasRunningFirearmAction()) return;
 
-        // Return if firearm actions should not be done in this shot
-        if (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack, weaponTitle) % firearmAction.getFirearmActionFrequency() != 0) return;
+        FirearmState state = firearmAction.getState(weaponStack);
 
-        // No need to do any firearm actions if its REVOLVER
-        if (firearmAction.getFirearmType() == FirearmType.REVOLVER) return;
+        // If state is ready, check if this shot should not cause firearm actions
+        if (state == FirearmState.READY
+                && (weaponHandler.getReloadHandler().getAmmoLeft(weaponStack, weaponTitle) % firearmAction.getFirearmActionFrequency() != 0
+                || !firearmAction.getFirearmType().hasShootActions())) {
+            return;
+        }
 
-        // Otherwise open and close
+        boolean mainhand = slot == EquipmentSlot.HAND;
+        LivingEntity shooter = entityWrapper.getEntity();
+        WeaponInfoDisplay weaponInfoDisplay = shooter.getType() != EntityType.PLAYER ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        PlayerWrapper playerWrapper = weaponInfoDisplay == null ? null : (PlayerWrapper) entityWrapper;
 
+        // Initiate CLOSE task
         BukkitRunnable closeRunnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -490,78 +461,65 @@ public class ShootHandler implements IValidator {
                 if (taskReference == weaponStack) {
                     taskReference = weaponStack;
                 }
-
-                firearmAction.readyState(taskReference);
-
-                if (entityWrapper instanceof PlayerWrapper) {
-                    WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                }
-
+                firearmAction.changeState(taskReference, FirearmState.READY);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
                 handData.stopFirearmActionTasks();
             }
         };
 
-        // Check if OPEN state was already completed, but was cancelled on CLOSE state
-        if (firearmAction.getState(weaponStack) == FirearmState.SHOOT_CLOSE) {
+        // Init cast data
+        CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
+        castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
 
+        // Check if OPEN state was already completed
+        if (state == FirearmState.CLOSE) {
             // Only do CLOSE state
 
-            CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-            castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
             firearmAction.useMechanics(castData, false);
 
-            if (entityWrapper instanceof PlayerWrapper) {
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-            }
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), firearmAction.getCloseTime());
+            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && playerWrapper != null) {
+                CompatibilityAPI.getEntityCompatibility().setCooldown(playerWrapper.getPlayer(), weaponStack.getType(), firearmAction.getCloseTime());
             }
 
             handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 
+            // Return since we only want to do close state
             return;
         }
 
-        firearmAction.openShootState(weaponStack);
+        // Else start from OPEN State
 
-        CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
+        // Update state
+        if (state != FirearmState.OPEN) firearmAction.changeState(weaponStack, FirearmState.OPEN);
+
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-        castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
         firearmAction.useMechanics(castData, true);
 
-        if (entityWrapper instanceof PlayerWrapper) {
-            WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-        }
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(),
+        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && playerWrapper != null) {
+            CompatibilityAPI.getEntityCompatibility().setCooldown(playerWrapper.getPlayer(), weaponStack.getType(),
                     firearmAction.getOpenTime() + firearmAction.getCloseTime());
         }
 
+        // Add the task to shoot firearm action tasks
         handData.addFirearmActionTask(new BukkitRunnable() {
             @Override
             public void run() {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) {
-                    taskReference = weaponStack;
-                }
+                if (taskReference == weaponStack) taskReference = weaponStack;
 
-                firearmAction.closeShootState(taskReference);
+                firearmAction.changeState(taskReference, FirearmState.CLOSE);
 
-                CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
                 // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
+                CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
                 firearmAction.useMechanics(castData, false);
 
-                if (entityWrapper instanceof PlayerWrapper) {
-                    WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                    if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-                }
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
                 handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
 

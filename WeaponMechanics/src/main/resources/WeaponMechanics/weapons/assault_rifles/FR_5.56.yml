@@ -10,7 +10,7 @@ FR_5_56:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6FR 5.56 &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
+        Message: "&6FR 5.56%firearm-state% &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
@@ -104,3 +104,16 @@ FR_5_56:
       Mechanics:
         Sounds:
           - "custom:scope.out-0.5-1-0-0.1"
+  Firearm_Action:
+    Type: "SLIDE"
+    Open:
+      Time: 8
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+    Close:
+      Time: 8
+      Mechanics:
+        Sounds:
+          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"
