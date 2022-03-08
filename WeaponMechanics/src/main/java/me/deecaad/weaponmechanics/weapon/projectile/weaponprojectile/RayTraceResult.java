@@ -16,6 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -163,7 +164,7 @@ public class RayTraceResult {
         return false;
     }
 
-    public void outlineOnlyHitPosition(Player player) {
+    public void outlineOnlyHitPosition(Entity player) {
         double x = hitLocation.getX();
         double y = hitLocation.getY();
         double z = hitLocation.getZ();

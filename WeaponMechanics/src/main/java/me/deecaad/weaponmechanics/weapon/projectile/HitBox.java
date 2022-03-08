@@ -13,9 +13,9 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -429,7 +429,7 @@ public class HitBox implements IValidator {
         return this.expand(negativeX, negativeY, negativeZ, positiveX, positiveY, positiveZ);
     }
 
-    public void outlineAllBoxes(Player player) {
+    public void outlineAllBoxes(Entity player) {
         if (voxelShape != null) {
             outlineMainBox(player, Color.BLACK);
             ColorSerializer.ColorType[] colors = ColorSerializer.ColorType.values();
@@ -446,7 +446,7 @@ public class HitBox implements IValidator {
         }
     }
 
-    public void outlineMainBox(Player player, Color color) {
+    public void outlineMainBox(Entity player, Color color) {
         double step = 0.05;
         for (double x = minX; x <= maxX; x += step) {
             for (double y = minY; y <= maxY; y += step) {

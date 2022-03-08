@@ -8,10 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -49,6 +46,8 @@ public class Argument<T> {
         this.defaultValue = null;
         this.isRequired = true;
         this.listed = true;
+
+        description = "No description provided";
     }
 
     /**
@@ -66,6 +65,8 @@ public class Argument<T> {
         this.defaultValue = defaultValue;
         this.isRequired = false;
         this.listed = true;
+
+        description = "No description provided";
     }
 
     /**

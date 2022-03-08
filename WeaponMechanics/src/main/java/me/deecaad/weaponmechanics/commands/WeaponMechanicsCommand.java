@@ -8,20 +8,7 @@ import me.deecaad.core.commands.CommandExecutor;
 import me.deecaad.core.commands.HelpCommandBuilder;
 import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
-import me.deecaad.core.commands.arguments.BlockPredicateArgumentType;
-import me.deecaad.core.commands.arguments.BooleanArgumentType;
-import me.deecaad.core.commands.arguments.ColorArgumentType;
-import me.deecaad.core.commands.arguments.DoubleArgumentType;
-import me.deecaad.core.commands.arguments.EntityArgumentType;
-import me.deecaad.core.commands.arguments.EntityListArgumentType;
-import me.deecaad.core.commands.arguments.EntityTypeArgumentType;
-import me.deecaad.core.commands.arguments.EnumArgumentType;
-import me.deecaad.core.commands.arguments.GreedyArgumentType;
-import me.deecaad.core.commands.arguments.IntegerArgumentType;
-import me.deecaad.core.commands.arguments.LocationArgumentType;
-import me.deecaad.core.commands.arguments.MapArgumentType;
-import me.deecaad.core.commands.arguments.StringArgumentType;
-import me.deecaad.core.commands.arguments.TimeArgumentType;
+import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
@@ -32,6 +19,8 @@ import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
+import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
+import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -45,13 +34,21 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.EntityEffect;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -64,18 +61,23 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BlockIterator;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -227,16 +229,51 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("flicker", new BooleanArgumentType(), true).withDesc("Should the particles flash"))
                         .withArgument(new Argument<>("trail", new BooleanArgumentType(), true).withDesc("Should the firework have a trail"))
                         .executes(CommandExecutor.any((sender, args) -> {
-
+                            firework((Location) args[0], (int) args[1], (FireworkEffect.Type) args[2], (Color) args[3], (Color) args[4], (boolean) args[5], (boolean) args[6]);
                         })))
 
                 .withSubcommand(new CommandBuilder("hitbox")
                         .withPermission("weaponmechanics.commands.test.hitbox")
                         .withDescription("Shows the hitboxes of nearby entities")
-                        .withArgument(new Argument<>("targets", new EntityListArgumentType()))
-                        .withArgument(new Argument<>("time", new TimeArgumentType(), 200))
+                        .withArgument(new Argument<>("targets", new EntityListArgumentType()).withDesc("Whose hitbox to show"))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long to show the hitbox"))
                         .executes(CommandExecutor.any((sender, args) -> {
                             hitbox(sender, (List<Entity>) args[0], (int) args[1]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("ray")
+                        .withPermission("weaponmechanics.commands.test.ray")
+                        .withDescription("Ray traces blocks/entities")
+                        .withRequirements(LivingEntity.class::isInstance)
+                        .withArgument(new Argument<>("highlight-box", new BooleanArgumentType(), false).withDesc("false=show point, true=show hitbox"))
+                        .withArgument(new Argument<>("distance", new IntegerArgumentType(1), 10).withDesc("How far to ray-trace"))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long to show the particles"))
+                        .executes(CommandExecutor.entity((sender, args) -> {
+                            ray((LivingEntity) sender, (boolean) args[0], (int) args[1], (int) args[2]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("recoil")
+                        .withPermission("weaponmechanics.commands.test.recoil")
+                        .withDescription("Test screen recoil")
+                        .withArgument(new Argument<>("push", new TimeArgumentType()).withDesc("How long to push screen away"))
+                        .withArgument(new Argument<>("recover", new TimeArgumentType()).withDesc("Time to return to center"))
+                        .withArgument(new Argument<>("yaws", ListArgumentType.doubles(0.5, 1.0, 1.5)).withDesc("A random yaw to select"))
+                        .withArgument(new Argument<>("pitches", ListArgumentType.doubles(0.5, 1.0, 1.5)).withDesc("A random pitch to select"))
+                        .withArgument(new Argument<>("delay", new IntegerArgumentType(1, 20), 5).withDesc("Delay between shots"))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 100).withDesc("How long to shoot for"))
+                        .executes(CommandExecutor.player((sender, args) -> {
+                            recoil(sender, (int) args[0], (int) args[1], (List<Double>) args[2], (List<Double>) args[3], (int) args[4], (int) args[5]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("shoot")
+                        .withPermission("weaponmechanics.commands.test.shoot")
+                        .withDescription("Test projectile shooting")
+                        .withRequirements(LivingEntity.class::isInstance)
+                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0.0)))
+                        .withArgument(new Argument<>("gravity", new DoubleArgumentType(), 0.05))
+                        .withArgument(new Argument<>("disguise", new EntityTypeArgumentType(), null))
+                        .executes(CommandExecutor.entity((sender, args) -> {
+                            shoot((LivingEntity) sender, (double) args[0], (double) args[1], (EntityType) args[2]);
                         })));
 
 
@@ -629,5 +666,125 @@ public class WeaponMechanicsCommand {
                 }
             }
         }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 5);
+    }
+
+    public static void firework(Location location, int time, FireworkEffect.Type type, Color color, Color fade, boolean flicker, boolean trail) {
+        ItemStack itemStack = new ItemStack(Material.FIREWORK_ROCKET);
+        FireworkMeta meta = (FireworkMeta) itemStack.getItemMeta();
+        FireworkEffect effect = FireworkEffect.builder()
+                .with(type)
+                .withColor(color)
+                .withFade(fade)
+                .flicker(flicker)
+                .trail(trail)
+                .build();
+        meta.addEffect(effect);
+        itemStack.setItemMeta(meta);
+
+        Random random = new Random();
+
+        FakeEntity fakeEntity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, EntityType.FIREWORK, itemStack);
+        fakeEntity.setMotion(random.nextGaussian() * 0.001, 0.3, random.nextGaussian() * 0.001);
+        fakeEntity.show();
+        if (time == 0) {
+            fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.remove();
+            return;
+        }
+        new BukkitRunnable() {
+            public void run() {
+                fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
+                fakeEntity.remove();
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), time);
+    }
+
+    public static void ray(LivingEntity sender, boolean box, int distance, int ticks) {
+
+        sender.sendMessage(ChatColor.GREEN + "Showing hitboxes in distance " + distance + " for " + NumberUtil.toTime(ticks / 20));
+        IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
+
+        new BukkitRunnable() {
+            int ticker = 0;
+            @Override
+            public void run() {
+                Location location = sender.getEyeLocation();
+                Vector direction = location.getDirection();
+                BlockIterator blocks = new BlockIterator(sender.getWorld(), location.toVector(), direction, 0.0, distance);
+
+                while (blocks.hasNext()) {
+                    Block block = blocks.next();
+
+                    HitBox blockBox = weaponCompatibility.getHitBox(block);
+                    if (blockBox == null) continue;
+
+                    RayTraceResult rayTraceResult = blockBox.rayTrace(location.toVector(), direction);
+                    if (rayTraceResult == null) continue;
+
+                    if (box) {
+                        rayTraceResult.outlineOnlyHitPosition(sender);
+                    } else {
+                        blockBox.outlineAllBoxes(sender);
+                    }
+                    sender.sendMessage("Block: " + block.getType());
+                    break;
+                }
+
+                Collection<Entity> entities = sender.getWorld().getNearbyEntities(location, distance, distance, distance);
+                if (!entities.isEmpty()) {
+                    for (Entity entity : entities) {
+                        if (!(entity instanceof LivingEntity) || sender.equals(entity)) continue;
+
+                        HitBox entityBox = weaponCompatibility.getHitBox(entity);
+                        if (entityBox == null) continue;
+
+                        RayTraceResult rayTraceResult = entityBox.rayTrace(location.toVector(), direction);
+                        if (rayTraceResult == null) continue;
+
+                        if (box) {
+                            rayTraceResult.outlineOnlyHitPosition(sender);
+                        } else {
+                            entityBox.outlineAllBoxes(sender);
+                        }
+                        sender.sendMessage("Entity: " + entity.getType());
+
+                        break;
+                    }
+                }
+
+                if (++ticker >= ticks) {
+                    cancel();
+                }
+            }
+        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
+    }
+
+    public static void recoil(Player player, int push, int recover, List<Double> yaws, List<Double> pitches, int rate, int time) {
+        Recoil recoil = new Recoil(push, recover, yaws.stream().map(Double::floatValue).collect(Collectors.toList()), pitches.stream().map(Double::floatValue).collect(Collectors.toList()), null, null);
+        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
+        new BukkitRunnable() {
+            int ticks = 0;
+
+            @Override
+            public void run() {
+
+                if (playerWrapper.isRightClicking()) {
+                    recoil.start(player, true);
+                }
+
+                ticks += rate;
+                if (ticks > time) {
+                    cancel();
+                }
+            }
+        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, rate);
+    }
+
+    public static void shoot(LivingEntity sender, double speed, double gravity, EntityType entity) {
+        ProjectileSettings projectileSettings = new ProjectileSettings(entity, null,
+                gravity, false, -1, false,
+                -1, 0.99, 0.96, 0.98, false, 600, -1);
+        Projectile projectile = new Projectile(projectileSettings, null, null, null, null);
+        projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null);
     }
 }
