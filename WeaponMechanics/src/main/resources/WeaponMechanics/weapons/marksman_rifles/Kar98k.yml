@@ -47,7 +47,6 @@ Kar98k:
       Recover_Time: 200
       Horizontal:
         - 8.2
-        - -8.2
       Vertical:
         - 8.2
       Modify_Recoil_When:

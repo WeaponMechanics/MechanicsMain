@@ -42,7 +42,6 @@ AX-50:
       Recover_Time: 200
       Horizontal:
         - 8
-        - -8
       Vertical:
         - 8
       Modify_Recoil_When:

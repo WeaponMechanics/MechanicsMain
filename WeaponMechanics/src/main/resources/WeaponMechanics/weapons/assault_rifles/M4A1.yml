@@ -45,7 +45,7 @@ M4A1:
       Push_Time: 200
       Horizontal:
         - 2.9
-        - -2.9
+        - 0
       Vertical:
         - 2.9
       Modify_Recoil_When:

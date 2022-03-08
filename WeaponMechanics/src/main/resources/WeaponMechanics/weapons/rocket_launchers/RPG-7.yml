@@ -45,7 +45,6 @@ RPG-7:
       Recover_Time: 200
       Horizontal:
         - 11
-        - -11
       Vertical:
         - 11
       Modify_Recoil_When:

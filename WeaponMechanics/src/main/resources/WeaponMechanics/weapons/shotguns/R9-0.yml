@@ -42,7 +42,7 @@ R9-0:
       Push_Time: 200
       Horizontal:
         - 7.5
-        - -7.5
+        - 0
       Vertical:
         - 7.5
       Modify_Recoil_When:

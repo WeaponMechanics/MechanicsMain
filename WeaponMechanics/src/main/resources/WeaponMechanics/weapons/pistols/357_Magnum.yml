@@ -44,7 +44,7 @@
       Push_Time: 200
       Horizontal:
         - 3.5
-        - -3.5
+        - 0
       Vertical:
         - 3.5
       Modify_Recoil_When:

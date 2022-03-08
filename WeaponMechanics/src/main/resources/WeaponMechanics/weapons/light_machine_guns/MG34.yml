@@ -45,7 +45,7 @@ MG34:
       Push_Time: 200
       Horizontal:
         - 2.8
-        - -2.8
+        - 0
       Vertical:
         - 2.8
       Modify_Recoil_When:

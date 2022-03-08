@@ -45,7 +45,7 @@ Origin_12:
       Push_Time: 200
       Horizontal:
         - 3
-        - -3
+        - 0
       Vertical:
         - 3
       Modify_Recoil_When:

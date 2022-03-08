@@ -45,7 +45,7 @@ Uzi:
       Push_Time: 200
       Horizontal:
         - 2.2
-        - -2.2
+        - 0
       Vertical:
         - 2.2
       Modify_Recoil_When:

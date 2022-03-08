@@ -54,7 +54,7 @@ FN_FAL:
       Recover_Time: 200
       Horizontal:
         - 3.19
-        - -3.19
+        - 0
       Vertical:
         - 3.19
       Modify_Recoil_When:
