@@ -16,6 +16,7 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.TableBuilder;
 import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
@@ -40,11 +41,13 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileS
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEventSource;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -62,8 +65,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.map.MinecraftFont;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
@@ -71,6 +72,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,8 +87,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
-import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
+import static net.kyori.adventure.text.Component.empty;
+import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.ChatColor.*;
 
 @SuppressWarnings("unchecked")
@@ -372,126 +374,67 @@ public class WeaponMechanicsCommand {
 
     public static void list(CommandSender sender, int requestedPage) {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-
-        // We need information to build a table of weapons. There should have 8
-        // rows and 2 columns (Since the standard size chat has 10 rows, and
-        // enough space for 2 columns of weapon-titles). We reserve 2 rows for
-        // page turning buttons and a header.
-        int maxPerPage = 2 * 8;
         List<String> weapons = info.getSortedWeaponList();
 
-        // Check to see if the page exists
-        if (requestedPage < 0 || requestedPage * maxPerPage >= weapons.size()) {
-            sender.sendMessage(net.md_5.bungee.api.ChatColor.RED + "The page you requested (" + (requestedPage + 1) + ") does not exist.");
-            return;
-        }
+        // «»
+        Style gold = Style.style(NamedTextColor.GOLD);
+        Style gray = Style.style(NamedTextColor.GRAY);
+        TextComponent table = new TableBuilder()
+                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setColumns(3))
+                .withElementChar('»')
+                .withElementCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.BOLD))
+                .withFillChar('=')
+                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.BOLD, TextDecoration.STRIKETHROUGH))
+                .withHeader("WeaponMechanics")
+                .withHeaderStyle(Style.style(NamedTextColor.GOLD, TextDecoration.BOLD))
+                .withElementStyle(gold)
+                .withLeft(text().content("«").style(gold)
+                        .clickEvent(ClickEvent.runCommand("/wm list " + (requestedPage - 1)))
+                        .hoverEvent(text("Click to go to page " + (requestedPage - 1), gray))
+                        .build())
+                .withRight(text().content("»").style(gold)
+                        .clickEvent(ClickEvent.runCommand("/wm list " + (requestedPage + 1)))
+                        .hoverEvent(text("Click to go to page " + (requestedPage + 1), gray))
+                        .build())
+                .withSupplier(i -> {
+                    int index = i + requestedPage * 3 * 8;
+                    if (weapons.size() < index)
+                        return empty();
 
-        // https://hub.spigotmc.org/javadocs/spigot/org/bukkit/map/MapFont.html
-        // MapFont allows us to evaluate the length, in pixels, of a string. MC
-        // chat (by default) is 320 pixels wide.
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append("==================").color(net.md_5.bungee.api.ChatColor.GOLD)
-                .append("  WeaponMechanics  ").color(net.md_5.bungee.api.ChatColor.GRAY).italic(true)
-                .append("==================").color(net.md_5.bungee.api.ChatColor.GOLD).italic(false)
-                .append("\n");
+                    String title = weapons.get(index);
+                    ItemStack item = info.generateWeapon(title, 1);
+                    return text().content(title)
+                            .clickEvent(ClickEvent.runCommand("/wm get " + title))
+                            .hoverEvent(CompatibilityAPI.isPaper()
+                                    ? (HoverEventSource<?>) item // Paper items implement this by default
+                                    : LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName()))
+                            .build();
+                })
+                .build();
 
-        int cellSize = 160 - MinecraftFont.Font.getWidth(" » ") * 2;
-        int i;
-        for (i = requestedPage * maxPerPage; i < (requestedPage + 1) * maxPerPage && i < weapons.size(); i++) {
-
-            // Each table cell needs to fit within the pixel size limit. This
-            // prevents an empty row from being created and messing up the
-            // table's format. If a weapon-title is longer then the cell size,
-            // the weapon-title is trimmed down to the proper size.
-            StringBuilder cell = new StringBuilder(weapons.get(i));
-            while (MinecraftFont.Font.getWidth(cell.toString()) < cellSize)
-                cell.append(' ');
-            while (MinecraftFont.Font.getWidth(cell.toString()) > cellSize)
-                cell.setLength(cell.length() - 1);
-
-            ItemStack weapon = info.generateWeapon(weapons.get(i), 1);
-            ComponentBuilder hover = new ComponentBuilder();
-
-            // We want to display the gun so the player knows: 1) Exactly which
-            // weapon they are choosing, 2) That they can click the buttons
-            // TODO Use show item using NMS? SHOW_ITEM enum is useless, so...
-            if (weapon == null) {
-                hover.append("Error in weapon config checking, check console!").color(net.md_5.bungee.api.ChatColor.RED);
-            } else if (weapon.hasItemMeta()) {
-                ItemMeta meta = weapon.getItemMeta();
-                assert meta != null;
-
-                hover.append(TextComponent.fromLegacyText(meta.getDisplayName()));
-                if (meta.hasLore() && meta.getLore() != null) {
-                    for (String str : meta.getLore())
-                        hover.append(TextComponent.fromLegacyText(str));
-                }
-            }
-
-            // Add the weapon-title with hover/click events to the table.
-            builder.append(" \u27A2 ").reset().color(net.md_5.bungee.api.ChatColor.GOLD)
-                    .append(cell.toString()).color(net.md_5.bungee.api.ChatColor.GRAY)
-                    .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm get " + weapons.get(i)))
-                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.create()));
-
-            // After filling the 2 columns, we can move to the next row.
-            if (i % 2 == 1)
-                builder.append("\n");
-        }
-
-        // If there weren't enough weapons to fill up a row completely, then
-        // we need to add a new line for the page selector.
-        if (i % 2 == 1)
-            builder.append("\n");
-
-        // Add the 'previous page' and 'next page' options below the table
-        builder.append("================== ").reset().color(net.md_5.bungee.api.ChatColor.GOLD)
-                .append("«").color(net.md_5.bungee.api.ChatColor.GRAY).bold(true)
-                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the previous page")))
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage)))
-                .append("                   ").reset()
-                .append("»").color(net.md_5.bungee.api.ChatColor.GRAY).bold(true)
-                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText("Click to go to the next page")))
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/wm list " + (requestedPage + 2)))
-                .append(" ==================").color(net.md_5.bungee.api.ChatColor.GOLD).bold(false);
-
-        sender.spigot().sendMessage(builder.create());
+        MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(table);
     }
 
     public static void wiki(CommandSender sender) {
+        List<String> pages = Arrays.asList("Information", "Skins", "Shooting", "Scoping",
+                "Reloading", "Projectile", "Damage", "Explosion", "Firearms", "Melee",
+                "Addons", "API", "Commands and Permissions", "References", "Placeholders",
+                "General");
 
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append("Weapon").color(net.md_5.bungee.api.ChatColor.GOLD).bold(true)
-                .append("Mechanics").color(net.md_5.bungee.api.ChatColor.GRAY).bold(true)
-                .append(" Wiki (Click an option)").bold(false).color(net.md_5.bungee.api.ChatColor.GRAY).italic(true)
-                .append("\n").italic(false);
+        Style gold = Style.style(NamedTextColor.GOLD);
+        Style gray = Style.style(NamedTextColor.GRAY);
+        TextComponent table = new TableBuilder()
+                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setColumns(3))
+                .withElementChar('»')
+                .withElementCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.BOLD))
+                .withElementStyle(gold)
+                .withSupplier(i -> text().content(pages.get(i))
+                        .clickEvent(ClickEvent.openUrl(WIKI + pages.get(i)))
+                        .hoverEvent(text("Click to go to the wiki", gray))
+                        .build())
+                .build();
 
-        BaseComponent[] hover = new ComponentBuilder()
-                .append("Click to go to Wiki.").color(net.md_5.bungee.api.ChatColor.GRAY).italic(true)
-                .create();
-
-        // We cannot add any more lines than this since the player's chat will
-        // overflow (hiding information from the user).
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Information", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Skins", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Projectile", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Shooting", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Reloading", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Damage", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Explosion", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Scoping", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Firearms", hover)).append("\n");
-        builder.append("  " + SYM + " ").color(net.md_5.bungee.api.ChatColor.GRAY).append(build("Melee", hover));
-
-        sender.spigot().sendMessage(builder.create());
-    }
-
-    private static BaseComponent build(String name, BaseComponent[] hover) {
-        BaseComponent component = new TextComponent(name);
-        component.setColor(net.md_5.bungee.api.ChatColor.GOLD);
-        component.setClickEvent(new ClickEvent(OPEN_URL, WIKI + "/" + name));
-        component.setHoverEvent(new HoverEvent(SHOW_TEXT, hover));
-        return component;
+        MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(table);
     }
 
     public static void nbt(CommandSender sender, Entity target) {
