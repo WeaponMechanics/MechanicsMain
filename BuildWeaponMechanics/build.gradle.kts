@@ -74,6 +74,8 @@ tasks.named<ShadowJar>("shadowJar") {
         relocate ("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
             include(dependency("org.bstats:"))
         }
+
+        relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure")
     }
 }
 

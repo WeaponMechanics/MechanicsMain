@@ -28,6 +28,8 @@ public class TableBuilder {
     private char fillChar;
     private char elementChar;
 
+    private boolean attemptSinglePixelFix;
+
     private Style headerStyle;
     private Style fillCharStyle;
     private Style elementCharStyle;
@@ -102,6 +104,17 @@ public class TableBuilder {
         return this;
     }
 
+    /**
+     * When you use this method, all supplied content needs to be uppercase.
+     * Otherwise, the content will still be off by 1 pixel.
+     *
+     * @return A non-null reference to this (builder pattern).
+     */
+    public TableBuilder withAttemptSinglePixelFix() {
+        this.attemptSinglePixelFix = true;
+        return this;
+    }
+
     public TextComponent build() {
         TextComponent.Builder builder = text();
 
@@ -110,7 +123,7 @@ public class TableBuilder {
             builder.append(newline());
         }
 
-        String prefix = (elementChar == ' ') ? " " + elementChar + " " : "";
+        String prefix = (elementChar == ' ') ? "" : " " + elementChar + " ";
         int cellSize = constraints.pixels / constraints.columns - font.getWidth(prefix);
         for (int i = 0; i < constraints.rows * constraints.columns; i++) {
 
@@ -131,17 +144,24 @@ public class TableBuilder {
             // characters. This will "abbreviate" long strings, and "fill"
             // short strings.
             StringBuilder cell = new StringBuilder(text.content());
-            while (MinecraftFont.Font.getWidth(cell.toString()) < cellSize)
-                cell.append(' ');
-            while (MinecraftFont.Font.getWidth(cell.toString()) > cellSize)
-                cell.setLength(cell.length() - 1);
+
+            int count = 0;
+            if (i % constraints.columns != constraints.columns - 1) {
+                while (MinecraftFont.Font.getWidth(prefix + cell) < cellSize)
+                    cell.append(' ');
+                while (MinecraftFont.Font.getWidth(prefix + cell) > cellSize)
+                    cell.setLength(cell.length() - 1);
+                while (attemptSinglePixelFix && MinecraftFont.Font.getWidth(prefix + cell + StringUtil.repeat("|", count)) < cellSize)
+                    count++;
+            }
 
             // Although we reset style here, (and maybe we shouldn't reset
             // style), it is still important to allow TextComponents for
             // click and hover events.
-            text = text.content(cell.toString()).style(elementStyle);
+            text = text.content(cell.toString()).style(text.style().merge(elementStyle));
             builder.append(text().content(prefix).style(elementCharStyle));
             builder.append(text);
+            builder.append(text().content(StringUtil.repeat("|", count)).style(elementCharStyle));
 
             if (i % constraints.columns == constraints.columns - 1) {
                 builder.append(newline());
@@ -150,7 +170,6 @@ public class TableBuilder {
 
         if (left != null && right != null) {
             builder.append(buildFooter());
-            builder.append(newline());
         }
 
         return builder.build();
