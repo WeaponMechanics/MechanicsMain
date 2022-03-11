@@ -3,6 +3,7 @@ package me.deecaad.core.commands.arguments;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.deecaad.core.commands.Argument;
@@ -27,7 +28,8 @@ public abstract class CommandArgumentType<T> {
     public abstract T parse(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     public CompletableFuture<Suggestions> suggestions(CommandContext<Object> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        return getBrigadierType().listSuggestions(context, builder);
+        SuggestionProvider<Object> suggestions = (c, b) -> getBrigadierType().listSuggestions(c, b);
+        return suggestions.getSuggestions(context, builder);
     }
 
     /**

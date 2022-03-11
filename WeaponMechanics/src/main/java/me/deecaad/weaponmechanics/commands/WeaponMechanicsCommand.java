@@ -262,9 +262,9 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.test.shoot")
                         .withDescription("Test projectile shooting")
                         .withRequirements(LivingEntity.class::isInstance)
-                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0.0)))
-                        .withArgument(new Argument<>("gravity", new DoubleArgumentType(), 0.05))
-                        .withArgument(new Argument<>("disguise", new EntityTypeArgumentType(), null))
+                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0.0)).withDesc("How fast to move the projectile"))
+                        .withArgument(new Argument<>("gravity", new DoubleArgumentType(), 0.05).withDesc("The downward acceleration"))
+                        .withArgument(new Argument<>("disguise", new EntityTypeArgumentType(), null).withDesc("Which disguise to use"))
                         .executes(CommandExecutor.entity((sender, args) -> {
                             shoot((LivingEntity) sender, (double) args[0], (double) args[1], (EntityType) args[2]);
                         })));

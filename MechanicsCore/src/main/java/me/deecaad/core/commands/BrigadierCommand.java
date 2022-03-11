@@ -109,7 +109,7 @@ public class BrigadierCommand implements Command<Object> {
                 if (argument.isReplaceSuggestions) {
                     required.suggests((context, suggestionsBuilder) -> {
                         if (argument.getType().includeName())
-                            suggestionsBuilder.suggest("<" + argument.getName() + ">", new LiteralMessage(argument.description));
+                            suggestionsBuilder.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description));
                         buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
                         return suggestionsBuilder.buildFuture();
                     });
@@ -121,7 +121,7 @@ public class BrigadierCommand implements Command<Object> {
                 else if (argument.suggestions != null) {
                     required.suggests((context, suggestionsBuilder) -> {
                         if (argument.getType().includeName())
-                            suggestionsBuilder.suggest("<" + argument.getName() + ">", new LiteralMessage(argument.description));
+                            suggestionsBuilder.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description));
                         argument.getType().suggestions(context, suggestionsBuilder);
                         buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
                         return suggestionsBuilder.buildFuture();
@@ -133,8 +133,9 @@ public class BrigadierCommand implements Command<Object> {
                 else {
                     required.suggests((context, suggestionsBuilder) -> {
                         if (argument.getType().includeName())
-                            suggestionsBuilder.suggest("<" + argument.getName() + ">", new LiteralMessage(argument.description));
-                        return argument.getType().suggestions(context, suggestionsBuilder);
+                            suggestionsBuilder.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description));
+                        argument.getType().suggestions(context, suggestionsBuilder);
+                        return suggestionsBuilder.buildFuture();
                     });
                 }
 
