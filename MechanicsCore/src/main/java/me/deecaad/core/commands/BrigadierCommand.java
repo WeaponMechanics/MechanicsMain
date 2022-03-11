@@ -134,8 +134,7 @@ public class BrigadierCommand implements Command<Object> {
                     required.suggests((context, suggestionsBuilder) -> {
                         if (argument.getType().includeName())
                             suggestionsBuilder.suggest("<" + argument.getName() + ">", new LiteralMessage(argument.description));
-                        argument.getType().suggestions(context, suggestionsBuilder);
-                        return suggestionsBuilder.buildFuture();
+                        return argument.getType().suggestions(context, suggestionsBuilder);
                     });
                 }
 
