@@ -125,6 +125,8 @@ public interface CommandCompatibility {
 
     ArgumentType<?> block2();
 
+    ArgumentType<?> biome();
+
     ArgumentType<?> key();
 
     // * ----- Suggestion Providers ----- * //
@@ -149,7 +151,7 @@ public interface CommandCompatibility {
 
     EnumSet<Axis> getAxis(CommandContext<Object> context, String key);
 
-    Biome getBiome(CommandContext<Object> context, String key);
+    Biome getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     Predicate<Block> getBlockPredicate(CommandContext<Object> context, String key)
             throws CommandSyntaxException;
