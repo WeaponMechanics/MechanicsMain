@@ -24,8 +24,7 @@ public enum TriggerType {
     START_GLIDE,
     END_GLIDE,
 
-    SWAP_TO_MAIN_HAND,
-    SWAP_TO_OFF_HAND,
+    SWAP_HANDS,
 
     START_WALK,
     END_WALK,

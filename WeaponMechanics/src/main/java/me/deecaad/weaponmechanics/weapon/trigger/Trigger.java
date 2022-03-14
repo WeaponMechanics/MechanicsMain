@@ -248,9 +248,8 @@ public class Trigger implements Serializer<Trigger> {
             case START_GLIDE:
             case END_GLIDE:
                 return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide");
-            case SWAP_TO_MAIN_HAND:
-            case SWAP_TO_OFF_HAND:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items");
+            case SWAP_HANDS:
+                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Hand_Items");
             case START_WALK:
             case END_WALK:
             case START_STAND:
