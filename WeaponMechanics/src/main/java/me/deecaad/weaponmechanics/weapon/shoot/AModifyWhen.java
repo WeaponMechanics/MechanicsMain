@@ -73,6 +73,6 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
             tempNumber = gliding.applyTo(tempNumber);
         }
 
-        return Math.max(tempNumber, 0.0);
+        return tempNumber;
     }
 }

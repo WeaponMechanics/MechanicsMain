@@ -3,6 +3,17 @@ Origin_12:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6Origin 12"
+      Lore:
+        - "&7Semi-automatic shotgun with large ammo capacity allows for continuous firing."
+        - "&7Effective at close range."
+        - ""
+        - "&7Weapon Statistics &6-&7 59.8"
+        - "&6➣&7 50 &6⟸ &7Accuracy"
+        - "&6➣&7 76 &6⟸ &7Damage"
+        - "&6➣&7 38 &6⟸ &7Range"
+        - "&6➣&7 49 &6⟸ &7Fire Rate"
+        - "&6➣&7 76 &6⟸ &7Mobility"
+        - "&6➣&7 70 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -45,7 +56,7 @@ Origin_12:
       Push_Time: 200
       Horizontal:
         - 3
-        - -3
+        - 0
       Vertical:
         - 3
       Modify_Recoil_When:

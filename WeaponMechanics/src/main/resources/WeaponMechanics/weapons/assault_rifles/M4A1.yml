@@ -3,6 +3,17 @@ M4A1:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6M4A1"
+      Lore:
+        - "&7Fully automatic, all-purpose battle rifle."
+        - "&7Control your shots, and this weapon can be very effective at range."
+        - ""
+        - "&7Weapon Statistics &6-&7 69.2"
+        - "&6➣&7 71 &6⟸ &7Accuracy"
+        - "&6➣&7 72 &6⟸ &7Damage"
+        - "&6➣&7 63 &6⟸ &7Range"
+        - "&6➣&7 75 &6⟸ &7Fire Rate"
+        - "&6➣&7 63 &6⟸ &7Mobility"
+        - "&6➣&7 71 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -10,7 +21,7 @@ M4A1:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6M4A1 &7«&6%ammo-left%&7»&6%reload%"
+        Message: "&6M4A1%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
@@ -45,7 +56,7 @@ M4A1:
       Push_Time: 200
       Horizontal:
         - 2.9
-        - -2.9
+        - 0
       Vertical:
         - 2.9
       Modify_Recoil_When:
@@ -86,3 +97,16 @@ M4A1:
       Mechanics:
         Sounds:
           - "custom:scope.out-0.5-1-0-0.1"
+  Firearm_Action:
+    Type: "SLIDE"
+    Open:
+      Time: 8
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+    Close:
+      Time: 8
+      Mechanics:
+        Sounds:
+          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"

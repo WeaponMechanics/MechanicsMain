@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
+    `maven-publish`
     id("me.deecaad.java-conventions")
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
@@ -47,8 +48,7 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    baseName = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"
-    classifier = null;
+    archiveFileName.set("MechanicsCore-${project.version}.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
 
     dependencies {
@@ -78,6 +78,30 @@ tasks.named<ShadowJar>("shadowJar") {
 
 tasks.named("assemble").configure {
     dependsOn("shadowJar")
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsMain")
+            credentials {
+                username = "CJCrafter"
+                password = "redacted"
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("shadow") {
+            pom {
+                groupId = "me.deecaad"
+                artifactId = "mechanicscore" // MUST be lowercase
+                packaging = "jar"
+            }
+
+            project.shadow.component(this)
+        }
+    }
 }
 
 description = "Library plugin for WeaponMechanics"

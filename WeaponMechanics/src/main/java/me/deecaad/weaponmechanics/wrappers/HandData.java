@@ -65,9 +65,7 @@ public class HandData {
         }
         stopReloadingTasks();
         stopFirearmActionTasks();
-        if (getZoomData().isZooming()) {
-            WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
-        }
+        ifZoomingForceZoomOut();
     }
 
     public void ifZoomingForceZoomOut() {
@@ -186,11 +184,6 @@ public class HandData {
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
 
-            LivingEntity entity = entityWrapper.getEntity();
-            if (reloadWeaponStack != null && entity.getType() == EntityType.PLAYER && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, reloadWeaponStack.getType())) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, reloadWeaponStack.getType(), 0);
-            }
-
             reloadStart = 0;
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
@@ -226,20 +219,36 @@ public class HandData {
         return zoomData == null ? zoomData = new ZoomData() : zoomData;
     }
 
+    /**
+     * Only used with shoot firearm actions.
+     * Reload firearm actions use addReloadTask()
+     */
     public void addFirearmActionTask(int firearmTask) {
         firearmActionTasks.add(firearmTask);
     }
 
+    /**
+     * Only used with shoot firearm actions
+     * Reload firearm actions use addReloadTask()
+     */
     public void addFirearmActionTasks(int... firearmTask) {
         for (int i : firearmTask) {
             firearmActionTasks.add(i);
         }
     }
 
+    /**
+     * Only used with shoot firearm actions
+     * Reload firearm actions use addReloadTask()
+     */
     public boolean hasRunningFirearmAction() {
         return !firearmActionTasks.isEmpty();
     }
 
+    /**
+     * Only used with shoot firearm actions
+     * Reload firearm actions use addReloadTask()
+     */
     public void stopFirearmActionTasks() {
         if (!firearmActionTasks.isEmpty()) {
             for (int task : firearmActionTasks) {

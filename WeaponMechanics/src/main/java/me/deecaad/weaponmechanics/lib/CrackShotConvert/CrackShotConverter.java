@@ -20,10 +20,11 @@ public class CrackShotConverter {
     public void convertOneKey(YamlConfiguration configuration, String key, YamlConfiguration outputConfiguration) {
 
         if (configuration.get(key + ".Reload.Reload_Amount") != null) {
+            String weaponName = configuration.getString(key + ".Item_Information.Item_Name", key);
             if (configuration.get(key + ".Firearm_Action.Type") != null) {
-                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + "%firearm-state% &7«&6%ammo-left%&7»&6%reload%");
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", weaponName + "%firearm-state% «%ammo-left%»%reload%");
             } else {
-                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", "&6" + key + " &7«&6%ammo-left%&7»&6%reload%");
+                outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", weaponName + " «%ammo-left%»%reload%");
             }
         }
         for (Paths path : Paths.values()) {
@@ -491,8 +492,11 @@ public class CrackShotConverter {
 
             if (value.equalsIgnoreCase("break")) {
                 value = "revolver";
-            } else if (value.equalsIgnoreCase("bolt") || value.equalsIgnoreCase("slide")) {
+                WeaponMechanics.debug.error("Firearm action break was changed to revolver " + from);
+
+            } else if (value.equalsIgnoreCase("bolt")) {
                 value = "lever";
+                WeaponMechanics.debug.error("Firearm action bolt was changed to lever " + from);
             }
 
             toConfig.set(to, value);
