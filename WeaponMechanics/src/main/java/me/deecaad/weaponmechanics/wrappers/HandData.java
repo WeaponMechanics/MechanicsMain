@@ -65,9 +65,7 @@ public class HandData {
         }
         stopReloadingTasks();
         stopFirearmActionTasks();
-        if (getZoomData().isZooming()) {
-            WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
-        }
+        ifZoomingForceZoomOut();
     }
 
     public void ifZoomingForceZoomOut() {
@@ -185,11 +183,6 @@ public class HandData {
             reloadTasks.clear();
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
-
-            LivingEntity entity = entityWrapper.getEntity();
-            if (reloadWeaponStack != null && entity.getType() == EntityType.PLAYER && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, reloadWeaponStack.getType())) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, reloadWeaponStack.getType(), 0);
-            }
 
             reloadStart = 0;
             reloadWeaponStack = null;
