@@ -93,10 +93,6 @@ public interface CommandCompatibility {
 
     ArgumentType<?> particle();
 
-    ArgumentType<?> position();
-
-    ArgumentType<?> position2D();
-
     ArgumentType<?> profile();
 
     ArgumentType<?> rotation();
