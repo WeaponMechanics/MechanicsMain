@@ -223,16 +223,6 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public ArgumentType<?> position() {
-        return BlockPosArgument.blockPos();
-    }
-
-    @Override
-    public ArgumentType<?> position2D() {
-        return ColumnPosArgument.columnPos();
-    }
-
-    @Override
     public ArgumentType<?> profile() {
         return GameProfileArgument.gameProfile();
     }
