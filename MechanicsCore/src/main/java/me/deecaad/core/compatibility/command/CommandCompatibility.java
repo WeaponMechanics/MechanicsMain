@@ -85,8 +85,6 @@ public interface CommandCompatibility {
 
     ArgumentType<?> mathOperation();
 
-    ArgumentType<?> minecraftKeyRegistered();
-
     ArgumentType<?> mobEffect();
 
     ArgumentType<?> nbtCompound();

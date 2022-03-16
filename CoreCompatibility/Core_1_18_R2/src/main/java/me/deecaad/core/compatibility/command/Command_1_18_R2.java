@@ -204,11 +204,6 @@ public class Command_1_18_R2 implements CommandCompatibility {
     }
 
     @Override
-    public ArgumentType<?> minecraftKeyRegistered() {
-        return ResourceLocationArgument.id();
-    }
-
-    @Override
     public ArgumentType<?> mobEffect() {
         return MobEffectArgument.effect();
     }
@@ -610,7 +605,7 @@ public class Command_1_18_R2 implements CommandCompatibility {
             case Tag.TAG_FLOAT, Tag.TAG_DOUBLE -> ((NumericTag) tag).getAsDouble();
             case Tag.TAG_STRING -> ((StringTag) tag).toString();
             case Tag.TAG_BYTE_ARRAY, Tag.TAG_INT_ARRAY, Tag.TAG_LONG_ARRAY, Tag.TAG_LIST -> convertList((CollectionTag<Tag>) tag);
-            case Tag.TAG_COMPOUND -> (CompoundTag) convertMap((CompoundTag) tag);
+            case Tag.TAG_COMPOUND -> convertMap((CompoundTag) tag);
             default -> throw new IllegalStateException("Unexpected value: " + tag);
         };
     }

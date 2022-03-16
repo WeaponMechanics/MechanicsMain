@@ -203,11 +203,6 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public ArgumentType<?> minecraftKeyRegistered() {
-        return ResourceLocationArgument.id();
-    }
-
-    @Override
     public ArgumentType<?> mobEffect() {
         return MobEffectArgument.effect();
     }
