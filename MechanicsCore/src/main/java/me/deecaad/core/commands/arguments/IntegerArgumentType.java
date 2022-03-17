@@ -3,13 +3,22 @@ package me.deecaad.core.commands.arguments;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import me.deecaad.core.commands.CommandData;
-import me.deecaad.core.commands.CommandException;
+import me.deecaad.core.commands.Tooltip;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class IntegerArgumentType extends CommandArgumentType<Integer> {
+
+    public static Function<CommandData, Tooltip[]> ITEM_COUNT = data -> {
+        int stackSize = 64;
+        for (Object obj : data.previousArguments)
+            if (obj instanceof ItemStack)
+                stackSize = ((ItemStack) obj).getMaxStackSize();
+
+        return IntStream.rangeClosed(1, stackSize).sorted().mapToObj(Tooltip::of).toArray(Tooltip[]::new);
+    };
 
     private final int min;
     private final int max;

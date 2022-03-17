@@ -84,8 +84,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
+import static me.deecaad.core.commands.arguments.IntegerArgumentType.ITEM_COUNT;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static net.kyori.adventure.text.Component.empty;
 import static net.kyori.adventure.text.Component.text;
@@ -112,7 +112,6 @@ public class WeaponMechanicsCommand {
 
         return temp.toArray(new Tooltip[0]);
     };
-    public static Function<CommandData, Tooltip[]> ITEM_COUNT_SUGGESTIONS = (data) -> IntStream.rangeClosed(1, 64).mapToObj(Tooltip::of).toArray(Tooltip[]::new);
 
     public static void build() {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
@@ -121,8 +120,8 @@ public class WeaponMechanicsCommand {
                 .with("attachment", MapArgumentType.LIST.apply(SuggestionsBuilder.from("scope", "grip", "silencer")))
                 .with("ammo", MapArgumentType.INT.apply(SuggestionsBuilder.from(1, 10, 30)));
 
-        CommandBuilder command = new CommandBuilder("weaponmechanics")
-                .withAliases("wm")
+        CommandBuilder command = new CommandBuilder("wm")
+                .withAliases("weaponmechanics")
                 .withPermission("weaponmechanics.admin")
                 .withDescription("WeaponMechanics' main command")
                 .withSubcommand(new CommandBuilder("give")
@@ -130,7 +129,7 @@ public class WeaponMechanicsCommand {
                         .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()).withDesc("Who to give the weapon(s) to"))
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
-                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
+                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
 
@@ -138,7 +137,7 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.get")
                         .withDescription("Gives you the requested weapon(s)")
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
-                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
+                        .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
                         .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
 
@@ -172,7 +171,7 @@ public class WeaponMechanicsCommand {
                 new Argument<>("exposure", new StringArgumentType(), "DEFAULT").withDesc("How to calculate entity damage").replace(SuggestionsBuilder.from(ExposureFactory.getInstance().getOptions())),
                 new Argument<>("break", new BooleanArgumentType(), true).withDesc("true to have the explosion break blocks"),
                 new Argument<>("blacklist", new BlockPredicateArgumentType(), BlockPredicateArgumentType.FALSE("none")).withDesc("Which blocks should not be broken"),
-                new Argument<>("regeneration", new TimeArgumentType(), 200).withDesc("How long after should the blocks regenerate") // 20 minutes max
+                new Argument<>("regeneration", new TimeArgumentType(), 200).withDesc("How long after should the blocks regenerate")
         };
 
         CommandBuilder test = new CommandBuilder("test")
