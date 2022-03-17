@@ -1,6 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
-import it.unimi.dsi.fastutil.shorts.ShortArraySet;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.core.BlockPos;
@@ -8,6 +8,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlockState;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,13 +27,25 @@ import java.util.Map;
 // https://nms.screamingsandals.org/1.17.1/
 public class Block_1_17_R1  implements BlockCompatibility {
 
+    private static final Class<?> multiBlockPacket;
+    private static final Constructor<?> multiBlockPacketConstructor;
+    private static final Constructor<?> shortSetConstructor;
     private static final Field multiBlockChangeB;
     private static final Field multiBlockChangeC;
 
+
     static {
-        Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
-        multiBlockChangeB = ReflectionUtil.getField(multiBlockChangeClass, "b");
-        multiBlockChangeC = ReflectionUtil.getField(multiBlockChangeClass, "c");
+        Class<?> shortClass = CompatibilityAPI.isPaper()
+                ? ReflectionUtil.getClass("it.unimi.dsi.fastutil.shorts.ShortArraySet")
+                : ReflectionUtil.getClass("org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet");
+        shortSetConstructor = ReflectionUtil.getConstructor(shortClass);
+
+        multiBlockPacket = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
+        multiBlockPacketConstructor = ReflectionUtil.getConstructor(multiBlockPacket, SectionPos.class, shortClass, LevelChunkSection.class, boolean.class);
+        multiBlockChangeB = ReflectionUtil.getField(multiBlockPacket, "b");
+        multiBlockChangeC = ReflectionUtil.getField(multiBlockPacket, "c");
+
+
 
         if (ReflectionUtil.getMCVersion() != 17) {
             me.deecaad.core.MechanicsCore.debug.log(
@@ -122,7 +136,7 @@ public class Block_1_17_R1  implements BlockCompatibility {
             data[i] = mask;
         }
 
-        ClientboundSectionBlocksUpdatePacket packet = new ClientboundSectionBlocksUpdatePacket(SectionPos.of(position), new ShortArraySet(0), null, false);
+        ClientboundSectionBlocksUpdatePacket packet = (ClientboundSectionBlocksUpdatePacket) ReflectionUtil.newInstance(multiBlockPacketConstructor, SectionPos.of(position), ReflectionUtil.newInstance(shortSetConstructor), null, false);
         ReflectionUtil.setField(multiBlockChangeB, packet, locations);
         ReflectionUtil.setField(multiBlockChangeC, packet, data);
 
