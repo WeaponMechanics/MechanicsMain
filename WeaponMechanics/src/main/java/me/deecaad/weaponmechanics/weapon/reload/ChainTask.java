@@ -14,9 +14,11 @@ public abstract class ChainTask extends BukkitRunnable {
 
     /**
      * @param nextTask the next task in the chain
+     * @return the next task that was set
      */
-    public void setNextTask(ChainTask nextTask) {
+    public ChainTask setNextTask(ChainTask nextTask) {
         this.nextTask = nextTask;
+        return nextTask;
     }
 
     /**

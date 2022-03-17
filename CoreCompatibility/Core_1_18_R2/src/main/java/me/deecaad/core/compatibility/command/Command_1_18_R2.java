@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
@@ -35,6 +36,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
@@ -59,14 +61,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_18_R1.CraftLootTable;
-import org.bukkit.craftbukkit.v1_18_R1.CraftParticle;
-import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R1.CraftSound;
-import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_18_R1.enchantments.CraftEnchantment;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_18_R1.potion.CraftPotionEffectType;
+import org.bukkit.craftbukkit.v1_18_R2.CraftLootTable;
+import org.bukkit.craftbukkit.v1_18_R2.CraftParticle;
+import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R2.CraftSound;
+import org.bukkit.craftbukkit.v1_18_R2.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_18_R2.enchantments.CraftEnchantment;
+import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R2.potion.CraftPotionEffectType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -78,7 +80,6 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -86,7 +87,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Command_1_18_R1 implements CommandCompatibility {
+public class Command_1_18_R2 implements CommandCompatibility {
 
     public static final MinecraftServer SERVER = ((CraftServer) Bukkit.getServer()).getServer();
 
@@ -289,7 +290,7 @@ public class Command_1_18_R1 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> biome() {
-        return key(); // this is actually only changed 1.18R2 and up
+        return ResourceOrTagLocationArgument.resourceOrTag(Registry.BIOME_REGISTRY); // this is actually only changed 1.18R2 and up
     }
 
     @Override
@@ -299,7 +300,7 @@ public class Command_1_18_R1 implements CommandCompatibility {
 
     @Override
     public SuggestionProvider<Object> biomeKey() {
-        return (SuggestionProvider) SuggestionProviders.AVAILABLE_BIOMES;
+        return biome()::listSuggestions;
     }
 
     @Override
@@ -363,8 +364,15 @@ public class Command_1_18_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Biome getBiome(CommandContext<Object> context, String key) {
-        return Biome.valueOf(cast(context).getArgument(key, ResourceLocation.class).getPath().toUpperCase(Locale.ROOT));
+    public Biome getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
+        ResourceOrTagLocationArgument.Result<net.minecraft.world.level.biome.Biome> biomeResult = ResourceOrTagLocationArgument.getBiome(cast(context), key);
+
+        String biome = biomeResult.asPrintable();
+        if(biomeResult.unwrap().left().isPresent()) {
+            return Biome.valueOf(biomeResult.unwrap().left().get().location().getPath().toUpperCase());
+        } else {
+            throw new DynamicCommandExceptionType((id) -> new TranslatableComponent("commands.locatebiome.invalid", id)).create(biome);
+        }
     }
 
     @Override
@@ -597,7 +605,7 @@ public class Command_1_18_R1 implements CommandCompatibility {
             case Tag.TAG_FLOAT, Tag.TAG_DOUBLE -> ((NumericTag) tag).getAsDouble();
             case Tag.TAG_STRING -> ((StringTag) tag).toString();
             case Tag.TAG_BYTE_ARRAY, Tag.TAG_INT_ARRAY, Tag.TAG_LONG_ARRAY, Tag.TAG_LIST -> convertList((CollectionTag<Tag>) tag);
-            case Tag.TAG_COMPOUND -> (CompoundTag) convertMap((CompoundTag) tag);
+            case Tag.TAG_COMPOUND -> convertMap((CompoundTag) tag);
             default -> throw new IllegalStateException("Unexpected value: " + tag);
         };
     }

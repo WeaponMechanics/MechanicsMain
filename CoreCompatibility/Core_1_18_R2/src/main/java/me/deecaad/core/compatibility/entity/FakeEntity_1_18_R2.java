@@ -93,12 +93,11 @@ public class FakeEntity_1_18_R2 extends FakeEntity {
             entity = switch (type) {
                 case DROPPED_ITEM -> new ItemEntity(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
                 case FALLING_BLOCK -> {
-                    FallingBlockEntity temp = FallingBlockEntity.fall(world.getHandle(), new BlockPos(x, y, z), block =
-                            (data.getClass() == Material.class
-                                    ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
-                                    : ((CraftBlockState) data).getHandle()
-                            ));
+                    FallingBlockEntity temp = new FallingBlockEntity(net.minecraft.world.entity.EntityType.FALLING_BLOCK, world.getHandle());
                     temp.setPosRaw(x, y, z);
+                    block = (data.getClass() == Material.class
+                            ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
+                            : ((CraftBlockState) data).getHandle());
                     yield temp;
                 }
                 case FIREWORK -> new FireworkRocketEntity(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);

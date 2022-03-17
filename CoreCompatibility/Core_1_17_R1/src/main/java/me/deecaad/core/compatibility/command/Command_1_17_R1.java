@@ -59,14 +59,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_18_R1.CraftLootTable;
-import org.bukkit.craftbukkit.v1_18_R1.CraftParticle;
-import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R1.CraftSound;
-import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_18_R1.enchantments.CraftEnchantment;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_18_R1.potion.CraftPotionEffectType;
+import org.bukkit.craftbukkit.v1_17_R1.CraftLootTable;
+import org.bukkit.craftbukkit.v1_17_R1.CraftParticle;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftSound;
+import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_17_R1.enchantments.CraftEnchantment;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.potion.CraftPotionEffectType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -86,7 +86,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Command_1_18_R1 implements CommandCompatibility {
+public class Command_1_17_R1 implements CommandCompatibility {
 
     public static final MinecraftServer SERVER = ((CraftServer) Bukkit.getServer()).getServer();
 

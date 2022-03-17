@@ -3,6 +3,16 @@ Kar98k:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6Kar98k"
+      Lore:
+        - "&7Bolt action rifle chambered in 7.62 Mauser."
+        - ""
+        - "&7Weapon Statistics &6-&7 65.8"
+        - "&6➣&7 76 &6⟸ &7Accuracy"
+        - "&6➣&7 82 &6⟸ &7Damage"
+        - "&6➣&7 75 &6⟸ &7Range"
+        - "&6➣&7 41 &6⟸ &7Fire Rate"
+        - "&6➣&7 53 &6⟸ &7Mobility"
+        - "&6➣&7 68 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -47,7 +57,6 @@ Kar98k:
       Recover_Time: 200
       Horizontal:
         - 8.2
-        - -8.2
       Vertical:
         - 8.2
       Modify_Recoil_When:

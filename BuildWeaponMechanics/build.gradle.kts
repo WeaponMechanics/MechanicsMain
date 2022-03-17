@@ -74,6 +74,8 @@ tasks.named<ShadowJar>("shadowJar") {
         relocate ("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
             include(dependency("org.bstats:"))
         }
+
+        relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure")
     }
 }
 
@@ -87,4 +89,4 @@ tasks.named("assemble").configure {
 }
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.5.3-BETA"
+version = "1.5.4-BETA"

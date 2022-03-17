@@ -71,16 +71,7 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -270,9 +261,9 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.test.shoot")
                         .withDescription("Test projectile shooting")
                         .withRequirements(LivingEntity.class::isInstance)
-                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0.0)))
-                        .withArgument(new Argument<>("gravity", new DoubleArgumentType(), 0.05))
-                        .withArgument(new Argument<>("disguise", new EntityTypeArgumentType(), null))
+                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0.0)).withDesc("How fast to move the projectile"))
+                        .withArgument(new Argument<>("gravity", new DoubleArgumentType(), 0.05).withDesc("The downward acceleration"))
+                        .withArgument(new Argument<>("disguise", new EntityTypeArgumentType(), null).withDesc("Which disguise to use"))
                         .executes(CommandExecutor.entity((sender, args) -> {
                             shoot((LivingEntity) sender, (double) args[0], (double) args[1], (EntityType) args[2]);
                         })));
@@ -379,14 +370,14 @@ public class WeaponMechanicsCommand {
         Style gold = Style.style(NamedTextColor.GOLD);
         Style gray = Style.style(NamedTextColor.GRAY);
         TextComponent table = new TableBuilder()
-                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setColumns(3))
-                .withElementChar('»')
-                .withElementCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.BOLD))
+                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setColumns(3).setPixels(310)) // 10 pixel buffer
+                .withElementChar('-')
+                .withElementCharStyle(gold)
                 .withFillChar('=')
-                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.BOLD, TextDecoration.STRIKETHROUGH))
-                .withHeader("WeaponMechanics")
-                .withHeaderStyle(Style.style(NamedTextColor.GOLD, TextDecoration.BOLD))
-                .withElementStyle(gold)
+                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+                .withHeader("Weapons [Page " + requestedPage + "/" + (weapons.size() / (3 * 8) + 1) + "]")
+                .withHeaderStyle(gold)
+                .withElementStyle(gray)
                 .withLeft(text().content("«").style(gold)
                         .clickEvent(ClickEvent.runCommand("/wm list " + (requestedPage - 1)))
                         .hoverEvent(text("Click to go to page " + (requestedPage - 1), gray))
@@ -395,17 +386,18 @@ public class WeaponMechanicsCommand {
                         .clickEvent(ClickEvent.runCommand("/wm list " + (requestedPage + 1)))
                         .hoverEvent(text("Click to go to page " + (requestedPage + 1), gray))
                         .build())
+                .withAttemptSinglePixelFix()
                 .withSupplier(i -> {
-                    int index = i + requestedPage * 3 * 8;
-                    if (weapons.size() < index)
+                    int index = i + (requestedPage - 1) * 3 * 8;
+                    if (weapons.size() <= index)
                         return empty();
 
                     String title = weapons.get(index);
                     ItemStack item = info.generateWeapon(title, 1);
-                    return text().content(title)
+                    return text().content(title.toUpperCase(Locale.ROOT))
                             .clickEvent(ClickEvent.runCommand("/wm get " + title))
-                            .hoverEvent(CompatibilityAPI.isPaper()
-                                    ? (HoverEventSource<?>) item // Paper items implement this by default
+                            .hoverEvent(CompatibilityAPI.isPaper() && ReflectionUtil.getMCVersion() >= 16
+                                    ? (HoverEventSource<?>) item // Paper items implement this by default since 1.16
                                     : LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName()))
                             .build();
                 })
@@ -423,12 +415,13 @@ public class WeaponMechanicsCommand {
         Style gold = Style.style(NamedTextColor.GOLD);
         Style gray = Style.style(NamedTextColor.GRAY);
         TextComponent table = new TableBuilder()
-                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setColumns(3))
-                .withElementChar('»')
-                .withElementCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.BOLD))
-                .withElementStyle(gold)
-                .withSupplier(i -> text().content(pages.get(i))
-                        .clickEvent(ClickEvent.openUrl(WIKI + pages.get(i)))
+                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setPixels(300))
+                .withElementChar('-')
+                .withElementCharStyle(gold)
+                .withElementStyle(gray)
+                .withAttemptSinglePixelFix()
+                .withSupplier(i -> i >= pages.size() ? empty() : text().content(pages.get(i).toUpperCase(Locale.ROOT))
+                        .clickEvent(ClickEvent.openUrl(WIKI + '/' + pages.get(i)))
                         .hoverEvent(text("Click to go to the wiki", gray))
                         .build())
                 .build();

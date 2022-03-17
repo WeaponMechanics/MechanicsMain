@@ -29,7 +29,9 @@ public enum FirearmType {
     /**
      * FirearmType for pump shotguns
      *   Shoot: Bang, then open, then close
-     *   Reload: Reload timer, then open, then close
+     *   Reload:
+     *     If Empty: Reload timer, then open, then close
+     *     Else: Reload timer
      *   Open: Pull the pump
      *   Close: Push the pump
      */
@@ -38,9 +40,26 @@ public enum FirearmType {
     /**
      * FirearmType for bolt action and lever action rifles
      *   Shoot: Bang, then open, (bullet goes in), then close
-     *   Reload: Open, reload timer, then close
+     *   Reload:
+     *     If Empty: Open, reload timer, then close
+     *     Else: Reload timer
      *   Open: Pull lever back
      *   Close: Push lever forward
      */
-    LEVER;
+    LEVER,
+
+    /**
+     * FirearmType
+     *   Shoot: Bang
+     *   Reload:
+     *     If Empty: Open, then reload timer, then close
+     *     Else: Reload timer
+     *   Open: Pull slide back
+     *   Close: Slide returns, a bullet is chambered
+     */
+    SLIDE;
+
+    public boolean hasShootActions() {
+        return this == PUMP || this == LEVER;
+    }
 }

@@ -3,6 +3,17 @@
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6.50 GS"
+      Lore:
+        - "&7The most powerful semi-automatic handgun available."
+        - "&7Deals heavy damage up to intermediate ranges."
+        - ""
+        - "&7Weapon Statistics &6-&7 60.2"
+        - "&6➣&7 54 &6⟸ &7Accuracy"
+        - "&6➣&7 65 &6⟸ &7Damage"
+        - "&6➣&7 52 &6⟸ &7Range"
+        - "&6➣&7 53 &6⟸ &7Fire Rate"
+        - "&6➣&7 77 &6⟸ &7Mobility"
+        - "&6➣&7 60 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -10,10 +21,10 @@
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6.50 GS &7«&6%ammo-left%&7»&6%reload%"
+        Message: "&6.50 GS%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
         Dual_Wield:
-          Main_Hand: "&6%ammo-left%&7»&6%reload% &6.50 GS"
-          Off_Hand: "&6.50 GS &6%reload%&7«&6%ammo-left%"
+          Main_Hand: "&6%ammo-left%&7»&6%reload% &6%firearm-state%.50 GS"
+          Off_Hand: "&6.50 GS%firearm-state% &6%reload%&7«&6%ammo-left%"
     Dual_Wield:
       Whitelist: true
       Weapons:
@@ -56,7 +67,7 @@
       Push_Time: 200
       Horizontal:
         - 4
-        - -4
+        - 0
       Vertical:
         - 4
       Modify_Recoil_When:
@@ -99,3 +110,16 @@
       Mechanics:
         Sounds:
           - "custom:scope.out-0.5-1-0-0.1"
+  Firearm_Action:
+    Type: "SLIDE"
+    Open:
+      Time: 3
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+    Close:
+      Time: 3
+      Mechanics:
+        Sounds:
+          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"

@@ -3,6 +3,17 @@ FR_5_56:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6FR 5.56"
+      Lore:
+        - "&73 round burst bullpup battle rifle."
+        - "&7A well placed burst can be extremely deadly at intermittent range."
+        - ""
+        - "&7Weapon Statistics &6-&7 68.7"
+        - "&6➣&7 73 &6⟸ &7Accuracy"
+        - "&6➣&7 75 &6⟸ &7Damage"
+        - "&6➣&7 62 &6⟸ &7Range"
+        - "&6➣&7 72 &6⟸ &7Fire Rate"
+        - "&6➣&7 58 &6⟸ &7Mobility"
+        - "&6➣&7 72 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -10,7 +21,7 @@ FR_5_56:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6FR 5.56 &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
+        Message: "&6FR 5.56%firearm-state% &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
@@ -40,6 +51,7 @@ FR_5_56:
       Trigger:
         Main_Hand: "DOUBLE_SNEAK"
         Off_Hand: "DOUBLE_SNEAK"
+      Default: "BURST"
       Mechanics:
         Sounds:
           - "BLOCK_NOTE_BLOCK_HAT-1-2"
@@ -59,7 +71,7 @@ FR_5_56:
       Recover_Time: 200
       Horizontal:
         - 2.8
-        - -2.8
+        - 0
       Vertical:
         - 2.8
       Modify_Recoil_When:
@@ -104,3 +116,16 @@ FR_5_56:
       Mechanics:
         Sounds:
           - "custom:scope.out-0.5-1-0-0.1"
+  Firearm_Action:
+    Type: "SLIDE"
+    Open:
+      Time: 8
+      Mechanics:
+        Sounds:
+          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
+          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+    Close:
+      Time: 8
+      Mechanics:
+        Sounds:
+          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"

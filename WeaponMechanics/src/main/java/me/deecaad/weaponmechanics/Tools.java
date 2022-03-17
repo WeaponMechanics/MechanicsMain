@@ -4,6 +4,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
 
 import java.lang.reflect.Field;
@@ -22,8 +23,15 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
-        calculateStats(0, 0.9, 0.05, 0.0, 0.8, 0);
-        //deleteMe();
+        String str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~\u007fÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƑáíóúñÑªº¿®¬½¼¡«»";
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+
+            MapFont.CharacterSprite sprite = MinecraftFont.Font.getChar(c);
+            System.out.println(c + ": " + sprite.getWidth());
+        }
+
+        //calculateStats(0, 0.9, 0.05, 0.0, 0.8, 0);
     }
 
     private static void calculateStats(double accuracy, double damage, double range,
@@ -109,29 +117,6 @@ public class Tools {
         System.out.println();
         System.out.println("=============== /wm list (Page 1) ===============");
         System.out.println(MinecraftFont.Font.getWidth("================== WeaponMechanics =================="));
-    }
-
-    private static void deleteMe() {
-        String input = "aababca";
-        List<String> returnValue = new ArrayList<>();
-        LinkedList<Character> chars = new LinkedList<>();
-
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-
-            chars.addLast(c);
-            if (countDifferentCharacters(chars) == 2) {
-                returnValue.add(chars.toString());
-
-            } else if (countDifferentCharacters(chars) > 2) {
-                chars.removeFirst();
-                if (!chars.isEmpty())
-                    chars.removeLast();
-                i--;
-            }
-        }
-
-        System.out.println(returnValue);
     }
 
     private static int countDifferentCharacters(LinkedList<Character> characters) {

@@ -3,6 +3,16 @@
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6.357 Magnum"
+      Lore:
+        - "&7Revolver firing .357 Magnum ammunition for powerful damage over extended ranges."
+        - ""
+        - "&7Weapon Statistics &6-&7 60.7"
+        - "&6➣&7 60 &6⟸ &7Accuracy"
+        - "&6➣&7 63 &6⟸ &7Damage"
+        - "&6➣&7 56 &6⟸ &7Range"
+        - "&6➣&7 44 &6⟸ &7Fire Rate"
+        - "&6➣&7 76 &6⟸ &7Mobility"
+        - "&6➣&7 65 &6⟸ &7Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -17,7 +27,6 @@
     Weapon_Equip_Delay: 10
     Show_Cooldown:
       Weapon_Equip_Delay: true
-      Reload_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
@@ -45,7 +54,7 @@
       Push_Time: 200
       Horizontal:
         - 3.5
-        - -3.5
+        - 0
       Vertical:
         - 3.5
       Modify_Recoil_When:
@@ -60,15 +69,11 @@
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
     Magazine_Size: 6
-    Reload_Duration: 34
+    Ammo_Per_Reload: 1
+    Reload_Duration: 6
     Start_Mechanics:
       Sounds:
         - "custom:reload.start.shotgun-0.5-1-0-0.1"
-        - "custom:reload.start.shotgun-0.5-1-7-0.1"
-        - "custom:reload.start.shotgun-0.5-1-13-0.1"
-        - "custom:reload.start.shotgun-0.5-1-19-0.1"
-        - "custom:reload.start.shotgun-0.5-1-25-0.1"
-        - "custom:reload.start.shotgun-0.5-1-31-0.1"
   Damage:
     Base_Damage: 7.6
     Armor_Damage: 2

@@ -3,6 +3,12 @@ Cluster_Grenade:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6Cluster Grenade"
+      Lore:
+        - "&7Grenade that explodes in a series of smaller blasts."
+        - ""
+        - "&7Weapon Statistics"
+        - "&6➣&7 12 &6⟸ &7Bombs"
+        - "&6➣&7 3 &6⟸ &7Explosion radius"
       Unbreakable: true
       Hide_Flags: true
       Deny_Use_In_Crafting: true

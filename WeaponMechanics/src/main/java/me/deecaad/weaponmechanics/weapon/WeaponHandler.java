@@ -113,30 +113,20 @@ public class WeaponHandler {
      * @param weaponStack the weapon stack involved
      * @param slot the weapon slot used
      * @param triggerType the trigger which caused this
-     * @param dualWield whether or not this was dual wield
+     * @param dualWield whether this was dual wield
      */
     public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         if (!weaponStack.hasItemMeta()) return;
 
-        // Try shooting (and melee)
-        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)) {
-            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+        // Try shooting (and melee), then reloading, then scoping
+        if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)
+                || reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
+                || scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
+            getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
             return;
         }
 
-        // Shooting wasn't valid, try reloading
-        if (reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
-            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
-            return;
-        }
-
-        // Reloading wasn't valid, try scoping
-        if (scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
-            if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
-            return;
-        }
-
-        if (triggerType.isSprintType()) getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+        getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
 
         // Scoping wasn't valid, try selective fire
         Configuration config = getConfigurations();

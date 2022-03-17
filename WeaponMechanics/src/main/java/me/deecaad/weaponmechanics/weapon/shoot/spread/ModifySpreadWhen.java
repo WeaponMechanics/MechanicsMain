@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.weaponmechanics.weapon.shoot.AModifyWhen;
 import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -22,6 +23,11 @@ public class ModifySpreadWhen extends AModifyWhen {
                             NumberModifier dualWielding, NumberModifier swimming, NumberModifier inMidair,
                             NumberModifier gliding) {
         super(always, zooming, sneaking, standing, walking, sprinting, dualWielding, swimming, inMidair, gliding);
+    }
+
+    @Override
+    public double applyChanges(EntityWrapper entityWrapper, double tempNumber) {
+        return Math.max(super.applyChanges(entityWrapper, tempNumber), 0.0);
     }
 
     @Override

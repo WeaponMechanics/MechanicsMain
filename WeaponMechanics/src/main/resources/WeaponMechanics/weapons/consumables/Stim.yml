@@ -3,6 +3,11 @@ Stim:
     Weapon_Item:
       Type: "FEATHER"
       Name: "&6Stim"
+      Lore:
+        - "&7Military stimulant that cauterizes combat wounds."
+        - ""
+        - "&7Weapon Statistics"
+        - "&6➣ &c♥♥♥♥♥♥♥♥ &6⟸ &7Heal"
       Unbreakable: true
       Hide_Flags: true
       Deny_Use_In_Crafting: true

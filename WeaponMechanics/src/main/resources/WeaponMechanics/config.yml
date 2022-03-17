@@ -46,7 +46,7 @@ Disabled_Trigger_Checks:
   Sprint: false
   Right_And_Left_Click: false
   Drop_Item: false
-  Swap_Main_And_Hand_Items: false
+  Swap_Hand_Items: false
 
 # This defines how smooth weapon recoil is. Lower values means smoother recoil,
 # but more packets sent. In default minecraft this value would be 50 (1 tick). In WeaponMechanics, it
@@ -88,6 +88,9 @@ Placeholder_Symbols:
     Open: " □"
     Close: " ■"
   LEVER:
+    Open: " □"
+    Close: " ■"
+  SLIDE:
     Open: " □"
     Close: " ■"
   Reload: "ᴿ"
