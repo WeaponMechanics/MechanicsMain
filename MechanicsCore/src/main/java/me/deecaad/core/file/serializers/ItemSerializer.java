@@ -1,5 +1,6 @@
 package me.deecaad.core.file.serializers;
 
+import jdk.internal.joptsimple.internal.Strings;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
@@ -28,6 +29,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -261,6 +263,35 @@ public class ItemSerializer implements Serializer<ItemStack> {
         if (data.of("Deny_Use_In_Crafting").getBool(false)) {
             CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "MechanicsCore", "deny-crafting", 1);
         }
+
+        // Uses the format: <PotionEffectType>-<Amplifier>-<Ambient>-<Hide>-<Icon>
+        List<String[]> stringPotionList = data.ofList("Potion_Effects")
+                .addArgument(PotionEffectType.class, true, true)
+                .addArgument(int.class, true).assertArgumentPositive()
+                .addArgument(boolean.class, false)
+                .addArgument(boolean.class, false)
+                .addArgument(boolean.class, false)
+                .assertList().get();
+
+        List<String[]> potionEffectList = new ArrayList<>();
+        for (String[] split : stringPotionList) {
+
+            PotionEffectType potionEffectType = PotionEffectType.getByName(split[0].trim()); // auto applies lowercase
+            if (potionEffectType == null) {
+                throw new SerializerOptionsException(this, "Potion Effect", Arrays.stream(PotionEffectType.values()).map(Object::toString).collect(Collectors.toList()), split[0], data.of().getLocation());
+            }
+
+            split[0] = potionEffectType.getName();
+            potionEffectList.add(split);
+        }
+
+        // So we cannot store "raw" potion effects in items, so we have to
+        // "de-serialize" the potion effects into a string for us to serialize
+        // again later. While this is silly, since we just did all the
+        // serialization work above, I can't think of a better alternative.
+        String str = potionEffectList.stream().map(arr -> Strings.join(arr, "~")).collect(Collectors.joining(","));
+        if (!str.isEmpty())
+            CompatibilityAPI.getNBTCompatibility().setString(itemStack, "MechanicsCore", "potion-effects", str);
 
         return itemStack;
     }

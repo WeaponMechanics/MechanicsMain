@@ -4,6 +4,7 @@ import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.listeners.ItemCraftListener;
+import me.deecaad.core.listeners.ItemPotionsListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
@@ -63,6 +64,7 @@ public class MechanicsCore extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ItemPotionsListener(), this);
     }
 
     @Override
