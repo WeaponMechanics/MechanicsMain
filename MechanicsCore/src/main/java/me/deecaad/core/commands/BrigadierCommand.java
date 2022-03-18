@@ -15,6 +15,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.arguments.LiteralArgumentType;
 import me.deecaad.core.commands.arguments.MultiLiteralArgumentType;
+import me.deecaad.core.commands.arguments.StringArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -177,7 +178,7 @@ public class BrigadierCommand implements Command<Object> {
         };
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     static void register(CommandBuilder builder) {
 
         // Now we need to "unpack" the command. This means converting the
@@ -201,6 +202,7 @@ public class BrigadierCommand implements Command<Object> {
         // recursion to handle this.
         for (int i = 0; i < builder.args.size(); i++) {
             Argument<?> arg = builder.args.get(i);
+
             if (arg.getType() instanceof MultiLiteralArgumentType) {
                 for (String literal : ((MultiLiteralArgumentType) arg.getType()).getLiterals()) {
                     List<Argument<Object>> copy = new ArrayList<>(builder.args);
@@ -217,9 +219,25 @@ public class BrigadierCommand implements Command<Object> {
                     register(clone);
                 }
 
-                // When we find a multi-argument type, we have to return. For
-                // multiple multi-arguments, the recursion will handle it.
                 return;
+            }
+
+            // StringArgumentType's allow for additional 'literal constants' to
+            // be added. WeaponMechanics uses this for *, **, and *r in the
+            // /wm give @p * command.
+            else if (arg.getType() instanceof StringArgumentType) {
+                StringArgumentType type = (StringArgumentType) arg.getType();
+                if (type.getLiterals() == null || type.getLiterals().isEmpty())
+                    continue;
+
+                for (LiteralArgumentType literal : type.getLiterals()) {
+
+                    List<Argument<?>> copy = new ArrayList<>(builder.args);
+                    copy.set(i, new Argument<>(literal.getLiteral(), literal));
+                    CommandBuilder clone = builder.clone();
+                    clone.args = (List<Argument<Object>>) (List) copy;
+                    register(clone);
+                }
             }
         }
 

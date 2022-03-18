@@ -90,18 +90,7 @@ public class WeaponMechanicsCommand {
 
     public static Function<CommandData, Tooltip[]> WEAPON_SUGGESTIONS = (data) -> {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-        List<String> weapons = info.getSortedWeaponList();
-        List<Tooltip> temp = new ArrayList<>(weapons.size() + 3);
-
-        // Some extra options, mostly for fun
-        temp.add(Tooltip.of("\"*\"", "Gives target(s) all weapons, until inventory is filled"));
-        temp.add(Tooltip.of("\"*r\"", "Gives target(s) a random weapon"));
-        temp.add(Tooltip.of("\"**\"", "Gives target(s) all weapons, dropping extra on the ground"));
-
-        // Add in the actual weapons
-        weapons.forEach(weapon -> temp.add(Tooltip.of(weapon)));
-
-        return temp.toArray(new Tooltip[0]);
+        return info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new);
     };
     public static Function<CommandData, Tooltip[]> ITEM_COUNT_SUGGESTIONS = (data) -> IntStream.rangeClosed(1, 64).mapToObj(Tooltip::of).toArray(Tooltip[]::new);
 
@@ -120,7 +109,7 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.give")
                         .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()).withDesc("Who to give the weapon(s) to"))
-                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(true).withLiterals("*", "**", "*r")).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
                         .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
