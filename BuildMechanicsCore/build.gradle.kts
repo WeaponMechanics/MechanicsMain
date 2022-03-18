@@ -87,14 +87,15 @@ publishing {
         }
     }
     publications {
-        create<MavenPublication>("shadow") {
+        create<MavenPublication>("corePublication") {
+            from(components["java"]) // consider deleting me
+            artifact(tasks["shadowJar"])
+
             pom {
                 groupId = "me.deecaad"
                 artifactId = "mechanicscore" // MUST be lowercase
                 packaging = "jar"
             }
-
-            project.shadow.component(this)
         }
     }
 }

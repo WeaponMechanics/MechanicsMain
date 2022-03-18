@@ -1,6 +1,5 @@
 package me.deecaad.core.file.serializers;
 
-import jdk.internal.joptsimple.internal.Strings;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
@@ -289,7 +288,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         // "de-serialize" the potion effects into a string for us to serialize
         // again later. While this is silly, since we just did all the
         // serialization work above, I can't think of a better alternative.
-        String str = potionEffectList.stream().map(arr -> Strings.join(arr, "~")).collect(Collectors.joining(","));
+        String str = potionEffectList.stream().map(arr -> String.join("~", arr)).collect(Collectors.joining(","));
         if (!str.isEmpty())
             CompatibilityAPI.getNBTCompatibility().setString(itemStack, "MechanicsCore", "potion-effects", str);
 
