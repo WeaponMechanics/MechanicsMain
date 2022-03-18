@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 // https://nms.screamingsandals.org/1.17.1/
-public class Block_1_17_R1  implements BlockCompatibility {
+public class Block_1_17_R1 implements BlockCompatibility {
 
     private static final Class<?> multiBlockPacket;
     private static final Constructor<?> multiBlockPacketConstructor;
@@ -36,9 +36,12 @@ public class Block_1_17_R1  implements BlockCompatibility {
 
     static {
         Class<?> shortClass = CompatibilityAPI.isPaper()
+                ? ReflectionUtil.getClass("it.unimi.dsi.fastutil.shorts.ShortSet")
+                : ReflectionUtil.getClass("org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortSet");
+        Class<?> shortArrayClass = CompatibilityAPI.isPaper()
                 ? ReflectionUtil.getClass("it.unimi.dsi.fastutil.shorts.ShortArraySet")
                 : ReflectionUtil.getClass("org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet");
-        shortSetConstructor = ReflectionUtil.getConstructor(shortClass);
+        shortSetConstructor = ReflectionUtil.getConstructor(shortArrayClass);
 
         multiBlockPacket = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
         multiBlockPacketConstructor = ReflectionUtil.getConstructor(multiBlockPacket, SectionPos.class, shortClass, LevelChunkSection.class, boolean.class);
