@@ -69,9 +69,3 @@ tasks {
 
 group = "me.deecaad"
 version = "1.0.0"
-
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
-    }
-}
