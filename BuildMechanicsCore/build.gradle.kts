@@ -1,5 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
+description = "Library plugin for WeaponMechanics"
+version = "1.1.1-BETA-DEV"
+
 plugins {
     `maven-publish`
     id("me.deecaad.java-conventions")
@@ -43,12 +46,18 @@ bukkit {
     name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"
     apiVersion = "1.13"
 
+    version
     authors = listOf("DeeCaaD", "CJCrafter")
     softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    archiveFileName.set("MechanicsCore-${project.version}.jar")
+}
+
+tasks.register<ShadowJar>("shadowJarSpigot") {
+    dependsOn("shadowJar")
+
+    archiveFileName.set("MechanicsCore-${version}.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
 
     dependencies {
@@ -71,8 +80,22 @@ tasks.named<ShadowJar>("shadowJar") {
     }
 }
 
-tasks.named("assemble").configure {
+// Compatibility stuff CANNOT exist in jitpack, since there will be a compiler
+// error (They don't have access to each NMS jar). Since libraries don't need
+// access to each version, we can simply publish a jar without compatibility.
+tasks.register<ShadowJar>("shadowJarPublish") {
     dependsOn("shadowJar")
+
+    archiveFileName.set("MechanicsCore-${version}-publish.jar") // add -publish to differentiate
+    configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
+
+    dependencies {
+        include(project(":MechanicsCore"))
+    }
+}
+
+tasks.named("assemble").configure {
+    dependsOn("shadowJarSpigot")
 }
 
 publishing {
@@ -81,15 +104,14 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsMain")
             credentials {
-                username = "CJCrafter"
-                password = "redacted"
+                username = findProperty("user").toString()
+                password = findProperty("pass").toString()
             }
         }
     }
     publications {
         create<MavenPublication>("corePublication") {
-            from(components["java"]) // consider deleting me
-            artifact(tasks["shadowJar"])
+            artifact(tasks.named("shadowJarPublish"))
 
             pom {
                 groupId = "me.deecaad"
@@ -99,6 +121,3 @@ publishing {
         }
     }
 }
-
-description = "Library plugin for WeaponMechanics"
-version = "1.1.1-BETA"

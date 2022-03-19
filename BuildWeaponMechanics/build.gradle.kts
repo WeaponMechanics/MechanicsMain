@@ -1,5 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
+description = "A New Age of Weapons in Minecraft"
+version = "1.5.4-BETA-DEV"
+
 plugins {
     id("me.deecaad.java-conventions")
     id("com.github.johnrengelman.shadow") version "7.1.0"
@@ -45,10 +48,13 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    dependsOn("versionFile")
+}
 
-    baseName = "WeaponMechanics" // Since we don't want to use "BuildWeaponMechanics"
-    classifier = null;
+tasks.register<ShadowJar>("shadowJarSpigot") {
+    dependsOn("versionFile")
+    dependsOn("shadowJar")
+
+    archiveFileName.set("WeaponMechanics-${version}.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
 
     dependencies {
@@ -77,14 +83,49 @@ tasks.named<ShadowJar>("shadowJar") {
     }
 }
 
+// Compatibility stuff CANNOT exist in jitpack, since there will be a compiler
+// error (They don't have access to each NMS jar). Since libraries don't need
+// access to each version, we can simply publish a jar without compatibility.
+tasks.register<ShadowJar>("shadowJarPublish") {
+    dependsOn("shadowJar")
+
+    archiveFileName.set("WeaponMechanics-${version}-publish.jar") // add -publish to differentiate
+    configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
+
+    dependencies {
+        include(project(":WeaponMechanics"))
+    }
+}
+
 tasks.register("versionFile").configure {
     val file = file("../WeaponMechanics/src/main/resources/version.txt")
     file.writeText(project(":BuildMechanicsCore").version.toString());
 }
 
 tasks.named("assemble").configure {
-    dependsOn("shadowJar")
+    dependsOn("shadowJarSpigot")
 }
 
-description = "A New Age of Weapons in Minecraft"
-version = "1.5.4-BETA"
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsMain")
+            credentials {
+                username = findProperty("user").toString()
+                password = findProperty("pass").toString()
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("weaponPublication") {
+            artifact(tasks.named("shadowJarPublish"))
+
+            pom {
+                groupId = "me.deecaad"
+                artifactId = "weaponmechanics" // MUST be lowercase
+                packaging = "jar"
+            }
+        }
+    }
+}
