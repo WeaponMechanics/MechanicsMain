@@ -22,6 +22,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -61,8 +62,10 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -112,7 +115,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true).withLiterals("*", "**", "*r")).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
-                        .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
+                        .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2], (Map<String, Object>) args[3]))))
 
                 .withSubcommand(new CommandBuilder("get")
                         .withPermission("weaponmechanics.commands.get")
@@ -120,7 +123,7 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT_SUGGESTIONS))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
-                        .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
+                        .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1], (Map<String, Object>) args[2]))))
 
                 .withSubcommand(new CommandBuilder("info")
                         .withPermission("weaponmechanics.commands.info")
@@ -264,7 +267,11 @@ public class WeaponMechanicsCommand {
         command.register();
     }
 
-    public static void give(CommandSender sender, List<Entity> targets, String weaponTitle, int amount) {
+    public static void give(CommandSender sender, List<Entity> targets, String weaponTitle, int amount, Map<String, Object> data) {
+        if (targets.isEmpty()) {
+            sender.sendMessage(RED + "No entities were found");
+            return;
+        }
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
         List<ItemStack> weapons;
@@ -284,9 +291,15 @@ public class WeaponMechanicsCommand {
                 weapons = Collections.singletonList(info.generateWeapon(weaponTitle, amount));
         }
 
-        if (targets.isEmpty()) {
-            sender.sendMessage(RED + "No entities were found");
-            return;
+        for (ItemStack item : weapons) {
+            if (data.containsKey("ammo")) {
+                int ammo = (int) data.get("ammo");
+                CustomTag.AMMO_LEFT.setInteger(item, ammo);
+            }
+            if (data.containsKey("firemode")) {
+                int mode = (int) data.get("mode");
+                CustomTag.SELECTIVE_FIRE.setInteger(item, mode);
+            }
         }
 
         int count = 0;
@@ -305,9 +318,11 @@ public class WeaponMechanicsCommand {
                 count++;
 
             } else if (entity instanceof LivingEntity) {
-                ((LivingEntity) entity).getEquipment().setItemInMainHand(weapons.get(0));
-                count++;
-
+                EntityEquipment equipment = ((LivingEntity) entity).getEquipment();
+                if (equipment != null && (equipment.getItemInMainHand() == null || equipment.getItemInMainHand().getType() == Material.AIR)) {
+                    equipment.setItemInMainHand(weapons.get(0));
+                    count++;
+                }
             }
         }
 
