@@ -6,12 +6,20 @@ plugins {
     id("me.deecaad.java-conventions")
 }
 
+repositories {
+    maven {
+        name = "lumine-repo"
+        url = uri("http://mvn.lumine.io/repository/maven-public/")
+        isAllowInsecureProtocol = true
+    }
+}
+
 dependencies {
     api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
     implementation("co.aikar:minecraft-timings:1.0.4")
     implementation("org.bstats:bstats-bukkit:2.2.1")
-    implementation("io.lumine.xikage:MythicMobs:4.9.1")
+    implementation("io.lumine:Mythic-Dist:5.0.1-SNAPSHOT")
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
 }
