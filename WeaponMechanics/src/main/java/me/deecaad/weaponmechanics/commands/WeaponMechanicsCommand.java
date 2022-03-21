@@ -44,6 +44,7 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -274,71 +275,71 @@ public class WeaponMechanicsCommand {
         }
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-        List<ItemStack> weapons;
+        List<Entity> entitiesGiven = new ArrayList<>();
+        List<String> weaponsGiven = new ArrayList<>();
 
-        switch (weaponTitle) {
-            case "*":
-            case "**":
-                weapons = info.getSortedWeaponList().stream()
-                            .map(weapon -> info.generateWeapon(weapon, amount))
-                        .collect(Collectors.toList());
-                break;
-            case "*r":
-                weapons = Collections.singletonList(info.generateWeapon(NumberUtil.random(info.getSortedWeaponList()), amount));
-                break;
-            default:
-                weaponTitle = info.getWeaponTitle(weaponTitle);
-                weapons = Collections.singletonList(info.generateWeapon(weaponTitle, amount));
-        }
+        // Handle random weapon key "*r"
+        if ("*r".equalsIgnoreCase(weaponTitle))
+            weaponTitle = NumberUtil.random(info.getSortedWeaponList());
 
-        for (ItemStack item : weapons) {
-            if (data.containsKey("ammo")) {
-                int ammo = (int) data.get("ammo");
-                CustomTag.AMMO_LEFT.setInteger(item, ammo);
-            }
-            if (data.containsKey("firemode")) {
-                int mode = (int) data.get("mode");
-                CustomTag.SELECTIVE_FIRE.setInteger(item, mode);
-            }
-        }
+        for (Entity loop : targets) {
+            if (!loop.getType().isAlive())
+                continue;
 
-        int count = 0;
-        for (Entity entity : targets) {
-            if (entity instanceof Player) {
-                Player player = (Player) entity;
-                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.0f);
+            LivingEntity entity = (LivingEntity) loop;
+            boolean isPlayer = entity instanceof Player;
+            Player player = isPlayer ? (Player) entity : null;
 
-                Map<Integer, ItemStack> overflow = player.getInventory().addItem(weapons.toArray(new ItemStack[0]));
-                if (!overflow.isEmpty()) {
-                    if (weaponTitle.equals("**"))
-                        overflow.values().forEach(item -> entity.getWorld().dropItem(entity.getLocation(), item));
-                    else if (!weaponTitle.equals("*"))
-                        sender.sendMessage(RED + player.getName() + "'s inventory was full");
+            // Loop through each possible weapon and give each gun to the player.
+            if ("*".equalsIgnoreCase(weaponTitle) || "**".equalsIgnoreCase(weaponTitle)) {
+
+                // Non-players can only be given 1 weapon at a time.
+                if (!isPlayer)
+                    continue;
+
+                entitiesGiven.add(entity);
+                for (String title : info.getSortedWeaponList()) {
+                    if ("**".equalsIgnoreCase(weaponTitle) || player.getInventory().firstEmpty() != -1) {
+                        info.giveOrDropWeapon(title, player, amount, data);
+                        weaponsGiven.add(title);
+                    }
                 }
-                count++;
+            }
 
-            } else if (entity instanceof LivingEntity) {
-                EntityEquipment equipment = ((LivingEntity) entity).getEquipment();
-                if (equipment != null && (equipment.getItemInMainHand() == null || equipment.getItemInMainHand().getType() == Material.AIR)) {
-                    equipment.setItemInMainHand(weapons.get(0));
-                    count++;
+            // Normal weapontitle
+            else {
+                if (info.giveOrDropWeapon(weaponTitle, entity, amount, data)) {
+                    entitiesGiven.add(entity);
+                    weaponsGiven.add(weaponTitle);
                 }
             }
         }
 
-        int weaponCount = weapons.size();
-        if ("*".equals(weaponTitle) || "**".equals(weaponTitle)) {
-            weaponTitle = "of each weapon";
-            weaponCount = 1;
-        }
+        String targetInfo = entitiesGiven.size() == 1 ? entitiesGiven.get(0).getName() : String.valueOf(entitiesGiven.size());
+        String weaponInfo = weaponsGiven.size() == 1 ? amount + " " + weaponsGiven.get(0) + (amount > 1 ? "s" : "") : weaponsGiven.size() + " weapons";
 
-        if (count > 1) {
-            sender.sendMessage(GRAY + "" + count + GREEN + " entities were given " + GRAY + amount + " " + weaponTitle + GREEN + (weaponCount > 1 ? "s" : ""));
-        } else if (count == 1) {
-            sender.sendMessage(GRAY + targets.get(0).getName() + GREEN + " was given " + GRAY + amount + " " + weaponTitle + GREEN + (count > 1 ? "s" : ""));
+        // Show each target. This may be useful in case the user accidentally
+        // gave the weapon(s) to too many people, and needs to check who got it.
+        HoverEventSource<?> targetHover;
+        if (entitiesGiven.size() == 1 && entitiesGiven.get(0) instanceof HoverEventSource) {
+            targetHover = (HoverEventSource<?>) entitiesGiven.get(0);
+        } else if (entitiesGiven.isEmpty()) {
+            targetHover = null;
         } else {
-            sender.sendMessage(RED + "No entities were given a weapon");
+            TextComponent.Builder builder = text().append(text(entitiesGiven.get(0).getName()));
+            for (int i = 1; i < entitiesGiven.size(); i++)
+                builder.append(text(", ")).append(text(entitiesGiven.get(i).getName()));
+            targetHover = builder.build();
         }
+
+        Style style = Style.style(NamedTextColor.GREEN);
+        TextComponent.Builder builder = text()
+                .append(text("Gave ", style))
+                .append(text().content(targetInfo).style(style).hoverEvent(targetHover))
+                .append(text(" ", style))
+                .append(text().content(weaponInfo).style(style));
+
+        MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(builder);
     }
 
     public static void info(CommandSender sender) {
