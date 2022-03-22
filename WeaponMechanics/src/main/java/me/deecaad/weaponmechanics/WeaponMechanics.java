@@ -52,6 +52,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -182,6 +183,20 @@ public class WeaponMechanics {
 
                 // Start here to ensure config values have been filled
                 handleBStats();
+
+                Permission parent = new Permission("weaponmechanics.use.*", "Permission to use all weapons");
+
+                for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
+                    String permissionName = "weaponmechanics.use." + weaponTitle;
+                    Permission permission = Bukkit.getPluginManager().getPermission(permissionName);
+
+                    if (permission == null) {
+                        permission = new Permission(permissionName, "Permission to use " + weaponTitle);
+                        Bukkit.getPluginManager().addPermission(permission);
+                    }
+
+                    permission.addParent(parent, true);
+                }
 
                 double seconds = NumberUtil.getAsRounded(((System.currentTimeMillis() - millisCurrent) + tookMillis) * 0.001, 2);
                 debug.info("Enabled WeaponMechanics in " + seconds + "s");
