@@ -23,17 +23,19 @@ public final class CompatibilityAPI {
     static {
         WorldGuardCompatibility worldGuardCompatibility1;
         boolean isPaper1;
-        VersionSetup versionSetup = new VersionSetup();
-        version = versionSetup.getVersionAsNumber(versionSetup.getVersionAsString());
-        compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.core.compatibility");
 
         try {
-            Class.forName("com.desktroystokyo.paper.VersionHistoryManager$VersionData");
+            Class.forName("com.destroystokyo.paper.VersionHistoryManager$VersionData");
             isPaper1 = true;
         } catch (ClassNotFoundException ex) {
             isPaper1 = false;
         }
         isPaper = isPaper1;
+
+        // Set paper ABOVE compatibility stuff
+        VersionSetup versionSetup = new VersionSetup();
+        version = versionSetup.getVersionAsNumber(versionSetup.getVersionAsString());
+        compatibility = new CompatibilitySetup().getCompatibleVersion(ICompatibility.class, "me.deecaad.core.compatibility");
 
         // * ----- World Guard ----- * //
         try {

@@ -22,6 +22,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -43,6 +44,7 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -61,8 +63,10 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -90,18 +94,7 @@ public class WeaponMechanicsCommand {
 
     public static Function<CommandData, Tooltip[]> WEAPON_SUGGESTIONS = (data) -> {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-        List<String> weapons = info.getSortedWeaponList();
-        List<Tooltip> temp = new ArrayList<>(weapons.size() + 3);
-
-        // Some extra options, mostly for fun
-        temp.add(Tooltip.of("\"*\"", "Gives target(s) all weapons, until inventory is filled"));
-        temp.add(Tooltip.of("\"*r\"", "Gives target(s) a random weapon"));
-        temp.add(Tooltip.of("\"**\"", "Gives target(s) all weapons, dropping extra on the ground"));
-
-        // Add in the actual weapons
-        weapons.forEach(weapon -> temp.add(Tooltip.of(weapon)));
-
-        return temp.toArray(new Tooltip[0]);
+        return info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new);
     };
 
     public static void build() {
