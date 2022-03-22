@@ -219,6 +219,17 @@ public class Trigger implements Serializer<Trigger> {
             }
         }
 
+        // Check to make sure the gun denies swapping hands, otherwise this
+        // won't work.
+        if (dualMain == TriggerType.SWAP_HANDS || dualOff == TriggerType.SWAP_HANDS) {
+            String weaponTitle = data.key.split("\\.")[0];
+
+            if (!data.config.getBoolean(weaponTitle + ".Info.Cancel.Swap_Hands", false)) {
+                throw data.exception(null, "When using 'SWAP_HANDS', make sure that '" + weaponTitle + ".Info.Cancel.Swap_Hands: true'",
+                        SerializerException.forValue(dualMain) + " & " + SerializerException.forValue(dualOff));
+            }
+        }
+
         return new Trigger(main, off, denyWhen, dualMain, dualOff);
     }
 
