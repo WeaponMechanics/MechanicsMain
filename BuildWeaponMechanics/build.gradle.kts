@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
 version = "1.5.4-BETA-DEV"
@@ -45,6 +46,13 @@ bukkit {
 
     authors = listOf("DeeCaaD", "CJCrafter")
     softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus")
+
+    permissions {
+        register("weaponmechanics.use.*") {
+            description = "Permission to use all weapons"
+            default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+    }
 }
 
 tasks.named<ShadowJar>("shadowJar") {

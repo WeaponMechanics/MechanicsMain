@@ -219,4 +219,8 @@ public class EntityWrapper {
     public HandData getOffHandData() {
         return offHandData == null ? offHandData = new HandData(this) : offHandData;
     }
+
+    public boolean isPlayer() {
+        return false;
+    }
 }

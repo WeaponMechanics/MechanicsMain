@@ -160,9 +160,6 @@ public class WeaponMechanics {
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
-        registerCommands();
-        registerUpdateChecker();
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Add PlayerWrapper in onEnable in case server is reloaded for example
             getPlayerWrapper(player);
@@ -183,20 +180,8 @@ public class WeaponMechanics {
 
                 // Start here to ensure config values have been filled
                 handleBStats();
-
-                Permission parent = new Permission("weaponmechanics.use.*", "Permission to use all weapons");
-
-                for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
-                    String permissionName = "weaponmechanics.use." + weaponTitle;
-                    Permission permission = Bukkit.getPluginManager().getPermission(permissionName);
-
-                    if (permission == null) {
-                        permission = new Permission(permissionName, "Permission to use " + weaponTitle);
-                        Bukkit.getPluginManager().addPermission(permission);
-                    }
-
-                    permission.addParent(parent, true);
-                }
+                registerCommands();
+                registerUpdateChecker();
 
                 double seconds = NumberUtil.getAsRounded(((System.currentTimeMillis() - millisCurrent) + tookMillis) * 0.001, 2);
                 debug.info("Enabled WeaponMechanics in " + seconds + "s");
@@ -326,7 +311,7 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
-        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null && ReflectionUtil.getMCVersion() >= 16) {
             Bukkit.getPluginManager().registerEvents(new MythicMobsLoader(), getPlugin());
         }
     }
@@ -361,6 +346,19 @@ public class WeaponMechanics {
             commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
         }
 
+        Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
+
+        for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
+            String permissionName = "weaponmechanics.use." + weaponTitle;
+            Permission permission = Bukkit.getPluginManager().getPermission(permissionName);
+
+            if (permission == null) {
+                permission = new Permission(permissionName, "Permission to use " + weaponTitle);
+                Bukkit.getPluginManager().addPermission(permission);
+            }
+
+            permission.addParent(parent, true);
+        }
     }
 
     void registerUpdateChecker() {

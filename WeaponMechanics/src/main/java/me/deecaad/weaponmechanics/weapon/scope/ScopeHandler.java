@@ -20,6 +20,7 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -73,6 +74,12 @@ public class ScopeHandler implements IValidator {
                 return false;
             }
             zoomData = entityWrapper.getOffHandData().getZoomData();
+        }
+
+        // Handle permissions
+        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+            return false;
         }
 
         Trigger trigger = config.getObject(weaponTitle + ".Scope.Trigger", Trigger.class);

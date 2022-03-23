@@ -31,6 +31,7 @@ import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -148,6 +149,12 @@ public class ShootHandler implements IValidator {
                 entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
             }
 
+            return false;
+        }
+
+        // Handle permissions
+        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
             return false;
         }
 
