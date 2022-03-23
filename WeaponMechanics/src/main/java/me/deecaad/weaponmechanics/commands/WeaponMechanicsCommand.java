@@ -44,7 +44,6 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -58,15 +57,12 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -102,7 +98,8 @@ public class WeaponMechanicsCommand {
 
         MapArgumentType weaponDataMap = new MapArgumentType()
                 .with("attachment", MapArgumentType.LIST.apply(SuggestionsBuilder.from("scope", "grip", "silencer")))
-                .with("ammo", MapArgumentType.INT.apply(SuggestionsBuilder.from(1, 10, 30)));
+                .with("ammo", MapArgumentType.INT.apply(SuggestionsBuilder.from(1, 10, 30)))
+                .with("firemode", MapArgumentType.INT.apply(SuggestionsBuilder.from(0, 1, 2)));
 
         CommandBuilder command = new CommandBuilder("wm")
                 .withAliases("weaponmechanics")
@@ -112,18 +109,18 @@ public class WeaponMechanicsCommand {
                         .withPermission("weaponmechanics.commands.give")
                         .withDescription("Gives the target(s) with requested weapon(s)")
                         .withArgument(new Argument<>("target", new EntityListArgumentType()).withDesc("Who to give the weapon(s) to"))
-                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType().withLiterals("*", "**", "*r")).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
-                        .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2]))))
+                        .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2], (Map) args[3]))))
 
                 .withSubcommand(new CommandBuilder("get")
                         .withPermission("weaponmechanics.commands.get")
                         .withDescription("Gives you the requested weapon(s)")
-                        .withArgument(new Argument<>("weapon", new StringArgumentType(true)).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType().withLiterals("*", "**", "*r")).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
-                        .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1]))))
+                        .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1], (Map) args[2]))))
 
                 .withSubcommand(new CommandBuilder("info")
                         .withPermission("weaponmechanics.commands.info")
@@ -161,6 +158,7 @@ public class WeaponMechanicsCommand {
         CommandBuilder test = new CommandBuilder("test")
                 .withPermission("weaponmechanics.commands.test")
                 .withDescription("Contains useful testing dev commands")
+
                 .withSubcommand(new CommandBuilder("nbt")
                         .withPermission("weaponmechanics.commands.test.nbt")
                         .withDescription("Shows every NBT tag for the target's held item")
@@ -267,66 +265,78 @@ public class WeaponMechanicsCommand {
         command.register();
     }
 
-    public static void give(CommandSender sender, List<Entity> targets, String weaponTitle, int amount) {
-
-        InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-        List<ItemStack> weapons;
-
-        switch (weaponTitle) {
-            case "*":
-            case "**":
-                weapons = info.getSortedWeaponList().stream()
-                            .map(weapon -> info.generateWeapon(weapon, amount))
-                        .collect(Collectors.toList());
-                break;
-            case "*r":
-                weapons = Collections.singletonList(info.generateWeapon(NumberUtil.random(info.getSortedWeaponList()), amount));
-                break;
-            default:
-                weaponTitle = info.getWeaponTitle(weaponTitle);
-                weapons = Collections.singletonList(info.generateWeapon(weaponTitle, amount));
-        }
-
+    public static void give(CommandSender sender, List<Entity> targets, String weaponTitle, int amount, Map<String, Object> data) {
         if (targets.isEmpty()) {
             sender.sendMessage(RED + "No entities were found");
             return;
         }
 
-        int count = 0;
-        for (Entity entity : targets) {
-            if (entity instanceof Player) {
-                Player player = (Player) entity;
-                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.0f);
+        InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
+        List<Entity> entitiesGiven = new ArrayList<>();
+        List<String> weaponsGiven = new ArrayList<>();
 
-                Map<Integer, ItemStack> overflow = player.getInventory().addItem(weapons.toArray(new ItemStack[0]));
-                if (!overflow.isEmpty()) {
-                    if (weaponTitle.equals("**"))
-                        overflow.values().forEach(item -> entity.getWorld().dropItem(entity.getLocation(), item));
-                    else if (!weaponTitle.equals("*"))
-                        sender.sendMessage(RED + player.getName() + "'s inventory was full");
+        // Handle random weapon key "*r"
+        if ("*r".equalsIgnoreCase(weaponTitle))
+            weaponTitle = NumberUtil.random(info.getSortedWeaponList());
+
+        for (Entity loop : targets) {
+            if (!loop.getType().isAlive())
+                continue;
+
+            LivingEntity entity = (LivingEntity) loop;
+            boolean isPlayer = entity instanceof Player;
+            Player player = isPlayer ? (Player) entity : null;
+
+            // Loop through each possible weapon and give each gun to the player.
+            if ("*".equalsIgnoreCase(weaponTitle) || "**".equalsIgnoreCase(weaponTitle)) {
+
+                // Non-players can only be given 1 weapon at a time.
+                if (!isPlayer)
+                    continue;
+
+                entitiesGiven.add(entity);
+                for (String title : info.getSortedWeaponList()) {
+                    if ("**".equalsIgnoreCase(weaponTitle) || player.getInventory().firstEmpty() != -1) {
+                        info.giveOrDropWeapon(title, player, amount, data);
+                        weaponsGiven.add(title);
+                    }
                 }
-                count++;
+            }
 
-            } else if (entity instanceof LivingEntity) {
-                ((LivingEntity) entity).getEquipment().setItemInMainHand(weapons.get(0));
-                count++;
-
+            // Normal weapontitle
+            else {
+                if (info.giveOrDropWeapon(weaponTitle, entity, amount, data)) {
+                    entitiesGiven.add(entity);
+                    weaponsGiven.add(weaponTitle);
+                }
             }
         }
 
-        int weaponCount = weapons.size();
-        if ("*".equals(weaponTitle) || "**".equals(weaponTitle)) {
-            weaponTitle = "of each weapon";
-            weaponCount = 1;
+        String targetInfo = entitiesGiven.size() == 1 ? entitiesGiven.get(0).getName() : String.valueOf(entitiesGiven.size());
+        String weaponInfo = weaponsGiven.size() == 1 ? amount + " " + weaponsGiven.get(0) + (amount > 1 ? "s" : "") : weaponsGiven.size() + " weapons";
+
+        // Show each target. This may be useful in case the user accidentally
+        // gave the weapon(s) to too many people, and needs to check who got it.
+        HoverEventSource<?> targetHover;
+        if (entitiesGiven.size() == 1 && entitiesGiven.get(0) instanceof HoverEventSource) {
+            targetHover = (HoverEventSource<?>) entitiesGiven.get(0);
+        } else if (entitiesGiven.isEmpty()) {
+            targetHover = null;
+        } else {
+            TextComponent.Builder builder = text().append(text(entitiesGiven.get(0).getName()));
+            for (int i = 1; i < entitiesGiven.size(); i++)
+                builder.append(text(", ")).append(text(entitiesGiven.get(i).getName()));
+            targetHover = builder.build();
         }
 
-        if (count > 1) {
-            sender.sendMessage(GRAY + "" + count + GREEN + " entities were given " + GRAY + amount + " " + weaponTitle + GREEN + (weaponCount > 1 ? "s" : ""));
-        } else if (count == 1) {
-            sender.sendMessage(GRAY + targets.get(0).getName() + GREEN + " was given " + GRAY + amount + " " + weaponTitle + GREEN + (count > 1 ? "s" : ""));
-        } else {
-            sender.sendMessage(RED + "No entities were given a weapon");
-        }
+        Style style = Style.style(NamedTextColor.GREEN);
+        TextComponent.Builder builder = text()
+                .append(text("Gave ", style))
+                .append(text().content(targetInfo).style(style).hoverEvent(targetHover))
+                .append(text(" ", style))
+                .append(text().content(weaponInfo).style(style));
+
+        MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(builder);
     }
 
     public static void info(CommandSender sender) {
