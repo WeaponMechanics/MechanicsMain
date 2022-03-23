@@ -114,6 +114,12 @@ public class ReloadHandler implements IValidator {
             return false;
         }
 
+        // Handle permissions
+        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+            return false;
+        }
+
         int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
         if (ammoLeft == -1) { // This shouldn't be -1 at this point since reload should be used, perhaps ammo was added for weapon in configs later in server...
             CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);

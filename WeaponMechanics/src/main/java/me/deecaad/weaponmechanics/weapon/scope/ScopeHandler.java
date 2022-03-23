@@ -91,6 +91,12 @@ public class ScopeHandler implements IValidator {
             // If trigger is valid zoom in or out depending on situation
             if (trigger.check(triggerType, slot, entityWrapper)) {
 
+                // Handle permissions
+                if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+                    entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                    return false;
+                }
+
                 int maximumStacks = config.getInt(weaponTitle + ".Scope.Zoom_Stacking.Maximum_Stacks");
                 if (maximumStacks <= 0) { // meaning that zoom stacking is not used
                     // Should turn off
@@ -104,6 +110,13 @@ public class ScopeHandler implements IValidator {
                 return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
             }
         } else if (trigger.check(triggerType, slot, entityWrapper)) {
+
+            // Handle permissions
+            if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+                entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                return false;
+            }
+
             // Try zooming in since entity is not zooming
             return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
         }

@@ -152,6 +152,12 @@ public class ShootHandler implements IValidator {
             return false;
         }
 
+        // Handle permissions
+        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+            return false;
+        }
+
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
         if (!getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot")) {
