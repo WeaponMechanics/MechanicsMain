@@ -17,6 +17,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceRes
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -97,9 +98,8 @@ public class MeleeHandler implements IValidator {
         Vector direction = eyeLocation.getDirection();
         RayTraceResult hit = getHit(shooter, eyeLocation, direction, meleeRange, knownVictim);
 
-        boolean result = false;
         if (hit != null) {
-            result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+            boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
             if (result) {
                 if (meleeHitDelay != 0) {
                     handData.setLastMeleeTime(System.currentTimeMillis());
@@ -109,25 +109,43 @@ public class MeleeHandler implements IValidator {
                 }
                 hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack);
             }
-        } else {
-            // Handle miss
-            Mechanics meleeMissMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
-            if (meleeMissMechanics != null) meleeMissMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+            return result;
+        }
 
-            if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {
-                weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
-                result = true;
+        // Handle permissions
+        boolean hasPermission = shooter.hasPermission("weaponmechanics.use." + weaponTitle);
+
+        // Handle miss
+        if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {
+            if (!hasPermission) {
+                shooter.sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                return false;
+            }
+            weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
+        }
+
+        Mechanics meleeMissMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
+        if (meleeMissMechanics != null) {
+            if (!hasPermission) {
+                shooter.sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                return false;
+            }
+            meleeMissMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+        }
+
+        if (meleeMissDelay != 0) {
+            if (!hasPermission) {
+                shooter.sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                return false;
             }
 
-            if (meleeMissDelay != 0) {
-                handData.setLastMeleeMissTime(System.currentTimeMillis());
+            handData.setLastMeleeMissTime(System.currentTimeMillis());
 
-                if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Miss_Delay") && shooter.getType() == EntityType.PLAYER) {
-                    CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeMissDelay / 50);
-                }
+            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Miss_Delay") && shooter.getType() == EntityType.PLAYER) {
+                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeMissDelay / 50);
             }
         }
-        return result;
+        return true;
     }
 
     private RayTraceResult getHit(LivingEntity shooter, Location eyeLocation, Vector direction, double range, @Nullable LivingEntity knownVictim) {
