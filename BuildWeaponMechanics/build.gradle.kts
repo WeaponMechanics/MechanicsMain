@@ -1,7 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.5.4-BETA-DEV"
+version = "1.5.5-BETA"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -45,15 +46,19 @@ bukkit {
 
     authors = listOf("DeeCaaD", "CJCrafter")
     softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus")
+
+    permissions {
+        register("weaponmechanics.use.*") {
+            description = "Permission to use all weapons"
+            default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+    }
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-}
-
-tasks.register<ShadowJar>("shadowJarSpigot") {
     dependsOn("versionFile")
-    dependsOn("shadowJar")
 
+    destinationDirectory.set(file("../build"))
     archiveFileName.set("WeaponMechanics-${version}.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
 
@@ -85,27 +90,13 @@ tasks.register<ShadowJar>("shadowJarSpigot") {
     }
 }
 
-// Compatibility stuff CANNOT exist in jitpack, since there will be a compiler
-// error (They don't have access to each NMS jar). Since libraries don't need
-// access to each version, we can simply publish a jar without compatibility.
-tasks.register<ShadowJar>("shadowJarPublish") {
-    dependsOn("shadowJar")
-
-    archiveFileName.set("WeaponMechanics-${version}-publish.jar") // add -publish to differentiate
-    configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
-
-    dependencies {
-        include(project(":WeaponMechanics"))
-    }
-}
-
 tasks.register("versionFile").configure {
     val file = file("../WeaponMechanics/src/main/resources/version.txt")
     file.writeText(project(":BuildMechanicsCore").version.toString());
 }
 
 tasks.named("assemble").configure {
-    dependsOn("shadowJarSpigot")
+    dependsOn("shadowJar")
 }
 
 publishing {
@@ -121,7 +112,7 @@ publishing {
     }
     publications {
         create<MavenPublication>("weaponPublication") {
-            artifact(tasks.named("shadowJarPublish"))
+            artifact(tasks.named("shadowJar"))
 
             pom {
                 groupId = "me.deecaad"

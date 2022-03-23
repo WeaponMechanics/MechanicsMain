@@ -1,13 +1,14 @@
 package me.deecaad.weaponmechanics.lib;
 
-import io.lumine.xikage.mythicmobs.adapters.AbstractEntity;
-import io.lumine.xikage.mythicmobs.adapters.AbstractLocation;
-import io.lumine.xikage.mythicmobs.adapters.bukkit.BukkitAdapter;
-import io.lumine.xikage.mythicmobs.io.MythicLineConfig;
-import io.lumine.xikage.mythicmobs.skills.ITargetedEntitySkill;
-import io.lumine.xikage.mythicmobs.skills.ITargetedLocationSkill;
-import io.lumine.xikage.mythicmobs.skills.SkillMechanic;
-import io.lumine.xikage.mythicmobs.skills.SkillMetadata;
+import io.lumine.mythic.api.adapters.AbstractEntity;
+import io.lumine.mythic.api.adapters.AbstractLocation;
+import io.lumine.mythic.api.config.MythicLineConfig;
+import io.lumine.mythic.api.skills.ITargetedEntitySkill;
+import io.lumine.mythic.api.skills.ITargetedLocationSkill;
+import io.lumine.mythic.api.skills.SkillMetadata;
+import io.lumine.mythic.api.skills.SkillResult;
+import io.lumine.mythic.api.skills.ThreadSafetyLevel;
+import io.lumine.mythic.bukkit.BukkitAdapter;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
@@ -16,17 +17,13 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-public class MythicMobsWeaponShootSkill extends SkillMechanic implements ITargetedEntitySkill, ITargetedLocationSkill {
+public class MythicMobsWeaponShootSkill implements ITargetedEntitySkill, ITargetedLocationSkill {
 
     private final String weaponTitle;
     private final double spread;
     private final boolean targetHead;
 
     public MythicMobsWeaponShootSkill(MythicLineConfig config) {
-        super(config.getLine(), config);
-
-        this.setAsyncSafe(false);
-        this.setTargetsCreativePlayers(false);
 
         String weaponTitle = config.getString(new String[]{ "weaponTitle", "weapon" });
         this.spread = Math.toRadians(config.getDouble(new String[]{ "spread" }, 0.0));
@@ -37,7 +34,17 @@ public class MythicMobsWeaponShootSkill extends SkillMechanic implements ITarget
     }
 
     @Override
-    public boolean castAtEntity(SkillMetadata skillMetadata, AbstractEntity abstractEntity) {
+    public ThreadSafetyLevel getThreadSafetyLevel() {
+        return ThreadSafetyLevel.SYNC_ONLY;
+    }
+
+    @Override
+    public boolean getTargetsSpectators() {
+        return false;
+    }
+
+    @Override
+    public SkillResult castAtEntity(SkillMetadata skillMetadata, AbstractEntity abstractEntity) {
         Entity entity = abstractEntity.getBukkitEntity();
 
         Location target;
@@ -52,18 +59,18 @@ public class MythicMobsWeaponShootSkill extends SkillMechanic implements ITarget
     }
 
     @Override
-    public boolean castAtLocation(SkillMetadata skillMetadata, AbstractLocation abstractLocation) {
+    public SkillResult castAtLocation(SkillMetadata skillMetadata, AbstractLocation abstractLocation) {
         Entity entity = skillMetadata.getCaster().getEntity().getBukkitEntity();
 
         // I don't think this is ever true, but their code isn't annotated,
         // so I am going to double-check to avoid a NPE.
         if (entity == null)
-            return false;
+            return SkillResult.ERROR;
 
         // This probably doesn't often happen, but mythic mobs does allow for
         // non-living skill casters.
         if (!entity.getType().isAlive())
-            return false;
+            return SkillResult.ERROR;
 
         Location target = BukkitAdapter.adapt(abstractLocation);
 
@@ -76,6 +83,6 @@ public class MythicMobsWeaponShootSkill extends SkillMechanic implements ITarget
         }
 
         WeaponMechanicsAPI.shoot((LivingEntity) entity, weaponTitle, target);
-        return true;
+        return SkillResult.SUCCESS;
     }
 }

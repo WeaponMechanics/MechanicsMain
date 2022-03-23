@@ -48,6 +48,7 @@ public class Converter {
         }
         sender.sendMessage(ChatColor.GREEN + "Successfully converted " + convertCounter + " weapons to WeaponMechanics!");
         sender.sendMessage(ChatColor.GREEN + "CrackShot" + (csp == null ? " " : " and CrackShotPlus ") + "configurations converted to folder WeaponMechanics/crackshotconvert/");
+        sender.sendMessage(ChatColor.GREEN + "If WeaponMechanics reports there is errors, they're most likely invalid sound conversions, make sure to check console and then restart server.");
     }
 
     public void convertAllFiles(File directory, File outputDirectory) {

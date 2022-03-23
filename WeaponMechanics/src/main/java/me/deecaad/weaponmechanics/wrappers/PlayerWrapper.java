@@ -104,4 +104,9 @@ public class PlayerWrapper extends EntityWrapper {
     public boolean isSprinting() {
         return player.isSprinting();
     }
+
+    @Override
+    public boolean isPlayer() {
+        return true;
+    }
 }

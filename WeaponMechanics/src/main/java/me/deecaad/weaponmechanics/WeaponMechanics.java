@@ -53,6 +53,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -80,6 +81,7 @@ public class WeaponMechanics {
     Map<LivingEntity, EntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
+    MainCommand mainCommand;
     WeaponHandler weaponHandler;
     UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
@@ -159,9 +161,6 @@ public class WeaponMechanics {
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
-        registerCommands();
-        registerUpdateChecker();
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Add PlayerWrapper in onEnable in case server is reloaded for example
             getPlayerWrapper(player);
@@ -182,6 +181,8 @@ public class WeaponMechanics {
 
                 // Start here to ensure config values have been filled
                 handleBStats();
+                registerCommands();
+                registerUpdateChecker();
 
                 double seconds = NumberUtil.getAsRounded(((System.currentTimeMillis() - millisCurrent) + tookMillis) * 0.001, 2);
                 debug.info("Enabled WeaponMechanics in " + seconds + "s");
@@ -326,7 +327,47 @@ public class WeaponMechanics {
     }
 
     void registerCommands() {
-        WeaponMechanicsCommand.build();
+        debug.debug("Registering commands");
+
+        // In 1.13+, we should use the built-in 'brigadier' system which
+        // has really nice tab-completions/validation
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            WeaponMechanicsCommand.build();
+            return;
+        }
+
+        Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
+        SimpleCommandMap commands = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
+
+        // This can occur onReload, or if another plugin registered the
+        // command. We use the try-catch to determine if the command was
+        // registered by another plugin.
+        Command registered = commands.getCommand("weaponmechanics");
+        if (registered != null) {
+            try {
+                mainCommand = (MainCommand) registered;
+            } catch (ClassCastException ex) {
+                debug.error("/weaponmechanics command was already registered... does another plugin use /wm?",
+                        "The registered command: " + registered,
+                        "Do not ignore this error! The weapon mechanics commands will not work at all!");
+            }
+        } else {
+            commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
+        }
+
+        Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
+
+        for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
+            String permissionName = "weaponmechanics.use." + weaponTitle;
+            Permission permission = Bukkit.getPluginManager().getPermission(permissionName);
+
+            if (permission == null) {
+                permission = new Permission(permissionName, "Permission to use " + weaponTitle);
+                Bukkit.getPluginManager().addPermission(permission);
+            }
+
+            permission.addParent(parent, true);
+        }
     }
 
     void registerUpdateChecker() {
@@ -467,6 +508,7 @@ public class WeaponMechanics {
         weaponHandler = null;
         updateChecker = null;
         entityWrappers = null;
+        mainCommand = null;
         configurations = null;
         basicConfiguration = null;
         projectilesRunnable = null;
@@ -579,6 +621,13 @@ public class WeaponMechanics {
      */
     public static Configuration getBasicConfigurations() {
         return plugin.basicConfiguration;
+    }
+
+    /**
+     * @return the main command instance of WeaponMechanics
+     */
+    public static MainCommand getMainCommand() {
+        return plugin.mainCommand;
     }
 
     /**
