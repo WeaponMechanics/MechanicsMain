@@ -76,12 +76,6 @@ public class ScopeHandler implements IValidator {
             zoomData = entityWrapper.getOffHandData().getZoomData();
         }
 
-        // Handle permissions
-        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
-            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
-            return false;
-        }
-
         Trigger trigger = config.getObject(weaponTitle + ".Scope.Trigger", Trigger.class);
         if (trigger == null) return false;
 
