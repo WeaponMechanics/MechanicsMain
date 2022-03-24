@@ -1,6 +1,6 @@
 # me.deecaad.core.file.serializer.ItemSerializer
-Item:
-  Type: <Material>:<Data>
+Item: <Material>
+  Type: <Material>
   Name: <name>
   Lore:
   - <Lore line>
