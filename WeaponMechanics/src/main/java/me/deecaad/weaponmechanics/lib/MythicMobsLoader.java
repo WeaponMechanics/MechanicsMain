@@ -1,8 +1,5 @@
 package me.deecaad.weaponmechanics.lib;
 
-import io.lumine.mythic.apiexamples.conditions.ExampleCondition;
-import io.lumine.mythic.apiexamples.drops.ExampleItem;
-import io.lumine.mythic.apiexamples.mechanics.ExampleMechanic;
 import io.lumine.mythic.bukkit.events.MythicConditionLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicDropLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
@@ -25,14 +22,16 @@ public class MythicMobsLoader implements Listener {
 
     @EventHandler
     public void onMythicConditionLoad(MythicConditionLoadEvent event)	{
-        if (event.getConditionName().equalsIgnoreCase("weaponMechanicsArmed"))	{
+        if (event.getConditionName().equalsIgnoreCase("weaponMechanicsArmed")) {
             event.register(new MythicMobsArmedCondition(event.getConfig()));
+        } else if (event.getConditionName().equalsIgnoreCase("weaponMechanicsReloading")) {
+            event.register(new MythicMobsReloadingCondition(event.getConfig()));
         }
     }
 
     @EventHandler
     public void onMythicDropLoad(MythicDropLoadEvent event)	{
-        if (event.getDropName().equalsIgnoreCase("weaponMechanicsWeapon"))	{
+        if (event.getDropName().equalsIgnoreCase("weaponMechanicsWeapon")) {
             event.register(new MythicMobsWeaponDrop(event.getConfig(), event.getArgument()));
         }
     }

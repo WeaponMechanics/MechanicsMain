@@ -30,7 +30,7 @@ public class MythicMobsWeaponDrop implements IItemDrop {
     }
 
     @Override
-    public AbstractItemStack getDrop(DropMetadata dropMetadata) {
+    public AbstractItemStack getDrop(DropMetadata dropMetadata, double v) {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
         ItemStack item = info.generateWeapon(weaponTitle, amount);
 
