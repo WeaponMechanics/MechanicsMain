@@ -30,8 +30,7 @@ public class SkinHandler {
         if (skins == null)
             return false;
 
-        int ammo = CustomTag.AMMO_LEFT.getInteger(weaponStack);
-        if (ammo == 0) {
+        if (!hand.isReloading() && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
             Skin emptyAmmoSkin = skins.get("No_Ammo");
             if (emptyAmmoSkin != null) {
                 emptyAmmoSkin.apply(weaponStack);
