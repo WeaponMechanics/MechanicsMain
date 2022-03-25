@@ -30,7 +30,8 @@ public class SkinHandler {
         if (skins == null)
             return false;
 
-        if (!hand.isReloading() && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
+        Skin reloadSkin = skins.get("Reload");
+        if ((!hand.isReloading() || reloadSkin == null) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
             Skin emptyAmmoSkin = skins.get("No_Ammo");
             if (emptyAmmoSkin != null) {
                 emptyAmmoSkin.apply(weaponStack);
@@ -53,7 +54,6 @@ public class SkinHandler {
         }
 
         if (hand.isReloading()) {
-            Skin reloadSkin = skins.get("Reload");
             if (reloadSkin != null) {
                 reloadSkin.apply(weaponStack);
                 return true;
