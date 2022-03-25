@@ -114,9 +114,19 @@ public class DamageUtil {
             damage = 0;
         }
 
+        // For compatibility with plugins that only set the damage to 0.0...
+        double tempDamage = damage;
+
         EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
         Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
         if (entityDamageByEntityEvent.isCancelled()) {
+            return true;
+        }
+
+        // Doing getDamage() is enough since only BASE modifier is used in event call above ^^
+        damage = entityDamageByEntityEvent.getDamage();
+        if (tempDamage != damage && damage == 0.0) {
+            // If event changed damage, and it's now 0.0, consider this as cancelled damage event
             return true;
         }
 
