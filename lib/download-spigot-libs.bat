@@ -14,10 +14,10 @@ curl -z BuildTools.jar -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/Bu
 
 
 :: 1_9_R2
-IF NOT EXIST "../1_9_R2" (
-    mkdir "../1_9_R2"
+IF NOT EXIST "1_9_R2" (
+    mkdir "1_9_R2"
 )
-cd "../1_9_R2"
+cd "1_9_R2"
 java -jar ../BuildTools.jar --rev 1.9.4 --output-dir ../../nms
 
 
