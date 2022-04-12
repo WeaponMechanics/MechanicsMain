@@ -98,10 +98,6 @@ public class HandData {
         return lastShotTime;
     }
 
-    public boolean shouldReset() {
-        return NumberUtil.hasMillisPassed(lastShotTime, ShootHandler.RESET_MILLIS);
-    }
-
     public long getLastScopeTime() {
         return lastScopeTime;
     }
