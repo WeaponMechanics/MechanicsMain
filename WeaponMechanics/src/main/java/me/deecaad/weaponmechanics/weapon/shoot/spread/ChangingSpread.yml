@@ -1,6 +1,7 @@
 # me.deecaad.weaponmechanics.weapon.shoot.spread.ChagingSpread
 Changing_Spread:
   Starting_Amount: <amount>
+  Reset_Time: <ticks>
   Increase_Change_When:
     Always: <amount> or <amount>%
     Zooming: <amount> or <amount>%

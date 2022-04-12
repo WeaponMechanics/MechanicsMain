@@ -54,11 +54,6 @@ public class ShootHandler implements IValidator {
     private WeaponHandler weaponHandler;
 
     /**
-     * Hardcoded reset millis time for things like recoil reset, spread reset, etc.
-     */
-    public static long RESET_MILLIS = 1000;
-
-    /**
      * Hardcoded full auto values
      */
     private static final int[][] AUTO = new int[][] {
