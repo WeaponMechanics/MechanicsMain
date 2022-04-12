@@ -18,10 +18,10 @@ public class ModifyRecoilWhen extends AModifyWhen {
     }
 
     public ModifyRecoilWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
-                            NumberModifier standing, NumberModifier walking, NumberModifier sprinting,
-                            NumberModifier dualWielding, NumberModifier swimming, NumberModifier inMidair,
-                            NumberModifier gliding) {
-        super(always, zooming, sneaking, standing, walking, sprinting, dualWielding, swimming, inMidair, gliding);
+                            NumberModifier standing, NumberModifier walking, NumberModifier riding,
+                            NumberModifier sprinting, NumberModifier dualWielding, NumberModifier swimming,
+                            NumberModifier inMidair, NumberModifier gliding) {
+        super(always, zooming, sneaking, standing, walking, riding, sprinting, dualWielding, swimming, inMidair, gliding);
     }
 
     @Override
@@ -38,6 +38,7 @@ public class ModifyRecoilWhen extends AModifyWhen {
         NumberModifier sneaking = getModifierHandler(data.of("Sneaking"));
         NumberModifier standing = getModifierHandler(data.of("Standing"));
         NumberModifier walking = getModifierHandler(data.of("Walking"));
+        NumberModifier riding = getModifierHandler(data.of("Riding"));
         NumberModifier sprinting = getModifierHandler(data.of("Sprinting"));
         NumberModifier dualWielding = getModifierHandler(data.of("Dual_Wielding"));
         NumberModifier swimming = getModifierHandler(data.of("Swimming"));
@@ -45,13 +46,13 @@ public class ModifyRecoilWhen extends AModifyWhen {
         NumberModifier gliding = getModifierHandler(data.of("Gliding"));
 
         if (always == null && zooming == null && sneaking == null && standing == null && walking == null
-                && sprinting == null && dualWielding == null
+                && riding == null && sprinting == null && dualWielding == null
                 && swimming == null && inMidair == null && gliding == null) {
 
             throw data.exception(null, "Tried to use Modify_Recoil_When without any arguments");
         }
 
-        return new ModifyRecoilWhen(always, zooming, sneaking, standing, walking, sprinting, dualWielding, swimming, inMidair, gliding);
+        return new ModifyRecoilWhen(always, zooming, sneaking, standing, walking, riding, sprinting, dualWielding, swimming, inMidair, gliding);
     }
 
     private NumberModifier getModifierHandler(SerializeData.ConfigAccessor data) throws SerializerException {
