@@ -124,8 +124,7 @@ public class SubCommands {
         if (args.length == 0) {
 
             // Create the messages with hover message
-            ComponentBuilder builder = new ComponentBuilder();
-            builder.append("Showing ").color(GOLD).bold(true)
+            ComponentBuilder builder = new ComponentBuilder("Showing ").color(GOLD).bold(true)
                     .append(parentPrefix).color(GRAY).bold(true)
                     .append(" Help ").color(GOLD).bold(true)
                     .append("(" + commands.size() + " Commands)").reset().color(GRAY).italic(true)

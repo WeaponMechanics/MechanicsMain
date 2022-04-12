@@ -150,7 +150,7 @@ public abstract class SubCommand extends BukkitCommand {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(StringUtil.color(toString()));
             } else {
-                ComponentBuilder builder = new ComponentBuilder();
+                ComponentBuilder builder = new ComponentBuilder("");
                 for (BaseComponent component : TextComponent.fromLegacyText(StringUtil.color(toString()))) {
                     component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + prefix));
                     component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to fill command")));

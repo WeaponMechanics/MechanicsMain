@@ -27,15 +27,12 @@ public class WikiCommand extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
 
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append("Weapon").color(GOLD).bold(true)
+        ComponentBuilder builder = new ComponentBuilder("Weapon").color(GOLD).bold(true)
                 .append("Mechanics").color(GRAY).bold(true)
                 .append(" Wiki (Click an option)").bold(false).color(GRAY).italic(true)
                 .append("\n").italic(false);
 
-        BaseComponent[] hover = new ComponentBuilder()
-                .append("Click to go to Wiki.").color(GRAY).italic(true)
-                .create();
+        BaseComponent[] hover = new ComponentBuilder("Click to go to Wiki.").color(GRAY).italic(true).create();
 
         builder.append("  " + SYM + " ").color(GRAY).append(build("Information", hover)).append("\n");
         builder.append("  " + SYM + " ").color(GRAY).append(build("Skins", hover)).append("\n");
