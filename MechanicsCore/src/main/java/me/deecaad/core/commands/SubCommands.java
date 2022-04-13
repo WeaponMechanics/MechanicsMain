@@ -8,13 +8,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static me.deecaad.core.MechanicsCore.debug;
 import static net.md_5.bungee.api.ChatColor.*;
@@ -130,7 +124,9 @@ public class SubCommands {
                     .append("(" + commands.size() + " Commands)").reset().color(GRAY).italic(true)
                     .append("\n");
 
-            for (SubCommand command : commands.values()) {
+            int i = 0;
+            Collection<SubCommand> commandsCollection = commands.values();
+            for (SubCommand command : commandsCollection) {
 
                 // Create a hoverable for the command
                 BaseComponent[] hover = new ComponentBuilder("Command: ").color(GOLD)
@@ -150,12 +146,11 @@ public class SubCommands {
                 component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
                 builder.append(component);
 
-                // Every command goes on a new line
-                builder.append("\n");
+                if (++i != commandsCollection.size()) {
+                    // Every command goes on a new line, expect if this is last command
+                    builder.append("\n");
+                }
             }
-
-            // Remove the last new line, since it's extra
-            builder.removeComponent(builder.getCursor());
 
             sender.spigot().sendMessage(builder.create());
             return true;
