@@ -55,7 +55,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import javax.annotation.Nullable;
@@ -165,29 +164,20 @@ public class WeaponMechanics {
             getPlayerWrapper(player);
         }
 
+
+
+        loadConfig();
+        registerPlaceholders();
+        registerListeners();
+
+        // Start here to ensure config values have been filled
+        handleBStats();
+        registerCommands();
+        registerUpdateChecker();
+
         long tookMillis = System.currentTimeMillis() - millisCurrent;
-
-        // This is done like this to allow other plugins to add their own serializers
-        // before WeaponMechanics starts filling those configuration mappings.
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                long millisCurrent = System.currentTimeMillis();
-
-                loadConfig();
-                registerPlaceholders();
-                registerListeners();
-
-                // Start here to ensure config values have been filled
-                handleBStats();
-                registerCommands();
-                registerUpdateChecker();
-
-                double seconds = NumberUtil.getAsRounded(((System.currentTimeMillis() - millisCurrent) + tookMillis) * 0.001, 2);
-                debug.info("Enabled WeaponMechanics in " + seconds + "s");
-
-            }
-        }.runTask(getPlugin());
+        double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
+        debug.info("Enabled WeaponMechanics in " + seconds + "s");
 
         WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
