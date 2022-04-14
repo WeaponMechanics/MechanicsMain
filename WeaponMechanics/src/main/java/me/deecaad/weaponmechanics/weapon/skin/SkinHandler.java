@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.skin;
 
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -29,6 +30,15 @@ public class SkinHandler {
         if (skins == null)
             return false;
 
+        Skin reloadSkin = skins.get("Reload");
+        if ((!hand.isReloading() || reloadSkin == null) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
+            Skin emptyAmmoSkin = skins.get("No_Ammo");
+            if (emptyAmmoSkin != null) {
+                emptyAmmoSkin.apply(weaponStack);
+                return true;
+            }
+        }
+
         if (hand.getZoomData().isZooming()) {
             Skin zoomSkin = skins.get("Scope");
 
@@ -44,7 +54,6 @@ public class SkinHandler {
         }
 
         if (hand.isReloading()) {
-            Skin reloadSkin = skins.get("Reload");
             if (reloadSkin != null) {
                 reloadSkin.apply(weaponStack);
                 return true;

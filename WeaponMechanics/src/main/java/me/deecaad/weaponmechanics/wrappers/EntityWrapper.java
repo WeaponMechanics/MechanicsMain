@@ -201,13 +201,20 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the entity is dual wielding
+     * Returns <code>true</code> if the entity is dual wielding,
      * meaning when they have weapons equipped in both hands.
      *
      * @return <code>true</code> when the entity is dual wielding.
      */
     public boolean isDualWielding() {
         return getMainHandData().getCurrentWeaponTitle() != null && getOffHandData().getCurrentWeaponTitle() != null;
+    }
+
+    /**
+     * @return <code>true</code> when the entity is riding.
+     */
+    public boolean isRiding() {
+        return entity.isInsideVehicle();
     }
 
     @Nonnull

@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class ChangingSpread implements Serializer<ChangingSpread> {
 
     private double startingAmount;
+    private int resetTime;
     private ModifySpreadWhen increaseChangeWhen;
     private Bounds bounds;
 
@@ -18,8 +20,9 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
      */
     public ChangingSpread() { }
 
-    public ChangingSpread(double startingAmount, ModifySpreadWhen increaseChangeWhen, Bounds bounds) {
+    public ChangingSpread(double startingAmount, int resetTime, ModifySpreadWhen increaseChangeWhen, Bounds bounds) {
         this.startingAmount = startingAmount;
+        this.resetTime = resetTime;
         this.increaseChangeWhen = increaseChangeWhen;
         this.bounds = bounds;
     }
@@ -39,7 +42,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
 
         // Reset if required
-        if (handData.shouldReset()) handData.setSpreadChange(startingAmount);
+        if (NumberUtil.hasMillisPassed(handData.getLastShotTime(), resetTime)) handData.setSpreadChange(startingAmount);
 
         // Check bounds of spread change
         boolean didReset = false;
@@ -67,10 +70,11 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     public @NotNull ChangingSpread serialize(SerializeData data) throws SerializerException {
         ModifySpreadWhen increaseChangeWhen = (ModifySpreadWhen) data.of("Increase_Change_When").assertExists().serialize(new ModifySpreadWhen());
         double startingAmount = data.of("Starting_Amount").getDouble(0.0) * 0.01;
+        int resetTime = data.of("Reset_Time").getInt(20) * 50; // Convert to millis
 
         Bounds bounds = data.config.contains(data.key + ".Bounds") ? getBounds(data.move("Bounds")) : null;
 
-        return new ChangingSpread(startingAmount, increaseChangeWhen, bounds);
+        return new ChangingSpread(startingAmount, resetTime, increaseChangeWhen, bounds);
     }
 
     private Bounds getBounds(SerializeData data) throws SerializerException {

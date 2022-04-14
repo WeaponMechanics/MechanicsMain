@@ -53,8 +53,7 @@ public class LegacyListWeaponsCommand extends SubCommand {
         // https://hub.spigotmc.org/javadocs/spigot/org/bukkit/map/MapFont.html
         // MapFont allows us to evaluate the length, in pixels, of a string. MC
         // chat (by default) is 320 pixels wide.
-        ComponentBuilder builder = new ComponentBuilder();
-        builder.append("==================").color(ChatColor.GOLD)
+        ComponentBuilder builder = new ComponentBuilder("==================").color(ChatColor.GOLD)
                 .append("  WeaponMechanics  ").color(ChatColor.GRAY).italic(true)
                 .append("==================").color(ChatColor.GOLD).italic(false)
                 .append("\n");
@@ -74,7 +73,7 @@ public class LegacyListWeaponsCommand extends SubCommand {
                 cell.setLength(cell.length() - 1);
 
             ItemStack weapon = info.generateWeapon(weapons.get(i), 1);
-            ComponentBuilder hover = new ComponentBuilder();
+            ComponentBuilder hover = new ComponentBuilder("");
 
             // We want to display the gun so the player knows: 1) Exactly which
             // weapon they are choosing, 2) That they can click the buttons

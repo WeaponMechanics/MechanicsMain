@@ -105,18 +105,18 @@ public class ReloadHandler implements IValidator {
         Bukkit.getPluginManager().callEvent(preReloadEvent);
         if (preReloadEvent.isCancelled()) return false;
 
-        // Handle permissions
-        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
-            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
-            return false;
-        }
-
         Configuration config = getConfigurations();
 
         int reloadDuration = config.getInt(weaponTitle + ".Reload.Reload_Duration");
         int tempMagazineSize = config.getInt(weaponTitle + ".Reload.Magazine_Size");
         if (tempMagazineSize <= 0 || reloadDuration <= 0) {
             // This ensures that non intended reloads doesn't occur from ShootHandler for example
+            return false;
+        }
+
+        // Handle permissions
+        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
             return false;
         }
 

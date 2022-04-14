@@ -3,11 +3,7 @@ package me.deecaad.core.file.serializers;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.file.SerializerRangeException;
+import me.deecaad.core.file.*;
 import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -70,6 +66,17 @@ public class ItemSerializer implements Serializer<ItemStack> {
     @Override
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
+
+        // Support for one-liner item serializer
+        try {
+            Material type = data.of("").assertType(String.class).getEnum(Material.class);
+            if (type != null) {
+                return new ItemStack(type);
+            }
+        } catch (SerializerTypeException e) {
+            // Let continue since this wasn't one-liner
+        }
+
         ItemStack itemStack = serializeWithoutRecipe(data);
         itemStack = serializeRecipe(data, itemStack);
         return itemStack;
