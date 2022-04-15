@@ -66,6 +66,9 @@ public class MechanicsCore extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
+
+
+        adventure = BukkitAudiences.create(this);
     }
 
     @Override

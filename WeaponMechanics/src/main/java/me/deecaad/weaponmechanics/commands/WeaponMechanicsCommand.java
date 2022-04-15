@@ -399,7 +399,7 @@ public class WeaponMechanicsCommand {
                     ItemStack item = info.generateWeapon(title, 1);
                     return text().content(title.toUpperCase(Locale.ROOT))
                             .clickEvent(ClickEvent.runCommand("/wm get " + title))
-                            .hoverEvent(CompatibilityAPI.isPaper() && ReflectionUtil.getMCVersion() >= 16
+                            .hoverEvent(item instanceof HoverEventSource
                                     ? (HoverEventSource<?>) item // Paper items implement this by default since 1.16
                                     : LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName()))
                             .build();
@@ -464,7 +464,7 @@ public class WeaponMechanicsCommand {
         }
 
         String tags = CompatibilityAPI.getNBTCompatibility().getNBTDebug(item);
-        WeaponMechanics.debug.debug(tags);
+        WeaponMechanics.debug.info(tags);
         sender.sendMessage(StringUtil.color(tags));
     }
 

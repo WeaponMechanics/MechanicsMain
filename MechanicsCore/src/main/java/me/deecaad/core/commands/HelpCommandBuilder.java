@@ -89,11 +89,12 @@ public class HelpCommandBuilder {
             // command '/wm give'. It fails since it is missing the required
             // arguments, so we should instead execute as if the user had
             // run the command '/wm help give'
-            if (!parent.args.isEmpty() && parent.args.get(0).isRequired()) {
-                parent.executes(CommandExecutor.any((sender, args) -> {
-                    MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
-                }));
-            }
+            // TODO
+            //if (!parent.args.isEmpty() && parent.args.get(0).isRequired()) {
+            //    parent.executes(CommandExecutor.any((sender, args) -> {
+            //        MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
+            //    }));
+            //}
         }
 
         // When a command has sub-commands, we need to build a list-based

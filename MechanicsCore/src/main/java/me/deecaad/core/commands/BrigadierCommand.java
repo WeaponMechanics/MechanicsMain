@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -47,7 +49,7 @@ public class BrigadierCommand implements Command<Object> {
 
         dispatcher.register(result);
 
-        MechanicsCore.debug.error("Registering Command: " + builder);
+        MechanicsCore.debug.debug("Registering Command: " + builder);
     }
 
     @Override
@@ -105,41 +107,38 @@ public class BrigadierCommand implements Command<Object> {
             else {
                 RequiredArgumentBuilder<Object, ?> required = argument(argument.getName(), argument.getType().getBrigadierType());
 
-                // When an argument wants to REPLACE suggestions, only include
-                // "buildSuggestionProvider" (which builds custom suggestions).
-                if (argument.isReplaceSuggestions) {
-                    required.suggests((context, suggestionsBuilder) -> {
-                        if (argument.getType().includeName())
-                            suggestionsBuilder.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description));
-                        buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
-                        return suggestionsBuilder.buildFuture();
-                    });
-                }
+                // Build the 3 different suggestion providers. Depending on whether the argument
+                // replaces/adds suggestions, some of these may be ignored.
+                final SuggestionProvider<Object> def = (context, suggestions) -> argument.getType().suggestions(context, suggestions);
+                final SuggestionProvider<Object> custom = buildSuggestionProvider(argument);
+                final SuggestionProvider<Object> label = argument.getType().includeName()
+                        ? (context, suggestions) -> suggestions.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description)).buildFuture()
+                        : (context, suggestions) -> new CompletableFuture<>();
 
-                // When an argument wants to ADD suggestions, we should include
-                // the argument's default suggestions as well as the custom
-                // suggestions.
-                else if (argument.suggestions != null) {
-                    required.suggests((context, suggestionsBuilder) -> {
-                        if (argument.getType().includeName())
-                            suggestionsBuilder.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description));
-                        argument.getType().suggestions(context, suggestionsBuilder);
-                        buildSuggestionProvider(argument).getSuggestions(context, suggestionsBuilder);
-                        return suggestionsBuilder.buildFuture();
-                    });
-                }
+                SuggestionProvider<Object> combined = (context, suggestions) -> {
 
-                // When the argument doesn't have any custom suggestions, we
-                // don't need to mess with the suggestions.
-                else {
-                    required.suggests((context, suggestionsBuilder) -> {
-                        if (argument.getType().includeName())
-                            suggestionsBuilder.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description));
-                        argument.getType().suggestions(context, suggestionsBuilder);
-                        return suggestionsBuilder.buildFuture();
-                    });
-                }
+                    //noinspection rawtypes
+                    CompletableFuture[] all;
+                    if (argument.isReplaceSuggestions)
+                        all = new CompletableFuture[]{ label.getSuggestions(context, suggestions), custom.getSuggestions(context, suggestions) };
+                    else if (argument.suggestions != null)
+                        all = new CompletableFuture[]{ label.getSuggestions(context, suggestions), def.getSuggestions(context, suggestions), custom.getSuggestions(context, suggestions) };
+                    else
+                        all = new CompletableFuture[]{ label.getSuggestions(context, suggestions), def.getSuggestions(context, suggestions) };
 
+
+                    CompletableFuture<Suggestions> result = new CompletableFuture<>();
+                    CompletableFuture
+                            .allOf(all)
+                            .thenRun(() -> {
+                                List<Suggestions> list = Arrays.stream(all).map(CompletableFuture<Suggestions>::join).filter(Objects::nonNull).collect(Collectors.toList());
+                                Suggestions merged = Suggestions.merge(context.getInput(), list);
+                                result.complete(merged);
+                            });
+                    return result;
+                };
+
+                required.suggests(combined);
                 temp = required;
             }
 
