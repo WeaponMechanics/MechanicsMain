@@ -34,6 +34,7 @@ public class CommandBuilder implements Cloneable {
 
     // Use for saving performance on the help command
     TextComponent cache;
+    CommandBuilder friend;
 
 
     public CommandBuilder(String label) {

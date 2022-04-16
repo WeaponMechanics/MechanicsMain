@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -11,7 +12,7 @@ import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_13_R2.*;
 import org.apache.commons.lang.math.DoubleRange;
 import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Axis;
@@ -28,15 +29,15 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_16_R3.CraftLootTable;
-import org.bukkit.craftbukkit.v1_16_R3.CraftParticle;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.CraftSound;
-import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_16_R3.enchantments.CraftEnchantment;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_16_R3.potion.CraftPotionEffectType;
+import org.bukkit.craftbukkit.v1_13_R2.CraftLootTable;
+import org.bukkit.craftbukkit.v1_13_R2.CraftParticle;
+import org.bukkit.craftbukkit.v1_13_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_13_R2.CraftSound;
+import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_13_R2.enchantments.CraftEnchantment;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_13_R2.potion.CraftPotionEffectType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -59,7 +60,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Command_1_16_R3 implements CommandCompatibility {
+public class Command_1_13_R2 implements CommandCompatibility {
 
     public static final MinecraftServer SERVER = ((CraftServer) Bukkit.getServer()).getServer();
 
@@ -103,7 +104,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> angle() {
-        return ArgumentAngle.a();
+        throw new IllegalStateException("Unavailable in 1.13");
     }
 
     @Override
@@ -153,7 +154,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> entities() {
-        return ArgumentEntity.multipleEntities();
+        return ArgumentEntity.b();
     }
 
     @Override
@@ -243,12 +244,12 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> time() {
-        return ArgumentTime.a();
+        return IntegerArgumentType.integer();
     }
 
     @Override
     public ArgumentType<?> uuid() {
-        return ArgumentUUID.a();
+        throw new IllegalStateException("Unavailable in 1.13");
     }
 
     @Override
@@ -283,7 +284,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public SuggestionProvider<Object> biomeKey() {
-        return (SuggestionProvider) CompletionProviders.d;
+        throw new IllegalStateException("Unavailable in 1.13");
     }
 
     @Override
@@ -298,21 +299,22 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public SuggestionProvider<Object> entityKey() {
-        return (SuggestionProvider) CompletionProviders.e;
+        return (SuggestionProvider) CompletionProviders.d;
     }
 
     @Override
     public SuggestionProvider<Object> advancementKey() {
-        return (context, builder) -> ICompletionProvider.a(SERVER.getAdvancementData().getAdvancements().stream().map(net.minecraft.server.v1_16_R3.Advancement::getName), builder);
+        return (context, builder) -> ICompletionProvider.a(SERVER.getAdvancementData().b().stream().map(net.minecraft.server.v1_13_R2.Advancement::getName), builder);
     }
 
     @Override
     public SuggestionProvider<Object> lootKey() {
-        return (context, builder) -> ICompletionProvider.a(SERVER.getLootTableRegistry().a(), builder);
+        throw new IllegalStateException("Unavailable in 1.13");
+        //return (context, builder) -> ICompletionProvider.a(SERVER.getLootTableRegistry().a(), builder);
     }
 
     private static NamespacedKey fromResourceLocation(MinecraftKey key) {
-        return NamespacedKey.fromString(key.getNamespace() + ":" + key.getKey());
+        return new NamespacedKey(key.b(), key.getKey());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -327,7 +329,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public float getAngle(CommandContext<Object> context, String key) {
-        return ArgumentAngle.a(cast(context), key);
+        throw new IllegalStateException("Unavailable in 1.13");
     }
 
     @Override
@@ -373,7 +375,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public World.Environment getDimension(CommandContext<Object> context, String key) throws CommandSyntaxException {
-        return ArgumentDimension.a(cast(context), key).getWorld().getEnvironment();
+        throw new IllegalStateException("Unavailable in 1.13");
     }
 
     @Override
@@ -404,7 +406,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
         ReflectionUtil.setField(ReflectionUtil.getField(EntitySelector.class, boolean.class, 3), selector, false);
 
         CommandListenerWrapper source = (CommandListenerWrapper) context.getSource();
-        return selector.getEntities(source).stream()
+        return selector.b(source).stream()
                 .map(Entity::getBukkitEntity)
                 .collect(Collectors.toList());
     }
@@ -465,7 +467,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public Predicate<ItemStack> getItemStackPredicate(CommandContext<Object> context, String key) throws CommandSyntaxException {
-        Predicate<net.minecraft.server.v1_16_R3.ItemStack> predicate = ArgumentItemPredicate.a(cast(context), key);
+        Predicate<net.minecraft.server.v1_13_R2.ItemStack> predicate = ArgumentItemPredicate.a(cast(context), key);
         return (item) -> predicate.test(CraftItemStack.asNMSCopy(item));
     }
 
@@ -476,7 +478,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public Column getLocation2DBlock(CommandContext<Object> context, String key) throws CommandSyntaxException {
-        BlockPosition2D column = ArgumentVec2I.a(cast(context), key);
+        ArgumentVec2I.a column = ArgumentVec2I.a(cast(context), key);
         World world = cast(context).getSource().getWorld().getWorld();
         return new Column(world, column.a, column.b);
     }
@@ -504,7 +506,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public LootTable getLootTable(CommandContext<Object> context, String key) {
-        MinecraftKey minecraft = ArgumentMinecraftKeyRegistered.e(cast(context), key);
+        MinecraftKey minecraft = ArgumentMinecraftKeyRegistered.c(cast(context), key);
         return new CraftLootTable(fromResourceLocation(minecraft), SERVER.getLootTableRegistry().getLootTable(minecraft));
     }
 
@@ -544,7 +546,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public Recipe getRecipe(CommandContext<Object> context, String key) throws CommandSyntaxException {
-        IRecipe<?> recipe = ArgumentMinecraftKeyRegistered.b(cast(context), key);
+        IRecipe recipe = ArgumentMinecraftKeyRegistered.b(cast(context), key);
         return recipe.toBukkitRecipe();
     }
 
@@ -556,7 +558,9 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public Sound getSound(CommandContext<Object> context, String key) {
-        return CraftSound.getBukkit(IRegistry.SOUND_EVENT.get(ArgumentMinecraftKeyRegistered.e(cast(context), key)));
+        MinecraftKey mc = ArgumentMinecraftKeyRegistered.c(cast(context), key);
+        String name = mc.getKey().toUpperCase(Locale.ROOT).replaceAll("\\.", "_");
+        return Sound.valueOf(name);
     }
 
     @Override
@@ -571,7 +575,7 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
     @Override
     public UUID getUUID(CommandContext<Object> context, String key) {
-        return ArgumentUUID.a(cast(context), key);
+        throw new IllegalStateException("Unavailable in 1.13");
     }
 
     @Override

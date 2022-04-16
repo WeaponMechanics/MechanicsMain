@@ -48,7 +48,6 @@ public class BrigadierCommand implements Command<Object> {
             result.then(buildArguments(builder.args));
 
         dispatcher.register(result);
-
         MechanicsCore.debug.debug("Registering Command: " + builder);
     }
 
@@ -111,27 +110,27 @@ public class BrigadierCommand implements Command<Object> {
                 // replaces/adds suggestions, some of these may be ignored.
                 final SuggestionProvider<Object> def = (context, suggestions) -> argument.getType().suggestions(context, suggestions);
                 final SuggestionProvider<Object> custom = buildSuggestionProvider(argument);
-                final SuggestionProvider<Object> label = argument.getType().includeName()
-                        ? (context, suggestions) -> suggestions.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description)).buildFuture()
-                        : (context, suggestions) -> new CompletableFuture<>();
+                final SuggestionProvider<Object> label = (context, suggestions) -> suggestions.suggest("<" + argument.getName() + ">", argument.description == null ? null : new LiteralMessage(argument.description)).buildFuture();
 
                 SuggestionProvider<Object> combined = (context, suggestions) -> {
 
-                    //noinspection rawtypes
-                    CompletableFuture[] all;
+                    List<CompletableFuture<Suggestions>> all = new ArrayList<>(3);
                     if (argument.isReplaceSuggestions)
-                        all = new CompletableFuture[]{ label.getSuggestions(context, suggestions), custom.getSuggestions(context, suggestions) };
+                        all.add(custom.getSuggestions(context, suggestions));
                     else if (argument.suggestions != null)
-                        all = new CompletableFuture[]{ label.getSuggestions(context, suggestions), def.getSuggestions(context, suggestions), custom.getSuggestions(context, suggestions) };
+                        all.addAll(Arrays.asList(def.getSuggestions(context, suggestions), custom.getSuggestions(context, suggestions)));
                     else
-                        all = new CompletableFuture[]{ label.getSuggestions(context, suggestions), def.getSuggestions(context, suggestions) };
+                        all.add(def.getSuggestions(context, suggestions));
 
+                    // Only add label when the argument needs it
+                    if (argument.getType().includeName())
+                        all.add(label.getSuggestions(context, suggestions));
 
                     CompletableFuture<Suggestions> result = new CompletableFuture<>();
                     CompletableFuture
-                            .allOf(all)
+                            .allOf(all.toArray(new CompletableFuture[0]))
                             .thenRun(() -> {
-                                List<Suggestions> list = Arrays.stream(all).map(CompletableFuture<Suggestions>::join).filter(Objects::nonNull).collect(Collectors.toList());
+                                List<Suggestions> list = all.stream().map(CompletableFuture::join).collect(Collectors.toList());
                                 Suggestions merged = Suggestions.merge(context.getInput(), list);
                                 result.complete(merged);
                             });
@@ -187,6 +186,10 @@ public class BrigadierCommand implements Command<Object> {
         // 3. Sub-commands do not exist. Instead, sub-commands are registered as "LiteralArguments" (which are just strings).
         // 4. Arguments are registered as RequiredArguments
         // 5. Optional arguments do not exist. Instead, we must register an additional command for each argument.
+
+        // Used with HelpCommandBuilder
+        if (builder.friend != null)
+            register(builder.friend);
 
         // This handles '3', sub-commands need to be converted into "multi-literals".
         if (!builder.subcommands.isEmpty()) {
@@ -270,10 +273,14 @@ public class BrigadierCommand implements Command<Object> {
             return;
         }
 
+        if (builder.friend != null)
+            register(builder.friend);
+
         new BrigadierCommand(builder.clone());
 
         // Now we need to handle aliases. Simply register each alias as if they
-        // are the main command.
+        // are the main command. Brigadier does seem to have a "redirect system",
+        // but it is complicated.
         for (String alias : builder.aliases) {
             CommandBuilder clone = builder.clone();
             clone.label = alias;
@@ -296,16 +303,35 @@ public class BrigadierCommand implements Command<Object> {
         // When we reach the outer-most branch of the tree, there must be an
         // executor (Otherwise the command won't work). TODO add validation.
         if(subcommand.executor != null) {
-            root.args = (List) arguments;
-            root.withArguments((List) subcommand.args);
-            root.executes(subcommand.executor);
+            CommandBuilder temp = root.clone();
+            temp.args = (List) arguments;
+            temp.withArguments((List) subcommand.args);
+            temp.executes(subcommand.executor);
 
-            root.subcommands = new ArrayList<>();
-            register(root);
+            temp.subcommands = new ArrayList<>();
+            register(temp);
+
+            if (subcommand.friend != null) {
+                for (int i = arguments.size() - 1; i >= 0; i--) {
+                    Argument<?> arg = arguments.get(i);
+
+                    if (arg.getName().equals("sub-command"))
+                        break;
+                    if (!arg.isRequired())
+                        continue;
+
+                    CommandBuilder help = root.clone();
+                    help.args = (List) arguments.subList(0, i);
+                    help.executes(subcommand.friend.executor);
+
+                    help.subcommands = new ArrayList<>();
+                    register(help);
+                }
+            }
         }
 
         // Flatten all subcommands
         for (CommandBuilder subsubcommand : subcommand.subcommands)
-            unPack(root, new ArrayList<>(arguments), subsubcommand);
+            unPack(root.clone(), new ArrayList<>(arguments), subsubcommand);
     }
 }

@@ -75,6 +75,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static me.deecaad.core.commands.arguments.IntegerArgumentType.ITEM_COUNT;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -97,9 +98,10 @@ public class WeaponMechanicsCommand {
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 
         MapArgumentType weaponDataMap = new MapArgumentType()
-                .with("attachment", MapArgumentType.LIST.apply(SuggestionsBuilder.from("scope", "grip", "silencer")))
-                .with("ammo", MapArgumentType.INT.apply(SuggestionsBuilder.from(1, 10, 30)))
-                .with("firemode", MapArgumentType.INT.apply(SuggestionsBuilder.from(0, 1, 2)));
+                .with("ammo", MapArgumentType.INT(1, 10, 30))
+                .with("firemode", MapArgumentType.INT(0, 1, 2))
+                .with("skipMainhand", MapArgumentType.INT(0, 1))
+                .with("slot", MapArgumentType.INT(IntStream.rangeClosed(0, 40).boxed().toArray(Integer[]::new)));
 
         CommandBuilder command = new CommandBuilder("wm")
                 .withAliases("weaponmechanics")
@@ -273,7 +275,7 @@ public class WeaponMechanicsCommand {
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
         List<Entity> entitiesGiven = new ArrayList<>();
-        List<String> weaponsGiven = new ArrayList<>();
+        Set<String> weaponsGiven = new HashSet<>();
 
         // Handle random weapon key "*r"
         if ("*r".equalsIgnoreCase(weaponTitle))
@@ -305,6 +307,7 @@ public class WeaponMechanicsCommand {
 
             // Normal weapontitle
             else {
+                weaponTitle = info.getWeaponTitle(weaponTitle);
                 if (info.giveOrDropWeapon(weaponTitle, entity, amount, data)) {
                     entitiesGiven.add(entity);
                     weaponsGiven.add(weaponTitle);
@@ -312,8 +315,15 @@ public class WeaponMechanicsCommand {
             }
         }
 
+        // Probably only happens when somebody uses a complicated targeter, like
+        // @e[type=wither_skeleton] while there are no wither skeletons nearby.
+        if (entitiesGiven.isEmpty() || weaponsGiven.isEmpty()) {
+            sender.sendMessage(RED + "No entities were given any weapons...");
+            return;
+        }
+
         String targetInfo = entitiesGiven.size() == 1 ? entitiesGiven.get(0).getName() : String.valueOf(entitiesGiven.size());
-        String weaponInfo = weaponsGiven.size() == 1 ? amount + " " + weaponsGiven.get(0) + (amount > 1 ? "s" : "") : weaponsGiven.size() + " weapons";
+        String weaponInfo = weaponsGiven.size() == 1 ? amount + " " + weaponsGiven.stream().findAny().get() + (amount > 1 ? "s" : "") : weaponsGiven.size() + " weapons";
 
         // Show each target. This may be useful in case the user accidentally
         // gave the weapon(s) to too many people, and needs to check who got it.

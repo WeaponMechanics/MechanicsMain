@@ -41,7 +41,7 @@ public class TableBuilder {
     public TableBuilder() {
         constraints = DEFAULT_CONSTRAINTS;
         font = DEFAULT_FONT;
-        elementChar = ' '; // use a space as default
+        elementChar = 0; // use a space as default
     }
 
     public TableBuilder withConstraints(TableConstraints constraints) {
@@ -123,7 +123,7 @@ public class TableBuilder {
             builder.append(newline());
         }
 
-        String prefix = (elementChar == ' ') ? "" : " " + elementChar + " ";
+        String prefix = (elementChar == 0) ? "" : elementChar + " ";
         int cellSize = constraints.pixels / constraints.columns - font.getWidth(prefix);
         for (int i = 0; i < constraints.rows * constraints.columns; i++) {
 

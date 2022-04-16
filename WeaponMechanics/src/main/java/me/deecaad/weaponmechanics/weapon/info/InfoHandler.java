@@ -196,6 +196,9 @@ public class InfoHandler implements IValidator {
     }
 
     public boolean giveOrDropWeapon(String weaponTitle, LivingEntity entity, int amount, Map<String, Object> data) {
+        if (weaponTitle == null || entity == null || amount < 1 || data == null)
+            throw new IllegalArgumentException("Bad args: " + weaponTitle + ", " + entity + ", " + amount + ", " + data);
+
         ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class);
         if (weaponStack == null)
             return false;
@@ -205,10 +208,13 @@ public class InfoHandler implements IValidator {
 
         // Parse and apply all possible data
         int ammo = (int) data.getOrDefault("ammo", -1);
-        int firemode = (int) data.getOrDefault("firemode", 0);
-        boolean skipMainhand = (boolean) data.getOrDefault("skipMainhand", false);
+        int firemode = (int) data.getOrDefault("firemode", -1);
+        boolean skipMainhand = ((int) data.getOrDefault("skipMainhand", 0)) == 1;
+        int slot = (int) data.getOrDefault("slot", -1);
+
+        if (slot != -1) skipMainhand = true;
         if (ammo != -1) CustomTag.AMMO_LEFT.setInteger(weaponStack, ammo);
-        CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
+        if (firemode != -1) CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
 
         boolean isPlayer = entity instanceof Player;
         Player player = isPlayer ? (Player) entity : null;
@@ -234,6 +240,8 @@ public class InfoHandler implements IValidator {
         EntityEquipment equipment = entity.getEquipment();
         if ((equipment.getItemInMainHand() == null || equipment.getItemInMainHand().getType() == Material.AIR) && (!isPlayer || !skipMainhand))
             equipment.setItemInMainHand(weaponStack);
+        else if (isPlayer && slot != -1)
+            player.getInventory().setItem(slot, weaponStack);
         else if (isPlayer && player.getInventory().firstEmpty() != -1)
             player.getInventory().addItem(weaponStack);
         else if (isPlayer) {

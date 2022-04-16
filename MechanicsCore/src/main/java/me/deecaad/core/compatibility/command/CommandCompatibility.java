@@ -31,6 +31,7 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffectType;
 
+import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ public interface CommandCompatibility {
     SimpleCommandMap getCommandMap();
 
     void resendCommandRegistry(Player player);
+
+    void generateFile(File file);
 
     CommandSender getCommandSender(CommandContext<Object> context);
 

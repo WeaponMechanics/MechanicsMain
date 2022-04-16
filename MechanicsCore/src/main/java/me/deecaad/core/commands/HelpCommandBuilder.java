@@ -8,6 +8,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 
+import java.util.List;
 import java.util.Locale;
 
 import static net.kyori.adventure.text.Component.*;
@@ -89,12 +90,18 @@ public class HelpCommandBuilder {
             // command '/wm give'. It fails since it is missing the required
             // arguments, so we should instead execute as if the user had
             // run the command '/wm help give'
-            // TODO
-            //if (!parent.args.isEmpty() && parent.args.get(0).isRequired()) {
-            //    parent.executes(CommandExecutor.any((sender, args) -> {
-            //        MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
-            //    }));
-            //}
+            if (!parent.args.isEmpty() && parent.args.get(0).isRequired()) {
+                CommandBuilder friend = new CommandBuilder(parent.label)
+                        .withDescription(parent.description)
+                        .withPermission(parent.permission)
+                        .withRequirements(parent.requirements);
+
+                friend.executes(CommandExecutor.any((sender, args) -> {
+                    MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
+                }));
+
+                parent.friend = friend;
+            }
         }
 
         // When a command has sub-commands, we need to build a list-based
@@ -142,10 +149,14 @@ public class HelpCommandBuilder {
         TextComponent.Builder builder = universal(help, parent, color);
 
         builder.append(newline());
-        for (CommandBuilder subcommand : parent.subcommands) {
+        List<CommandBuilder> subcommands = parent.subcommands;
+        for (int i = 0; i < subcommands.size(); i++) {
+            CommandBuilder subcommand = subcommands.get(i);
             builder.append(text().content("<" + subcommand.label + ">: ").style(color.a).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(subcommand.cache));
             builder.append(text().content(String.valueOf(subcommand.description)).style(color.b).clickEvent(ClickEvent.suggestCommand("/" + help.description + " " + subcommand.label)).hoverEvent(subcommand.cache));
-            builder.append(newline());
+
+            if (i != subcommands.size() - 1)
+                builder.append(newline());
         }
 
         return builder;
@@ -169,12 +180,16 @@ public class HelpCommandBuilder {
             builder.append(newline());
 
             // Shows <arg1*>: <desc>\n <arg2>: <desc>\n...
-            for (Argument<?> arg : parent.args) {
+            List<Argument<Object>> args = parent.args;
+            for (int i = 0; i < args.size(); i++) {
+                Argument<?> arg = args.get(i);
                 arg.append(builder, color.a);
 
                 builder.append(text().content(": ").style(color.a));
                 builder.append(text().content(String.valueOf(arg.description)).style(color.b));
-                builder.append(newline());
+
+                if (i != args.size() - 1)
+                    builder.append(newline());
             }
         }
 

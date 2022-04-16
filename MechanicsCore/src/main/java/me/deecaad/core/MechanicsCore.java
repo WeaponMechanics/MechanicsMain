@@ -67,8 +67,10 @@ public class MechanicsCore extends JavaPlugin {
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
 
-
         adventure = BukkitAudiences.create(this);
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            MechanicsCoreCommand.build();
+        }
     }
 
     @Override

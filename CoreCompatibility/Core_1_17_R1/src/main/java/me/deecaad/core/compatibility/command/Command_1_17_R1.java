@@ -1,5 +1,7 @@
 package me.deecaad.core.compatibility.command;
 
+import com.google.common.io.Files;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -25,6 +27,7 @@ import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.commands.arguments.item.ItemPredicateArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -65,6 +68,7 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.CraftSound;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_17_R1.enchantments.CraftEnchantment;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.potion.CraftPotionEffectType;
 import org.bukkit.enchantments.Enchantment;
@@ -75,6 +79,9 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionEffectType;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +104,18 @@ public class Command_1_17_R1 implements CommandCompatibility {
 
     @Override
     public void resendCommandRegistry(Player player) {
+        ServerPlayer p = ((CraftPlayer) player).getHandle();
+        SERVER.vanillaCommandDispatcher.sendCommands(p);
+    }
 
+    @Override
+    public void generateFile(File file) {
+        try {
+            Files.asCharSink(file, StandardCharsets.UTF_8).write(new GsonBuilder().setPrettyPrinting().create()
+                    .toJson(ArgumentTypes.serializeNodeToJson(getCommandDispatcher(), getCommandDispatcher().getRoot())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
