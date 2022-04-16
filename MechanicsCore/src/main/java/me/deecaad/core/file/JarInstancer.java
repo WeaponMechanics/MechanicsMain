@@ -41,6 +41,6 @@ public class JarInstancer extends JarSearcher {
             }
         }
 
-        return instances.isEmpty() ? null : instances;
+        return instances;
     }
 }
