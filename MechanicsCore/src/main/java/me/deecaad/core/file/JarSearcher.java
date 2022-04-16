@@ -1,6 +1,8 @@
 package me.deecaad.core.file;
 
 
+import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.plugin.Plugin;
 
@@ -62,7 +64,6 @@ public class JarSearcher {
      */
     @SuppressWarnings("unchecked")
     public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, ClassLoader clazzLoader, boolean isIgnoreAbstract, Class<?>... classes) {
-
         if (clazz == null) throw new IllegalArgumentException("clazz cannot be null");
 
         // Create the class blacklist. The class "clazz" and any classes listed
@@ -92,25 +93,16 @@ public class JarSearcher {
 
             String name = entryName.replaceAll("/", "\\.").replace(".class", "");
 
-            // TODO
-            // Find better way to address loading compatibility versions
-            if (true) {
-
-                if (name.contains("compatibility")) {
-                    //System.out.println("hihihi");
-                }
-
-                // matches a string like me.deecaad.weaponmechanics.compatibility.nbt.NBT_1_16_R3
-                String regex = ".+compatibility.+_?\\d_\\d+_R\\d";
-                if (StringUtil.match(regex, name) != null) {
-                    continue;
-                }
-            }
-
             Class<?> subclass;
             try {
+
+                // When using spigot's class loader, they will spam console sometimes
+                // for class version stuff (Nothing we can do to stop that). To avoid this,
+                // lets try to check the class without the loader initially
+                Class.forName(name, false, null);
                 subclass = Class.forName(name, false, clazzLoader);
-            } catch (ClassNotFoundException | NoClassDefFoundError | UnsupportedClassVersionError ex) {
+            } catch (Throwable ex) {
+                MechanicsCore.debug.log(LogLevel.DEBUG, "Error for class '" + name + "'", ex);
                 continue;
             }
 
