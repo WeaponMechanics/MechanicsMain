@@ -1,13 +1,16 @@
 package me.deecaad.core.file;
 
 
+import com.google.common.io.ByteStreams;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,9 +100,25 @@ public class JarSearcher {
             try {
 
                 // When using spigot's class loader, they will spam console sometimes
-                // for class version stuff (Nothing we can do to stop that). To avoid this,
-                // lets try to check the class without the loader initially
-                Class.forName(name, false, null);
+                // for class version stuff (Nothing we can do to stop that). So we need to
+                // stop loading altogether when file was compiled with a newer version of
+                // java.
+                InputStream stream = jar.getInputStream(entry);
+                byte[] bytes = ByteStreams.toByteArray(stream);
+                int runtimeVersion = 44 + ReflectionUtil.getJavaVersion(); // ! THIS MAY NOT ALWAYS BE TRUE, but it is true for java 1.2+, so it is probably fine forever
+                int classVersion = (((bytes[6] & 0xFF) << 8) | (bytes[6 + 1] & 0xFF));
+                if (classVersion > runtimeVersion) {
+                    MechanicsCore.debug.debug("Skipping " + name + " because it has class version " + classVersion + "(We are expecting " + runtimeVersion + ")");
+                    continue;
+                }
+
+                // Code taken from ClassReader.java
+                // 6 == version
+                //  public short readShort(final int offset) {
+                //    byte[] classBuffer = classFileBuffer;
+                //    return (short) (((classBuffer[offset] & 0xFF) << 8) | (classBuffer[offset + 1] & 0xFF));
+                //  }
+
                 subclass = Class.forName(name, false, clazzLoader);
             } catch (Throwable ex) {
                 MechanicsCore.debug.log(LogLevel.DEBUG, "Error for class '" + name + "'", ex);
