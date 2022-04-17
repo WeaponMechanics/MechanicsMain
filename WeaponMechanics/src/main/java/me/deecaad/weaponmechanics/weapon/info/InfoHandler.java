@@ -13,9 +13,13 @@ import me.deecaad.weaponmechanics.weapon.skin.Skin;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nonnull;
@@ -186,24 +190,41 @@ public class InfoHandler implements IValidator {
         return weaponStack;
     }
 
-    /**
-     * If weapon title is invalid, its silently ignored.
-     * All general weapon get actions are used.
-     *
-     * @param weaponTitle the weapon to give
-     * @param player the player for who to give
-     * @param amount the amount of weapons to give
-     */
-    public void giveOrDropWeapon(String weaponTitle, Player player, int amount) {
+
+    public boolean giveOrDropWeapon(String weaponTitle, LivingEntity entity, int amount) {
+        return giveOrDropWeapon(weaponTitle, entity, amount, Collections.emptyMap());
+    }
+
+    public boolean giveOrDropWeapon(String weaponTitle, LivingEntity entity, int amount, Map<String, Object> data) {
+        if (weaponTitle == null || entity == null || amount < 1 || data == null)
+            throw new IllegalArgumentException("Bad args: " + weaponTitle + ", " + entity + ", " + amount + ", " + data);
+
         ItemStack weaponStack = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Item", ItemStack.class);
-        if (weaponStack == null) return;
+        if (weaponStack == null)
+            return false;
+
         weaponStack = weaponStack.clone();
         weaponStack.setAmount(amount);
 
-        ItemMeta weaponMeta = weaponStack.getItemMeta();
-        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle, null));
-        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle, null));
-        weaponStack.setItemMeta(weaponMeta);
+        // Parse and apply all possible data
+        int ammo = (int) data.getOrDefault("ammo", -1);
+        int firemode = (int) data.getOrDefault("firemode", -1);
+        boolean skipMainhand = ((int) data.getOrDefault("skipMainhand", 0)) == 1;
+        int slot = (int) data.getOrDefault("slot", -1);
+
+        if (slot != -1) skipMainhand = true;
+        if (ammo != -1) CustomTag.AMMO_LEFT.setInteger(weaponStack, ammo);
+        if (firemode != -1) CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
+
+        boolean isPlayer = entity instanceof Player;
+        Player player = isPlayer ? (Player) entity : null;
+
+        if (isPlayer) {
+            ItemMeta weaponMeta = weaponStack.getItemMeta();
+            weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle, null));
+            weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle, null));
+            weaponStack.setItemMeta(weaponMeta);
+        }
 
         // Apply default skin
         Map skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
@@ -212,16 +233,25 @@ public class InfoHandler implements IValidator {
             defaultSkin.apply(weaponStack);
         }
 
-        Inventory inventory = player.getInventory();
+        // First we should try to put the gun in the entity's main hand. If
+        // a player's mainhand is full, we can try to put it in their
+        // inventory. For any other entity, though, they won't be given
+        // a weapon if their mainhand is full.
+        EntityEquipment equipment = entity.getEquipment();
+        if ((equipment.getItemInMainHand() == null || equipment.getItemInMainHand().getType() == Material.AIR) && (!isPlayer || !skipMainhand))
+            equipment.setItemInMainHand(weaponStack);
+        else if (isPlayer && slot != -1)
+            player.getInventory().setItem(slot, weaponStack);
+        else if (isPlayer && player.getInventory().firstEmpty() != -1)
+            player.getInventory().addItem(weaponStack);
+        else if (isPlayer) {
+            entity.getWorld().dropItemNaturally(entity.getLocation().add(0.0, 1.0, 0.0), weaponStack);
+            return false; // Return so we don't play mechanics
+        } else
+            return false;
 
-        // Check if inventory doesn't have any free slots
-        if (inventory.firstEmpty() == -1) {
-            player.getWorld().dropItemNaturally(player.getLocation().add(0.0, 1.0, 0.0), weaponStack);
-            return;
-        }
-        inventory.addItem(weaponStack);
-
-        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Mechanics", new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, weaponStack));
+        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Mechanics", new CastData(WeaponMechanics.getEntityWrapper(entity), weaponTitle, weaponStack));
+        return true;
     }
 
     /**

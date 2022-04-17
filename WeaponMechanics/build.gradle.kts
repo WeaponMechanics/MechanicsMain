@@ -19,6 +19,10 @@ dependencies {
     implementation(project(":MechanicsCore"))
     implementation("co.aikar:minecraft-timings:1.0.4")
     implementation("org.bstats:bstats-bukkit:2.2.1")
+
+    compileOnly("net.kyori:adventure-api:4.10.0")
+    compileOnly("net.kyori:adventure-text-serializer-legacy:4.10.1")
+    compileOnly("net.kyori:adventure-platform-bukkit:4.1.0")
     implementation("io.lumine:Mythic-Dist:5.0.1-SNAPSHOT")
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))

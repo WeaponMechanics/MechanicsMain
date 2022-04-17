@@ -15,11 +15,12 @@ import java.util.List;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getWeaponHandler;
 
 @CommandPermission(permission = "weaponmechanics.commands.give")
-public class GiveCommand extends SubCommand {
+@Deprecated
+public class LegacyGiveCommand extends SubCommand {
     
     // wm give <Player> <Weapon> <Amount>
     
-    public GiveCommand() {
+    public LegacyGiveCommand() {
         super("wm", "give", "Gives a given number of weapons to a given player", "<weapon> <amount> <player>");
 
         setAliases(Collections.singletonList("get"));

@@ -13,6 +13,7 @@ import java.util.*;
 import static me.deecaad.core.MechanicsCore.debug;
 import static net.md_5.bungee.api.ChatColor.*;
 
+@Deprecated()
 public class SubCommands {
 
     public static char SYM = '\u27A2';

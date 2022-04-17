@@ -8,9 +8,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 @CommandPermission(permission = "weaponmechanics.commands.reload")
-public class ReloadCommand extends SubCommand {
+@Deprecated
+public class LegacyReloadCommand extends SubCommand {
     
-    public ReloadCommand() {
+    public LegacyReloadCommand() {
         super("wm", "reload", "Reloads the plugin's config");
     }
     

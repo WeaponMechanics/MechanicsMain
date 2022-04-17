@@ -24,9 +24,6 @@ Item: <Material>
       - <Firework.Type>-<ColorSerializer>-<Trail>-<Flicker>-<fade ColorSerializer>
       - <etc.>
   Deny_Use_In_Crafting: <true/false>
-  Potion_Effects:
-    - <PotionEffectType>-<amplifier>
-    - <PotionEffectType>-<amplifier>-<ambient>-<hideparticles>-<icon>
   Recipe:
     Shape:
       - "012"

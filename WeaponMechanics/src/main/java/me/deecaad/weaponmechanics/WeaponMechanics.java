@@ -24,6 +24,7 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.web.SpigotResource;
+import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
@@ -301,7 +302,7 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
-        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null && ReflectionUtil.getMCVersion() >= 16) {
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
             Bukkit.getPluginManager().registerEvents(new MythicMobsLoader(), getPlugin());
         }
     }
@@ -317,6 +318,14 @@ public class WeaponMechanics {
 
     void registerCommands() {
         debug.debug("Registering commands");
+
+        // In 1.13+, we should use the built-in 'brigadier' system which
+        // has really nice tab-completions/validation
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            WeaponMechanicsCommand.build();
+            return;
+        }
+
         Method getCommandMap = ReflectionUtil.getMethod(ReflectionUtil.getCBClass("CraftServer"), "getCommandMap");
         SimpleCommandMap commands = (SimpleCommandMap) ReflectionUtil.invokeMethod(getCommandMap, Bukkit.getServer());
 

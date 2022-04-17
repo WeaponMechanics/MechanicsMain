@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.6.1-BETA"
+version = "1.6.2-BETA"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -85,6 +85,8 @@ tasks.named<ShadowJar>("shadowJar") {
         relocate ("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
             include(dependency("org.bstats:"))
         }
+
+        relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure")
     }
 }
 

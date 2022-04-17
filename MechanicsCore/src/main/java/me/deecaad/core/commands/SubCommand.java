@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  * command, but it should instead belong to the instantiating plugin's
  * {@link MainCommand}.
  */
+@Deprecated()
 public abstract class SubCommand extends BukkitCommand {
 
     protected static final String PLAYERS = "<player>";

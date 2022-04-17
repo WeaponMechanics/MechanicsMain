@@ -2,6 +2,8 @@ package me.deecaad.core.compatibility;
 
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.compatibility.block.Block_1_15_R1;
+import me.deecaad.core.compatibility.command.CommandCompatibility;
+import me.deecaad.core.compatibility.command.Command_1_15_R1;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.Entity_1_15_R1;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
@@ -35,11 +37,13 @@ public class v1_15_R1 implements ICompatibility {
     private final EntityCompatibility entityCompatibility;
     private final BlockCompatibility blockCompatibility;
     private final NBTCompatibility nbtCompatibility;
+    private final CommandCompatibility commandCompatibility;
 
     public v1_15_R1() {
         entityCompatibility = new Entity_1_15_R1();
         blockCompatibility = new Block_1_15_R1();
         nbtCompatibility = new NBT_1_15_R1();
+        commandCompatibility = new Command_1_15_R1();
     }
 
     @Override
@@ -81,6 +85,12 @@ public class v1_15_R1 implements ICompatibility {
     @Override
     public BlockCompatibility getBlockCompatibility() {
         return blockCompatibility;
+    }
+
+    @NotNull
+    @Override
+    public CommandCompatibility getCommandCompatibility() {
+        return commandCompatibility;
     }
 
     @Override

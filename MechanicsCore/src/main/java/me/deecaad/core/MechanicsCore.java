@@ -4,12 +4,12 @@ import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.listeners.ItemCraftListener;
-import me.deecaad.core.listeners.ItemPotionsListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
@@ -29,6 +29,8 @@ public class MechanicsCore extends JavaPlugin {
 
     // public so people can import a static variable
     public static Debugger debug;
+
+    public BukkitAudiences adventure;
 
     @Override
     public void onLoad() {
@@ -64,7 +66,11 @@ public class MechanicsCore extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
-        Bukkit.getPluginManager().registerEvents(new ItemPotionsListener(), this);
+
+        adventure = BukkitAudiences.create(this);
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            MechanicsCoreCommand.build();
+        }
     }
 
     @Override
@@ -75,6 +81,8 @@ public class MechanicsCore extends JavaPlugin {
         plugin = null;
         serializersList = null;
         debug = null;
+        adventure.close();
+        adventure = null;
     }
 
     /**

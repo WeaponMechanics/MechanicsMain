@@ -1,6 +1,7 @@
 package me.deecaad.core.compatibility;
 
 import me.deecaad.core.compatibility.block.BlockCompatibility;
+import me.deecaad.core.compatibility.command.CommandCompatibility;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
 import me.deecaad.core.compatibility.vault.IVaultCompatibility;
@@ -91,6 +92,10 @@ public final class CompatibilityAPI {
 
     public static NBTCompatibility getNBTCompatibility() {
         return compatibility.getNBTCompatibility();
+    }
+
+    public static CommandCompatibility getCommandCompatibility() {
+        return compatibility.getCommandCompatibility();
     }
 
     public static WorldGuardCompatibility getWorldGuardCompatibility() {

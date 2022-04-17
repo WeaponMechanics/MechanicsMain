@@ -4,6 +4,7 @@ import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import org.bukkit.ChatColor;
@@ -63,7 +64,7 @@ public class HitboxCommand extends SubCommand {
                         continue;
                     }
                     double sumOf = head + body + legs + feet;
-                    if (Math.abs(sumOf - 1.0) > 1e-5) { // If the numbers are not super close together (floating point issues)
+                    if (NumberUtil.equals(sumOf, 0.0)) { // If the numbers are not super close together (floating point issues)
                         debug.log(LogLevel.ERROR, "Entity type " + type.name() + " hit box values sum doesn't match 1.0",
                                 "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
                                 "Now the total sum was " + sumOf + ", please make it 1.0.");

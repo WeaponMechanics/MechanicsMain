@@ -15,12 +15,13 @@ import static net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL;
 import static net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT;
 
 @CommandPermission(permission = "weaponmechanics.command.wiki")
-public class WikiCommand extends SubCommand {
+@Deprecated
+public class LegacyWikiCommand extends SubCommand {
 
     public static char SYM = '\u27A2';
     public static String WIKI = "https://github.com/WeaponMechanics/MechanicsMain/wiki";
 
-    public WikiCommand() {
+    public LegacyWikiCommand() {
         super("wm", "wiki", "Shows links to the Wiki");
     }
 
