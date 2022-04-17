@@ -1,5 +1,6 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.core.MechanicsCore;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import org.bukkit.map.MapFont;
@@ -144,20 +145,24 @@ public class TableBuilder {
             // characters. This will "abbreviate" long strings, and "fill"
             // short strings.
             StringBuilder cell = new StringBuilder(text.content());
+            MechanicsCore.debug.debug("TableBuild :: " + i);
+            MechanicsCore.debug.debug("TableBuild :: CELL BEFORE :: '" + cell + "'");
 
             int count = 0;
             if (i % constraints.columns != constraints.columns - 1) {
-                while (MinecraftFont.Font.getWidth(prefix + cell) < cellSize)
+                while (getWidth(prefix + cell) < cellSize)
                     cell.append(' ');
-                while (MinecraftFont.Font.getWidth(prefix + cell) > cellSize)
+                while (getWidth(prefix + cell) > cellSize)
                     cell.setLength(cell.length() - 1);
-                while (attemptSinglePixelFix && MinecraftFont.Font.getWidth(prefix + cell + StringUtil.repeat("|", count)) < cellSize)
+                while (attemptSinglePixelFix && getWidth(prefix + cell + StringUtil.repeat("|", count)) < cellSize)
                     count++;
             }
 
             // Although we reset style here, (and maybe we shouldn't reset
             // style), it is still important to allow TextComponents for
             // click and hover events.
+            MechanicsCore.debug.debug("TableBuild :: CELL AFTER  :: '" + cell + "'");
+            MechanicsCore.debug.debug("TableBuild :: COMBINED    :: '" + prefix + cell + StringUtil.repeat("|", count) + "'");
             text = text.content(cell.toString()).style(text.style().merge(elementStyle));
             builder.append(text().content(prefix).style(elementCharStyle));
             builder.append(text);
@@ -178,7 +183,7 @@ public class TableBuilder {
     public TextComponent buildHeader() {
         StringBuilder a = new StringBuilder();
 
-        while (font.getWidth(a + " " + this.header + " " + a) < constraints.pixels)
+        while (getWidth(a + " " + this.header + " " + a) < constraints.pixels)
             a.append(fillChar);
 
         a.setLength(a.length() - 1);
@@ -194,7 +199,7 @@ public class TableBuilder {
         StringBuilder a = new StringBuilder();
         String footer = " " + left.content() + StringUtil.repeat(" ", header.length()) + right.content() + " ";
 
-        while (font.getWidth(a + " " + footer + " " + a) < constraints.pixels)
+        while (getWidth(a + " " + footer + " " + a) < constraints.pixels)
             a.append(fillChar);
 
         a.setLength(a.length() - 1);
@@ -209,6 +214,16 @@ public class TableBuilder {
         builder.append(text().content(a.toString()).style(fillCharStyle));
 
         return builder.build();
+    }
+
+    private int getWidth(String str) {
+        int width = font.getWidth(str);
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == ' ' && ReflectionUtil.getMCVersion() <= 15)
+                width++;
+        }
+        return width;
     }
 
 
