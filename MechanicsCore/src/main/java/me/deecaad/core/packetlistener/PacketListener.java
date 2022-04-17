@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPipelineException;
 import io.netty.channel.ChannelPromise;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.Debugger;
@@ -24,6 +25,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -201,7 +203,15 @@ public abstract class PacketListener {
                 Channel channel = ((ChannelFuture) obj).channel();
 
                 serverChannels.add(channel);
-                channel.pipeline().addFirst(serverChannelHandler);
+                try {
+                    channel.pipeline().addFirst(serverChannelHandler);
+                } catch (ChannelPipelineException ex) {
+                    debug.warn("Failed to add serverChannelHandler to pipeline since it was already there",
+                            "Channel: " + channel,
+                            "Pipeline: " + channel.pipeline(),
+                            "Handlers: " + channel.pipeline().names(),
+                            "You can ignore this warning if there are no errors in console.");
+                }
                 looking = false;
             }
         }
@@ -282,6 +292,9 @@ public abstract class PacketListener {
         return isClosed;
     }
 
+    // Only used in next method to show error once
+    private boolean showOnce = false;
+
     /**
      * Returns the {@link Channel} associated with the given
      * <code>player</code>'s name. If no {@link Channel} is cached for that
@@ -302,16 +315,20 @@ public abstract class PacketListener {
             Object manager = connection == null ? null : ReflectionUtil.invokeField(networkManagerField, connection);
 
             if (manager == null) {
-                debug.error("Player was missing a network manager or player connection!",
-                        "The cause is unknown, and " + getHandlerName() + " is now in a broken state!",
-                        "Please report the following information to developers:",
-                        "  Channel cache: " + channelCache,
-                        "  Bukkit Player: " + player,
-                        "  NMS Player: " + nmsPlayer,
-                        "  PlayerConnection: " + connection,
-                        "  Server Channels: " + serverChannels,
-                        "  Version: " + Bukkit.getName() + " " + Bukkit.getVersion()
-                );
+                if (!showOnce) {
+                    debug.warn("Player was missing a network manager or player connection!",
+                            "This sometimes happens on paper-servers",
+                            "You can ignore this error, we'll just use late-binding instead",
+                            "  Channel cache: " + channelCache,
+                            "  Bukkit Player: " + player,
+                            "  NMS Player: " + nmsPlayer,
+                            "  PlayerConnection: " + connection,
+                            "  Server Channels: " + serverChannels,
+                            "  Version: " + Bukkit.getName() + " " + Bukkit.getVersion()
+                    );
+                    showOnce = true;
+                }
+                return null;
             }
 
             channel = (Channel) ReflectionUtil.invokeField(channelField, manager);
@@ -333,6 +350,18 @@ public abstract class PacketListener {
      * @see #injectChannel(Channel)
      */
     public void injectPlayer(@Nonnull Player player) {
+        Channel channel = getChannel(player);
+        if (channel == null) {
+            debug.debug("Must late bind " + player);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    injectChannel(getChannel(player)).player = player;
+                }
+            }.runTask(plugin);
+            return;
+        }
+
         injectChannel(getChannel(player)).player = player;
     }
 
