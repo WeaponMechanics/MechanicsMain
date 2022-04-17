@@ -40,6 +40,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.kyori.adventure.text.TextComponent;
@@ -61,6 +62,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -114,7 +116,9 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType().withLiterals("*", "**", "*r")).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
-                        .executes(CommandExecutor.any((sender, args) -> give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2], (Map) args[3]))))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            give(sender, (List<Entity>) args[0], (String) args[1], (int) args[2], (Map) args[3]);
+                        })))
 
                 .withSubcommand(new CommandBuilder("get")
                         .withPermission("weaponmechanics.commands.get")
@@ -122,29 +126,47 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType().withLiterals("*", "**", "*r")).withDesc("Which weapon(s) to give").replace(WEAPON_SUGGESTIONS))
                         .withArgument(new Argument<>("amount", new IntegerArgumentType(1, 64), 1).withDesc("How many of each weapon to give").append(ITEM_COUNT))
                         .withArgument(new Argument<>("data", weaponDataMap, new HashMap<>()).withDesc("Extra data for the weapon"))
-                        .executes(CommandExecutor.entity((sender, args) -> give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1], (Map) args[2]))))
+                        .executes(CommandExecutor.entity((sender, args) -> {
+                            give(sender, Collections.singletonList(sender), (String) args[0], (int) args[1], (Map) args[2]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("ammo")
+                        .withPermission("weaponmechanics.commands.ammo")
+                        .withDescription("Gets ammo for held weapon")
+                        .withArguments(new Argument<>("amount", new IntegerArgumentType(), 64).withDesc("How much ammo to give").replace(ITEM_COUNT))
+                        .executes(CommandExecutor.player((sender, args) -> {
+                            giveAmmo(sender, (int) args[0]);
+                        })))
 
                 .withSubcommand(new CommandBuilder("info")
                         .withPermission("weaponmechanics.commands.info")
                         .withDescription("Displays information about WeaponMechanics")
-                        .executes(CommandExecutor.any((sender, args) -> info(sender))))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            info(sender);
+                        })))
 
                 .withSubcommand(new CommandBuilder("list")
                         .withPermission("weaponmechanics.commands.list")
                         .withDescription("Displays a table of weapons")
                         .withArgument(new Argument<>("page", new IntegerArgumentType(1), 1).withDesc("Which page to display")
                                 .append(SuggestionsBuilder.range(1, 1 + info.getSortedWeaponList().size() / 16)))
-                        .executes(CommandExecutor.any((sender, args) -> list(sender, (int) args[0]))))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            list(sender, (int) args[0]);
+                        })))
 
                 .withSubcommand(new CommandBuilder("wiki")
                         .withPermission("weaponmechanics.commands.wiki")
                         .withDescription("Gives you wiki links (click!)")
-                        .executes(CommandExecutor.any((sender, args) -> wiki(sender))))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            wiki(sender);
+                        })))
 
                 .withSubcommand(new CommandBuilder("reload")
                         .withPermission("weaponmechanics.commands.reload")
                         .withDescription("Reloads config")
-                        .executes(CommandExecutor.any((sender, args) -> WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration")))));
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration"));
+                        })));
 
 
         // Explosion subcommands *mostly* share the same arguments, so we store
@@ -347,6 +369,27 @@ public class WeaponMechanicsCommand {
                 .append(text().content(weaponInfo).style(style));
 
         MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(builder);
+    }
+
+    public static void giveAmmo(Player sender, int amount) {
+        InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
+        String title = info.getWeaponTitle(sender.getInventory().getItemInMainHand(), false);
+        if (title == null) {
+            sender.sendMessage(RED + "Not holding gun");
+            return;
+        }
+
+        String path = title + ".Reload.Ammo.Ammo_Types";
+        Configuration config = WeaponMechanics.getConfigurations();
+        if (!config.containsKey(path)) {
+            sender.sendMessage(RED + title + " does not use ammo");
+            return;
+        }
+
+        AmmoTypes ammo = config.getObject(path, AmmoTypes.class);
+        ammo.giveAmmo(sender.getInventory().getItemInMainHand(), WeaponMechanics.getPlayerWrapper(sender), amount, 64);
+
+        sender.sendMessage(GREEN + "Sent ammo");
     }
 
     public static void info(CommandSender sender) {

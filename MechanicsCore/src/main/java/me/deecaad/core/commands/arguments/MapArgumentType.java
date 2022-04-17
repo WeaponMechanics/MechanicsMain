@@ -119,7 +119,7 @@ public class MapArgumentType extends CommandArgumentType<Map<String, Object>> {
         }
 
         else {
-            suggestions = Collections.singletonList("what the fuck");
+            suggestions = Collections.singletonList("SHOULD NOT HAPPEN");
         }
 
         suggestions.stream().map(suggestion -> allBefore + delimiter + suggestion).forEach(builder::suggest);
