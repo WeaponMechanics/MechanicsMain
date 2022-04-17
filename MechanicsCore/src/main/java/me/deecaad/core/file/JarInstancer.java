@@ -41,6 +41,8 @@ public class JarInstancer extends JarSearcher {
             }
         }
 
+        if (instances.isEmpty())
+            debug.warn("Did not instantiate anything? For " + clazz);
         return instances;
     }
 }
