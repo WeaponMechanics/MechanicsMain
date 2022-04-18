@@ -55,6 +55,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -303,7 +304,15 @@ public class WeaponMechanics {
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
-            Bukkit.getPluginManager().registerEvents(new MythicMobsLoader(), getPlugin());
+
+            // We need to make sure we are running MM v5
+            PluginDescriptionFile desc = Bukkit.getPluginManager().getPlugin("MythicMobs").getDescription();
+            if (!desc.getVersion().split("\\.")[0].contains("5")) {
+                debug.warn("Could not hook into MythicMobs because it is outdated");
+            } else {
+                Bukkit.getPluginManager().registerEvents(new MythicMobsLoader(), getPlugin());
+                debug.info("Hooked in MythicMobs " + desc.getVersion());
+            }
         }
     }
 

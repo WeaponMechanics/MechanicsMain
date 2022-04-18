@@ -49,6 +49,7 @@ bukkit {
     version
     authors = listOf("DeeCaaD", "CJCrafter")
     softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
+    loadBefore = listOf("WeaponMechanics") // pretty hacky, but needed sometimes.
 }
 
 tasks.named<ShadowJar>("shadowJar") {

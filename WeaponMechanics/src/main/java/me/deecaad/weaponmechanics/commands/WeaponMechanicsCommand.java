@@ -12,6 +12,7 @@ import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -22,6 +23,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
@@ -73,6 +75,7 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -159,6 +162,14 @@ public class WeaponMechanicsCommand {
                         .withDescription("Gives you wiki links (click!)")
                         .executes(CommandExecutor.any((sender, args) -> {
                             wiki(sender);
+                        })))
+
+                .withSubcommand(new CommandBuilder("convert")
+                        .withPermission("weaponmechanics.commands.convert")
+                        .withDescription("Convert weapons from another plugin")
+                        .withArgument(new Argument<>("plugin", new StringArgumentType().withLiterals("crackshot")))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            convert(sender, (String) args[0]);
                         })))
 
                 .withSubcommand(new CommandBuilder("reload")
@@ -483,6 +494,23 @@ public class WeaponMechanicsCommand {
                 .build();
 
         MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(table);
+    }
+
+    public static void convert(CommandSender sender, String plugin) {
+        if (plugin.equalsIgnoreCase("crackshot")) {
+
+            sender.sendMessage(GREEN + "Converting config...");
+            WeaponMechanics pl = WeaponMechanicsAPI.getInstance();
+            File outputPath = new File(pl.getDataFolder().getPath() + "/crackshotconvert/");
+            new TaskChain(WeaponMechanics.getPlugin())
+                    .thenRunSync(() -> sender.sendMessage(GREEN + "Starting CrackShot conversion"))
+                    .thenRunAsync(() -> new Converter(sender).convertAllFiles(outputPath))
+                    .thenRunSync(() -> sender.sendMessage(GREEN + "Output converted files to " + outputPath));
+
+            return;
+        }
+
+        sender.sendMessage(RED + "Conversion currently only supports CrackShot!");
     }
 
     public static void nbt(CommandSender sender, Entity target) {
