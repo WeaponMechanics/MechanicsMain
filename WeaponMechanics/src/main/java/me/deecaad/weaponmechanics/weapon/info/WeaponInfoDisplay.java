@@ -85,16 +85,30 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         ItemStack mainStack = player.getEquipment().getItemInMainHand();
         ItemStack offStack = player.getEquipment().getItemInOffHand();
 
-        if (!mainStack.hasItemMeta()) {
+        InfoHandler infoHandler = WeaponMechanics.getWeaponHandler().getInfoHandler();
+        String checkCorrectMain = infoHandler.getWeaponTitle(mainStack, false);
+        if (checkCorrectMain == null) {
+            // No mainhand weapon
             mainStack = null;
             mainWeapon = null;
-        }
-        if (!offStack.hasItemMeta()) {
-            offStack = null;
-            offWeapon = null;
+            playerWrapper.getMainHandData().setCurrentWeaponTitle(null);
+        } else if (!checkCorrectMain.equals(mainWeapon)) {
+            // Ensure that the weapon is actually same
+            mainWeapon = checkCorrectMain;
         }
 
-        if (mainStack == null && offWeapon == null) return;
+        String checkCorrectOff = infoHandler.getWeaponTitle(offStack, false);
+        if (checkCorrectOff == null) {
+            // No offhand weapon
+            offStack = null;
+            offWeapon = null;
+            playerWrapper.getOffHandData().setCurrentWeaponTitle(null);
+        } else if (!checkCorrectOff.equals(offWeapon)) {
+            // Ensure that the weapon is actually same
+            offWeapon = checkCorrectOff;
+        }
+
+        if (mainWeapon == null && offWeapon == null) return;
 
         // Mostly this is RIGHT, but some players may have it LEFT
         boolean hasInvertedMainHand = player.getMainHand() == MainHand.LEFT;
