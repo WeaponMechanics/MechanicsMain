@@ -220,10 +220,6 @@ public class TriggerPlayerListeners implements Listener {
 
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
 
-        PlayerWrapper playerWrapper = getPlayerWrapper(player);
-
-        if (playerWrapper.isInventoryOpen()) return;
-
         EntityEquipment playerEquipment = player.getEquipment();
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
 
@@ -234,6 +230,8 @@ public class TriggerPlayerListeners implements Listener {
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
         if (mainWeapon == null && offWeapon == null) return;
+
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         // Cancel reload (and other tasks) since drop item will most of the time cause
         // itemstack reference change which will cause other bugs (e.g. infinite reload bug)
@@ -326,21 +324,6 @@ public class TriggerPlayerListeners implements Listener {
                         playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null));
             }
         }
-    }
-
-    @EventHandler
-    public void open(InventoryOpenEvent e) {
-        getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(true);
-    }
-
-    @EventHandler
-    public void click(InventoryClickEvent e) {
-        getPlayerWrapper((Player) e.getWhoClicked()).setInventoryOpen(true);
-    }
-
-    @EventHandler
-    public void close(InventoryCloseEvent e) {
-        getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(false);
     }
 
     private boolean isValid(ItemStack itemStack) {

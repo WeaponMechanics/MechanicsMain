@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 public class PlayerWrapper extends EntityWrapper {
 
     private final Player player;
-    private boolean inventoryOpen;
     private long lastRightClick;
     private long lastStartSneak;
     private long lastWeaponDrop;
@@ -26,14 +25,6 @@ public class PlayerWrapper extends EntityWrapper {
 
     public Player getPlayer() {
         return this.player;
-    }
-
-    public boolean isInventoryOpen() {
-        return inventoryOpen;
-    }
-
-    public void setInventoryOpen(boolean isOpen) {
-        this.inventoryOpen = isOpen;
     }
 
     public void rightClicked() {
