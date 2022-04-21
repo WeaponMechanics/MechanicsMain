@@ -40,6 +40,10 @@ public final class DistanceUtil {
      * @return The non-negative viewing distance, in blocks.
      */
     public static int getRange(World world) {
+
+        // world.getRange() only exists in 1.14+
+        if (ReflectionUtil.getMCVersion() < 14) return getRange();
+
         int distance = world.getViewDistance();
         return distance << 4;
     }
