@@ -5,7 +5,10 @@ import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -19,6 +22,16 @@ public class Entity_1_13_R2 implements EntityCompatibility {
                     new InternalError()
             );
         }
+    }
+
+    @Override
+    public double getAbsorption(@NotNull LivingEntity entity) {
+        return ((CraftLivingEntity) entity).getHandle().getAbsorptionHearts();
+    }
+
+    @Override
+    public void setAbsorption(@NotNull LivingEntity entity, double absorption) {
+        ((CraftLivingEntity) entity).getHandle().setAbsorptionHearts((float) absorption);
     }
 
     @Override
