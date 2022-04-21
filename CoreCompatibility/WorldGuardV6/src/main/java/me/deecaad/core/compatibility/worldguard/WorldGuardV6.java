@@ -77,7 +77,7 @@ public class WorldGuardV6 implements WorldGuardCompatibility {
                 flag = new IntegerFlag(flagString);
                 break;
             case STATE_FLAG:
-                flag = new StateFlag(flagString, false);
+                flag = new StateFlag(flagString, true);
                 break;
             case DOUBLE_FLAG:
                 flag = new DoubleFlag(flagString);
@@ -112,6 +112,6 @@ public class WorldGuardV6 implements WorldGuardCompatibility {
 
     @Override
     public boolean isInstalled() {
-        return false;
+        return true;
     }
 }
