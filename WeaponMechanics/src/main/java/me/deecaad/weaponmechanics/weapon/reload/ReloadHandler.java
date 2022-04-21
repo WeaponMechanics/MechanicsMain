@@ -247,6 +247,10 @@ public class ReloadHandler implements IValidator {
                 } else {
                     handData.setReloadData(weaponTitle, taskReference);
                 }
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopReloadingTasks();
+                    return;
+                }
 
                 int ammoLeft = getAmmoLeft(taskReference, weaponTitle);
 
@@ -368,6 +372,9 @@ public class ReloadHandler implements IValidator {
                 if (taskReference != weaponStack) {
                     handData.setReloadData(weaponTitle, taskReference);
                 }
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopReloadingTasks();
+                }
             }
 
             @Override
@@ -403,6 +410,10 @@ public class ReloadHandler implements IValidator {
                 } else {
                     handData.setReloadData(weaponTitle, taskReference);
                 }
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopReloadingTasks();
+                    return;
+                }
 
                 firearmAction.changeState(taskReference, FirearmState.READY);
                 finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
@@ -430,6 +441,10 @@ public class ReloadHandler implements IValidator {
     }
 
     public void finishReload(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot) {
+        if (!weaponStack.hasItemMeta()) {
+            handData.stopReloadingTasks();
+            return;
+        }
 
         handData.finishReload();
 
