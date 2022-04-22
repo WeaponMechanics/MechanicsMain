@@ -1,12 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
-import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
+
+import java.util.List;
 
 /**
  * Really lightweight remove on block collision projectile.
@@ -16,6 +15,8 @@ import org.bukkit.util.Vector;
  * This doesn't check entity collisions.
  */
 public class RemoveOnBlockCollisionProjectile extends AProjectile {
+
+    private static final RayTrace rayTrace = new RayTrace().disableEntityChecks();
 
     public RemoveOnBlockCollisionProjectile(Location location, Vector motion) {
         this(location, motion, null);
@@ -27,13 +28,13 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
     }
 
     @Override
-    public boolean handleCollisions(boolean disableEntityCollisions) {
+    public boolean handleCollisions() {
         Vector possibleNextLocation = getLocation().add(getMotion());
-        TraceResult result = new Ray(getWorld(), getLocation(), possibleNextLocation).trace(TraceCollision.BLOCK, 0.3);
-        if (!result.isEmpty()) {
-            Block hit = result.getOneBlock();
-            setRawLocation(hit.getLocation().toVector());
-            onCollide(result.getOneBlock());
+        List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation, getNormalizedMotion());
+        if (hits != null) {
+            RayTraceResult firstHit = hits.get(0);
+            setRawLocation(firstHit.getHitLocation());
+            onCollide(firstHit.getBlock());
             return true;
         }
         setRawLocation(possibleNextLocation);

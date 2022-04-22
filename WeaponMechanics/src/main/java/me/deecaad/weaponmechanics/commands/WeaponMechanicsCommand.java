@@ -39,6 +39,7 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.ParabolicExplosion;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.SphericalExplosion;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
@@ -721,7 +722,12 @@ public class WeaponMechanicsCommand {
     public static void ray(LivingEntity sender, boolean box, int distance, int ticks) {
 
         sender.sendMessage(ChatColor.GREEN + "Showing hitboxes in distance " + distance + " for " + NumberUtil.toTime(ticks / 20));
-        IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
+        RayTrace rayTrace = new RayTrace().withEntityFilter(entity -> entity.getEntityId() == sender.getEntityId());
+        if (box) {
+            rayTrace.withOutlineHitBox(sender);
+        } else {
+            rayTrace.withOutlineHitPosition(sender);
+        }
 
         new BukkitRunnable() {
             int ticker = 0;
@@ -729,47 +735,8 @@ public class WeaponMechanicsCommand {
             public void run() {
                 Location location = sender.getEyeLocation();
                 Vector direction = location.getDirection();
-                BlockIterator blocks = new BlockIterator(sender.getWorld(), location.toVector(), direction, 0.0, distance);
 
-                while (blocks.hasNext()) {
-                    Block block = blocks.next();
-
-                    HitBox blockBox = weaponCompatibility.getHitBox(block);
-                    if (blockBox == null) continue;
-
-                    RayTraceResult rayTraceResult = blockBox.rayTrace(location.toVector(), direction);
-                    if (rayTraceResult == null) continue;
-
-                    if (box) {
-                        rayTraceResult.outlineOnlyHitPosition(sender);
-                    } else {
-                        blockBox.outlineAllBoxes(sender);
-                    }
-                    sender.sendMessage("Block: " + block.getType());
-                    break;
-                }
-
-                Collection<Entity> entities = sender.getWorld().getNearbyEntities(location, distance, distance, distance);
-                if (!entities.isEmpty()) {
-                    for (Entity entity : entities) {
-                        if (!(entity instanceof LivingEntity) || sender.equals(entity)) continue;
-
-                        HitBox entityBox = weaponCompatibility.getHitBox(entity);
-                        if (entityBox == null) continue;
-
-                        RayTraceResult rayTraceResult = entityBox.rayTrace(location.toVector(), direction);
-                        if (rayTraceResult == null) continue;
-
-                        if (box) {
-                            rayTraceResult.outlineOnlyHitPosition(sender);
-                        } else {
-                            entityBox.outlineAllBoxes(sender);
-                        }
-                        sender.sendMessage("Entity: " + entity.getType());
-
-                        break;
-                    }
-                }
+                rayTrace.cast(sender.getWorld(), location.toVector(), direction, distance);
 
                 if (++ticker >= ticks) {
                     cancel();

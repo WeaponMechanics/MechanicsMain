@@ -72,7 +72,7 @@ public class Through implements Serializer<Through> {
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
         if (blocks == null && entities == null) {
-            throw data.exception(null, "'Sticky' requires at least one of 'Blocks' or 'Entities'");
+            throw data.exception(null, "'Through' requires at least one of 'Blocks' or 'Entities'");
         }
 
         int maximumThroughAmount = data.of("Maximum_Through_Amount").getInt(1);

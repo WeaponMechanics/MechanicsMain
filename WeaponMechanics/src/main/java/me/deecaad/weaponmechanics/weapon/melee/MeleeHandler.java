@@ -13,28 +13,23 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
@@ -43,6 +38,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 public class MeleeHandler implements IValidator {
 
     private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
+
 
     private WeaponHandler weaponHandler;
 
@@ -158,46 +154,20 @@ public class MeleeHandler implements IValidator {
                 return null;
             }
 
-            double blockIteratorDistance = Math.ceil(range);
+            RayTrace rayTrace = new RayTrace().withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId());
+            List<RayTraceResult> hits = rayTrace.cast(eyeLocation.getWorld(), eyeLocationToVector, direction, range);
 
-            RayTraceResult hit = null;
-            BlockIterator blocks = new BlockIterator(eyeLocation.getWorld(), eyeLocationToVector, direction, 0.0, (int) (blockIteratorDistance < 1 ? 1 : blockIteratorDistance));
-            while (blocks.hasNext()) {
-                Block block = blocks.next();
+            if (hits == null) return null;
 
-                HitBox blockBox = weaponCompatibility.getHitBox(block);
-                if (blockBox == null) continue;
+            RayTraceResult firstHit = hits.get(0);
 
-                RayTraceResult rayTraceResult = blockBox.rayTrace(eyeLocationToVector, direction);
-                if (rayTraceResult == null) continue; // Didn't hit
+            // If first hit isn't entity
+            if (firstHit.getLivingEntity() == null) return null;
 
-                hit = rayTraceResult;
-                break;
-            }
+            // If first entity hit isn't in range
+            if (firstHit.getDistanceTravelled() > range) return null;
 
-            double distanceTravelledCheck = hit != null ? hit.getDistanceTravelled() : -1;
-            List<LivingEntity> entities = getPossibleEntities(shooter, eyeLocation, (hit != null ? hit.getHitLocation() : eyeLocation.toVector().add(direction.clone().multiply(range))));
-            hit = null;
-            if (entities != null && !entities.isEmpty()) {
-                for (LivingEntity entity : entities) {
-                    HitBox entityBox = weaponCompatibility.getHitBox(entity);
-                    if (entityBox == null) continue;
-
-                    RayTraceResult rayTraceResult = entityBox.rayTrace(eyeLocationToVector, direction);
-                    if (rayTraceResult == null) continue;// Didn't hit
-
-                    double rayTraceResultDistance = rayTraceResult.getDistanceTravelled();
-                    if (rayTraceResultDistance > range) continue; // Didn't hit in range
-
-                    if (distanceTravelledCheck == -1 || rayTraceResultDistance < distanceTravelledCheck) {
-                        // Only change if closer than last hit result
-                        hit = rayTraceResult;
-                        distanceTravelledCheck = rayTraceResultDistance;
-                    }
-                }
-            }
-
-            return hit;
+            return firstHit;
         }
 
         // Simply check where known victim was hit and whether it was in range
@@ -208,39 +178,6 @@ public class MeleeHandler implements IValidator {
         if (rayTraceResult == null || (range > 0 && rayTraceResult.getDistanceTravelled() > range)) return null; // Didn't hit in range
 
         return rayTraceResult;
-    }
-
-    private List<LivingEntity> getPossibleEntities(LivingEntity shooter, Location start, Vector end) {
-
-        // Get the box of current location to end of this iteration
-        HitBox hitBox = new HitBox(start.toVector(), end);
-
-        int minX = floor((hitBox.getMinX() - 2.0D) / 16.0D);
-        int maxX = floor((hitBox.getMaxX() + 2.0D) / 16.0D);
-        int minZ = floor((hitBox.getMinZ() - 2.0D) / 16.0D);
-        int maxZ = floor((hitBox.getMaxZ() + 2.0D) / 16.0D);
-
-        List<LivingEntity> entities = new ArrayList<>(8);
-
-        World world = start.getWorld();
-
-        for (int x = minX; x <= maxX; ++x) {
-            for (int z = minZ; z <= maxZ; ++z) {
-                Chunk chunk = world.getChunkAt(x, z);
-                for (final Entity entity : chunk.getEntities()) {
-                    if (!entity.getType().isAlive() || entity.isInvulnerable() || entity.getEntityId() == shooter.getEntityId()) continue;
-
-                    entities.add((LivingEntity) entity);
-                }
-            }
-        }
-
-        return entities.isEmpty() ? null : entities;
-    }
-
-    private int floor(double toFloor) {
-        int flooredValue = (int) toFloor;
-        return toFloor < flooredValue ? flooredValue - 1 : flooredValue;
     }
 
     @Override

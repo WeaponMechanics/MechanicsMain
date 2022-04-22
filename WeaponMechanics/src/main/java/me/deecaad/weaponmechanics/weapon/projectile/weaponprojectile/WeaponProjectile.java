@@ -1,30 +1,21 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WeaponProjectile extends AProjectile {
-
-    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
 
     // Storing this reference to be able to use cloneSettingsAndShoot(Location, Motion) method
     private final ProjectileSettings projectileSettings;
@@ -48,6 +39,8 @@ public class WeaponProjectile extends AProjectile {
     private int lastEntityUpdateTick;
     private int lastEntity = -1;
 
+    private final RayTrace rayTrace;
+
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
                             Vector motion, ItemStack weaponStack, String weaponTitle,
                             Sticky sticky, Through through, Bouncy bouncy) {
@@ -59,6 +52,9 @@ public class WeaponProjectile extends AProjectile {
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
+        this.rayTrace = new RayTrace()
+                .withBlockFilter(this::equalToLastHit)
+                .withEntityFilter(entity -> equalToLastHit(entity) || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId()));
     }
 
     /**
@@ -105,11 +101,6 @@ public class WeaponProjectile extends AProjectile {
             return projectileSettings.getDecreaseWhenRainingOrSnowing();
         else
             return projectileSettings.getDecrease();
-    }
-
-    @Override
-    public boolean isDisableEntityCollisions() {
-        return projectileSettings.isDisableEntityCollisions();
     }
 
     @Override
@@ -212,7 +203,7 @@ public class WeaponProjectile extends AProjectile {
     }
 
     @Override
-    public boolean handleCollisions(boolean disableEntityCollisions) {
+    public boolean handleCollisions() {
 
         Vector motion = getMotion();
         Vector possibleNextLocation = getLocation().add(motion);
@@ -239,7 +230,8 @@ public class WeaponProjectile extends AProjectile {
         if (VectorUtil.isEmpty(motion)) return false;
 
         // Returns sorted list of hits
-        List<RayTraceResult> hits = getHits(disableEntityCollisions);
+
+        List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation, getNormalizedMotion(), through == null ? 0 : through.getMaximumThroughAmount());
         if (hits == null) {
 
             // Check if can't keep rolling
@@ -362,100 +354,6 @@ public class WeaponProjectile extends AProjectile {
     private boolean equalToLastHit(LivingEntity entity) {
         return lastEntity != -1 && lastEntity == entity.getEntityId() // Check entity
                 && getAliveTicks() <= lastEntityUpdateTick; // Check hit tick
-    }
-
-    private List<RayTraceResult> getHits(boolean disableEntityCollisions) {
-        List<RayTraceResult> hits = null;
-
-        Vector normalizedMotion = getNormalizedMotion();
-        Vector location = getLocation();
-
-        double distance = Math.ceil(getMotionLength());
-
-        // If distance is 0 or below, it will cause issues
-        if (NumberUtil.equals(distance, 0.0)) distance = 1;
-
-        BlockIterator blocks = new BlockIterator(getWorld(), location, normalizedMotion, 0.0, (int) distance);
-        int maximumBlockHits = through == null ? 1 : through.getMaximumThroughAmount() + 1;
-
-        while (blocks.hasNext()) {
-            Block block = blocks.next();
-            if (equalToLastHit(block)) continue;
-
-            HitBox blockBox = weaponCompatibility.getHitBox(block);
-            if (blockBox == null) continue;
-
-            RayTraceResult rayTraceResult = blockBox.rayTrace(location, normalizedMotion);
-            if (rayTraceResult == null) continue; // Didn't hit
-
-            if (hits == null) hits = new ArrayList<>(1);
-            hits.add(rayTraceResult);
-
-            // If through isn't used, it is enough to get one block hit
-            if (through == null) break;
-
-            // If it now reached maximum block hits, simply break since we know
-            // projectile can't go through blocks anymore after this one.
-            if (--maximumBlockHits == 0) break;
-
-            // If it isn't valid it can't go through
-            if (!through.quickValidCheck(block.getType())) break;
-        }
-
-        if (!disableEntityCollisions) {
-            List<LivingEntity> entities = getPossibleEntities();
-            if (entities != null && !entities.isEmpty()) {
-                for (LivingEntity entity : entities) {
-                    if (equalToLastHit(entity)) continue;
-
-                    HitBox entityBox = weaponCompatibility.getHitBox(entity);
-                    if (entityBox == null) continue;
-
-                    RayTraceResult rayTraceResult = entityBox.rayTrace(location, normalizedMotion);
-                    if (rayTraceResult == null) continue; // Didn't hit
-
-                    if (hits == null) hits = new ArrayList<>(1);
-                    hits.add(rayTraceResult);
-                }
-            }
-        }
-
-        // Sort based on the distance travelled before hit if there is more than 1 hits
-        if (hits != null && hits.size() > 1) hits.sort((hit1, hit2) -> (int) (hit1.getDistanceTravelled() - hit2.getDistanceTravelled()));
-
-        return hits;
-    }
-
-    private List<LivingEntity> getPossibleEntities() {
-
-        // Get the box of current location to end of this iteration
-        HitBox hitBox = new HitBox(getLocation(), getLocation().add(getMotion()));
-
-        int minX = floor((hitBox.getMinX() - 2.0D) / 16.0D);
-        int maxX = floor((hitBox.getMaxX() + 2.0D) / 16.0D);
-        int minZ = floor((hitBox.getMinZ() - 2.0D) / 16.0D);
-        int maxZ = floor((hitBox.getMaxZ() + 2.0D) / 16.0D);
-
-        List<LivingEntity> entities = new ArrayList<>(8);
-
-        for (int x = minX; x <= maxX; ++x) {
-            for (int z = minZ; z <= maxZ; ++z) {
-                Chunk chunk = getWorld().getChunkAt(x, z);
-                for (final Entity entity : chunk.getEntities()) {
-                    if (!entity.getType().isAlive() || entity.isInvulnerable()
-                            || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())) continue;
-
-                    entities.add((LivingEntity) entity);
-                }
-            }
-        }
-
-        return entities.isEmpty() ? null : entities;
-    }
-
-    private int floor(double toFloor) {
-        int flooredValue = (int) toFloor;
-        return toFloor < flooredValue ? flooredValue - 1 : flooredValue;
     }
 
     @Override

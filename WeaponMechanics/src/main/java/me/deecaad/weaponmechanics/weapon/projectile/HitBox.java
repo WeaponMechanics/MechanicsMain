@@ -162,6 +162,15 @@ public class HitBox implements IValidator {
                 && point.getZ() <= maxZ;
     }
 
+    /**
+     * Check whether other hitbox overlaps this one
+     * @param other the other hitbox
+     * @return true if overlaps
+     */
+    public boolean overlaps(HitBox other) {
+        return this.minX < other.maxX && this.maxX > other.minX && this.minY < other.maxY && this.maxY > other.minY && this.minZ < other.maxZ && this.maxZ > other.minZ;
+    }
+
     public DamagePoint getDamagePoint(Vector hitLocation, Vector normalizedMotion) {
         return getDamagePoint(hitLocation, normalizedMotion, livingEntity);
     }
@@ -266,15 +275,15 @@ public class HitBox implements IValidator {
         double dirY = normalizedMotion.getY();
         double dirZ = normalizedMotion.getZ();
 
-        double divX = 1.0D / dirX;
-        double divY = 1.0D / dirY;
-        double divZ = 1.0D / dirZ;
+        double divX = 1.0 / dirX;
+        double divY = 1.0 / dirY;
+        double divZ = 1.0 / dirZ;
 
         double tMin, tMax, tyMin, tyMax;
         BlockFace hitBlockFaceMin, hitBlockFaceMax, hitBlockFaceYMin, hitBlockFaceYMax;
 
         // x
-        if (dirX >= 0.0D) {
+        if (dirX >= 0.0) {
             tMin = (this.minX - startX) * divX;
             tMax = (this.maxX - startX) * divX;
             hitBlockFaceMin = BlockFace.WEST;
@@ -287,7 +296,7 @@ public class HitBox implements IValidator {
         }
 
         // y
-        if (dirY >= 0.0D) {
+        if (dirY >= 0.0) {
             tyMin = (this.minY - startY) * divY;
             tyMax = (this.maxY - startY) * divY;
             hitBlockFaceYMin = BlockFace.DOWN;
@@ -313,7 +322,7 @@ public class HitBox implements IValidator {
         // z
         double tzMin, tzMax;
         BlockFace hitBlockFaceZMin, hitBlockFaceZMax;
-        if (dirZ >= 0.0D) {
+        if (dirZ >= 0.0) {
             tzMin = (this.minZ - startZ) * divZ;
             tzMax = (this.maxZ - startZ) * divZ;
             hitBlockFaceZMin = BlockFace.NORTH;
@@ -336,11 +345,11 @@ public class HitBox implements IValidator {
             hitBlockFaceMax = hitBlockFaceZMax;
         }
 
-        if (tMax < 0.0D) return null;
+        if (tMax < 0.0) return null;
 
         double t;
         BlockFace hitBlockFace;
-        if (tMin < 0.0D) {
+        if (tMin < 0.0) {
             t = tMax;
             hitBlockFace = hitBlockFaceMax;
         } else {
