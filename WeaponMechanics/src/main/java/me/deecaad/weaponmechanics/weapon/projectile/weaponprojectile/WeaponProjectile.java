@@ -52,9 +52,14 @@ public class WeaponProjectile extends AProjectile {
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
-        this.rayTrace = new RayTrace()
-                .withBlockFilter(this::equalToLastHit)
-                .withEntityFilter(entity -> equalToLastHit(entity) || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId()));
+
+        if (projectileSettings.isDisableEntityCollisions()) {
+            this.rayTrace = new RayTrace().withBlockFilter(this::equalToLastHit).disableEntityChecks();
+        } else {
+            this.rayTrace = new RayTrace()
+                    .withBlockFilter(this::equalToLastHit)
+                    .withEntityFilter(entity -> equalToLastHit(entity) || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId()));
+        }
     }
 
     /**
