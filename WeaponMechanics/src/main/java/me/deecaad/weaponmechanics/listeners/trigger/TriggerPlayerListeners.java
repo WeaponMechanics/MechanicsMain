@@ -10,7 +10,7 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -89,6 +89,40 @@ public class TriggerPlayerListeners implements Listener {
             player.setAllowFlight(false);
             Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(player, true));
         }
+    }
+
+    @EventHandler
+    public void interactAt(PlayerInteractAtEntityEvent e) {
+
+        // Used only when interacting with armor stand
+
+        Entity entity = e.getRightClicked();
+        if (entity.getType() != EntityType.ARMOR_STAND) return;
+
+        // And when the armor stand is invisible
+        // -> Likely e.g. model engine mob
+
+        ArmorStand armorStand = (ArmorStand) entity;
+        if (armorStand.isVisible()) return;
+
+        // Still don't consider as shoot interaction WHEN in creative or spectator
+
+        Player player = e.getPlayer();
+        EntityEquipment playerEquipment = player.getEquipment();
+        GameMode gameMode = player.getGameMode();
+        if ((gameMode == GameMode.SPECTATOR || gameMode == GameMode.CREATIVE) || playerEquipment == null) return;
+
+        ItemStack mainStack = playerEquipment.getItemInMainHand();
+        String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
+
+        ItemStack offStack = playerEquipment.getItemInOffHand();
+        String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
+
+        if (mainWeapon == null && offWeapon == null) return;
+
+        e.setCancelled(true);
+
+        interact(new PlayerInteractEvent(player, Action.RIGHT_CLICK_AIR, mainStack, null, null, e.getHand()));
     }
 
     @EventHandler
