@@ -92,7 +92,7 @@ public class ScopeHandler implements IValidator {
             if (trigger.check(triggerType, slot, entityWrapper)) {
 
                 // Handle permissions
-                if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+                if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
                     entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
                     return false;
                 }
@@ -112,7 +112,7 @@ public class ScopeHandler implements IValidator {
         } else if (trigger.check(triggerType, slot, entityWrapper)) {
 
             // Handle permissions
-            if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+            if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
                 entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
                 return false;
             }

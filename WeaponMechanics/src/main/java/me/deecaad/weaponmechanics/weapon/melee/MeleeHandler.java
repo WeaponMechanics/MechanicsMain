@@ -109,7 +109,7 @@ public class MeleeHandler implements IValidator {
         }
 
         // Handle permissions
-        boolean hasPermission = shooter.hasPermission("weaponmechanics.use." + weaponTitle);
+        boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(shooter, weaponTitle);
 
         // Handle miss
         if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {

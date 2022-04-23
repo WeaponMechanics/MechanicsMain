@@ -175,6 +175,7 @@ public class WeaponMechanics {
         // Start here to ensure config values have been filled
         handleBStats();
         registerCommands();
+        registerPermissions();
         registerUpdateChecker();
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
@@ -353,7 +354,9 @@ public class WeaponMechanics {
         } else {
             commands.register("weaponmechanics", mainCommand = new WeaponMechanicsMainCommand());
         }
+    }
 
+    void registerPermissions() {
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
 
         for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
@@ -365,7 +368,7 @@ public class WeaponMechanics {
                 Bukkit.getPluginManager().addPermission(permission);
             }
 
-            permission.addParent(parent, true);
+            permission.addParent(parent, false);
         }
     }
 
@@ -488,6 +491,7 @@ public class WeaponMechanics {
                     registerPacketListeners();
                     registerListeners();
                     registerCommands();
+                    registerPermissions();
                     registerUpdateChecker();
 
                     for (Player player : Bukkit.getOnlinePlayers()) {

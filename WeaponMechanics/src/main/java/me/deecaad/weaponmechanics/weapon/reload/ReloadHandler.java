@@ -115,7 +115,7 @@ public class ReloadHandler implements IValidator {
         }
 
         // Handle permissions
-        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+        if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
             entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
             return false;
         }
