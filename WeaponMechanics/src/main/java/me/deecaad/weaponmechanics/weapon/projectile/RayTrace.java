@@ -103,9 +103,6 @@ public class RayTrace {
 
         // Method based on NMS block traversing
 
-        double endX = NumberUtil.lerp(end.getX(), start.getX(), -1.0E-7);
-        double endY = NumberUtil.lerp(end.getY(), start.getY(), -1.0E-7);
-        double endZ = NumberUtil.lerp(end.getZ(), start.getZ(), -1.0E-7);
         double startX = NumberUtil.lerp(start.getX(), end.getX(), -1.0E-7);
         double startY = NumberUtil.lerp(start.getY(), end.getY(), -1.0E-7);
         double startZ = NumberUtil.lerp(start.getZ(), end.getZ(), -1.0E-7);
@@ -119,6 +116,10 @@ public class RayTrace {
             hits.add(rayStartBlock);
             if (--maximumBlockThrough < 0) return;
         }
+
+        double endX = NumberUtil.lerp(end.getX(), start.getX(), -1.0E-7);
+        double endY = NumberUtil.lerp(end.getY(), start.getY(), -1.0E-7);
+        double endZ = NumberUtil.lerp(end.getZ(), start.getZ(), -1.0E-7);
 
         double directionX = endX - startX;
         double directionY = endY - startY;
