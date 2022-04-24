@@ -87,6 +87,7 @@ public class WeaponMechanics {
     ProjectilesRunnable projectilesRunnable;
     PacketHandlerListener packetListener;
     TimingManager timingManager;
+    Metrics metrics;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -173,7 +174,7 @@ public class WeaponMechanics {
         registerListeners();
 
         // Start here to ensure config values have been filled
-        handleBStats();
+        registerBStats();
         registerCommands();
         registerPermissions();
         registerUpdateChecker();
@@ -197,6 +198,7 @@ public class WeaponMechanics {
     }
 
     void writeFiles() {
+        debug.debug("Writing files and filling basic configuration");
 
         // Create files
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
@@ -249,9 +251,8 @@ public class WeaponMechanics {
         debug.debug("Loading and serializing config");
 
         try {
-            List<?> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
-            //noinspection unchecked
-            MechanicsCore.addSerializers(getPlugin(), (List<Serializer<?>>) serializers);
+            List<Serializer<?>> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
+            MechanicsCore.addSerializers(getPlugin(), serializers);
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -357,6 +358,8 @@ public class WeaponMechanics {
     }
 
     void registerPermissions() {
+        debug.debug("Registering permissions");
+
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
 
         for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
@@ -392,13 +395,16 @@ public class WeaponMechanics {
         }
     }
 
-    void handleBStats() {
+    void registerBStats() {
+        if (this.metrics != null) return;
+
+        debug.debug("Registering bStats");
 
         // See https://bstats.org/plugin/bukkit/WeaponMechanics/14323. This is
         // the bStats plugin id used to track information.
         int id = 14323;
 
-        Metrics metrics = new Metrics((JavaPlugin) getPlugin(), id);
+        this.metrics = new Metrics((JavaPlugin) getPlugin(), id);
 
         // Tracks the number of weapons that are used in the plugin. Since each
         // server uses a relatively random number of weapons, we should track
