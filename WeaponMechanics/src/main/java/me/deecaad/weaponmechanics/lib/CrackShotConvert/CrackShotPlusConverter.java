@@ -1,6 +1,11 @@
 package me.deecaad.weaponmechanics.lib.CrackShotConvert;
 
+import com.shampaggon.crackshot.MaterialManager;
 import me.DeeCaaD.CrackShotPlus.CSPapi;
+import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.StringUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
@@ -355,16 +360,23 @@ public class CrackShotPlusConverter {
             String skinPath = weapon + "_" + defaultSkin;
 
             String normalType = CSPapi.getString(skinPath + ".Change_Item_Type");
-            if (normalType != null) toConfig.set(to + ".Default.Type", normalType);
+            if (normalType != null) {
+                toConfig.set(to + ".Default.Type", getMaterial(normalType));
+                toConfig.set(weapon + ".Info.Weapon_Item.Type", getMaterial(normalType));
+            }
 
             Integer normalDurability = CSPapi.getInteger(skinPath + ".Durability");
             if (normalDurability != null) {
                 toConfig.set(weapon + ".Info.Weapon_Item.Unbreakable", true);
                 toConfig.set(to + ".Default.Durability", normalDurability);
+                toConfig.set(weapon + ".Info.Weapon_Item.Durability", normalDurability);
             }
 
             Integer normalCustomModelData = CSPapi.getInteger(skinPath + ".Custom_Model_Data");
-            if (normalCustomModelData != null) toConfig.set(to + ".Default.Custom_Model_Data", normalCustomModelData);
+            if (normalCustomModelData != null) {
+                toConfig.set(to + ".Default.Custom_Model_Data", normalCustomModelData);
+                toConfig.set(weapon + ".Info.Weapon_Item.Custom_Model_Data", normalCustomModelData);
+            }
 
             String reloadPath = skinPath + ((CSPapi.getBoolean(weapon + ".Reload.Reload_Skin") != null && CSPapi.getBoolean(weapon + ".Reload.Reload_Skin")) ? "_Reload" : ".Reload");
 
@@ -394,5 +406,22 @@ public class CrackShotPlusConverter {
             Integer scopeCustomModelData = CSPapi.getInteger(scopePath + ".Custom_Model_Data");
             if (scopeCustomModelData != null) toConfig.set(to + ".Scope.Custom_Model_Data", scopeCustomModelData);
         }
+    }
+
+    private static String getMaterial(String type) {
+        if (type == null) return null;
+
+        try {
+            Material material = MaterialManager.getMaterial(type);
+            if (material != null) return material.name();
+        } catch (Exception e) {
+            String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
+            WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
+            return materialName;
+        }
+
+        String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
+        WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
+        return materialName;
     }
 }

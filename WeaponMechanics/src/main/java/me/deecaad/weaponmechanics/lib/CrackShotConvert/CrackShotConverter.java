@@ -808,12 +808,12 @@ public class CrackShotConverter {
             if (material != null) return material.name();
         } catch (Exception e) {
             String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
-            WeaponMechanics.debug.error("Invalid sound: " + type + " swapped to: " + materialName);
+            WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
             return materialName;
         }
 
         String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
-        WeaponMechanics.debug.error("Invalid sound: " + type + " swapped to: " + materialName);
+        WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
         return materialName;
     }
 }
