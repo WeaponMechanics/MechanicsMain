@@ -67,47 +67,38 @@ public enum CustomTag {
     }
 
     public boolean hasString(ItemStack item) {
-        if (!item.hasItemMeta()) return false;
         return CompatibilityAPI.getNBTCompatibility().hasString(item, "WeaponMechanics", id);
     }
 
     public String getString(ItemStack item) {
-        if (!item.hasItemMeta()) return null;
         return CompatibilityAPI.getNBTCompatibility().getString(item, "WeaponMechanics", id);
     }
 
     public void setString(ItemStack item, String value) {
-        if (!item.hasItemMeta()) return;
         CompatibilityAPI.getNBTCompatibility().setString(item, "WeaponMechanics", id, value);
     }
 
     public boolean hasInteger(ItemStack item) {
-        if (!item.hasItemMeta()) return false;
         return CompatibilityAPI.getNBTCompatibility().hasInt(item, "WeaponMechanics", id);
     }
 
     public int getInteger(ItemStack item) {
-        if (!item.hasItemMeta()) return 0;
         return CompatibilityAPI.getNBTCompatibility().getInt(item, "WeaponMechanics", id);
     }
 
     public void setInteger(ItemStack item, int value) {
-        if (!item.hasItemMeta()) return;
         CompatibilityAPI.getNBTCompatibility().setInt(item, "WeaponMechanics", id, value);
     }
 
     public boolean hasDouble(ItemStack item) {
-        if (!item.hasItemMeta()) return false;
         return CompatibilityAPI.getNBTCompatibility().hasDouble(item, "WeaponMechanics", id);
     }
 
     public double getDouble(ItemStack item) {
-        if (!item.hasItemMeta()) return 0;
         return CompatibilityAPI.getNBTCompatibility().getDouble(item, "WeaponMechanics", id);
     }
 
     public void setDouble(ItemStack item, double value) {
-        if (!item.hasItemMeta()) return;
         CompatibilityAPI.getNBTCompatibility().setDouble(item, "WeaponMechanics", id, value);
     }
 }
