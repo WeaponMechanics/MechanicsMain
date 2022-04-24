@@ -45,7 +45,7 @@ public class CrackShotConverter {
         MELEE_HIT_DELAY("", "Melee.Melee_Hit_Delay", new MeleeHitDelayConvert()),
 
         // SHOOTING
-        RIGHT_CLICK_TO_SHOOT("Shooting.Right_Click_To_Shoot", "Shoot.Trigger.Main_Hand", new ValueBooleanConvert("right_click", "left_click")),
+        RIGHT_CLICK_TO_SHOOT("", "Shoot.Trigger.Main_Hand", new ShootButtonsConvert()),
         DELAY_BETWEEN_SHOTS("Shooting.Delay_Between_Shots", "Shoot.Delay_Between_Shots", new ValueNonZeroConvert()),
         RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
         PROJECTILE_AMOUNT("Shooting.Projectile_Amount", "Shoot.Projectiles_Per_Shot", new ValueNonZeroConvert()),
@@ -111,8 +111,6 @@ public class CrackShotConverter {
         // ABILITIES
         KNOCKBACK("Abilities.Knockback", "Damage.Victim_Mechanics.Movement.", new KnockbackConvert()),
         NO_VERTICAL_RECOIL("", "Shoot.Mechanics.Movement.Vertical_Speed", new NoVerticalRecoilConvert()),
-
-        // RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
 
         // POTION_EFFECTS
         POTION_EFFECTS("Potion_Effects.", "", new PotionEffectsConvert()),
@@ -739,6 +737,26 @@ public class CrackShotConverter {
         }
     }
 
+    private static class ShootButtonsConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            boolean rightClick = fromConfig.getBoolean(from + "Shooting.Right_Click_To_Shoot");
+
+            int fullAuto = fromConfig.getInt(from + "Fully_Automatic.Fire_Rate");
+
+            if (fullAuto != 0 && !rightClick) {
+                WeaponMechanics.debug.error("When using full auto, shoot trigger has to be right_click, swapping... " + from);
+            }
+
+            if (fullAuto != 0 || rightClick) {
+                toConfig.set(to, "right_click");
+            } else {
+                toConfig.set(to, "left_click");
+            }
+        }
+    }
+
     private static class ScopeConvert implements Converter {
 
         @Override
@@ -746,6 +764,11 @@ public class CrackShotConverter {
             if (!fromConfig.getBoolean(from + "Scope.Enable")) {
                 return;
             }
+            if (fromConfig.getInt(from + "Fully_Automatic.Fire_Rate") != 0) {
+                toConfig.set(to, "left_click");
+                return;
+            }
+
             if (fromConfig.getBoolean(from + "Shooting.Right_Click_To_Shoot")) {
                 toConfig.set(to, "left_click");
             } else {

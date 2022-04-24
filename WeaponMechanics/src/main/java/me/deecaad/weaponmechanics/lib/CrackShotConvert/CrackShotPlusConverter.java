@@ -170,6 +170,15 @@ public class CrackShotPlusConverter {
 
             if (type == Type.BOOL && !(Boolean) value) return;
 
+            if (type == Type.STR) {
+                value = ((String) value).replaceAll("#DAMAGED#", "%victim%")
+                        .replaceAll("#PLAYER#", "%shooter%")
+                        .replaceAll("#WEAPON#", "%weapon-title%")
+                        .replaceAll("#KILLER#", "%shooter%")
+                        .replaceAll("#KILLED#", "%victim%")
+                        .replaceAll("#C#", "console:");
+            }
+
             toConfig.set(to, value);
         }
     }
@@ -216,6 +225,9 @@ public class CrackShotPlusConverter {
                 if (Double.parseDouble(pitch) <= 0.5) {
                     pitch = "0.5";
                 }
+                if (Double.parseDouble(pitch) >= 2) {
+                    pitch = "2.0";
+                }
 
                 sounds.add(soundName + "-" + volume + "-" + pitch);
             }
@@ -240,6 +252,8 @@ public class CrackShotPlusConverter {
             value = value.replaceAll("#DAMAGED#", "%victim%")
                     .replaceAll("#PLAYER#", "%shooter%")
                     .replaceAll("#WEAPON#", "%weapon-title%")
+                    .replaceAll("#KILLER#", "%shooter%")
+                    .replaceAll("#KILLED#", "%victim%")
                     .replaceAll("#C#", "console:");
 
             List<String> commands = new ArrayList<>();
