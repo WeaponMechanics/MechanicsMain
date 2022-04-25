@@ -315,7 +315,7 @@ public class ReloadHandler implements IValidator {
                 Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
                 if (reloadStartMechanics != null) reloadStartMechanics.use(castData);
 
-                weaponInfoDisplay.send(playerWrapper, slot);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
