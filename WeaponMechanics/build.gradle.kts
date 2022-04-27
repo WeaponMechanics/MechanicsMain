@@ -26,6 +26,7 @@ dependencies {
     implementation("io.lumine:Mythic-Dist:5.0.1-SNAPSHOT")
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
+    compileOnly(files(file("../lib/vivecraft/Vivecraft_Spigot_Extensions.jar")))
 }
 
 tasks.test {
