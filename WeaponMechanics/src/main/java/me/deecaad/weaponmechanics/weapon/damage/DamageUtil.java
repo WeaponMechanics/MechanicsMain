@@ -146,9 +146,9 @@ public class DamageUtil {
         CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, Math.max(0, absorption - damage));
         damage = Math.max(damage - absorption, 0);
 
-        // Apply any remaining damage to the victim, and handle internals
         double oldHealth = victim.getHealth();
-        victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+
+        // Apply any remaining damage to the victim, and handle internals
         WeaponCompatibilityAPI.getWeaponCompatibility().logDamage(victim, cause, oldHealth, damage, false);
         if (cause.getType() == EntityType.PLAYER) {
             WeaponCompatibilityAPI.getWeaponCompatibility().setKiller(victim, (Player) cause);
@@ -160,6 +160,8 @@ public class DamageUtil {
         // Spigot api things
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
+
+        victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
         return false;
     }
     
