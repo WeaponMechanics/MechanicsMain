@@ -248,11 +248,14 @@ public class TriggerPlayerListeners implements Listener {
     @EventHandler (ignoreCancelled = true)
     public void dropItem(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
-
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
 
         EntityEquipment playerEquipment = player.getEquipment();
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
+
+        // If this item drop was when inventory was open
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
+        if (!NumberUtil.hasMillisPassed(playerWrapper.getLastInventoryDropTime(), 50)) return;
 
         ItemStack mainStack = e.getItemDrop().getItemStack();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
@@ -261,8 +264,6 @@ public class TriggerPlayerListeners implements Listener {
         String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
 
         if (mainWeapon == null && offWeapon == null) return;
-
-        PlayerWrapper playerWrapper = getPlayerWrapper(player);
 
         // Cancel reload (and other tasks) since drop item will most of the time cause
         // itemstack reference change which will cause other bugs (e.g. infinite reload bug)

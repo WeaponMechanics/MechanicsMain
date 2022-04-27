@@ -15,6 +15,7 @@ public class PlayerWrapper extends EntityWrapper {
     private long lastRightClick;
     private long lastStartSneak;
     private long lastWeaponDrop;
+    private long lastInventoryDrop;
     private MessageHelper messageHelper;
     private long lastAmmoConvert;
 
@@ -55,6 +56,14 @@ public class PlayerWrapper extends EntityWrapper {
 
     public long getLastDropWeaponTime() {
         return lastWeaponDrop;
+    }
+
+    public void inventoryDrop() {
+        lastInventoryDrop = System.currentTimeMillis();
+    }
+
+    public long getLastInventoryDropTime() {
+        return lastInventoryDrop;
     }
 
     public MessageHelper getMessageHelper() {
