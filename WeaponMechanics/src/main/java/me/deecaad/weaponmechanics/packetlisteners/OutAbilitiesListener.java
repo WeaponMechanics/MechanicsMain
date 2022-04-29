@@ -36,6 +36,9 @@ public class OutAbilitiesListener extends PacketHandler {
 
         int zoomAmount = main.isZooming() ? main.getZoomAmount() : off.getZoomAmount();
 
+        // If player is in VR this happens
+        if (zoomAmount == 0) return;
+
         // Set the f field to scope level amount.
         // f field means walk speed field
         packet.setFieldValue(walkSpeedField, ScopeLevel.getScope(zoomAmount));

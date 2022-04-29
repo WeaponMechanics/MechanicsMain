@@ -1,16 +1,53 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.metadata.MetadataValue;
+import org.vivecraft.VSE;
+
+import java.util.List;
+
 public class ZoomData {
 
+    private HandData handData;
     private int zoomAmount;
     private int zoomStacks;
     private boolean zoomNightVision;
+
+    public ZoomData(HandData handData) {
+        this.handData = handData;
+    }
 
     /**
      * @return <code>true</code> if the entity is scoped.
      */
     public boolean isZooming() {
+        EntityWrapper entityWrapper = handData.getEntityWrapper();
+        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+                && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
+
+            Player player = (Player) entityWrapper.getEntity();
+            String getHandDataFrom = handData.isMainhand() ? "righthand.pos" : "lefthand.pos";
+            String getHeadDataFrom = "head.pos";
+            if (player.hasMetadata(getHandDataFrom) && player.hasMetadata(getHeadDataFrom)) {
+                return getVSEMeta(player, getHandDataFrom).getDirection()
+                        .dot(getVSEMeta(player, getHeadDataFrom).getDirection()) > 0.94;
+            }
+
+        }
         return zoomAmount != 0;
+    }
+
+    private Location getVSEMeta(Player player, String metakey) {
+        List<MetadataValue> metadataValueList = player.getMetadata(metakey);
+        for (MetadataValue meta : metadataValueList) {
+            if (meta.getOwningPlugin() == VSE.me) {
+                return (Location) meta.value();
+            }
+        }
+        throw new IllegalArgumentException("VR metadata " + metakey + " from Vivecraft not found when player was VR player...?");
     }
 
     /**

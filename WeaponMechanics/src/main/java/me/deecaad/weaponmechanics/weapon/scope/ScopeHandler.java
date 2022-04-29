@@ -27,6 +27,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.vivecraft.VSE;
 
 import java.io.File;
 
@@ -59,6 +60,12 @@ public class ScopeHandler implements IValidator {
 
         // Don't try to scope if either one of the hands is reloading
         if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+            return false;
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+                && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
+            // Don't try to use scope this way when player is in VR
             return false;
         }
 

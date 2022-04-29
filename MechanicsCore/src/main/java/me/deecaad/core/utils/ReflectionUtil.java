@@ -54,7 +54,7 @@ public final class ReflectionUtil {
                 version = version.substring(2, 3);
             } else {
                 int dot = version.indexOf(".");
-                if(dot != -1)
+                if (dot != -1)
                     version = version.substring(0, dot);
             }
             // IF version is something like 18-ea ->

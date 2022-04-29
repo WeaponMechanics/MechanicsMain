@@ -19,6 +19,7 @@ import java.util.Set;
 public class HandData {
 
     private final EntityWrapper entityWrapper;
+    private final boolean mainhand;
 
     private int fullAutoTask;
     private int burstTask;
@@ -40,8 +41,17 @@ public class HandData {
 
     private String currentWeaponTitle;
 
-    public HandData(EntityWrapper entityWrapper) {
+    public HandData(EntityWrapper entityWrapper, boolean mainhand) {
         this.entityWrapper = entityWrapper;
+        this.mainhand = mainhand;
+    }
+
+    public EntityWrapper getEntityWrapper() {
+        return entityWrapper;
+    }
+
+    public boolean isMainhand() {
+        return mainhand;
     }
 
     /**
@@ -70,6 +80,10 @@ public class HandData {
 
     public void ifZoomingForceZoomOut() {
         if (getZoomData().isZooming()) {
+
+            // IF player is in VR this happens
+            if (getZoomData().getZoomAmount() == 0) return;
+
             WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
         }
     }
@@ -212,7 +226,7 @@ public class HandData {
     }
 
     public ZoomData getZoomData() {
-        return zoomData == null ? zoomData = new ZoomData() : zoomData;
+        return zoomData == null ? zoomData = new ZoomData(this) : zoomData;
     }
 
     /**

@@ -8,7 +8,9 @@ import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.vivecraft.VSE;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -45,6 +47,13 @@ public class Recoil implements Serializer<Recoil> {
     }
 
     public void start(Player player, boolean mainHand) {
+
+        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+                && VSE.isVive(player)) {
+            // Don't try to use this kind of recoil with Vivecraft players
+            return;
+        }
+
         PlayerWrapper playerWrapper = getPlayerWrapper(player);
         if (pushTime == 0 && recoverTime == 0) {
             // No need for task as rotation time and recover time are 0
