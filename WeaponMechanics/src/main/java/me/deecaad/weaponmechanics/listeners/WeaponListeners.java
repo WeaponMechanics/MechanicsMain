@@ -114,7 +114,8 @@ public class WeaponListeners implements Listener {
 
         // Keep track of when last inventory click drop happens
         ClickType clickType = e.getClick();
-        if (clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP) {
+        if (clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP
+                || e.getSlot() == -999) {
             playerWrapper.inventoryDrop();
         }
 
