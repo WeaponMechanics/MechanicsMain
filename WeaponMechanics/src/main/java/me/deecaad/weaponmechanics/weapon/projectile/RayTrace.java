@@ -114,7 +114,7 @@ public class RayTrace {
         RayTraceResult rayStartBlock = rayBlock(world.getBlockAt(currentX, currentY, currentZ), start, direction);
         if (rayStartBlock != null) {
             hits.add(rayStartBlock);
-            if (--maximumBlockThrough < 0) return;
+            if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) return;
         }
 
         double endX = NumberUtil.lerp(end.getX(), start.getX(), -1.0E-7);
@@ -158,7 +158,7 @@ public class RayTrace {
             RayTraceResult rayNewBlock = rayBlock(world.getBlockAt(currentX, currentY, currentZ), start, direction);
             if (rayNewBlock != null) {
                 hits.add(rayNewBlock);
-                if (--maximumBlockThrough < 0) break;
+                if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) break;
             }
         }
     }

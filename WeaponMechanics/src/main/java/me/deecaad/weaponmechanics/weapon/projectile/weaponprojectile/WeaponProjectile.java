@@ -236,7 +236,8 @@ public class WeaponProjectile extends AProjectile {
 
         // Returns sorted list of hits
 
-        List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation, getNormalizedMotion(), through == null ? 0 : through.getMaximumThroughAmount());
+        List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation, getNormalizedMotion(),
+                through == null ? 0 : through.getMaximumThroughAmount());
         if (hits == null) {
 
             // Check if can't keep rolling
