@@ -89,7 +89,8 @@ Origin_12:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
-    Zoom_Amount: 4
+    Zoom_Levels:
+      - 1.2
     Mechanics:
       Sounds:
         - "custom:scope.in-0.5-1-0-0.1"
