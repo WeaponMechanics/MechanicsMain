@@ -12,7 +12,7 @@ import java.util.List;
 public class ZoomData {
 
     private HandData handData;
-    private int zoomAmount;
+    private double zoomAmount;
     private int zoomStacks;
     private boolean zoomNightVision;
 
@@ -53,7 +53,7 @@ public class ZoomData {
     /**
      * @return The magnitude of the scope amount, or 0 for not scoping.
      */
-    public int getZoomAmount() {
+    public double getZoomAmount() {
         return zoomAmount;
     }
 
@@ -63,7 +63,7 @@ public class ZoomData {
      *
      * @param zoomAmount How far the player is zoomed in.
      */
-    public void setZoomAmount(int zoomAmount) {
+    public void setZoomAmount(double zoomAmount) {
         this.zoomAmount = zoomAmount;
     }
 

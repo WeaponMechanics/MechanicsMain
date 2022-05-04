@@ -126,7 +126,7 @@ public class CrackShotConverter {
         // SCOPE
         SCOPE_TRIGGER("", "Scope.Trigger.Main_Hand", new ScopeConvert()),
         NIGHT_VISION("Scope.Night_Vision", "Scope.Night_Vision"),
-        ZOOM_AMOUNT("Scope.Zoom_Amount", "Scope.Zoom_Amount", new ValueDoubleConvert(x -> (double) ((int) NumberUtil.lerp(1, 32, ((x > 6 ? 6 : x) / 6))))),
+        ZOOM_AMOUNT("Scope.Zoom_Amount", "Scope.Zoom_Amount", new ValueDoubleConvert(x -> (double) ((int) NumberUtil.lerp(1, 10, ((x > 2 ? 2 : x) / 2))))),
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SCOPE_BULLET_SPREAD("Scope.Zoom_Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Zooming", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics.Sounds", new SoundConvert()),

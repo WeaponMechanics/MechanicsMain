@@ -150,10 +150,10 @@ public class ScopeHandler implements IValidator {
 
         if (zoomData.isZooming()) { // zoom stack
 
-            int increaseZoomPerStack = config.getInt(weaponTitle + ".Scope.Zoom_Stacking.Increase_Zoom_Per_Stack");
+            double increaseZoomPerStack = config.getDouble(weaponTitle + ".Scope.Zoom_Stacking.Increase_Zoom_Per_Stack");
             if (increaseZoomPerStack != 0) {
                 int zoomStack = zoomData.getZoomStacks() + 1;
-                int zoomAmount = config.getInt(weaponTitle + ".Scope.Zoom_Amount");
+                double zoomAmount = config.getDouble(weaponTitle + ".Scope.Zoom_Amount");
                 WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.STACK, zoomAmount + (zoomStack * increaseZoomPerStack), zoomStack);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
                 if (weaponScopeEvent.isCancelled()) {
@@ -181,7 +181,7 @@ public class ScopeHandler implements IValidator {
             }
         }
 
-        int zoomAmount = config.getInt(weaponTitle + ".Scope.Zoom_Amount");
+        double zoomAmount = config.getDouble(weaponTitle + ".Scope.Zoom_Amount");
         if (zoomAmount == 0) return false;
 
         // zoom stack = 0, because its not used OR this is first zoom in
@@ -271,7 +271,7 @@ public class ScopeHandler implements IValidator {
     /**
      * Updates the zoom amount of entity.
      */
-    private void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, int newZoomAmount) {
+    private void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, double newZoomAmount) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for FOV changes
             zoomData.setZoomAmount(newZoomAmount);
@@ -317,19 +317,19 @@ public class ScopeHandler implements IValidator {
             debug.log(LogLevel.ERROR, "Tried to use scope without defining trigger for it.",
                     "Located at file " + file + " in " + path + ".Trigger in configurations.");
         }
-        int zoomAmount = configuration.getInt(path + ".Zoom_Amount");
-        if (zoomAmount < 1 || zoomAmount > 32) {
+        double zoomAmount = configuration.getDouble(path + ".Zoom_Amount");
+        if (zoomAmount < 1 || zoomAmount > 10) {
             debug.log(LogLevel.ERROR, "Tried to use scope without defining proper zoom amount for it, or it was missing.",
-                    "Zoom amount has to be between 1 and 32.",
+                    "Zoom amount has to be between 1 and 10.",
                     "Located at file " + file + " in " + path + ".Zoom_Amount in configurations.");
         }
 
         int maximumStacks = configuration.getInt(path + ".Zoom_Stacking.Maximum_Stacks");
-        int increaseZoomPerStack = configuration.getInt(path + ".Zoom_Stacking.Increase_Zoom_Per_Stack");
-        int finalValue = maximumStacks * increaseZoomPerStack + zoomAmount;
-        if (finalValue > 32 || finalValue < 1) {
-            debug.log(LogLevel.ERROR, "Final value of zoom stacking cannot go above 32 or below 1.",
-                    "Currently potential final value is " + finalValue + ", make sure its between 1 and 32.",
+        double increaseZoomPerStack = configuration.getDouble(path + ".Zoom_Stacking.Increase_Zoom_Per_Stack");
+        double finalValue = Math.pow(increaseZoomPerStack, maximumStacks) * zoomAmount;
+        if (finalValue > 10 || finalValue < 1) {
+            debug.log(LogLevel.ERROR, "Final value of zoom stacking cannot go above 10 or below 1.",
+                    "Currently potential final value is " + finalValue + ", make sure its between 1 and 10.",
                     "Located at file " + file + " in " + path + ".Zoom_Stacking in configurations.");
         }
 
