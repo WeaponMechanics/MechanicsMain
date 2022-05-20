@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -109,13 +110,20 @@ public class WeaponListeners implements Listener {
     @EventHandler (ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
+        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) e.getWhoClicked());
+
+        // Keep track of when last inventory click drop happens
+        ClickType clickType = e.getClick();
+        if (clickType == ClickType.DROP || clickType == ClickType.CONTROL_DROP
+                || e.getSlot() == -999) {
+            playerWrapper.inventoryDrop();
+        }
 
         // Off hand is also considered as quickbar slot
         if (e.getSlotType() != InventoryType.SlotType.QUICKBAR) return;
 
-        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getWhoClicked());
-        entityWrapper.getMainHandData().cancelTasks();
-        entityWrapper.getOffHandData().cancelTasks();
+        playerWrapper.getMainHandData().cancelTasks();
+        playerWrapper.getOffHandData().cancelTasks();
     }
 
     @EventHandler (ignoreCancelled = true)

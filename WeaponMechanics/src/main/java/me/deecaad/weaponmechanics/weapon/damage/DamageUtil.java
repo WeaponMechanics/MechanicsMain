@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -69,8 +70,17 @@ public class DamageUtil {
 
             rate.addAndGet(config.getDouble("Damage.Armor." + slot + "." + material, 0.0));
 
-            armorSlot.getEnchantments().forEach((enchant, level) ->
-                    rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getKey().getKey())));
+            if (ReflectionUtil.getMCVersion() < 13) {
+
+                // TODO
+                // TEMP FIX
+
+                armorSlot.getEnchantments().forEach((enchant, level) ->
+                        rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getName())));
+            } else {
+                armorSlot.getEnchantments().forEach((enchant, level) ->
+                        rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getKey().getKey())));
+            }
         }
 
         // Apply damage based on victim movement
@@ -136,9 +146,9 @@ public class DamageUtil {
         CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, Math.max(0, absorption - damage));
         damage = Math.max(damage - absorption, 0);
 
-        // Apply any remaining damage to the victim, and handle internals
         double oldHealth = victim.getHealth();
-        victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+
+        // Apply any remaining damage to the victim, and handle internals
         WeaponCompatibilityAPI.getWeaponCompatibility().logDamage(victim, cause, oldHealth, damage, false);
         if (cause.getType() == EntityType.PLAYER) {
             WeaponCompatibilityAPI.getWeaponCompatibility().setKiller(victim, (Player) cause);
@@ -150,6 +160,8 @@ public class DamageUtil {
         // Spigot api things
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
+
+        victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
         return false;
     }
     

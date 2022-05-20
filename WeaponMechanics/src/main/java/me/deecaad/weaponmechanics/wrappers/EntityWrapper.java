@@ -219,12 +219,12 @@ public class EntityWrapper {
 
     @Nonnull
     public HandData getMainHandData() {
-        return mainHandData == null ? mainHandData = new HandData(this) : mainHandData;
+        return mainHandData == null ? mainHandData = new HandData(this, true) : mainHandData;
     }
 
     @Nonnull
     public HandData getOffHandData() {
-        return offHandData == null ? offHandData = new HandData(this) : offHandData;
+        return offHandData == null ? offHandData = new HandData(this, false) : offHandData;
     }
 
     public boolean isPlayer() {

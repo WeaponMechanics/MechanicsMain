@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.shoot;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import org.bukkit.Bukkit;
 
 public abstract class AModifyWhen implements Serializer<AModifyWhen> {
 

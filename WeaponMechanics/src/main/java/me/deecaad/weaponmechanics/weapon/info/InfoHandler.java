@@ -88,6 +88,11 @@ public class InfoHandler implements IValidator {
         return StringUtil.didYouMean(weapon, startsWith.isEmpty() ? weaponList : startsWith);
     }
 
+    public boolean hasPermission(LivingEntity player, String weaponTitle) {
+        return player.hasPermission("weaponmechanics.use.*")
+                || player.hasPermission("weaponmechanics.use." + weaponTitle);
+    }
+
     /**
      * Adds new weapon title to weapon list
      *

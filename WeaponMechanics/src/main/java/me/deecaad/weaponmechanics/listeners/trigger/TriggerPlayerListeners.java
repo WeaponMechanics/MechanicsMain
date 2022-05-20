@@ -10,15 +10,12 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -92,6 +89,40 @@ public class TriggerPlayerListeners implements Listener {
             player.setAllowFlight(false);
             Bukkit.getPluginManager().callEvent(new PlayerJumpEvent(player, true));
         }
+    }
+
+    @EventHandler
+    public void interactAt(PlayerInteractAtEntityEvent e) {
+
+        // Used only when interacting with armor stand
+
+        Entity entity = e.getRightClicked();
+        if (entity.getType() != EntityType.ARMOR_STAND) return;
+
+        // And when the armor stand is invisible
+        // -> Likely e.g. model engine mob
+
+        ArmorStand armorStand = (ArmorStand) entity;
+        if (armorStand.isVisible()) return;
+
+        // Still don't consider as shoot interaction WHEN in creative or spectator
+
+        Player player = e.getPlayer();
+        EntityEquipment playerEquipment = player.getEquipment();
+        GameMode gameMode = player.getGameMode();
+        if ((gameMode == GameMode.SPECTATOR || gameMode == GameMode.CREATIVE) || playerEquipment == null) return;
+
+        ItemStack mainStack = playerEquipment.getItemInMainHand();
+        String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
+
+        ItemStack offStack = playerEquipment.getItemInOffHand();
+        String offWeapon = weaponHandler.getInfoHandler().getWeaponTitle(offStack, false);
+
+        if (mainWeapon == null && offWeapon == null) return;
+
+        e.setCancelled(true);
+
+        interact(new PlayerInteractEvent(player, Action.RIGHT_CLICK_AIR, mainStack, null, null, e.getHand()));
     }
 
     @EventHandler
@@ -217,15 +248,14 @@ public class TriggerPlayerListeners implements Listener {
     @EventHandler (ignoreCancelled = true)
     public void dropItem(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
-
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
-
-        PlayerWrapper playerWrapper = getPlayerWrapper(player);
-
-        if (playerWrapper.isInventoryOpen()) return;
 
         EntityEquipment playerEquipment = player.getEquipment();
         if (player.getGameMode() == GameMode.SPECTATOR || playerEquipment == null) return;
+
+        // If this item drop was when inventory was open
+        PlayerWrapper playerWrapper = getPlayerWrapper(player);
+        if (!NumberUtil.hasMillisPassed(playerWrapper.getLastInventoryDropTime(), 50)) return;
 
         ItemStack mainStack = e.getItemDrop().getItemStack();
         String mainWeapon = weaponHandler.getInfoHandler().getWeaponTitle(mainStack, false);
@@ -326,21 +356,6 @@ public class TriggerPlayerListeners implements Listener {
                         playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null));
             }
         }
-    }
-
-    @EventHandler
-    public void open(InventoryOpenEvent e) {
-        getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(true);
-    }
-
-    @EventHandler
-    public void click(InventoryClickEvent e) {
-        getPlayerWrapper((Player) e.getWhoClicked()).setInventoryOpen(true);
-    }
-
-    @EventHandler
-    public void close(InventoryCloseEvent e) {
-        getPlayerWrapper((Player) e.getPlayer()).setInventoryOpen(false);
     }
 
     private boolean isValid(ItemStack itemStack) {

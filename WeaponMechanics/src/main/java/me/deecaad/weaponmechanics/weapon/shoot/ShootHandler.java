@@ -33,6 +33,7 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -40,11 +41,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.vivecraft.VSE;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -148,7 +152,7 @@ public class ShootHandler implements IValidator {
         }
 
         // Handle permissions
-        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+        if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
             entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
             return false;
         }
@@ -594,8 +598,8 @@ public class ShootHandler implements IValidator {
             // i == 0
             // -> Only allow spread changing on first shot
             Vector motion = spread != null
-                    ? spread.getNormalizedSpreadDirection(entityWrapper, mainHand, i == 0 && updateSpreadChange).multiply(projectileSpeed)
-                    : livingEntity.getLocation().getDirection().multiply(projectileSpeed);
+                    ? spread.getNormalizedSpreadDirection(entityWrapper, shootLocation, mainHand, i == 0 && updateSpreadChange).multiply(projectileSpeed)
+                    : shootLocation.getDirection().multiply(projectileSpeed);
 
             if (recoil != null && i == 0 && livingEntity instanceof Player) {
                 recoil.start((Player) livingEntity, mainHand);
@@ -661,14 +665,40 @@ public class ShootHandler implements IValidator {
      */
     private Location getShootLocation(LivingEntity livingEntity, boolean dualWield, boolean mainhand) {
 
+        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+                && livingEntity.getType() == EntityType.PLAYER) {
+            // Vivecraft support for VR players
+
+            Player player = (Player) livingEntity;
+            String getDataFrom = mainhand ? "righthand.pos" : "lefthand.pos";
+
+            if (VSE.isVive(player) && player.hasMetadata(getDataFrom)) {
+                // Now we know it's actually VR player
+
+                // Get the position and direction from player metadata
+                List<MetadataValue> metadataValueList = player.getMetadata(getDataFrom);
+                for (MetadataValue meta : metadataValueList) {
+                    if (meta.getOwningPlugin() == VSE.me) {
+                        return (Location) meta.value();
+                    }
+                }
+
+                throw new IllegalArgumentException("VR metadata " + getDataFrom + " from Vivecraft not found when player was VR player...?");
+            }
+
+            // Not VR player, let pass to these normal location finders
+        }
+
         if (!dualWield) return livingEntity.getEyeLocation();
 
         double dividedWidth = WeaponCompatibilityAPI.getWeaponCompatibility().getWidth(livingEntity) / 2.0;
 
-        double distance = mainhand ? 2.0 : 0.0;
+        double distance;
         if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getMainHand() == MainHand.LEFT) {
             // This rarely happens, but some players use main hand LEFT
             distance = mainhand ? 0.0 : 2.0;
+        } else {
+            distance = mainhand ? 2.0 : 0.0;
         }
 
         Location eyeLocation = livingEntity.getEyeLocation();

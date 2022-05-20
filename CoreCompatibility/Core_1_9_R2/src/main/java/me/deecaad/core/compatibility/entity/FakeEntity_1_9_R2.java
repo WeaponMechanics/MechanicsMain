@@ -10,8 +10,10 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_9_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,14 +72,10 @@ public class FakeEntity_1_9_R2 extends FakeEntity {
                     break;
                 case FALLING_BLOCK:
                     if (data.getClass() == Material.class) {
-                        entity = new EntityFallingBlock(world.getHandle(), x, y, z,
-                                block = net.minecraft.server.v1_9_R2.Block.getByCombinedId(((Material) data).getId()));
+                        entity = new EntityFallingBlock(world.getHandle(), x, y, z, block = CraftMagicNumbers.getBlock((Material) data).fromLegacyData(0));
                     } else {
-                        WorldServer server = world.getHandle();
-                        org.bukkit.block.BlockState state = (org.bukkit.block.BlockState) data;
-                        BlockPosition pos = new BlockPosition(state.getX(), state.getY(), state.getZ());
-                        block = server.c(pos).getBlock().getBlockData();
-                        entity = new EntityFallingBlock(world.getHandle(), x, y, z, block);
+                        MaterialData state = ((org.bukkit.block.BlockState) data).getData();
+                        entity = new EntityFallingBlock(world.getHandle(), x, y, z, block = CraftMagicNumbers.getBlock(state.getItemType()).fromLegacyData(state.getData()));
                     }
                     break;
                 case FIREWORK:
@@ -191,7 +189,7 @@ public class FakeEntity_1_9_R2 extends FakeEntity {
         // be the same for each Player.
         Packet<?> spawn = type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
+                : new PacketPlayOutSpawnEntity(entity, getSpawnId(), type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
         PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true);
         PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw()));
         PacketPlayOutEntityLook look = new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
@@ -228,7 +226,7 @@ public class FakeEntity_1_9_R2 extends FakeEntity {
 
         connection.sendPacket(type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
+                : new PacketPlayOutSpawnEntity(entity, getSpawnId(), type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
         connection.sendPacket(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true));
         connection.sendPacket(new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.sendPacket(new PacketPlayOutEntityVelocity(cache, motion.getX(), motion.getY(), motion.getZ()));

@@ -387,7 +387,7 @@ public class Command_1_18_R2 implements CommandCompatibility {
         ResourceOrTagLocationArgument.Result<net.minecraft.world.level.biome.Biome> biomeResult = ResourceOrTagLocationArgument.getBiome(cast(context), key);
 
         String biome = biomeResult.asPrintable();
-        if(biomeResult.unwrap().left().isPresent()) {
+        if (biomeResult.unwrap().left().isPresent()) {
             return Biome.valueOf(biomeResult.unwrap().left().get().location().getPath().toUpperCase());
         } else {
             throw new DynamicCommandExceptionType((id) -> new TranslatableComponent("commands.locatebiome.invalid", id)).create(biome);

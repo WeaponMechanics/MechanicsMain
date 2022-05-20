@@ -302,7 +302,7 @@ public class BrigadierCommand implements Command<Object> {
 
         // When we reach the outer-most branch of the tree, there must be an
         // executor (Otherwise the command won't work). TODO add validation.
-        if(subcommand.executor != null) {
+        if (subcommand.executor != null) {
             CommandBuilder temp = root.clone();
             temp.args = (List) arguments;
             temp.withArguments((List) subcommand.args);

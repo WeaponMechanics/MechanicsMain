@@ -119,13 +119,6 @@ public abstract class AProjectile {
     }
 
     /**
-     * @return whether to skip entity collision checks
-     */
-    public boolean isDisableEntityCollisions() {
-        return false;
-    }
-
-    /**
      * @return the maximum amount of ticks projectile can be alive
      */
     public int getMaximumAliveTicks() {
@@ -354,7 +347,7 @@ public abstract class AProjectile {
         lastLocation = location.clone();
 
         // Handle collisions will update location and distance travelled
-        if (handleCollisions(isDisableEntityCollisions())) {
+        if (handleCollisions()) {
             return true;
         }
 
@@ -460,10 +453,9 @@ public abstract class AProjectile {
      * Projectile collision handling. This method has to also update
      * projectile location and distance travelled based on collisions.
      *
-     * @param disableEntityCollisions whether to skip entity collision checks
      * @return true if projectile should be removed from projectile runnable
      */
-    public abstract boolean handleCollisions(boolean disableEntityCollisions);
+    public abstract boolean handleCollisions();
 
     /**
      * Override this method to do something on start

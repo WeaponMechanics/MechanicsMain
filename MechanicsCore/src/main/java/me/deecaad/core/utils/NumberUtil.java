@@ -297,10 +297,35 @@ public final class NumberUtil {
      * @return The interpolated number.
      */
     public static double lerp(double min, double max, double factor) {
-        if (factor < 0.0 || factor > 1.0)
-            throw new IllegalArgumentException("Invalid factor: " + factor);
-
         return min + factor * (max - min);
+    }
+
+    public static int intFloor(double value) {
+        int i = (int) value;
+        return value < (double) i ? i - 1 : i;
+    }
+
+    public static long longFloor(double value) {
+        long l = (long) value;
+        return value < (double) l ? l - 1 : l;
+    }
+
+    public static double frac(double value) {
+        return value - (double) NumberUtil.longFloor(value);
+    }
+
+    /**
+     * Returns 0 if value is 0, 1 if value is more than 0 and -1 if value is less than 0
+     *
+     * @param value the value which signum to return
+     * @return the value in signum
+     */
+    public static int sign(double value) {
+        if (value == 0.0) {
+            return 0;
+        } else {
+            return value > 0.0 ? 1 : -1;
+        }
     }
 
     /**

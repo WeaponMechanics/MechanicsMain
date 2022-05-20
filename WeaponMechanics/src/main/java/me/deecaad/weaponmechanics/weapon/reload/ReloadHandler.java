@@ -115,7 +115,7 @@ public class ReloadHandler implements IValidator {
         }
 
         // Handle permissions
-        if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+        if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
             entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
             return false;
         }
@@ -247,6 +247,10 @@ public class ReloadHandler implements IValidator {
                 } else {
                     handData.setReloadData(weaponTitle, taskReference);
                 }
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopReloadingTasks();
+                    return;
+                }
 
                 int ammoLeft = getAmmoLeft(taskReference, weaponTitle);
 
@@ -311,7 +315,7 @@ public class ReloadHandler implements IValidator {
                 Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
                 if (reloadStartMechanics != null) reloadStartMechanics.use(castData);
 
-                weaponInfoDisplay.send(playerWrapper, slot);
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
             }
@@ -368,6 +372,9 @@ public class ReloadHandler implements IValidator {
                 if (taskReference != weaponStack) {
                     handData.setReloadData(weaponTitle, taskReference);
                 }
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopReloadingTasks();
+                }
             }
 
             @Override
@@ -403,6 +410,10 @@ public class ReloadHandler implements IValidator {
                 } else {
                     handData.setReloadData(weaponTitle, taskReference);
                 }
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopReloadingTasks();
+                    return;
+                }
 
                 firearmAction.changeState(taskReference, FirearmState.READY);
                 finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
@@ -430,6 +441,10 @@ public class ReloadHandler implements IValidator {
     }
 
     public void finishReload(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot) {
+        if (!weaponStack.hasItemMeta()) {
+            handData.stopReloadingTasks();
+            return;
+        }
 
         handData.finishReload();
 

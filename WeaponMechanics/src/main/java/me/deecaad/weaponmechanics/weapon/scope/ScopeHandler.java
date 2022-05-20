@@ -27,6 +27,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.vivecraft.VSE;
 
 import java.io.File;
 
@@ -62,6 +63,12 @@ public class ScopeHandler implements IValidator {
             return false;
         }
 
+        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+                && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
+            // Don't try to use scope this way when player is in VR
+            return false;
+        }
+
         ZoomData zoomData;
         // Only allow using zoom at one hand at time
         if (slot == EquipmentSlot.HAND) {
@@ -92,7 +99,7 @@ public class ScopeHandler implements IValidator {
             if (trigger.check(triggerType, slot, entityWrapper)) {
 
                 // Handle permissions
-                if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+                if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
                     entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
                     return false;
                 }
@@ -112,7 +119,7 @@ public class ScopeHandler implements IValidator {
         } else if (trigger.check(triggerType, slot, entityWrapper)) {
 
             // Handle permissions
-            if (!entityWrapper.getEntity().hasPermission("weaponmechanics.use." + weaponTitle)) {
+            if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
                 entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
                 return false;
             }

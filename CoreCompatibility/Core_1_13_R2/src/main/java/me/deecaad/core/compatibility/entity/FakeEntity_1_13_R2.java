@@ -189,7 +189,7 @@ public class FakeEntity_1_13_R2 extends FakeEntity {
         // be the same for each Player.
         Packet<?> spawn = type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
+                : new PacketPlayOutSpawnEntity(entity, getSpawnId(), type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0);
         PacketPlayOutEntityMetadata meta = new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true);
         PacketPlayOutEntityHeadRotation head = new PacketPlayOutEntityHeadRotation(entity, convertYaw(getYaw()));
         PacketPlayOutEntityLook look = new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false);
@@ -226,7 +226,7 @@ public class FakeEntity_1_13_R2 extends FakeEntity {
 
         connection.sendPacket(type.isAlive()
                 ? new PacketPlayOutSpawnEntityLiving((EntityLiving) entity)
-                : new PacketPlayOutSpawnEntity(entity, type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
+                : new PacketPlayOutSpawnEntity(entity, getSpawnId(), type == EntityType.FALLING_BLOCK ? Block.getCombinedId(block) : 0));
         connection.sendPacket(new PacketPlayOutEntityMetadata(cache, entity.getDataWatcher(), true));
         connection.sendPacket(new PacketPlayOutEntityLook(cache, convertYaw(getYaw()), convertPitch(getPitch()), false));
         connection.sendPacket(new PacketPlayOutEntityVelocity(cache, motion.getX(), motion.getY(), motion.getZ()));

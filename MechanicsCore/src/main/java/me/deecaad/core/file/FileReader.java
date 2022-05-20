@@ -229,6 +229,7 @@ public class FileReader {
 
                         } catch (SerializerException e) {
                             e.log(debug);
+                            startsWithDeny = key;
                         } catch (Exception e) {
 
                             // Any Exception other than SerializerException

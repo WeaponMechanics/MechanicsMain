@@ -8,6 +8,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -37,10 +38,7 @@ public interface NBTCompatibility {
      * @return <code>true</code> if the NBT compound uses the tag.
      */
     default boolean hasString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-
-        return getCompound(meta, plugin).has(tag, PersistentDataType.STRING);
+        return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), PersistentDataType.STRING);
     }
 
     /**
@@ -76,14 +74,9 @@ public interface NBTCompatibility {
      */
     default String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String def) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-        PersistentDataContainer nbt = getCompound(meta, plugin);
+        PersistentDataContainer nbt = getCompound(meta);
 
-        if (nbt.has(tag, PersistentDataType.STRING)) {
-            return nbt.get(tag, PersistentDataType.STRING);
-        } else {
-            return def;
-        }
+        return nbt.has(getKey(plugin, key), PersistentDataType.STRING) ? nbt.get(getKey(plugin, key), PersistentDataType.STRING) : def;
     }
 
     /**
@@ -103,11 +96,9 @@ public interface NBTCompatibility {
      */
     default void setString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String value) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-        PersistentDataContainer nbt = getCompound(meta, plugin);
+        PersistentDataContainer nbt = getCompound(meta);
 
-        nbt.set(tag, PersistentDataType.STRING, value);
-        setCompound(meta, plugin, nbt);
+        nbt.set(getKey(plugin, key), PersistentDataType.STRING, value);
         bukkitItem.setItemMeta(meta);
     }
 
@@ -124,10 +115,7 @@ public interface NBTCompatibility {
      * @return <code>true</code> if the NBT compound uses the tag.
      */
     default boolean hasInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-
-        return getCompound(meta, plugin).has(tag, PersistentDataType.INTEGER);
+        return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), PersistentDataType.INTEGER);
     }
 
     /**
@@ -163,14 +151,9 @@ public interface NBTCompatibility {
      */
     default int getInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int def) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-        PersistentDataContainer nbt = getCompound(meta, plugin);
+        PersistentDataContainer nbt = getCompound(meta);
 
-        if (nbt.has(tag, PersistentDataType.INTEGER)) {
-            return nbt.get(tag, PersistentDataType.INTEGER);
-        } else {
-            return def;
-        }
+        return nbt.has(getKey(plugin, key), PersistentDataType.INTEGER) ? nbt.get(getKey(plugin, key), PersistentDataType.INTEGER) : def;
     }
 
     /**
@@ -190,11 +173,9 @@ public interface NBTCompatibility {
      */
     default void setInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int value) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-        PersistentDataContainer nbt = getCompound(meta, plugin);
+        PersistentDataContainer nbt = getCompound(meta);
 
-        nbt.set(tag, PersistentDataType.INTEGER, value);
-        setCompound(meta, plugin, nbt);
+        nbt.set(getKey(plugin, key), PersistentDataType.INTEGER, value);
         bukkitItem.setItemMeta(meta);
     }
 
@@ -211,10 +192,7 @@ public interface NBTCompatibility {
      * @return <code>true</code> if the NBT compound uses the tag.
      */
     default boolean hasDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
-        ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-
-        return getCompound(meta, plugin).has(tag, PersistentDataType.DOUBLE);
+        return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), PersistentDataType.DOUBLE);
     }
 
     /**
@@ -250,14 +228,9 @@ public interface NBTCompatibility {
      */
     default double getDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double def) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-        PersistentDataContainer nbt = getCompound(meta, plugin);
+        PersistentDataContainer nbt = getCompound(meta);
 
-        if (nbt.has(tag, PersistentDataType.DOUBLE)) {
-            return nbt.get(tag, PersistentDataType.DOUBLE);
-        } else {
-            return def;
-        }
+        return nbt.has(getKey(plugin, key), PersistentDataType.DOUBLE) ? nbt.get(getKey(plugin, key), PersistentDataType.DOUBLE) : def;
     }
 
     /**
@@ -277,11 +250,9 @@ public interface NBTCompatibility {
      */
     default void setDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double value) {
         ItemMeta meta = bukkitItem.getItemMeta();
-        NamespacedKey tag = new NamespacedKey(MechanicsCore.getPlugin(), key);
-        PersistentDataContainer nbt = getCompound(meta, plugin);
+        PersistentDataContainer nbt = getCompound(meta);
 
-        nbt.set(tag, PersistentDataType.DOUBLE, value);
-        setCompound(meta, plugin, nbt);
+        nbt.set(getKey(plugin, key), PersistentDataType.DOUBLE, value);
         bukkitItem.setItemMeta(meta);
     }
 
@@ -321,44 +292,14 @@ public interface NBTCompatibility {
      * <code>private</code> following this plugin's migration to java 11.
      *
      * @param meta   The non-null item metadata that holds the NBT compound.
-     * @param plugin The <i>folder</i> name, or <code>null</code> for the
-     *               default bukkit <i>folder</i>.
      * @return The compound to look for or add values to.
      */
-    default PersistentDataContainer getCompound(@Nonnull ItemMeta meta, @Nullable String plugin) {
-        PersistentDataContainer bukkitCompound = meta.getPersistentDataContainer();
-        if (plugin == null) {
-            return bukkitCompound;
-        }
-
-        NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), plugin);
-        PersistentDataContainer nbt = bukkitCompound.get(key, PersistentDataType.TAG_CONTAINER);
-
-        // If no such container exists, we should create a new one and update
-        // the item meta.
-        if (nbt == null) {
-            nbt = bukkitCompound.getAdapterContext().newPersistentDataContainer();
-            bukkitCompound.set(key, PersistentDataType.TAG_CONTAINER, nbt);
-        }
-
-        return nbt;
+    default PersistentDataContainer getCompound(@Nonnull ItemMeta meta) {
+        return meta.getPersistentDataContainer();
     }
 
-    /**
-     * Updates the folder returned by {@link #getCompound(ItemMeta, String)}.
-     * This method is for internal use only, and is marked to become
-     * <code>private</code> following this plugin's migration to java 11.
-     *
-     * @param meta   The non-null item metadata that holds the NBT compound.
-     * @param plugin The <i>folder</i> name, or <code>null</code> for the
-     *               default bukkit <i>folder</i>.
-     * @param nbt    The compound to set into the main compound.
-     */
-    default void setCompound(@Nonnull ItemMeta meta, @Nullable String plugin, PersistentDataContainer nbt) {
-        if (plugin != null) {
-            NamespacedKey key = new NamespacedKey(MechanicsCore.getPlugin(), plugin);
-            meta.getPersistentDataContainer().set(key, PersistentDataType.TAG_CONTAINER, nbt);
-        }
+    default NamespacedKey getKey(String plugin, String key) {
+        return new NamespacedKey(plugin.toLowerCase(), key.toLowerCase());
     }
 
     /**
