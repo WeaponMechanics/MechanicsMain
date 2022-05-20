@@ -307,6 +307,11 @@ public class ItemSerializer implements Serializer<ItemStack> {
             final Map<Character, Object> ingredients = new HashMap<>();
             data.of("Recipe.Ingredients").assertExists().assertType(ConfigurationSection.class);
             for (char c : ingredientChars) {
+                
+                // Spaces (' ') in spigot are ignored and treated as air for recipes
+                if (c == ' ')
+                    continue;
+                
                 ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(this);
 
                 if (CompatibilityAPI.getVersion() < 1.13)
