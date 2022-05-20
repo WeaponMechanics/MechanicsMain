@@ -7,7 +7,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -64,45 +63,16 @@ public class WeaponMechanicsLoader extends JavaPlugin {
                     "To disable this, go to the WeaponMechanics config.yml file");
             boolean installed = false;
 
-            // try to install the latest mechanics core version
-            InputStream stream = getClassLoader().getResourceAsStream("version.txt");
-            if (stream == null) {
-                getLogger().log(Level.SEVERE, "Missing version.txt, did the jar corrupt?");
-            }
-
-            String version = stream == null ? null : new Scanner(stream).nextLine();
-            String link = "https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/MechanicsCore-" + version + ".jar";
-            if (version != null && getConfig().getBoolean("Mechanics_Core_Download.Enable", true)) {
-                try {
-                    URL url = new URL(link);
-                    URLConnection connection = url.openConnection();
-                    connection.setConnectTimeout(getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 10) * 1000); // 10 seconds
-                    connection.setReadTimeout(getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 30) * 1000); // 30 seconds
-
-                    InputStream in = connection.getInputStream();
-                    File target = new File(getDataFolder().getParent(), link.substring(link.lastIndexOf("/") + 1));
-                    Files.copy(in, target.toPath());
-
-                    Plugin plugin = Bukkit.getPluginManager().loadPlugin(target);
-                    assert plugin != null;
-                    plugin.onLoad();
-                    installed = true;
-
-                } catch (FileNotFoundException ex) {
-                    getLogger().log(Level.SEVERE, "Could not find MechanicsCore-" + version + ".jar. This happens when your WeaponMechanics is outdated.");
-                } catch (IOException ex) {
-                    getLogger().log(Level.SEVERE, "Some error occurred while downloading MechanicsCore.jar automatically...",
-                            "Please try downloading it manually from " + link);
-                    getLogger().log(Level.WARNING, "Caught error: ", ex);
-                } catch (InvalidPluginException | InvalidDescriptionException e) {
-                    getLogger().log(Level.SEVERE, "Downloaded MechanicsCore.jar, but it was invalid... Perhaps there were connection issues?");
-                }
-            } else {
-                getLogger().log(Level.INFO, "Skipping MechanicsCore.jar download due to config");
+            try {
+                VersionParser downloader = new VersionParser();
+                downloader.runCore();
+                installed = true;
+            } catch (IOException | InvalidDescriptionException | InvalidPluginException e) {
+                getLogger().log(Level.WARNING, "Error download MechanicsCore", e);
             }
 
             if (installed) {
-                getLogger().log(Level.INFO, "Installed MechanicsCore.jar successfully!");
+                getLogger().log(Level.INFO, "Successfully downloaded MechanicsCore");
                 return;
             }
 
@@ -115,6 +85,64 @@ public class WeaponMechanicsLoader extends JavaPlugin {
             getLogger().log(Level.SEVERE, "Disabling WeaponMechanics to avoid error.");
 
             getPluginLoader().disablePlugin(this);
+        }
+    }
+
+    private class VersionParser {
+
+        private String coreVersion;
+        private String weaponVersion;
+        private String packVersion;
+
+        private VersionParser() throws IOException {
+            String link = "https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/versions.txt";
+            URL url = new URL(link);
+            URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 10) * 1000); // 10 seconds
+            connection.setReadTimeout(getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 30) * 1000); // 30 seconds
+
+            InputStream in = connection.getInputStream();
+            Scanner scanner = new Scanner(in);
+
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if (line.trim().isEmpty())
+                    continue;
+
+                String[] split = line.split(": ?");
+                String id = split[0];
+                String version = split[1];
+
+                switch (id) {
+                    case "MechanicsCore":
+                        coreVersion = version;
+                        break;
+                    case "WeaponMechanics":
+                        weaponVersion = version;
+                        break;
+                    case "WeaponMechanicsResourcePack":
+                        packVersion = version;
+                        break;
+                }
+            }
+        }
+
+        private void downloadCore(File target) throws IOException {
+            String link = "https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/MechanicsCore-" + coreVersion + ".jar";
+            URL url = new URL(link);
+            URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 10) * 1000); // 10 seconds
+            connection.setReadTimeout(getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 30) * 1000); // 30 seconds
+
+            InputStream in = connection.getInputStream();
+            Files.copy(in, target.toPath());
+        }
+
+        private void runCore() throws IOException, InvalidPluginException, InvalidDescriptionException {
+            File target = new File(getDataFolder().getParent(), "MechanicsCore-" + coreVersion + ".jar");
+            downloadCore(target);
+            Plugin plugin = Bukkit.getPluginManager().loadPlugin(target);
+            plugin.onLoad();
         }
     }
 }
