@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.melee.MeleeHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
+import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.skin.SkinHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
@@ -140,30 +141,31 @@ public class WeaponHandler {
             // 1) Single
             // 2) Burst
             // 3) Auto
+            // TODO simplify logic
             if (!CustomTag.SELECTIVE_FIRE.hasInteger(weaponStack)) {
                 if (hasBurst) {
-                    CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, BURST.getId());
+                    SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, BURST);
                 } else if (hasAuto) {
-                    CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, AUTO.getId());
+                    SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, AUTO);
                 }
             } else {
                 int currentSelectiveFire = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
                 switch (currentSelectiveFire) {
                     case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
                         if (hasAuto) {
-                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, AUTO.getId());
+                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, BURST, AUTO);
                         } else {
-                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, SINGLE.getId());
+                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, BURST, SINGLE);
                         }
                         break;
                     case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
-                        CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, SINGLE.getId());
+                        SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, AUTO, SINGLE);
                         break;
                     default:
                         if (hasBurst) {
-                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, BURST.getId());
+                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, BURST);
                         } else if (hasAuto) {
-                            CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, AUTO.getId());
+                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, AUTO);
                         }
                         break;
                 }
