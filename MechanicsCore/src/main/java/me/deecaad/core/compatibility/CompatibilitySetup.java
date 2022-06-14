@@ -37,22 +37,10 @@ public class CompatibilitySetup {
         try {
             Class<?> compatibilityClass = Class.forName(directory + "." + version, false, interfaceClazz.getClassLoader());
             Object compatibility = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(compatibilityClass));
-            return compatibility != null ? interfaceClazz.cast(compatibility) : getReflectionVersion(directory, interfaceClazz);
+            return compatibility != null ? interfaceClazz.cast(compatibility) : null;
         } catch (ClassNotFoundException | ClassCastException e) {
             // Do nothing
         }
-        return getReflectionVersion(directory, interfaceClazz);
-    }
-
-    private <T> T getReflectionVersion(String directory, Class<T> interfaceClazz) {
-        try {
-            Class<?> reflectionCompatibilityClass = Class.forName(directory + ".Reflection", false, interfaceClazz.getClassLoader());
-            Object reflectionCompatibility = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(reflectionCompatibilityClass));
-            if (reflectionCompatibility == null) return null;
-            return interfaceClazz.cast(reflectionCompatibility);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return null;
     }
 }

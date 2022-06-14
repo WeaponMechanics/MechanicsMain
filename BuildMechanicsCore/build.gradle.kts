@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.2.3-BETA"
+version = "1.3.0-BETA"
 
 plugins {
     `maven-publish`
@@ -31,6 +31,7 @@ dependencies {
     implementation(project(":Core_1_17_R1", "reobf"))
     implementation(project(":Core_1_18_R1", "reobf"))
     implementation(project(":Core_1_18_R2", "reobf"))
+    implementation(project(":Core_1_19_R1", "reobf"))
 }
 
 tasks {
@@ -75,7 +76,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_17_R1"))
         include(project(":Core_1_18_R1"))
         include(project(":Core_1_18_R2"))
-        include(project(":Core_1_18_R1")) // compiled paper user-dev
+        include(project(":Core_1_19_R1"))
 
         relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure") {
             include(dependency("net.kyori::"))

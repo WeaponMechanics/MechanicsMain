@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.7.1-BETA"
+version = "1.8.0-BETA"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":Weapon_1_17_R1", "reobf"))
     implementation(project(":Weapon_1_18_R1", "reobf"))
     implementation(project(":Weapon_1_18_R2", "reobf"))
+    implementation(project(":Weapon_1_19_R1", "reobf"))
 }
 
 tasks {
@@ -77,6 +78,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_17_R1"))
         include(project(":Weapon_1_18_R1"))
         include(project(":Weapon_1_18_R2"))
+        include(project(":Weapon_1_19_R1"))
 
         relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
             include(dependency("co.aikar:minecraft-timings"))
