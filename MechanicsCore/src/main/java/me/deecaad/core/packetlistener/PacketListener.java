@@ -21,7 +21,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
@@ -48,7 +47,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class PacketListener {
 
     private static final Class<?> LOGIN_PACKET;
-    private static final Field GAME_PROFILE;
+    private static final Field LOGIN_PROFILE; // 1.17-
+    private static final Field LOGIN_NAME; // 1.18+
 
     // Fields for getting the channel of a player
     private static final Field playerConnectionField;
@@ -74,7 +74,8 @@ public abstract class PacketListener {
         final Class<?> craftServerClass = ReflectionUtil.getCBClass("CraftServer");
 
         LOGIN_PACKET = ReflectionUtil.getNMSClass("network.protocol.login", "PacketLoginInStart");
-        GAME_PROFILE = ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
+        LOGIN_PROFILE = ReflectionUtil.getMCVersion() >= 18 ? null : ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
+        LOGIN_NAME = ReflectionUtil.getMCVersion() < 18 ? null : ReflectionUtil.getField(LOGIN_PACKET, String.class);
 
         playerConnectionField = ReflectionUtil.getField(entityPlayerClass, playerConnectionClass);
         networkManagerField = ReflectionUtil.getField(playerConnectionClass, networkManagerClass);
@@ -464,8 +465,13 @@ public abstract class PacketListener {
 
             final Channel channel = ctx.channel();
             if (LOGIN_PACKET.isInstance(msg)) {
-                GameProfile profile = (GameProfile) GAME_PROFILE.get(msg);
-                channelCache.put(profile.getName(), channel);
+                String name;
+                if (ReflectionUtil.getMCVersion() >= 18)
+                    name = (String) LOGIN_NAME.get(msg);
+                else
+                    name = ((GameProfile) LOGIN_PROFILE.get(msg)).getName();
+
+                channelCache.put(name, channel);
                 debug.debug("Login Packet: " + msg);
             }
 
