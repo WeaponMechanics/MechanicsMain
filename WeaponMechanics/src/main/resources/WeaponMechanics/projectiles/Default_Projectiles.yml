@@ -7,7 +7,7 @@ sub_machine_gun:
       Maximum:
         Speed: 80
       Gravity: 0.05
-      Decrease_Motion:
+      Drag:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
@@ -29,7 +29,7 @@ sniper_rifle:
       Minimum:
         Speed: 160
       Gravity: 0.05
-      Decrease_Motion:
+      Drag:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
@@ -51,7 +51,7 @@ shotgun:
       Gravity: 0.08
       Minimum:
         Speed: 4
-      Decrease_Motion:
+      Drag:
         Base: 0.9
         In_Water: 0.87
         When_Raining_Or_Snowing: 0.89
@@ -76,7 +76,7 @@ rocket_launcher:
       Minimum:
         Speed: 40
       Gravity: 0.02
-      Decrease_Motion:
+      Drag:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
@@ -90,7 +90,7 @@ assault_rifle:
       Minimum:
         Speed: 60
       Gravity: 0.05
-      Decrease_Motion:
+      Drag:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
@@ -112,7 +112,7 @@ pistol:
       Projectile_Item_Or_Block:
         Type: "IRON_NUGGET"
       Gravity: 0.05
-      Decrease_Motion:
+      Drag:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
@@ -124,7 +124,7 @@ marksman_rifle:
       Minimum:
         Speed: 140
       Gravity: 0.05
-      Decrease_Motion:
+      Drag:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
@@ -148,7 +148,7 @@ light_machine_gun:
       Minimum:
         Speed: 70
       Gravity: 0.04
-      Decrease_Motion:
+      Drag:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
