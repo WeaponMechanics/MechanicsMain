@@ -74,8 +74,8 @@ public abstract class PacketListener {
         final Class<?> craftServerClass = ReflectionUtil.getCBClass("CraftServer");
 
         LOGIN_PACKET = ReflectionUtil.getNMSClass("network.protocol.login", "PacketLoginInStart");
-        LOGIN_PROFILE = ReflectionUtil.getMCVersion() >= 18 ? null : ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
-        LOGIN_NAME = ReflectionUtil.getMCVersion() < 18 ? null : ReflectionUtil.getField(LOGIN_PACKET, String.class);
+        LOGIN_PROFILE = ReflectionUtil.getMCVersion() >= 19 ? null : ReflectionUtil.getField(LOGIN_PACKET, GameProfile.class);
+        LOGIN_NAME = ReflectionUtil.getMCVersion() < 19 ? null : ReflectionUtil.getField(LOGIN_PACKET, String.class);
 
         playerConnectionField = ReflectionUtil.getField(entityPlayerClass, playerConnectionClass);
         networkManagerField = ReflectionUtil.getField(playerConnectionClass, networkManagerClass);
@@ -466,7 +466,7 @@ public abstract class PacketListener {
             final Channel channel = ctx.channel();
             if (LOGIN_PACKET.isInstance(msg)) {
                 String name;
-                if (ReflectionUtil.getMCVersion() >= 18)
+                if (ReflectionUtil.getMCVersion() >= 19)
                     name = (String) LOGIN_NAME.get(msg);
                 else
                     name = ((GameProfile) LOGIN_PROFILE.get(msg)).getName();
