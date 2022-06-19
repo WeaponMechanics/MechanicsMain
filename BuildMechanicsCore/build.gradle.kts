@@ -47,7 +47,6 @@ bukkit {
     name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"
     apiVersion = "1.13"
 
-    version
     authors = listOf("DeeCaaD", "CJCrafter")
     softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
     loadBefore = listOf("WeaponMechanics") // pretty hacky, but needed sometimes.
@@ -101,7 +100,9 @@ publishing {
     }
     publications {
         create<MavenPublication>("corePublication") {
-            artifact(tasks.named("shadowJar"))
+            artifact(tasks.named("shadowJar")) {
+                classifier = null
+            }
 
             pom {
                 groupId = "me.deecaad"

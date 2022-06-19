@@ -114,7 +114,9 @@ publishing {
     }
     publications {
         create<MavenPublication>("weaponPublication") {
-            artifact(tasks.named("shadowJar"))
+            artifact(tasks.named("shadowJar")) {
+                classifier = null
+            }
 
             pom {
                 groupId = "me.deecaad"
