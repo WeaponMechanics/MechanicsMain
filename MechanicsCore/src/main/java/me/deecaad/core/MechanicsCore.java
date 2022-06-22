@@ -1,5 +1,6 @@
 package me.deecaad.core;
 
+import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerInstancer;
@@ -7,28 +8,24 @@ import me.deecaad.core.listeners.ItemCraftListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
 
 public class MechanicsCore extends JavaPlugin {
 
     private static MechanicsCore plugin;
-    private static List<Serializer<?>> serializersList;
-
-    // public so people can import a static variable
-    public static Debugger debug;
+    public static Debugger debug; // public for import
 
     public BukkitAudiences adventure;
 
@@ -52,14 +49,6 @@ public class MechanicsCore extends JavaPlugin {
         }
         FileUtil.ensureDefaults(getClassLoader(), "MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
 
-        try {
-            List<?> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
-            //noinspection unchecked
-            serializersList = (List<Serializer<?>>) serializers;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // The methods we use that allow EntityEquipmentEvent to trigger simply
         // don't exist in 1.10 and lower.
         if (ReflectionUtil.getMCVersion() >= 11) {
@@ -71,6 +60,14 @@ public class MechanicsCore extends JavaPlugin {
         if (ReflectionUtil.getMCVersion() >= 13) {
             MechanicsCoreCommand.build();
         }
+
+        Bukkit.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onQueue(QueueSerializerEvent event) throws IOException {
+                List<Serializer<?>> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
+                event.addSerializers(serializers);
+            }
+        }, this);
     }
 
     @Override
@@ -79,7 +76,6 @@ public class MechanicsCore extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
         PlaceholderAPI.onDisable();
         plugin = null;
-        serializersList = null;
         debug = null;
         adventure.close();
         adventure = null;
@@ -90,38 +86,5 @@ public class MechanicsCore extends JavaPlugin {
      */
     public static MechanicsCore getPlugin() {
         return plugin;
-    }
-
-    /**
-     * @return the list of all serializers added to core
-     */
-    public static List<Serializer<?>> getListOfSerializers() {
-        return new ArrayList<>(serializersList);
-    }
-
-    /**
-     * Add serializer for MechanicsCore serializer list
-     *
-     * @param serializer the serializer
-     */
-    public static void addSerializer(Plugin plugin, Serializer<?> serializer) {
-        if (serializersList == null) {
-            debug.log(LogLevel.WARN, plugin.getName() + " tried to add serializer after startup...");
-            return;
-        }
-        serializersList.add(serializer);
-    }
-
-    /**
-     * Add list of serializers for MechanicsCore serializer list
-     *
-     * @param serializers the list of serializers
-     */
-    public static void addSerializers(Plugin plugin, List<Serializer<?>> serializers) {
-        if (serializers != null && serializers.size() > 0) {
-            for (Serializer<?> serializer : serializers) {
-                addSerializer(plugin, serializer);
-            }
-        }
     }
 }
