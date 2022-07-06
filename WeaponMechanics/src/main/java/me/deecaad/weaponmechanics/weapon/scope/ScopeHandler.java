@@ -107,14 +107,17 @@ public class ScopeHandler implements IValidator {
                     return false;
                 }
 
-                List<String> zoomLevelStrings = config.getList(weaponTitle + ".Scope.Zoom_Levels");
-                double[] zoomLevels = zoomLevelStrings.stream().mapToDouble(Double::parseDouble).toArray();
-                int maximumStacks = zoomLevels.length - 1;
-                if (maximumStacks <= 0) { // meaning that zoom stacking is not used
+                List<String> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
+                if (zoomStacks == null) { // meaning that zoom stacking is not used
                     // Should turn off
                     return zoomOut(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
                 }
-                if (zoomData.getZoomStacks() < maximumStacks) { // meaning that zoom stacks have NOT reached maximum stacks
+
+                // E.g. when there is 2 defined values in stacks:
+                // 0 < 1 // TRUE
+                // 1 < 1 // TRUE
+                // 2 < 1 // FALSE
+                if (zoomData.getZoomStacks() < zoomStacks.size() - 1) { // meaning that zoom stacks have NOT reached maximum stacks
                     // Should not turn off and stack instead
                     return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData, slot); // Zoom in handles stacking on its own
                 }
@@ -153,14 +156,13 @@ public class ScopeHandler implements IValidator {
         Configuration config = getConfigurations();
         LivingEntity entity = entityWrapper.getEntity();
 
-        List<String> zoomLevelStrings = config.getList(weaponTitle + ".Scope.Zoom_Levels");
-        double[] zoomLevels = zoomLevelStrings.stream().mapToDouble(Double::parseDouble).toArray();
-        if (zoomLevels.length == 0) return false;
-
         if (zoomData.isZooming()) { // zoom stack
-            int zoomStack = zoomData.getZoomStacks() + 1;
-            if (zoomStack < zoomLevels.length) {
-                double zoomAmount = zoomLevels[zoomStack];
+
+            List<String> zoomStacks = config.getList(weaponTitle + ".Scope.Zoom_Stacking.Stacks", null);
+            if (zoomStacks != null) {
+                int currentStacks = zoomData.getZoomStacks();
+                double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks));
+                int zoomStack = currentStacks + 1;
                 WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.STACK, zoomAmount, zoomStack);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
                 if (weaponScopeEvent.isCancelled()) {
@@ -172,7 +174,7 @@ public class ScopeHandler implements IValidator {
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
-                Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Stacking_Mechanics", Mechanics.class);
+                Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
                 if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -181,14 +183,14 @@ public class ScopeHandler implements IValidator {
                 return true;
             } else {
                 debug.log(LogLevel.WARN, "For some reason zoom in was called on entity when it shouldn't have.",
-                        "Entity was already zooming so it should have stacked zoom, but not zoom stacking wasn't used at all?",
+                        "Entity was already zooming so it should have stacked zoom, but now zoom stacking wasn't used at all?",
                         "Ignoring this call, but this shouldn't even happen...",
-                        "Are you sure you have defined both Maximum_Stacks and Increase_Zoom_Per_Stack for weapon " + weaponTitle + "?");
+                        "Are you sure you have defined both Zoom_Stacking.Stacks for weapon " + weaponTitle + "?");
                 return false;
             }
         }
 
-        double zoomAmount = zoomLevels[0];
+        double zoomAmount = config.getDouble(weaponTitle + ".Scope.Zoom_Amount");
         if (zoomAmount == 0) return false;
 
         // zoom stack = 0, because its not used OR this is first zoom in
@@ -325,18 +327,27 @@ public class ScopeHandler implements IValidator {
                     "Located at file " + file + " in " + path + ".Trigger in configurations.");
         }
 
-        List<String> zoomLevelStrings = configuration.getList(path + ".Zoom_Levels");
-        double[] zoomLevels = {};
-        try {
-            zoomLevels = zoomLevelStrings.stream().mapToDouble(Double::parseDouble).toArray();
-        } catch (Exception exception) {
-            debug.log(LogLevel.ERROR, "One or more Zoom_Levels is not a number",
-                    "Located at file " + file + " in " + path + ".Zoom_Levels in configurations.");
+        double zoomAmount = configuration.getDouble(path + ".Zoom_Amount");
+        if (zoomAmount < 1 || zoomAmount > 10) {
+            debug.log(LogLevel.ERROR, "Tried to use scope without defining proper zoom amount for it, or it was missing.",
+                    "Zoom amount has to be between 1 and 10.",
+                    "Located at file " + file + " in " + path + ".Zoom_Amount in configurations.");
         }
-        for (double zoomLevel : zoomLevels) {
-            if (zoomLevel > 10 || zoomLevel < 1) {
-                debug.log(LogLevel.ERROR, "One or more Zoom_Levels values less than 1 or greater than 10",
-                        "Located at file " + file + " in " + path + ".Zoom_Levels in configurations.");
+
+        List<String> zoomStacks = configuration.getList(path + ".Zoom_Stacking.Stacks", null);
+        if (zoomStacks != null) {
+            try {
+                zoomStacks.stream().mapToDouble(Double::parseDouble).forEach(zoomStack -> {
+                    if (zoomStack < 1 || zoomStack > 10) {
+                        debug.log(LogLevel.ERROR, "Tried to use zoom stacks without defining proper zoom amounts for it.",
+                                "Zoom amount has to be between 1 and 10.",
+                                "Located at file " + file + " in " + path + ".Zoom_Stacking.Stacks in configurations.");
+                    }
+                });
+            } catch (NumberFormatException e) {
+                debug.log(LogLevel.ERROR, "Tried to use zoom stacks without defining proper zoom amounts for it.",
+                        "Zoom amount has to be number.",
+                        "Located at file " + file + " in " + path + ".Zoom_Stacking.Stacks in configurations.");
             }
         }
 
