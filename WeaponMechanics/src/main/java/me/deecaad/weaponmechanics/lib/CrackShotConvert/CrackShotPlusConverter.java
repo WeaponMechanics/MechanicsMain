@@ -3,12 +3,14 @@ package me.deecaad.weaponmechanics.lib.CrackShotConvert;
 import com.shampaggon.crackshot.MaterialManager;
 import me.DeeCaaD.CrackShotPlus.CSPapi;
 import me.deecaad.core.utils.EnumUtil;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -91,8 +93,8 @@ public class CrackShotPlusConverter {
         // SCOPE
         SOUNDS_SCOPE("Scope.Custom_Scope_Sound", "Scope.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
         SOUNDS_SCOPE_END("Scope.Custom_Scope_End_Sound", "Scope.Zoom_Off.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SECOND_ZOOM_STACKS("Scope.Second_Zoom.Amount", "Scope.Zoom_Stacking.Maximum_Stacks", Type.INT, new GeneralObjectModifier(x -> 1)),
-        SECOND_ZOOM_AMOUNT("Scope.Second_Zoom.Amount", "Scope.Zoom_Stacking.Increase_Zoom_Per_Stack", Type.INT, new GeneralObjectModifier(x -> ((int) x + 6))),
+        SECOND_ZOOM_STACKS("Scope.Second_Zoom.Amount", "Scope.Zoom_Stacking.Stacks", Type.INT, new GeneralObjectModifier(x ->
+                Collections.singletonList(NumberUtil.lerp(1, 10, (((double) x > 6 ? 6 : (double) x) / 6))))),
 
         // SHOOT
         INVISIBLE_PROJECTILES("Shoot.Invisible_Projectiles", "Projectile.Projectile_Settings.Type", Type.BOOL, new GeneralObjectModifier(x -> "INVISIBLE")),

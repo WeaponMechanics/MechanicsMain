@@ -1,10 +1,12 @@
 Scope:
   Trigger: <trigger serializer>
   Night_Vision: <true/false>
-  Zoom_Levels: <list of zoom levels>
+  Zoom_Amount: <1-10>
   Mechanics: <MechanicsSerializer>
-  Stacking_Mechanics: <MechanicsSerializer>
   Shoot_Delay_After_Scope: <ticks>
   Zoom_Off:
     Trigger: <trigger serializer>
+    Mechanics: <MechanicsSerializer>
+  Zoom_Stacking:
+    Stacks: <list of zoom stacks>
     Mechanics: <MechanicsSerializer>
