@@ -108,8 +108,7 @@ FR_5_56:
       Off_Hand: "LEFT_CLICK"
       Deny_When:
         Swimming: true
-    Zoom_Levels:
-      - 1.5
+    Zoom_Amount: 1.5
     Mechanics:
       Sounds:
         - "custom:scope.in-0.5-1-0-0.1"

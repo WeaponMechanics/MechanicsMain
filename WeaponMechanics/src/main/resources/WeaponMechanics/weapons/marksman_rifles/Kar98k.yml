@@ -83,19 +83,20 @@ Kar98k:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
-    Zoom_Levels:
-      - 1.5
-      - 3.0
+    Zoom_Amount: 1.5
     Mechanics:
-      Sounds:
-        - "custom:scope.in-0.5-1-0-0.1"
-    Stacking_Mechanics:
       Sounds:
         - "custom:scope.in-0.5-1-0-0.1"
     Zoom_Off:
       Mechanics:
         Sounds:
           - "custom:scope.out-0.5-1-0-0.1"
+    Zoom_Stacking:
+      Stacks:
+        - 3.0
+      Mechanics:
+        Sounds:
+          - "custom:scope.in-0.5-1-0-0.1"
   Firearm_Action:
     Type: "LEVER"
     Open:
