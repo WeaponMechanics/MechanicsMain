@@ -152,7 +152,7 @@ Damage:
     Sprinting: 0.05
     In_Midair: 0.03
   Critical_Points:
-    HEAD: 2.0 # Always double damage on head
+    HEAD: 1.0 # double damage on head
     BODY: 0.0
     ARMS: -0.005
     LEGS: -0.005
@@ -696,3 +696,31 @@ Entity_Hitboxes:
     ARMS: false
     LEGS: 0.3
     FEET: 0.1
+  ALLAY:
+    Horizontal_Entity: false
+    HEAD: 0.5
+    BODY: 0.3
+    ARMS: true
+    LEGS: 0.1
+    FEET: 0.1
+  TADPOLE:
+    Horizontal_Entity: false
+    HEAD: 0.0
+    BODY: 1.0
+    ARMS: false
+    LEGS: 0.0
+    FEET: 0.0
+  WARDEN:
+    Horizontal_Entity: false
+    HEAD: 0.3
+    BODY: 0.45
+    ARMS: true
+    LEGS: 0.15
+    FEET: 0.1
+  FROG:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.9
+    ARMS: true
+    LEGS: 0.05
+    FEET: 0.05

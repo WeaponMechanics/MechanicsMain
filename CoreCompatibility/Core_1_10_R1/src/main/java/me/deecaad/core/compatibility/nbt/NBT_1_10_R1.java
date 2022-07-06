@@ -34,7 +34,7 @@ public class NBT_1_10_R1 implements NBTCompatibility {
     @Override
     public String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String def) {
         String value = getBukkitCompound(getNMSStack(bukkitItem)).getString(getTagName(plugin, key));
-        return value != null ? value : def;
+        return value != null && !value.isEmpty() ? value : def;
     }
 
     @Nonnull

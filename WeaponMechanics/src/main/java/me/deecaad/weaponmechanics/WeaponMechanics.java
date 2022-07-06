@@ -6,23 +6,12 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.DuplicateKeyException;
-import me.deecaad.core.file.FileReader;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.JarInstancer;
-import me.deecaad.core.file.LinkedConfig;
-import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerInstancer;
-import me.deecaad.core.file.TaskChain;
+import me.deecaad.core.events.QueueSerializerEvent;
+import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
-import me.deecaad.core.utils.Debugger;
-import me.deecaad.core.utils.FileUtil;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.core.utils.*;
 import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
@@ -64,13 +53,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
@@ -250,14 +233,6 @@ public class WeaponMechanics {
     void loadConfig() {
         debug.debug("Loading and serializing config");
 
-        try {
-            List<Serializer<?>> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
-            MechanicsCore.addSerializers(getPlugin(), serializers);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
         if (configurations == null) {
             configurations = new LinkedConfig();
         } else {
@@ -273,9 +248,15 @@ public class WeaponMechanics {
         }
 
         // Fill configuration mappings (except config.yml)
-        Configuration temp = new FileReader(debug, MechanicsCore.getListOfSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
+
         try {
+            QueueSerializerEvent event = new QueueSerializerEvent(javaPlugin, getDataFolder());
+            event.addSerializers(new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader()));
+            Bukkit.getPluginManager().callEvent(event);
+            Configuration temp = new FileReader(debug, event.getSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
             configurations.add(temp);
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (DuplicateKeyException e) {
             debug.error("Error loading config: " + e.getMessage());
         }

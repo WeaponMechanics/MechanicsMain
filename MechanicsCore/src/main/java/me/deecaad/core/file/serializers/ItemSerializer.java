@@ -8,35 +8,19 @@ import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.inventory.meta.*;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ItemSerializer implements Serializer<ItemStack> {
@@ -69,7 +53,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         // Support for one-liner item serializer
         try {
-            Material type = data.of("").assertType(String.class).getEnum(Material.class);
+            Material type = data.of().assertType(String.class).getEnum(Material.class);
             if (type != null) {
                 return new ItemStack(type);
             }
@@ -138,13 +122,13 @@ public class ItemSerializer implements Serializer<ItemStack> {
             for (String[] split : enchantments) {
                 Enchantment enchant;
                 if (CompatibilityAPI.getVersion() < 1.13) {
-                    enchant = Enchantment.getByName(split[0]);
+                    enchant = Enchantment.getByName(split[0].trim().toLowerCase(Locale.ROOT));
                 } else {
-                    enchant = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(split[0]));
+                    enchant = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(split[0].trim().toLowerCase(Locale.ROOT)));
                 }
                 if (enchant == null) {
                     throw new SerializerOptionsException("Item", "Enchantment",
-                            Arrays.stream(Enchantment.values()).map(Enchantment::getName).collect(Collectors.toList()),
+                            Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).collect(Collectors.toList()),
                             split[0], data.of("Enchantments").getLocation());
                 }
                 int enchantmentLevel = Integer.parseInt(split[1]);
@@ -307,6 +291,11 @@ public class ItemSerializer implements Serializer<ItemStack> {
             final Map<Character, Object> ingredients = new HashMap<>();
             data.of("Recipe.Ingredients").assertExists().assertType(ConfigurationSection.class);
             for (char c : ingredientChars) {
+                
+                // Spaces (' ') in spigot are ignored and treated as air for recipes
+                if (c == ' ')
+                    continue;
+                
                 ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(this);
 
                 if (CompatibilityAPI.getVersion() < 1.13)

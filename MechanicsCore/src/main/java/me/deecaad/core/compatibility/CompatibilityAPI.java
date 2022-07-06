@@ -53,7 +53,7 @@ public final class CompatibilityAPI {
                 Constructor<?> worldGuardV7Constructor = ReflectionUtil.getConstructor(Class.forName("me.deecaad.core.compatibility.worldguard.WorldGuardV7"));
                 worldGuardCompatibility1 = (WorldGuardCompatibility) ReflectionUtil.newInstance(worldGuardV7Constructor);
             }
-        } catch (ClassNotFoundException e) {
+        } catch (Throwable e) {
             worldGuardCompatibility1 = new NoWorldGuard();
         }
         worldGuardCompatibility = worldGuardCompatibility1;
