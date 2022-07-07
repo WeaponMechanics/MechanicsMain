@@ -36,13 +36,20 @@ public class NonNullList_1_16_R3 extends NonNullList<ItemStack> {
     @Override
     public ItemStack set(int index, ItemStack newItem) {
         ItemStack oldItem = get(index);
-        Item item = (Item) ReflectionUtil.invokeField(itemField, newItem);
 
-        if (newItem.getCount() == 0 && item != null) {
+        if (newItem.getCount() == 0 && ReflectionUtil.invokeField(itemField, newItem) != null) {
             newItem.setCount(1);
             consumer.accept(CraftItemStack.asBukkitCopy(oldItem), CraftItemStack.asBukkitCopy(newItem), index);
             newItem.setCount(0);
-        } else if (!ItemStack.matches(oldItem, newItem)) {
+        }
+
+        else if (oldItem.getCount() == 0 && ReflectionUtil.invokeField(itemField, oldItem) != null) {
+            oldItem.setCount(1);
+            consumer.accept(CraftItemStack.asBukkitCopy(oldItem), CraftItemStack.asBukkitCopy(newItem), index);
+            oldItem.setCount(0);
+        }
+
+        else if (!ItemStack.matches(oldItem, newItem)) {
             consumer.accept(CraftItemStack.asBukkitCopy(oldItem), CraftItemStack.asBukkitCopy(newItem), index);
         }
 
