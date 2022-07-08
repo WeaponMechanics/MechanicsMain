@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.3.2-BETA"
+version = "1.3.3-BETA"
 
 plugins {
     `maven-publish`
