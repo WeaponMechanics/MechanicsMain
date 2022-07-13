@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandSourceStack;
@@ -388,7 +389,7 @@ public class Command_1_18_R2 implements CommandCompatibility {
 
         String biome = biomeResult.asPrintable();
         if (biomeResult.unwrap().left().isPresent()) {
-            return Biome.valueOf(biomeResult.unwrap().left().get().location().getPath().toUpperCase());
+            return EnumUtil.getIfPresent(Biome.class, biomeResult.unwrap().left().get().location().getPath().toUpperCase()).orElseThrow(() -> new DynamicCommandExceptionType((id) -> new TranslatableComponent("commands.locatebiome.invalid", id)).create(biome));
         } else {
             throw new DynamicCommandExceptionType((id) -> new TranslatableComponent("commands.locatebiome.invalid", id)).create(biome);
         }
