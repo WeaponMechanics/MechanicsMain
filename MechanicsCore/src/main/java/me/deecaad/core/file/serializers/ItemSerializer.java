@@ -1,5 +1,7 @@
 package me.deecaad.core.file.serializers;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.nbt.NBTCompatibility;
@@ -167,14 +169,33 @@ public class ItemSerializer implements Serializer<ItemStack> {
         String owningPlayer = data.of("Skull_Owning_Player").assertType(String.class).get(null);
         if (owningPlayer != null) {
             try {
+                int splitIndex = owningPlayer.indexOf(" ");
+                String id = splitIndex == -1 ? owningPlayer : owningPlayer.substring(0, splitIndex);
+                String url = splitIndex == -1 ? null : owningPlayer.substring(splitIndex + 1);
+
                 SkullMeta skullMeta = (SkullMeta) itemStack.getItemMeta();
+
                 UUID uuid;
                 try {
-                    uuid = UUID.fromString(owningPlayer);
+                    uuid = UUID.fromString(id);
                 } catch (IllegalArgumentException e) {
                     uuid = null;
                 }
-                if (uuid != null) {
+
+                // Custom skull format... "UUID URL"
+                // "970e0a59-b95d-45a9-9039-b43ac4fbfc7c https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
+                // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
+                if (uuid != null && url != null) {
+                    GameProfile dummy = new GameProfile(uuid, null);
+                    byte[] encoded = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+                    dummy.getProperties().put("textures", new Property("textures", new String(encoded)));
+
+                    Field field = ReflectionUtil.getField(skullMeta.getClass(), GameProfile.class);
+                    ReflectionUtil.setField(field, skullMeta, dummy);
+                }
+
+                // Standard player name SkullMeta... "CJCrafter", "DeeCaaD", "Darkman_Bree"
+                else if (uuid != null) {
                     if (CompatibilityAPI.getVersion() >= 1.12) {
                         skullMeta.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(uuid));
                     } else {
