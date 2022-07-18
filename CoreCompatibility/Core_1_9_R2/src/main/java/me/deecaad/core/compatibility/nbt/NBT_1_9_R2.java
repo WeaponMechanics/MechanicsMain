@@ -140,8 +140,10 @@ public class NBT_1_9_R2 implements NBTCompatibility {
             nbt.setString("Name", "MechanicsCoreAttribute");
             nbt.setDouble("Amount", value);
             nbt.setInt("Operation", 0); // 0 == add
-            nbt.setLong("UUIDLeast", attribute.getUUID().getLeastSignificantBits());
-            nbt.setLong("UUIDMost", attribute.getUUID().getMostSignificantBits());
+
+            UUID uuid = slot == null ? attribute.getUUID() : slot.modify(attribute.getUUID());
+            nbt.setLong("UUIDLeast", uuid.getLeastSignificantBits());
+            nbt.setLong("UUIDMost", uuid.getMostSignificantBits());
 
             if (slot != null) {
                 nbt.setString("Slot", slot.getSlotName());

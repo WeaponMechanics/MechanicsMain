@@ -1,6 +1,5 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -8,7 +7,6 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -345,7 +343,7 @@ public interface NBTCompatibility {
 
         private final EquipmentSlot slot;
         private final String slotName;
-        private long uuidModifier;
+        private final long uuidModifier;
 
         AttributeSlot(long uuidModifier) {
             this.slot = name().equals("MAIN_HAND") ? EquipmentSlot.HAND : EquipmentSlot.valueOf(name());
