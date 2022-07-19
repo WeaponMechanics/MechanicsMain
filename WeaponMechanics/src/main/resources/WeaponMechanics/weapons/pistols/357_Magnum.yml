@@ -30,6 +30,7 @@
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
+      Break_Blocks: true
   Skin:
     Default:
       Custom_Model_Data: 181
