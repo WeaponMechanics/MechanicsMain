@@ -70,11 +70,10 @@ public class DamageUtil {
 
             rate.addAndGet(config.getDouble("Damage.Armor." + slot + "." + material, 0.0));
 
+            // Reduce damage based on entity type, #110
+            rate.addAndGet(config.getDouble("Damage.Entities." + victim.getType(), 0.0));
+
             if (ReflectionUtil.getMCVersion() < 13) {
-
-                // TODO
-                // TEMP FIX
-
                 armorSlot.getEnchantments().forEach((enchant, level) ->
                         rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getName())));
             } else {

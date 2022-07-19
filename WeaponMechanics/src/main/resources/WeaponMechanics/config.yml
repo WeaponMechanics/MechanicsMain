@@ -142,9 +142,9 @@ Damage:
       IRON: -0.04
       DIAMOND: -0.05
       NETHERITE: -0.05
-    Enchantments:
-      PROTECTION_ENVIRONMENTAL: -0.005
-      PROJECTILE_PROTECTION: -0.0175
+    Enchantments: # in 1.13+, These must use MINECRAFT names... all lowercase
+      protection: -0.005
+      projectile_protection: -0.0175
   Movement:
     Sneaking: -0.01
     Walking: 0.025
@@ -157,6 +157,9 @@ Damage:
     ARMS: -0.005
     LEGS: -0.005
     FEET: -0.005
+  Entities:
+    PLAYER: -0.01 # players take 1% less damage from guns compared to other mobs
+    ZOMBIE: 0.01 # zombies take 1% more damage from guns compared to other mobs
 
 # These values are used internally for figuring out headshots, bodyshots, etc.
 # Changing these values effectively allow you to decide how big a head hitbox
