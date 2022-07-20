@@ -569,7 +569,7 @@ public class ShootHandler implements IValidator {
             handData.setLastShotTime(System.currentTimeMillis());
 
             if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Delay_Between_Shots") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper, weaponStack.getType(),
+                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(),
                         config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots") / 50);
             }
         }
