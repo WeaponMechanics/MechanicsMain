@@ -128,7 +128,6 @@ public class NBT_1_12_R1 implements NBTCompatibility {
             long uuidLeast = nbt.getLong("UUIDLeast");
             long uuidMost = nbt.getLong("UUIDMost");
 
-            // There is no offhand, or slot argument in 1_8_8.
             if (!"MechanicsCoreAttribute".equals(name)
                     || !attribute.getMinecraftName().equals(attributeName)
                     || uuid.getLeastSignificantBits() != uuidLeast

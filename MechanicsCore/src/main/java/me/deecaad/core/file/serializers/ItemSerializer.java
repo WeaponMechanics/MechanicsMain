@@ -117,7 +117,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         List<String[]> enchantments = data.ofList("Enchantments")
                 .addArgument(Enchantment.class, true, true)
                 .addArgument(int.class, true)
-                .get();
+                .assertList().get();
 
 
         if (enchantments != null) {
@@ -144,25 +144,16 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 .addArgument(AttributeType.class, true)
                 .addArgument(double.class, true)
                 .addArgument(NBTCompatibility.AttributeSlot.class, false)
-                .get();
+                .assertList().get();
 
         if (attributes != null) {
             for (String[] split : attributes) {
 
-                List<AttributeType> attributeTypes = EnumUtil.parseEnums(AttributeType.class, split[0]);
-                List<NBTCompatibility.AttributeSlot> attributeSlots = split.length > 2 ? EnumUtil.parseEnums(NBTCompatibility.AttributeSlot.class, split[2]) : null;
+                AttributeType attribute = EnumUtil.parseEnums(AttributeType.class, split[0]).get(0);
+                NBTCompatibility.AttributeSlot slot = split.length > 2 ? EnumUtil.parseEnums(NBTCompatibility.AttributeSlot.class, split[2]).get(0) : null;
                 double amount = Double.parseDouble(split[1]);
 
-                for (AttributeType attribute : attributeTypes) {
-                    if (attributeSlots == null) {
-                        CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, null, amount);
-                        continue;
-                    }
-
-                    for (NBTCompatibility.AttributeSlot slot : attributeSlots) {
-                        CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, slot, amount);
-                    }
-                }
+                CompatibilityAPI.getNBTCompatibility().setAttribute(itemStack, attribute, slot, amount);
             }
         }
 
