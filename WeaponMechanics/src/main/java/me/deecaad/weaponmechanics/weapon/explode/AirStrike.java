@@ -205,7 +205,7 @@ public class AirStrike implements Serializer<AirStrike> {
                     cancel();
                 }
             }
-        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, delay);
+        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, delay);
     }
 
     @Override
