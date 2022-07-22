@@ -365,7 +365,7 @@ public class TriggerPlayerListeners implements Listener {
 
         // Only need to check main-hand for breaking blocks
         ItemStack weapon = player.getInventory().getItemInMainHand();
-        String weaponTitle = !isValid(weapon) ? null : weaponHandler.getInfoHandler().getWeaponTitle(weapon, true);
+        String weaponTitle = !isValid(weapon) ? null : weaponHandler.getInfoHandler().getWeaponTitle(weapon, false);
 
         if (weaponTitle != null && getConfigurations().getBool(weaponTitle + ".Info.Cancel.Break_Blocks")) {
             event.setCancelled(true);
