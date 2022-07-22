@@ -171,6 +171,7 @@ public class SerializeData {
         // Stores the class arguments, which is used to check the format
         private final LinkedList<ClassArgument> arguments;
         private final String relative;
+        private boolean didAssertions; // turns to true after assertList()
 
         public ConfigListAccessor(String relative) {
             this.arguments = new LinkedList<>();
@@ -244,6 +245,8 @@ public class SerializeData {
         public ConfigListAccessor assertList() throws SerializerException {
             if (arguments.isEmpty())
                 throw new IllegalStateException("Need to set arguments before assertions");
+
+            didAssertions = true;
 
             // The first step is to assert that the value stored at this key
             // is a list (of any generic-type).
@@ -364,6 +367,8 @@ public class SerializeData {
 
         @SuppressWarnings("rawtypes")
         public List<String[]> get() {
+            if (!didAssertions)
+                throw new IllegalStateException("Forgot to call assertList()? Did something go wrong?");
 
             // Use assertExists for required keys
             if (!config.contains(key + "." + relative))

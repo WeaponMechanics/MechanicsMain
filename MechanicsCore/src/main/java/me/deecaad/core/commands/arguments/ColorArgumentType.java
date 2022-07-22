@@ -26,30 +26,30 @@ public class ColorArgumentType extends CommandArgumentType<Color> {
         String input = context.getArgument(key, String.class);
 
         Optional<ChatColor> optional = EnumUtil.getIfPresent(ChatColor.class, input);
-        int rgb;
-        if (optional.isPresent())
-            rgb = optional.get().asBungee().getColor().getRGB();
-        else {
-            try {
-                rgb = Integer.parseInt(input, 16);
-            } catch (NumberFormatException ex) {
-                throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create("For hex: " + input);
-            }
+        if (optional.isPresent()) {
+            java.awt.Color color = optional.get().asBungee().getColor();
+            return Color.fromRGB(0xff & color.getRed(), 0xff & color.getGreen(), 0xff & color.getBlue());
         }
 
-        return Color.fromRGB(rgb);
+        try {
+            int rgb = 0xffffff & Integer.parseInt(input, 16);
+            return Color.fromRGB(rgb);
+        } catch (NumberFormatException ex) {
+            throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherParseException().create("For hex: " + input);
+        }
     }
 
     @Override
     public CompletableFuture<Suggestions> suggestions(CommandContext<Object> context, SuggestionsBuilder builder) {
-        builder.suggest("FFFFFF", new LiteralMessage("white"));
-        builder.suggest("FF0000", new LiteralMessage("red"));
-        builder.suggest("00FF00", new LiteralMessage("green"));
+        builder.suggest("ffffff", new LiteralMessage("white"));
+        builder.suggest("ff0000", new LiteralMessage("red"));
+        builder.suggest("00ff00", new LiteralMessage("green"));
         builder.suggest("0000ff", new LiteralMessage("blue"));
         builder.suggest("000000", new LiteralMessage("black"));
 
-        for (String str : EnumUtil.getOptions(ChatColor.class))
-            builder.suggest(str);
+        for (ChatColor color : EnumUtil.getValues(ChatColor.class))
+            if (color.asBungee().getColor() != null)
+                builder.suggest(color.name());
 
         return builder.buildFuture();
     }

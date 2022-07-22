@@ -1,6 +1,7 @@
 package me.deecaad.core.utils;
 
 import me.deecaad.core.MechanicsCore;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import org.bukkit.map.MapFont;
@@ -145,6 +146,18 @@ public class TableBuilder {
             // characters. This will "abbreviate" long strings, and "fill"
             // short strings.
             StringBuilder cell = new StringBuilder(text.content());
+
+            // We must do this for text builder "children"
+            boolean deleteCell = false;
+            int originalLength = cell.length();
+            if (cell.length() == 0) {
+                deleteCell = true;
+                for (Component component : text.children())
+                    cell.append(((TextComponent) component).content());
+
+                originalLength = cell.length();
+            }
+
             MechanicsCore.debug.debug("TableBuild :: " + i);
             MechanicsCore.debug.debug("TableBuild :: CELL BEFORE :: '" + cell + "'");
 
@@ -158,15 +171,24 @@ public class TableBuilder {
                     count++;
             }
 
+            if (deleteCell) {
+                cell = new StringBuilder(cell.substring(originalLength));
+            }
+
             // Although we reset style here, (and maybe we shouldn't reset
             // style), it is still important to allow TextComponents for
             // click and hover events.
             MechanicsCore.debug.debug("TableBuild :: CELL AFTER  :: '" + cell + "'");
             MechanicsCore.debug.debug("TableBuild :: COMBINED    :: '" + prefix + cell + StringUtil.repeat("|", count) + "'");
-            text = text.content(cell.toString()).style(text.style().merge(elementStyle));
-            builder.append(text().content(prefix).style(elementCharStyle));
+
+            if (deleteCell)
+                text = text.append(text(cell.toString()));
+            else
+                text = text.content(cell.toString()).style(text.style().merge(elementStyle));
+
+            builder.append(text(prefix).style(elementCharStyle));
             builder.append(text);
-            builder.append(text().content(StringUtil.repeat("|", count)).style(elementCharStyle));
+            builder.append(text(StringUtil.repeat("|", count)).style(elementCharStyle));
 
             if (i % constraints.columns == constraints.columns - 1) {
                 builder.append(newline());

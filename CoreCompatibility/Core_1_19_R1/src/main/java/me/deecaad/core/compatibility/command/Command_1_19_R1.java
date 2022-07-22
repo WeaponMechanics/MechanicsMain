@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.Column;
 import me.deecaad.core.commands.wrappers.Location2d;
 import me.deecaad.core.commands.wrappers.Rotation;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandBuildContext;
@@ -396,8 +397,9 @@ public class Command_1_19_R1 implements CommandCompatibility {
         ResourceOrTagLocationArgument.Result<net.minecraft.world.level.biome.Biome> biomeResult = ResourceOrTagLocationArgument.getRegistryType(cast(context), key, Registry.BIOME_REGISTRY, ERROR_BIOME_INVALID);
 
         String biome = biomeResult.asPrintable();
+
         if (biomeResult.unwrap().left().isPresent()) {
-            return Biome.valueOf(biomeResult.unwrap().left().get().location().getPath().toUpperCase());
+            return EnumUtil.getIfPresent(Biome.class, biomeResult.unwrap().left().get().location().getPath().toUpperCase()).orElseThrow(() -> ERROR_BIOME_INVALID.create(biome)); // default to plains because SOMEONE *cough* mojang *cough* doesnt check this
         } else {
             throw ERROR_BIOME_INVALID.create(biome);
         }

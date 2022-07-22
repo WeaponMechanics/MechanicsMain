@@ -105,6 +105,10 @@ public class NBT_1_12_R1 implements NBTCompatibility {
 
         NBTTagList list = (NBTTagList) compound.get("AttributeModifiers");
 
+        // Attributes have a UUID which is used by Minecraft... If we have
+        // a duplicate UUID, an undefined attribute will be ignored
+        UUID uuid = slot == null ? attribute.getUUID() : slot.modify(attribute.getUUID());
+
         // NBT lists don't have an indexOf method, so we need to loop
         // through each attribute, and determine if it is one we want to
         // modify. We want to modify an attribute if the attribute was
@@ -121,9 +125,13 @@ public class NBT_1_12_R1 implements NBTCompatibility {
             NBTTagCompound nbt = list.get(i);
             String name = nbt.getString("Name");
             String attributeName = nbt.getString("AttributeName");
+            long uuidLeast = nbt.getLong("UUIDLeast");
+            long uuidMost = nbt.getLong("UUIDMost");
 
-            // There is no offhand, or slot argument in 1_8_8.
-            if (!"MechanicsCoreAttribute".equals(name) || !attribute.getMinecraftName().equals(attributeName)) {
+            if (!"MechanicsCoreAttribute".equals(name)
+                    || !attribute.getMinecraftName().equals(attributeName)
+                    || uuid.getLeastSignificantBits() != uuidLeast
+                    || uuid.getMostSignificantBits() != uuidMost) {
                 continue;
             }
 
@@ -140,8 +148,9 @@ public class NBT_1_12_R1 implements NBTCompatibility {
             nbt.setString("Name", "MechanicsCoreAttribute");
             nbt.setDouble("Amount", value);
             nbt.setInt("Operation", 0); // 0 == add
-            nbt.setLong("UUIDLeast", attribute.getUUID().getLeastSignificantBits());
-            nbt.setLong("UUIDMost", attribute.getUUID().getMostSignificantBits());
+
+            nbt.setLong("UUIDLeast", uuid.getLeastSignificantBits());
+            nbt.setLong("UUIDMost", uuid.getMostSignificantBits());
 
             if (slot != null) {
                 nbt.setString("Slot", slot.getSlotName());

@@ -33,6 +33,7 @@ AX-50:
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
+      Break_Blocks: true
   Projectile: "sniper_rifle.Projectile"
   Shoot:
     Trigger:

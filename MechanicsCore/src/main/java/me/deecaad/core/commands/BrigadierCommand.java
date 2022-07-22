@@ -157,10 +157,11 @@ public class BrigadierCommand implements Command<Object> {
             List<Object> previousArguments = new ArrayList<>();
 
             for (Argument<?> arg : this.builder.args) {
-                if (arg.getName().equals(argument.getName()))
+                if (arg == argument)
                     break;
 
-                previousArguments.add(arg.isListed() ? arg.parse(context, arg.getName()) : null);
+                if (arg.isListed())
+                    previousArguments.add(arg.parse(context, arg.getName()));
             }
 
             CommandData data = new CommandData(sender, previousArguments.toArray(), builder.getInput(), builder.getRemaining());

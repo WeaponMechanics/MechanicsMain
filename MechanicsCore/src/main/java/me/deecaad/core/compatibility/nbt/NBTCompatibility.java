@@ -1,6 +1,5 @@
 package me.deecaad.core.compatibility.nbt;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.AttributeType;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -8,13 +7,13 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * This interface outlines a version dependant api that return values based on
@@ -274,7 +273,7 @@ public interface NBTCompatibility {
         ItemMeta itemMeta = bukkitItem.getItemMeta();
         Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
 
-        AttributeModifier hand = new AttributeModifier(attribute.getUUID(), "MechanicsCoreAttribute", value, AttributeModifier.Operation.ADD_NUMBER, slot == null ? null : slot.getEquipmentSlot());
+        AttributeModifier hand = new AttributeModifier(slot == null ? attribute.getUUID() : slot.modify(attribute.getUUID()), "MechanicsCoreAttribute", value, AttributeModifier.Operation.ADD_NUMBER, slot == null ? null : slot.getEquipmentSlot());
 
         // API doesn't allow modifying AttributeModifiers so I have to delete old ones based on their UUIDs
         // and add these new AttributeModifiers which contain new amount for the Attribute
@@ -335,19 +334,21 @@ public interface NBTCompatibility {
      */
     enum AttributeSlot {
 
-        MAIN_HAND,
-        OFF_HAND,
-        FEET,
-        LEGS,
-        CHEST,
-        HEAD;
+        MAIN_HAND(1),
+        OFF_HAND(6),
+        FEET(5),
+        LEGS(4),
+        CHEST(3),
+        HEAD(2);
 
         private final EquipmentSlot slot;
         private final String slotName;
+        private final long uuidModifier;
 
-        AttributeSlot() {
+        AttributeSlot(long uuidModifier) {
             this.slot = name().equals("MAIN_HAND") ? EquipmentSlot.HAND : EquipmentSlot.valueOf(name());
             this.slotName = name().replaceAll("_", "").toLowerCase(Locale.ROOT);
+            this.uuidModifier = uuidModifier;
         }
 
         public EquipmentSlot getEquipmentSlot() {
@@ -356,6 +357,10 @@ public interface NBTCompatibility {
 
         public String getSlotName() {
             return slotName;
+        }
+
+        public UUID modify(UUID uuid) {
+            return new UUID(uuid.getMostSignificantBits() + uuidModifier, uuid.getLeastSignificantBits());
         }
 
         @Override

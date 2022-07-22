@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.block.Biome;
 
 import java.util.concurrent.CompletableFuture;
@@ -13,7 +14,7 @@ public class BiomeArgumentType extends CommandArgumentType<Biome> {
 
     @Override
     public ArgumentType<?> getBrigadierType() {
-        return compatibility().key();
+        return compatibility().biome();
     }
 
     @Override

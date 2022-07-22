@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -355,6 +356,19 @@ public class TriggerPlayerListeners implements Listener {
                 Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, toOffWeapon,
                         playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null));
             }
+        }
+    }
+
+    @EventHandler (ignoreCancelled = true)
+    public void onBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+
+        // Only need to check main-hand for breaking blocks
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+        String weaponTitle = !isValid(weapon) ? null : weaponHandler.getInfoHandler().getWeaponTitle(weapon, true);
+
+        if (weaponTitle != null && getConfigurations().getBool(weaponTitle + ".Info.Cancel.Break_Blocks")) {
+            event.setCancelled(true);
         }
     }
 

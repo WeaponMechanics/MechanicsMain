@@ -30,6 +30,7 @@ R9-0:
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
+      Break_Blocks: true
   Projectile: "shotgun.Projectile"
   Shoot:
     Trigger:

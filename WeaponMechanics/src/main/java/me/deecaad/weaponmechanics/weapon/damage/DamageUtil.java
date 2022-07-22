@@ -70,11 +70,10 @@ public class DamageUtil {
 
             rate.addAndGet(config.getDouble("Damage.Armor." + slot + "." + material, 0.0));
 
+            // Reduce damage based on entity type, #110
+            rate.addAndGet(config.getDouble("Damage.Entities." + victim.getType(), 0.0));
+
             if (ReflectionUtil.getMCVersion() < 13) {
-
-                // TODO
-                // TEMP FIX
-
                 armorSlot.getEnchantments().forEach((enchant, level) ->
                         rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getName())));
             } else {
@@ -171,48 +170,63 @@ public class DamageUtil {
     
     public static void damageArmor(LivingEntity victim, int amount, @Nullable DamagePoint point) {
 
-        // If the damage amount is 0, we can skip all of the calculations
-        if (amount <= 0) {
+        // If the damage amount is 0, we can skip the calculations
+        if (amount <= 0)
             return;
-        }
 
         // Stores which armors should be damaged
-        ItemStack[] armor;
         EntityEquipment equipment = victim.getEquipment();
+        if (equipment == null)
+            return;
+
         if (point == null) {
-            armor = new ItemStack[]{equipment.getHelmet(), equipment.getChestplate(), equipment.getLeggings(), equipment.getBoots()};
+            ItemStack helmet = damage(equipment.getHelmet(), amount);
+            equipment.setHelmet(helmet);
+            ItemStack chestplate = damage(equipment.getChestplate(), amount);
+            equipment.setChestplate(chestplate);
+            ItemStack leggings = damage(equipment.getLeggings(), amount);
+            equipment.setLeggings(leggings);
+            ItemStack boots = damage(equipment.getBoots(), amount);
+            equipment.setBoots(boots);
         } else {
             switch (point) {
                 case HEAD:
-                    armor = new ItemStack[]{equipment.getHelmet()};
+                    ItemStack helmet = damage(equipment.getHelmet(), amount);
+                    equipment.setHelmet(helmet);
                     break;
                 case BODY: case ARMS:
-                    armor = new ItemStack[]{equipment.getChestplate()};
+                    ItemStack chestplate = damage(equipment.getChestplate(), amount);
+                    equipment.setChestplate(chestplate);
                     break;
                 case LEGS:
-                    armor = new ItemStack[]{equipment.getLeggings()};
+                    ItemStack leggings = damage(equipment.getLeggings(), amount);
+                    equipment.setLeggings(leggings);
                     break;
                 case FEET:
-                    armor = new ItemStack[]{equipment.getBoots()};
+                    ItemStack boots = damage(equipment.getBoots(), amount);
+                    equipment.setBoots(boots);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown point: " + point);
             }
         }
-    
-        for (ItemStack armorSlot : armor) {
-            if (armorSlot == null || "AIR".equals(armorSlot.getType().name()))
-                continue;
+    }
 
-            if (CompatibilityAPI.getVersion() >= 1.132) {
-                if (armorSlot instanceof Damageable) {
-                    Damageable meta = (Damageable) armorSlot;
-                    meta.setDamage(meta.getDamage() - amount);
-                }
-            } else {
-                armorSlot.setDurability((short) (armorSlot.getDurability() - amount));
+    private static ItemStack damage(ItemStack armor, int amount) {
+        if (armor == null || "AIR".equals(armor.getType().name()))
+            return null;
+
+        if (ReflectionUtil.getMCVersion() >= 13) {
+            if (armor.getItemMeta() instanceof Damageable) {
+                Damageable meta = (Damageable) armor.getItemMeta();
+                meta.setDamage(meta.getDamage() + amount);
+                armor.setItemMeta(meta);
             }
+        } else {
+            armor.setDurability((short) (armor.getDurability() + amount));
         }
+
+        return armor;
     }
     
     /**

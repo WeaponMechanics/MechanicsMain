@@ -16,7 +16,7 @@ public interface Tooltip {
         return new Tooltip() {
             @Override
             public String suggestion() {
-                return Objects.toString(suggestion, null);
+                return Objects.toString(suggestion, "null");
             }
 
             @Override
