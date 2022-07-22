@@ -1,7 +1,7 @@
 Airstrike:
   Info:
     Weapon_Item:
-      Type: "FEATHER"
+      Type: "REDSTONE_TORCH"
       Name: "&6Airstrike"
       Lore:
         - "&7Calls in an airstrike at the flare position."
@@ -16,6 +16,9 @@ Airstrike:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Block_Interactions: true
+      Item_Interactions: true
   Projectile:
     Projectile_Settings:
       Type: "DROPPED_ITEM"

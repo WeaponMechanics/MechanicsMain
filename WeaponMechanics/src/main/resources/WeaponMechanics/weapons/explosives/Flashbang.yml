@@ -1,7 +1,7 @@
 Flashbang:
   Info:
     Weapon_Item:
-      Type: "FEATHER"
+      Type: "BLACK_CANDLE"
       Name: "&6Flashbang"
       Lore:
         - "&7Device that blinds and slows the target when detonated."
@@ -14,6 +14,9 @@ Flashbang:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Block_Interactions: true
+      Item_Interactions: true
   Projectile:
     Projectile_Settings:
       Type: "PRIMED_TNT"

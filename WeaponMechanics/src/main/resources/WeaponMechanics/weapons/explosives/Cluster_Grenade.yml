@@ -1,7 +1,7 @@
 Cluster_Grenade:
   Info:
     Weapon_Item:
-      Type: "FEATHER"
+      Type: "TNT"
       Name: "&6Cluster Grenade"
       Lore:
         - "&7Grenade that explodes in a series of smaller blasts."
@@ -15,6 +15,9 @@ Cluster_Grenade:
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+    Cancel:
+      Block_Interactions: true
+      Item_Interactions: true
   Projectile:
     Projectile_Settings:
       Type: "PRIMED_TNT"
