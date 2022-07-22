@@ -199,7 +199,11 @@ public class RayTrace {
         if (entityFilter != null && entityFilter.test((LivingEntity) entity)) return null;
 
         HitBox entityBox = weaponCompatibility.getHitBox(entity);
-        if (entityBox == null || !hitBox.overlaps(entityBox)) return null;
+        if (entityBox == null) return null;
+
+        entityBox.expand(entity.getVelocity(), 1.0);
+        entityBox.grow(0.3);
+        if (!hitBox.overlaps(entityBox)) return null;
 
         return entityBox.rayTrace(start, direction);
     }

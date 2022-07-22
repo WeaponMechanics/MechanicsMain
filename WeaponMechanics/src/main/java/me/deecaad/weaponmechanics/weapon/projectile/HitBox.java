@@ -429,13 +429,26 @@ public class HitBox implements IValidator {
      */
     public HitBox expand(Vector direction, double expansion) {
         double dirX = direction.getX(), dirY = direction.getY(), dirZ = direction.getZ();
-        double negativeX = dirX < 0.0D ? -dirX * expansion : 0.0D;
-        double negativeY = dirY < 0.0D ? -dirY * expansion : 0.0D;
-        double negativeZ = dirZ < 0.0D ? -dirZ * expansion : 0.0D;
-        double positiveX = dirX > 0.0D ? dirX * expansion : 0.0D;
-        double positiveY = dirY > 0.0D ? dirY * expansion : 0.0D;
-        double positiveZ = dirZ > 0.0D ? dirZ * expansion : 0.0D;
+        if (dirX == 0.0 && dirY == 0.0 && dirZ == 0.0) return this;
+
+        double negativeX = dirX < 0.0 ? -dirX * expansion : 0.0;
+        double negativeY = dirY < 0.0 ? -dirY * expansion : 0.0;
+        double negativeZ = dirZ < 0.0 ? -dirZ * expansion : 0.0;
+        double positiveX = dirX > 0.0 ? dirX * expansion : 0.0;
+        double positiveY = dirY > 0.0 ? dirY * expansion : 0.0;
+        double positiveZ = dirZ > 0.0 ? dirZ * expansion : 0.0;
         return this.expand(negativeX, negativeY, negativeZ, positiveX, positiveY, positiveZ);
+    }
+
+    /**
+     * Grows this hit box in all directions with given amount
+     *
+     * @param amount the amount to grow hit box
+     * @return the grown hit box
+     */
+    public HitBox grow(double amount) {
+        return this.modify(minX - amount, minY - amount, minZ - amount,
+                maxX + amount, maxY + amount, maxZ + amount);
     }
 
     public void outlineAllBoxes(Entity player) {

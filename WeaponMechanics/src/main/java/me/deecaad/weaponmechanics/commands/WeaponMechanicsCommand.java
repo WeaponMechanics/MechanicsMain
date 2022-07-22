@@ -652,7 +652,7 @@ public class WeaponMechanicsCommand {
                         continue;
                     }
 
-                    BoundingBox box = entity.getBoundingBox();
+                    HitBox box = WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(entity);
                     double max = box.getMaxY();
                     double height = box.getHeight();
 
