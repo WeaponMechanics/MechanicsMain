@@ -7,8 +7,10 @@ import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 
 import javax.annotation.Nonnull;
 
@@ -202,12 +204,13 @@ public class EntityWrapper {
 
     /**
      * Returns <code>true</code> if the entity is dual wielding,
-     * meaning when they have weapons equipped in both hands.
+     * meaning when they have items equipped in both hands.
      *
      * @return <code>true</code> when the entity is dual wielding.
      */
     public boolean isDualWielding() {
-        return getMainHandData().getCurrentWeaponTitle() != null && getOffHandData().getCurrentWeaponTitle() != null;
+        EntityEquipment entityEquipment = entity.getEquipment();
+        return entityEquipment.getItemInMainHand().getType() != Material.AIR && entityEquipment.getItemInOffHand().getType() != Material.AIR;
     }
 
     /**
