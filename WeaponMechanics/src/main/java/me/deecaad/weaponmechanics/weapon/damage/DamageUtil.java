@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -215,6 +216,15 @@ public class DamageUtil {
     private static ItemStack damage(ItemStack armor, int amount) {
         if (armor == null || "AIR".equals(armor.getType().name()))
             return null;
+
+
+        if (armor.hasItemMeta()) {
+            int level = armor.getItemMeta().getEnchantLevel(Enchantment.DURABILITY);
+            boolean damages = NumberUtil.chance(0.6 + 0.4 / (level + 1));
+
+            if (!damages)
+                return armor;
+        }
 
         if (ReflectionUtil.getMCVersion() >= 13) {
             if (armor.getItemMeta() instanceof Damageable) {
