@@ -186,20 +186,20 @@ public class FileReader {
     public Configuration fillOneFile(File file) {
         Configuration filledMap = new LinkedConfig();
 
-        // This is used with the serializer's pathTo functionality.
-        // AND
         // If a serializer is found, it's path is saved here. Any
-        // variable within a serializer is then "skipped"
+        // NON SERIALIZER variable within a serializer is then "skipped"
+        // Meaning booleans, numbers, etc. are skipped
         String startsWithDeny = null;
 
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
-            if (startsWithDeny != null) {
-                if (key.startsWith(startsWithDeny)) {
-                    continue;
-                }
+
+            // Remove the starsWithDeny if the key does no longer start with it
+            // Booleans, numbers, etc. can then be saved again
+            if (startsWithDeny != null && !key.startsWith(startsWithDeny)) {
                 startsWithDeny = null;
             }
+
             String[] keySplit = key.split("\\.");
             if (keySplit.length > 0) {
                 // Get the last "key name" of the key
@@ -207,7 +207,7 @@ public class FileReader {
 
                 IValidator validator = this.validators.get(lastKey);
                 if (validator != null) {
-                    validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+                    if (startsWithDeny == null) validatorDatas.add(new ValidatorData(validator, file, configuration, key));
                 }
 
                 // Check if this key is a serializer, and that it isn't the header and handle pathTo
@@ -215,8 +215,7 @@ public class FileReader {
                 if (serializer != null && keySplit.length > 1) {
                     String pathTo = serializer.useLater(configuration, key);
                     if (pathTo != null) {
-                        startsWithDeny = key;
-                        pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
+                        if (startsWithDeny == null) pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
                     } else {
                         try {
 
@@ -225,11 +224,14 @@ public class FileReader {
                             // exception.
                             Object valid = serializer.serialize(new SerializeData(serializer, file, key, configuration));
                             filledMap.set(key, valid);
-                            startsWithDeny = key;
+
+                            // Only update the startsWithDeny if this is the "main serializer"
+                            // If this serialization happened within serializer (meaning this is child serializer), startsWithDeny is not null
+                            if (startsWithDeny == null) startsWithDeny = key;
 
                         } catch (SerializerException e) {
                             e.log(debug);
-                            startsWithDeny = key;
+                            if (startsWithDeny == null) startsWithDeny = key;
                         } catch (Exception e) {
 
                             // Any Exception other than SerializerException
@@ -240,12 +242,25 @@ public class FileReader {
                     continue;
                 }
             }
+
+            if (startsWithDeny != null && key.startsWith(startsWithDeny)) {
+                continue;
+            }
+
+            // We don't want to store these
+            if (configuration.isConfigurationSection(key)) continue;
+
             Object object = configuration.get(key);
             filledMap.set(key, object);
         }
         if (filledMap.getKeys().isEmpty()) {
             return null;
         }
+
+        filledMap.forEach("AK-47", (str, obj) -> {
+            System.out.println(str + " - " + obj);
+        }, true);
+
         return filledMap;
     }
 
