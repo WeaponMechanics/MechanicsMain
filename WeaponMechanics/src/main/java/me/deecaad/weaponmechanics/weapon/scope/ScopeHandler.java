@@ -114,10 +114,11 @@ public class ScopeHandler implements IValidator {
                 }
 
                 // E.g. when there is 2 defined values in stacks:
-                // 0 < 1 // TRUE
-                // 1 < 1 // TRUE
-                // 2 < 1 // FALSE
-                if (zoomData.getZoomStacks() < zoomStacks.size() - 1) { // meaning that zoom stacks have NOT reached maximum stacks
+                // 0 < 2 // TRUE
+                // 1 < 2 // TRUE
+                // 2 < 2 // FALSE
+
+                if (zoomData.getZoomStacks() < zoomStacks.size()) { // meaning that zoom stacks have NOT reached maximum stacks
                     // Should not turn off and stack instead
                     return zoomIn(weaponStack, weaponTitle, entityWrapper, zoomData, slot); // Zoom in handles stacking on its own
                 }

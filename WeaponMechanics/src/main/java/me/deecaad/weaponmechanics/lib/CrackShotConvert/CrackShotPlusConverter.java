@@ -94,7 +94,7 @@ public class CrackShotPlusConverter {
         SOUNDS_SCOPE("Scope.Custom_Scope_Sound", "Scope.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
         SOUNDS_SCOPE_END("Scope.Custom_Scope_End_Sound", "Scope.Zoom_Off.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
         SECOND_ZOOM_STACKS("Scope.Second_Zoom.Amount", "Scope.Zoom_Stacking.Stacks", Type.INT, new GeneralObjectModifier(x ->
-                Collections.singletonList(NumberUtil.lerp(1, 10, (((double) x > 6 ? 6 : (double) x) / 6))))),
+                Collections.singletonList(NumberUtil.lerp(1, 5, (int) x > 6 ? 6 : ((double) ((int) x)) / 6)))),
 
         // SHOOT
         INVISIBLE_PROJECTILES("Shoot.Invisible_Projectiles", "Projectile.Projectile_Settings.Type", Type.BOOL, new GeneralObjectModifier(x -> "INVISIBLE")),
