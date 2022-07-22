@@ -15,11 +15,11 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final ScopeType scopeType;
-    private int zoomAmount;
+    private double zoomAmount;
     private final int zoomStack;
     private boolean isCancelled;
     
-    public WeaponScopeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity livingEntity, ScopeType scopeType, int zoomAmount, int zoomStack) {
+    public WeaponScopeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity livingEntity, ScopeType scopeType, double zoomAmount, int zoomStack) {
         super(weaponTitle, weaponStack, livingEntity);
 
         this.scopeType = scopeType;
@@ -40,7 +40,7 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
      *
      * @return the NEW zoom amount (1-32)
      */
-    public int getZoomAmount() {
+    public double getZoomAmount() {
         return zoomAmount;
     }
 
@@ -49,9 +49,9 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
      *
      * @param zoomAmount the new zoom amount
      */
-    public void setZoomAmount(int zoomAmount) {
-        if (zoomAmount < 1 || zoomAmount > 32) {
-            throw new IllegalArgumentException("Zoom amount must be between 1 and 32");
+    public void setZoomAmount(double zoomAmount) {
+        if (zoomAmount < 1 || zoomAmount > 10) {
+            throw new IllegalArgumentException("Zoom amount must be between 1 and 10");
         }
         this.zoomAmount = zoomAmount;
     }

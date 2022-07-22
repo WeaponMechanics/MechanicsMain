@@ -34,7 +34,7 @@ public class OutAbilitiesListener extends PacketHandler {
         // Not zooming
         if (!main.isZooming() && !off.isZooming()) return;
 
-        int zoomAmount = main.isZooming() ? main.getZoomAmount() : off.getZoomAmount();
+        double zoomAmount = main.isZooming() ? main.getZoomAmount() : off.getZoomAmount();
 
         // If player is in VR this happens
         if (zoomAmount == 0) return;

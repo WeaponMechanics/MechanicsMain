@@ -80,7 +80,7 @@ AX-50:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
-    Zoom_Amount: 8
+    Zoom_Amount: 1.5
     Mechanics:
       Sounds:
         - "custom:scope.in-0.5-1-0-0.1"
@@ -89,8 +89,9 @@ AX-50:
         Sounds:
           - "custom:scope.out-0.5-1-0-0.1"
     Zoom_Stacking:
-      Maximum_Stacks: 2
-      Increase_Zoom_Per_Stack: 10
+      Stacks:
+        - 3.0
+        - 7.0
       Mechanics:
         Sounds:
           - "custom:scope.in-0.5-1-0-0.1"

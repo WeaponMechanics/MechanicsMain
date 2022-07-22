@@ -49,7 +49,7 @@ public final class WeaponMechanicsAPI {
      * @see PlayerWrapper
      */
     @Nonnegative
-    public static int getScopeLevel(@Nonnull LivingEntity entity) {
+    public static double getScopeLevel(@Nonnull LivingEntity entity) {
         checkState();
         notNull(entity);
 
