@@ -17,6 +17,10 @@ Update_Checker:
     Minor: 1
     Patch: 1
 
+Messages:
+  Permissions:
+    Use_Weapon: "&4You do not have permission to use %weapon-title%"
+
 # Automatically download MechanicsCore when not already installed.
 Mechanics_Core_Download:
   Enabled: true

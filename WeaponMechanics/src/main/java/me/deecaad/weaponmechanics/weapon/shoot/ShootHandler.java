@@ -5,6 +5,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -33,7 +34,6 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -50,8 +50,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class ShootHandler implements IValidator {
 
@@ -151,9 +150,15 @@ public class ShootHandler implements IValidator {
             return false;
         }
 
+        LivingEntity shooter = entityWrapper.getEntity();
+
         // Handle permissions
-        if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
-            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+        boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle);
+        if (!hasPermission) {
+            if (shooter.getType() == EntityType.PLAYER) {
+                String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+            }
             return false;
         }
 

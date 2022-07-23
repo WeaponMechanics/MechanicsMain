@@ -19,7 +19,6 @@ import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -33,8 +32,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
 
 /**
@@ -116,6 +114,7 @@ public class WeaponHandler {
      * @param slot the weapon slot used
      * @param triggerType the trigger which caused this
      * @param dualWield whether this was dual wield
+     * @param victim if there is known victim
      */
     public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         if (!weaponStack.hasItemMeta()) return;
