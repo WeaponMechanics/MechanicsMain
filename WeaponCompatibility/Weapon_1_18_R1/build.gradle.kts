@@ -7,6 +7,8 @@ dependencies {
     paperDevBundle("1.18.1-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
     implementation(project(":WeaponMechanics"))
+
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 }
 
 //java {

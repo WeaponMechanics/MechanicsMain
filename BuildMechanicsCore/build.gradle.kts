@@ -48,6 +48,7 @@ bukkit {
     apiVersion = "1.13"
 
     authors = listOf("DeeCaaD", "CJCrafter")
+    depend = listOf("ProtocolLib")
     softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
     loadBefore = listOf("WeaponMechanics") // pretty hacky, but needed sometimes.
 }

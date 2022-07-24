@@ -1,46 +1,37 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import me.deecaad.core.packetlistener.Packet;
-import me.deecaad.core.packetlistener.PacketHandler;
-import me.deecaad.core.utils.ReflectionUtil;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
+import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Field;
+public class OutAbilitiesListener extends PacketAdapter {
 
-public class OutAbilitiesListener extends PacketHandler {
-
-    private static final Field walkSpeedField;
-
-    static {
-        Class<?> abilitiesPacket = ReflectionUtil.getPacketClass("PacketPlayOutAbilities");
-
-        walkSpeedField = ReflectionUtil.getField(abilitiesPacket, float.class, 1);
-    }
-
-    public OutAbilitiesListener() {
-        super("PacketPlayOutAbilities");
+    public OutAbilitiesListener(Plugin plugin) {
+        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.ABILITIES);
     }
 
     @Override
-    public void onPacket(Packet packet) {
-        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
+    public void onPacketReceiving(PacketEvent event) {
+        EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
 
-        ZoomData main = entityWrapper.getMainHandData().getZoomData();
-        ZoomData off = entityWrapper.getOffHandData().getZoomData();
+        ZoomData main = entity.getMainHandData().getZoomData();
+        ZoomData off = entity.getOffHandData().getZoomData();
 
-        // Not zooming
-        if (!main.isZooming() && !off.isZooming()) return;
+        // Player is not scoped in, no need to modify their FOV
+        if (!main.isZooming() && !off.isZooming())
+            return;
 
         double zoomAmount = main.isZooming() ? main.getZoomAmount() : off.getZoomAmount();
 
-        // If player is in VR this happens
-        if (zoomAmount == 0) return;
+        // Player is in VR (Vivecraft must be installed!)
+        if (zoomAmount == 0)
+            return;
 
-        // Set the f field to scope level amount.
-        // f field means walk speed field
-        packet.setFieldValue(walkSpeedField, ScopeLevel.getScope(zoomAmount));
+        event.getPacket().getFloat().write(1, (float) zoomAmount);
     }
 }

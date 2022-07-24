@@ -21,6 +21,8 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.0.0")
     implementation("me.cjcrafter:mechanicsautodownload:1.0.2")
 
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+
     compileOnly("net.kyori:adventure-api:4.11.0")
     compileOnly("net.kyori:adventure-text-serializer-legacy:4.11.0")
     compileOnly("net.kyori:adventure-platform-bukkit:4.1.1")

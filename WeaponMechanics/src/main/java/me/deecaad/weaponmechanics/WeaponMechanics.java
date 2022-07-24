@@ -2,13 +2,14 @@ package me.deecaad.weaponmechanics;
 
 import co.aikar.timings.lib.MCTiming;
 import co.aikar.timings.lib.TimingManager;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.*;
-import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
@@ -68,7 +69,7 @@ public class WeaponMechanics {
     WeaponHandler weaponHandler;
     UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
-    PacketHandlerListener packetListener;
+    ProtocolManager protocolManager;
     TimingManager timingManager;
     Metrics metrics;
 
@@ -301,11 +302,12 @@ public class WeaponMechanics {
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        packetListener = new PacketHandlerListener(getPlugin(), debug);
-        packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutSetSlotBobFix(getPlugin()), true);
+        protocolManager = ProtocolLibrary.getProtocolManager();
+
+        protocolManager.addPacketListener(new OutAbilitiesListener(javaPlugin));
+        protocolManager.addPacketListener(new OutEntityEffectListener(javaPlugin));
+        protocolManager.addPacketListener(new OutRemoveEntityEffectListener(javaPlugin));
+        protocolManager.addPacketListener(new OutSetSlotBobFix(javaPlugin));
     }
 
     void registerCommands() {
@@ -504,8 +506,6 @@ public class WeaponMechanics {
         projectilesRunnable = null;
         plugin = null;
         debug = null;
-        packetListener.close();
-        packetListener = null;
         WeaponMechanicsAPI.setInstance(null);
     }
 

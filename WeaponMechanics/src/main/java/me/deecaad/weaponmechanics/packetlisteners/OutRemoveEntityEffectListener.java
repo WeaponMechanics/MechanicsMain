@@ -1,15 +1,18 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import me.deecaad.core.packetlistener.Packet;
-import me.deecaad.core.packetlistener.PacketHandler;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 
-public class OutRemoveEntityEffectListener extends PacketHandler {
+public class OutRemoveEntityEffectListener extends PacketAdapter {
 
     private static final Field idField;
 
@@ -19,22 +22,22 @@ public class OutRemoveEntityEffectListener extends PacketHandler {
         idField = ReflectionUtil.getField(effectPacket, int.class);
     }
 
-    public OutRemoveEntityEffectListener() {
-        super("PacketPlayOutRemoveEntityEffect");
+    public OutRemoveEntityEffectListener(Plugin plugin) {
+        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.REMOVE_ENTITY_EFFECT);
     }
 
     @Override
-    public void onPacket(Packet packet) {
-        // If packet entity id is not player's id
-        if ((int) packet.getFieldValue(idField) != packet.getPlayer().getEntityId()) {
+    public void onPacketReceiving(PacketEvent event) {
+        if (event.getPacket().getIntegers().read(0) != event.getPlayer().getEntityId())
             return;
-        }
 
-        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
+        EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
 
-        if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision()) return;
-        if (!WeaponCompatibilityAPI.getScopeCompatibility().isRemoveNightVisionPacket(packet)) return;
+        if (!entity.getMainHandData().getZoomData().hasZoomNightVision() && !entity.getOffHandData().getZoomData().hasZoomNightVision())
+            return;
+        if (!WeaponCompatibilityAPI.getScopeCompatibility().isRemoveNightVisionPacket(event))
+            return;
 
-        packet.setCancelled(true);
+        event.setCancelled(true);
     }
 }

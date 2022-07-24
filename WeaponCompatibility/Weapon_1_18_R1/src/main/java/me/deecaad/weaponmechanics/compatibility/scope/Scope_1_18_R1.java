@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.compatibility.scope;
 
+import com.comphenix.protocol.events.PacketEvent;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -60,8 +61,8 @@ public class Scope_1_18_R1 implements IScopeCompatibility {
     }
 
     @Override
-    public boolean isRemoveNightVisionPacket(me.deecaad.core.packetlistener.Packet packet) {
+    public boolean isRemoveNightVisionPacket(PacketEvent event) {
         // 16 = night vision
-        return ((ClientboundRemoveMobEffectPacket) packet.getPacket()).getEffect() == MobEffect.byId(16);
+        return ((ClientboundRemoveMobEffectPacket) event.getPacket().getHandle()).getEffect() == MobEffect.byId(16);
     }
 }
