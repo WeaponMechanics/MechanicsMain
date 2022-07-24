@@ -4,6 +4,7 @@ import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -32,8 +33,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class MeleeHandler implements IValidator {
 
@@ -110,11 +110,14 @@ public class MeleeHandler implements IValidator {
 
         // Handle permissions
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(shooter, weaponTitle);
+        String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
 
         // Handle miss
         if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {
             if (!hasPermission) {
-                shooter.sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                if (shooter.getType() == EntityType.PLAYER) {
+                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+                }
                 return false;
             }
             weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
@@ -123,7 +126,9 @@ public class MeleeHandler implements IValidator {
         Mechanics meleeMissMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
         if (meleeMissMechanics != null) {
             if (!hasPermission) {
-                shooter.sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                if (shooter.getType() == EntityType.PLAYER) {
+                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+                }
                 return false;
             }
             meleeMissMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
@@ -131,7 +136,9 @@ public class MeleeHandler implements IValidator {
 
         if (meleeMissDelay != 0) {
             if (!hasPermission) {
-                shooter.sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                if (shooter.getType() == EntityType.PLAYER) {
+                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+                }
                 return false;
             }
 
