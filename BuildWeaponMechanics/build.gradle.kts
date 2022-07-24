@@ -80,6 +80,10 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_18_R2"))
         include(project(":Weapon_1_19_R1"))
 
+        relocate ("me.cjcrafter.auto", "me.deecaad.weaponmechanics.lib.auto") {
+            include(dependency("me.cjcrafter:mechanicsautodownload"))
+        }
+
         relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
             include(dependency("co.aikar:minecraft-timings"))
         }
