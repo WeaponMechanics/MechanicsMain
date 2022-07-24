@@ -12,11 +12,15 @@ import org.bukkit.plugin.Plugin;
 public class OutAbilitiesListener extends PacketAdapter {
 
     public OutAbilitiesListener(Plugin plugin) {
-        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.ABILITIES);
+        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.ABILITIES);
     }
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
+    }
+
+    @Override
+    public void onPacketSending(PacketEvent event) {
         EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
 
         ZoomData main = entity.getMainHandData().getZoomData();

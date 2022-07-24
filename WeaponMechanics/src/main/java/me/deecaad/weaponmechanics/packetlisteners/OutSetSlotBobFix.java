@@ -30,19 +30,6 @@ import java.util.Objects;
 
 public class OutSetSlotBobFix extends PacketAdapter implements Listener {
 
-    // * ----- REFLECTIONS ----- * //
-    private static final Field windowField;
-    private static final Field slotField;
-    private static final Field itemField;
-
-    static {
-        Class<?> packetClass = ReflectionUtil.getPacketClass("PacketPlayOutSetSlot");
-        windowField = ReflectionUtil.getField(packetClass, int.class, 0, true);
-        slotField = ReflectionUtil.getField(packetClass, int.class, ReflectionUtil.getMCVersion() >= 17 ? 2 : 1, true);
-        itemField = ReflectionUtil.getField(packetClass, ReflectionUtil.getNMSClass("world.item", "ItemStack"));
-    }
-    // * ----- END OF REFLECTIONS ----- * //
-
     private final Map<Player, SimpleItemData> mainHand;
     private final Map<Player, SimpleItemData> offHand;
 
@@ -83,8 +70,14 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
         offHand.remove(event.getPlayer());
     }
 
+
+
     @Override
     public void onPacketReceiving(PacketEvent event) {
+    }
+
+    @Override
+    public void onPacketSending(PacketEvent event) {
         Player player = event.getPlayer();
 
         // 0 is the player's inventory.

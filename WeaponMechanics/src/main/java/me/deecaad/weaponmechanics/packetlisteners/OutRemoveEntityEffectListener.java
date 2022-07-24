@@ -28,6 +28,10 @@ public class OutRemoveEntityEffectListener extends PacketAdapter {
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
+    }
+
+    @Override
+    public void onPacketSending(PacketEvent event) {
         if (event.getPacket().getIntegers().read(0) != event.getPlayer().getEntityId())
             return;
 

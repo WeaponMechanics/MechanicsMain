@@ -17,6 +17,10 @@ public class OutEntityEffectListener extends PacketAdapter {
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
+    }
+
+    @Override
+    public void onPacketSending(PacketEvent event) {
         int id = event.getPacket().getIntegers().read(0);
 
         // A negative ID doesn't happen in Vanilla Minecraft. When this is
