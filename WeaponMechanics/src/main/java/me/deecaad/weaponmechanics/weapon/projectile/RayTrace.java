@@ -90,7 +90,7 @@ public class RayTrace {
                     weaponCompatibility.getHitBox(firstHit.getBlock()).outlineAllBoxes(entity);
                 } else {
                     HitBox entityBox = weaponCompatibility.getHitBox(firstHit.getLivingEntity());
-                    entityBox.grow(0.3);
+                    entityBox.grow(0.1);
                     entityBox.outlineAllBoxes(entity);
                 }
             }
@@ -203,7 +203,7 @@ public class RayTrace {
         HitBox entityBox = weaponCompatibility.getHitBox(entity);
         if (entityBox == null) return null;
 
-        entityBox.grow(0.3);
+        entityBox.grow(0.1);
         if (!hitBox.overlaps(entityBox)) return null;
 
         return entityBox.rayTrace(start, direction);
