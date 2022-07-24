@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":MechanicsCore"))
     implementation("co.aikar:minecraft-timings:1.0.4")
     implementation("org.bstats:bstats-bukkit:3.0.0")
+    implementation("me.cjcrafter:mechanicsautodownload:1.0.2")
 
     compileOnly("net.kyori:adventure-api:4.11.0")
     compileOnly("net.kyori:adventure-text-serializer-legacy:4.11.0")
