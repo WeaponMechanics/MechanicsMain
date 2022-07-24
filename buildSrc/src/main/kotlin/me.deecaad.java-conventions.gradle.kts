@@ -41,6 +41,15 @@ repositories {
     maven {
         url = uri("https://mvn.lumine.io/repository/maven-public/")
     }
+
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsAutoDownload")
+        credentials {
+            username = "CJCrafter"
+            password = "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" // this is a public token created in CJCrafter's name which will never expire
+        }
+    }
 }
 
 dependencies {
