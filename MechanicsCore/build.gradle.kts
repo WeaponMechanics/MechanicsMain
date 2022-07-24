@@ -17,6 +17,7 @@ dependencies {
     implementation("net.kyori:adventure-api:4.11.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.11.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.1")
+    implementation("net.kyori:adventure-text-minimessage:4.11.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
