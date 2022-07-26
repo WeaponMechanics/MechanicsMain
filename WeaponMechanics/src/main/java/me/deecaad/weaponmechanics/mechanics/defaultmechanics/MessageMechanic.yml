@@ -15,6 +15,7 @@ Message:
     Fade_Out: <ticks>
   Boss_Bar:
     Title: "<yellow>Woo: <gradient:green:blue>||||||||||||||||||||||||</gradient>!"
-    Bar_Color: <BossBar.Color>
-    Bar_Style: <BossBar.Overlay>
+    Color: <BossBar.Color>
+    Style: <BossBar.Overlay>
+    Progress: <0..1>
     Time: <ticks>
