@@ -43,9 +43,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import javax.annotation.Nullable;
@@ -339,9 +341,14 @@ public class WeaponMechanics {
     }
 
     void registerPermissions() {
-        debug.debug("Registering permissions");
+        debug.info("Registering permissions"); // keep this on info just in case for infinite loop
 
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
+        if (parent == null) {
+            // Some older versions register permissions after onEnable...
+            new TaskChain(javaPlugin).thenRunSync(this::registerPermissions);
+            return;
+        }
 
         for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
             String permissionName = "weaponmechanics.use." + weaponTitle;
