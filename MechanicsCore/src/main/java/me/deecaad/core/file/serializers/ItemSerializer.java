@@ -10,6 +10,9 @@ import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -81,12 +84,24 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
 
         String name = data.of("Name").assertType(String.class).get(null);
-        if (name != null)
-            itemMeta.setDisplayName(StringUtil.color(name));
+        if (name != null) {
+            Component component = MechanicsCore.getPlugin().message.deserialize(name);
+            String element = LegacyComponentSerializer.legacySection().serialize(component);
+
+            itemMeta.setDisplayName(element);
+        }
 
         List<?> lore = data.of("Lore").assertType(List.class).get(null);
         if (lore != null && !lore.isEmpty()) {
-            itemMeta.setLore(convertListObject(lore));
+            List<String> temp = new ArrayList<>(lore.size());
+
+            for (Object obj : lore) {
+                Component component = MechanicsCore.getPlugin().message.deserialize(obj.toString());
+                String element = LegacyComponentSerializer.legacySection().serialize(component);
+                temp.add(element);
+            }
+
+            itemMeta.setLore(temp);
         }
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
@@ -341,13 +356,5 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 e.printStackTrace();
             }
         }
-    }
-
-    private List<String> convertListObject(Object object) {
-        List<String> list = new ArrayList<>();
-        for (Object obj : (List<?>) object) {
-            list.add(StringUtil.color(obj.toString()));
-        }
-        return list;
     }
 }
