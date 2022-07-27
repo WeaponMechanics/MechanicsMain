@@ -10,6 +10,7 @@ import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -28,6 +29,7 @@ public class MechanicsCore extends JavaPlugin {
     public static Debugger debug; // public for import
 
     public BukkitAudiences adventure;
+    public MiniMessage message;
 
     @Override
     public void onLoad() {
