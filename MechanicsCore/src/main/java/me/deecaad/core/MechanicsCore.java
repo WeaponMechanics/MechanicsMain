@@ -58,7 +58,10 @@ public class MechanicsCore extends JavaPlugin {
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
 
+        // Adventure Chat API
         adventure = BukkitAudiences.create(this);
+        message = MiniMessage.miniMessage();
+
         if (ReflectionUtil.getMCVersion() >= 13) {
             MechanicsCoreCommand.build();
         }

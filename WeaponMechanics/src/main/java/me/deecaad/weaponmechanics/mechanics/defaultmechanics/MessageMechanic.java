@@ -25,8 +25,6 @@ import java.util.Map;
 
 public class MessageMechanic implements IMechanic<MessageMechanic> {
 
-    public static final MiniMessage PARSER = MiniMessage.miniMessage();
-
     private boolean sendServer;
     private boolean sendWorld;
 
@@ -72,6 +70,16 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     }
 
     @Override
+    public String getKeyword() {
+        return "Message";
+    }
+
+    @Override
+    public boolean requirePlayer() {
+        return !sendWorld && !sendServer;
+    }
+
+    @Override
     public void use(CastData cast) {
         if (sendServer) {
             for (Player player : Bukkit.getOnlinePlayers())
@@ -85,6 +93,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     }
 
     private void send(Player player, CastData cast) {
+        MiniMessage PARSER = MechanicsCore.getPlugin().message;
         Audience audience = MechanicsCore.getPlugin().adventure.player(player);
 
         Component chat = chatStr == null ? null : PARSER.deserialize(placeholders(chatStr, player, cast));
@@ -155,7 +164,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         String chatStr = data.of("Chat_Message").get(null);
 
         String actionBarStr = data.of("Action_Bar.Message").get(null);
-        int actionBarTime = data.of("Action_Bar.Time").assertPositive().getInt();
+        int actionBarTime = data.of("Action_Bar.Time").assertPositive().getInt(40);
 
         String titleStr = data.of("Title.Title").get(null);
         String subtitleStr = data.of("Title.Subtitle").get(null);
