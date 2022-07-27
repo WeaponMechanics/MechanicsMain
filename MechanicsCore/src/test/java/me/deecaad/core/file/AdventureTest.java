@@ -41,7 +41,7 @@ public class AdventureTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 2, 3, 4})
+    @ValueSource(ints = {1, 2, 3, 4, 5})
     public void test_parse(int i) throws SerializerException {
         SerializeData data = new SerializeData(DUMMY, file, "Key", config);
 

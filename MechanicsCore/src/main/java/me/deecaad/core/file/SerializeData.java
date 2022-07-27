@@ -848,20 +848,20 @@ public class SerializeData {
             replacements.put("&7", "<gray>");
             replacements.put("&8", "<dark_gray>");
             replacements.put("&9", "<blue>");
-            replacements.put("&a", "<green>");
-            replacements.put("&b", "<aqua>");
-            replacements.put("&c", "<red>");
-            replacements.put("&d", "<light_purple>");
-            replacements.put("&e", "<yellow>");
-            replacements.put("&f", "<white>");
+            replacements.put("&(a|A)", "<green>");
+            replacements.put("&(b|B)", "<aqua>");
+            replacements.put("&(c|C)", "<red>");
+            replacements.put("&(d|D)", "<light_purple>");
+            replacements.put("&(e|E)", "<yellow>");
+            replacements.put("&(f|F)", "<white>");
 
             // Hardcoded literal decorations
-            replacements.put("&k", "<obfuscated>");
-            replacements.put("&l", "<bold>");
-            replacements.put("&m", "<strikethrough>");
-            replacements.put("&n", "<underline>");
-            replacements.put("&o", "<italic>");
-            replacements.put("&r", "<reset>");
+            replacements.put("&(k|K)", "<obfuscated>");
+            replacements.put("&(l|L)", "<bold>");
+            replacements.put("&(m|M)", "<strikethrough>");
+            replacements.put("&(n|N)", "<underline>");
+            replacements.put("&(o|O)", "<italic>");
+            replacements.put("&(r|R)", "<reset>");
 
             // Regex matcher to find hex color strings
             Pattern regex = Pattern.compile("&#([a-f]|[A-F]|\\d){6}");
@@ -869,7 +869,7 @@ public class SerializeData {
             StringBuffer builder = new StringBuffer();
 
             while (matcher.find()) {
-                String match = matcher.group(1);
+                String match = matcher.group(0);
                 String replacement = "<" + match.substring(1) + ">";
                 matcher.appendReplacement(builder, replacement);
             }
