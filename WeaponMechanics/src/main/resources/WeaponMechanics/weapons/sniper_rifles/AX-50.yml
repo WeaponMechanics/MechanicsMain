@@ -21,7 +21,7 @@ AX-50:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6AX-50%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Message: "<gold>AX-50%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"

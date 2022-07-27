@@ -20,7 +20,7 @@ FN_FAL:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6FN FAL%firearm-state% &7«&6%ammo-left%&7»&6%reload% &7[&6%selective_fire_state%&7]"
+        Message: "<gold>FN FAL%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload% <gray>[<gold>%selective_fire_state%<gray>]"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"

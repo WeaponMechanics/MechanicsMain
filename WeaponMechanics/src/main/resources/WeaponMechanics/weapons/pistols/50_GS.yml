@@ -21,10 +21,10 @@
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6.50 GS%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Message: "<gold>.50 GS%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
         Dual_Wield:
-          Main_Hand: "&6%ammo-left%&7»&6%reload% &6%firearm-state%.50 GS"
-          Off_Hand: "&6.50 GS%firearm-state% &6%reload%&7«&6%ammo-left%"
+          Main_Hand: "<gold>%ammo-left%<gray>»<gold>%reload% <gold>%firearm-state%.50 GS"
+          Off_Hand: "<gold>.50 GS%firearm-state% <gold>%reload%<gray>«<gold>%ammo-left%"
     Dual_Wield:
       Whitelist: true
       Weapons:

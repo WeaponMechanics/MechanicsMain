@@ -20,7 +20,7 @@ Kar98k:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6Kar98k%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Message: "<gold>Kar98k%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
