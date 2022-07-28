@@ -1,60 +1,46 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.packetlistener.Packet;
-import me.deecaad.core.packetlistener.PacketHandler;
-import me.deecaad.core.utils.ReflectionUtil;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 
-import java.lang.reflect.Field;
+public class OutEntityEffectListener extends PacketAdapter {
 
-public class OutEntityEffectListener extends PacketHandler {
-
-    private static final Field idField;
-    private static final Field dataField;
-
-    static {
-        Class<?> effectPacket = ReflectionUtil.getPacketClass("PacketPlayOutEntityEffect");
-
-        // Pre 1.17, the integer is always stored in the "a" field. In post
-        // versions, there are primitive constants, so I am worried about
-        // using index to get the id field. I'll, for now, assume "d" will
-        // work in newer versions.
-        if (CompatibilityAPI.getVersion() < 1.17)
-            idField = ReflectionUtil.getField(effectPacket, "a");
-        else
-            idField = ReflectionUtil.getField(effectPacket, "d");
-
-        dataField = ReflectionUtil.getField(effectPacket, byte.class);
-    }
-
-    public OutEntityEffectListener() {
-        super("PacketPlayOutEntityEffect");
+    public OutEntityEffectListener(Plugin plugin) {
+        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.ENTITY_EFFECT);
     }
 
     @Override
-    public void onPacket(Packet packet) {
-        int id = (int) packet.getFieldValue(idField);
-        if (id < 0) { // Means that it was sent by ScopeCompatibility
+    public void onPacketReceiving(PacketEvent event) {
+    }
 
-            // Simply convert id back to normal and let packet pass
-            // By pass I mean, not cancel it, that return statement is there for reason (to cancel night vision remove when it should be on)
-            packet.setFieldValue(idField, -id);
+    @Override
+    public void onPacketSending(PacketEvent event) {
+        int id = event.getPacket().getIntegers().read(0);
+
+        // A negative ID doesn't happen in Vanilla Minecraft. When this is
+        // negative, it means that ScopeCompatibility sent this packet.
+        if (id < 0) {
+            event.getPacket().getIntegers().write(0, -id);
             return;
         }
 
-        // If packet entity id is not player's id
-        if (id != packet.getPlayer().getEntityId()) {
+        // Only modify this packet if it is for the player it is sent to
+        if (id != event.getPlayer().getEntityId())
             return;
-        }
 
-        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(packet.getPlayer());
+        EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
 
-        if (!entityWrapper.getMainHandData().getZoomData().hasZoomNightVision() && !entityWrapper.getOffHandData().getZoomData().hasZoomNightVision()) return;
-        if ((byte) packet.getFieldValue(dataField) != (byte) (PotionEffectType.NIGHT_VISION.getId() & 255)) return;
+        if (!entity.getMainHandData().getZoomData().hasZoomNightVision() && !entity.getOffHandData().getZoomData().hasZoomNightVision())
+            return;
+        if (event.getPacket().getBytes().read(0) != (byte) (PotionEffectType.NIGHT_VISION.getId() & 255))
+            return;
 
-        packet.setCancelled(true);
+        event.setCancelled(true);
     }
 }

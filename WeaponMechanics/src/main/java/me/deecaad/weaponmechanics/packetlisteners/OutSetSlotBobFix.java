@@ -1,8 +1,10 @@
 package me.deecaad.weaponmechanics.packetlisteners;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.packetlistener.Packet;
-import me.deecaad.core.packetlistener.PacketHandler;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
@@ -26,26 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class OutSetSlotBobFix extends PacketHandler implements Listener {
-
-    // * ----- REFLECTIONS ----- * //
-    private static final Field windowField;
-    private static final Field slotField;
-    private static final Field itemField;
-
-    static {
-        Class<?> packetClass = ReflectionUtil.getPacketClass("PacketPlayOutSetSlot");
-        windowField = ReflectionUtil.getField(packetClass, int.class, 0, true);
-        slotField = ReflectionUtil.getField(packetClass, int.class, ReflectionUtil.getMCVersion() >= 17 ? 2 : 1, true);
-        itemField = ReflectionUtil.getField(packetClass, ReflectionUtil.getNMSClass("world.item", "ItemStack"));
-    }
-    // * ----- END OF REFLECTIONS ----- * //
+public class OutSetSlotBobFix extends PacketAdapter implements Listener {
 
     private final Map<Player, SimpleItemData> mainHand;
     private final Map<Player, SimpleItemData> offHand;
 
     public OutSetSlotBobFix(Plugin plugin) {
-        super("PacketPlayOutSetSlot");
+        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.SET_SLOT);
         mainHand = new HashMap<>();
         offHand = new HashMap<>();
 
@@ -81,21 +70,28 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
         offHand.remove(event.getPlayer());
     }
 
+
+
     @Override
-    public void onPacket(Packet wrapper) {
-        Player player = wrapper.getPlayer();
+    public void onPacketReceiving(PacketEvent event) {
+    }
+
+    @Override
+    public void onPacketSending(PacketEvent event) {
+        Player player = event.getPlayer();
 
         // 0 is the player's inventory.
-        if ((int) ReflectionUtil.invokeField(windowField, wrapper.getPacket()) != 0) return;
+        if (event.getPacket().getIntegers().read(0) != 0)
+            return;
 
-        int slotNum = (int) ReflectionUtil.invokeField(slotField, wrapper.getPacket());
+        int slotNum = event.getPacket().getIntegers().read(ReflectionUtil.getMCVersion() >= 17 ? 2 : 1);
 
         boolean mainHand = slotNum == 36 + player.getInventory().getHeldItemSlot();
         if (!mainHand && slotNum != 45) return;
 
         Map<Player, SimpleItemData> data = mainHand ? this.mainHand : this.offHand;
 
-        ItemStack packetItem = CompatibilityAPI.getNBTCompatibility().getBukkitStack(ReflectionUtil.invokeField(itemField, wrapper.getPacket()));
+        ItemStack packetItem = event.getPacket().getItemModifier().read(0);
         if (!packetItem.hasItemMeta() || !CustomTag.WEAPON_TITLE.hasString(packetItem)) {
             data.put(player, null);
             return;
@@ -113,7 +109,7 @@ public class OutSetSlotBobFix extends PacketHandler implements Listener {
             return;
         }
 
-        wrapper.setCancelled(true);
+        event.setCancelled(true);
     }
 
     public static class SimpleItemData {
