@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.info;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
@@ -9,14 +10,13 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.defaultmechanics.MessageMechanic;
 import me.deecaad.weaponmechanics.wrappers.MessageHelper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Boss;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -30,7 +30,6 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
-
     private static Constructor<?> packetPlayOutExperienceConstructor;
 
     static {
@@ -42,8 +41,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     private String actionBar;
 
     private String bossBar;
-    private BarColor barColor;
-    private BarStyle barStyle;
+    private BossBar.Color barColor;
+    private BossBar.Overlay barStyle;
 
     private boolean showAmmoInBossBarProgress;
     private boolean showAmmoInExpLevel;
@@ -59,7 +58,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
      */
     public WeaponInfoDisplay() { }
 
-    public WeaponInfoDisplay(String actionBar, String bossBar, BarColor barColor, BarStyle barStyle,
+    public WeaponInfoDisplay(String actionBar, String bossBar, BossBar.Color barColor, BossBar.Overlay barStyle,
                              boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress,
                              String dualWieldMainActionBar, String dualWieldMainBossBar, String dualWieldOffActionBar, String dualWieldOffBossBar) {
         this.actionBar = actionBar;
@@ -158,14 +157,18 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 } else {
                     builder.append(offHand).append(dualWieldSplit).append(mainHand);
                 }
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(builder.toString()));
+
+                Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+                audience.sendActionBar(MechanicsCore.getPlugin().message.deserialize(builder.toString()));
             } else {
                 if (mainhand) {
                     if (mainStack != null && mainStack.hasItemMeta()) {
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(PlaceholderAPI.applyPlaceholders(actionBar, player, mainStack, mainWeapon, slot)));
+                        Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+                        audience.sendActionBar(MechanicsCore.getPlugin().message.deserialize(PlaceholderAPI.applyPlaceholders(actionBar, player, mainStack, mainWeapon, slot)));
                     }
                 } else if (offStack != null && offStack.hasItemMeta()) {
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(PlaceholderAPI.applyPlaceholders(actionBar, player, offStack, offWeapon, slot)));
+                    Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+                    audience.sendActionBar(MechanicsCore.getPlugin().message.deserialize(PlaceholderAPI.applyPlaceholders(actionBar, player, offStack, offWeapon, slot)));
                 }
             }
         }
@@ -228,23 +231,27 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
             if (builder.length() != 0) {
                 BossBar bossBar = messageHelper.getBossBar();
                 if (bossBar == null) {
-                    bossBar = Bukkit.createBossBar(builder.toString(), barColor, barStyle);
-                    bossBar.addPlayer(player);
+                    bossBar = BossBar.bossBar(MechanicsCore.getPlugin().message.deserialize(builder.toString()), 1.0f, barColor, barStyle);
                     messageHelper.setBossBar(bossBar);
+
+                    Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+                    audience.showBossBar(bossBar);
+
                 } else {
                     Bukkit.getScheduler().cancelTask(messageHelper.getBossBarTask());
-                    bossBar.setTitle(builder.toString());
-                    bossBar.setColor(barColor);
-                    bossBar.setStyle(barStyle);
+                    bossBar.name(MechanicsCore.getPlugin().message.deserialize(builder.toString()));
+                    bossBar.color(barColor);
+                    bossBar.overlay(barStyle);
                 }
                 if (showAmmoInBossBarProgress) {
                     magazineProgress = mainhand ? getMagazineProgress(mainStack, mainWeapon) : getMagazineProgress(offStack, offWeapon);
-                    bossBar.setProgress(magazineProgress);
+                    bossBar.progress((float) magazineProgress);
                 }
                 messageHelper.setBossBarTask(new BukkitRunnable() {
                     @Override
                     public void run() {
-                        messageHelper.getBossBar().removeAll();
+                        Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+                        audience.hideBossBar(messageHelper.getBossBar());
                         messageHelper.setBossBar(null);
                         messageHelper.setBossBarTask(0);
                     }
@@ -313,27 +320,25 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     public WeaponInfoDisplay serialize(SerializeData data) throws SerializerException {
 
         // ACTION BAR
-        String actionBarMessage = data.of("Action_Bar.Message").assertType(String.class).get(null);
-        if (actionBarMessage != null) actionBarMessage = StringUtil.color(actionBarMessage);
+        String actionBarMessage = data.of("Action_Bar.Message").getAdventure(null);
 
-        String bossBarMessage = data.of("Boss_Bar.Title").assertType(String.class).get(null);
-        BarColor barColor = null;
-        BarStyle barStyle = null;
+        String bossBarMessage = data.of("Boss_Bar.Title").getAdventure(null);
+        BossBar.Color barColor = null;
+        BossBar.Overlay barStyle = null;
         if (bossBarMessage != null) {
-            barColor = data.of("Boss_Bar.Bar_Color").getEnum(BarColor.class, BarColor.WHITE);
-            barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BarStyle.class, BarStyle.SEGMENTED_20);
-            bossBarMessage = StringUtil.color(bossBarMessage);
+            barColor = data.of("Boss_Bar.Bar_Color").getEnum(BossBar.Color.class, BossBar.Color.WHITE);
+            barStyle = data.of("Boss_Bar.Bar_Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.NOTCHED_20);
         }
 
         boolean expLevel = data.of("Show_Ammo_In.Exp_Level").getBool(false);
         boolean expProgress = data.of("Show_Ammo_In.Exp_Progress").getBool(false);
         boolean bossBarProgress = data.of("Show_Ammo_In.Boss_Bar_Progress").getBool(false);
 
-        String dualWieldMainActionBar = data.of("Action_Bar.Dual_Wield.Main_Hand").assertType(String.class).get(null);
-        String dualWieldMainBossBar = data.of("Boss_Bar.Dual_Wield.Main_Hand").assertType(String.class).get(null);
+        String dualWieldMainActionBar = data.of("Action_Bar.Dual_Wield.Main_Hand").getAdventure(null);
+        String dualWieldMainBossBar = data.of("Boss_Bar.Dual_Wield.Main_Hand").getAdventure(null);
 
-        String dualWieldOffActionBar = data.of("Action_Bar.Dual_Wield.Off_Hand").assertType(String.class).get(null);
-        String dualWieldOffBossBar = data.of("Boss_Bar.Dual_Wield.Off_Hand").assertType(String.class).get(null);
+        String dualWieldOffActionBar = data.of("Action_Bar.Dual_Wield.Off_Hand").getAdventure(null);
+        String dualWieldOffBossBar = data.of("Boss_Bar.Dual_Wield.Off_Hand").getAdventure(null);
 
         if (actionBarMessage == null && bossBarMessage == null && !expLevel && !expProgress) {
             throw data.exception(null, "Found an empty Weapon_Info_Display... Users won't be able to see any changes in their ammo!");

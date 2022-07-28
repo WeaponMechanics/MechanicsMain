@@ -1,13 +1,12 @@
 package me.deecaad.core.commands;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+
+import static net.kyori.adventure.text.Component.*;
 
 /**
  * This immutable abstract class outlines a subsection or small section of a
@@ -148,19 +149,17 @@ public abstract class SubCommand extends BukkitCommand {
 
     protected boolean sendHelp(CommandSender sender, String[] args) {
         if (commands.isEmpty()) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage(StringUtil.color(toString()));
-            } else {
-                ComponentBuilder builder = new ComponentBuilder("");
-                for (BaseComponent component : TextComponent.fromLegacyText(StringUtil.color(toString()))) {
-                    component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + prefix));
-                    component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to fill command")));
-                    builder.append(component);
-                }
+            TextComponent.Builder builder = text();
 
-                Player player = (Player) sender;
-                player.spigot().sendMessage(builder.create());
-            }
+            // ChatColor.GOLD + "/" + prefix + " " + String.join(" ", args) + ChatColor.GRAY + ": " + description
+            HoverEvent<?> hover = HoverEvent.showText(text("Click to fill command").color(NamedTextColor.GRAY));
+            ClickEvent click = ClickEvent.suggestCommand("/" + prefix);
+
+            builder.append(text("/" + prefix + " " + String.join(" ", args)).color(NamedTextColor.GOLD).clickEvent(click).hoverEvent(hover));
+            builder.append(text(": " + description).color(NamedTextColor.GRAY).clickEvent(click).hoverEvent(hover));
+
+            MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(builder);
+
             return true;
         } else {
             return commands.sendHelp(sender, args);

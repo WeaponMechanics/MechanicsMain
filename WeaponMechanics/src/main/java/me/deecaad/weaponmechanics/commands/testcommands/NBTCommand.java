@@ -5,6 +5,7 @@ import me.deecaad.core.commands.SubCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,16 +25,6 @@ public class NBTCommand extends SubCommand {
             return;
         }
 
-        Player player = (Player) sender;
-        ItemStack item = player.getItemInHand();
-        if (item == null || !item.hasItemMeta()) {
-            sender.sendMessage(ChatColor.RED + "No metadata.");
-            return;
-        }
-
-        String tags = CompatibilityAPI.getNBTCompatibility().getNBTDebug(item);
-
-        WeaponMechanics.debug.debug(tags);
-        sender.sendMessage(StringUtil.color(tags));
+        WeaponMechanicsCommand.nbt(sender, (Player) sender);
     }
 }

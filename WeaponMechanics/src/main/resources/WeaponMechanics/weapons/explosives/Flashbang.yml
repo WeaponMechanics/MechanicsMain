@@ -2,12 +2,12 @@ Flashbang:
   Info:
     Weapon_Item:
       Type: "BLACK_CANDLE"
-      Name: "&6Flashbang"
+      Name: "<gold>Flashbang"
       Lore:
-        - "&7Device that blinds and slows the target when detonated."
+        - "<gray>Device that blinds and slows the target when detonated."
         - ""
-        - "&7Weapon Statistics"
-        - "&6➣&7 8 &6⟸ &7Explosion radius"
+        - "<gray>Weapon Statistics"
+        - "<gold>➣<gray> 8 <gold>⟸ <gray>Explosion radius"
       Unbreakable: true
       Hide_Flags: true
       Deny_Use_In_Crafting: true

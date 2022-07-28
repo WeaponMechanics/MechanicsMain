@@ -7,21 +7,27 @@ import me.deecaad.core.commands.HelpCommandBuilder;
 import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.arguments.StringArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.TableBuilder;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.checkerframework.checker.units.qual.C;
 
+import javax.naming.Name;
+import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.*;
@@ -42,6 +48,17 @@ public final class MechanicsCoreCommand {
         CommandBuilder command = new CommandBuilder("mechanicscore")
                 .withPermission("mechanicscore.admin")
                 .withDescription("MechanicsCore debug/test commands")
+
+                .withSubcommand(new CommandBuilder("table")
+                        .withPermission("mechanicscore.commands.table")
+                        .withDescription("Helpful tables that are used on the wiki")
+
+                        .withSubcommand(new CommandBuilder("colors")
+                                .withPermission("mechanicscore.commands.colors")
+                                .withDescription("Shows legacy color codes and the adventure version")
+                                .executes(CommandExecutor.any((sender, args) -> {
+                                    tableColors(sender);
+                                }))))
 
                 .withSubcommand(new CommandBuilder("reloadcommands")
                         .withPermission("mechanicscore.commands.reloadcommands")
@@ -125,5 +142,119 @@ public final class MechanicsCoreCommand {
                 .build();
 
         MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(table);
+    }
+
+    public static void tableColors(CommandSender sender) {
+
+        final List<ColorData> colors = new ArrayList<>();
+        colors.add(new ColorData("&0", "<black>", NamedTextColor.BLACK));
+        colors.add(new ColorData("&1", "<dark_blue>", NamedTextColor.DARK_BLUE));
+        colors.add(new ColorData("&2", "<dark_green>", NamedTextColor.DARK_GREEN));
+        colors.add(new ColorData("&3", "<dark_aqua>", NamedTextColor.DARK_AQUA));
+        colors.add(new ColorData("&4", "<dark_red>", NamedTextColor.DARK_RED));
+        colors.add(new ColorData("&5", "<dark_purple>", NamedTextColor.DARK_PURPLE));
+        colors.add(new ColorData("&6", "<gold>", NamedTextColor.GOLD));
+        colors.add(new ColorData("&7", "<gray>", NamedTextColor.GRAY));
+        colors.add(new ColorData("&8", "<dark_gray>", NamedTextColor.DARK_GRAY));
+        colors.add(new ColorData("&9", "<blue>", NamedTextColor.BLUE));
+        colors.add(new ColorData("&a", "<green>", NamedTextColor.GREEN));
+        colors.add(new ColorData("&b", "<aqua>", NamedTextColor.AQUA));
+        colors.add(new ColorData("&c", "<red>", NamedTextColor.RED));
+        colors.add(new ColorData("&d", "<light_purple>", NamedTextColor.LIGHT_PURPLE));
+        colors.add(new ColorData("&e", "<yellow>", NamedTextColor.YELLOW));
+        colors.add(new ColorData("&f", "<white>", NamedTextColor.WHITE));
+
+        final List<ColorData> decorations = new ArrayList<>();
+        decorations.add(new ColorData("&k", "<obfuscated>", TextDecoration.OBFUSCATED));
+        decorations.add(new ColorData("&l", "<bold>", TextDecoration.BOLD));
+        decorations.add(new ColorData("&m", "<strikethrough>", TextDecoration.STRIKETHROUGH));
+        decorations.add(new ColorData("&n", "<underline>", TextDecoration.UNDERLINED));
+        decorations.add(new ColorData("&o", "<italic>", TextDecoration.ITALIC));
+        decorations.add(new ColorData("&r", "<reset>", NamedTextColor.WHITE));
+
+        Component colorComponent = new TableBuilder()
+                .withFillChar('=')
+                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+                .withHeader("COLORS")
+                .withHeaderStyle(Style.style(NamedTextColor.GOLD))
+                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(8))
+                .withSupplier(i -> {
+                    return colors.get(i).build();
+                })
+                .build();
+
+        Component decorationComponent = new TableBuilder()
+                .withFillChar('=')
+                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+                .withHeader("DECORATIONS")
+                .withHeaderStyle(Style.style(NamedTextColor.GOLD))
+                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(3))
+                .withSupplier(i -> {
+                    return decorations.get(i).build();
+                })
+                .build();
+
+        Component miscComponent = new TableBuilder()
+                .withFillChar('=')
+                .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
+                .withHeader("MISCELLANEOUS")
+                .withHeaderStyle(Style.style(NamedTextColor.GOLD))
+                .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(3).setColumns(1))
+                .withSupplier(i -> {
+                    switch (i) {
+                        case 0:
+                            return new ColorData("&#7D5A2D", "<#7D5A2D>", TextColor.color(125, 90, 45)).alt("The five boxing wizards jump quickly").build();
+                        case 1:
+                            return text("<rainbow> = ").append(MechanicsCore.getPlugin().message.deserialize("<rainbow>The quick brown fox jumps over the lazy dog"));
+                        case 2:
+                            return text("<gradient:green:#ff0000> = ").append(MechanicsCore.getPlugin().message.deserialize("<gradient:green:#ff0000>A wizard's job is to vex chumps"));
+                        default:
+                            throw new RuntimeException("unreachable code");
+                    }
+                })
+                .build();
+
+        Audience audience = MechanicsCore.getPlugin().adventure.sender(sender);
+        audience.sendMessage(colorComponent.append(decorationComponent).append(miscComponent).append(new TableBuilder.Line('=', Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH)).build()));
+    }
+
+    private static class ColorData {
+
+        private String legacy;
+        private String adventure;
+        private TextColor color;
+        private TextDecoration decoration;
+
+        private String altText;
+
+        public ColorData(String legacy, String adventure, TextColor color) {
+            this.legacy = legacy;
+            this.adventure = adventure;
+            this.color = color;
+        }
+
+        public ColorData(String legacy, String adventure, TextDecoration decoration) {
+            this.legacy = legacy;
+            this.adventure = adventure;
+            this.decoration = decoration;
+        }
+
+        private ColorData alt(String altText) {
+            this.altText = altText;
+            return this;
+        }
+
+        private TextComponent build() {
+            TextComponent.Builder builder = text();
+            builder.append(text(adventure + " = "));
+
+            String readable = altText != null ? altText : StringUtil.keyToRead(adventure.substring(1, adventure.length() - 1));
+            if (color != null)
+                builder.append(text(readable).color(color));
+            else
+                builder.append(text(readable).decorate(decoration));
+
+            return builder.build();
+        }
     }
 }

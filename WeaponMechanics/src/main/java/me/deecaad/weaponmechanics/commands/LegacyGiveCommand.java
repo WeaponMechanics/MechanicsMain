@@ -29,7 +29,7 @@ public class LegacyGiveCommand extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0 || args.length > 3) {
-            sender.sendMessage(StringUtil.color(toString()));
+            sender.sendMessage(toString());
             return;
         }
 

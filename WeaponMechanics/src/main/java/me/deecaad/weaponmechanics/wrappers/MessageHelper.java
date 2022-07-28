@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import org.bukkit.boss.BossBar;
+import net.kyori.adventure.bossbar.BossBar;
 
 public class MessageHelper {
 

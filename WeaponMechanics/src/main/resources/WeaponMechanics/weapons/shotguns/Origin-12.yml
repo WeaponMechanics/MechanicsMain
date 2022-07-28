@@ -2,18 +2,18 @@ Origin_12:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6Origin 12"
+      Name: "<gold>Origin 12"
       Lore:
-        - "&7Semi-automatic shotgun with large ammo capacity allows for continuous firing."
-        - "&7Effective at close range."
+        - "<gray>Semi-automatic shotgun with large ammo capacity allows for continuous firing."
+        - "<gray>Effective at close range."
         - ""
-        - "&7Weapon Statistics &6-&7 59.8"
-        - "&6➣&7 50 &6⟸ &7Accuracy"
-        - "&6➣&7 76 &6⟸ &7Damage"
-        - "&6➣&7 38 &6⟸ &7Range"
-        - "&6➣&7 49 &6⟸ &7Fire Rate"
-        - "&6➣&7 76 &6⟸ &7Mobility"
-        - "&6➣&7 70 &6⟸ &7Control"
+        - "<gray>Weapon Statistics <gold>-<gray> 59.8"
+        - "<gold>➣<gray> 50 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 76 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 38 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 49 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 76 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 70 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -21,7 +21,7 @@ Origin_12:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6Origin 12 &7«&6%ammo-left%&7»&6%reload%"
+        Message: "<gold>Origin 12 <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"

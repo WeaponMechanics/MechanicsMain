@@ -6,6 +6,7 @@ import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -41,48 +42,7 @@ public class FakeEntityCommand extends SubCommand {
         boolean gravity = args.length > 3 ? Boolean.parseBoolean(args[3]) : false;
         String name     = args.length > 4 ? StringUtil.color(args[4]) : null;
 
-        FakeEntity entity = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(player.getLocation(), type, type == EntityType.DROPPED_ITEM ? new ItemStack(Material.STONE_AXE) : null);
-        entity.setGravity(gravity);
-        entity.setDisplay(name);
-        entity.show(player);
-        entity.setMotion(0, 0, 0);
-
-        new BukkitRunnable() {
-
-            // Some temp vars for the different move types
-            int ticksAlive = 0;
-            boolean flash = true;
-
-            @Override
-            public void run() {
-                if (ticksAlive++ >= time) {
-                    entity.remove();
-                    cancel();
-                    return;
-                }
-
-                switch (moveType) {
-                    case "spin":
-                        entity.setRotation(entity.getYaw() + 5.0f, entity.getYaw() / 2.0f);
-                        break;
-                    case "flash":
-                        if (ticksAlive % 10 == 0) {
-                            flash = !flash;
-                            entity.setGlowing(flash);
-                            entity.updateMeta();
-                        }
-                        break;
-                    case "sky":
-                        //entity.setMotion(0, 0.08, 0);
-                        entity.setPosition(entity.getX(), entity.getY() + 0.1, entity.getZ());
-                        break;
-                    case "x":
-                        //entity.setMotion(0.08, 0, 0);
-                        entity.setPosition(entity.getX() + 0.1, entity.getY(), entity.getZ());
-                        break;
-                }
-            }
-        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
+        WeaponMechanicsCommand.spawn(player, player.getLocation(), type, moveType, time, gravity, name);
     }
 
     @Override
