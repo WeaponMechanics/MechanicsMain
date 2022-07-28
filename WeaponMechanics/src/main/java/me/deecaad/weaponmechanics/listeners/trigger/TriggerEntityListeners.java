@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.listeners.trigger;
 
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
@@ -36,7 +37,7 @@ public class TriggerEntityListeners implements Listener {
     @EventHandler
     public void damage(EntityDamageByEntityEvent e) {
         EntityDamageEvent.DamageCause cause = e.getCause();
-        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) return;
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && (ReflectionUtil.getMCVersion() < 11 || cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         Entity damager = e.getDamager();

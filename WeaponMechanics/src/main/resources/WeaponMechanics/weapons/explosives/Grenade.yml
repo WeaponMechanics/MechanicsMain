@@ -2,12 +2,12 @@ Grenade:
   Info:
     Weapon_Item:
       Type: "RED_CANDLE"
-      Name: "&6Grenade"
+      Name: "<gold>Grenade"
       Lore:
-        - "&7Fragmentation grenade that causes lethal radius damage"
+        - "<gray>Fragmentation grenade that causes lethal radius damage"
         - ""
-        - "&7Weapon Statistics"
-        - "&6➣&7 5 &6⟸ &7Explosion radius"
+        - "<gray>Weapon Statistics"
+        - "<gold>➣<gray> 5 <gold>⟸ <gray>Explosion radius"
       Unbreakable: true
       Hide_Flags: true
       Deny_Use_In_Crafting: true

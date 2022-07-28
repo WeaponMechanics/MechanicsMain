@@ -44,6 +44,7 @@ public class TableBuilder {
         constraints = DEFAULT_CONSTRAINTS;
         font = DEFAULT_FONT;
         elementChar = 0; // use a space as default
+        headerStyle = fillCharStyle = elementCharStyle = elementStyle = Style.empty();
     }
 
     public TableBuilder withConstraints(TableConstraints constraints) {
@@ -172,7 +173,7 @@ public class TableBuilder {
             }
 
             if (deleteCell) {
-                cell = new StringBuilder(cell.substring(originalLength));
+                cell = new StringBuilder(cell.substring(Math.min(originalLength, cell.length())));
             }
 
             // Although we reset style here, (and maybe we shouldn't reset
@@ -291,6 +292,37 @@ public class TableBuilder {
         @Contract(pure = true)
         public TableConstraints setPixels(int pixels) {
             return new TableConstraints(rows, columns, pixels);
+        }
+    }
+
+
+    public static class Line {
+
+        private final char c;
+        private final Style style;
+
+        public Line(char c, Style style) {
+            this.c = c;
+            this.style = style;
+        }
+
+        public Component build() {
+            StringBuilder builder = new StringBuilder();
+            while (getWidth(builder.toString()) < DEFAULT_CONSTRAINTS.getPixels())
+                builder.append(c);
+
+            builder.setLength(builder.length() - 1);
+            return text(builder.toString()).style(style);
+        }
+
+        private int getWidth(String str) {
+            int width = DEFAULT_FONT.getWidth(str);
+            for (int i = 0; i < str.length(); i++) {
+                char c = str.charAt(i);
+                if (c == ' ' && ReflectionUtil.getMCVersion() <= 15)
+                    width++;
+            }
+            return width;
         }
     }
 }

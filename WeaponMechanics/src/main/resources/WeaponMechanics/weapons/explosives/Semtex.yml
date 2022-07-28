@@ -2,12 +2,12 @@ Semtex:
   Info:
     Weapon_Item:
       Type: "TNT"
-      Name: "&6Semtex"
+      Name: "<gold>Semtex"
       Lore:
-        - "&7Grenade that sticks to surfaces before detonating"
+        - "<gray>Grenade that sticks to surfaces before detonating"
         - ""
-        - "&7Weapon Statistics"
-        - "&6➣&7 6 &6⟸ &7Explosion radius"
+        - "<gray>Weapon Statistics"
+        - "<gold>➣<gray> 6 <gold>⟸ <gray>Explosion radius"
       Unbreakable: true
       Hide_Flags: true
       Deny_Use_In_Crafting: true

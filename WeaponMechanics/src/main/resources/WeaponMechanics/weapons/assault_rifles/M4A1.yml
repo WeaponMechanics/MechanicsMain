@@ -2,18 +2,18 @@ M4A1:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6M4A1"
+      Name: "<gold>M4A1"
       Lore:
-        - "&7Fully automatic, all-purpose battle rifle."
-        - "&7Control your shots, and this weapon can be very effective at range."
+        - "<gray>Fully automatic, all-purpose battle rifle."
+        - "<gray>Control your shots, and this weapon can be very effective at range."
         - ""
-        - "&7Weapon Statistics &6-&7 69.2"
-        - "&6➣&7 71 &6⟸ &7Accuracy"
-        - "&6➣&7 72 &6⟸ &7Damage"
-        - "&6➣&7 63 &6⟸ &7Range"
-        - "&6➣&7 75 &6⟸ &7Fire Rate"
-        - "&6➣&7 63 &6⟸ &7Mobility"
-        - "&6➣&7 71 &6⟸ &7Control"
+        - "<gray>Weapon Statistics <gold>-<gray> 69.2"
+        - "<gold>➣<gray> 71 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 72 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 63 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 75 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 63 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 71 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -21,7 +21,7 @@ M4A1:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6M4A1%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Message: "<gold>M4A1%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"

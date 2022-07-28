@@ -1,20 +1,21 @@
 # me.deecaad.weaponmechanics.mechanics.defaultmechanics.MessageMechanic
+# https://docs.adventure.kyori.net/minimessage/format.html
 Message:
-  Send_Globally: <true/false>
-  Send_Globally_For_World: <true/false>
-  Chat:
-    Message: <message>
-    Click: <ClickEvent.Action>-<value>
-    Hover_Text: <message>
+  Send_All_Server: <true/false>
+  Send_All_World: <true/false>
+  Chat_Message: "Click <click:copy_to_clipboard:Haha you suck> this </click>to copy your score!"
   Action_Bar:
-    Message: <message>
-    Time: <ticks>
+    Message: "Hello <rainbow>world</rainbow>, isn't <underlined>MiniMessage</underlined> fun?"
+    Time: 40/80/120/160/etc
   Title:
-    Title: <title>
-    Subtitle: <subtitle>
-    Time: <fade in ticks>-<stay ticks>-<fade out ticks>
+    Title: "<color:#FF5555>This is a <color:#55FF55>test!"
+    Subtitle: "<color:yellow>Hello <color:blue>World</color:blue>!"
+    Fade_In: <ticks>
+    Stay: <ticks>
+    Fade_Out: <ticks>
   Boss_Bar:
-    Title: <title>
-    Bar_Color: <BarColor>
-    Bar_Style: <BarStyle>
+    Title: "<yellow>Woo: <gradient:green:blue>||||||||||||||||||||||||</gradient>!"
+    Color: <BossBar.Color>
+    Style: <BossBar.Overlay>
+    Progress: <0..1>
     Time: <ticks>

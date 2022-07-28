@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
@@ -92,6 +93,16 @@ public class CastData {
         if (this.livingEntityCaster != null) return this.livingEntityCaster.getLocation();
 
         return projectileCaster != null ? projectileCaster.getLocation().toLocation(projectileCaster.getWorld()) : caster.getEntity().getLocation();
+    }
+
+    /**
+     * @return the cast world
+     */
+    public World getCastWorld() {
+        if (casterLocation != null) return casterLocation.getWorld();
+        if (livingEntityCaster != null) return livingEntityCaster.getWorld();
+
+        return projectileCaster != null ? projectileCaster.getWorld() : caster.getEntity().getWorld();
     }
 
     @Nullable
