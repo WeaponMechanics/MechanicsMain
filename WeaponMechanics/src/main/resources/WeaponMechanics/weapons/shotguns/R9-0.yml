@@ -2,17 +2,17 @@ R9-0:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6R9-0"
+      Name: "<gold>R9-0"
       Lore:
-        - "&7Double barrels provide two rapid shots before each re-chamber."
+        - "<gray>Double barrels provide two rapid shots before each re-chamber."
         - ""
-        - "&7Weapon Statistics &6-&7 62.2"
-        - "&6➣&7 55 &6⟸ &7Accuracy"
-        - "&6➣&7 79 &6⟸ &7Damage"
-        - "&6➣&7 42 &6⟸ &7Range"
-        - "&6➣&7 51 &6⟸ &7Fire Rate"
-        - "&6➣&7 71 &6⟸ &7Mobility"
-        - "&6➣&7 75 &6⟸ &7Control"
+        - "<gray>Weapon Statistics <gold>-<gray> 62.2"
+        - "<gold>➣<gray> 55 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 79 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 42 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 51 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 71 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 75 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:

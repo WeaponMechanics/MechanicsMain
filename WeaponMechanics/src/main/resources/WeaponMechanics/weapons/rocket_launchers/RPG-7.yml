@@ -2,17 +2,17 @@ RPG-7:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6RPG-7"
+      Name: "<gold>RPG-7"
       Lore:
-        - "&7Unguided, self-propelled rocket launcher fires a slower projectile with a high-explosive yield."
+        - "<gray>Unguided, self-propelled rocket launcher fires a slower projectile with a high-explosive yield."
         - ""
-        - "&7Weapon Statistics &6-&7 57.7"
-        - "&6➣&7 56 &6⟸ &7Accuracy"
-        - "&6➣&7 86 &6⟸ &7Damage"
-        - "&6➣&7 85 &6⟸ &7Range"
-        - "&6➣&7 30 &6⟸ &7Fire Rate"
-        - "&6➣&7 49 &6⟸ &7Mobility"
-        - "&6➣&7 40 &6⟸ &7Control"
+        - "<gray>Weapon Statistics <gold>-<gray> 57.7"
+        - "<gold>➣<gray> 56 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 86 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 85 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 30 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 49 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 40 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:

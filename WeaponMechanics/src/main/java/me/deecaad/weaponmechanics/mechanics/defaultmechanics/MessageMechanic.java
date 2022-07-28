@@ -163,17 +163,17 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         boolean sendWorld = data.of("Send_All_World").getBool(false);
         String chatStr = data.of("Chat_Message").get(null);
 
-        String actionBarStr = data.of("Action_Bar.Message").get(null);
+        String actionBarStr = data.of("Action_Bar.Message").getAdventure(null);
         int actionBarTime = data.of("Action_Bar.Time").assertPositive().getInt(40);
 
-        String titleStr = data.of("Title.Title").get(null);
-        String subtitleStr = data.of("Title.Subtitle").get(null);
+        String titleStr = data.of("Title.Title").getAdventure(null);
+        String subtitleStr = data.of("Title.Subtitle").getAdventure(null);
         Duration fadeIn = Duration.ofMillis(data.of("Title.Fade_In").assertPositive().getInt(0) * 50L);
         Duration stay = Duration.ofMillis(data.of("Title.Stay").assertPositive().getInt(20) * 50L);
         Duration fadeOut = Duration.ofMillis(data.of("Title.Fade_Out").assertPositive().getInt(0) * 50L);
         Title.Times times = Title.Times.times(fadeIn, stay, fadeOut);
 
-        String bossBarStr = data.of("Boss_Bar.Title").get(null);
+        String bossBarStr = data.of("Boss_Bar.Title").getAdventure(null);
         BossBar.Color color = data.of("Boss_Bar.Color").getEnum(BossBar.Color.class, BossBar.Color.WHITE);
         BossBar.Overlay style = data.of("Boss_Bar.Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.PROGRESS);
         float progress = (float) data.of("Boss_Bar.Progress").assertRange(0.0, 1.0).getDouble(1.0);

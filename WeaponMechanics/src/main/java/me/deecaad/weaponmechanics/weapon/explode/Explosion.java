@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.explode;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
@@ -31,7 +32,10 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -205,7 +209,10 @@ public class Explosion implements Serializer<Explosion> {
         if (!worldGuard.testFlag(origin, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-explode")) {
             Object obj = worldGuard.getValue(origin, "weapon-explode-message");
             if (obj != null && !obj.toString().isEmpty()) {
-                entityWrapper.getEntity().sendMessage(StringUtil.color(obj.toString()));
+                Component component = MechanicsCore.getPlugin().message.deserialize(obj.toString());
+                Audience audience = MechanicsCore.getPlugin().adventure.sender(entityWrapper.getEntity());
+
+                audience.sendMessage(component);
             }
             return;
         }
@@ -306,7 +313,7 @@ public class Explosion implements Serializer<Explosion> {
                 LivingEntity entity = entry.getKey();
                 double impact = entry.getValue();
 
-                entity.sendMessage(StringUtil.color("&cYou suffered " + impact * 100 + "% of the impact"));
+                entity.sendMessage(ChatColor.RED + "You suffered " + impact * 100 + "% of the impact");
             }
         }
 

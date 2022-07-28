@@ -36,10 +36,22 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private static Method spigotMethod;
     private static Method setUnbreakable;
 
+    // 1.16+ use adventure in item lore and display name (hex code support)
+    private static Method safelyAdd;
+    private static Field loreField;
+    private static Field displayField;
+
     private static final Field ingredientsField;
 
     static {
         ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
+
+        if (ReflectionUtil.getMCVersion() >= 16) {
+            Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
+            safelyAdd = ReflectionUtil.getMethod(c, "safelyAdd", Iterable.class, Collection.class, boolean.class);
+            loreField = ReflectionUtil.getField(c, "lore");
+            displayField = ReflectionUtil.getField(c, "displayName");
+        }
     }
 
     /**
@@ -83,12 +95,17 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     SerializerException.forValue(type));
         }
 
-        String name = data.of("Name").assertType(String.class).get(null);
+        String name = data.of("Name").getAdventure(null);
         if (name != null) {
             Component component = MechanicsCore.getPlugin().message.deserialize(name);
-            String element = LegacyComponentSerializer.legacySection().serialize(component);
 
-            itemMeta.setDisplayName(element);
+            if (ReflectionUtil.getMCVersion() < 16) {
+                String element = LegacyComponentSerializer.legacySection().serialize(component);
+                itemMeta.setDisplayName(element);
+            } else {
+                String display = GsonComponentSerializer.gson().serialize(component);
+                ReflectionUtil.setField(displayField, itemMeta, display);
+            }
         }
 
         List<?> lore = data.of("Lore").assertType(List.class).get(null);
@@ -96,12 +113,16 @@ public class ItemSerializer implements Serializer<ItemStack> {
             List<String> temp = new ArrayList<>(lore.size());
 
             for (Object obj : lore) {
-                Component component = MechanicsCore.getPlugin().message.deserialize(obj.toString());
-                String element = LegacyComponentSerializer.legacySection().serialize(component);
+                Component component = MechanicsCore.getPlugin().message.deserialize(StringUtil.colorAdventure(obj.toString()));
+                String element = ReflectionUtil.getMCVersion() < 16 ? LegacyComponentSerializer.legacySection().serialize(component) : GsonComponentSerializer.gson().serialize(component);
                 temp.add(element);
             }
 
-            itemMeta.setLore(temp);
+            if (ReflectionUtil.getMCVersion() < 16)
+                itemMeta.setLore(temp);
+            else
+                ReflectionUtil.setField(loreField, itemMeta, temp);
+                //ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta), temp, true);
         }
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
