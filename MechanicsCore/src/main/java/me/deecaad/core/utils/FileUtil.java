@@ -50,29 +50,32 @@ public final class FileUtil {
      * @param target The non-null target file to write all the resource files
      *               to. Use {@link File#toPath()}.
      *
-     * @throws IOException If any kind of IO exception occurs.
-     * @throws URISyntaxException If the URL cannot be converted to a URI.
+     * @throws InternalError If an IO or URI exception occurs.
      */
-    public static void copyResourcesTo(URL source, Path target) throws IOException, URISyntaxException {
-        PathReference pathReference = PathReference.of(source.toURI());
+    public static void copyResourcesTo(URL source, Path target) {
+        try {
+            PathReference pathReference = PathReference.of(source.toURI());
 
-        Files.walkFileTree(pathReference.getPath(), new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(pathReference.getPath(), new SimpleFileVisitor<Path>() {
 
-            // "Visit" directories first so we can create the directory.
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                Path currentTarget = target.resolve(pathReference.getPath().relativize(dir).toString());
-                Files.createDirectories(currentTarget);
-                return FileVisitResult.CONTINUE;
-            }
+                // "Visit" directories first so we can create the directory.
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    Path currentTarget = target.resolve(pathReference.getPath().relativize(dir).toString());
+                    Files.createDirectories(currentTarget);
+                    return FileVisitResult.CONTINUE;
+                }
 
-            // "Visit" each file and copy the relative path
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.copy(file, target.resolve(pathReference.getPath().relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                // "Visit" each file and copy the relative path
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.copy(file, target.resolve(pathReference.getPath().relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (Throwable e) {
+            throw new InternalError(e);
+        }
     }
 
     public static class PathReference {
