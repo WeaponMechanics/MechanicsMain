@@ -68,6 +68,9 @@ public class DoubleMap<K> {
     }
 
     private Node<K> getNode(Object key) {
+        if (table == null)
+            return null;
+
         Node<K> node = table[hash(key) & (table.length - 1)];
 
         if (node != null) {
