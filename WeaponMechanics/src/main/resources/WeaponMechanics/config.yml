@@ -97,12 +97,12 @@ Placeholder_Symbols:
   SLIDE:
     Open: " □"
     Close: " ■"
-  Reload: "ᴿ"
+  Reload: "<red>ᴿ"
   Selective_Fire:
     SINGLE: "S"
     BURST: "B"
     AUTO: "A"
-  Dual_Wield_Split: " &7| "
+  Dual_Wield_Split: " <gray>| "
 
 # This is the global damaging system. It defines how bullets damage entities
 # with potion effects, armor, and other statuses.

@@ -28,6 +28,7 @@ import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
+import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
@@ -206,7 +207,8 @@ public class WeaponMechanics {
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml.exists()) {
             List<IValidator> validators = new ArrayList<>();
-            validators.add(new HitBox()); // No need for other validators here as this is only for config.yml
+            validators.add(new HitBox());
+            validators.add(new PlaceholderValidator());
 
             FileReader basicConfigurationReader = new FileReader(debug, null, validators);
             Configuration filledMap = basicConfigurationReader.fillOneFile(configyml);
