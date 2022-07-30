@@ -252,8 +252,10 @@ public class WeaponMechanics {
         try {
             QueueSerializerEvent event = new QueueSerializerEvent(javaPlugin, getDataFolder());
             event.addSerializers(new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader()));
+            event.addValidators(validators);
             Bukkit.getPluginManager().callEvent(event);
-            Configuration temp = new FileReader(debug, event.getSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
+
+            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml");
             configurations.add(temp);
         } catch (IOException e) {
             e.printStackTrace();

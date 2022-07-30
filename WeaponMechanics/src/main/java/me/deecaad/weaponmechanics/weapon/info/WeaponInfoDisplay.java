@@ -274,9 +274,10 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
             if (CompatibilityAPI.getVersion() < 1.15) {
                 CompatibilityAPI.getCompatibility().sendPackets(player,
-                        ReflectionUtil.newInstance(packetPlayOutExperienceConstructor,
-                                showAmmoInExpProgress ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon)) : player.getExp(),
-                                player.getTotalExperience(),
+                        ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, showAmmoInExpProgress
+                                        ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
+                                        : player.getExp(),
+                                player.getTotalExperience(), // todo THIS IS PROBABLY WRONG? CHECK THIS
                                 showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
                 messageHelper.setExpTask(new BukkitRunnable() {
                     public void run() {
