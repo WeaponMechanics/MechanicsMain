@@ -30,7 +30,7 @@ AK-47:
           b: Barrel # found in MechanicsCore > Items > CraftingMaterials.yml
           h: Handle # found in MechanicsCore > Items > CraftingMaterials.yml
           s:
-            Type: wood_shovel
+            Type: wooden_shovel
             Name: "<yellow>Stock"
             Lore:
               - "<gray>Crafting material for weapons"
