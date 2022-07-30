@@ -44,18 +44,15 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -153,16 +150,23 @@ public class WeaponMechanics {
             getPlayerWrapper(player);
         }
 
+        // Configuration is serialized the tick after the server starts. This
+        // is done so addons (Like WeaponMechanicsCosmetics) can use the
+        // QueueSerializersEvent to register their own serializers. As a
+        // side note, not all tasks can be run after the server starts.
+        // Commands, for example, can't be registered after onEnable without
+        // some disgusting NMS shit.
+        new TaskChain(javaPlugin)
+                .thenRunSync(() -> {
+                            loadConfig();
+                            registerPlaceholders();
+                            registerListeners();
+                            registerBStats();
+                            registerPermissions();
+                        });
 
 
-        loadConfig();
-        registerPlaceholders();
-        registerListeners();
-
-        // Start here to ensure config values have been filled
-        registerBStats();
         registerCommands();
-        registerPermissions();
         registerUpdateChecker();
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;

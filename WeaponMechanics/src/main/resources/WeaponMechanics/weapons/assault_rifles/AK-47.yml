@@ -47,9 +47,6 @@ AK-47:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
     Weapon_Equip_Delay: 30
-    Show_Cooldown:
-      Weapon_Equip_Delay: true
-      Reload_Time: true
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
@@ -132,3 +129,40 @@ AK-47:
       Mechanics:
         Sounds:
           - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"
+
+  # The following options are added by WeaponMechanicsCosmetics, and you will
+  # not see the changes take effect until you purchase it.
+
+  Trail:
+    Distance_Between_Particles: 0.1
+    Particle_Chooser: LOOP
+    Particles:
+      Particle:
+        Type: DUST_COLOR_TRANSITION
+        Color: 123-0-255
+        Fade_Color: 255-255-0
+        Size: 0.9
+    Shape: POLAR
+    Shape_Data:
+      Loops: 4
+      Points: 64
+      Function: "2 * sin(2 * theta) * cos(2 * theta)"
+
+  Timer:
+    Reload_Time:
+      Item_Cooldown: true
+      Action_Bar: "<gray>Reloading %bar% %time%<gray>>s"
+      Action_Bar_Complete: "<green>>Reload Complete"
+      Title: "<rainbow>RELOADING"
+      Subtitle: "<gray>%time%s"
+      Boss_Bar:
+        Message: "&eTHIS IS A <bold>BOSS BAR"
+        Bar_Color: YELLOW
+        Bar_Style: NOTCHED_6
+      Exp: true
+      Bar:
+        Left_Color: "&6"
+        Right_Color: "&7"
+        Left_Symbol: "|"
+        Right_Symbol: "|"
+        Symbol_Amount: 9
