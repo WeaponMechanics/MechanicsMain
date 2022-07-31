@@ -29,6 +29,7 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData;
@@ -118,6 +119,15 @@ public class FakeEntity_1_19_R1 extends FakeEntity {
     @Override
     public void setMeta(int metaFlag, boolean isEnabled) {
         entity.setSharedFlag(metaFlag, isEnabled);
+    }
+
+    @Override
+    public Object getData() {
+        return switch (type) {
+            case DROPPED_ITEM -> item.asBukkitCopy();
+            case FALLING_BLOCK -> CraftBlockData.fromData(block);
+            default -> null;
+        };
     }
 
     @Override

@@ -404,6 +404,7 @@ public class Explosion implements Serializer<Explosion> {
         FakeEntity disguise = CompatibilityAPI.getEntityCompatibility().generateFakeEntity(location, state);
 
         RemoveOnBlockCollisionProjectile projectile = new RemoveOnBlockCollisionProjectile(location, velocity, disguise);
+        projectile.setIntTag("explosion-falling-block", 1);
         WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
     }
 

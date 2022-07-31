@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.9.2-BETA"
+version = "1.9.2-DEV1"
 
 plugins {
     id("me.deecaad.java-conventions")
