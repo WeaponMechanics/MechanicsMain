@@ -25,7 +25,7 @@ tasks.register("buildForSpigotRelease").configure {
     val file = file("build/versions.txt")
     file.appendText("MechanicsCore: $mechanicsCoreVersion\n")
     file.appendText("WeaponMechanics: $weaponMechanicsVersion\n")
-    file.appendText("WeaponMechanicsResourcePack: 1.0.0\n")
+    file.appendText("WeaponMechanicsResourcePack: 1.1.0\n")
 
     println("Compile MechanicsCore")
     dependsOn(":BuildMechanicsCore:shadowJar")
