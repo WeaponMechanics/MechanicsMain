@@ -316,12 +316,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
     public ItemStack serializeRecipe(SerializeData data, ItemStack itemStack) throws SerializerException {
         if (data.config.contains(data.key + ".Recipe")) {
             ShapedRecipe recipe;
-            if (CompatibilityAPI.getVersion() < 1.13) {
+            if (ReflectionUtil.getMCVersion() < 13) {
                 recipe = new ShapedRecipe(itemStack);
             } else {
                 recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), itemStack);
 
-                if (Bukkit.getRecipe(recipe.getKey()) != null) {
+                if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
                     return itemStack;
                 }
             }
