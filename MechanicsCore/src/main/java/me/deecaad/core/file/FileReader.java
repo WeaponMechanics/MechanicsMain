@@ -215,7 +215,7 @@ public class FileReader {
 
                 // Check if this key is a serializer, and that it isn't the header and handle pathTo
                 Serializer<?> serializer = this.serializers.get(lastKey);
-                if (serializer != null && keySplit.length > 1) {
+                if (serializer != null) {
                     String pathTo = serializer.useLater(configuration, key);
                     if (pathTo != null) {
                         startsWithDeny = key;

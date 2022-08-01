@@ -166,7 +166,6 @@ public interface BlockCompatibility {
         public Sound sound;
         public float volume;
         public float pitch;
-        public float randomness; // Minecraft doesn't use this, primarily used by WeaponMechanicsCosmetics
     }
 
     enum SoundType {

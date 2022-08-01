@@ -35,12 +35,12 @@ public class SerializeData {
     public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
         this.serializer = serializer;
         this.file = other.file;
-        this.key = getPath(relative);
+        this.key = other.getPath(relative);
         this.config = other.config;
     }
 
     private String getPath(String relative) {
-        return key == null ? relative : key + "." + relative;
+        return key == null || "".equals(key) ? relative : (key + "." + relative);
     }
 
     /**
@@ -869,7 +869,7 @@ public class SerializeData {
             if (!config.contains(getPath(relative)))
                 return null;
 
-            SerializeData data = new SerializeData(serializer, SerializeData.this, getPath(relative));
+            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
             return serializer.serialize(data);
         }
 
