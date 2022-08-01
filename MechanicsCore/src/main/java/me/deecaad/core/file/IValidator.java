@@ -6,6 +6,10 @@ import java.io.File;
 
 public interface IValidator {
 
+    default boolean denyKeys() {
+        return false;
+    }
+
     /**
      * @return keyword of this validator used in configurations
      */

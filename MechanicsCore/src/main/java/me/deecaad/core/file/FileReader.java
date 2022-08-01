@@ -208,6 +208,9 @@ public class FileReader {
                 IValidator validator = this.validators.get(lastKey);
                 if (validator != null) {
                     validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+
+                    if (validator.denyKeys())
+                        startsWithDeny = key;
                 }
 
                 // Check if this key is a serializer, and that it isn't the header and handle pathTo
