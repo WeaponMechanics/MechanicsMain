@@ -90,11 +90,6 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     }
 
     @Override
-    public String getKeyword() {
-        return "Cluster_Bomb";
-    }
-
-    @Override
     @Nonnull
     public ClusterBomb serialize(SerializeData data) throws SerializerException {
         int bombs = data.of("Number_Of_Bombs").assertExists().assertPositive().getInt();
