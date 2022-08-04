@@ -127,3 +127,65 @@ FR_5_56:
       Mechanics:
         Sounds:
           - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"
+
+  # The following options are added by WeaponMechanicsCosmetics, and you will
+  # not see the changes take effect until you purchase it.
+
+  Cosmetics:
+    Muzzle_Flash: true
+    Splash_Mechanics:
+      Sounds:
+        - entity_generic_splash 1 1.85 0 0.15
+      Particles:
+        Particle_1:
+          Type: WATER_SPLASH
+          Count: 20
+          Noise: 0.2-0.2-0.2
+    Bullet_Zip:
+      Maximum_Distance: 4.0
+      Sounds:
+        - custom:fx.whiz 1 1 0 0.02
+
+  Trail:
+    Distance_Between_Particles: 0.1
+    Particle_Chooser: LOOP
+    Particles:
+      Particle_1:
+        Type: REDSTONE
+        Color: RED
+        Size: 0.5
+      Particle_2:
+        Type: REDSTONE
+        Color: 255-122-0
+        Size: 0.5
+      Particle_3:
+        Type: REDSTONE
+        Color: 255-255-0
+        Size: 0.5
+      Particle_4:
+        Type: REDSTONE
+        Color: 0-255-0
+        Size: 0.5
+      Particle_5:
+        Type: REDSTONE
+        Color: 0-0-255
+        Size: 0.5
+      Particle_6:
+        Type: REDSTONE
+        Color: 255-0-255
+        Size: 0.5
+
+  Show_Time:
+    Reload:
+      Item_Cooldown: true
+      Exp: true
+      Action_Bar: "<gray>Reloading %bar% <gray>%time%s"
+      Action_Bar_Cancelled: "<red>Reload Cancelled"
+      Bar:
+        Left_Color: "<gray>"
+        Right_Color: "<red>"
+        Left_Symbol: "|"
+        Right_Symbol: "|"
+        Symbol_Amount: 30
+    Weapon_Equip_Delay:
+      Item_Cooldown: true

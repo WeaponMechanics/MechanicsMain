@@ -156,28 +156,19 @@ AK-47:
         Type: DUST_COLOR_TRANSITION
         Color: RED
         Fade_Color: YELLOW
-        Size: 0.6
-    #Shape: POLAR
-    #Shape_Data:
-    #  Loops: 8
-    #  Points: 64
-    #  Function: "2 * sin(2 * theta) * cos(2 * theta)"
+        Size: 0.4
 
   Show_Time:
     Reload:
       Item_Cooldown: true
-      Action_Bar: "<gray>Reloading %bar% %time%<gray>>s"
-      Action_Bar_Cancelled: "<red>Reload Cancelled"
-      Title: "<rainbow>RELOADING"
-      Subtitle: "<gray>%time%s"
-      Boss_Bar:
-        Message: "<yellow>>THIS IS A <bold>BOSS BAR"
-        Bar_Color: YELLOW
-        Bar_Style: NOTCHED_10
       Exp: true
+      Action_Bar: "<gray>Reloading %bar% <gray>%time%s"
+      Action_Bar_Cancelled: "<red>Reload Cancelled"
       Bar:
-        Left_Color: "<gold>"
-        Right_Color: "<gray>"
+        Left_Color: "<gray>"
+        Right_Color: "<red>"
         Left_Symbol: "|"
         Right_Symbol: "|"
-        Symbol_Amount: 25
+        Symbol_Amount: 30
+    Weapon_Equip_Delay:
+      Item_Cooldown: true
