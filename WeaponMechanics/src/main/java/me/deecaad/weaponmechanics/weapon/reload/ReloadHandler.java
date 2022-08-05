@@ -472,6 +472,10 @@ public class ReloadHandler implements IValidator {
      * @return -1 if infinity, otherwise current ammo amount
      */
     public int getAmmoLeft(ItemStack weaponStack, String weaponTitle) {
+        if (weaponTitle == null && CustomTag.WEAPON_TITLE.hasString(weaponStack)) {
+            weaponTitle = CustomTag.WEAPON_TITLE.getString(weaponStack);
+        }
+        if (weaponTitle == null) return -1;
         if (CustomTag.AMMO_LEFT.hasInteger(weaponStack) && getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size") != 0) {
             return CustomTag.AMMO_LEFT.getInteger(weaponStack);
         } else {
