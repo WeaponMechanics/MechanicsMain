@@ -205,17 +205,28 @@ public class FileReader {
                 // Get the last "key name" of the key
                 String lastKey = keySplit[keySplit.length - 1].toLowerCase();
 
-                IValidator validator = this.validators.get(lastKey);
-                if (validator != null) {
-                    if (startsWithDeny == null) validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+                // Only allow using validators when they aren't under already serialized object
+                if (startsWithDeny == null) {
+                    IValidator validator = this.validators.get(lastKey);
+                    if (validator != null) {
+                        validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+                    }
                 }
 
                 // Check if this key is a serializer, and that it isn't the header and handle pathTo
                 Serializer<?> serializer = this.serializers.get(lastKey);
                 if (serializer != null && keySplit.length > 1) {
+
+                    // If the serializer doesn't have parent keywords used, or it doesn't match the current path
+                    // -> Don't try to serialize this serializer under serializer
+                    String keyWithoutLastKey = key.substring(0, key.length() - lastKey.length() - 1);
+                    if (startsWithDeny != null && (serializer.getParentKeywords() == null || serializer.getParentKeywords().stream().noneMatch(keyWithoutLastKey::endsWith))) {
+                        continue;
+                    }
+
                     String pathTo = serializer.useLater(configuration, key);
                     if (pathTo != null) {
-                        if (startsWithDeny == null) pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
+                        pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
                     } else {
                         try {
 
@@ -256,10 +267,6 @@ public class FileReader {
         if (filledMap.getKeys().isEmpty()) {
             return null;
         }
-
-        filledMap.forEach("AK-47", (str, obj) -> {
-            System.out.println(str + " - " + obj);
-        }, true);
 
         return filledMap;
     }
