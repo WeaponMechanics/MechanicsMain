@@ -60,3 +60,14 @@ Combat_Knife:
         Sounds:
           - "BLOCK_ANVIL_HIT-1-1-0-0.1"
       Melee_Miss_Delay: 20
+
+  # The following options are added by WeaponMechanicsCosmetics, and you will
+  # not see the changes take effect until you purchase it.
+
+  Show_Time:
+    Melee_Miss_Delay:
+      Item_Cooldown: true
+      Exp: true
+    Melee_Hit_Delay:
+      Item_Cooldown: true
+      Exp: true
