@@ -2,13 +2,13 @@ Cluster_Grenade:
   Info:
     Weapon_Item:
       Type: "TNT"
-      Name: "&6Cluster Grenade"
+      Name: "<gold>Cluster Grenade"
       Lore:
-        - "&7Grenade that explodes in a series of smaller blasts."
+        - "<gray>Grenade that explodes in a series of smaller blasts."
         - ""
-        - "&7Weapon Statistics"
-        - "&6➣&7 12 &6⟸ &7Bombs"
-        - "&6➣&7 3 &6⟸ &7Explosion radius"
+        - "<gray>Weapon Statistics"
+        - "<gold>➣<gray> 12 <gold>⟸ <gray>Bombs"
+        - "<gold>➣<gray> 3 <gold>⟸ <gray>Explosion radius"
       Unbreakable: true
       Hide_Flags: true
       Deny_Use_In_Crafting: true
@@ -74,10 +74,13 @@ Cluster_Grenade:
           Spawn: true
     Block_Damage:
       Break_Blocks: true
-      Spawn_Falling_Block_Chance: 0.5
+      Spawn_Falling_Block_Chance: 0.4
       Blacklist: true
       Block_List:
         - "BEDROCK"
+        - "$WATER" # stationary_water and moving_water
+        - "OBSIDIAN"
+        - "$LAVA" # stationary_lava and moving_lava
     Regeneration:
       Ticks_Before_Start: 300
       Max_Blocks_Per_Update: 5

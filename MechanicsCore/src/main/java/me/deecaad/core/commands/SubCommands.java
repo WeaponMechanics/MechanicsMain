@@ -1,17 +1,19 @@
 package me.deecaad.core.commands;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import me.deecaad.core.MechanicsCore;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 
 import java.util.*;
 
 import static me.deecaad.core.MechanicsCore.debug;
-import static net.md_5.bungee.api.ChatColor.*;
+import static net.kyori.adventure.text.Component.*;
 
 @Deprecated()
 public class SubCommands {
@@ -118,42 +120,38 @@ public class SubCommands {
     boolean sendHelp(CommandSender sender, String[] args) {
         if (args.length == 0) {
 
-            // Create the messages with hover message
-            ComponentBuilder builder = new ComponentBuilder("Showing ").color(GOLD).bold(true)
-                    .append(parentPrefix).color(GRAY).bold(true)
-                    .append(" Help ").color(GOLD).bold(true)
-                    .append("(" + commands.size() + " Commands)").reset().color(GRAY).italic(true)
-                    .append("\n");
+            NamedTextColor GOLD = NamedTextColor.GOLD;
+            NamedTextColor GRAY = NamedTextColor.GRAY;
+            TextComponent.Builder builder = text();
+
+            builder.append(text(parentPrefix).color(GRAY).decorate(TextDecoration.BOLD));
+            builder.append(text(" Help ").color(GOLD).decorate(TextDecoration.BOLD));
+            builder.append(text("(" + commands.size() + " Commands)").color(GRAY).decorate(TextDecoration.ITALIC));
+            builder.append(newline());
 
             int i = 0;
-            Collection<SubCommand> commandsCollection = commands.values();
-            for (SubCommand command : commandsCollection) {
+            for (SubCommand command : commands.values()) {
 
                 // Create a hoverable for the command
-                BaseComponent[] hover = new ComponentBuilder("Command: ").color(GOLD)
-                        .append(command.getLabel()).color(GRAY)
-                        .append("\n").append("Description: ").color(GOLD)
-                        .append(command.getDescription()).color(GRAY)
-                        .append("\n").append("Usage: ").color(GOLD)
-                        .append("/" + command.getPrefix() + " " + String.join("", command.getArgs())).color(GRAY)
-                        .append("\n").append("Permission: ").color(GOLD)
-                        .append(command.getPermission() == null ? "N/A" : command.getPermission()).color(GRAY)
-                        .append("\n\n").append("Click to auto-complete.").color(GRAY).create();
+                HoverEvent<?> hover = HoverEvent.showText(text()
+                       .append(text("Command: ").color(GOLD).append(text(command.getLabel()).color(GRAY).append(newline())))
+                       .append(text("Description: ").color(GOLD).append(text(command.getDescription()).color(GRAY)).append(newline()))
+                       .append(text("Usage: ").color(GOLD).append(text("/" + command.getPrefix() + " " + String.join("", command.getArgs())).color(GRAY).append(newline())))
+                       .append(text("Permission: ").color(GOLD).append(text(command.getPermission() == null ? "N/A" : command.getPermission()).color(GRAY).append(newline())))
+                       .append(newline())
+                       .append(text("Click to auto-complete.").color(GRAY))
+                );
 
-                builder.append("  " + SYM + " ").reset().color(GRAY);
-                BaseComponent component = new TextComponent("/" + command.getPrefix());
-                component.setColor(GOLD);
-                component.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + command.getPrefix()));
-                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
-                builder.append(component);
+                builder.append(text("  " + SYM + " ").color(GRAY));
+                builder.append(text("/" + command.getPrefix()).color(GOLD).clickEvent(ClickEvent.suggestCommand("/" + command.getPrefix())).hoverEvent(hover));
 
-                if (++i != commandsCollection.size()) {
+                if (++i != commands.size()) {
                     // Every command goes on a new line, expect if this is last command
-                    builder.append("\n");
+                    builder.append(newline());
                 }
             }
 
-            sender.spigot().sendMessage(builder.create());
+            MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(builder);
             return true;
         }
 
@@ -178,7 +176,7 @@ public class SubCommands {
         } else if (command.getPermission() == null || sender.hasPermission(command.getPermission())) {
             command.execute(sender, args);
         } else {
-            sender.sendMessage(RED + "Invalid permissions");
+            sender.sendMessage(ChatColor.RED + "Invalid permissions");
         }
         return true;
     }

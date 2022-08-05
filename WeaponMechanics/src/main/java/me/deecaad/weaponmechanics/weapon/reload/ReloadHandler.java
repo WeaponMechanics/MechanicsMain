@@ -5,6 +5,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -32,12 +33,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class ReloadHandler implements IValidator {
 
@@ -114,9 +113,15 @@ public class ReloadHandler implements IValidator {
             return false;
         }
 
+        LivingEntity shooter = entityWrapper.getEntity();
+
         // Handle permissions
-        if (!weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle)) {
-            entityWrapper.getEntity().sendMessage(ChatColor.RED + "You do not have permission to use " + weaponTitle);
+        boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle);
+        if (!hasPermission) {
+            if (shooter.getType() == EntityType.PLAYER) {
+                String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
+                shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+            }
             return false;
         }
 
@@ -147,7 +152,6 @@ public class ReloadHandler implements IValidator {
             tempAmmoToAdd = tempMagazineSize - ammoLeft;
         }
 
-        LivingEntity shooter = entityWrapper.getEntity();
         WeaponInfoDisplay weaponInfoDisplay = shooter.getType() != EntityType.PLAYER ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         PlayerWrapper playerWrapper = weaponInfoDisplay == null ? null : (PlayerWrapper) entityWrapper;
 

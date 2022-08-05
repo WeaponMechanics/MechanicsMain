@@ -2,26 +2,47 @@ AK-47:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "&6AK-47"
+      Name: "<gold>AK-47"
       Lore:
-        - "&7Very reliable automatic assault rifle chambered in 7.62mm Soviet."
-        - "&7Large caliber ammunition requires skill to control recoil."
+        - "<gray>Very reliable automatic assault rifle chambered in 7.62mm Soviet."
+        - "<gray>Large caliber ammunition requires skill to control recoil."
         - ""
-        - "&7Weapon Statistics &6-&7 66.5"
-        - "&6➣&7 68 &6⟸ &7Accuracy"
-        - "&6➣&7 76 &6⟸ &7Damage"
-        - "&6➣&7 67 &6⟸ &7Range"
-        - "&6➣&7 61 &6⟸ &7Fire Rate"
-        - "&6➣&7 59 &6⟸ &7Mobility"
-        - "&6➣&7 68 &6⟸ &7Control"
+        - "<gray>Weapon Statistics <gold>-<gray> 66.5"
+        - "<gold>➣<gray> 68 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 76 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 67 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 61 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 59 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 68 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
         - "GENERIC_MOVEMENT_SPEED--0.0181"
       Deny_Use_In_Crafting: true
+      Recipe:
+        Shape:
+          - " a "
+          - "sib"
+          - " h "
+        Ingredients:
+          a: Adhesive # found in MechanicsCore > Items > CraftingMaterials.yml
+          i: iron_block
+          b: Barrel # found in MechanicsCore > Items > CraftingMaterials.yml
+          h: Handle # found in MechanicsCore > Items > CraftingMaterials.yml
+          s:
+            Type: wooden_shovel
+            Name: "<yellow>Stock"
+            Lore:
+              - "<gray>Crafting material for weapons"
+            Recipe:
+              Shape:
+                - "www"
+                - "ww "
+              Ingredients:
+                w: oak_planks
     Weapon_Info_Display:
       Action_Bar:
-        Message: "&6AK-47%firearm-state% &7«&6%ammo-left%&7»&6%reload%"
+        Message: "<gold>AK-47%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
       Sounds:
         - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"

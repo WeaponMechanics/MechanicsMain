@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -35,29 +36,6 @@ public class RayTraceCommand extends SubCommand {
         }
         int time = (args.length > 2) ? Integer.parseInt(args[2]) : 200;
 
-        sender.sendMessage(ChatColor.GREEN + "Showing hitboxes in distance " + distance + " for " + time + " ticks");
-
-        RayTrace rayTrace = new RayTrace().withEntityFilter(entity -> entity.getEntityId() == player.getEntityId());
-        if (onlyHitPosition) {
-            rayTrace.withOutlineHitPosition(player);
-        } else {
-            rayTrace.withOutlineHitBox(player);
-        }
-
-        new BukkitRunnable() {
-            int ticker = 0;
-            @Override
-            public void run() {
-                Location location = player.getEyeLocation();
-                Vector direction = location.getDirection();
-
-                rayTrace.cast(player.getWorld(), location.toVector(), direction, distance);
-
-                if (++ticker >= time) {
-                    cancel();
-                }
-            }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0);
-
+        WeaponMechanicsCommand.ray(player, !onlyHitPosition, distance, time);
     }
 }

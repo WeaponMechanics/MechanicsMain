@@ -1,18 +1,10 @@
 package me.deecaad.weaponmechanics;
 
+import me.cjcrafter.auto.AutoMechanicsDownload;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.InvalidDescriptionException;
-import org.bukkit.plugin.InvalidPluginException;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.Files;
-import java.util.Scanner;
 import java.util.logging.Level;
 
 public class WeaponMechanicsLoader extends JavaPlugin {
@@ -21,7 +13,15 @@ public class WeaponMechanicsLoader extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        ensureMechanicsCore();
+        try {
+            int connect = getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 10) * 1000;
+            int read = getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 30) * 1000;
+            AutoMechanicsDownload downloader = new AutoMechanicsDownload(connect, read);
+            downloader.MECHANICS_CORE.install();
+        } catch (Throwable e) {
+            getLogger().log(Level.WARNING, "Failed to use auto-installer", e);
+        }
+
         if (Bukkit.getPluginManager().getPlugin("MechanicsCore") == null) {
             return;
         }
@@ -47,102 +47,5 @@ public class WeaponMechanicsLoader extends JavaPlugin {
 
     File getFile0() {
         return getFile();
-    }
-
-    private void ensureMechanicsCore() {
-
-        // WeaponMechanics NEEDS MechanicsCore to run, however, people have the
-        // incredible ability of having 0 abilities. AKA, they cannot read
-        // "UnknownDependencyException". Instead of writing out a stacktrace
-        // and having some people ask for help, we should:
-        //      A. Try to download/copy/install MechanicsCore for them
-        //      B. Disable the plugin
-        if (Bukkit.getPluginManager().getPlugin("MechanicsCore") == null) {
-
-            getLogger().log(Level.WARNING, "Missing MechanicsCore.jar, we will try to install it automatically",
-                    "To disable this, go to the WeaponMechanics config.yml file");
-            boolean installed = false;
-
-            try {
-                VersionParser downloader = new VersionParser();
-                downloader.runCore();
-                installed = true;
-            } catch (IOException | InvalidDescriptionException | InvalidPluginException e) {
-                getLogger().log(Level.WARNING, "Error download MechanicsCore", e);
-            }
-
-            if (installed) {
-                getLogger().log(Level.INFO, "Successfully downloaded MechanicsCore");
-                return;
-            }
-
-            // Debugger has not been setup yet, use logger manually
-            getLogger().log(Level.SEVERE, " !!!");
-            getLogger().log(Level.SEVERE, "WeaponMechanics requires MechanicsCore in order to run!");
-            getLogger().log(Level.SEVERE, "You should have gotten a 'MechanicsCore.jar' file along");
-            getLogger().log(Level.SEVERE, "with 'WeaponMechanics.jar' in the zip file! Make sure you");
-            getLogger().log(Level.SEVERE, "put BOTH files in the plugins folder!");
-            getLogger().log(Level.SEVERE, "Disabling WeaponMechanics to avoid error.");
-
-            getPluginLoader().disablePlugin(this);
-        }
-    }
-
-    private class VersionParser {
-
-        private String coreVersion;
-        private String weaponVersion;
-        private String packVersion;
-
-        private VersionParser() throws IOException {
-            String link = "https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/versions.txt";
-            URL url = new URL(link);
-            URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 10) * 1000); // 10 seconds
-            connection.setReadTimeout(getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 30) * 1000); // 30 seconds
-
-            InputStream in = connection.getInputStream();
-            Scanner scanner = new Scanner(in);
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                if (line.trim().isEmpty())
-                    continue;
-
-                String[] split = line.split(": ?");
-                String id = split[0];
-                String version = split[1];
-
-                switch (id) {
-                    case "MechanicsCore":
-                        coreVersion = version;
-                        break;
-                    case "WeaponMechanics":
-                        weaponVersion = version;
-                        break;
-                    case "WeaponMechanicsResourcePack":
-                        packVersion = version;
-                        break;
-                }
-            }
-        }
-
-        private void downloadCore(File target) throws IOException {
-            String link = "https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/MechanicsCore-" + coreVersion + ".jar";
-            URL url = new URL(link);
-            URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 10) * 1000); // 10 seconds
-            connection.setReadTimeout(getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 30) * 1000); // 30 seconds
-
-            InputStream in = connection.getInputStream();
-            Files.copy(in, target.toPath());
-        }
-
-        private void runCore() throws IOException, InvalidPluginException, InvalidDescriptionException {
-            File target = new File(getDataFolder().getParent(), "MechanicsCore-" + coreVersion + ".jar");
-            downloadCore(target);
-            Plugin plugin = Bukkit.getPluginManager().loadPlugin(target);
-            plugin.onLoad();
-        }
     }
 }

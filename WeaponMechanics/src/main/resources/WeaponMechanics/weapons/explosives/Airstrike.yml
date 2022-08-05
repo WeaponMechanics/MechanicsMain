@@ -2,14 +2,14 @@ Airstrike:
   Info:
     Weapon_Item:
       Type: "REDSTONE_TORCH"
-      Name: "&6Airstrike"
+      Name: "<gold>Airstrike"
       Lore:
-        - "&7Calls in an airstrike at the flare position."
+        - "<gray>Calls in an airstrike at the flare position."
         - ""
-        - "&7Weapon Statistics"
-        - "&6➣&7 3 &6⟸ &7Layers"
-        - "&6➣&7 8-10 &6⟸ &7Bombs per layer"
-        - "&6➣&7 5 &6⟸ &7Explosion radius"
+        - "<gray>Weapon Statistics"
+        - "<gold>➣<gray> 3 <gold>⟸ <gray>Layers"
+        - "<gold>➣<gray> 8-10 <gold>⟸ <gray>Bombs per layer"
+        - "<gold>➣<gray> 5 <gold>⟸ <gray>Explosion radius"
       Unbreakable: true
       Hide_Flags: true
       Deny_Use_In_Crafting: true
@@ -88,10 +88,13 @@ Airstrike:
           Block: true
     Block_Damage:
       Break_Blocks: true
-      Spawn_Falling_Block_Chance: 0.5
+      Spawn_Falling_Block_Chance: 0.24
       Blacklist: true
       Block_List:
         - "BEDROCK"
+        - "$WATER" # stationary_water and moving_water
+        - "OBSIDIAN"
+        - "$LAVA" # stationary_lava and moving_lava
     Regeneration:
       Ticks_Before_Start: 300
       Max_Blocks_Per_Update: 5

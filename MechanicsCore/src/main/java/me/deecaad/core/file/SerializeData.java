@@ -7,11 +7,9 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Wraps a key (<i>Usually</i> pointing to a {@link ConfigurationSection}) with
@@ -751,6 +749,9 @@ public class SerializeData {
          * @throws SerializerException If the user defined an invalid type.
          */
         public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz) throws SerializerException {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
             return getEnum(clazz, null);
         }
 
@@ -787,6 +788,51 @@ public class SerializeData {
 
             // At this point, the list is guaranteed to have exactly 1 element.
             return list.get(0);
+        }
+
+        /**
+         * Returns the string value of the config, adjusted to fit the
+         * adventure format. Adventure text is formatting using html-like tags
+         * instead of the legacy <code>&</code> symbol. If the string in config
+         * contains the legacy color system, we will attempt to convert it.
+         *
+         * <p>The returned string should be parsed using
+         * {@link net.kyori.adventure.text.minimessage.MiniMessage}. You may
+         * use MechanicsCore's instance {@link me.deecaad.core.MechanicsCore#message}.
+         *
+         * <p>Note that this method should only be called if you have already
+         * used {@link #assertExists()}. For non-required values, instead use
+         * {@link #getAdventure(String)}.
+         *
+         * @return The converted string from config.
+         */
+        public String getAdventure() {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
+            return getAdventure(null);
+        }
+
+        /**
+         * Returns the string value of the config, adjusted to fit the
+         * adventure format. Adventure text is formatting using html-like tags
+         * instead of the legacy <code>&</code> symbol. If the string in config
+         * contains the legacy color system, we will attempt to convert it.
+         *
+         * <p>The returned string should be parsed using
+         * {@link net.kyori.adventure.text.minimessage.MiniMessage}. You may
+         * use MechanicsCore's instance {@link me.deecaad.core.MechanicsCore#message}.
+         *
+         * @return The converted string from config.
+         */
+        public String getAdventure(String defaultValue) {
+            if (!config.contains(key + "." + relative))
+                return defaultValue;
+
+            String value = config.getString(key + "." + relative);
+            assert value != null;
+
+            return StringUtil.colorAdventure(value);
         }
 
         /**

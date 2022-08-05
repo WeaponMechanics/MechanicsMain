@@ -10,6 +10,9 @@ import me.deecaad.core.utils.AttributeType;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -23,9 +26,12 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ItemSerializer implements Serializer<ItemStack> {
+
+    public static final Map<String, Supplier<ItemStack>> ITEM_REGISTRY = new HashMap<>();
 
     /**
      * Reflection support for versions before 1.11 when setting unbreakable tag
@@ -33,10 +39,20 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private static Method spigotMethod;
     private static Method setUnbreakable;
 
+    // 1.16+ use adventure in item lore and display name (hex code support)
+    private static Field loreField;
+    private static Field displayField;
+
     private static final Field ingredientsField;
 
     static {
         ingredientsField = ReflectionUtil.getField(ShapedRecipe.class, "ingredients");
+
+        if (ReflectionUtil.getMCVersion() >= 16) {
+            Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
+            loreField = ReflectionUtil.getField(c, "lore");
+            displayField = ReflectionUtil.getField(c, "displayName");
+        }
     }
 
     /**
@@ -53,12 +69,19 @@ public class ItemSerializer implements Serializer<ItemStack> {
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
 
-        // Support for one-liner item serializer
         try {
-            Material type = data.of().assertType(String.class).getEnum(Material.class);
-            if (type != null) {
+
+            // Check the ITEM_REGISTRY to see if they are trying to inline
+            // an item... Like pathto in serializers but easier.
+            String registry = data.of().assertType(String.class).assertExists().get();
+            if (ITEM_REGISTRY.containsKey(registry))
+                return ITEM_REGISTRY.get(registry).get();
+
+            // Support for one-liner item serializer
+            Material type = data.of().assertType(String.class).assertExists().getEnum(Material.class);
+            if (type != null)
                 return new ItemStack(type);
-            }
+
         } catch (SerializerTypeException e) {
             // Let continue since this wasn't one-liner
         }
@@ -80,13 +103,34 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     SerializerException.forValue(type));
         }
 
-        String name = data.of("Name").assertType(String.class).get(null);
-        if (name != null)
-            itemMeta.setDisplayName(StringUtil.color(name));
+        String name = data.of("Name").getAdventure(null);
+        if (name != null) {
+            Component component = MechanicsCore.getPlugin().message.deserialize(name);
+
+            if (ReflectionUtil.getMCVersion() < 16) {
+                String element = LegacyComponentSerializer.legacySection().serialize(component);
+                itemMeta.setDisplayName(element);
+            } else {
+                String display = GsonComponentSerializer.gson().serialize(component);
+                ReflectionUtil.setField(displayField, itemMeta, display);
+            }
+        }
 
         List<?> lore = data.of("Lore").assertType(List.class).get(null);
         if (lore != null && !lore.isEmpty()) {
-            itemMeta.setLore(convertListObject(lore));
+            List<String> temp = new ArrayList<>(lore.size());
+
+            for (Object obj : lore) {
+                Component component = MechanicsCore.getPlugin().message.deserialize(StringUtil.colorAdventure(obj.toString()));
+                String element = ReflectionUtil.getMCVersion() < 16 ? LegacyComponentSerializer.legacySection().serialize(component) : GsonComponentSerializer.gson().serialize(component);
+                temp.add(element);
+            }
+
+            if (ReflectionUtil.getMCVersion() < 16)
+                itemMeta.setLore(temp);
+            else
+                ReflectionUtil.setField(loreField, itemMeta, temp);
+                //ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta), temp, true);
         }
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
@@ -272,10 +316,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
     public ItemStack serializeRecipe(SerializeData data, ItemStack itemStack) throws SerializerException {
         if (data.config.contains(data.key + ".Recipe")) {
             ShapedRecipe recipe;
-            if (CompatibilityAPI.getVersion() < 1.13) {
+            if (ReflectionUtil.getMCVersion() < 13) {
                 recipe = new ShapedRecipe(itemStack);
             } else {
                 recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), itemStack);
+
+                if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
+                    return itemStack;
+                }
             }
 
             // The Recipe.Shape should be a list looking similar to:
@@ -308,7 +356,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 if (c == ' ')
                     continue;
                 
-                ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(this);
+                ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(new ItemSerializer());
 
                 if (CompatibilityAPI.getVersion() < 1.13)
                     ingredients.put(c, item);
@@ -341,13 +389,5 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 e.printStackTrace();
             }
         }
-    }
-
-    private List<String> convertListObject(Object object) {
-        List<String> list = new ArrayList<>();
-        for (Object obj : (List<?>) object) {
-            list.add(StringUtil.color(obj.toString()));
-        }
-        return list;
     }
 }

@@ -653,6 +653,11 @@ public class WeaponMechanicsCommand {
                     }
 
                     HitBox box = WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(entity);
+                    if (box == null) {
+                        sender.sendMessage(RED + "Couldn't find hitbox for " + entity);
+                        return;
+                    }
+
                     double max = box.getMaxY();
                     double height = box.getHeight();
 

@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.8.8-BETA"
+version = "1.9.2-BETA"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -79,6 +79,10 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_18_R1"))
         include(project(":Weapon_1_18_R2"))
         include(project(":Weapon_1_19_R1"))
+
+        relocate ("me.cjcrafter.auto", "me.deecaad.weaponmechanics.lib.auto") {
+            include(dependency("me.cjcrafter:mechanicsautodownload"))
+        }
 
         relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
             include(dependency("co.aikar:minecraft-timings"))

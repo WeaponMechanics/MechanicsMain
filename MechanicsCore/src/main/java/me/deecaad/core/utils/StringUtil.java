@@ -4,7 +4,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -142,6 +144,76 @@ public final class StringUtil {
         }
 
         return result.toString();
+    }
+
+    /**
+     * Returns the string value of the config, adjusted to fit the
+     * adventure format. Adventure text is formatting using html-like tags
+     * instead of the legacy <code>&</code> symbol. If the string in config
+     * contains the legacy color system, we will attempt to convert it.
+     *
+     * <p>The returned string should be parsed using
+     * {@link net.kyori.adventure.text.minimessage.MiniMessage}. You may
+     * use MechanicsCore's instance {@link me.deecaad.core.MechanicsCore#message}.
+     *
+     * @return The string with the new format.
+     */
+    public static String colorAdventure(String value) {
+        if (value == null)
+            return null;
+
+        value = value.replaceAll("\u00a7", "&");
+
+        // Adventure text is formatted using tags <color></color> instead
+        // of with symbols &7. While not a perfect fix, we can replace the
+        // symbols with their equivalent open color tags.
+
+        // Hardcoded literal colors (Hex is handled separately)
+        final Map<String, String> replacements = new HashMap<>();
+        replacements.put("&0", "<black>");
+        replacements.put("&1", "<dark_blue>");
+        replacements.put("&2", "<dark_green>");
+        replacements.put("&3", "<dark_aqua>");
+        replacements.put("&4", "<dark_red>");
+        replacements.put("&5", "<dark_purple>");
+        replacements.put("&6", "<gold>");
+        replacements.put("&7", "<gray>");
+        replacements.put("&8", "<dark_gray>");
+        replacements.put("&9", "<blue>");
+        replacements.put("&(a|A)", "<green>");
+        replacements.put("&(b|B)", "<aqua>");
+        replacements.put("&(c|C)", "<red>");
+        replacements.put("&(d|D)", "<light_purple>");
+        replacements.put("&(e|E)", "<yellow>");
+        replacements.put("&(f|F)", "<white>");
+
+        // Hardcoded literal decorations
+        replacements.put("&(k|K)", "<obfuscated>");
+        replacements.put("&(l|L)", "<bold>");
+        replacements.put("&(m|M)", "<strikethrough>");
+        replacements.put("&(n|N)", "<underline>");
+        replacements.put("&(o|O)", "<italic>");
+        replacements.put("&(r|R)", "<reset>");
+
+        // Regex matcher to find hex color strings
+        Pattern regex = Pattern.compile("&#([a-f]|[A-F]|\\d){6}");
+        Matcher matcher = regex.matcher(value);
+        StringBuffer builder = new StringBuffer();
+
+        while (matcher.find()) {
+            String match = matcher.group(0);
+            String replacement = "<" + match.substring(1) + ">";
+            matcher.appendReplacement(builder, replacement);
+        }
+        matcher.appendTail(builder);
+        value = builder.toString();
+
+        // Now convert simple colors and decorations
+        for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            value = value.replaceAll(entry.getKey(), entry.getValue());
+        }
+
+        return value;
     }
 
     /**

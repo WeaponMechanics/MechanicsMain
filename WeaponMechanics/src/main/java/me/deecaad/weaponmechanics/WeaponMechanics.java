@@ -28,6 +28,7 @@ import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
+import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
@@ -43,9 +44,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import javax.annotation.Nullable;
@@ -186,11 +189,7 @@ public class WeaponMechanics {
         // Create files
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
             debug.info("Copying files from jar (This process may take up to 30 seconds during the first load!)");
-            try {
-                FileUtil.copyResourcesTo(getClassLoader().getResource("WeaponMechanics"), getDataFolder().toPath());
-            } catch (IOException | URISyntaxException e) {
-                e.printStackTrace();
-            }
+            FileUtil.copyResourcesTo(getClassLoader().getResource("WeaponMechanics"), getDataFolder().toPath());
         }
 
         try {
@@ -204,7 +203,8 @@ public class WeaponMechanics {
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml.exists()) {
             List<IValidator> validators = new ArrayList<>();
-            validators.add(new HitBox()); // No need for other validators here as this is only for config.yml
+            validators.add(new HitBox());
+            validators.add(new PlaceholderValidator());
 
             FileReader basicConfigurationReader = new FileReader(debug, null, validators);
             Configuration filledMap = basicConfigurationReader.fillOneFile(configyml);
@@ -252,8 +252,10 @@ public class WeaponMechanics {
         try {
             QueueSerializerEvent event = new QueueSerializerEvent(javaPlugin, getDataFolder());
             event.addSerializers(new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader()));
+            event.addValidators(validators);
             Bukkit.getPluginManager().callEvent(event);
-            Configuration temp = new FileReader(debug, event.getSerializers(), validators).fillAllFiles(getDataFolder(), "config.yml");
+
+            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml");
             configurations.add(temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -339,9 +341,14 @@ public class WeaponMechanics {
     }
 
     void registerPermissions() {
-        debug.debug("Registering permissions");
+        debug.info("Registering permissions"); // keep this on info just in case for infinite loop
 
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
+        if (parent == null) {
+            // Some older versions register permissions after onEnable...
+            new TaskChain(javaPlugin).thenRunSync(this::registerPermissions);
+            return;
+        }
 
         for (String weaponTitle : weaponHandler.getInfoHandler().getSortedWeaponList()) {
             String permissionName = "weaponmechanics.use." + weaponTitle;
