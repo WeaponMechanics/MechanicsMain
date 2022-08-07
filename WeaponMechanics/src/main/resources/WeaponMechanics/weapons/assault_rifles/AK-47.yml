@@ -109,6 +109,7 @@ AK-47:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
     Zoom_Amount: 1.5
+    Shoot_Delay_After_Scope: 15
     Mechanics:
       Sounds:
         - "custom:scope.in-0.5-1-0-0.1"
@@ -171,4 +172,6 @@ AK-47:
         Right_Symbol: "|"
         Symbol_Amount: 30
     Weapon_Equip_Delay:
+      Item_Cooldown: true
+    Shoot_Delay_After_Scope:
       Item_Cooldown: true
