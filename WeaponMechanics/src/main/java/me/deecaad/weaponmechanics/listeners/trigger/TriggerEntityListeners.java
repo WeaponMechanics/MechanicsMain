@@ -37,7 +37,8 @@ public class TriggerEntityListeners implements Listener {
     @EventHandler
     public void damage(EntityDamageByEntityEvent e) {
         EntityDamageEvent.DamageCause cause = e.getCause();
-        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && (ReflectionUtil.getMCVersion() < 11 || cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) return;
+        boolean isSweep = ReflectionUtil.getMCVersion() > 10 && cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
+        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && !isSweep) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         Entity damager = e.getDamager();
@@ -66,7 +67,7 @@ public class TriggerEntityListeners implements Listener {
         }
 
         // When sweep hit we don't want to do actual melee casts
-        if (cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) return;
+        if (isSweep) return;
 
         if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.MELEE,
                 livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
