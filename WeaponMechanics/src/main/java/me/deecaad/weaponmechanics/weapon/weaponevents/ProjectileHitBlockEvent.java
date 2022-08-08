@@ -10,9 +10,14 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of a projectile hitting a block. If this event
- * is cancelled, the projectile will not "interact" with the block. This can
- * cancel explosions, block damage, etc.
+ * Called whenever a {@link WeaponProjectile} hits a block. This may be called
+ * multiple times for some projectiles (that use
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Through}
+ * or {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy}).
+ *
+ * <p>For more control over the projectile, consider using a
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.ProjectileScript}
+ * instead.
  */
 public class ProjectileHitBlockEvent extends ProjectileEvent implements Cancellable {
 

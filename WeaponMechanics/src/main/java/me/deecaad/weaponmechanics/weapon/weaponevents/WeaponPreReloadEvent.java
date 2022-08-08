@@ -7,8 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines an event before reload calculations take place. This
- * event is great for cancelling weapon reloads.
+ * Called before a {@link WeaponReloadEvent}.
  */
 public class WeaponPreReloadEvent extends WeaponEvent implements Cancellable {
 

@@ -12,7 +12,10 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of a weapon damaging a {@link LivingEntity}.
+ * Called whenever an entity is damaged by a weapon. For deaths, use the
+ * {@link WeaponKillEntityEvent} instead. The calculations for final damage
+ * can be quite extensive, so be user to change values before using
+ * {@link #getFinalDamage()}.
  */
 public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable {
 
@@ -46,19 +49,40 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.distanceTravelled = distanceTravelled;
     }
 
+    /**
+     * Who is being damaged by the weapon.
+     *
+     * @return The non-null entity being damaged.
+     */
     public LivingEntity getVictim() {
         return victim;
     }
 
+    /**
+     * The weapon's base damage amount (before calculations).
+     *
+     * @return The base damage.
+     */
     public double getBaseDamage() {
         return baseDamage;
     }
 
+    /**
+     * Sets the base damage amount (before calculations). Resets the result
+     * of {@link #getFinalDamage()}.
+     *
+     * @param baseDamage The base damage.
+     */
     public void setBaseDamage(double baseDamage) {
         this.finalDamage = Double.NaN;
         this.baseDamage = baseDamage;
     }
 
+    /**
+     * Returns the damage AFTER all the calculations.
+     *
+     * @return The final damage.
+     */
     public double getFinalDamage() {
         if (Double.isNaN(finalDamage)) {
             Configuration config = WeaponMechanics.getConfigurations();
@@ -99,49 +123,111 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         return finalDamage;
     }
 
+    /**
+     * Overrides the final damage and skips calculations. Probably don't want
+     * to use this method, as it will skip headshots, backstabs, armor, etc.
+     *
+     * @param finalDamage The final damage amount.
+     */
     public void setFinalDamage(double finalDamage) {
         this.finalDamage = finalDamage;
     }
 
+    /**
+     * Returns true if the damage came from behind the victim.
+     *
+     * @return true is this is a backstab.
+     */
     public boolean isBackstab() {
         return isBackstab;
     }
 
+    /**
+     * Sets whether this was a backstab. Resets the result of
+     * {@link #getFinalDamage()}.
+     *
+     * @param backstab true if this is a backstab.
+     */
     public void setBackstab(boolean backstab) {
         this.finalDamage = Double.NaN;
         this.isBackstab = backstab;
     }
 
+    /**
+     * Returns true if the damage is critical (usually determined by chance).
+     *
+     * @return true if this is critical hit.
+     */
     public boolean isCritical() {
         return isCritical;
     }
 
+    /**
+     * Sets whether this is a critical hit. Resets the result of
+     * {@link #getFinalDamage()}.
+     *
+     * @param isCritical true if this is a critical hit.
+     */
     public void setCritical(boolean isCritical) {
         this.finalDamage = Double.NaN;
         this.isCritical = isCritical;
     }
 
+    /**
+     * Gets the body part that was hit (head/arms/chest/etc).
+     *
+     * @return The nullable damage point.
+     */
     public DamagePoint getPoint() {
         return point;
     }
 
+    /**
+     * Sets the body part that was hit (head/arms/chest/etc). Resets the result
+     * of {@link #getFinalDamage()}.
+     *
+     * @param point The nullable damage point.
+     */
     public void setPoint(DamagePoint point) {
         this.finalDamage = Double.NaN;
         this.point = point;
     }
 
+    /**
+     * Returns the amount of damage to armor. There is a chance for this number
+     * to be ignored (if the armor has unbreaking).
+     *
+     * @return the amount of damage to armor.
+     */
     public int getArmorDamage() {
         return armorDamage;
     }
 
+    /**
+     * Sets the amount of damage to armor. There is a chance for this number to
+     * be ignored (if the armor has unbreaking).
+     *
+     * @param armorDamage Sets the amount of damage to the armor.
+     */
     public void setArmorDamage(int armorDamage) {
         this.armorDamage = armorDamage;
     }
 
+    /**
+     * How many ticks should the victim be lit on fire for.
+     *
+     * @return The fire ticks.
+     */
     public int getFireTicks() {
         return fireTicks;
     }
 
+    /**
+     * Sets the number of ticks the victim should be lit on fire for.
+     *
+     * @param fireTicks The fire ticks.
+     * @see LivingEntity#setFireTicks(int)
+     */
     public void setFireTicks(int fireTicks) {
         this.fireTicks = fireTicks;
     }

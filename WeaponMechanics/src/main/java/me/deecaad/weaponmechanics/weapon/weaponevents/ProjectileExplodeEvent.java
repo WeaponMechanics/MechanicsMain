@@ -11,6 +11,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Called whenever an explosion is spawned by a weapon (When a projectile
+ * explodes, usually). While this event is {@link Cancellable}, you should
+ * <i>ALWAYS</i> cancel {@link ProjectilePreExplodeEvent} (this will skip a lot
+ * more calculations, saving that precious CPU).
+ */
 public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
@@ -29,26 +35,67 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
         this.entities = entities;
     }
 
+    /**
+     * Returns the list of blocks that were affected by the
+     * {@link me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape}.
+     * You can modify this list.
+     *
+     * @return The non-null list of blocks affected.
+     */
     public List<Block> getBlocks() {
         return blocks;
     }
 
+    /**
+     * Overrides the current list of blocks affected by the explosion. Using
+     * this method may cause compatibility issues with other plugins using this
+     * event, so use this carefully.
+     *
+     * @param blocks The non-null list of blocks to be destroyed.
+     */
     public void setBlocks(List<Block> blocks) {
         this.blocks = blocks;
     }
 
+    /**
+     * A {@link BlockRegenSorter} simply sorts the block list after this event
+     * is called. This is nice for regeneration, as we can make the explosions
+     * regenerate in a "satisfying pattern".
+     *
+     * @return The current block regen sorter.
+     */
     public BlockRegenSorter getSorter() {
         return sorter;
     }
 
+    /**
+     * Sets the sorter that will decide the order blocks regenerate in.
+     *
+     * @param sorter The block sorter to use, or null.
+     * @see #getSorter()
+     */
     public void setSorter(BlockRegenSorter sorter) {
         this.sorter = sorter;
     }
 
+    /**
+     * Gets the list of entities mapped to their exposure (A number 0..1 that
+     * determines how exposed that entity is to the explosion. Higher numbers
+     * mean more damage).
+     *
+     * @return The non-null entities mapped to their exposures.
+     */
     public DoubleMap<LivingEntity> getEntities() {
         return entities;
     }
 
+    /**
+     * Overrides the current list of entities affected by the explosion. Using
+     * this method may cause compatibility issues with other plugins using this
+     * event, so use this carefully.
+     *
+     * @param entities The non-null map of entities and their exposures (0..1).
+     */
     public void setEntities(DoubleMap<LivingEntity> entities) {
         this.entities = entities;
     }

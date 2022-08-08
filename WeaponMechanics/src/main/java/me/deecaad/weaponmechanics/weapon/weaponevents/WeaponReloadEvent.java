@@ -6,7 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of an entity starting to reload a weapon.
+ * Called when a weapon begins to reload. Usually the entity involved will be
+ * a {@link org.bukkit.entity.Player}, but this may change in the future.
  */
 public class WeaponReloadEvent extends WeaponEvent {
 
