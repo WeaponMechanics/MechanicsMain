@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
+import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
@@ -10,6 +11,9 @@ import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitBlockEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileHitEntityEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponMeleeHitEvent;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -17,6 +21,7 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -113,7 +118,21 @@ public class RayTraceResult {
             return true;
         }
 
+        Configuration config = WeaponMechanics.getConfigurations();
+        int meleeHitDelay = config.getInt(weaponTitle + ".Melee.Melee_Hit_Delay") / 50;
         boolean backstab = livingEntity.getLocation().getDirection().dot(shooterDirection) > 0.0;
+        WeaponMeleeHitEvent event = new WeaponMeleeHitEvent(weaponTitle, weaponStack, shooter, livingEntity, meleeHitDelay, backstab);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled())
+            return true;
+
+        if (event.getMeleeHitDelay() != 0) {
+            EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(shooter);
+            HandData hand = wrapper.getMainHandData(); // always mainhand for melee
+
+            hand.setLastMeleeTime(System.currentTimeMillis());
+        }
 
         return !damageHandler.tryUse(livingEntity, getConfigurations().getDouble(weaponTitle + ".Damage.Base_Damage"),
                 hitPoint, backstab, shooter, weaponTitle, weaponStack, getDistanceTravelled());

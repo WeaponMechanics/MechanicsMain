@@ -17,8 +17,10 @@ import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponMeleeMissEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -27,6 +29,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -97,12 +100,6 @@ public class MeleeHandler implements IValidator {
         if (hit != null) {
             boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
             if (result) {
-                if (meleeHitDelay != 0) {
-                    handData.setLastMeleeTime(System.currentTimeMillis());
-                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Hit_Delay") && shooter.getType() == EntityType.PLAYER) {
-                        CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeHitDelay / 50);
-                    }
-                }
                 hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack);
             }
             return result;
@@ -112,41 +109,34 @@ public class MeleeHandler implements IValidator {
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(shooter, weaponTitle);
         String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
 
-        // Handle miss
-        if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {
-            if (!hasPermission) {
-                if (shooter.getType() == EntityType.PLAYER) {
-                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
-                }
-                return false;
+        if (!hasPermission) {
+            if (shooter.getType() == EntityType.PLAYER) {
+                shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
             }
+            return false;
+        }
+
+
+        boolean consumeOnMiss = getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss");
+        Mechanics missMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
+
+        WeaponMeleeMissEvent event = new WeaponMeleeMissEvent(weaponTitle, weaponStack, shooter, meleeMissDelay / 50, missMechanics, consumeOnMiss);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled())
+            return false;
+
+        // Handle miss
+        if (event.isConsume()) {
             weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
         }
 
-        Mechanics meleeMissMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
-        if (meleeMissMechanics != null) {
-            if (!hasPermission) {
-                if (shooter.getType() == EntityType.PLAYER) {
-                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
-                }
-                return false;
-            }
-            meleeMissMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+        if (event.getMechanics() != null) {
+            event.getMechanics().use(new CastData(entityWrapper, weaponTitle, weaponStack));
         }
 
-        if (meleeMissDelay != 0) {
-            if (!hasPermission) {
-                if (shooter.getType() == EntityType.PLAYER) {
-                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
-                }
-                return false;
-            }
-
+        if (event.getMeleeMissDelay() != 0) {
             handData.setLastMeleeMissTime(System.currentTimeMillis());
-
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Miss_Delay") && shooter.getType() == EntityType.PLAYER) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeMissDelay / 50);
-            }
         }
         return true;
     }

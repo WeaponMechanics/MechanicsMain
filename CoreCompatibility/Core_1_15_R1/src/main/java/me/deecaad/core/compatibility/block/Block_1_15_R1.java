@@ -2,15 +2,14 @@ package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.Chunk;
-import net.minecraft.server.v1_15_R1.IBlockData;
-import net.minecraft.server.v1_15_R1.PacketPlayOutBlockBreakAnimation;
-import net.minecraft.server.v1_15_R1.PacketPlayOutMultiBlockChange;
+import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_15_R1.CraftSound;
 import org.bukkit.craftbukkit.v1_15_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
@@ -18,14 +17,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Block_1_15_R1 implements BlockCompatibility {
 
     private static final Field multiBlockChangeB;
+    private static final Field[] soundFields;
 
     static {
         Class<?> multiBlockChangeClass = ReflectionUtil.getPacketClass("PacketPlayOutMultiBlockChange");
@@ -37,6 +34,11 @@ public class Block_1_15_R1 implements BlockCompatibility {
                     "Loaded " + Block_1_15_R1.class + " when not using Minecraft 15",
                     new InternalError()
             );
+        }
+
+        soundFields = new Field[SoundType.values().length]; // 5
+        for (int i = 0; i < soundFields.length; i++) {
+            soundFields[i] = ReflectionUtil.getField(SoundEffectType.class, SoundEffect.class, i);
         }
     }
 
@@ -131,5 +133,44 @@ public class Block_1_15_R1 implements BlockCompatibility {
 
         ReflectionUtil.setField(multiBlockChangeB, packet, changes);
         return packet;
+    }
+
+    @Override
+    public SoundData getBlockSound(Object blockData, SoundType type) {
+        CraftBlockData block = (CraftBlockData) blockData;
+        SoundEffectType sounds = block.getState().r();
+
+        SoundData soundData = new SoundData();
+        soundData.type = type;
+        soundData.pitch = sounds.y;
+        soundData.volume = sounds.x;
+
+        switch (type) {
+            case BREAK:
+                soundData.sound = bukkit(sounds, 0);
+                break;
+            case STEP:
+                soundData.sound = bukkit(sounds, 1);
+                break;
+            case PLACE:
+                soundData.sound = bukkit(sounds, 2);
+                break;
+            case HIT:
+                soundData.sound = bukkit(sounds, 3);
+                break;
+            case FALL:
+                soundData.sound = bukkit(sounds, 4);
+                break;
+            default:
+                throw new InternalError("unreachable code");
+        }
+
+        return soundData;
+    }
+
+    private Sound bukkit(SoundEffectType sounds, int index) {
+        SoundEffect sound = (SoundEffect) ReflectionUtil.invokeField(soundFields[index], sounds);
+        MinecraftKey key = IRegistry.SOUND_EVENT.getKey(sound);
+        return Sound.valueOf(key.getKey().replaceAll("\\.", "_").toUpperCase(Locale.ROOT));
     }
 }

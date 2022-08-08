@@ -69,6 +69,14 @@ public class FirearmAction implements Serializer<FirearmAction> {
         return closeTime;
     }
 
+    public Mechanics getOpen() {
+        return open;
+    }
+
+    public Mechanics getClose() {
+        return close;
+    }
+
     public int getFirearmActionFrequency() {
         return firearmActionFrequency;
     }

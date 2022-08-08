@@ -8,6 +8,8 @@ import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
@@ -102,6 +104,21 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
     @Override
     public void setMeta(int metaFlag, boolean isEnabled) {
         entity.setFlag(metaFlag, isEnabled);
+    }
+
+    @Override
+    public Object getData() {
+        switch (type) {
+            case DROPPED_ITEM:
+                return CraftItemStack.asBukkitCopy(item);
+            case FALLING_BLOCK:
+                int combined = Block.getCombinedId(block);
+                int mat = combined & 4095;
+                int data = combined >> 12 & 15;
+                return new MaterialData(mat, (byte) data);
+            default:
+                return null;
+        }
     }
 
     @Override

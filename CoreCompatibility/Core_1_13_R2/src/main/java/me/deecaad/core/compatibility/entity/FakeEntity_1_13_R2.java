@@ -105,6 +105,18 @@ public class FakeEntity_1_13_R2 extends FakeEntity {
     }
 
     @Override
+    public Object getData() {
+        switch (type) {
+            case DROPPED_ITEM:
+                return CraftItemStack.asBukkitCopy(item);
+            case FALLING_BLOCK:
+                return CraftBlockData.fromData(block);
+            default:
+                return null;
+        }
+    }
+
+    @Override
     public void setData(@Nullable Object data) {
         switch (type) {
             case DROPPED_ITEM:

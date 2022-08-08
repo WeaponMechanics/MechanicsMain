@@ -81,3 +81,23 @@ Grenade:
     Mechanics:
       Sounds:
         - "custom:explosion.frag-6-1-0-0.1"
+
+  # The following options are added by WeaponMechanicsCosmetics, and you will
+  # not see the changes take effect until you purchase it.
+
+  Cosmetics:
+    Splash_Mechanics:
+      Sounds:
+        - entity_generic_splash 1 1.85 0 0.15
+      Particles:
+        Particle_1:
+          Type: WATER_SPLASH
+          Count: 25
+          Noise: 0.2-0.2-0.2
+
+  Trail:
+    Distance_Between_Particles: 0.7
+    Particle_Chooser: LOOP
+    Particles:
+      Particle_1:
+        Type: SMOKE_NORMAL

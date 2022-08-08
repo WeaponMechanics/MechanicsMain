@@ -26,6 +26,8 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPostShootEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreShootEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -198,7 +200,7 @@ public class ShootHandler implements IValidator {
                     doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
                 } else {
                     // Else continue to reload from where it left on...
-                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+                    startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
                 }
 
                 // Return false since firearm state wasn't ready, and they need to be completed
@@ -209,7 +211,7 @@ public class ShootHandler implements IValidator {
 
         // If no ammo left, start reloading
         if (ammoLeft == 0) {
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+            startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
             return false;
         } else if (handData.isReloading()) {
             // Else if reloading, cancel it
@@ -279,7 +281,7 @@ public class ShootHandler implements IValidator {
         }
 
         if (reloadHandler.getAmmoLeft(weaponStack, weaponTitle) == 0) {
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+            startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
         } else {
             doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
         }
@@ -320,7 +322,7 @@ public class ShootHandler implements IValidator {
                     handData.setBurstTask(0);
                     cancel();
 
-                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                    startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     return;
                 }
 
@@ -340,7 +342,7 @@ public class ShootHandler implements IValidator {
                     cancel();
 
                     if (reloadHandler.getAmmoLeft(taskReference, weaponTitle) == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     } else {
                         doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
                     }
@@ -382,7 +384,7 @@ public class ShootHandler implements IValidator {
                     cancel();
 
                     if (ammoLeft == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     } else {
                         doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
                     }
@@ -410,7 +412,7 @@ public class ShootHandler implements IValidator {
                         handData.setFullAutoTask(0);
                         cancel();
 
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                         return;
                     }
                 }
@@ -483,16 +485,17 @@ public class ShootHandler implements IValidator {
         if (state == FirearmState.CLOSE) {
             // Only do CLOSE state
 
+            WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
+                return;
+
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-            firearmAction.useMechanics(castData, false);
+            event.useMechanics(castData, false);
 
             if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && playerWrapper != null) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown(playerWrapper.getPlayer(), weaponStack.getType(), firearmAction.getCloseTime());
-            }
-
-            handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+            handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
 
             // Return since we only want to do close state
             return;
@@ -503,15 +506,15 @@ public class ShootHandler implements IValidator {
         // Update state
         if (state != FirearmState.OPEN) firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return;
+
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-        firearmAction.useMechanics(castData, true);
+        event.useMechanics(castData, true);
 
         if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
-
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && playerWrapper != null) {
-            CompatibilityAPI.getEntityCompatibility().setCooldown(playerWrapper.getPlayer(), weaponStack.getType(),
-                    firearmAction.getOpenTime() + firearmAction.getCloseTime());
-        }
 
         // Add the task to shoot firearm action tasks
         handData.addFirearmActionTask(new BukkitRunnable() {
@@ -525,14 +528,20 @@ public class ShootHandler implements IValidator {
                 // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
                 CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
-                firearmAction.useMechanics(castData, false);
+
+                WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.isCancelled())
+                    return;
+
+                event.useMechanics(castData, false);
 
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
-                handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+                handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
 
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getOpenTime()).getTaskId());
+        }.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
     }
 
     /**
@@ -561,6 +570,22 @@ public class ShootHandler implements IValidator {
         }
     }
 
+    private void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+        ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+
+        if (!dualWield) {
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
+            return;
+        }
+
+        if (slot == EquipmentSlot.HAND ?
+                reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInOffHand(), null) == 0
+                : reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInMainHand(), null) == 0) {
+            // Now we know that both weapons are empty assuming the other weapon's ammo amount is already checked before this
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
+        }
+    }
+
     /**
      * Shoots using weapon.
      * Does not use ammo nor check for it.
@@ -572,11 +597,6 @@ public class ShootHandler implements IValidator {
         if (!isMelee) {
             HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
             handData.setLastShotTime(System.currentTimeMillis());
-
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Delay_Between_Shots") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(),
-                        config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots") / 50);
-            }
         }
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
@@ -620,6 +640,9 @@ public class ShootHandler implements IValidator {
             // Shoot the given bullet
             projectile.shoot(bullet, shootLocation);
         }
+
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     /**
@@ -651,6 +674,9 @@ public class ShootHandler implements IValidator {
             // Shoot the given bullet
             projectile.shoot(bullet, shootLocation);
         }
+
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     /**

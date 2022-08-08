@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
 
@@ -147,7 +148,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             }
 
             try {
-                Sound sound = Sound.valueOf(stringSound);
+                Sound sound = Sound.valueOf(stringSound.toUpperCase(Locale.ROOT));
                 soundList.add(new BukkitSound(sound, volume, pitch, delay, noise));
             } catch (IllegalArgumentException e) {
                 throw new SerializerEnumException(this, Sound.class, stringSound, false, data.ofList().getLocation(i));

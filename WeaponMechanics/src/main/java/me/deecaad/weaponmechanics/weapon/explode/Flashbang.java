@@ -97,11 +97,6 @@ public class Flashbang implements Serializer<Flashbang> {
     }
 
     @Override
-    public String getKeyword() {
-        return "Flashbang";
-    }
-
-    @Override
     @Nonnull
     public Flashbang serialize(SerializeData data) throws SerializerException {
         double distance = data.of("Effect_Distance").assertExists().assertPositive().getDouble();

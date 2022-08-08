@@ -209,11 +209,6 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     @Override
-    public String getKeyword() {
-        return "Airstrike";
-    }
-
-    @Override
     @Nonnull
     public AirStrike serialize(SerializeData data) throws SerializerException {
 
