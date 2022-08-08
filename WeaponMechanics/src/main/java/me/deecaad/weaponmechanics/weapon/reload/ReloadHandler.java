@@ -369,10 +369,6 @@ public class ReloadHandler implements IValidator {
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.OPEN);
         Bukkit.getPluginManager().callEvent(event);
 
-        // TODO deecaad help me
-        if (event.isCancelled())
-            return null;
-
         return new ChainTask(event.getTime()) {
 
             @Override
@@ -413,10 +409,6 @@ public class ReloadHandler implements IValidator {
 
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.CLOSE);
         Bukkit.getPluginManager().callEvent(event);
-
-        // TODO deecaad help me
-        if (event.isCancelled())
-            return null;
 
         return new ChainTask(event.getTime()) {
 
