@@ -14,6 +14,7 @@ dependencies {
     implementation("net.kyori:adventure-text-serializer-legacy:4.11.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.1")
     implementation("net.kyori:adventure-text-minimessage:4.11.0")
+    implementation("com.zaxxer:HikariCP:5.0.1")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     testImplementation("org.spigotmc:spigot-api:1.19.1-R0.1-SNAPSHOT")
