@@ -5,6 +5,8 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
 
+import java.util.List;
+
 import static me.deecaad.core.MechanicsCore.debug;
 
 public interface Serializer<T> {
@@ -25,7 +27,20 @@ public interface Serializer<T> {
     }
 
     /**
-     * Basically if this is not null then all other serializers will be used except these ones which
+     * Allows using this serializer under other serializers if the current path ends with
+     * any given string in this list.
+     *
+     * <p> Example values here could be Arrays.asList("Spread.Spread_Image", "Recoil_Pattern").
+     * Which would allow this serializer to be used under Spread.Spread_Image and Recoil_Patten parent keywords.
+     *
+     * @return The nullable parent paths
+     */
+    default List<String> getParentKeywords() {
+        return null;
+    }
+
+    /**
+     * Basically if this is not null then all other serializers will be used except these which
      * have useLater() returning not null. useLater() should only return something else than null if path to configuration option is used.
      *
      * Path to should not be never used multiple times inside one serializer!

@@ -200,7 +200,7 @@ public class ShootHandler implements IValidator {
                     doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
                 } else {
                     // Else continue to reload from where it left on...
-                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+                    startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
                 }
 
                 // Return false since firearm state wasn't ready, and they need to be completed
@@ -211,7 +211,7 @@ public class ShootHandler implements IValidator {
 
         // If no ammo left, start reloading
         if (ammoLeft == 0) {
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+            startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
             return false;
         } else if (handData.isReloading()) {
             // Else if reloading, cancel it
@@ -281,7 +281,7 @@ public class ShootHandler implements IValidator {
         }
 
         if (reloadHandler.getAmmoLeft(weaponStack, weaponTitle) == 0) {
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
+            startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, weaponStack, slot, dualWield, false);
         } else {
             doShootFirearmActions(entityWrapper, weaponTitle, weaponStack, handData, slot);
         }
@@ -322,7 +322,7 @@ public class ShootHandler implements IValidator {
                     handData.setBurstTask(0);
                     cancel();
 
-                    reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                    startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     return;
                 }
 
@@ -342,7 +342,7 @@ public class ShootHandler implements IValidator {
                     cancel();
 
                     if (reloadHandler.getAmmoLeft(taskReference, weaponTitle) == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     } else {
                         doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
                     }
@@ -384,7 +384,7 @@ public class ShootHandler implements IValidator {
                     cancel();
 
                     if (ammoLeft == 0) {
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                     } else {
                         doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
                     }
@@ -412,7 +412,7 @@ public class ShootHandler implements IValidator {
                         handData.setFullAutoTask(0);
                         cancel();
 
-                        reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
+                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
                         return;
                     }
                 }
@@ -567,6 +567,22 @@ public class ShootHandler implements IValidator {
                 return entityWrapper.isStanding();
             default:
                 return false;
+        }
+    }
+
+    private void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+        ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
+
+        if (!dualWield) {
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
+            return;
+        }
+
+        if (slot == EquipmentSlot.HAND ?
+                reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInOffHand(), null) == 0
+                : reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInMainHand(), null) == 0) {
+            // Now we know that both weapons are empty assuming the other weapon's ammo amount is already checked before this
+            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
         }
     }
 
