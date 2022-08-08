@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.4.2-DEV6"
+version = "1.4.3"
 
 plugins {
     `maven-publish`
@@ -29,7 +29,6 @@ dependencies {
     implementation(project(":Core_1_15_R1"))
     implementation(project(":Core_1_16_R3"))
     implementation(project(":Core_1_17_R1", "reobf"))
-    implementation(project(":Core_1_18_R1", "reobf"))
     implementation(project(":Core_1_18_R2", "reobf"))
     implementation(project(":Core_1_19_R1", "reobf"))
 }
@@ -73,7 +72,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_15_R1"))
         include(project(":Core_1_16_R3"))
         include(project(":Core_1_17_R1"))
-        include(project(":Core_1_18_R1"))
         include(project(":Core_1_18_R2"))
         include(project(":Core_1_19_R1"))
 
