@@ -20,6 +20,7 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -325,10 +326,6 @@ public class ReloadHandler implements IValidator {
             }
         };
 
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), reloadEvent.getReloadCompleteTime());
-        }
-
         // If loop OR firearm actions aren't used
         // OR ammo left is above 0 and revolver isn't used (when using revolver firearm actions should always occur)
         if (isReloadLoop || state == null || (ammoLeft > 0 && !isRevolver)) {
@@ -368,7 +365,15 @@ public class ReloadHandler implements IValidator {
 
     private ChainTask getOpenTask(int firearmOpenTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,
                                   EntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
-        return new ChainTask(firearmOpenTime) {
+
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.OPEN);
+        Bukkit.getPluginManager().callEvent(event);
+
+        // TODO deecaad help me
+        if (event.isCancelled())
+            return null;
+
+        return new ChainTask(event.getTime()) {
 
             @Override
             public void task() {
@@ -390,6 +395,7 @@ public class ReloadHandler implements IValidator {
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
+
                 firearmAction.useMechanics(castData, true);
 
                 if (entityWrapper instanceof PlayerWrapper) {
@@ -404,7 +410,15 @@ public class ReloadHandler implements IValidator {
 
     private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
                                    String weaponTitle, boolean mainhand, EquipmentSlot slot) {
-        return new ChainTask(firearmCloseTime) {
+
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.CLOSE);
+        Bukkit.getPluginManager().callEvent(event);
+
+        // TODO deecaad help me
+        if (event.isCancelled())
+            return null;
+
+        return new ChainTask(event.getTime()) {
 
             @Override
             public void task() {
@@ -432,7 +446,7 @@ public class ReloadHandler implements IValidator {
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                firearmAction.useMechanics(castData, false);
+                event.useMechanics(castData, false);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);

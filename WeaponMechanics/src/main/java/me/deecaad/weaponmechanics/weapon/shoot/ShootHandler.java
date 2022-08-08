@@ -26,6 +26,8 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPostShootEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreShootEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -483,16 +485,17 @@ public class ShootHandler implements IValidator {
         if (state == FirearmState.CLOSE) {
             // Only do CLOSE state
 
+            WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled())
+                return;
+
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-            firearmAction.useMechanics(castData, false);
+            event.useMechanics(castData, false);
 
             if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && playerWrapper != null) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown(playerWrapper.getPlayer(), weaponStack.getType(), firearmAction.getCloseTime());
-            }
-
-            handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+            handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
 
             // Return since we only want to do close state
             return;
@@ -503,15 +506,15 @@ public class ShootHandler implements IValidator {
         // Update state
         if (state != FirearmState.OPEN) firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled())
+            return;
+
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-        firearmAction.useMechanics(castData, true);
+        event.useMechanics(castData, true);
 
         if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
-
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Firearm_Actions_Time") && playerWrapper != null) {
-            CompatibilityAPI.getEntityCompatibility().setCooldown(playerWrapper.getPlayer(), weaponStack.getType(),
-                    firearmAction.getOpenTime() + firearmAction.getCloseTime());
-        }
 
         // Add the task to shoot firearm action tasks
         handData.addFirearmActionTask(new BukkitRunnable() {
@@ -525,14 +528,20 @@ public class ShootHandler implements IValidator {
                 // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
                 CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
-                firearmAction.useMechanics(castData, false);
+
+                WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+                Bukkit.getPluginManager().callEvent(event);
+                if (event.isCancelled())
+                    return;
+
+                event.useMechanics(castData, false);
 
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
-                handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getCloseTime()).getTaskId());
+                handData.addFirearmActionTask(closeRunnable.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
 
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), firearmAction.getOpenTime()).getTaskId());
+        }.runTaskLater(WeaponMechanics.getPlugin(), event.getTime()).getTaskId());
     }
 
     /**
@@ -588,11 +597,6 @@ public class ShootHandler implements IValidator {
         if (!isMelee) {
             HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
             handData.setLastShotTime(System.currentTimeMillis());
-
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Delay_Between_Shots") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(),
-                        config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots") / 50);
-            }
         }
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
@@ -636,6 +640,9 @@ public class ShootHandler implements IValidator {
             // Shoot the given bullet
             projectile.shoot(bullet, shootLocation);
         }
+
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     /**
@@ -667,6 +674,9 @@ public class ShootHandler implements IValidator {
             // Shoot the given bullet
             projectile.shoot(bullet, shootLocation);
         }
+
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     /**

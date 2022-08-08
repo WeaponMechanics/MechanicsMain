@@ -119,6 +119,15 @@ public class FakeEntity_1_17_R1 extends FakeEntity {
     }
 
     @Override
+    public Object getData() {
+        return switch (type) {
+            case DROPPED_ITEM -> item.asBukkitCopy();
+            case FALLING_BLOCK -> CraftBlockData.fromData(block);
+            default -> null;
+        };
+    }
+
+    @Override
     public void setData(@Nullable Object data) {
         switch (type) {
             case DROPPED_ITEM -> ((ItemEntity) entity).setItem(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));

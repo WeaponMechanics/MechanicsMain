@@ -600,6 +600,7 @@ public class WeaponMechanicsCommand {
                     case "flash":
                         if (ticksAlive % 10 == 0) {
                             flash = !flash;
+                            entity.setInvisible(!flash);
                             entity.setGlowing(flash);
                             entity.updateMeta();
                         }

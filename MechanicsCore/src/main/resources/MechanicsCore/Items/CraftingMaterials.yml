@@ -21,7 +21,7 @@ Adhesive:
       - "q"
     Ingredients:
       p: paper
-      h: honey_comb
+      h: honeycomb
       q: quartz
 
 Handle:

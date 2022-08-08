@@ -265,11 +265,6 @@ public class ScopeHandler implements IValidator {
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastScopeTime(System.currentTimeMillis());
 
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Shoot_Delay_After_Scope")) {
-            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, weaponStack.getType(),
-                    getConfigurations().getInt(weaponTitle + ".Scope.Shoot_Delay_After_Scope") / 50);
-        }
-
         return true;
     }
 

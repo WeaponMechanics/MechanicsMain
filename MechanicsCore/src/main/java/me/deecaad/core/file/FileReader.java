@@ -8,13 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FileReader {
@@ -135,6 +129,13 @@ public class FileReader {
         // That's why fillAllFilesLoop method is required
         usePathToSerializersAndValidators(filledMap);
 
+        // Filter out anything with a null value... Sometimes validators will
+        // set to null so the code looks cleaner, but this will be confusing
+        // for containsKey(), and it adds overhead from hash clashing. Just
+        // remove null values for simplicity.
+        LinkedConfig linked = (LinkedConfig) filledMap;
+        linked.values().removeAll(Collections.singleton(null));
+
         return filledMap;
     }
 
@@ -210,12 +211,15 @@ public class FileReader {
                     IValidator validator = this.validators.get(lastKey);
                     if (validator != null) {
                         validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+
+                        if (validator.denyKeys())
+                            startsWithDeny = key;
                     }
                 }
 
                 // Check if this key is a serializer, and that it isn't the header and handle pathTo
                 Serializer<?> serializer = this.serializers.get(lastKey);
-                if (serializer != null && keySplit.length > 1) {
+                if (serializer != null) {
 
                     // If the serializer doesn't have parent keywords used, or it doesn't match the current path
                     // -> Don't try to serialize this serializer under serializer
