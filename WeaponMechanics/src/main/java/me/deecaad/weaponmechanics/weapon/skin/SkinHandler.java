@@ -27,7 +27,7 @@ public class SkinHandler {
     public boolean tryUse(TriggerType triggerType, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
         HandData hand = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         Map<String, Skin> skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
-        if (skins == null)
+        if (skins == null || !weaponStack.hasItemMeta())
             return false;
 
         Skin reloadSkin = skins.get("Reload");
