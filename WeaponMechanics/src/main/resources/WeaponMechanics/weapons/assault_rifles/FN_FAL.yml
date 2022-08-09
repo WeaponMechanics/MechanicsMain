@@ -100,7 +100,7 @@ FN_FAL:
       Deny_When:
         Swimming: true
     Zoom_Amount: 1.5
-      Shoot_Delay_After_Scope: 14
+    Shoot_Delay_After_Scope: 14
     Mechanics:
       Sounds:
         - "custom:scope.in-0.5-1-0-0.1"
