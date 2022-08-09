@@ -37,7 +37,6 @@ public abstract class WeaponEvent extends EntityEvent {
      *
      * @return The non-null weapon item.
      */
-    @Nonnull
     public ItemStack getWeaponStack() {
         return weaponStack;
     }

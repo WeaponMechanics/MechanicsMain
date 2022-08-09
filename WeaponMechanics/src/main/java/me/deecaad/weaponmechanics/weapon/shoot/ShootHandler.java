@@ -484,8 +484,6 @@ public class ShootHandler implements IValidator {
 
             WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
             Bukkit.getPluginManager().callEvent(event);
-            if (event.isCancelled())
-                return;
 
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
             event.useMechanics(castData, false);
@@ -505,8 +503,6 @@ public class ShootHandler implements IValidator {
 
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled())
-            return;
 
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
         event.useMechanics(castData, true);
@@ -528,8 +524,6 @@ public class ShootHandler implements IValidator {
 
                 WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
                 Bukkit.getPluginManager().callEvent(event);
-                if (event.isCancelled())
-                    return;
 
                 event.useMechanics(castData, false);
 

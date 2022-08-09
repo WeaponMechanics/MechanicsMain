@@ -6,10 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of an entity cancelling a reload. This may be
- * due to switching items, or attempting to shoot.
- *
- * @see WeaponReloadEvent
+ * Called if a reload was cancelled early (Usually because the player swapped
+ * hands).
  */
 public class WeaponReloadCancelEvent extends WeaponEvent {
 
@@ -22,6 +20,12 @@ public class WeaponReloadCancelEvent extends WeaponEvent {
         this.elapsedTime = elapsedTime;
     }
 
+    /**
+     * Returns the amount of time, in ticks, that elapsed since the reload
+     * started.
+     *
+     * @return The elapsed time.
+     */
     public int getElapsedTime() {
         return elapsedTime;
     }

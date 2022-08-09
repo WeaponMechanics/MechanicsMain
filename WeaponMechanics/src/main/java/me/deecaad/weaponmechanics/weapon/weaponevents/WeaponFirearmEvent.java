@@ -6,12 +6,14 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class WeaponFirearmEvent extends WeaponEvent implements Cancellable {
+/**
+ * When a weapon's {@link FirearmState} changes.
+ */
+public class WeaponFirearmEvent extends WeaponEvent {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -19,8 +21,6 @@ public class WeaponFirearmEvent extends WeaponEvent implements Cancellable {
     private final FirearmState state;
     private Mechanics mechanics;
     private int time;
-
-    private boolean cancelled;
 
     public WeaponFirearmEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, FirearmAction action, FirearmState state) {
         super(weaponTitle, weaponStack, shooter);
@@ -30,18 +30,39 @@ public class WeaponFirearmEvent extends WeaponEvent implements Cancellable {
         time = -1;
     }
 
+    /**
+     * The config options of the firearm. You probably do not want to modify
+     * this value.
+     *
+     * @return The firearm config options.
+     */
     public FirearmAction getAction() {
         return action;
     }
 
+    /**
+     * Returns the firearm type.
+     *
+     * @return The firearm type.
+     */
     public FirearmType getType() {
         return action.getFirearmType();
     }
 
+    /**
+     * Returns whether the state is OPEN, CLOSE, or READY.
+     *
+     * @return The firearm state.
+     */
     public FirearmState getState() {
         return state;
     }
 
+    /**
+     * The mechanics that will be used (usually for sounds).
+     *
+     * @return The mechanics that will be played after the event.
+     */
     public Mechanics getMechanics() {
         if (mechanics == null)
             return state == FirearmState.CLOSE ? action.getClose() : action.getOpen();
@@ -49,10 +70,20 @@ public class WeaponFirearmEvent extends WeaponEvent implements Cancellable {
         return mechanics;
     }
 
+    /**
+     * The mechanics that will be used (usually for sounds).
+     *
+     * @param mechanics The mechanics that will be played after the event.
+     */
     public void setMechanics(Mechanics mechanics) {
         this.mechanics = mechanics;
     }
 
+    /**
+     * Returns how long it takes for the firearm action to be completed.
+     *
+     * @return The firearm action time.
+     */
     public int getTime() {
         if (time == -1)
             return state == FirearmState.CLOSE ? action.getCloseTime() : action.getOpenTime();
@@ -60,18 +91,13 @@ public class WeaponFirearmEvent extends WeaponEvent implements Cancellable {
         return time;
     }
 
+    /**
+     * Sets how long it takes for the firearm action to be completed.
+     *
+     * @param time The firearm action time.
+     */
     public void setTime(int time) {
         this.time = time;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancel) {
-        this.cancelled = cancel;
     }
 
     public void useMechanics(CastData castData, boolean isOpen) {

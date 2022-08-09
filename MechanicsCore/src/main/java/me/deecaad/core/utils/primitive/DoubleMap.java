@@ -11,6 +11,13 @@ import java.util.PrimitiveIterator;
 import java.util.Set;
 import java.util.function.Consumer;
 
+/**
+ * An optimized implementation of a {@link java.util.HashMap} that maps a key
+ * to a <code>double</code>. Has the advantage of not needing to wrap/unwrap
+ * values.
+ *
+ * @param <K> The key type, usually a {@link String}.
+ */
 public class DoubleMap<K> {
 
     private static final int DEFAULT_INITIAL_CAPACITY = 1 << 4;
