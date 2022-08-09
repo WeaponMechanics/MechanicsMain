@@ -42,8 +42,8 @@ FR_5_56:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 80
     Selective_Fire:
       Trigger:
@@ -83,8 +83,8 @@ FR_5_56:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Magazine_Size: 30
     Reload_Duration: 59
     Start_Mechanics:
@@ -104,8 +104,8 @@ FR_5_56:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 14
     Mechanics:

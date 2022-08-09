@@ -39,8 +39,8 @@ FN_FAL:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 80
     Selective_Fire:
       Trigger:
@@ -76,8 +76,8 @@ FN_FAL:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Magazine_Size: 20
     Reload_Duration: 56
     Start_Mechanics:
@@ -97,8 +97,8 @@ FN_FAL:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 14
     Mechanics:

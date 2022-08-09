@@ -40,8 +40,8 @@ Origin_12:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 60
     Projectiles_Per_Shot: 10
     Delay_Between_Shots: 7

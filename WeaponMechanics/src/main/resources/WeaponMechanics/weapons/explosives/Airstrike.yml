@@ -45,8 +45,8 @@ Airstrike:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 36
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
