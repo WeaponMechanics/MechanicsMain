@@ -58,7 +58,7 @@ public class Converter {
 
         for (File directoryFile : directory.listFiles()) {
             if (directoryFile.isDirectory()) {
-                convertAllFiles(directoryFile, outputDirectory);
+                convertAllFiles(directoryFile, new File(outputDirectory, directoryFile.getName() + "/"));
             } else if (directoryFile.getName().endsWith(".yml")
                     && !directoryFile.getName().startsWith("messages")
                     && !directoryFile.getName().startsWith("general")) {

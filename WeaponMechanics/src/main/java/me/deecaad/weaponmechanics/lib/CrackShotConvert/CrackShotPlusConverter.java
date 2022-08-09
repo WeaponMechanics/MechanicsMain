@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -179,6 +178,13 @@ public class CrackShotPlusConverter {
                         .replaceAll("#KILLER#", "%shooter%")
                         .replaceAll("#KILLED#", "%victim%")
                         .replaceAll("#C#", "console:");
+
+                value = StringUtil.colorAdventure((String) value);
+            } else if (type == Type.LIST) {
+                List<?> currentList = (List<?>) value;
+                List<String> newList = new ArrayList<>(currentList.size());
+                currentList.forEach(line -> newList.add(StringUtil.colorAdventure((String) line)));
+                value = newList;
             }
 
             toConfig.set(to, value);
@@ -308,12 +314,12 @@ public class CrackShotPlusConverter {
             if (barColor == null) barColor = "WHITE";
 
             String barStyle = CSPapi.getString(from + "Bar.Style");
-            if (barStyle == null) barStyle = "SEGMENTED_20 ";
+            if (barStyle == null) barStyle = "PROGRESS";
 
-            toConfig.set(to + ".Send_Globally", true);
+            toConfig.set(to + ".Send_All_Server", true);
             toConfig.set(to + ".Boss_Bar.Title", title);
-            toConfig.set(to + ".Boss_Bar.Bar_Color", barColor);
-            toConfig.set(to + ".Boss_Bar.Bar_Style", barStyle);
+            toConfig.set(to + ".Boss_Bar.Color", barColor);
+            toConfig.set(to + ".Boss_Bar.Style", barStyle);
             toConfig.set(to + ".Boss_Bar.Time", time);
         }
     }
@@ -430,10 +436,11 @@ public class CrackShotPlusConverter {
         try {
             Material material = MaterialManager.getMaterial(type);
             if (material != null) return material.name();
-        } catch (Exception e) {
-            String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
-            WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
-            return materialName;
+        } catch (NoClassDefFoundError | Exception e) {
+            // If CrackShot is outdated... or other exception
+            try {
+                return Material.valueOf(type.toUpperCase()).name();
+            } catch (IllegalArgumentException ignored) {}
         }
 
         String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));

@@ -21,6 +21,7 @@ public class CrackShotConverter {
 
         if (configuration.get(key + ".Reload.Reload_Amount") != null) {
             String weaponName = configuration.getString(key + ".Item_Information.Item_Name", key);
+            weaponName = StringUtil.colorAdventure(weaponName);
             if (configuration.get(key + ".Firearm_Action.Type") != null) {
                 outputConfiguration.set(key + ".Info.Weapon_Info_Display.Action_Bar.Message", weaponName + "%firearm-state% «%ammo-left%»%reload%");
             } else {
@@ -63,7 +64,7 @@ public class CrackShotConverter {
         // SNEAK
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SNEAK_BULLET_SPREAD("Sneak.Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Sneaking", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
-        SNEAK_BEFORE_SHOOTING("Shooting.Sneak_Before_Shooting", "Shoot.Only_Shoot_While_Scoped"),
+        SNEAK_BEFORE_SHOOTING("Shooting.Sneak_Before_Shooting", "Shoot.Trigger.Circumstance.Sneaking", new ValueBooleanConvert("REQUIRED", null)),
 
         // FULLY_AUTOMATIC
         FIRE_RATE("Fully_Automatic.Fire_Rate", "Shoot.Fully_Automatic_Shots_Per_Second", new ValueDoubleConvert(x -> (x * 60 + 240) / 60)),
@@ -96,15 +97,15 @@ public class CrackShotConverter {
 
         // HEADSHOT
         HEAD_BONUS_DAMAGE("Headshot.Bonus_Damage", "Damage.Head.Bonus_Damage"),
-        HEAD_MESSAGE_SHOOTER("Headshot.Message_Shooter", "Damage.Head.Shooter_Mechanics.Message.Chat.Message"),
-        HEAD_MESSAGE_VICTIM("Headshot.Message_Victim", "Damage.Head.Victim_Mechanics.Message.Chat.Message"),
+        HEAD_MESSAGE_SHOOTER("Headshot.Message_Shooter", "Damage.Head.Shooter_Mechanics.Message.Chat_Message"),
+        HEAD_MESSAGE_VICTIM("Headshot.Message_Victim", "Damage.Head.Victim_Mechanics.Message.Chat_Message"),
         HEAD_SOUNDS_SHOOTER("Headshot.Sounds_Shooter", "Damage.Head.Shooter_Mechanics.Sounds", new SoundConvert()),
         HEAD_SOUNDS_VICTIM("Headshot.Sounds_Victim", "Damage.Head.Victim_Mechanics.Sounds", new SoundConvert()),
 
         // BACKSTAB
         BACK_BONUS_DAMAGE("Backstab.Bonus_Damage", "Damage.Backstab.Bonus_Damage"),
-        BACK_MESSAGE_SHOOTER("Backstab.Message_Shooter", "Damage.Backstab.Shooter_Mechanics.Message.Chat.Message"),
-        BACK_MESSAGE_VICTIM("Backstab.Message_Victim", "Damage.Backstab.Victim_Mechanics.Message.Chat.Message"),
+        BACK_MESSAGE_SHOOTER("Backstab.Message_Shooter", "Damage.Backstab.Shooter_Mechanics.Message.Chat_Message"),
+        BACK_MESSAGE_VICTIM("Backstab.Message_Victim", "Damage.Backstab.Victim_Mechanics.Message.Chat_Message"),
         BACK_SOUNDS_SHOOTER("Backstab.Sounds_Shooter", "Damage.Backstab.Shooter_Mechanics.Sounds", new SoundConvert()),
         BACK_SOUNDS_VICTIM("Backstab.Sounds_Victim", "Damage.Backstab.Victim_Mechanics.Sounds", new SoundConvert()),
 
@@ -129,19 +130,20 @@ public class CrackShotConverter {
         ZOOM_AMOUNT("Scope.Zoom_Amount", "Scope.Zoom_Amount", new ValueDoubleConvert(x -> NumberUtil.lerp(1, 5, ((x > 6 ? 6 : x) / 6)))),
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SCOPE_BULLET_SPREAD("Scope.Zoom_Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Zooming", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
+        ZOOM_BEFORE_SHOOTING("Scope.Zoom_Before_Shooting", "Shoot.Trigger.Circumstance.Zooming", new ValueBooleanConvert("REQUIRED", null)),
         SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics.Sounds", new SoundConvert()),
 
         // HIT_EVENTS
-        HIT_MESSAGE_SHOOTER("Hit_Events.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat.Message"),
-        HIT_MESSAGE_VICTIM("Hit_Events.Message_Victim", "Damage.Victim_Mechanics.Message.Chat.Message"),
+        HIT_MESSAGE_SHOOTER("Hit_Events.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
+        HIT_MESSAGE_VICTIM("Hit_Events.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
         HIT_SOUNDS_SHOOTER("Hit_Events.Sounds_Shooter", "Damage.Shooter_Mechanics.Sounds", new SoundConvert()),
         HIT_SOUNDS_VICTIM("Hit_Events.Sounds_Victim", "Damage.Victim_Mechanics.Sounds", new SoundConvert()),
 
         // CRITICAL_HITS
         CRIT_BONUS_DAMAGE("Critical_Hits.Bonus_Damage", "Damage.Critical_Hit.Bonus_Damage"),
         CHANCE("Critical_Hits.Chance", "Damage.Critical_Hit.Chance", new ValueNonZeroConvert()),
-        CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Message.Chat.Message"),
-        CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Victim_Mechanics.Message.Chat.Message"),
+        CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Message.Chat_Message"),
+        CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Victim_Mechanics.Message.Chat_Message"),
         CRIT_SOUNDS_SHOOTER("Critical_Hits.Sounds_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Sounds", new SoundConvert()),
         CRIT_SOUNDS_VICTIM("Critical_Hits.Sounds_Victim", "Damage.Critical_Hit.Victim_Mechanics.Sounds", new SoundConvert()),
 
@@ -171,15 +173,15 @@ public class CrackShotConverter {
         EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Victim_Mechanics.Potion_Effects", new PotionEffectConvert()),
         EXPLOSION_RADIUS("Explosions.Explosion_Radius", "Explosion.Explosion_Type_Data.Yield", new ValueNonZeroConvert()),
         EXPLOSION_DELAY("Explosions.Explosion_Delay", "Explosion.Detonation.Delay_After_Impact", new ValueNonZeroConvert()),
-        EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat.Message"),
-        EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Victim_Mechanics.Message.Chat.Message"),
+        EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
+        EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
         EXP_SOUNDS_SHOOTER("Explosions.Sounds_Shooter", "Damage.Shooter_Mechanics.Sounds", new SoundConvert()),
         EXP_SOUNDS_VICTIM("Explosions.Sounds_Victim", "Damage.Victim_Mechanics.Sounds", new SoundConvert()),
         EXP_SOUNDS("Explosions.Sounds_Explode", "Explosion.Mechanics.Sounds", new SoundConvert()),
 
         // EXTRAS
         ONE_TIME_USE("Extras.One_Time_Use", "Shoot.Consume_Item_On_Shoot"),
-        DISABLE_UNDERWATER("Extras.Disable_Underwater", "Shoot.Trigger.Deny_When.Swimming", new ValueBooleanConvert(true, null)),
+        DISABLE_UNDERWATER("Extras.Disable_Underwater", "Shoot.Trigger.Circumstance.Swimming", new ValueBooleanConvert("DENY", null)),
         MAKE_VICTIM_RUN_COMMAND("Extras.Make_Victim_Run_Commmand", "Damage.Victim_Mechanics.Commands", new CommandConvert(false)),
         RUN_CONSOLE_COMMAND("Extras.Run_Console_Command", "Damage.Shooter_Mechanics.Commands", new CommandConvert(true)),
 
@@ -217,6 +219,10 @@ public class CrackShotConverter {
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             Object value = fromConfig.get(from);
             if (value == null) return;
+
+            if (fromConfig.isString(from)) {
+                value = StringUtil.colorAdventure((String) value);
+            }
 
             toConfig.set(to, value);
         }
@@ -303,6 +309,8 @@ public class CrackShotConverter {
             String value = fromConfig.getString(from);
             if (value == null) return;
 
+            value = StringUtil.colorAdventure(value);
+
             toConfig.set(to, Arrays.asList(value.split("\\|")));
         }
     }
@@ -338,13 +346,20 @@ public class CrackShotConverter {
                     continue;
                 }
 
-                String soundName;
+                String soundName = null;
                 try {
-                    soundName = SoundManager.get(splitted[0]).name();
-                } catch (Exception e) {
+                    soundName = SoundManager.get(splitted[0].toUpperCase()).name();
+                } catch (NoClassDefFoundError | Exception e) {
+                    // If CrackShot is outdated... or other exception
+                    try {
+                        soundName = Sound.valueOf(splitted[0].toUpperCase()).name();
+                    } catch (IllegalArgumentException ignored) {}
+                }
+                if (soundName == null) {
                     soundName = StringUtil.didYouMean(splitted[0], EnumUtil.getOptions(Sound.class));
                     WeaponMechanics.debug.error("Invalid sound: " + splitted[0] + " swapped to: " + soundName);
                 }
+
                 String volume = "1";
                 if (splitted.length > 1) {
                     volume = splitted[1];
@@ -817,7 +832,7 @@ public class CrackShotConverter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean("Abilities.No_Vertical_Recoil")) {
+            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean(from + "Abilities.No_Vertical_Recoil")) {
                 toConfig.set(to, 0);
             }
         }
@@ -829,10 +844,11 @@ public class CrackShotConverter {
         try {
             Material material = MaterialManager.getMaterial(type);
             if (material != null) return material.name();
-        } catch (Exception e) {
-            String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
-            WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
-            return materialName;
+        } catch (NoClassDefFoundError | Exception e) {
+            // If CrackShot is outdated... or other exception
+            try {
+                return Material.valueOf(type.toUpperCase()).name();
+            } catch (IllegalArgumentException ignored) {}
         }
 
         String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
