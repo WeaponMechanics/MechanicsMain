@@ -11,6 +11,7 @@ Trigger:
     Sneaking: <DENY/REQUIRED>
     Standing: <DENY/REQUIRED>
     Walking: <DENY/REQUIRED>
+    Riding: <DENY/REQUIRED>
     Sprinting: <DENY/REQUIRED>
     Dual_Wielding: <DENY/REQUIRED>
     Swimming: <DENY/REQUIRED>

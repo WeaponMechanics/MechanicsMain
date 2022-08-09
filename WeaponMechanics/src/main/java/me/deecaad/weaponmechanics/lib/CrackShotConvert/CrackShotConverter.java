@@ -65,6 +65,7 @@ public class CrackShotConverter {
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SNEAK_BULLET_SPREAD("Sneak.Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Sneaking", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         SNEAK_BEFORE_SHOOTING("Shooting.Sneak_Before_Shooting", "Shoot.Trigger.Circumstance.Sneaking", new ValueBooleanConvert("REQUIRED", null)),
+        SNEAK_NO_RECOIL("", "Shoot.Mechanics.Movement.Circumstance.Sneaking", new NoSneakRecoilConvert()),
 
         // FULLY_AUTOMATIC
         FIRE_RATE("Fully_Automatic.Fire_Rate", "Shoot.Fully_Automatic_Shots_Per_Second", new ValueDoubleConvert(x -> (x * 60 + 240) / 60)),
@@ -834,6 +835,16 @@ public class CrackShotConverter {
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean(from + "Abilities.No_Vertical_Recoil")) {
                 toConfig.set(to, 0);
+            }
+        }
+    }
+
+    private static class NoSneakRecoilConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean(from + "Sneak.No_Recoil")) {
+                toConfig.set(to, "DENY");
             }
         }
     }
