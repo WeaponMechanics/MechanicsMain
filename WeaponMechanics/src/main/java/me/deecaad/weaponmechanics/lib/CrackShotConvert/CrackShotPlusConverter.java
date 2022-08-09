@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 public class CrackShotPlusConverter {
@@ -106,6 +107,11 @@ public class CrackShotPlusConverter {
 
         // SKIN
         SKIN("Skin.Default_Skin", "Skin.", Type.STR, new SkinConvert()),
+
+        // Cosmetics
+        TRAIL("Shoot.Trails.Default_Trail", "Trail.", Type.STR, new TrailConvert()),
+        BLOCK_CRACK("Hit_Block.Break_Blocks", "Cosmetics.Block_Damage.", Type.STR, new BlockDamageConvert()),
+        VISUAL_RELOAD("Reload.Visual_Reload.Default_Visual_Reload", "Show_Time.Reload.", Type.STR, new VisualReloadConvert()),
 
         DUMMY(null, null, Type.STR);
 
@@ -430,6 +436,84 @@ public class CrackShotPlusConverter {
         }
     }
 
+    private static class TrailConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String defaultTrail = CSPapi.getString(from);
+            if (defaultTrail == null) return;
+
+            String weapon = from.split("\\.")[0];
+            String skinPath = weapon + "_" + defaultTrail;
+
+            toConfig.set(to + "Distance_Between_Particles", CSPapi.getDouble(skinPath + ".Trail_Catch.Space_Between_Trails") == 0.0 ? 0.25 : CSPapi.getDouble(skinPath + ".Trail_Catch.Space_Between_Trails"));
+            toConfig.set(to + "Shape", "LINE");
+            toConfig.set(to + "Particle_Chooser", "LOOP");
+
+            toConfig.set(to + "Particles.Particle_1.Type", CSPapi.getString(skinPath + ".Trail"));
+            if (CSPapi.getString(skinPath + ".Trail_Color") != null) toConfig.set(to + "Particles.Particle_1.Color", CSPapi.getString(skinPath + ".Trail_Color"));
+            if (CSPapi.getInteger(skinPath + ".Trail_Settings.Particle_Count") != 0) toConfig.set(to + ".Particles.Particle_1.Count", CSPapi.getInteger(skinPath + ".Trail_Settings.Particle_Count"));
+        }
+    }
+
+    private static class BlockDamageConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+
+            // If Break_Blocks doens't exist, try Block_Crack_Animation
+            if (!fromConfig.contains(from)) {
+                String[] split = from.split("\\.");
+                String[] copy = new String[split.length - 1];
+                System.arraycopy(split, 0, copy, 0, copy.length);
+                String path = String.join(".", copy);
+
+                int min = fromConfig.getInt(path + ".Block_Crack_Animation.Minium_Crack");
+                int max = fromConfig.getInt(path + ".Block_Crack_Animation.Maxium_Crack");
+                if (min == 0 && max == 0)
+                    return;
+
+                // This is pretty "rough". WMC system doesn't match up
+                // perfectly with CSP, so this is only 50% accurate.
+                toConfig.set(to + "Damage_Per_Hit", Math.max(1, min));
+                toConfig.set(to + "Default_Block_Durability", Math.max(1, max));
+                toConfig.set(to + "Blacklist", true);
+                return;
+            }
+
+            toConfig.set(to + "Break_Blocks", true);
+            toConfig.set(to + "Ticks_Before_Regenerate", fromConfig.get(from + ".Regen_Blocks_After_Milliseconds"));
+            toConfig.set(to + "Blacklist", fromConfig.get(from + ".Blacklist"));
+            toConfig.set(to + "Block_List", fromConfig.get(from + ".Blocks_List"));
+        }
+    }
+
+    private static class VisualReloadConvert implements Converter {
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String visualReload = CSPapi.getString(from);
+            if (visualReload == null) return;
+
+            String weapon = from.split("\\.")[0];
+            String reloadPath = weapon + "_" + visualReload + ".";
+            toConfig.set(to + "Action_Bar", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Action_Bar")));
+            toConfig.set(to + "Title", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Title")));
+            toConfig.set(to + "Subtitle", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Subtitle")));
+            toConfig.set(to + "Boss_Bar.Message", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Title")));
+            toConfig.set(to + "Boss_Bar.Color", CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Settings.Color"));
+            toConfig.set(to + "Boss_Bar.Style", getBossBarStyle(CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Settings.Style")));
+
+            toConfig.set(to + "Action_Bar_Cancelled", "<red>Reload Cancelled");
+            toConfig.set(to + "Exp", CSPapi.getString(reloadPath + "Reload_Message.Exp"));
+
+            // Bar stuff
+            toConfig.set(to + "Bar.Left_Color", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Left_Color")));
+            toConfig.set(to + "Bar.Right_Color", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Right_Color")));
+            toConfig.set(to + "Bar.Left_Symbol", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Symbol")));
+            toConfig.set(to + "Bar.Symbol_Amount", CSPapi.getInteger(reloadPath + "Symbol_Amount"));
+        }
+    }
+
     private static String getMaterial(String type) {
         if (type == null) return null;
 
@@ -446,5 +530,15 @@ public class CrackShotPlusConverter {
         String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
         WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
         return materialName;
+    }
+
+    private static String getBossBarStyle(String type) {
+        if (type == null) return null;
+
+        type = type.trim().toUpperCase(Locale.ROOT);
+        if ("SOLID".equals(type))
+            return "PROGRESS";
+        else
+            return "NOTCHED_" + type.substring("SEGMENTED_".length());
     }
 }
