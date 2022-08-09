@@ -4,7 +4,6 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -12,8 +11,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.MainHand;
 
 import javax.annotation.Nonnull;
-import java.util.HashSet;
-import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
@@ -21,7 +18,7 @@ public class Trigger implements Serializer<Trigger> {
 
     private TriggerType mainhand;
     private TriggerType offhand;
-    private Set<String> denyWhen;
+    private Circumstance circumstance;
     private TriggerType dualWieldMainHand;
     private TriggerType dualWieldOffHand;
 
@@ -30,10 +27,10 @@ public class Trigger implements Serializer<Trigger> {
      */
     public Trigger() {}
 
-    public Trigger(TriggerType mainhand, TriggerType offhand, Set<String> denyWhen, TriggerType dualWieldMainHand, TriggerType dualWieldOffHand) {
+    public Trigger(TriggerType mainhand, TriggerType offhand, Circumstance circumstance, TriggerType dualWieldMainHand, TriggerType dualWieldOffHand) {
         this.mainhand = mainhand;
         this.offhand = offhand;
-        this.denyWhen = denyWhen;
+        this.circumstance = circumstance;
         this.dualWieldMainHand = dualWieldMainHand;
         this.dualWieldOffHand = dualWieldOffHand;
     }
@@ -75,23 +72,7 @@ public class Trigger implements Serializer<Trigger> {
 
         if (typeCheck == null || typeCheck != triggerType) return false;
 
-        return checkDeny(entityWrapper);
-    }
-
-    /**
-     * @return true if valid
-     */
-    public boolean checkDeny(EntityWrapper entityWrapper) {
-        if (denyWhenReloading() && (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading())) return false;
-        if (denyWhenZooming() && (entityWrapper.getMainHandData().getZoomData().isZooming() || entityWrapper.getOffHandData().getZoomData().isZooming())) return false;
-        if (denyWhenSneaking() && entityWrapper.isSneaking()) return false;
-        if (denyWhenStanding() && entityWrapper.isStanding()) return false;
-        if (denyWhenWalking() && entityWrapper.isWalking()) return false;
-        if (denyWhenSprinting() && entityWrapper.isSprinting()) return false;
-        if (denyWhenDualWielding() && entityWrapper.isDualWielding()) return false;
-        if (denyWhenSwimming() && entityWrapper.isSwimming()) return false;
-        if (denyWhenInMidair() && entityWrapper.isInMidair()) return false;
-        return !denyWhenGliding() || !entityWrapper.isGliding();
+        return circumstance == null || !circumstance.deny(entityWrapper);
     }
 
     /**
@@ -106,76 +87,6 @@ public class Trigger implements Serializer<Trigger> {
      */
     public TriggerType getOffhand() {
         return this.offhand;
-    }
-
-    /**
-     * @return true if trigger should be cancelled while reloading
-     */
-    public boolean denyWhenReloading() {
-        return denyWhen.contains("Reloading");
-    }
-
-    /**
-     * @return true if trigger should be cancelled while zooming
-     */
-    public boolean denyWhenZooming() {
-        return denyWhen.contains("Zooming");
-    }
-
-    /**
-     * @return true if trigger should be cancelled while sneaking
-     */
-    public boolean denyWhenSneaking() {
-        return denyWhen.contains("Sneaking");
-    }
-
-    /**
-     * @return true if trigger should be cancelled while standing
-     */
-    public boolean denyWhenStanding() {
-        return denyWhen.contains("Standing");
-    }
-
-    /**
-     * @return true if trigger should be cancelled while walking
-     */
-    public boolean denyWhenWalking() {
-        return denyWhen.contains("Walking");
-    }
-
-    /**
-     * @return true if trigger should be cancelled when sprinting
-     */
-    public boolean denyWhenSprinting() {
-        return denyWhen.contains("Sprinting");
-    }
-
-    /**
-     * @return true if trigger should be cancelled when dual wielding
-     */
-    public boolean denyWhenDualWielding() {
-        return denyWhen.contains("Dual_Wielding");
-    }
-
-    /**
-     * @return true if trigger should be cancelled while swimming
-     */
-    public boolean denyWhenSwimming() {
-        return denyWhen.contains("Swimming");
-    }
-
-    /**
-     * @return true if trigger should be cancelled while in midair
-     */
-    public boolean denyWhenInMidair() {
-        return denyWhen.contains("In_Midair");
-    }
-
-    /**
-     * @return true if trigger should be cancelled while gliding
-     */
-    public boolean denyWhenGliding() {
-        return denyWhen.contains("Gliding");
     }
 
     @Override
@@ -201,23 +112,7 @@ public class Trigger implements Serializer<Trigger> {
         if (isDisabled(dualMain)) throw data.exception("Dual_Wield.Main_Hand", "Tried to use trigger which is disabled in config.yml");
         if (isDisabled(dualOff)) throw data.exception("Dual_Wield.Off_Hand", "Tried to use trigger which is disabled in config.yml");
 
-        Set<String> denyWhen = new HashSet<>();
-        ConfigurationSection denySection = data.config.getConfigurationSection(data.key + ".Deny_When");
-        if (denySection != null) {
-            for (String denyName : denySection.getKeys(false)) {
-
-                if (!denyName.equals("Reloading") && !denyName.equals("Zooming") && !denyName.equals("Sneaking") && !denyName.equals("Standing")
-                        && !denyName.equals("Walking") && !denyName.equals("Sprinting") && !denyName.equals("Dual_Wielding")
-                        && !denyName.equals("Swimming") && !denyName.equals("In_Midair") && !denyName.equals("Gliding")) {
-
-                    throw data.exception("Deny_When", "Unknown key: " + denyName);
-                }
-
-                boolean denied = data.of("Deny_When." + denyName).getBool(false);
-                if (denied)
-                    denyWhen.add(denyName);
-            }
-        }
+        Circumstance circumstance = data.of("Circumstance").serializeNonStandardSerializer(new Circumstance());
 
         // Check to make sure the gun denies swapping hands, otherwise this
         // won't work.
@@ -230,7 +125,7 @@ public class Trigger implements Serializer<Trigger> {
             }
         }
 
-        return new Trigger(main, off, denyWhen, dualMain, dualOff);
+        return new Trigger(main, off, circumstance, dualMain, dualOff);
     }
 
     private boolean isDisabled(TriggerType trigger) {

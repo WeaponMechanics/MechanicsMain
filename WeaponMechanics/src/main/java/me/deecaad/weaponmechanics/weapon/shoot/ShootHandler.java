@@ -135,9 +135,6 @@ public class ShootHandler implements IValidator {
         Bukkit.getPluginManager().callEvent(preShootEvent);
         if (preShootEvent.isCancelled()) return false;
 
-        // Cancel shooting if we can only shoot while scoped.
-        if (config.getBool(weaponTitle + ".Shoot.Only_Shoot_While_Scoped") && !handData.getZoomData().isZooming()) return false;
-
         boolean isMelee = triggerType == TriggerType.MELEE;
 
         // Handle worldguard flags
