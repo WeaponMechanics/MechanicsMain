@@ -28,6 +28,7 @@ public class RayTrace {
     private boolean outlineHitPosition;
     private boolean outlineHitBox;
     private boolean allowLiquid;
+    private double raySize = 0.1;
 
     public RayTrace() { }
 
@@ -68,6 +69,11 @@ public class RayTrace {
         return this;
     }
 
+    public RayTrace withRaySize(double size) {
+        this.raySize = size;
+        return this;
+    }
+
     public List<RayTraceResult> cast(World world, Vector start, Vector direction, double range) {
         return cast(world, start, start.clone().add(direction.clone().multiply(range)), direction);
     }
@@ -97,7 +103,7 @@ public class RayTrace {
                     weaponCompatibility.getHitBox(firstHit.getBlock()).outlineAllBoxes(entity);
                 } else {
                     HitBox entityBox = weaponCompatibility.getHitBox(firstHit.getLivingEntity());
-                    entityBox.grow(0.1);
+                    entityBox.grow(raySize);
                     entityBox.outlineAllBoxes(entity);
                 }
             }
@@ -221,7 +227,7 @@ public class RayTrace {
         HitBox entityBox = weaponCompatibility.getHitBox(entity);
         if (entityBox == null) return null;
 
-        entityBox.grow(0.1);
+        entityBox.grow(raySize);
         if (!hitBox.overlaps(entityBox)) return null;
 
         return entityBox.rayTrace(start, direction);

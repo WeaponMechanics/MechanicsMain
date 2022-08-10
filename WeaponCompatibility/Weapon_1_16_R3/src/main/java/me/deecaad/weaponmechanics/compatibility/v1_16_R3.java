@@ -12,11 +12,14 @@ import net.minecraft.server.v1_16_R3.EntityLiving;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPosition;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -88,6 +91,12 @@ public class v1_16_R3 implements IWeaponCompatibility {
         }
 
         return hitBox;
+    }
+
+    @Override
+    public Vector getLastLocation(Entity entity) {
+        net.minecraft.server.v1_16_R3.Entity nms = ((CraftEntity) entity).getHandle();
+        return new Vector(nms.lastX, nms.lastY, nms.lastZ);
     }
 
     @Nonnull

@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import com.google.common.base.Preconditions;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
@@ -16,7 +17,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,6 +58,11 @@ public class HitBox implements IValidator {
 
     public HitBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         modify(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public HitBox(double width, double height, double x, double y, double z) {
+        width = width / 2;
+        modify(x - width, y, z - width, x + width, y + height, z + width);
     }
 
     public HitBox modify(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
@@ -447,8 +455,15 @@ public class HitBox implements IValidator {
      * @return the grown hit box
      */
     public HitBox grow(double amount) {
+        if (amount == 0) return this;
         return this.modify(minX - amount, minY - amount, minZ - amount,
                 maxX + amount, maxY + amount, maxZ + amount);
+    }
+
+    public HitBox grow(double width, double height) {
+        width /= 2;
+        return this.modify(minX - width, minY, minZ - width,
+                maxX + width, maxY + height, maxZ + width);
     }
 
     public void outlineAllBoxes(Entity player) {

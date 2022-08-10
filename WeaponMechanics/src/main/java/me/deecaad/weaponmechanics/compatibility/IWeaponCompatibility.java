@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -34,8 +35,8 @@ public interface IWeaponCompatibility {
 
         // This default should only be used after 1.13 R2
 
-        BoundingBox boundingBox = entity.getBoundingBox();
-        HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
+                .grow(getWidth(entity), getHeight(entity));
         hitBox.setLivingEntity((LivingEntity) entity);
 
         if (entity instanceof ComplexLivingEntity && WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
@@ -126,6 +127,12 @@ public interface IWeaponCompatibility {
         // -> nmsEntity.height
         return entity.getHeight();
     }
+
+    /**
+     * @param entity the entity whose last location to get
+     * @return the vector of entity's last location
+     */
+    Vector getLastLocation(Entity entity);
 
     /**
      * Rotates player's camera rotation with given values.

@@ -23,6 +23,7 @@ import org.bukkit.entity.ComplexLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -67,8 +68,8 @@ public class v1_9_R2 implements IWeaponCompatibility {
     public HitBox getHitBox(org.bukkit.entity.Entity entity) {
         if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
 
-        AxisAlignedBB aabb = ((CraftEntity) entity).getHandle().getBoundingBox();
-        HitBox hitBox = new HitBox(aabb.a, aabb.b, aabb.c, aabb.d, aabb.e, aabb.f);
+        HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
+                .grow(getWidth(entity), getHeight(entity));
         hitBox.setLivingEntity((LivingEntity) entity);
 
         if (entity instanceof ComplexLivingEntity && WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
@@ -120,6 +121,12 @@ public class v1_9_R2 implements IWeaponCompatibility {
     @Override
     public double getHeight(Entity entity) {
         return ((CraftEntity) entity).getHandle().length;
+    }
+
+    @Override
+    public Vector getLastLocation(Entity entity) {
+        net.minecraft.server.v1_9_R2.Entity nms = ((CraftEntity) entity).getHandle();
+        return new Vector(nms.lastX, nms.lastY, nms.lastZ);
     }
 
     @Override
