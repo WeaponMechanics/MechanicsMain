@@ -132,9 +132,6 @@ public class DamageUtil {
             damage = 0;
         }
 
-        // Consider moving this after EntityDamageByEntityEvent? It would cause
-        // 2x calls on EntityDamageByEntityEvent, but would deny mechanics from triggering
-        // if the event is cancelled by other plugin
         if (getBasicConfigurations().getBool("Damage.Use_Vanilla_Damaging", false)) {
 
             if (damage == 0) {
