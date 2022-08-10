@@ -39,8 +39,8 @@ RPG-7:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 50
     Spread:
       Base_Spread: 5.5

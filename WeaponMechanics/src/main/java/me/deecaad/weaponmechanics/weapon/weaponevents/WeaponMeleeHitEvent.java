@@ -6,6 +6,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Called whenever a melee attack hits. Goes along with
+ * {@link WeaponMeleeMissEvent}.
+ */
 public class WeaponMeleeHitEvent extends WeaponEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
@@ -22,14 +26,30 @@ public class WeaponMeleeHitEvent extends WeaponEvent implements Cancellable {
         this.isBackstab = isBackstab;
     }
 
+    /**
+     * Returns who receives damage from the melee hit.
+     *
+     * @return The non-null victim.
+     */
     public LivingEntity getVictim() {
         return victim;
     }
 
+    /**
+     * Returns the delay after the hit before the melee weapon can be swung
+     * again.
+     *
+     * @return The delay you can swing again.
+     */
     public int getMeleeHitDelay() {
         return meleeHitDelay;
     }
 
+    /**
+     * Sets the delay after the hit before the melee weapon can be swung again.
+     *
+     * @param meleeHitDelay The delay before you can swing again.
+     */
     public void setMeleeHitDelay(int meleeHitDelay) {
         this.meleeHitDelay = meleeHitDelay;
     }

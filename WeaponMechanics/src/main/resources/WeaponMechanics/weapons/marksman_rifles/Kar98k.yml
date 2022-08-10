@@ -39,8 +39,8 @@ Kar98k:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 220
     Delay_Between_Shots: 18
     Spread:

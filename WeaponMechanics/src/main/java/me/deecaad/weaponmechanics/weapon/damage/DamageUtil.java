@@ -21,11 +21,14 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class DamageUtil {
     
@@ -36,6 +39,11 @@ public class DamageUtil {
 
     public static double calculateFinalDamage(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
         Configuration config = WeaponMechanics.getBasicConfigurations();
+
+        // Simply don't use rates when using vanilla damaging
+        if (config.getBool("Damage.Use_Vanilla_Damaging", false)) {
+            return damage;
+        }
 
         AtomicDouble rate = new AtomicDouble(1.0);
         EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
@@ -122,6 +130,36 @@ public class DamageUtil {
 
         if (damage < 0) {
             damage = 0;
+        }
+
+        if (getBasicConfigurations().getBool("Damage.Use_Vanilla_Damaging", false)) {
+
+            if (damage == 0) {
+                return true;
+            }
+
+            // Set this metadata and check it on EntityDamageByEntityEvent to deny
+            // unintentional melee casts and unintentional damage cancel. LivingEntity.damage()
+            // always uses ENTITY_ATTACK as DamageCause. Using NMS so change damage cause would require
+            // spawning of actual entity projectile.
+
+            victim.setMetadata("wm_vanilla_dmg",
+                    new FixedMetadataValue(WeaponMechanics.getPlugin(), null));
+
+            victim.damage(damage, cause);
+
+            if (victim.hasMetadata("wm_cancelled_dmg")) {
+                victim.removeMetadata("wm_cancelled_dmg", WeaponMechanics.getPlugin());
+
+                // Damage was cancelled
+                return true;
+            }
+
+
+            victim.setNoDamageTicks(0);
+
+            // Successfully damaged using vanilla damaging
+            return false;
         }
 
         // For compatibility with plugins that only set the damage to 0.0...

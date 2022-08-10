@@ -135,9 +135,6 @@ public class ShootHandler implements IValidator {
         Bukkit.getPluginManager().callEvent(preShootEvent);
         if (preShootEvent.isCancelled()) return false;
 
-        // Cancel shooting if we can only shoot while scoped.
-        if (config.getBool(weaponTitle + ".Shoot.Only_Shoot_While_Scoped") && !handData.getZoomData().isZooming()) return false;
-
         boolean isMelee = triggerType == TriggerType.MELEE;
 
         // Handle worldguard flags
@@ -487,8 +484,6 @@ public class ShootHandler implements IValidator {
 
             WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
             Bukkit.getPluginManager().callEvent(event);
-            if (event.isCancelled())
-                return;
 
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
             event.useMechanics(castData, false);
@@ -508,8 +503,6 @@ public class ShootHandler implements IValidator {
 
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled())
-            return;
 
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
         event.useMechanics(castData, true);
@@ -531,8 +524,6 @@ public class ShootHandler implements IValidator {
 
                 WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
                 Bukkit.getPluginManager().callEvent(event);
-                if (event.isCancelled())
-                    return;
 
                 event.useMechanics(castData, false);
 

@@ -39,8 +39,8 @@ AUG:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 13
     Spread:

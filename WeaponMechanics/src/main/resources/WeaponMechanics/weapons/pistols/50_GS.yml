@@ -50,8 +50,8 @@
       Dual_Wield:
         Main_Hand: "RIGHT_CLICK"
         Off_Hand: "LEFT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 80
     Delay_Between_Shots: 7
     Spread:
@@ -98,8 +98,8 @@
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
-      Deny_When:
-        Dual_Wielding: true
+      Circumstance:
+        Dual_Wielding: "DENY"
     Zoom_Amount: 1.3
     Shoot_Delay_After_Scope: 8
     Mechanics:

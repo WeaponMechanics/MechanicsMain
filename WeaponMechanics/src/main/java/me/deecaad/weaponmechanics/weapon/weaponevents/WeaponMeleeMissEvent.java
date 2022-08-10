@@ -7,6 +7,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Called whenever a melee swing misses. Goes along with
+ * {@link WeaponMeleeHitEvent}.
+ */
 public class WeaponMeleeMissEvent extends WeaponEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();

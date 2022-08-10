@@ -6,9 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of a reload completing successfully.
- *
- * @see WeaponReloadEvent
+ * Called when a reload is completed successfully.
  */
 public class WeaponReloadCompleteEvent extends WeaponEvent {
 

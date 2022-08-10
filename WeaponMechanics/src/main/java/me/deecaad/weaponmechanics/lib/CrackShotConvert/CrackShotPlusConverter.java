@@ -10,9 +10,9 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 public class CrackShotPlusConverter {
@@ -108,6 +108,11 @@ public class CrackShotPlusConverter {
         // SKIN
         SKIN("Skin.Default_Skin", "Skin.", Type.STR, new SkinConvert()),
 
+        // Cosmetics
+        TRAIL("Shoot.Trails.Default_Trail", "Trail.", Type.STR, new TrailConvert()),
+        BLOCK_CRACK("Hit_Block.Break_Blocks", "Cosmetics.Block_Damage.", Type.STR, new BlockDamageConvert()),
+        VISUAL_RELOAD("Reload.Visual_Reload.Default_Visual_Reload", "Show_Time.Reload.", Type.STR, new VisualReloadConvert()),
+
         DUMMY(null, null, Type.STR);
 
         private final String from;
@@ -179,6 +184,13 @@ public class CrackShotPlusConverter {
                         .replaceAll("#KILLER#", "%shooter%")
                         .replaceAll("#KILLED#", "%victim%")
                         .replaceAll("#C#", "console:");
+
+                value = StringUtil.colorAdventure((String) value);
+            } else if (type == Type.LIST) {
+                List<?> currentList = (List<?>) value;
+                List<String> newList = new ArrayList<>(currentList.size());
+                currentList.forEach(line -> newList.add(StringUtil.colorAdventure((String) line)));
+                value = newList;
             }
 
             toConfig.set(to, value);
@@ -308,12 +320,12 @@ public class CrackShotPlusConverter {
             if (barColor == null) barColor = "WHITE";
 
             String barStyle = CSPapi.getString(from + "Bar.Style");
-            if (barStyle == null) barStyle = "SEGMENTED_20 ";
+            if (barStyle == null) barStyle = "PROGRESS";
 
-            toConfig.set(to + ".Send_Globally", true);
+            toConfig.set(to + ".Send_All_Server", true);
             toConfig.set(to + ".Boss_Bar.Title", title);
-            toConfig.set(to + ".Boss_Bar.Bar_Color", barColor);
-            toConfig.set(to + ".Boss_Bar.Bar_Style", barStyle);
+            toConfig.set(to + ".Boss_Bar.Color", barColor);
+            toConfig.set(to + ".Boss_Bar.Style", barStyle);
             toConfig.set(to + ".Boss_Bar.Time", time);
         }
     }
@@ -369,7 +381,7 @@ public class CrackShotPlusConverter {
 
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            String defaultSkin = CSPapi.getString(from);
+            String defaultSkin = fromConfig.getString(from);
             if (defaultSkin == null) return;
 
             String weapon = from.split("\\.")[0];
@@ -424,20 +436,118 @@ public class CrackShotPlusConverter {
         }
     }
 
+    private static class TrailConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String defaultTrail = CSPapi.getString(from);
+            if (defaultTrail == null) return;
+
+
+            Double d = CSPapi.getDouble(defaultTrail + ".Trail_Catch.Space_Between_Trails");
+            toConfig.set(to + "Distance_Between_Particles", d == null ? 0.33 : d);
+            toConfig.set(to + "Shape", "LINE");
+            toConfig.set(to + "Particle_Chooser", "LOOP");
+
+            toConfig.set(to + "Particles.Particle_1.Type", CSPapi.getString(defaultTrail + ".Trail"));
+            if (CSPapi.getString(defaultTrail + ".Trail_Color") != null) toConfig.set(to + "Particles.Particle_1.Color", CSPapi.getString(defaultTrail + ".Trail_Color"));
+            Integer i = CSPapi.getInteger(defaultTrail + ".Trail_Settings.Particle_Count");
+            if (i != null) toConfig.set(to + ".Particles.Particle_1.Count", i);
+        }
+    }
+
+    private static class BlockDamageConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+
+            // If Break_Blocks doens't exist, try Block_Crack_Animation
+            if (CSPapi.getString(from + ".Blacklist") == null) {
+                String[] split = from.split("\\.");
+                String[] copy = new String[split.length - 1];
+                System.arraycopy(split, 0, copy, 0, copy.length);
+                String path = String.join(".", copy);
+
+                int min = fromConfig.getInt(path + ".Block_Crack_Animation.Minium_Crack", 0);
+                int max = fromConfig.getInt(path + ".Block_Crack_Animation.Maxium_Crack", 0);
+                if (min == 0 && max == 0)
+                    return;
+
+                // This is pretty "rough". WMC system doesn't match up
+                // perfectly with CSP, so this is only 50% accurate.
+                toConfig.set(to + "Damage_Per_Hit", Math.max(1, min));
+                toConfig.set(to + "Default_Block_Durability", Math.max(1, max));
+                toConfig.set(to + "Blacklist", true);
+                return;
+            }
+
+            toConfig.set(to + "Break_Blocks", true);
+            toConfig.set(to + "Ticks_Before_Regenerate", CSPapi.getString(from + ".Regen_Blocks_After_Milliseconds"));
+            toConfig.set(to + "Blacklist", CSPapi.getBoolean(from + ".Blacklist"));
+            toConfig.set(to + "Block_List", CSPapi.getList(from + ".Blocks_List"));
+        }
+    }
+
+    private static class VisualReloadConvert implements Converter {
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String visualReload = CSPapi.getString(from);
+            if (visualReload == null) return;
+
+            String weapon = from.split("\\.")[0];
+            String reloadPath = visualReload + ".";
+            toConfig.set(to + "Action_Bar", convert(CSPapi.getString(reloadPath + "Reload_Message.Action_Bar")));
+            toConfig.set(to + "Title", convert(CSPapi.getString(reloadPath + "Reload_Message.Title")));
+            toConfig.set(to + "Subtitle", convert(CSPapi.getString(reloadPath + "Reload_Message.Subtitle")));
+            toConfig.set(to + "Boss_Bar.Message", convert(CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Title")));
+            toConfig.set(to + "Boss_Bar.Color", CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Settings.Color"));
+            toConfig.set(to + "Boss_Bar.Style", getBossBarStyle(CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Settings.Style")));
+
+            toConfig.set(to + "Action_Bar_Cancelled", "<red>Reload Cancelled");
+            toConfig.set(to + "Exp", CSPapi.getString(reloadPath + "Reload_Message.Exp"));
+
+            // Bar stuff
+            toConfig.set(to + "Bar.Left_Color", convert(CSPapi.getString(reloadPath + "Left_Color")));
+            toConfig.set(to + "Bar.Right_Color", convert(CSPapi.getString(reloadPath + "Right_Color")));
+            toConfig.set(to + "Bar.Left_Symbol", convert(CSPapi.getString(reloadPath + "Symbol")));
+            toConfig.set(to + "Bar.Symbol_Amount", CSPapi.getInteger(reloadPath + "Symbol_Amount"));
+        }
+
+        private static String convert(String msg) {
+            if (msg == null)
+                return null;
+
+            msg = msg.replaceAll("#[Bb][Aa][Rr]#", "%bar%");
+            msg = msg.replaceAll("#[Tt][Ii][Mm][Ee]#", "%time%");
+            return StringUtil.colorAdventure(msg);
+        }
+    }
+
     private static String getMaterial(String type) {
         if (type == null) return null;
 
         try {
             Material material = MaterialManager.getMaterial(type);
             if (material != null) return material.name();
-        } catch (Exception e) {
-            String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
-            WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
-            return materialName;
+        } catch (NoClassDefFoundError | Exception e) {
+            // If CrackShot is outdated... or other exception
+            try {
+                return Material.valueOf(type.toUpperCase()).name();
+            } catch (IllegalArgumentException ignored) {}
         }
 
         String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));
         WeaponMechanics.debug.error("Invalid material: " + type + " swapped to: " + materialName);
         return materialName;
+    }
+
+    private static String getBossBarStyle(String type) {
+        if (type == null) return null;
+
+        type = type.trim().toUpperCase(Locale.ROOT);
+        if ("SOLID".equals(type))
+            return "PROGRESS";
+        else
+            return "NOTCHED_" + type.substring("SEGMENTED_".length());
     }
 }

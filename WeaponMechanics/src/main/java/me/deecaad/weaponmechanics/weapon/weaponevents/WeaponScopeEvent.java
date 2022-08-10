@@ -7,8 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of an entity scoping (zooming in or zooming
- * out) with their weapon.
+ * Called when a weapon scopes in.
  */
 public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
 
@@ -28,26 +27,30 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
     }
 
     /**
-     * @return the zoom cause
+     * Returns whether the user is scoping in, stacking a zoom, or zooming out.
+     *
+     * @return the non-null scope cause.
      */
     public ScopeType getScopeType() {
         return scopeType;
     }
 
     /**
-     * If this is 0 it most likely means that entity is zooming out.
-     * Make sure to check scope type
+     * The new zoom amount that has the magnification amount. Should be
+     * 1..10. 1 likely means the user is scoping out (Check
+     * {@link #getScopeType()}).
      *
-     * @return the NEW zoom amount (1-32)
+     * @return The new zoom amount.
      */
     public double getZoomAmount() {
         return zoomAmount;
     }
 
     /**
-     * Sets new zoom amount for this event. Make sure its between 1 and 32.
+     * Sets the new zoom magnification. Should be 1..10. Should probably be
+     * a number greater than 1.
      *
-     * @param zoomAmount the new zoom amount
+     * @param zoomAmount The new zoom amount.
      */
     public void setZoomAmount(double zoomAmount) {
         if (zoomAmount < 1 || zoomAmount > 10) {
