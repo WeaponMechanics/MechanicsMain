@@ -381,7 +381,7 @@ public class CrackShotPlusConverter {
 
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            String defaultSkin = CSPapi.getString(from);
+            String defaultSkin = fromConfig.getString(from);
             if (defaultSkin == null) return;
 
             String weapon = from.split("\\.")[0];
@@ -443,16 +443,16 @@ public class CrackShotPlusConverter {
             String defaultTrail = CSPapi.getString(from);
             if (defaultTrail == null) return;
 
-            String weapon = from.split("\\.")[0];
-            String skinPath = weapon + "_" + defaultTrail;
 
-            toConfig.set(to + "Distance_Between_Particles", CSPapi.getDouble(skinPath + ".Trail_Catch.Space_Between_Trails") == 0.0 ? 0.25 : CSPapi.getDouble(skinPath + ".Trail_Catch.Space_Between_Trails"));
+            Double d = CSPapi.getDouble(defaultTrail + ".Trail_Catch.Space_Between_Trails");
+            toConfig.set(to + "Distance_Between_Particles", d == null ? 0.33 : d);
             toConfig.set(to + "Shape", "LINE");
             toConfig.set(to + "Particle_Chooser", "LOOP");
 
-            toConfig.set(to + "Particles.Particle_1.Type", CSPapi.getString(skinPath + ".Trail"));
-            if (CSPapi.getString(skinPath + ".Trail_Color") != null) toConfig.set(to + "Particles.Particle_1.Color", CSPapi.getString(skinPath + ".Trail_Color"));
-            if (CSPapi.getInteger(skinPath + ".Trail_Settings.Particle_Count") != 0) toConfig.set(to + ".Particles.Particle_1.Count", CSPapi.getInteger(skinPath + ".Trail_Settings.Particle_Count"));
+            toConfig.set(to + "Particles.Particle_1.Type", CSPapi.getString(defaultTrail + ".Trail"));
+            if (CSPapi.getString(defaultTrail + ".Trail_Color") != null) toConfig.set(to + "Particles.Particle_1.Color", CSPapi.getString(defaultTrail + ".Trail_Color"));
+            Integer i = CSPapi.getInteger(defaultTrail + ".Trail_Settings.Particle_Count");
+            if (i != null) toConfig.set(to + ".Particles.Particle_1.Count", i);
         }
     }
 
@@ -462,14 +462,14 @@ public class CrackShotPlusConverter {
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
 
             // If Break_Blocks doens't exist, try Block_Crack_Animation
-            if (!fromConfig.contains(from)) {
+            if (CSPapi.getString(from + ".Blacklist") == null) {
                 String[] split = from.split("\\.");
                 String[] copy = new String[split.length - 1];
                 System.arraycopy(split, 0, copy, 0, copy.length);
                 String path = String.join(".", copy);
 
-                int min = fromConfig.getInt(path + ".Block_Crack_Animation.Minium_Crack");
-                int max = fromConfig.getInt(path + ".Block_Crack_Animation.Maxium_Crack");
+                int min = fromConfig.getInt(path + ".Block_Crack_Animation.Minium_Crack", 0);
+                int max = fromConfig.getInt(path + ".Block_Crack_Animation.Maxium_Crack", 0);
                 if (min == 0 && max == 0)
                     return;
 
@@ -482,9 +482,9 @@ public class CrackShotPlusConverter {
             }
 
             toConfig.set(to + "Break_Blocks", true);
-            toConfig.set(to + "Ticks_Before_Regenerate", fromConfig.get(from + ".Regen_Blocks_After_Milliseconds"));
-            toConfig.set(to + "Blacklist", fromConfig.get(from + ".Blacklist"));
-            toConfig.set(to + "Block_List", fromConfig.get(from + ".Blocks_List"));
+            toConfig.set(to + "Ticks_Before_Regenerate", CSPapi.getString(from + ".Regen_Blocks_After_Milliseconds"));
+            toConfig.set(to + "Blacklist", CSPapi.getBoolean(from + ".Blacklist"));
+            toConfig.set(to + "Block_List", CSPapi.getList(from + ".Blocks_List"));
         }
     }
 
@@ -495,11 +495,11 @@ public class CrackShotPlusConverter {
             if (visualReload == null) return;
 
             String weapon = from.split("\\.")[0];
-            String reloadPath = weapon + "_" + visualReload + ".";
-            toConfig.set(to + "Action_Bar", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Action_Bar")));
-            toConfig.set(to + "Title", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Title")));
-            toConfig.set(to + "Subtitle", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Subtitle")));
-            toConfig.set(to + "Boss_Bar.Message", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Title")));
+            String reloadPath = visualReload + ".";
+            toConfig.set(to + "Action_Bar", convert(CSPapi.getString(reloadPath + "Reload_Message.Action_Bar")));
+            toConfig.set(to + "Title", convert(CSPapi.getString(reloadPath + "Reload_Message.Title")));
+            toConfig.set(to + "Subtitle", convert(CSPapi.getString(reloadPath + "Reload_Message.Subtitle")));
+            toConfig.set(to + "Boss_Bar.Message", convert(CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Title")));
             toConfig.set(to + "Boss_Bar.Color", CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Settings.Color"));
             toConfig.set(to + "Boss_Bar.Style", getBossBarStyle(CSPapi.getString(reloadPath + "Reload_Message.Boss_Bar.Settings.Style")));
 
@@ -507,10 +507,19 @@ public class CrackShotPlusConverter {
             toConfig.set(to + "Exp", CSPapi.getString(reloadPath + "Reload_Message.Exp"));
 
             // Bar stuff
-            toConfig.set(to + "Bar.Left_Color", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Left_Color")));
-            toConfig.set(to + "Bar.Right_Color", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Right_Color")));
-            toConfig.set(to + "Bar.Left_Symbol", StringUtil.colorAdventure(CSPapi.getString(reloadPath + "Symbol")));
+            toConfig.set(to + "Bar.Left_Color", convert(CSPapi.getString(reloadPath + "Left_Color")));
+            toConfig.set(to + "Bar.Right_Color", convert(CSPapi.getString(reloadPath + "Right_Color")));
+            toConfig.set(to + "Bar.Left_Symbol", convert(CSPapi.getString(reloadPath + "Symbol")));
             toConfig.set(to + "Bar.Symbol_Amount", CSPapi.getInteger(reloadPath + "Symbol_Amount"));
+        }
+
+        private static String convert(String msg) {
+            if (msg == null)
+                return null;
+
+            msg = msg.replaceAll("#[Bb][Aa][Rr]#", "%bar%");
+            msg = msg.replaceAll("#[Tt][Ii][Mm][Ee]#", "%time%");
+            return StringUtil.colorAdventure(msg);
         }
     }
 

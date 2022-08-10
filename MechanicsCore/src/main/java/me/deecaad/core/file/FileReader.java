@@ -223,8 +223,8 @@ public class FileReader {
 
                     // If the serializer doesn't have parent keywords used, or it doesn't match the current path
                     // -> Don't try to serialize this serializer under serializer
-                    String keyWithoutLastKey = key.substring(0, key.length() - lastKey.length() - 1);
-                    if (startsWithDeny != null && (serializer.getParentKeywords() == null || serializer.getParentKeywords().stream().noneMatch(keyWithoutLastKey::endsWith))) {
+                    String keyWithoutLastKey = keySplit.length == 1 ? null : key.substring(0, key.length() - lastKey.length() - 1);
+                    if (startsWithDeny != null && (serializer.getParentKeywords() == null || keyWithoutLastKey == null || serializer.getParentKeywords().stream().noneMatch(keyWithoutLastKey::endsWith))) {
                         continue;
                     }
 
