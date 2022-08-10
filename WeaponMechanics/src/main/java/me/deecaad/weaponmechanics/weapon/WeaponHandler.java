@@ -15,6 +15,7 @@ import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.skin.SkinHandler;
+import me.deecaad.weaponmechanics.weapon.stats.StatsHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -47,6 +48,7 @@ public class WeaponHandler {
     private final DamageHandler damageHandler;
     private final SkinHandler skinHandler;
     private final MeleeHandler meleeHandler;
+    private final StatsHandler statsHandler;
 
     public WeaponHandler() {
         infoHandler = new InfoHandler(this);
@@ -56,6 +58,7 @@ public class WeaponHandler {
         damageHandler = new DamageHandler(this);
         skinHandler = new SkinHandler(this);
         meleeHandler = new MeleeHandler(this);
+        statsHandler = new StatsHandler(this);
     }
 
     /**
@@ -259,5 +262,12 @@ public class WeaponHandler {
      */
     public MeleeHandler getMeleeHandler() {
         return meleeHandler;
+    }
+
+    /**
+     * @return the stats handler
+     */
+    public StatsHandler getStatsHandler() {
+        return statsHandler;
     }
 }

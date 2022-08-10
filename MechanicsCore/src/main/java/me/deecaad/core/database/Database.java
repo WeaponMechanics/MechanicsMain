@@ -41,6 +41,12 @@ public abstract class Database {
         if (resultSet != null) try { resultSet.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
     }
 
+    /**
+     * Runs given SQL statement in async.
+     * Used to e.g. INSERT, UPDATE or DELETE.
+     *
+     * @param sql the sql statement to run
+     */
     public void executeUpdate(String sql) {
         new BukkitRunnable() {
             public void run() {
@@ -59,6 +65,13 @@ public abstract class Database {
         }.runTaskAsynchronously(MechanicsCore.getPlugin());
     }
 
+    /**
+     * Runs given SQL query in async.
+     * Used to SELECT.
+     *
+     * @param sql the sql query to run
+     * @param consumer the consumer for result set of query
+     */
     public void executeQuery(String sql, Consumer<ResultSet> consumer) {
         new BukkitRunnable() {
             public void run() {
