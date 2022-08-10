@@ -4,6 +4,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -26,6 +27,7 @@ public class RayTrace {
     private Entity entity;
     private boolean outlineHitPosition;
     private boolean outlineHitBox;
+    private boolean allowLiquid;
 
     public RayTrace() { }
 
@@ -61,6 +63,11 @@ public class RayTrace {
         return this;
     }
 
+    public RayTrace enableLiquidChecks() {
+        this.allowLiquid = true;
+        return this;
+    }
+
     public List<RayTraceResult> cast(World world, Vector start, Vector direction, double range) {
         return cast(world, start, start.clone().add(direction.clone().multiply(range)), direction);
     }
@@ -74,7 +81,7 @@ public class RayTrace {
     }
 
     public List<RayTraceResult> cast(World world, Vector start, Vector end, Vector direction, int maximumBlockThrough) {
-        List<RayTraceResult> hits = new ArrayList<>();
+        List<RayTraceResult> hits = new ArrayList<>(5);
         getBlockHits(hits, world, start, end, direction, maximumBlockThrough);
         getEntityHits(hits, world, start, end, direction);
 
@@ -113,10 +120,15 @@ public class RayTrace {
         int currentY = NumberUtil.intFloor(startY);
         int currentZ = NumberUtil.intFloor(startZ);
 
-        RayTraceResult rayStartBlock = rayBlock(world.getBlockAt(currentX, currentY, currentZ), start, direction);
+        Block startBlock = world.getBlockAt(currentX, currentY, currentZ);
+        RayTraceResult rayStartBlock = rayBlock(startBlock, start, direction);
         if (rayStartBlock != null) {
             hits.add(rayStartBlock);
-            if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) return;
+
+            // Don't count liquid as actual hits along the path
+            if (!allowLiquid || !startBlock.isLiquid()) {
+                if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) return;
+            }
         }
 
         double endX = NumberUtil.lerp(end.getX(), start.getX(), -1.0E-7);
@@ -157,10 +169,16 @@ public class RayTrace {
                 maxZ += addZ;
             }
 
-            RayTraceResult rayNewBlock = rayBlock(world.getBlockAt(currentX, currentY, currentZ), start, direction);
+            Block newBlock = world.getBlockAt(currentX, currentY, currentZ);
+            RayTraceResult rayNewBlock = rayBlock(newBlock, start, direction);
             if (rayNewBlock != null) {
                 hits.add(rayNewBlock);
-                if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) break;
+
+                // Don't count liquid as actual hits along the path
+                if (!allowLiquid || !newBlock.isLiquid()) {
+                    if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) break;
+                }
+
             }
         }
     }
@@ -168,7 +186,7 @@ public class RayTrace {
     private RayTraceResult rayBlock(Block block, Vector start, Vector direction) {
         if (blockFilter != null && blockFilter.test(block)) return null;
 
-        HitBox blockBox = weaponCompatibility.getHitBox(block);
+        HitBox blockBox = weaponCompatibility.getHitBox(block, allowLiquid);
         if (blockBox == null) return null;
 
         return blockBox.rayTrace(start, direction);

@@ -81,8 +81,17 @@ public class v1_9_R2 implements IWeaponCompatibility {
     }
 
     @Override
-    public HitBox getHitBox(org.bukkit.block.Block block) {
-        if (block.isEmpty() || block.isLiquid()) return null;
+    public HitBox getHitBox(org.bukkit.block.Block block, boolean allowLiquid) {
+        if (block.isEmpty()) return null;
+
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid && isLiquid) return null;
+
+        if (isLiquid) {
+            HitBox hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+            hitBox.setBlockHitBox(block);
+            return hitBox;
+        }
 
         WorldServer worldServer = ((CraftWorld) block.getWorld()).getHandle();
         BlockPosition blockPosition = new BlockPosition(block.getX(), block.getY(), block.getZ());

@@ -535,6 +535,20 @@ public class HitBox implements IValidator {
         }
     }
 
+    @Override
+    public String toString() {
+        return "HitBox{" +
+                "block=" + block +
+                ", livingEntity=" + livingEntity +
+                ", minX=" + minX +
+                ", minY=" + minY +
+                ", minZ=" + minZ +
+                ", maxX=" + maxX +
+                ", maxY=" + maxY +
+                ", maxZ=" + maxZ +
+                '}';
+    }
+
     /**
      * Simply resets hit boxes to default is they're missing or are invalid
      *
