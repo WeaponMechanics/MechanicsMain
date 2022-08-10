@@ -1,9 +1,7 @@
 sub_machine_gun:
   Projectile:
     Projectile_Settings:
-      Type: "DROPPED_ITEM"
-      Projectile_Item_Or_Block:
-        Type: "IRON_NUGGET"
+      Type: "SNOWBALL"
       Maximum:
         Speed: 80
       Gravity: 0.05
@@ -84,9 +82,7 @@ rocket_launcher:
 assault_rifle:
   Projectile:
     Projectile_Settings:
-      Type: "DROPPED_ITEM"
-      Projectile_Item_Or_Block:
-        Type: "IRON_NUGGET"
+      Type: "SNOWBALL"
       Minimum:
         Speed: 60
       Gravity: 0.05
@@ -108,9 +104,7 @@ assault_rifle:
 pistol:
   Projectile:
     Projectile_Settings:
-      Type: "DROPPED_ITEM"
-      Projectile_Item_Or_Block:
-        Type: "IRON_NUGGET"
+      Type: "SNOWBALL"
       Gravity: 0.05
       Drag:
         Base: 0.99
@@ -142,9 +136,7 @@ marksman_rifle:
 light_machine_gun:
   Projectile:
     Projectile_Settings:
-      Type: "DROPPED_ITEM"
-      Projectile_Item_Or_Block:
-        Type: "IRON_NUGGET"
+      Type: "SNOWBALL"
       Minimum:
         Speed: 70
       Gravity: 0.04
