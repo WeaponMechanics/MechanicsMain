@@ -6,6 +6,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
+import me.deecaad.core.database.Database;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketHandlerListener;

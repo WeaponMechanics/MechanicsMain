@@ -2,12 +2,15 @@ package me.deecaad.core.database;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class Database {
 
@@ -36,6 +39,44 @@ public abstract class Database {
         if (connection != null) try { connection.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
         if (preparedStatement != null) try { preparedStatement.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
         if (resultSet != null) try { resultSet.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
+    }
+
+    public void executeUpdate(String sql) {
+        new BukkitRunnable() {
+            public void run() {
+                Connection connection = null;
+                PreparedStatement preparedStatement = null;
+                try {
+                    connection = getConnection();
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    MechanicsCore.debug.log(LogLevel.ERROR, e);
+                } finally {
+                    close(connection, preparedStatement, null);
+                }
+            }
+        }.runTaskAsynchronously(MechanicsCore.getPlugin());
+    }
+
+    public void executeQuery(String sql, Consumer<ResultSet> consumer) {
+        new BukkitRunnable() {
+            public void run() {
+                Connection connection = null;
+                PreparedStatement preparedStatement = null;
+                ResultSet resultSet = null;
+                try {
+                    connection = getConnection();
+                    preparedStatement = connection.prepareStatement(sql);
+                    resultSet = preparedStatement.executeQuery();
+                    consumer.accept(resultSet);
+                } catch (SQLException e) {
+                    MechanicsCore.debug.log(LogLevel.ERROR, e);
+                } finally {
+                    close(connection, preparedStatement, resultSet);
+                }
+            }
+        }.runTaskAsynchronously(MechanicsCore.getPlugin());
     }
 
     /**

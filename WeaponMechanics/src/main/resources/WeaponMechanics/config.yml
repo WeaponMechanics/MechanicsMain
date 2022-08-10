@@ -17,6 +17,21 @@ Update_Checker:
     Minor: 1
     Patch: 1
 
+# WeaponMechanics stores statistics of players such as how
+# much damage has the player done using some weapon.
+Database:
+  Enable: true # whether statistics should be tracked
+  Type: "SQLITE" # available is SQLITE and MYSQL
+  MySQL:
+    Hostname: "localhost"
+    Port: 3306
+    Database: "weaponmechanics"
+    Username: "root"
+    Password: ""
+  SQLite:
+    Absolute_Path: "plugins/WeaponMechanics/weaponmechanics.db"
+
+# Change messages sent for player
 Messages:
   Permissions:
     Use_Weapon: "&4You do not have permission to use %weapon-title%"
