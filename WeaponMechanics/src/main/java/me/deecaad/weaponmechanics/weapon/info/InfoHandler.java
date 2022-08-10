@@ -10,6 +10,7 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.skin.Skin;
+import me.deecaad.weaponmechanics.weapon.skin.SkinList;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -232,8 +233,8 @@ public class InfoHandler implements IValidator {
         }
 
         // Apply default skin
-        Map skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
-        Skin defaultSkin = (Skin) (skins == null ? null : skins.get("Default"));
+        SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
+        Skin defaultSkin = skins == null ? null : skins.getSkin(null, null);
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
         }
