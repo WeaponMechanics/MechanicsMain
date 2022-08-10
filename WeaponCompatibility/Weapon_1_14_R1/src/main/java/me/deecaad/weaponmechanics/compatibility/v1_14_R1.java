@@ -59,11 +59,24 @@ public class v1_14_R1 implements IWeaponCompatibility {
     }
 
     @Override
-    public HitBox getHitBox(Block block) {
-        if (block.isEmpty() || block.isLiquid() || block.isPassable()) return null;
+    public HitBox getHitBox(Block block, boolean allowLiquid) {
+        if (block.isEmpty()) return null;
 
-        BoundingBox boundingBox = block.getBoundingBox();
-        HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid) {
+            if (block.isPassable() || block.isLiquid()) return null;
+        } else if (!isLiquid && block.isPassable()) {
+            // Check like this because liquid is also passable...
+            return null;
+        }
+
+        HitBox hitBox;
+        if (isLiquid) {
+            hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+        } else {
+            BoundingBox boundingBox = block.getBoundingBox();
+            hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        }
         hitBox.setBlockHitBox(block);
 
         if (WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {

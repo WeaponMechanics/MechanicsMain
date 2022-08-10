@@ -57,12 +57,29 @@ public interface IWeaponCompatibility {
      * @return the block's hit box or null if its passable for example
      */
     default HitBox getHitBox(Block block) {
+        return getHitBox(block, false);
+    }
+
+    default HitBox getHitBox(Block block, boolean allowLiquid) {
 
         // This default should only be used after 1.17
-        if (block.isEmpty() || block.isLiquid() || block.isPassable()) return null;
+        if (block.isEmpty()) return null;
 
-        BoundingBox boundingBox = block.getBoundingBox();
-        HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid) {
+            if (block.isPassable() || block.isLiquid()) return null;
+        } else if (!isLiquid && block.isPassable()) {
+            // Check like this because liquid is also passable...
+            return null;
+        }
+
+        HitBox hitBox;
+        if (isLiquid) {
+            hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+        } else {
+            BoundingBox boundingBox = block.getBoundingBox();
+            hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        }
         hitBox.setBlockHitBox(block);
 
         // This default should only be used after 1.17 R1
