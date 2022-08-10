@@ -107,6 +107,19 @@ Placeholder_Symbols:
 # This is the global damaging system. It defines how bullets damage entities
 # with potion effects, armor, and other statuses.
 Damage:
+
+  # Using ´Use_Vanilla_Damaging´ you can disable WeaponMechanics
+  # custom damaging system, and use vanilla. You only want to set
+  # this to true if you have compatibility issues with other plugins.
+  # Compatibility issues can likely happen with plugins which use custom armors.
+  #
+  # This means that if ´Use_Vanilla_Damaging: true´:
+  # 1) Vanilla damaging system is used
+  # 2) You can't customize the damaging using this section
+  # 3) Vanilla knockback happens on hit
+  # 4) Weapon's Damage.Armor_Damage option is ignored
+  Use_Vanilla_Damaging: false
+
   Minimum_Rate: 0.5
   Maximum_Rate: 2.0
   Potions:

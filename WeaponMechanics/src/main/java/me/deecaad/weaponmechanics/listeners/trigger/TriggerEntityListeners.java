@@ -14,6 +14,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -22,6 +23,7 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
@@ -34,15 +36,39 @@ public class TriggerEntityListeners implements Listener {
         this.weaponHandler = weaponHandler;
     }
 
+    @EventHandler (priority = EventPriority.MONITOR)
+    public void damageMonitor(EntityDamageByEntityEvent e) {
+        Entity victim = e.getEntity();
+
+        // Only when victim has been damaged by WM projectile
+        // when Use_Vanilla_Damaging is true
+        if (!victim.hasMetadata("wm_vanilla_dmg")) return;
+        victim.removeMetadata("wm_vanilla_dmg", WeaponMechanics.getPlugin());
+
+        if (e.isCancelled()) {
+            // If cancelled set this new meta to let WM know not to use mechanics anymore
+
+            e.getEntity().setMetadata("wm_cancelled_dmg",
+                    new FixedMetadataValue(WeaponMechanics.getPlugin(), null));
+        }
+    }
+
     @EventHandler
     public void damage(EntityDamageByEntityEvent e) {
+        Entity victim = e.getEntity();
+
+        if (victim.hasMetadata("wm_vanilla_dmg")) {
+            // Don't try melee nor cancel the damage if this entity was just hit by
+            // WM projectile while using ´Use_Vanilla_Damaging´.
+            return;
+        }
+
         EntityDamageEvent.DamageCause cause = e.getCause();
         boolean isSweep = ReflectionUtil.getMCVersion() > 10 && cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
         if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && !isSweep) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
 
         Entity damager = e.getDamager();
-        Entity victim = e.getEntity();
         if (!damager.getType().isAlive() || !victim.getType().isAlive()) return;
 
         EntityWrapper entityWrapper = getEntityWrapper((LivingEntity) damager, true);
