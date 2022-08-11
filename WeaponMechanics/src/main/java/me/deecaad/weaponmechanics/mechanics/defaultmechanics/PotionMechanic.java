@@ -14,6 +14,7 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,11 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
     @Override
     public String getKeyword() {
         return "Potion_Effects";
+    }
+
+    @Override
+    public List<String> getParentKeywords() {
+        return Collections.singletonList("Mechanics");
     }
 
     @Override

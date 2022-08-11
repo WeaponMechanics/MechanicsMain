@@ -36,6 +36,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
@@ -535,6 +537,11 @@ public class ReloadHandler implements IValidator {
     @Override
     public String getKeyword() {
         return "Reload";
+    }
+
+    @Override
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Reload");
     }
 
     @Override

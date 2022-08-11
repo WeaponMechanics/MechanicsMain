@@ -323,6 +323,10 @@ public class InfoHandler implements IValidator {
         return "Info";
     }
 
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Info");
+    }
+
     @Override
     public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
         int weaponEquipDelay = configuration.getInt(path + ".Weapon_Equip_Delay");

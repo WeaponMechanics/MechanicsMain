@@ -12,6 +12,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class MovementMechanic implements IMechanic<MovementMechanic> {
@@ -76,6 +78,11 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
     @Override
     public String getKeyword() {
         return "Movement";
+    }
+
+    @Override
+    public List<String> getParentKeywords() {
+        return Collections.singletonList("Mechanics");
     }
 
     @Override

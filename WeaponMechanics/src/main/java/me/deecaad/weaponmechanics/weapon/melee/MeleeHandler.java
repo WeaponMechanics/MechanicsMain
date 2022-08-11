@@ -29,11 +29,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
@@ -180,6 +180,10 @@ public class MeleeHandler implements IValidator {
     @Override
     public String getKeyword() {
         return "Melee";
+    }
+
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Melee");
     }
 
     @Override

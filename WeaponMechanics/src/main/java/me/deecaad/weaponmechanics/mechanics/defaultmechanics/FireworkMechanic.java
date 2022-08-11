@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 
 public class FireworkMechanic implements IMechanic<FireworkMechanic> {
@@ -69,6 +70,11 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
     @Override
     public String getKeyword() {
         return "Firework";
+    }
+
+    @Override
+    public List<String> getParentKeywords() {
+        return Collections.singletonList("Mechanics");
     }
 
     @Override

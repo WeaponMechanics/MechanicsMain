@@ -203,6 +203,7 @@ public class FileReader {
 
             String[] keySplit = key.split("\\.");
             if (keySplit.length > 0) {
+
                 // Get the last "key name" of the key
                 String lastKey = keySplit[keySplit.length - 1].toLowerCase();
 
@@ -210,10 +211,17 @@ public class FileReader {
                 if (startsWithDeny == null) {
                     IValidator validator = this.validators.get(lastKey);
                     if (validator != null) {
-                        validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+                        // Get the first "key name" of the key
+                        String firstKey = keySplit[0].toLowerCase();
 
-                        if (validator.denyKeys())
-                            startsWithDeny = key;
+                        String keyWithoutFirstKey = keySplit.length == 1 ? null : key.substring(firstKey.length());
+                        if (keyWithoutFirstKey == null || validator.getAllowedPaths() == null || validator.getAllowedPaths().stream().anyMatch(keyWithoutFirstKey::equalsIgnoreCase)) {
+
+                            validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+
+                            if (validator.denyKeys())
+                                startsWithDeny = key;
+                        }
                     }
                 }
 
