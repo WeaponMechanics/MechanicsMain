@@ -77,11 +77,6 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     }
 
     @Override
-    public List<String> getParentKeywords() {
-        return Collections.singletonList("Mechanics");
-    }
-
-    @Override
     public boolean requirePlayer() {
         return !sendWorld && !sendServer;
     }

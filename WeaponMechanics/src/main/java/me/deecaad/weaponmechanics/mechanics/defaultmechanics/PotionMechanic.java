@@ -50,11 +50,6 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
     }
 
     @Override
-    public List<String> getParentKeywords() {
-        return Collections.singletonList("Mechanics");
-    }
-
-    @Override
     @Nonnull
     public PotionMechanic serialize(SerializeData data) throws SerializerException {
 

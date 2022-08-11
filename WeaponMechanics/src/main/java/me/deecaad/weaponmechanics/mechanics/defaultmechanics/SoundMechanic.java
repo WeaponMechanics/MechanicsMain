@@ -115,11 +115,6 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
     }
 
     @Override
-    public List<String> getParentKeywords() {
-        return Collections.singletonList("Mechanics");
-    }
-
-    @Override
     @Nonnull
     public SoundMechanic serialize(SerializeData data) throws SerializerException {
 

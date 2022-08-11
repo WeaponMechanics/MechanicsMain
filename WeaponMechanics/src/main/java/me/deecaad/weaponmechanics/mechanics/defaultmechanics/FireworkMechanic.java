@@ -73,11 +73,6 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
     }
 
     @Override
-    public List<String> getParentKeywords() {
-        return Collections.singletonList("Mechanics");
-    }
-
-    @Override
     @Nonnull
     public FireworkMechanic serialize(SerializeData data) throws SerializerException {
         ItemStack fireworkItem = data.of("Item").assertExists().serializeNonStandardSerializer(new ItemSerializer());

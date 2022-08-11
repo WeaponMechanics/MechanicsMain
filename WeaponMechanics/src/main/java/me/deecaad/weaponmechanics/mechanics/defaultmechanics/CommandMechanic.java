@@ -59,11 +59,6 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
     }
 
     @Override
-    public List<String> getParentKeywords() {
-        return Collections.singletonList("Mechanics");
-    }
-
-    @Override
     @Nonnull
     public CommandMechanic serialize(SerializeData data) throws SerializerException {
         List<String> stringCommandList = data.config.getStringList(data.key);

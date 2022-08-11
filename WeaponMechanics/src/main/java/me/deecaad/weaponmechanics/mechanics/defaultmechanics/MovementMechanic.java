@@ -81,11 +81,6 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
     }
 
     @Override
-    public List<String> getParentKeywords() {
-        return Collections.singletonList("Mechanics");
-    }
-
-    @Override
     @Nonnull
     public MovementMechanic serialize(SerializeData data) throws SerializerException {
         double movementSpeed = data.of("Movement_Speed").assertExists().getDouble();
