@@ -265,10 +265,11 @@ public class WeaponMechanicsCommand {
                         .withDescription("Ray traces blocks/entities")
                         .withRequirements(LivingEntity.class::isInstance)
                         .withArgument(new Argument<>("highlight-box", new BooleanArgumentType(), false).withDesc("false=show point, true=show hitbox"))
+                        .withArgument(new Argument<>("size", new DoubleArgumentType(0), 0.1).withDesc("Size of ray-trace"))
                         .withArgument(new Argument<>("distance", new IntegerArgumentType(1), 10).withDesc("How far to ray-trace"))
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long to show the particles"))
                         .executes(CommandExecutor.entity((sender, args) -> {
-                            ray((LivingEntity) sender, (boolean) args[0], (int) args[1], (int) args[2]);
+                            ray((LivingEntity) sender, (boolean) args[0], (double) args[1], (int) args[2], (int) args[3]);
                         })))
 
                 .withSubcommand(new CommandBuilder("recoil")
@@ -725,10 +726,12 @@ public class WeaponMechanicsCommand {
         }.runTaskLater(WeaponMechanics.getPlugin(), time);
     }
 
-    public static void ray(LivingEntity sender, boolean box, int distance, int ticks) {
+    public static void ray(LivingEntity sender, boolean box, double size, int distance, int ticks) {
 
         sender.sendMessage(ChatColor.GREEN + "Showing hitboxes in distance " + distance + " for " + NumberUtil.toTime(ticks / 20));
-        RayTrace rayTrace = new RayTrace().withEntityFilter(entity -> entity.getEntityId() == sender.getEntityId());
+        RayTrace rayTrace = new RayTrace()
+                .withEntityFilter(entity -> entity.getEntityId() == sender.getEntityId())
+                .withRaySize(size);
         if (box) {
             rayTrace.withOutlineHitBox(sender);
         } else {
@@ -775,7 +778,7 @@ public class WeaponMechanicsCommand {
     public static void shoot(LivingEntity sender, double speed, double gravity, EntityType entity) {
         ProjectileSettings projectileSettings = new ProjectileSettings(entity, null,
                 gravity, false, -1, false,
-                -1, 0.99, 0.96, 0.98, false, 600, -1);
+                -1, 0.99, 0.96, 0.98, false, 600, -1, 0.1);
         Projectile projectile = new Projectile(projectileSettings, null, null, null, null);
         projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null);
     }
