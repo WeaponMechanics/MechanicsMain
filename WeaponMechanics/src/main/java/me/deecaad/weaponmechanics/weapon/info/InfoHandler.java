@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -57,9 +59,10 @@ public class InfoHandler implements IValidator {
     private WeaponHandler weaponHandler;
 
     /**
-     * Validator instance
+     * Default constructor for validator
      */
-    public InfoHandler() { }
+    public InfoHandler() {
+    }
 
     public InfoHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -328,11 +331,11 @@ public class InfoHandler implements IValidator {
     }
 
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        int weaponEquipDelay = configuration.getInt(path + ".Weapon_Equip_Delay");
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        int weaponEquipDelay = data.of("Weapon_Equip_Delay").assertPositive().getInt(0);
         if (weaponEquipDelay != 0) {
             // Convert to millis
-            configuration.set(path + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
+            configuration.set(data.key + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
         }
     }
 }

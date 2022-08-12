@@ -3,8 +3,7 @@ package me.deecaad.weaponmechanics.weapon.shoot;
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
@@ -50,6 +49,7 @@ import org.vivecraft.VSE;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -742,76 +742,51 @@ public class ShootHandler implements IValidator {
     }
 
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
-        if (trigger == null) {
-            debug.log(LogLevel.ERROR, "Tried to use shoot without defining trigger for it.",
-                    "Located at file " + file + " in " + path + ".Trigger in configurations.");
-        }
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
+        if (trigger == null)
+            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
 
-        double projectileSpeed = configuration.getDouble(path + ".Projectile_Speed", 80);
-        debug.validate(projectileSpeed > 0, "Projectile_Speed must be a positive number!",
-                StringUtil.foundAt(file, path + ".Projectile_Speed"));
+        double projectileSpeed = data.of("Projectile_Speed").assertPositive().getDouble(80);
 
         // Convert from more config friendly speed to normal
         // E.g. 80 -> 4.0
-        configuration.set(path + ".Projectile_Speed", projectileSpeed / 20);
+        configuration.set(data.key + ".Projectile_Speed", projectileSpeed / 20);
 
-        int delayBetweenShots = configuration.getInt(path + ".Delay_Between_Shots");
+        int delayBetweenShots = data.of("Delay_Between_Shots").assertPositive().getInt(0);
         if (delayBetweenShots != 0) {
             // Convert to millis
-            configuration.set(path + ".Delay_Between_Shots", delayBetweenShots * 50);
+            configuration.set(data.key + ".Delay_Between_Shots", delayBetweenShots * 50);
         }
 
-        int projectilesPerShot = configuration.getInt(path + ".Projectiles_Per_Shot");
-        if (projectilesPerShot == 0) {
-            configuration.set(path + ".Projectiles_Per_Shot", 1);
-        } else if (projectilesPerShot < 1) {
-            debug.log(LogLevel.ERROR, "Tried to use shoot where projectiles per shot was less than 1.",
-                    "Located at file " + file + " in " + path + ".Projectiles_Per_Shot in configurations.");
-        }
+        int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt(1);
 
         boolean hasBurst = false;
         boolean hasAuto = false;
 
-        int shotsPerBurst = configuration.getInt(path + ".Burst.Shots_Per_Burst");
-        int ticksBetweenEachShot = configuration.getInt(path + ".Burst.Ticks_Between_Each_Shot");
+        int shotsPerBurst = data.of("Burst.Shots_Per_Burst").assertRange(1, 100).getInt(0);
+        int ticksBetweenEachShot = data.of("Burst.Ticks_Between_Each_Shot").assertPositive().getInt(0);
         if (shotsPerBurst != 0 || ticksBetweenEachShot != 0) {
             hasBurst = true;
-            if (shotsPerBurst < 1) {
-                debug.log(LogLevel.ERROR, "Tried to use shots per burst with value less than 1.",
-                        "Located at file " + file + " in " + path + ".Burst.Shots_Per_Burst in configurations.");
-            }
-            if (ticksBetweenEachShot < 1) {
-                debug.log(LogLevel.ERROR, "Tried to use ticks between each shot with value less than 1.",
-                        "Located at file " + file + " in " + path + ".Burst.Ticks_Between_Each_Shot in configurations.");
-            }
         }
 
-        int fullyAutomaticShotsPerSecond = configuration.getInt(path + ".Fully_Automatic_Shots_Per_Second");
+        int fullyAutomaticShotsPerSecond = data.of("Fully_Automatic_Shots_Per_Second").assertRange(0, 120).getInt(0);
         if (fullyAutomaticShotsPerSecond != 0) {
             hasAuto = true;
-            if (fullyAutomaticShotsPerSecond < 1) {
-                debug.log(LogLevel.ERROR, "Tried to use full auto with value less than 1.",
-                        "Located at file " + file + " in " + path + ".Fully_Automatic_Shots_Per_Second in configurations.");
-            }
         }
 
-        boolean usesSelectiveFire = configuration.getObject(path + ".Selective_Fire.Trigger", Trigger.class) != null;
+        boolean usesSelectiveFire = configuration.getObject(data.key + ".Selective_Fire.Trigger", Trigger.class) != null;
         if (usesSelectiveFire && !hasBurst && !hasAuto) {
-            debug.log(LogLevel.ERROR, "Tried to use selective fire without defining full auto or burst.",
-                    "You need to define at least other of them.",
-                    "Located at file " + file + " in " + path + " in configurations.");
+            throw data.exception("Selective_Fire", "When using selective fire, make sure to set up 2 of: 'Burst' and/or 'Fully_Automatic_Shots_Per_Second' and/or 'Delay_Between_Shots'");
         }
 
-        String defaultSelectiveFire = configuration.getString(path + ".Selective_Fire.Default");
+        String defaultSelectiveFire = configuration.getString(data.key + ".Selective_Fire.Default");
         if (defaultSelectiveFire != null) {
             if (!defaultSelectiveFire.equalsIgnoreCase("SINGLE")
                     && !defaultSelectiveFire.equalsIgnoreCase("BURST")
                     && !defaultSelectiveFire.equalsIgnoreCase("AUTO") ) {
-                debug.log(LogLevel.ERROR, "Tried to use selective fire default with invalid type.",
-                        "You need to use one of the following: SINGLE, BURST or AUTO, now there was " + defaultSelectiveFire,
-                        "Located at file " + file + " in " + path + " in configurations.");
+
+                throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default").getLocation());
             }
         }
     }

@@ -1,9 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import com.google.common.base.Preconditions;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -13,15 +14,11 @@ import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -48,9 +45,10 @@ public class HitBox implements IValidator {
     private Collection<HitBox> voxelShape;
 
     /**
-     * Empty constructor be used as validator
+     * Default constructor for validator
      */
-    public HitBox() { }
+    public HitBox() {
+    }
 
     public HitBox(Vector start, Vector end) {
         this(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
@@ -510,14 +508,14 @@ public class HitBox implements IValidator {
     }
 
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
         for (EntityType entityType : EntityType.values()) {
             if (!entityType.isAlive()) continue;
 
-            double head = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.HEAD.name(), -1.0);
-            double body = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.BODY.name(), -1.0);
-            double legs = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.LEGS.name(), -1.0);
-            double feet = configuration.getDouble("Entity_Hitboxes." + entityType.name() + "." + DamagePoint.FEET.name(), -1.0);
+            double head = data.of(entityType.name() + "." + DamagePoint.HEAD.name()).getDouble(-1.0);
+            double body = data.of(entityType.name() + "." + DamagePoint.BODY.name()).getDouble(-1.0);
+            double legs = data.of(entityType.name() + "." + DamagePoint.LEGS.name()).getDouble(-1.0);
+            double feet = data.of(entityType.name() + "." + DamagePoint.FEET.name()).getDouble(-1.0);
 
             if (head < 0 || body < 0 || legs < 0 || feet < 0) {
                 debug.log(LogLevel.WARN, "Entity type " + entityType.name() + " is missing some of its damage point values, please add it",

@@ -2,9 +2,7 @@ package me.deecaad.weaponmechanics.weapon.reload;
 
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
@@ -45,7 +43,11 @@ public class ReloadHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
-    public ReloadHandler() { }
+    /**
+     * Default constructor for validator
+     */
+    public ReloadHandler() {
+    }
 
     public ReloadHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -545,34 +547,20 @@ public class ReloadHandler implements IValidator {
     }
 
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
         if (trigger == null) {
-            debug.log(LogLevel.ERROR, "Tried to use reload without defining trigger for it.",
-                    StringUtil.foundAt(file, path + ".Trigger"));
+            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
         }
 
-        int magazineSize = configurationSection.getInt(path + ".Magazine_Size");
-        debug.validate(magazineSize > 0, "Magazine_Size must be positive",
-                SerializerException.forValue(magazineSize),
-                StringUtil.foundAt(file, path + ".Magazine_Size"));
+        int magazineSize = data.of("Magazine_Size").assertExists().assertPositive().getInt();
+        int reloadDuration = data.of("Reload_Duration").assertExists().assertPositive().getInt();
+        int ammoPerReload = data.of("Ammo_Per_Reload").assertPositive().getInt(-99);
 
-        int reloadDuration = configurationSection.getInt(path + ".Reload_Duration");
-        debug.validate(reloadDuration > 0, "Reload_Duration must be positive",
-                SerializerException.forValue(reloadDuration),
-                StringUtil.foundAt(file, path + ".Reload_Duration"));
-
-        int ammoPerReload = configurationSection.getInt(path + ".Ammo_Per_Reload", -99);
-        if (ammoPerReload != -99) {
-            debug.validate(ammoPerReload > 0, "Ammo_Per_Reload must be positive",
-                    SerializerException.forValue(ammoPerReload),
-                    StringUtil.foundAt(file, path + ".Ammo_Per_Reload"));
-        }
-        boolean unloadAmmoOnReload = configurationSection.getBoolean(path + ".Unload_Ammo_On_Reload");
+        boolean unloadAmmoOnReload = data.of("Unload_Ammo_On_Reload").getBool(false);
         if (unloadAmmoOnReload && ammoPerReload != -99) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
-            debug.error("Cannot use Ammo_Per_Reload and Unload_Ammo_On_Reload at the same time",
-                    StringUtil.foundAt(file, path + ".Unload_Ammo_On_Reload"));
+            throw data.exception(null, "Cannot use 'Ammo_Per_Reload' and 'Unload_Ammo_On_Reload' at the same time");
         }
     }
 }

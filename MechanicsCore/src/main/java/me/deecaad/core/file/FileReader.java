@@ -217,6 +217,9 @@ public class FileReader {
                         String keyWithoutFirstKey = keySplit.length == 1 ? null : key.substring(firstKey.length());
                         if (keyWithoutFirstKey == null || validator.getAllowedPaths() == null || validator.getAllowedPaths().stream().anyMatch(keyWithoutFirstKey::equalsIgnoreCase)) {
 
+                            if (!validator.shouldValidate(new SerializeData(validator.getKeyword(), file, key, configuration)))
+                                continue;
+
                             validatorDatas.add(new ValidatorData(validator, file, configuration, key));
 
                             if (validator.denyKeys())
@@ -262,7 +265,7 @@ public class FileReader {
 
                             // Any Exception other than SerializerException
                             // should be fixed by the dev of the serializer.
-                            throw new InternalError("Unhandled caught exception from serializer " + serializer.getKeyword() + "!", e);
+                            throw new InternalError("Unhandled caught exception from serializer " + serializer + "!", e);
                         }
                     }
                     continue;
@@ -303,7 +306,7 @@ public class FileReader {
             for (ValidatorData validatorData : validatorDatas) {
 
                 try {
-                    validatorData.getValidator().validate(filledMap, validatorData.getFile(), validatorData.getConfigurationSection(), validatorData.getPath());
+                    validatorData.getValidator().validate(filledMap, new SerializeData(validatorData.getValidator().getKeyword(), validatorData.getFile(), validatorData.getPath(), validatorData.getConfigurationSection()));
                 } catch (SerializerException ex) {
                     ex.log(debug);
                 }
