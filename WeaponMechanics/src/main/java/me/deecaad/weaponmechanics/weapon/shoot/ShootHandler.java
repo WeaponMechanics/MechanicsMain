@@ -45,6 +45,7 @@ import org.bukkit.inventory.MainHand;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.vivecraft.VSE;
 
 import javax.annotation.Nullable;
@@ -602,6 +603,7 @@ public class ShootHandler implements IValidator {
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
 
         if (projectile == null || isMelee) {
+            debug.debug("Missing projectile/isMelee for " + weaponTitle);
             // No projectile defined or was melee trigger
             return;
         }
@@ -610,7 +612,12 @@ public class ShootHandler implements IValidator {
         Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
 
-        for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
+        int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
+        if (projectileAmount < 1) {
+            debug.error(weaponTitle + ".Shoot.Projectiles_Per_Shot was somehow reset to 0");
+        }
+
+        for (int i = 0; i < projectileAmount; ++i) {
 
             // i == 0
             // -> Only allow spread changing on first shot
@@ -760,6 +767,7 @@ public class ShootHandler implements IValidator {
         }
 
         int projectilesPerShot = data.of("Projectiles_Per_Shot").assertRange(1, 100).getInt(1);
+        configuration.set(data.key + ".Projectiles_Per_Shot", projectilesPerShot);
 
         boolean hasBurst = false;
         boolean hasAuto = false;

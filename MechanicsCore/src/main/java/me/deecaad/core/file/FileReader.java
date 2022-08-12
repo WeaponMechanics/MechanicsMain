@@ -217,9 +217,6 @@ public class FileReader {
                         String keyWithoutFirstKey = keySplit.length == 1 ? null : key.substring(firstKey.length());
                         if (keyWithoutFirstKey == null || validator.getAllowedPaths() == null || validator.getAllowedPaths().stream().anyMatch(keyWithoutFirstKey::equalsIgnoreCase)) {
 
-                            if (!validator.shouldValidate(new SerializeData(validator.getKeyword(), file, key, configuration)))
-                                continue;
-
                             validatorDatas.add(new ValidatorData(validator, file, configuration, key));
 
                             if (validator.denyKeys())
@@ -239,8 +236,10 @@ public class FileReader {
                         continue;
                     }
 
-                    if (!serializer.shouldSerialize(new SerializeData(serializer, file, key, configuration)))
+                    if (!serializer.shouldSerialize(new SerializeData(serializer, file, key, configuration))) {
+                        debug.debug("Skipping " + key + " due to skip");
                         continue;
+                    }
 
                     String pathTo = serializer.useLater(configuration, key);
                     if (pathTo != null) {
@@ -258,14 +257,14 @@ public class FileReader {
                             // If this serialization happened within serializer (meaning this is child serializer), startsWithDeny is not null
                             if (startsWithDeny == null) startsWithDeny = key;
 
-                        } catch (SerializerException e) {
-                            e.log(debug);
+                        } catch (SerializerException ex) {
+                            ex.log(debug);
                             if (startsWithDeny == null) startsWithDeny = key;
-                        } catch (Exception e) {
+                        } catch (Exception ex) {
 
                             // Any Exception other than SerializerException
                             // should be fixed by the dev of the serializer.
-                            throw new InternalError("Unhandled caught exception from serializer " + serializer + "!", e);
+                            throw new InternalError("Unhandled caught exception from serializer " + serializer + "!", ex);
                         }
                     }
                     continue;
@@ -305,10 +304,17 @@ public class FileReader {
         if (!validatorDatas.isEmpty()) {
             for (ValidatorData validatorData : validatorDatas) {
 
+                if (!validatorData.validator.shouldValidate(new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection))) {
+                    debug.debug("Skipping " + validatorData.path + " due to skip");
+                    continue;
+                }
+
                 try {
-                    validatorData.getValidator().validate(filledMap, new SerializeData(validatorData.getValidator().getKeyword(), validatorData.getFile(), validatorData.getPath(), validatorData.getConfigurationSection()));
+                    validatorData.getValidator().validate(filledMap, new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection));
                 } catch (SerializerException ex) {
                     ex.log(debug);
+                } catch (Exception ex) {
+                    throw new InternalError("Unhandled caught exception from validator " + validatorData.validator + "!", ex);
                 }
             }
         }

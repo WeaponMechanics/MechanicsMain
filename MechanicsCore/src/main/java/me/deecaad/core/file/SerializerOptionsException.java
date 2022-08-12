@@ -21,7 +21,7 @@ public class SerializerOptionsException extends SerializerException {
                 "Could not match config to any " + type,
                 forValue(actual),
                 didYouMean(actual, options),
-                possibleValues(options, 4)
+                possibleValues(options, 8)
         };
     }
 }
