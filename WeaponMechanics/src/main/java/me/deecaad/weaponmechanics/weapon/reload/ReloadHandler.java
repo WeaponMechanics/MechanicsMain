@@ -541,7 +541,7 @@ public class ReloadHandler implements IValidator {
     public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
         Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
         if (trigger == null) {
-            debug.log(LogLevel.ERROR, "Tried to use shoot without defining trigger for it.",
+            debug.log(LogLevel.ERROR, "Tried to use reload without defining trigger for it.",
                     StringUtil.foundAt(file, path + ".Trigger"));
         }
 

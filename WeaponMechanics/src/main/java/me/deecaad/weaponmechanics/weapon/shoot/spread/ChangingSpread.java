@@ -16,9 +16,10 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     private Bounds bounds;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public ChangingSpread() { }
+    public ChangingSpread() {
+    }
 
     public ChangingSpread(double startingAmount, int resetTime, ModifySpreadWhen increaseChangeWhen, Bounds bounds) {
         this.startingAmount = startingAmount;

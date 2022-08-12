@@ -49,6 +49,12 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
     }
 
     @Override
+    public boolean shouldSerialize(SerializeData data) {
+        // Let Mechanics handle auto serializer stuff
+        return false;
+    }
+
+    @Override
     @Nonnull
     public PotionMechanic serialize(SerializeData data) throws SerializerException {
 

@@ -228,6 +228,9 @@ public class FileReader {
                         continue;
                     }
 
+                    if (!serializer.shouldSerialize(new SerializeData(serializer, file, key, configuration)))
+                        continue;
+
                     String pathTo = serializer.useLater(configuration, key);
                     if (pathTo != null) {
                         pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));

@@ -17,9 +17,10 @@ public class Through implements Serializer<Through> {
     private ListHolder<EntityType> entities;
 
     /**
-     * Empty for serializers
+     * Default constructor for serializer
      */
-    public Through() { }
+    public Through() {
+    }
 
     public Through(int maximumThroughAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities) {
         this.maximumThroughAmount = maximumThroughAmount;

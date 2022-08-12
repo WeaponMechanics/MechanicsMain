@@ -62,6 +62,13 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
     }
 
     @Override
+    public boolean shouldSerialize(SerializeData data) {
+
+        // Let Mechanics handle all automatic serializer stuff
+        return false;
+    }
+
+    @Override
     @Nonnull
     public CommandMechanic serialize(SerializeData data) throws SerializerException {
         List<String> stringCommandList = data.config.getStringList(data.key);

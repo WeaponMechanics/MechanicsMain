@@ -10,7 +10,11 @@ import java.util.List;
  */
 public class VictimMechanics extends Mechanics {
 
-    public VictimMechanics() { }
+    /**
+     * Default constructor for serializer
+     */
+    public VictimMechanics() {
+    }
 
     public VictimMechanics(List<IMechanic<?>> mechanicList) {
         super(mechanicList);

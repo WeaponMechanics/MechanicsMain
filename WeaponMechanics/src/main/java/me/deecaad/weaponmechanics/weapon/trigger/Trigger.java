@@ -23,9 +23,10 @@ public class Trigger implements Serializer<Trigger> {
     private TriggerType dualWieldOffHand;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public Trigger() {}
+    public Trigger() {
+    }
 
     public Trigger(TriggerType mainhand, TriggerType offhand, Circumstance circumstance, TriggerType dualWieldMainHand, TriggerType dualWieldOffHand) {
         this.mainhand = mainhand;
@@ -112,7 +113,7 @@ public class Trigger implements Serializer<Trigger> {
         if (isDisabled(dualMain)) throw data.exception("Dual_Wield.Main_Hand", "Tried to use trigger which is disabled in config.yml");
         if (isDisabled(dualOff)) throw data.exception("Dual_Wield.Off_Hand", "Tried to use trigger which is disabled in config.yml");
 
-        Circumstance circumstance = data.of("Circumstance").serializeNonStandardSerializer(new Circumstance());
+        Circumstance circumstance = data.of("Circumstance").serialize(Circumstance.class);
 
         // Check to make sure the gun denies swapping hands, otherwise this
         // won't work.

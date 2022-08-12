@@ -15,7 +15,11 @@ public class Circumstance implements Serializer<Circumstance> {
 
     private List<CircumstanceData> circumstances;
 
-    public Circumstance() {}
+    /**
+     * Default constructor for serializer
+     */
+    public Circumstance() {
+    }
 
     public Circumstance(List<CircumstanceData> circumstances) {
         this.circumstances = circumstances;

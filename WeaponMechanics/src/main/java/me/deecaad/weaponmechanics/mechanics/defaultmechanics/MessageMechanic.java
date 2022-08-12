@@ -75,6 +75,12 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
     }
 
     @Override
+    public boolean shouldSerialize(SerializeData data) {
+        // Let Mechanics handle auto serializer stuff
+        return false;
+    }
+
+    @Override
     public boolean requirePlayer() {
         return !sendWorld && !sendServer;
     }

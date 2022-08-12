@@ -22,9 +22,10 @@ public class DualWield implements Serializer<DualWield> {
     private Mechanics mechanics;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public DualWield() { }
+    public DualWield() {
+    }
 
     public DualWield(boolean whitelist, Set<String> weapons, Mechanics mechanics) {
         this.whitelist = whitelist;

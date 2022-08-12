@@ -54,9 +54,10 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     private String dualWieldOffBossBar;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public WeaponInfoDisplay() { }
+    public WeaponInfoDisplay() {
+    }
 
     public WeaponInfoDisplay(String actionBar, String bossBar, BossBar.Color barColor, BossBar.Overlay barStyle,
                              boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress,
@@ -277,7 +278,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                         ReflectionUtil.newInstance(packetPlayOutExperienceConstructor, showAmmoInExpProgress
                                         ? (float) (magazineProgress != -1 ? magazineProgress : getMagazineProgress(useStack, useWeapon))
                                         : player.getExp(),
-                                player.getTotalExperience(), // todo THIS IS PROBABLY WRONG? CHECK THIS
+                                player.getTotalExperience(),
                                 showAmmoInExpLevel ? getAmmoLeft(useStack, useWeapon) : player.getLevel()));
                 messageHelper.setExpTask(new BukkitRunnable() {
                     public void run() {

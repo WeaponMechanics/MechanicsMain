@@ -72,6 +72,12 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
     }
 
     @Override
+    public boolean shouldSerialize(SerializeData data) {
+        // Let Mechanics handle auto serializer stuff
+        return false;
+    }
+
+    @Override
     @Nonnull
     public FireworkMechanic serialize(SerializeData data) throws SerializerException {
         ItemStack fireworkItem = data.of("Item").assertExists().serializeNonStandardSerializer(new ItemSerializer());

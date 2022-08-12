@@ -58,11 +58,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
     /**
      * Empty constructor to be used as serializer
      */
-    public ItemSerializer() {}
-
-    @Override
-    public String getKeyword() {
-        return "Item";
+    public ItemSerializer() {
     }
 
     @Override

@@ -114,6 +114,12 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
     }
 
     @Override
+    public boolean shouldSerialize(SerializeData data) {
+        // Let Mechanics handle the auto serializer
+        return false;
+    }
+
+    @Override
     @Nonnull
     public SoundMechanic serialize(SerializeData data) throws SerializerException {
 

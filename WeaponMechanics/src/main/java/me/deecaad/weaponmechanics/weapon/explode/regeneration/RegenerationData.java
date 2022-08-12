@@ -49,11 +49,6 @@ public class RegenerationData implements Serializer<RegenerationData> {
     }
 
     @Override
-    public String getKeyword() {
-        return "Regeneration";
-    }
-
-    @Override
     @Nonnull
     public RegenerationData serialize(SerializeData data) throws SerializerException {
         int ticksBeforeStart = data.of("Ticks_Before_Start").assertPositive().getInt(1200); // 1 minute, in ticks

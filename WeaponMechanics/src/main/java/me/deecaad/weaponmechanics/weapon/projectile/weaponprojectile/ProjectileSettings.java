@@ -35,7 +35,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     /**
      * Empty constructor to be used as serializer
      */
-    public ProjectileSettings() { }
+    public ProjectileSettings() {
+    }
 
     public ProjectileSettings(EntityType projectileDisguise, Object disguiseData, double gravity,
                               boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
