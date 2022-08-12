@@ -78,6 +78,7 @@ rocket_launcher:
         Base: 0.99
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
+      Size: 0.5
 
 assault_rifle:
   Projectile:

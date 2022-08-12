@@ -3,6 +3,7 @@ package me.deecaad.core.file;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.File;
+import java.util.List;
 
 public interface IValidator {
 
@@ -14,6 +15,15 @@ public interface IValidator {
      * @return keyword of this validator used in configurations
      */
     String getKeyword();
+
+    /**
+     * This validator is only used if the path {weapon title}.{getAllowedPaths()} matches fully.
+     *
+     * @return The nullable allowed paths
+     */
+    default List<String> getAllowedPaths() {
+        return null;
+    }
 
     /**
      * This is used to validate configurations which can't be used as serializers.

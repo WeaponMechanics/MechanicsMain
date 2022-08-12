@@ -31,6 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.vivecraft.VSE;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
@@ -321,6 +322,10 @@ public class ScopeHandler implements IValidator {
     @Override
     public String getKeyword() {
         return "Scope";
+    }
+
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Scope");
     }
 
     @Override

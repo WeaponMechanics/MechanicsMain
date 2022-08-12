@@ -50,6 +50,7 @@ import org.vivecraft.VSE;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
@@ -733,6 +734,11 @@ public class ShootHandler implements IValidator {
     @Override
     public String getKeyword() {
         return "Shoot";
+    }
+
+    @Override
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Shoot");
     }
 
     @Override
