@@ -128,6 +128,8 @@ public class v1_16_R3 implements IWeaponCompatibility {
 
         EntityLiving nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.trackDamage(damageSource, (float) damage, (float) health);
+        nms.setLastDamager(((CraftLivingEntity) source).getHandle());
+        if (source instanceof Player) nms.e(((CraftPlayer) source).getHandle());
     }
 
     @Override

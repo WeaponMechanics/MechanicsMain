@@ -83,6 +83,8 @@ public class v1_17_R1 implements IWeaponCompatibility {
 
         net.minecraft.world.entity.LivingEntity nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.recordDamage(damageSource, (float) damage, (float) health);
+        nms.setLastHurtByMob(((CraftLivingEntity) source).getHandle());
+        if (source instanceof Player) nms.setLastHurtByPlayer(((CraftPlayer) source).getHandle());
     }
 
     @Override
