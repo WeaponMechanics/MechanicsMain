@@ -37,6 +37,10 @@ public class SkinList implements Serializer<SkinList> {
         this.map = map;
     }
 
+    public Set<String> getSkins() {
+        return map.keySet();
+    }
+
     public Skin getSkin(@Nullable String skin, @Nullable SkinIdentifier id) {
         if (skin == null) {
             skin = "Default";
