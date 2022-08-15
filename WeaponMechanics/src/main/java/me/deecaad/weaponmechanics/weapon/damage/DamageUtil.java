@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
+import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -181,7 +182,8 @@ public class DamageUtil {
         // Calculate the amount of damage to absorption hearts, and
         // determine how much damage is left over to deal to the victim
         double absorption = CompatibilityAPI.getEntityCompatibility().getAbsorption(victim);
-        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, Math.max(0, absorption - damage));
+        double absorbed = Math.max(0, absorption - damage);
+        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, absorbed);
         damage = Math.max(damage - absorption, 0);
 
         double oldHealth = victim.getHealth();
@@ -200,6 +202,26 @@ public class DamageUtil {
         victim.setLastDamageCause(entityDamageByEntityEvent);
 
         victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        boolean killed = victim.isDead() || victim.getHealth() <= 0.0;
+
+        // Statistics
+        if (victim instanceof Player) {
+            Player player = (Player) victim;
+            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
+            if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
+            if (killed) player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
+        }
+        if (cause instanceof Player) {
+            Player player = (Player) cause;
+            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
+            if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
+            if (killed) {
+                player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
+                if (victim.getType() == EntityType.PLAYER) player.incrementStatistic(Statistic.PLAYER_KILLS);
+                else player.incrementStatistic(Statistic.MOB_KILLS);
+            }
+        }
+
         return false;
     }
     
