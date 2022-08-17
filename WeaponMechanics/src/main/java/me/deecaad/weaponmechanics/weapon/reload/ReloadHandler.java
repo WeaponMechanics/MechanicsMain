@@ -1,11 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
 import co.aikar.timings.lib.MCTiming;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -26,18 +23,17 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ReloadHandler implements IValidator {
 
@@ -157,8 +153,8 @@ public class ReloadHandler implements IValidator {
             tempAmmoToAdd = tempMagazineSize - ammoLeft;
         }
 
-        WeaponInfoDisplay weaponInfoDisplay = shooter.getType() != EntityType.PLAYER ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        PlayerWrapper playerWrapper = weaponInfoDisplay == null ? null : (PlayerWrapper) entityWrapper;
+        PlayerWrapper playerWrapper = shooter.getType() != EntityType.PLAYER ? null : (PlayerWrapper) entityWrapper;
+        WeaponInfoDisplay weaponInfoDisplay = playerWrapper == null ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
 
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
         FirearmState state = null;

@@ -5,7 +5,6 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -35,7 +34,6 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -45,11 +43,9 @@ import org.bukkit.inventory.MainHand;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.vivecraft.VSE;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -455,8 +451,8 @@ public class ShootHandler implements IValidator {
 
         boolean mainhand = slot == EquipmentSlot.HAND;
         LivingEntity shooter = entityWrapper.getEntity();
-        WeaponInfoDisplay weaponInfoDisplay = shooter.getType() != EntityType.PLAYER ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        PlayerWrapper playerWrapper = weaponInfoDisplay == null ? null : (PlayerWrapper) entityWrapper;
+        PlayerWrapper playerWrapper = shooter.getType() != EntityType.PLAYER ? null : (PlayerWrapper) entityWrapper;
+        WeaponInfoDisplay weaponInfoDisplay = playerWrapper == null ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
 
         // Initiate CLOSE task
         BukkitRunnable closeRunnable = new BukkitRunnable() {
