@@ -95,16 +95,12 @@ public class WeaponMechanicsCommand {
     public static String WIKI = "https://github.com/WeaponMechanics/MechanicsMain/wiki";
     public static char SYM = '\u27A2';
 
-    public static Function<CommandData, Tooltip[]> WEAPON_SUGGESTIONS;
+    public static Function<CommandData, Tooltip[]> WEAPON_SUGGESTIONS = (data) -> {
+        InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
+        return info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new);
+    };
 
     public static void build() {
-
-        if (WEAPON_SUGGESTIONS == null) {
-            WEAPON_SUGGESTIONS = (data) -> {
-                InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-                return info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new);
-            };
-        }
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 
