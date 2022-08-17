@@ -588,11 +588,6 @@ public class ShootHandler implements IValidator {
         Configuration config = getConfigurations();
         LivingEntity livingEntity = entityWrapper.getEntity();
 
-        if (!isMelee) {
-            HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-            handData.setLastShotTime(System.currentTimeMillis());
-        }
-
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
         if (shootMechanics != null) shootMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
@@ -643,6 +638,12 @@ public class ShootHandler implements IValidator {
 
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
         Bukkit.getPluginManager().callEvent(event);
+
+        // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
+        if (!isMelee) {
+            HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+            handData.setLastShotTime(System.currentTimeMillis());
+        }
     }
 
     /**
