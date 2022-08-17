@@ -259,7 +259,10 @@ public class InfoHandler implements IValidator {
         } else
             return false;
 
-        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Mechanics", new CastData(WeaponMechanics.getEntityWrapper(entity), weaponTitle, weaponStack));
+
+        Mechanics weaponGetMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Get_Mechanics", Mechanics.class);
+        if (weaponGetMechanics != null) weaponGetMechanics.use(new CastData(WeaponMechanics.getEntityWrapper(entity), weaponTitle, weaponStack));
+
         return true;
     }
 
