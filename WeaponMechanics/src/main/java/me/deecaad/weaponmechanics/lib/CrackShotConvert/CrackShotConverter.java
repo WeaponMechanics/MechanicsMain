@@ -168,7 +168,6 @@ public class CrackShotConverter {
         // EXPLOSIONS
         EXPLOSIONS("Explosions.", "Explosion.", new ExplosionConvert()),
         IGNITE_VICTIMS("Explosions.Ignite_Victims", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
-        ENABLE_FRIENDLY_FIRE("Explosions.Enable_Friendly_Fire", "Damage.Enable_Friendly_Fire"),
         ENABLE_OWNER_IMMUNITY("Explosions.Enable_Owner_Immunity", "Damage.Enable_Owner_Immunity"),
         EXPLOSION_NO_DAMAGE("Explosions.Explosion_No_Damage", "Damage.Base_Explosion_Damage", new ValueBooleanConvert(0, null)),
         EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Victim_Mechanics.Potion_Effects", new PotionEffectConvert()),

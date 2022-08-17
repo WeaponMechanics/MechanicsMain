@@ -24,10 +24,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
+
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
@@ -304,33 +307,31 @@ public class DamageUtil {
      * @param victim the victim
      * @return true only if cause can harm victim
      */
-    public static boolean canHarm(LivingEntity cause, LivingEntity victim) {
-        
-        boolean allowDamaging = true;
-        
-        // Check for MC own scoreboard teams
-        if (cause instanceof Player && victim instanceof Player) {
-            Scoreboard shooterScoreboard = ((Player) cause).getScoreboard();
-            
-            if (shooterScoreboard != null) {
-                Player victimPlayer = (Player) victim;
-                
-                // Iterate through shooter's teams
-                for (Team team : shooterScoreboard.getTeams()) {
-                    if (!team.getEntries().contains(victimPlayer.getName()) || team.allowFriendlyFire()) {
-                        // Not in the same team
-                        // OR
-                        // Team allows damaging teammates
-                        continue;
-                    }
-                    // Else damaging is not allowed -> allowDamaging false
-                    allowDamaging = false;
-                    break;
-                }
+    public static boolean canHarmScoreboardTeams(LivingEntity cause, LivingEntity victim) {
+
+        // Only check scoreboard teams for players
+        if (cause.getType() != EntityType.PLAYER || victim.getType() != EntityType.PLAYER) return true;
+
+        Scoreboard shooterScoreboard = ((Player) cause).getScoreboard();
+        if (shooterScoreboard == null) return true;
+
+        Set<Team> teams = shooterScoreboard.getTeams();
+        if (teams == null || teams.isEmpty()) return true;
+
+        for (Team team : teams) {
+
+            // If not in same team -> continue
+            if (!team.getEntries().contains(victim.getName())) continue;
+
+            // Now we know they're in same team.
+            // -> If friendly is not enabled
+            // --> they can't harm each other
+            if (!team.allowFriendlyFire()) {
+                // This approach only checks first same team WHERE friendly fire is enabled
+                return false;
             }
         }
-        
-        // False only if teams did not allow damaging
-        return allowDamaging;
+
+        return true;
     }
 }
