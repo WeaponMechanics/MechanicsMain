@@ -275,7 +275,7 @@ public class ShootHandler implements IValidator {
 
         shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, isMelee);
 
-        if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack)) {
+        if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
             return true;
         }
 
@@ -330,9 +330,7 @@ public class ShootHandler implements IValidator {
                 // Only make the first projectile of burst modify spread change if its used
                 shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, shots == 0, false);
 
-                if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
-                    handData.setBurstTask(0);
-                    cancel();
+                if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                     return;
                 }
 
@@ -420,17 +418,13 @@ public class ShootHandler implements IValidator {
 
                 if (shootAmount == 1) {
                     shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
-                    if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
-                        handData.setFullAutoTask(0);
-                        cancel();
+                    if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                         return;
                     }
                 } else if (shootAmount > 1) { // Don't try to shoot in this tick if shoot amount is 0
                     for (int i = 0; i < shootAmount; ++i) {
                         shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
-                        if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
-                            handData.setFullAutoTask(0);
-                            cancel();
+                        if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                             return;
                         }
                     }
@@ -679,15 +673,22 @@ public class ShootHandler implements IValidator {
     }
 
     /**
-     * Simply removes one from the amount of weapon stack
+     * Removes one from the amount of weapon stack.
+     * If stack is now empty also cancels all hand tasks.
      *
      * @param weaponStack the weapon stack
      * @return true if weapon stack amount is now 0
      */
-    public boolean handleConsumeItemOnShoot(ItemStack weaponStack) {
+    public boolean handleConsumeItemOnShoot(ItemStack weaponStack, HandData handData) {
         int amount = weaponStack.getAmount() - 1;
         weaponStack.setAmount(amount);
-        return amount <= 0;
+
+        if (amount <= 0) {
+            handData.cancelTasks();
+            return true;
+        }
+
+        return false;
     }
 
     /**
