@@ -353,6 +353,8 @@ public class ShootHandler implements IValidator {
         Configuration config = getConfigurations();
         int fullyAutomaticShotsPerSecond = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second");
 
+        Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
+
         // Not used
         if (fullyAutomaticShotsPerSecond == 0) return false;
 
@@ -376,7 +378,7 @@ public class ShootHandler implements IValidator {
 
                 int ammoLeft = reloadHandler.getAmmoLeft(taskReference, weaponTitle);
 
-                if (!keepFullAutoOn(entityWrapper, triggerType)) {
+                if (!keepFullAutoOn(entityWrapper, triggerType, trigger)) {
                     handData.setFullAutoTask(0);
                     cancel();
 
@@ -534,7 +536,12 @@ public class ShootHandler implements IValidator {
     /**
      * Checks whether to keep full auto on with given trigger
      */
-    private boolean keepFullAutoOn(EntityWrapper entityWrapper, TriggerType triggerType) {
+    private boolean keepFullAutoOn(EntityWrapper entityWrapper, TriggerType triggerType, Trigger trigger) {
+
+        if (!trigger.checkCircumstances(entityWrapper)) {
+            return false;
+        }
+
         switch (triggerType) {
             case START_SNEAK:
                 return entityWrapper.isSneaking();
