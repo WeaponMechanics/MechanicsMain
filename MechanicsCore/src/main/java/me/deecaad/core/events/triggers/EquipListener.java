@@ -87,14 +87,9 @@ public class EquipListener implements Listener {
         // Swapping items doesn't cause any changes in the inventory, so it is
         // not covered by the player injection system.
         if (!(isEmpty(inv.getItem(e.getNewSlot())) && isEmpty(inv.getItem(e.getPreviousSlot())))) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ItemStack old = inv.getItem(e.getPreviousSlot());
-                    ItemStack current = inv.getItem(e.getNewSlot());
-                    Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.HAND, old, current));
-                }
-            }.runTask(MechanicsCore.getPlugin());
+            ItemStack old = inv.getItem(e.getPreviousSlot());
+            ItemStack current = inv.getItem(e.getNewSlot());
+            Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.HAND, old, current));
         }
     }
 
