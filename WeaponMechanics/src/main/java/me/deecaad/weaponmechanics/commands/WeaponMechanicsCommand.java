@@ -10,6 +10,7 @@ import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
 import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.TaskChain;
@@ -236,6 +237,15 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("gravity", new BooleanArgumentType(), true).withDesc("Should the entity be effected by gravity"))
                         .withArgument(new Argument<>("name", new GreedyArgumentType(), null).withDesc("What is the entity's custom name"))
                         .executes(CommandExecutor.player((sender, args) -> spawn(sender, (Location) args[1], (EntityType) args[0], (String) args[2], (int) args[3], (boolean) args[4], (String) args[5]))))
+
+                .withSubcommand(new CommandBuilder("meta")
+                        .withPermission("weaponmechanics.commands.test.meta")
+                        .withArgument(new Argument<>("targets", new EntityListArgumentType()).withDesc("Which entities to change"))
+                        .withArgument(new Argument<>("flag", new EnumArgumentType<>(EntityCompatibility.EntityMeta.class)).withDesc("Which flag to set"))
+                        .withArgument(new Argument<>("time", new TimeArgumentType()).withDesc("How long to show"))
+                        .executes(CommandExecutor.player((sender, args) -> {
+                            meta(sender, (List<Entity>) args[0], (EntityCompatibility.EntityMeta) args[1], (int) args[2]);
+                        })))
 
                 .withSubcommand(new CommandBuilder("firework")
                         .withPermission("weaponmechanics.commands.test.firework")
@@ -621,6 +631,30 @@ public class WeaponMechanicsCommand {
                 }
             }
         }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
+    }
+
+    public static void meta(Player sender, List<Entity> targets, EntityCompatibility.EntityMeta flag, int ticks) {
+        EntityCompatibility compatibility = CompatibilityAPI.getEntityCompatibility();
+
+        sender.sendMessage(GREEN + "Making " + targets.size() + " targets " + flag);
+
+        for (Entity entity : targets) {
+            Object packet = compatibility.generateMetaPacket(entity);
+            compatibility.modifyMetaPacket(packet, flag, true);
+
+            CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                sender.sendMessage(GREEN + "Resetting META...");
+                for (Entity entity : targets) {
+                    Object packet = compatibility.generateMetaPacket(entity);
+                    CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
+                }
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), ticks);
     }
 
     public static void hitbox(CommandSender sender, List<Entity> targets, int ticks) {

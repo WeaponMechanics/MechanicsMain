@@ -3,7 +3,9 @@ package me.deecaad.core.compatibility.entity;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -14,10 +16,25 @@ import java.util.List;
 
 public interface EntityCompatibility {
 
+    /**
+     * Returns <code>true</code> if the player has that material on ender
+     * pearl cool-down.
+     *
+     * @param player   The non-null player to check.
+     * @param material The non-null material to check.
+     * @return true if the material is on cool-down.
+     */
     default boolean hasCooldown(Player player, Material material) {
         return player.hasCooldown(material);
     }
 
+    /**
+     * Sets the material's cooldown in ticks.
+     *
+     * @param player   The non-null player to have the cool-down.
+     * @param material The non-null material to be on cool-down.
+     * @param ticks    The time, in ticks, to show the effect.
+     */
     default void setCooldown(Player player, Material material, int ticks) {
         player.setCooldown(material, ticks);
     }
@@ -42,17 +59,80 @@ public interface EntityCompatibility {
         entity.setAbsorptionAmount(absorption);
     }
 
+    /**
+     * Generates an NMS non-null-list (used by the player's inventory). This is
+     * used internally for the {@link me.deecaad.core.events.EntityEquipmentEvent},
+     * and should probably not be used by anything else.
+     *
+     * @param size     The size of the list.
+     * @param consumer The action to execute every item add.
+     * @return The fixed size list.
+     */
     List<Object> generateNonNullList(int size, TriIntConsumer<ItemStack, ItemStack> consumer);
 
+    /**
+     * Generates a {@link FakeEntity} with the given entity type as a disguise.
+     *
+     * @param location The non-null starting location of the entity.
+     * @param type     The non-null type of the entity.
+     * @param data     The nullable extra data for item/fallingblock/armorstand.
+     * @return The fake entity.
+     */
     FakeEntity generateFakeEntity(Location location, EntityType type, Object data);
 
+    /**
+     * Shorthand for {@link #generateFakeEntity(Location, EntityType, Object)}.
+     * Generates a {@link org.bukkit.entity.Item}.
+     *
+     * @param location The non-null starting location of the entity.
+     * @param item     The non-null item to show.
+     * @return The fake entity.
+     */
     default FakeEntity generateFakeEntity(Location location, ItemStack item) {
         return generateFakeEntity(location, EntityType.DROPPED_ITEM, item);
     }
 
+    /**
+     * Shorthand for {@link #generateFakeEntity(Location, EntityType, Object)}.
+     * Generates a {@link org.bukkit.entity.FallingBlock}.
+     *
+     * @param location The non-null starting location of the entity.
+     * @param block    The non-null block state to show.
+     * @return The fake entity.
+     */
     default FakeEntity generateFakeEntity(Location location, BlockState block) {
         return generateFakeEntity(location, EntityType.FALLING_BLOCK, block);
     }
+
+    /**
+     * Gets the id of the entity from the metadata packet. This can be used to
+     * get the bukkit {@link Entity} using
+     * {@link me.deecaad.core.compatibility.ICompatibility#getEntityById(World, int)}.
+     *
+     * @param obj The entity metadata packet.
+     * @return The entity's id.
+     */
+    int getId(Object obj);
+
+    /**
+     * Creates a metadata packet for the entity, force updating all metadata.
+     * This can be modified by
+     * {@link #modifyMetaPacket(Object, EntityMeta, boolean)} to make the
+     * entity invisible, glow, etc.
+     *
+     * @param entity The non-null entity.
+     * @return The non-null packet.
+     */
+    Object generateMetaPacket(Entity entity);
+
+    /**
+     * Sets the given entity metadata flag to true/false.
+     *
+     * @param obj     The metadata packet from {@link #generateMetaPacket(Entity)}/
+     * @param meta    The meta flag you want to change.
+     * @param enabled true/false.
+     */
+    void modifyMetaPacket(Object obj, EntityMeta meta, boolean enabled);
 
     /**
      * This enum outlines the different flags and their byte location for

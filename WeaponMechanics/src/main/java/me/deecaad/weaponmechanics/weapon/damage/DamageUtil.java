@@ -277,7 +277,6 @@ public class DamageUtil {
         if (armor == null || "AIR".equals(armor.getType().name()))
             return null;
 
-
         if (armor.hasItemMeta()) {
             int level = armor.getItemMeta().getEnchantLevel(Enchantment.DURABILITY);
             boolean damages = NumberUtil.chance(0.6 + 0.4 / (level + 1));
@@ -289,7 +288,7 @@ public class DamageUtil {
         if (ReflectionUtil.getMCVersion() >= 13) {
             if (armor.getItemMeta() instanceof Damageable) {
                 Damageable meta = (Damageable) armor.getItemMeta();
-                meta.setDamage(meta.getDamage() + amount);
+                meta.setDamage(Math.min(meta.getDamage() + amount, armor.getType().getMaxDurability()));
                 armor.setItemMeta(meta);
             }
         } else {
