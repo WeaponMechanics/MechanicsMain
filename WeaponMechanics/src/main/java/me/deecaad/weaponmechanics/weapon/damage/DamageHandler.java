@@ -48,8 +48,7 @@ public class DamageHandler {
                           LivingEntity shooter, String weaponTitle, ItemStack weaponStack, double distanceTravelled) {
         Configuration config = getConfigurations();
 
-        boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
-        if (!isFriendlyFire && !DamageUtil.canHarm(shooter, victim)) {
+        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim)) {
             return false;
         }
 

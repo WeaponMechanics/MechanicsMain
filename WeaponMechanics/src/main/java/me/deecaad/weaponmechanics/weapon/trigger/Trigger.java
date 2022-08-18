@@ -73,6 +73,14 @@ public class Trigger implements Serializer<Trigger> {
 
         if (typeCheck == null || typeCheck != triggerType) return false;
 
+        return checkCircumstances(entityWrapper);
+    }
+
+    /**
+     * @param entityWrapper the entity's wrapper from whom to check
+     * @return true if circumstances are valid
+     */
+    public boolean checkCircumstances(EntityWrapper entityWrapper) {
         return circumstance == null || !circumstance.deny(entityWrapper);
     }
 

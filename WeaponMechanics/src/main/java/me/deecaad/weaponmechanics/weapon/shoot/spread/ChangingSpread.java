@@ -110,7 +110,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
          */
         public boolean checkBounds(HandData handData, double startingAmount) {
             double currentSpreadChange = handData.getSpreadChange();
-            if (min != 0.0 && currentSpreadChange < min) {
+            if (min != 0.0 && currentSpreadChange <= min) {
                 if (resetAfterReachingBound) {
                     handData.setSpreadChange(startingAmount);
                     return true;

@@ -5,7 +5,6 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -35,7 +34,6 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -45,11 +43,9 @@ import org.bukkit.inventory.MainHand;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.vivecraft.VSE;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -275,7 +271,7 @@ public class ShootHandler implements IValidator {
 
         shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, isMelee);
 
-        if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack)) {
+        if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
             return true;
         }
 
@@ -330,9 +326,7 @@ public class ShootHandler implements IValidator {
                 // Only make the first projectile of burst modify spread change if its used
                 shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, shots == 0, false);
 
-                if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
-                    handData.setBurstTask(0);
-                    cancel();
+                if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                     return;
                 }
 
@@ -354,6 +348,8 @@ public class ShootHandler implements IValidator {
     private boolean fullAutoShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
         int fullyAutomaticShotsPerSecond = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second");
+
+        Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
 
         // Not used
         if (fullyAutomaticShotsPerSecond == 0) return false;
@@ -378,7 +374,7 @@ public class ShootHandler implements IValidator {
 
                 int ammoLeft = reloadHandler.getAmmoLeft(taskReference, weaponTitle);
 
-                if (!keepFullAutoOn(entityWrapper, triggerType)) {
+                if (!keepFullAutoOn(entityWrapper, triggerType, trigger)) {
                     handData.setFullAutoTask(0);
                     cancel();
 
@@ -420,17 +416,13 @@ public class ShootHandler implements IValidator {
 
                 if (shootAmount == 1) {
                     shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
-                    if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
-                        handData.setFullAutoTask(0);
-                        cancel();
+                    if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                         return;
                     }
                 } else if (shootAmount > 1) { // Don't try to shoot in this tick if shoot amount is 0
                     for (int i = 0; i < shootAmount; ++i) {
                         shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
-                        if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference)) {
-                            handData.setFullAutoTask(0);
-                            cancel();
+                        if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                             return;
                         }
                     }
@@ -459,8 +451,8 @@ public class ShootHandler implements IValidator {
 
         boolean mainhand = slot == EquipmentSlot.HAND;
         LivingEntity shooter = entityWrapper.getEntity();
-        WeaponInfoDisplay weaponInfoDisplay = shooter.getType() != EntityType.PLAYER ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        PlayerWrapper playerWrapper = weaponInfoDisplay == null ? null : (PlayerWrapper) entityWrapper;
+        PlayerWrapper playerWrapper = shooter.getType() != EntityType.PLAYER ? null : (PlayerWrapper) entityWrapper;
+        WeaponInfoDisplay weaponInfoDisplay = playerWrapper == null ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
 
         // Initiate CLOSE task
         BukkitRunnable closeRunnable = new BukkitRunnable() {
@@ -540,7 +532,12 @@ public class ShootHandler implements IValidator {
     /**
      * Checks whether to keep full auto on with given trigger
      */
-    private boolean keepFullAutoOn(EntityWrapper entityWrapper, TriggerType triggerType) {
+    private boolean keepFullAutoOn(EntityWrapper entityWrapper, TriggerType triggerType, Trigger trigger) {
+
+        if (!trigger.checkCircumstances(entityWrapper)) {
+            return false;
+        }
+
         switch (triggerType) {
             case START_SNEAK:
                 return entityWrapper.isSneaking();
@@ -586,11 +583,6 @@ public class ShootHandler implements IValidator {
     public void shoot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange, boolean isMelee) {
         Configuration config = getConfigurations();
         LivingEntity livingEntity = entityWrapper.getEntity();
-
-        if (!isMelee) {
-            HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-            handData.setLastShotTime(System.currentTimeMillis());
-        }
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
         if (shootMechanics != null) shootMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
@@ -642,6 +634,12 @@ public class ShootHandler implements IValidator {
 
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
         Bukkit.getPluginManager().callEvent(event);
+
+        // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
+        if (!isMelee) {
+            HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+            handData.setLastShotTime(System.currentTimeMillis());
+        }
     }
 
     /**
@@ -679,15 +677,22 @@ public class ShootHandler implements IValidator {
     }
 
     /**
-     * Simply removes one from the amount of weapon stack
+     * Removes one from the amount of weapon stack.
+     * If stack is now empty also cancels all hand tasks.
      *
      * @param weaponStack the weapon stack
      * @return true if weapon stack amount is now 0
      */
-    public boolean handleConsumeItemOnShoot(ItemStack weaponStack) {
+    public boolean handleConsumeItemOnShoot(ItemStack weaponStack, HandData handData) {
         int amount = weaponStack.getAmount() - 1;
         weaponStack.setAmount(amount);
-        return amount <= 0;
+
+        if (amount <= 0) {
+            handData.cancelTasks();
+            return true;
+        }
+
+        return false;
     }
 
     /**

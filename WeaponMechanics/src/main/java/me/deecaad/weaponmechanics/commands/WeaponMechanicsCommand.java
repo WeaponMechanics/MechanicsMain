@@ -102,6 +102,7 @@ public class WeaponMechanicsCommand {
     };
 
     public static void build() {
+
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 
         MapArgumentType weaponDataMap = new MapArgumentType()
