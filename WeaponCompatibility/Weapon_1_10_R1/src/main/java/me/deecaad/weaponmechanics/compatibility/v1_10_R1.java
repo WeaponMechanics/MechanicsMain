@@ -23,6 +23,7 @@ import org.bukkit.entity.ComplexLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -67,8 +68,8 @@ public class v1_10_R1 implements IWeaponCompatibility {
     public HitBox getHitBox(org.bukkit.entity.Entity entity) {
         if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
 
-        AxisAlignedBB aabb = ((CraftEntity) entity).getHandle().getBoundingBox();
-        HitBox hitBox = new HitBox(aabb.a, aabb.b, aabb.c, aabb.d, aabb.e, aabb.f);
+        HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
+                .grow(getWidth(entity), getHeight(entity));
         hitBox.setLivingEntity((LivingEntity) entity);
 
         if (entity instanceof ComplexLivingEntity && WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
@@ -81,8 +82,17 @@ public class v1_10_R1 implements IWeaponCompatibility {
     }
 
     @Override
-    public HitBox getHitBox(org.bukkit.block.Block block) {
-        if (block.isEmpty() || block.isLiquid()) return null;
+    public HitBox getHitBox(org.bukkit.block.Block block, boolean allowLiquid) {
+        if (block.isEmpty()) return null;
+
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid && isLiquid) return null;
+
+        if (isLiquid) {
+            HitBox hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+            hitBox.setBlockHitBox(block);
+            return hitBox;
+        }
 
         WorldServer worldServer = ((CraftWorld) block.getWorld()).getHandle();
         BlockPosition blockPosition = new BlockPosition(block.getX(), block.getY(), block.getZ());
@@ -114,6 +124,12 @@ public class v1_10_R1 implements IWeaponCompatibility {
     }
 
     @Override
+    public Vector getLastLocation(Entity entity) {
+        net.minecraft.server.v1_10_R1.Entity nms = ((CraftEntity) entity).getHandle();
+        return new Vector(nms.lastX, nms.lastY, nms.lastZ);
+    }
+
+    @Override
     public void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute) {
         pitch *= -1;
         ((CraftPlayer) player).getHandle().playerConnection.
@@ -136,6 +152,7 @@ public class v1_10_R1 implements IWeaponCompatibility {
 
         EntityLiving nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.trackDamage(damageSource, (float) damage, (float) health);
+        nms.a(((CraftLivingEntity) source).getHandle());
     }
 
     @Override

@@ -10,8 +10,13 @@ import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Player;
+import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.potion.PotionEffectType;
+
+import java.lang.reflect.Method;
 
 public class Scope_1_19_R1 implements IScopeCompatibility {
 
@@ -25,10 +30,26 @@ public class Scope_1_19_R1 implements IScopeCompatibility {
         }
     }
 
+    private final boolean is1_19;
+    private Method abilitiesMethod;
+
+    public Scope_1_19_R1() {
+        is1_19 = !Bukkit.getServer().getVersion().contains("1.19.1");
+        if (is1_19) {
+            abilitiesMethod = ReflectionUtil.getMethod(Player.class, "fC");
+        }
+    }
+
     @Override
     public void updateAbilities(org.bukkit.entity.Player player) {
         ServerPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-        entityPlayer.connection.send(new ClientboundPlayerAbilitiesPacket(entityPlayer.getAbilities()));
+
+        // In 1.19, the method is `fC()`. In 1.19.1 it is `fB()`. Due to how paper
+        // remaps the method, we cannot support both at the same time. Since we
+        // are using 1.19.1 as the remapper, we have to use reflection in 1.19
+        Abilities abilities = is1_19 ? (Abilities) ReflectionUtil.invokeMethod(abilitiesMethod, entityPlayer) : entityPlayer.getAbilities();
+
+        entityPlayer.connection.send(new ClientboundPlayerAbilitiesPacket(abilities));
     }
 
     @Override

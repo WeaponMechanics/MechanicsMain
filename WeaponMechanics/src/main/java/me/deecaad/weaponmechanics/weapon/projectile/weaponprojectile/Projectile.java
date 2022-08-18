@@ -32,7 +32,8 @@ public class Projectile implements Serializer<Projectile> {
     /**
      * Empty constructor to be used as serializer
      */
-    public Projectile() { }
+    public Projectile() {
+    }
 
     public Projectile(ProjectileSettings projectileSettings, Sticky sticky, Through through, Bouncy bouncy, Mechanics mechanics) {
         this.projectileSettings = projectileSettings;

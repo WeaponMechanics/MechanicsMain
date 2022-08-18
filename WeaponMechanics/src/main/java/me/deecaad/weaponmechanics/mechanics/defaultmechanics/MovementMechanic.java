@@ -6,17 +6,22 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.IMechanic;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.weapon.trigger.Circumstance;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 public class MovementMechanic implements IMechanic<MovementMechanic> {
 
     private double movementSpeed;
     private boolean towardsTarget;
     private double verticalSpeed;
+    private Circumstance circumstance;
 
     /**
      * Empty constructor to be used as serializer
@@ -26,14 +31,17 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
         Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
     }
 
-    public MovementMechanic(double movementSpeed, boolean towardsTarget, double verticalSpeed) {
+    public MovementMechanic(double movementSpeed, boolean towardsTarget, double verticalSpeed, Circumstance circumstance) {
         this.movementSpeed = movementSpeed;
         this.towardsTarget = towardsTarget;
         this.verticalSpeed = verticalSpeed;
+        this.circumstance = circumstance;
     }
 
     @Override
     public void use(CastData castData) {
+
+        if (circumstance != null && circumstance.deny(castData.getCasterWrapper())) return;
 
         LivingEntity livingEntity = castData.getCaster();
         Vector direction;
@@ -56,9 +64,9 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
 
         // These are normalized at this point
         if (verticalSpeed != -25) {
-            livingEntity.setVelocity(direction.multiply(movementSpeed).setY(verticalSpeed));
+            livingEntity.setVelocity(livingEntity.getVelocity().add(direction.multiply(movementSpeed).setY(verticalSpeed)));
         } else {
-            livingEntity.setVelocity(direction.multiply(movementSpeed));
+            livingEntity.setVelocity(livingEntity.getVelocity().add(direction.multiply(movementSpeed)));
         }
     }
 
@@ -73,6 +81,12 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
     }
 
     @Override
+    public boolean shouldSerialize(SerializeData data) {
+        // Let Mechanics handle auto serializer stuff
+        return false;
+    }
+
+    @Override
     @Nonnull
     public MovementMechanic serialize(SerializeData data) throws SerializerException {
         double movementSpeed = data.of("Movement_Speed").assertExists().getDouble();
@@ -83,6 +97,8 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
         movementSpeed /= 20.0;
         verticalSpeed /= 20.0;
 
-        return new MovementMechanic(movementSpeed, towardsTarget, verticalSpeed);
+        Circumstance circumstance = data.of("Circumstance").serialize(Circumstance.class);
+
+        return new MovementMechanic(movementSpeed, towardsTarget, verticalSpeed, circumstance);
     }
 }

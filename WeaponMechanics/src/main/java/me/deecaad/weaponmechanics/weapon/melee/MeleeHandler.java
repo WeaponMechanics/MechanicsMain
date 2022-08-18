@@ -4,6 +4,8 @@ import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
@@ -17,8 +19,10 @@ import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponMeleeMissEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -31,6 +35,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
@@ -42,7 +47,11 @@ public class MeleeHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
-    public MeleeHandler() {}
+    /**
+     * Default constructor for validator
+     */
+    public MeleeHandler() {
+    }
 
     public MeleeHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -97,12 +106,6 @@ public class MeleeHandler implements IValidator {
         if (hit != null) {
             boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
             if (result) {
-                if (meleeHitDelay != 0) {
-                    handData.setLastMeleeTime(System.currentTimeMillis());
-                    if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Hit_Delay") && shooter.getType() == EntityType.PLAYER) {
-                        CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeHitDelay / 50);
-                    }
-                }
                 hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack);
             }
             return result;
@@ -112,41 +115,34 @@ public class MeleeHandler implements IValidator {
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(shooter, weaponTitle);
         String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
 
-        // Handle miss
-        if (getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss")) {
-            if (!hasPermission) {
-                if (shooter.getType() == EntityType.PLAYER) {
-                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
-                }
-                return false;
+        if (!hasPermission) {
+            if (shooter.getType() == EntityType.PLAYER) {
+                shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
             }
+            return false;
+        }
+
+
+        boolean consumeOnMiss = getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss");
+        Mechanics missMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
+
+        WeaponMeleeMissEvent event = new WeaponMeleeMissEvent(weaponTitle, weaponStack, shooter, meleeMissDelay / 50, missMechanics, consumeOnMiss);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled())
+            return false;
+
+        // Handle miss
+        if (event.isConsume()) {
             weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
         }
 
-        Mechanics meleeMissMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
-        if (meleeMissMechanics != null) {
-            if (!hasPermission) {
-                if (shooter.getType() == EntityType.PLAYER) {
-                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
-                }
-                return false;
-            }
-            meleeMissMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+        if (event.getMechanics() != null) {
+            event.getMechanics().use(new CastData(entityWrapper, weaponTitle, weaponStack));
         }
 
-        if (meleeMissDelay != 0) {
-            if (!hasPermission) {
-                if (shooter.getType() == EntityType.PLAYER) {
-                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
-                }
-                return false;
-            }
-
+        if (event.getMeleeMissDelay() != 0) {
             handData.setLastMeleeMissTime(System.currentTimeMillis());
-
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Melee_Miss_Delay") && shooter.getType() == EntityType.PLAYER) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) shooter, weaponStack.getType(), meleeMissDelay / 50);
-            }
         }
         return true;
     }
@@ -192,25 +188,29 @@ public class MeleeHandler implements IValidator {
         return "Melee";
     }
 
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Melee");
+    }
+
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        boolean enableMelee = configurationSection.getBoolean(path + ".Enable_Melee");
-        String meleeAttachment = configurationSection.getString(path + ".Melee_Attachment");
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        boolean enableMelee = data.of("Enable_Melee").getBool(false);
+        String meleeAttachment = data.of("Melee_Attachment").get(null);
         if (!enableMelee && meleeAttachment == null) {
-            debug.log(LogLevel.ERROR, "Tried to use melee without enable melee or melee attachment.",
-                    "Located at file " + file + " in " + path + " in configurations.");
+            throw data.exception(null, "You must use either 'Enable_Melee: true' or 'Melee_Attachment: <weapon>'",
+                    "You cannot use the 'Melee' key without 1 of those 2 options");
         }
 
-        int meleeHitDelay = configuration.getInt(path + ".Melee_Hit_Delay");
+        int meleeHitDelay = data.of("Melee_Hit_Delay").assertPositive().getInt(0);
         if (meleeHitDelay != 0) {
             // Convert to millis
-            configuration.set(path + ".Melee_Hit_Delay", meleeHitDelay * 50);
+            configuration.set(data.key + ".Melee_Hit_Delay", meleeHitDelay * 50);
         }
 
-        int meleeMissDelay = configuration.getInt(path + ".Melee_Miss.Melee_Miss_Delay");
+        int meleeMissDelay = data.of("Melee_Miss.Melee_Miss_Delay").assertPositive().getInt(0);
         if (meleeMissDelay != 0) {
             // Convert to millis
-            configuration.set(path + ".Melee_Miss.Melee_Miss_Delay", meleeMissDelay * 50);
+            configuration.set(data.key + ".Melee_Miss.Melee_Miss_Delay", meleeMissDelay * 50);
         }
     }
 }

@@ -7,7 +7,11 @@ import java.util.List;
 
 public class HolsterMechanics extends Mechanics {
 
-    public HolsterMechanics() { }
+    /**
+     * Default constructor for serializer
+     */
+    public HolsterMechanics() {
+    }
 
     public HolsterMechanics(List<IMechanic<?>> mechanicList) {
         super(mechanicList);

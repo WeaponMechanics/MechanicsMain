@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.3.9-DEV-PROTOCOL"
+version = "1.4.4"
 
 plugins {
     `maven-publish`
@@ -29,7 +29,6 @@ dependencies {
     implementation(project(":Core_1_15_R1"))
     implementation(project(":Core_1_16_R3"))
     implementation(project(":Core_1_17_R1", "reobf"))
-    implementation(project(":Core_1_18_R1", "reobf"))
     implementation(project(":Core_1_18_R2", "reobf"))
     implementation(project(":Core_1_19_R1", "reobf"))
 }
@@ -48,7 +47,6 @@ bukkit {
     apiVersion = "1.13"
 
     authors = listOf("DeeCaaD", "CJCrafter")
-    depend = listOf("ProtocolLib")
     softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
     loadBefore = listOf("WeaponMechanics") // pretty hacky, but needed sometimes.
 }
@@ -74,7 +72,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_15_R1"))
         include(project(":Core_1_16_R3"))
         include(project(":Core_1_17_R1"))
-        include(project(":Core_1_18_R1"))
         include(project(":Core_1_18_R2"))
         include(project(":Core_1_19_R1"))
 

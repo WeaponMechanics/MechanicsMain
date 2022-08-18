@@ -2,8 +2,12 @@ package me.deecaad.core.compatibility.block;
 
 import me.deecaad.core.compatibility.ICompatibility;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.SoundGroup;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnegative;
@@ -113,6 +117,38 @@ public interface BlockCompatibility {
     @Nonnull
     List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nullable BlockState mask);
 
+    default SoundData getBlockSound(Object blockData, SoundType type) {
+        BlockData data = (BlockData) blockData;
+        SoundGroup sounds = data.getSoundGroup();
+
+        SoundData soundData = new SoundData();
+        soundData.type = type;
+        soundData.pitch = sounds.getPitch();
+        soundData.volume = sounds.getVolume();
+
+        switch (type) {
+            case BREAK:
+                soundData.sound = sounds.getBreakSound();
+                break;
+            case STEP:
+                soundData.sound = sounds.getStepSound();
+                break;
+            case PLACE:
+                soundData.sound = sounds.getPlaceSound();
+                break;
+            case HIT:
+                soundData.sound = sounds.getHitSound();
+                break;
+            case FALL:
+                soundData.sound = sounds.getFallSound();
+                break;
+            default:
+                throw new InternalError("unreachable code");
+        }
+
+        return soundData;
+    }
+
     /**
      * Returns a positive float representing the blast material of a given
      * block. Materials with a higher blast resistance are less likely to
@@ -123,5 +159,16 @@ public interface BlockCompatibility {
      */
     default float getBlastResistance(Block block) {
         return block.getType().getBlastResistance();
+    }
+
+    class SoundData {
+        public SoundType type;
+        public Sound sound;
+        public float volume;
+        public float pitch;
+    }
+
+    enum SoundType {
+        BREAK, STEP, PLACE, HIT, FALL
     }
 }

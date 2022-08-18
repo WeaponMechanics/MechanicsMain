@@ -14,9 +14,10 @@ public class Sticky implements Serializer<Sticky> {
     private ListHolder<EntityType> entities;
 
     /**
-     * Empty for serializers
+     * Default constructor for serializer
      */
-    public Sticky() { }
+    public Sticky() {
+    }
 
     public Sticky(ListHolder<Material> blocks, ListHolder<EntityType> entities) {
         this.blocks = blocks;

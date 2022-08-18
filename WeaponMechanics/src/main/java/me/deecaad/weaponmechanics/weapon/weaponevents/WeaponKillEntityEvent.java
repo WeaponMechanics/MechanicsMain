@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of a projectile killing a {@link LivingEntity}.
+ * Called when a victim is killed from a {@link WeaponDamageEntityEvent}.
  */
 public class WeaponKillEntityEvent extends WeaponEvent {
 

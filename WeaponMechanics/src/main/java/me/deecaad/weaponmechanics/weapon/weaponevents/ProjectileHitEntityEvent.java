@@ -13,10 +13,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 
 /**
- * This class outlines the event of a projectile hitting a
- * {@link LivingEntity}. If this event is cancelled, the projectile will not
- * <i>interact</i> with the entity (Cancelling damage, explosions, mechanics,
- * etc.)
+ * Called whenever a projectile hits an entity. This may be called
+ * multiple times for some projectiles (that use
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Through}
+ * or {@link me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Bouncy}).
+ *
+ * <p>For more control over the projectile, consider using a
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.ProjectileScript}
+ * instead.
  */
 public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancellable {
 
@@ -36,18 +40,30 @@ public class ProjectileHitEntityEvent extends ProjectileEvent implements Cancell
         this.isBackStab = isBackStab;
     }
 
+    @NotNull
     public LivingEntity getEntity() {
         return entity;
     }
 
+    @NotNull
     public EntityType getEntityType() {
         return entity.getType();
     }
 
+    /**
+     * Returns the exact point that the entity was hit.
+     *
+     * @return The non-null hit location.
+     */
     public Location getHitLocation() {
         return exactLocation.toLocation(projectile.getWorld());
     }
 
+    /**
+     * Returns the body part of the entity that was hit (head/body/arms/etc.)
+     *
+     * @return The nullable body part.
+     */
     public DamagePoint getPoint() {
         return point;
     }

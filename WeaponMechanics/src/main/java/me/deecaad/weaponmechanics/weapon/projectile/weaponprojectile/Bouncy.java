@@ -27,9 +27,10 @@ public class Bouncy implements Serializer<Bouncy> {
     private ListHolder<Material> rollingBlocks;
 
     /**
-     * Empty for serializers
+     * Default constructor for serializer
      */
-    public Bouncy() { }
+    public Bouncy() {
+    }
 
     public Bouncy(int maximumBounceAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities,
                   double requiredMotionToStartRolling, ListHolder<Material> rollingBlocks) {

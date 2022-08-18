@@ -39,8 +39,8 @@ Cluster_Grenade:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
       Off_Hand: "RIGHT_CLICK"
-      Deny_When:
-        Swimming: true
+      Circumstance:
+        Swimming: "DENY"
     Projectile_Speed: 36
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
@@ -74,10 +74,13 @@ Cluster_Grenade:
           Spawn: true
     Block_Damage:
       Break_Blocks: true
-      Spawn_Falling_Block_Chance: 0.5
+      Spawn_Falling_Block_Chance: 0.4
       Blacklist: true
       Block_List:
         - "BEDROCK"
+        - "$WATER" # stationary_water and moving_water
+        - "OBSIDIAN"
+        - "$LAVA" # stationary_lava and moving_lava
     Regeneration:
       Ticks_Before_Start: 300
       Max_Blocks_Per_Update: 5
@@ -85,3 +88,16 @@ Cluster_Grenade:
     Mechanics:
       Sounds:
         - "custom:explosion.frag-6-1-0-0.1"
+
+  # The following options are added by WeaponMechanicsCosmetics, and you will
+  # not see the changes take effect until you purchase it.
+
+  Cosmetics:
+    Splash_Mechanics:
+      Sounds:
+        - entity_generic_splash 1 1.85 0 0.15
+      Particles:
+        Particle_1:
+          Type: WATER_SPLASH
+          Count: 25
+          Noise: 0.2-0.2-0.2

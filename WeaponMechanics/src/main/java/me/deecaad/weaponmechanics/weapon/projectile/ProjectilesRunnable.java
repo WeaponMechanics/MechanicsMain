@@ -53,7 +53,8 @@ public class ProjectilesRunnable extends BukkitRunnable {
     }
 
     /**
-     * Adds the given projectile to be ticked starting during the next tick.
+     * Adds the given projectiles to be ticked. Projectile is instantly
+     * ticked once. On async call ticking starts during the next tick.
      * This method is threadsafe, and you may call this method async.
      *
      * @param projectile The non-null projectile to tick.
@@ -63,10 +64,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
             throw new IllegalArgumentException("Cannot add null projectile!");
 
         if (Bukkit.getServer().isPrimaryThread()) {
-            projectiles.add(projectile);
-            for (ProjectileScriptManager manager : managers)
-                manager.attach(projectile);
-
+            tickOnAdd(projectile);
             return;
         }
 
@@ -74,7 +72,8 @@ public class ProjectilesRunnable extends BukkitRunnable {
     }
 
     /**
-     * Adds the given projectiles to be ticked starting during the next tick.
+     * Adds the given projectiles to be ticked. Projectile is instantly
+     * ticked once. On async call ticking starts during the next tick.
      * This method is threadsafe, and you may call this method async.
      *
      * @param projectiles The non-null collection of non-null projectiles.
@@ -84,12 +83,36 @@ public class ProjectilesRunnable extends BukkitRunnable {
             throw new IllegalArgumentException("Cannot add null projectiles");
 
         if (Bukkit.getServer().isPrimaryThread()) {
-            this.projectiles.addAll(projectiles);
-            projectiles.forEach(projectile -> managers.forEach(manager -> manager.attach(projectile)));
+            for (AProjectile projectile : projectiles) {
+                tickOnAdd(projectile);
+            }
             return;
         }
 
         asyncProjectiles.addAll(projectiles);
+    }
+
+    private void tickOnAdd(AProjectile projectile) {
+        for (ProjectileScriptManager manager : managers) {
+            manager.attach(projectile);
+        }
+        try {
+            if (projectile.tick()) {
+
+                // Call the remove method of projectile
+                projectile.remove();
+                return;
+            }
+        } catch (Exception e) {
+            projectile.remove();
+            debug.log(LogLevel.WARN, "Unhandled exception while ticking projectile! Removing projectile");
+            debug.log(LogLevel.WARN, "Removed Projectile: " + projectile, e);
+            return;
+        }
+
+        // Since code reached this point, projectile didn't hit anything instantly
+        // -> Add to the normal runnable
+        this.projectiles.add(projectile);
     }
 
     /**

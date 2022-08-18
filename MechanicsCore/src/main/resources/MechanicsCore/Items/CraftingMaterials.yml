@@ -1,0 +1,40 @@
+Barrel:
+  Type: iron_ingot
+  Name: "<yellow>Barrel"
+  Lore:
+    - "<gray>Crafting material for weapons"
+  Recipe:
+    Shape:
+      - "iii"
+    Ingredients:
+      i: iron_ingot
+
+Adhesive:
+  Type: iron_ingot
+  Name: "<yellow>Adhesive"
+  Lore:
+    - "<gray>Crafting material for weapons"
+  Recipe:
+    Shape:
+      - "p"
+      - "h"
+      - "q"
+    Ingredients:
+      p: paper
+      h: honeycomb
+      q: quartz
+
+Handle:
+  Type: stick
+  Name: "<yellow>Handle"
+  Lore:
+    - "<gray>Crafting material for weapons"
+  Recipe:
+    Shape:
+      - " i "
+      - "lll"
+      - " s "
+    Ingredients:
+      i: iron_ingot
+      l: leather
+      s: stick

@@ -7,17 +7,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class AmmoConverter extends WeaponConverter {
 
+    /**
+     * Default constructor for serializer.
+     */
     public AmmoConverter() {
         super();
     }
 
     public AmmoConverter(boolean type, boolean name, boolean lore, boolean enchantments) {
         super(type, name, lore, enchantments);
-    }
-
-    @Override
-    public String getKeyword() {
-        return "Ammo_Converter_Check";
     }
 
     @Override

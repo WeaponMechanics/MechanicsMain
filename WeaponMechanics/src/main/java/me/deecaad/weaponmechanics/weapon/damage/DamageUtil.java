@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
+import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -21,11 +22,17 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
+
+import java.util.Set;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class DamageUtil {
     
@@ -36,6 +43,11 @@ public class DamageUtil {
 
     public static double calculateFinalDamage(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
         Configuration config = WeaponMechanics.getBasicConfigurations();
+
+        // Simply don't use rates when using vanilla damaging
+        if (config.getBool("Damage.Use_Vanilla_Damaging", false)) {
+            return damage;
+        }
 
         AtomicDouble rate = new AtomicDouble(1.0);
         EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
@@ -124,6 +136,36 @@ public class DamageUtil {
             damage = 0;
         }
 
+        if (getBasicConfigurations().getBool("Damage.Use_Vanilla_Damaging", false)) {
+
+            if (damage == 0) {
+                return true;
+            }
+
+            // Set this metadata and check it on EntityDamageByEntityEvent to deny
+            // unintentional melee casts and unintentional damage cancel. LivingEntity.damage()
+            // always uses ENTITY_ATTACK as DamageCause. Using NMS so change damage cause would require
+            // spawning of actual entity projectile.
+
+            victim.setMetadata("wm_vanilla_dmg",
+                    new FixedMetadataValue(WeaponMechanics.getPlugin(), null));
+
+            victim.damage(damage, cause);
+
+            if (victim.hasMetadata("wm_cancelled_dmg")) {
+                victim.removeMetadata("wm_cancelled_dmg", WeaponMechanics.getPlugin());
+
+                // Damage was cancelled
+                return true;
+            }
+
+
+            victim.setNoDamageTicks(0);
+
+            // Successfully damaged using vanilla damaging
+            return false;
+        }
+
         // For compatibility with plugins that only set the damage to 0.0...
         double tempDamage = damage;
 
@@ -143,7 +185,8 @@ public class DamageUtil {
         // Calculate the amount of damage to absorption hearts, and
         // determine how much damage is left over to deal to the victim
         double absorption = CompatibilityAPI.getEntityCompatibility().getAbsorption(victim);
-        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, Math.max(0, absorption - damage));
+        double absorbed = Math.max(0, absorption - damage);
+        CompatibilityAPI.getEntityCompatibility().setAbsorption(victim, absorbed);
         damage = Math.max(damage - absorption, 0);
 
         double oldHealth = victim.getHealth();
@@ -162,6 +205,26 @@ public class DamageUtil {
         victim.setLastDamageCause(entityDamageByEntityEvent);
 
         victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+        boolean killed = victim.isDead() || victim.getHealth() <= 0.0;
+
+        // Statistics
+        if (victim instanceof Player) {
+            Player player = (Player) victim;
+            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
+            if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
+            if (killed) player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
+        }
+        if (cause instanceof Player) {
+            Player player = (Player) cause;
+            if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
+            if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
+            if (killed) {
+                player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
+                if (victim.getType() == EntityType.PLAYER) player.incrementStatistic(Statistic.PLAYER_KILLS);
+                else player.incrementStatistic(Statistic.MOB_KILLS);
+            }
+        }
+
         return false;
     }
     
@@ -217,7 +280,6 @@ public class DamageUtil {
         if (armor == null || "AIR".equals(armor.getType().name()))
             return null;
 
-
         if (armor.hasItemMeta()) {
             int level = armor.getItemMeta().getEnchantLevel(Enchantment.DURABILITY);
             boolean damages = NumberUtil.chance(0.6 + 0.4 / (level + 1));
@@ -229,7 +291,7 @@ public class DamageUtil {
         if (ReflectionUtil.getMCVersion() >= 13) {
             if (armor.getItemMeta() instanceof Damageable) {
                 Damageable meta = (Damageable) armor.getItemMeta();
-                meta.setDamage(meta.getDamage() + amount);
+                meta.setDamage(Math.min(meta.getDamage() + amount, armor.getType().getMaxDurability()));
                 armor.setItemMeta(meta);
             }
         } else {
@@ -244,33 +306,31 @@ public class DamageUtil {
      * @param victim the victim
      * @return true only if cause can harm victim
      */
-    public static boolean canHarm(LivingEntity cause, LivingEntity victim) {
-        
-        boolean allowDamaging = true;
-        
-        // Check for MC own scoreboard teams
-        if (cause instanceof Player && victim instanceof Player) {
-            Scoreboard shooterScoreboard = ((Player) cause).getScoreboard();
-            
-            if (shooterScoreboard != null) {
-                Player victimPlayer = (Player) victim;
-                
-                // Iterate through shooter's teams
-                for (Team team : shooterScoreboard.getTeams()) {
-                    if (!team.getEntries().contains(victimPlayer.getName()) || team.allowFriendlyFire()) {
-                        // Not in the same team
-                        // OR
-                        // Team allows damaging teammates
-                        continue;
-                    }
-                    // Else damaging is not allowed -> allowDamaging false
-                    allowDamaging = false;
-                    break;
-                }
+    public static boolean canHarmScoreboardTeams(LivingEntity cause, LivingEntity victim) {
+
+        // Only check scoreboard teams for players
+        if (cause.getType() != EntityType.PLAYER || victim.getType() != EntityType.PLAYER) return true;
+
+        Scoreboard shooterScoreboard = ((Player) cause).getScoreboard();
+        if (shooterScoreboard == null) return true;
+
+        Set<Team> teams = shooterScoreboard.getTeams();
+        if (teams == null || teams.isEmpty()) return true;
+
+        for (Team team : teams) {
+
+            // If not in same team -> continue
+            if (!team.getEntries().contains(victim.getName())) continue;
+
+            // Now we know they're in same team.
+            // -> If friendly is not enabled
+            // --> they can't harm each other
+            if (!team.allowFriendlyFire()) {
+                // This approach only checks first same team WHERE friendly fire is enabled
+                return false;
             }
         }
-        
-        // False only if teams did not allow damaging
-        return allowDamaging;
+
+        return true;
     }
 }

@@ -13,9 +13,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class DualWield implements Serializer<DualWield> {
 
@@ -24,9 +22,10 @@ public class DualWield implements Serializer<DualWield> {
     private Mechanics mechanics;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public DualWield() { }
+    public DualWield() {
+    }
 
     public DualWield(boolean whitelist, Set<String> weapons, Mechanics mechanics) {
         this.whitelist = whitelist;

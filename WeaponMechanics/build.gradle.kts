@@ -19,7 +19,7 @@ dependencies {
     implementation(project(":MechanicsCore"))
     implementation("co.aikar:minecraft-timings:1.0.4")
     implementation("org.bstats:bstats-bukkit:3.0.0")
-    implementation("me.cjcrafter:mechanicsautodownload:1.0.2")
+    implementation("me.cjcrafter:mechanicsautodownload:1.0.5")
 
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 

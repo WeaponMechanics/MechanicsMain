@@ -16,7 +16,7 @@ import org.bukkit.util.Vector;
 public class RayTraceCommand extends SubCommand {
 
     RayTraceCommand() {
-        super("wm test", "raytrace", "Shows the hitbox of current entity and/or block in sight", "<only_hit_position> <distance> <time>");
+        super("wm test", "raytrace", "Shows the hitbox of current entity and/or block in sight", "<only_hit_position> <size> <distance> <time>");
     }
 
     @Override
@@ -29,13 +29,15 @@ public class RayTraceCommand extends SubCommand {
         Player player = (Player) sender;
 
         boolean onlyHitPosition = args.length > 0 && Boolean.parseBoolean(args[0]);
-        int distance = (args.length > 1) ? Integer.parseInt(args[1]) : 5;
+        double size = args.length > 1 ? Double.parseDouble(args[1]) : 0.1;
+
+        int distance = (args.length > 2) ? Integer.parseInt(args[2]) : 5;
         if (distance < 1) {
             sender.sendMessage(ChatColor.RED + "Distance was less than 1");
             return;
         }
-        int time = (args.length > 2) ? Integer.parseInt(args[2]) : 200;
+        int time = (args.length > 3) ? Integer.parseInt(args[3]) : 200;
 
-        WeaponMechanicsCommand.ray(player, !onlyHitPosition, distance, time);
+        WeaponMechanicsCommand.ray(player, !onlyHitPosition, size, distance, time);
     }
 }

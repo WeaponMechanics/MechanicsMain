@@ -7,7 +7,14 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of a projectile triggering an explosion.
+ * Called right before calculations for an explosion occurs. This is useful if
+ * you want to:
+ * <ul>
+ *     <li>Completely override everything about an explosion</li>
+ *     <li>Cancel an explosion early</li>
+ * </ul>
+ *
+ * <p>For more general usage, see {@link ProjectileExplodeEvent}.
  */
 public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancellable {
 
@@ -39,8 +46,6 @@ public class ProjectilePreExplodeEvent extends ProjectileEvent implements Cancel
     public void setCancelled(boolean cancelled) {
         isCancelled = cancelled;
     }
-
-
 
     @Override
     @NotNull

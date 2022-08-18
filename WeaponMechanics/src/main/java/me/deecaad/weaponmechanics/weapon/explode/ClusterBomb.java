@@ -26,7 +26,11 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     private Detonation detonation;
     private Mechanics mechanics;
 
-    public ClusterBomb() { }
+    /**
+     * Default constructor for serializer
+     */
+    public ClusterBomb() {
+    }
 
     public ClusterBomb(Projectile projectile, double speed, int splits, int bombs, Detonation detonation, Mechanics mechanics) {
         this.projectile = projectile;
@@ -87,11 +91,6 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
 
         // Remove the parent split
         projectile.remove();
-    }
-
-    @Override
-    public String getKeyword() {
-        return "Cluster_Bomb";
     }
 
     @Override

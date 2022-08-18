@@ -159,6 +159,10 @@ public final class StringUtil {
      * @return The string with the new format.
      */
     public static String colorAdventure(String value) {
+        if (value == null)
+            return null;
+
+        value = value.replaceAll("\u00a7", "&");
 
         // Adventure text is formatted using tags <color></color> instead
         // of with symbols &7. While not a perfect fix, we can replace the

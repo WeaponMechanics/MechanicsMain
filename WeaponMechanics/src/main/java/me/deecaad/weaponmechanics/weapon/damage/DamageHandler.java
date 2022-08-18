@@ -19,13 +19,15 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class DamageHandler {
 
     private WeaponHandler weaponHandler;
 
-    public DamageHandler() {}
+    public DamageHandler() {
+    }
 
     public DamageHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -46,8 +48,7 @@ public class DamageHandler {
                           LivingEntity shooter, String weaponTitle, ItemStack weaponStack, double distanceTravelled) {
         Configuration config = getConfigurations();
 
-        boolean isFriendlyFire = config.getBool(weaponTitle + ".Damage.Enable_Friendly_Fire");
-        if (!isFriendlyFire && !DamageUtil.canHarm(shooter, victim)) {
+        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim)) {
             return false;
         }
 
@@ -79,7 +80,10 @@ public class DamageHandler {
             return false;
         }
 
-        DamageUtil.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
+        // Don't do WM armor damage when using vanilla damaging
+        if (!getBasicConfigurations().getBool("Damage.Use_Vanilla_Damaging", false)) {
+            DamageUtil.damageArmor(victim, damageEntityEvent.getArmorDamage(), point);
+        }
 
         // Fire ticks
         if (fireTicks > 0) {
@@ -112,7 +116,8 @@ public class DamageHandler {
         useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");
 
         // On point
-        if (point != null) useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage." + point.getReadable());
+        if (point != null)
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage." + point.getReadable());
 
         // On backstab
         if (damageEntityEvent.isBackstab()) {

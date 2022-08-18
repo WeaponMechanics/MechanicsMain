@@ -5,10 +5,14 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event of a projectile ending. A projectile may end
- * if it goes too deep into the void/sky, if it has existed for too long, if
- * it has hit a {@link org.bukkit.block.Block} or an
- * {@link org.bukkit.entity.Entity}, etc.
+ * Called whenever a {@link WeaponProjectile} ends. A projectile may end due to
+ * flying too high in the sky, flying too low in the void, entering an unloaded
+ * chunk, if 30 seconds have passed (since the projectile was launched), after
+ * hitting blocks or entities, etc.
+ *
+ * <p>For more control over the projectile, consider using a
+ * {@link me.deecaad.weaponmechanics.weapon.projectile.ProjectileScript}
+ * instead.
  */
 public class ProjectileEndEvent extends ProjectileEvent {
 

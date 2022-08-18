@@ -254,7 +254,7 @@ public final class BlockDamageData {
             // -1 will remove crack effect from block
             int crack = (durability >= 1.0 - EPSILON)
                     ?  -1
-                    : (int) NumberUtil.lerp(0, MAX_BLOCK_CRACK, durability);
+                    : (int) NumberUtil.lerp(MAX_BLOCK_CRACK, 0, durability);
 
             Object packet = CompatibilityAPI.getBlockCompatibility().getCrackPacket(block, crack, packetId);
             DistanceUtil.sendPacket(block.getLocation(), packet);

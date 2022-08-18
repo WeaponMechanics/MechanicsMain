@@ -18,6 +18,12 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class ColorSerializer implements Serializer<Color> {
 
+    /**
+     * Default constructor for serializer
+     */
+    public ColorSerializer() {
+    }
+
     @Override
     @Nonnull
     public Color serialize(SerializeData data) throws SerializerException {

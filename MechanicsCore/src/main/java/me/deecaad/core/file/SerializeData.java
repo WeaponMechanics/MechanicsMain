@@ -12,31 +12,66 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Wraps a key (<i>Usually</i> pointing to a {@link ConfigurationSection}) with
- * serializer functions to help ensure valid config. The key will not point to
- * a configuration section when the internal {@link Serializer} does not use
- * a configuration section (or when the configuration writer did something
- * very wrong).
+ * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along
+ * with useful "validation methods". These methods will throw a
+ * {@link SerializerException} if the server admin input an incorrect value.
+ * This allows us, the developers, to quickly and easily check if the config is
+ * valid (Without long if/else if/else chains, or otherwise). Uses a builder
+ * pattern for nice one-liners.
+ *
+ * <p>For example, to get a positive integer from config, we can use
+ * <code>SerializeData#of("your.key").assertExists().assertPositive().getInt()</code>.
  */
 public class SerializeData {
 
-    public final Serializer<?> serializer;
+    public final String serializer;
     public final File file;
     public final String key;
     public final ConfigurationSection config;
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, @Nonnull String key, @Nonnull ConfigurationSection config) {
+    public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
         this.serializer = serializer;
         this.file = file;
         this.key = key;
         this.config = config;
     }
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
+    public SerializeData(@Nonnull String serializer, @Nonnull SerializeData other, @Nonnull String relative) {
         this.serializer = serializer;
         this.file = other.file;
-        this.key = other.key + "." + relative;
+        this.key = other.getPath(relative);
         this.config = other.config;
+    }
+
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
+        this.serializer = getSimpleName(serializer);
+        this.file = file;
+        this.key = key;
+        this.config = config;
+    }
+
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
+        this.serializer = getSimpleName(serializer);
+        this.file = other.file;
+        this.key = other.getPath(relative);
+        this.config = other.config;
+    }
+
+    private static String getSimpleName(Serializer<?> serializer) {
+
+        // Sometimes a class will end with 'Serializer' in its name, like
+        // 'ColorSerializer'. This information may be confusing to some people,
+        // so we can strip it away here.
+        String simple = serializer.getClass().getSimpleName();
+        int index = simple.indexOf("Serializer");
+        if (index > 0)
+            simple = simple.substring(0, index);
+
+        return simple;
+    }
+
+    private String getPath(String relative) {
+        return key == null || "".equals(key) ? relative : (key + "." + relative);
     }
 
     /**
@@ -111,7 +146,7 @@ public class SerializeData {
      * @return <code>true</code> if the key exists.
      */
     public boolean has(String relative) {
-        return config.contains(key + "." + relative);
+        return config.contains(getPath(relative));
     }
 
     /**
@@ -133,7 +168,7 @@ public class SerializeData {
 
         String key = this.key;
         if (relative != null && !relative.isEmpty())
-            key += "." + relative;
+            key = getPath(relative);
 
         return new SerializerException(serializer, messages, StringUtil.foundAt(file, key));
     }
@@ -154,7 +189,7 @@ public class SerializeData {
 
         String key = this.key;
         if (relative != null && !relative.isEmpty())
-            key += "." + relative;
+            key = getPath(relative);
 
         return new SerializerException(serializer, messages, StringUtil.foundAt(file, key, index + 1));
     }
@@ -216,7 +251,7 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigListAccessor assertExists() throws SerializerException {
-            if (!config.contains(key + "." + relative, true))
+            if (!config.contains(getPath(relative), true))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation());
 
             return this;
@@ -248,13 +283,13 @@ public class SerializeData {
 
             // The first step is to assert that the value stored at this key
             // is a list (of any generic-type).
-            Object value = config.get(key + "." + relative);
+            Object value = config.get(getPath(relative));
             if (value == null)
                 return this;
 
             if (!(value instanceof List))
                 throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation());
-            List<?> list = (List<?>) config.get(key + "." + relative);
+            List<?> list = (List<?>) config.get(getPath(relative));
 
             // Use assertExists for required keys
             if (list == null || list.isEmpty())
@@ -369,11 +404,11 @@ public class SerializeData {
                 throw new IllegalStateException("Forgot to call assertList()? Did something go wrong?");
 
             // Use assertExists for required keys
-            if (!config.contains(key + "." + relative))
+            if (!config.contains(getPath(relative)))
                 return Collections.emptyList();
 
             List<String[]> list = new ArrayList<>();
-            for (Object obj : (List) config.get(key + "." + relative, Collections.emptyList())) {
+            for (Object obj : (List) config.get(getPath(relative), Collections.emptyList())) {
                 list.add(StringUtil.split(obj.toString()));
             }
 
@@ -384,7 +419,7 @@ public class SerializeData {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key);
             } else {
-                return StringUtil.foundAt(file, key + "." + relative);
+                return StringUtil.foundAt(file, getPath(relative));
             }
         }
 
@@ -392,7 +427,7 @@ public class SerializeData {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key, index + 1);
             } else {
-                return StringUtil.foundAt(file, key + "." + relative, index + 1);
+                return StringUtil.foundAt(file, getPath(relative), index + 1);
             }
         }
 
@@ -433,7 +468,7 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigAccessor assertExists() throws SerializerException {
-            if (!config.contains(key + "." + relative, true))
+            if (!config.contains(getPath(relative), true))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation());
 
             exists = true;
@@ -467,7 +502,7 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigAccessor assertType(Class<?> type) throws SerializerException {
-            Object value = config.get(key + "." + relative);
+            Object value = config.get(getPath(relative));
 
             // Use assertExists for required keys
             if (value != null) {
@@ -577,7 +612,7 @@ public class SerializeData {
          * @throws SerializerException If the config value is not a boolean.
          */
         public boolean getBool(boolean def) throws SerializerException {
-            Object value = config.get(key + "." + relative);
+            Object value = config.get(getPath(relative));
             if (value == null)
                 return def;
 
@@ -603,7 +638,7 @@ public class SerializeData {
          * @throws SerializerException If the type is not a number.
          */
         public Number getNumber(Number def) throws SerializerException {
-            Object value = config.get(key + "." + relative);
+            Object value = config.get(getPath(relative));
 
             // Use assertExists for required keys
             if (value == null)
@@ -703,7 +738,7 @@ public class SerializeData {
             if (relative == null || "".equals(relative)) {
                 return StringUtil.foundAt(file, key);
             } else {
-                return StringUtil.foundAt(file, key + "." + relative);
+                return StringUtil.foundAt(file, getPath(relative));
             }
         }
 
@@ -721,7 +756,7 @@ public class SerializeData {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
-            return (T) config.get(key + "." + relative);
+            return (T) config.get(getPath(relative));
         }
 
         /**
@@ -736,7 +771,7 @@ public class SerializeData {
          */
         @SuppressWarnings("unchecked")
         public <T> T get(T defaultValue) {
-            return (T) config.get(key + "." + relative, defaultValue);
+            return (T) config.get(getPath(relative), defaultValue);
         }
 
         /**
@@ -768,7 +803,7 @@ public class SerializeData {
          * @throws SerializerException If there is a misconfiguration in config.
          */
         public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz, T defaultValue) throws SerializerException {
-            String input = config.get(key + "." + relative, "").toString().trim();
+            String input = config.get(getPath(relative), "").toString().trim();
 
             // Use assertExists for required keys
             if (input.isEmpty())
@@ -826,10 +861,10 @@ public class SerializeData {
          * @return The converted string from config.
          */
         public String getAdventure(String defaultValue) {
-            if (!config.contains(key + "." + relative))
+            if (!config.contains(getPath(relative)))
                 return defaultValue;
 
-            String value = config.getString(key + "." + relative);
+            String value = config.getString(getPath(relative));
             assert value != null;
 
             return StringUtil.colorAdventure(value);
@@ -862,7 +897,7 @@ public class SerializeData {
         public <T extends Serializer<T>> T serialize(@Nonnull T serializer) throws SerializerException {
 
             // Use assertExists for required keys
-            if (!config.contains(key + "." + relative))
+            if (!config.contains(getPath(relative)))
                 return null;
 
             SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
@@ -898,7 +933,7 @@ public class SerializeData {
          */
         public <T> T serializeNonStandardSerializer(@Nonnull Serializer<T> serializer) throws SerializerException {
             // Use assertExists for required keys
-            if (!config.contains(key + "." + relative))
+            if (!config.contains(getPath(relative)))
                 return null;
 
             SerializeData data = new SerializeData(serializer, SerializeData.this, relative);

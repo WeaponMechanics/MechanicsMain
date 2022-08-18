@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -472,21 +473,12 @@ public abstract class AProjectile {
     }
 
     /**
-     * Override this method to do something when projectile collides with block.
+     * Override this method to do something when projectile collides with block or living entity.
      *
-     * @param block the collided block
+     * @param hit the collided block or living entity
      */
-    public void onCollide(Block block) {
-        scriptEvent(proj -> proj.onCollide(block));
-    }
-
-    /**
-     * Override this method to do something when projectile collides with entity
-     *
-     * @param entity the collided entity
-     */
-    public void onCollide(LivingEntity entity) {
-        scriptEvent(proj -> proj.onCollide(entity));
+    public void onCollide(RayTraceResult hit) {
+        scriptEvent(proj -> proj.onCollide(hit));
     }
 
     protected void scriptEvent(Consumer<ProjectileScript<?>> consumer) {

@@ -21,9 +21,10 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
     private List<IAmmoType> ammoTypes;
 
     /**
-     * Empty constructor to be used as serializer
+     * Empty constructor for serializer
      */
-    public AmmoTypes() { }
+    public AmmoTypes() {
+    }
 
     public AmmoTypes(List<IAmmoType> ammoTypes) {
         this.ammoTypes = ammoTypes;

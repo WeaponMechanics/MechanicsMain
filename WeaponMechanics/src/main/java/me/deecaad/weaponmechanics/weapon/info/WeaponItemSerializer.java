@@ -14,6 +14,12 @@ import javax.annotation.Nonnull;
  */
 public class WeaponItemSerializer extends ItemSerializer {
 
+    /**
+     * Default constructor for serializer
+     */
+    public WeaponItemSerializer() {
+    }
+
     @Override
     public String getKeyword() {
         return "Weapon_Item";

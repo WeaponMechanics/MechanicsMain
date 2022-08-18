@@ -7,8 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class outlines the event before shooting calculations and projectile
- * spawning takes place. This event is great for cancelling shooting.
+ * Called before a {@link WeaponShootEvent}.
  */
 public class WeaponPreShootEvent extends WeaponEvent implements Cancellable {
 

@@ -107,6 +107,16 @@ public abstract class FakeEntity {
     public abstract void setMeta(int metaFlag, boolean isEnabled);
 
     /**
+     * Returns the data that was used in the constructor (or in
+     * {@link #setData(Object)}). The data will either be an {@link ItemStack},
+     * a {@link org.bukkit.material.MaterialData} (1.12-), or a
+     * {@link org.bukkit.block.data.BlockData}
+     *
+     * @return The nullable extra data (block or item).
+     */
+    public abstract Object getData();
+
+    /**
      * Sets the data usually used in the constructor of a {@link FakeEntity}.
      * As of the time of writing, <code>data</code> may only be an
      * {@link ItemStack}, and this method will only have any behavior for

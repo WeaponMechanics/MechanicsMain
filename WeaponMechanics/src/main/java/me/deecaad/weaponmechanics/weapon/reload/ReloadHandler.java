@@ -1,13 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
 import co.aikar.timings.lib.MCTiming;
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.IValidator;
-import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
@@ -20,6 +15,7 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -27,22 +23,27 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ReloadHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
-    public ReloadHandler() { }
+    /**
+     * Default constructor for validator
+     */
+    public ReloadHandler() {
+    }
 
     public ReloadHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -152,8 +153,8 @@ public class ReloadHandler implements IValidator {
             tempAmmoToAdd = tempMagazineSize - ammoLeft;
         }
 
-        WeaponInfoDisplay weaponInfoDisplay = shooter.getType() != EntityType.PLAYER ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        PlayerWrapper playerWrapper = weaponInfoDisplay == null ? null : (PlayerWrapper) entityWrapper;
+        PlayerWrapper playerWrapper = shooter.getType() != EntityType.PLAYER ? null : (PlayerWrapper) entityWrapper;
+        WeaponInfoDisplay weaponInfoDisplay = playerWrapper == null ? null : getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
 
         FirearmAction firearmAction = config.getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
         FirearmState state = null;
@@ -325,10 +326,6 @@ public class ReloadHandler implements IValidator {
             }
         };
 
-        if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Reload_Time") && entityWrapper.getEntity().getType() == EntityType.PLAYER) {
-            CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entityWrapper.getEntity(), weaponStack.getType(), reloadEvent.getReloadCompleteTime());
-        }
-
         // If loop OR firearm actions aren't used
         // OR ammo left is above 0 and revolver isn't used (when using revolver firearm actions should always occur)
         if (isReloadLoop || state == null || (ammoLeft > 0 && !isRevolver)) {
@@ -368,7 +365,11 @@ public class ReloadHandler implements IValidator {
 
     private ChainTask getOpenTask(int firearmOpenTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,
                                   EntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
-        return new ChainTask(firearmOpenTime) {
+
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.OPEN);
+        Bukkit.getPluginManager().callEvent(event);
+
+        return new ChainTask(event.getTime()) {
 
             @Override
             public void task() {
@@ -390,6 +391,7 @@ public class ReloadHandler implements IValidator {
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
+
                 firearmAction.useMechanics(castData, true);
 
                 if (entityWrapper instanceof PlayerWrapper) {
@@ -404,7 +406,11 @@ public class ReloadHandler implements IValidator {
 
     private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
                                    String weaponTitle, boolean mainhand, EquipmentSlot slot) {
-        return new ChainTask(firearmCloseTime) {
+
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.CLOSE);
+        Bukkit.getPluginManager().callEvent(event);
+
+        return new ChainTask(event.getTime()) {
 
             @Override
             public void task() {
@@ -432,7 +438,7 @@ public class ReloadHandler implements IValidator {
                 CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
                 // Set the extra data so SoundMechanic knows to save task id to hand's reload tasks
                 castData.setData(ReloadSound.getDataKeyword(), mainhand ? ReloadSound.MAIN_HAND.getId() : ReloadSound.OFF_HAND.getId());
-                firearmAction.useMechanics(castData, false);
+                event.useMechanics(castData, false);
 
                 if (entityWrapper instanceof PlayerWrapper) {
                     WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -472,6 +478,10 @@ public class ReloadHandler implements IValidator {
      * @return -1 if infinity, otherwise current ammo amount
      */
     public int getAmmoLeft(ItemStack weaponStack, String weaponTitle) {
+        if (weaponTitle == null && CustomTag.WEAPON_TITLE.hasString(weaponStack)) {
+            weaponTitle = CustomTag.WEAPON_TITLE.getString(weaponStack);
+        }
+        if (weaponTitle == null) return -1;
         if (CustomTag.AMMO_LEFT.hasInteger(weaponStack) && getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size") != 0) {
             return CustomTag.AMMO_LEFT.getInteger(weaponStack);
         } else {
@@ -528,34 +538,25 @@ public class ReloadHandler implements IValidator {
     }
 
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Reload");
+    }
+
+    @Override
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
         if (trigger == null) {
-            debug.log(LogLevel.ERROR, "Tried to use shoot without defining trigger for it.",
-                    StringUtil.foundAt(file, path + ".Trigger"));
+            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
         }
 
-        int magazineSize = configurationSection.getInt(path + ".Magazine_Size");
-        debug.validate(magazineSize > 0, "Magazine_Size must be positive",
-                SerializerException.forValue(magazineSize),
-                StringUtil.foundAt(file, path + ".Magazine_Size"));
+        int magazineSize = data.of("Magazine_Size").assertExists().assertPositive().getInt();
+        int reloadDuration = data.of("Reload_Duration").assertExists().assertPositive().getInt();
+        int ammoPerReload = data.of("Ammo_Per_Reload").assertPositive().getInt(-99);
 
-        int reloadDuration = configurationSection.getInt(path + ".Reload_Duration");
-        debug.validate(reloadDuration > 0, "Reload_Duration must be positive",
-                SerializerException.forValue(reloadDuration),
-                StringUtil.foundAt(file, path + ".Reload_Duration"));
-
-        int ammoPerReload = configurationSection.getInt(path + ".Ammo_Per_Reload", -99);
-        if (ammoPerReload != -99) {
-            debug.validate(ammoPerReload > 0, "Ammo_Per_Reload must be positive",
-                    SerializerException.forValue(ammoPerReload),
-                    StringUtil.foundAt(file, path + ".Ammo_Per_Reload"));
-        }
-        boolean unloadAmmoOnReload = configurationSection.getBoolean(path + ".Unload_Ammo_On_Reload");
+        boolean unloadAmmoOnReload = data.of("Unload_Ammo_On_Reload").getBool(false);
         if (unloadAmmoOnReload && ammoPerReload != -99) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
-            debug.error("Cannot use Ammo_Per_Reload and Unload_Ammo_On_Reload at the same time",
-                    StringUtil.foundAt(file, path + ".Unload_Ammo_On_Reload"));
+            throw data.exception(null, "Cannot use 'Ammo_Per_Reload' and 'Unload_Ammo_On_Reload' at the same time");
         }
     }
 }

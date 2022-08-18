@@ -26,9 +26,12 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ItemSerializer implements Serializer<ItemStack> {
+
+    public static final Map<String, Supplier<ItemStack>> ITEM_REGISTRY = new HashMap<>();
 
     /**
      * Reflection support for versions before 1.11 when setting unbreakable tag
@@ -37,7 +40,6 @@ public class ItemSerializer implements Serializer<ItemStack> {
     private static Method setUnbreakable;
 
     // 1.16+ use adventure in item lore and display name (hex code support)
-    private static Method safelyAdd;
     private static Field loreField;
     private static Field displayField;
 
@@ -48,7 +50,6 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         if (ReflectionUtil.getMCVersion() >= 16) {
             Class<?> c = ReflectionUtil.getCBClass("inventory.CraftMetaItem");
-            safelyAdd = ReflectionUtil.getMethod(c, "safelyAdd", Iterable.class, Collection.class, boolean.class);
             loreField = ReflectionUtil.getField(c, "lore");
             displayField = ReflectionUtil.getField(c, "displayName");
         }
@@ -57,23 +58,26 @@ public class ItemSerializer implements Serializer<ItemStack> {
     /**
      * Empty constructor to be used as serializer
      */
-    public ItemSerializer() {}
-
-    @Override
-    public String getKeyword() {
-        return "Item";
+    public ItemSerializer() {
     }
 
     @Override
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
 
-        // Support for one-liner item serializer
         try {
-            Material type = data.of().assertType(String.class).getEnum(Material.class);
-            if (type != null) {
+
+            // Check the ITEM_REGISTRY to see if they are trying to inline
+            // an item... Like pathto in serializers but easier.
+            String registry = data.of().assertType(String.class).assertExists().get();
+            if (ITEM_REGISTRY.containsKey(registry))
+                return ITEM_REGISTRY.get(registry).get();
+
+            // Support for one-liner item serializer
+            Material type = data.of().assertType(String.class).assertExists().getEnum(Material.class);
+            if (type != null)
                 return new ItemStack(type);
-            }
+
         } catch (SerializerTypeException e) {
             // Let continue since this wasn't one-liner
         }
@@ -308,10 +312,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
     public ItemStack serializeRecipe(SerializeData data, ItemStack itemStack) throws SerializerException {
         if (data.config.contains(data.key + ".Recipe")) {
             ShapedRecipe recipe;
-            if (CompatibilityAPI.getVersion() < 1.13) {
+            if (ReflectionUtil.getMCVersion() < 13) {
                 recipe = new ShapedRecipe(itemStack);
             } else {
                 recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), itemStack);
+
+                if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
+                    return itemStack;
+                }
             }
 
             // The Recipe.Shape should be a list looking similar to:
@@ -344,7 +352,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 if (c == ' ')
                     continue;
                 
-                ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(this);
+                ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(new ItemSerializer());
 
                 if (CompatibilityAPI.getVersion() < 1.13)
                     ingredients.put(c, item);

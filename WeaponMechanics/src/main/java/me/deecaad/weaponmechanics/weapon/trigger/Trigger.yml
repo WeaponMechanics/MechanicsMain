@@ -5,14 +5,15 @@ Trigger:
   Dual_Wield:
     Main_Hand: <TriggerType>
     Off_Hand: <TriggerType>
-  Deny_When:
-    Reloading: <true/false>
-    Zooming: <true/false>
-    Sneaking: <true/false>
-    Standing: <true/false>
-    Walking: <true/false>
-    Sprinting: <true/false>
-    Dual_Wielding: <true/false>
-    Swimming: <true/false>
-    In_Midair: <true/false>
-    Gliding: <true/false>
+  Circumstance:
+    Reloading: <DENY/REQUIRED>
+    Zooming: <DENY/REQUIRED>
+    Sneaking: <DENY/REQUIRED>
+    Standing: <DENY/REQUIRED>
+    Walking: <DENY/REQUIRED>
+    Riding: <DENY/REQUIRED>
+    Sprinting: <DENY/REQUIRED>
+    Dual_Wielding: <DENY/REQUIRED>
+    Swimming: <DENY/REQUIRED>
+    In_Midair: <DENY/REQUIRED>
+    Gliding: <DENY/REQUIRED>

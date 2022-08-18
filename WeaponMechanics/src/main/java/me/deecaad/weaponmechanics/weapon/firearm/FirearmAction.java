@@ -20,9 +20,10 @@ public class FirearmAction implements Serializer<FirearmAction> {
     private Mechanics close;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public FirearmAction() { }
+    public FirearmAction() {
+    }
 
     public FirearmAction(FirearmType firearmType, int firearmActionFrequency, int openTime, int closeTime, Mechanics open, Mechanics close) {
         this.firearmType = firearmType;
@@ -67,6 +68,14 @@ public class FirearmAction implements Serializer<FirearmAction> {
 
     public int getCloseTime() {
         return closeTime;
+    }
+
+    public Mechanics getOpen() {
+        return open;
+    }
+
+    public Mechanics getClose() {
+        return close;
     }
 
     public int getFirearmActionFrequency() {

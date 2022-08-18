@@ -70,13 +70,6 @@ public class WeaponListeners implements Listener {
 
             handData.setLastEquipTime(System.currentTimeMillis());
 
-            if (getConfigurations().getBool(weaponTitle + ".Info.Show_Cooldown.Weapon_Equip_Delay") && e.getEntityType() == EntityType.PLAYER) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, weaponStack.getType(),
-                        getConfigurations().getInt(weaponTitle + ".Info.Weapon_Equip_Delay") / 50);
-            } else if (CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, weaponStack.getType())) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, weaponStack.getType(), 0);
-            }
-
             Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
         }
 

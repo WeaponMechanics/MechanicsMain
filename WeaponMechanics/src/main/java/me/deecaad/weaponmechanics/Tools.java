@@ -23,6 +23,14 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
+        int MAXIMUM_CAPACITY = 1 << 30;
+        int n = -1 >>> Integer.numberOfLeadingZeros(700 - 1);
+        int cap = (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+        System.out.println(cap);
+
+        if (true)
+            return;
+
         String str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~\u007fÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƑáíóúñÑªº¿®¬½¼¡«»";
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);

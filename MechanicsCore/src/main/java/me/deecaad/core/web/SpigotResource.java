@@ -80,6 +80,9 @@ public class SpigotResource {
      * @return the amount of minor versions server is currently behind
      */
     public int getMinorVersionsBehind() {
+        if (getMajorVersionsBehind() != 0)
+            return 0;
+
         return getVersionsBehind(1);
     }
 
@@ -87,6 +90,9 @@ public class SpigotResource {
      * @return the amount of patch versions server is currently behind
      */
     public int getPatchVersionsBehind() {
+        if (getMinorVersionsBehind() != 0)
+            return 0;
+
         return getVersionsBehind(2);
     }
 
@@ -103,13 +109,9 @@ public class SpigotResource {
         int local = Integer.parseInt(plugin.getDescription().getVersion().replaceFirst("v", "").split(" ")[0].split("-")[0].split("\\.")[index]);
         try {
             int remote = Integer.parseInt(remoteVersion.split(" ")[0].split("\\.")[index]);
-
             int behind = remote - local;
 
-            // IntelliJ suggested using Math.max(), does the trick though.
-            // This check because otherwise behind could be negative
-            // when we do tests locally before publishing new version.
-            return Math.max(0, behind);
+            return behind;
         } catch (NumberFormatException e) {
             return 0;
         }
