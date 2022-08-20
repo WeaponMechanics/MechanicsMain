@@ -33,7 +33,7 @@ public class Scope_1_19_R1 implements IScopeCompatibility {
     private Method abilitiesMethod;
 
     public Scope_1_19_R1() {
-        is1_19 = !Bukkit.getServer().getVersion().contains("1.19.1");
+        is1_19 = !Bukkit.getServer().getVersion().contains("1.19.1") && !Bukkit.getServer().getVersion().contains("1.19.1");
         if (is1_19) {
             abilitiesMethod = ReflectionUtil.getMethod(Player.class, "fC");
         }
