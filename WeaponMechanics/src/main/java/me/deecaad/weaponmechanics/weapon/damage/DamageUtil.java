@@ -243,6 +243,7 @@ public class DamageUtil {
             case ENDER_DRAGON:
             case WITHER:
             case GIANT:
+            case PLAYER:
                 return true;
         }
 
