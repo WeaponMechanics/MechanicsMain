@@ -216,17 +216,16 @@ public class ShootHandler implements IValidator {
         // RELOAD END
 
         boolean usesSelectiveFire = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class) != null;
-        boolean isSelectiveFireAuto = false;
-        int selectiveFire = 0;
+        SelectiveFireState selectiveFireState = SelectiveFireState.SINGLE;
         if (usesSelectiveFire) {
-            selectiveFire = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
-            if (CustomTag.SELECTIVE_FIRE.hasInteger(weaponStack) && selectiveFire == SelectiveFireState.AUTO.getId()) {
-                isSelectiveFireAuto = true;
+            int selectiveFireStateId = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
+            if (selectiveFireStateId >= 0 && selectiveFireStateId < SelectiveFireState.values().length) {
+                selectiveFireState = SelectiveFireState.values()[selectiveFireStateId];
             }
         }
 
         // Only check if selective fire doesn't have auto selected and it isn't melee
-        if (!isSelectiveFireAuto && !isMelee) {
+        if (selectiveFireState != SelectiveFireState.AUTO && !isMelee) {
             int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
             if (delayBetweenShots != 0 && !NumberUtil.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
         }
@@ -242,10 +241,10 @@ public class ShootHandler implements IValidator {
         }
 
         if (usesSelectiveFire) {
-            switch (selectiveFire) {
-                case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
+            switch (selectiveFireState) {
+                case BURST:
                     return burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-                case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
+                case AUTO:
                     return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
                 default:
                     return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
