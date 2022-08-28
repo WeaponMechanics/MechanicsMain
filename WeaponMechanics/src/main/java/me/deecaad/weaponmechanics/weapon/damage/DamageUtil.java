@@ -24,12 +24,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nullable;
-
 import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
@@ -212,20 +210,44 @@ public class DamageUtil {
             Player player = (Player) victim;
             if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
-            if (killed) player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
+            if (killed && !isBlacklisted(cause.getType())) player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
         }
         if (cause instanceof Player) {
             Player player = (Player) cause;
             if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
             if (killed) {
-                player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
+                if (!isBlacklisted(victim.getType())) player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
                 if (victim.getType() == EntityType.PLAYER) player.incrementStatistic(Statistic.PLAYER_KILLS);
                 else player.incrementStatistic(Statistic.MOB_KILLS);
             }
         }
 
         return false;
+    }
+
+    /**
+     * Mobs without spawn eggs didn't have statistics associated with them
+     * before 1.13. See https://bugs.mojang.com/browse/MC-33710.
+     *
+     * @param type The entity type.
+     * @return true if there is no statistic.
+     */
+    public static boolean isBlacklisted(EntityType type) {
+        if (ReflectionUtil.getMCVersion() >= 13)
+            return false;
+
+        switch (type) {
+            case IRON_GOLEM:
+            case SNOWMAN:
+            case ENDER_DRAGON:
+            case WITHER:
+            case GIANT:
+            case PLAYER:
+                return true;
+        }
+
+        return ReflectionUtil.getMCVersion() == 12 && type == EntityType.ILLUSIONER;
     }
     
     public static void damageArmor(LivingEntity victim, int amount) {
