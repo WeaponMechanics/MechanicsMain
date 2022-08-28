@@ -23,7 +23,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
 
@@ -345,17 +348,15 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         FLUID {
             @Override
             public boolean test(Block block) {
-                if (ReflectionUtil.getMCVersion() < 13) {
-                    String name = block.getType().name();
-                    return name.endsWith("WATER") || name.endsWith("LAVA");
-                } else {
-                    if (block.isLiquid())
-                        return true;
-                    else if (block.getBlockData() instanceof Waterlogged)
-                        return ((Waterlogged) block.getBlockData()).isWaterlogged();
-                    else
-                        return false;
-                }
+                if (ReflectionUtil.getMCVersion() < 13)
+                    return block.isLiquid();
+
+                if (block.isLiquid())
+                    return true;
+                else if (block.getBlockData() instanceof Waterlogged)
+                    return ((Waterlogged) block.getBlockData()).isWaterlogged();
+                else
+                    return false;
             }
         },
         CAVE_AIR {
