@@ -174,7 +174,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             int delay = split.length > 3 ? Integer.parseInt(split[3]) : 0;
             float noise = split.length > 4 ? Float.parseFloat(split[4]) : 0.0f;
             double distance = split.length > 5 ? Double.parseDouble(split[5]) : Double.NaN;
-            MaterialCategory mat = split.length > 6 ? MaterialCategory.valueOf(split[6].toUpperCase(Locale.ROOT)) : null;
+            MaterialCategory mat = split.length > 6 ? MaterialCategory.valueOf(split[6].toUpperCase(Locale.ROOT)) : MaterialCategory.ALL;
             String category = split.length > 7 ? split[7].toUpperCase(Locale.ROOT) : null;
 
             if (delay > 0)
