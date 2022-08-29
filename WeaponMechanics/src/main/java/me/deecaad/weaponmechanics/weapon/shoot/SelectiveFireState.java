@@ -38,4 +38,11 @@ public enum SelectiveFireState {
     public static int count() {
         return VALUES.length;
     }
+
+    public SelectiveFireState getNext() {
+        int nextId = this.ordinal() + 1;
+        return nextId >= count()
+                ? getState(0)
+                : getState(nextId);
+    }
 }
