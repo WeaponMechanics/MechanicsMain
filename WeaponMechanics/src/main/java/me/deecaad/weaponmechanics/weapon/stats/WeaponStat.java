@@ -22,12 +22,15 @@ public enum WeaponStat {
     FOOT_HITS("INTEGER", Integer.class),
     BACKSTABS("INTEGER", Integer.class),
     CRITICAL_HITS("INTEGER", Integer.class),
+    LONGEST_DISTANCE_HIT("FLOAT", Float.class),
 
     TOTAL_DAMAGE("FLOAT", Float.class),
 
     // TOTAL_KILLS = player + other
     PLAYER_KILLS("INTEGER", Integer.class),
     OTHER_KILLS("INTEGER", Integer.class),
+    PLAYER_ASSISTS("INTEGER", Integer.class),
+    OTHER_ASSISTS("INTEGER", Integer.class),
 
     HEAD_KILLS("INTEGER", Integer.class),
     BODY_KILLS("INTEGER", Integer.class),
@@ -36,6 +39,7 @@ public enum WeaponStat {
     FOOT_KILLS("INTEGER", Integer.class),
     BACKSTAB_KILLS("INTEGER", Integer.class),
     CRITICAL_KILLS("INTEGER", Integer.class),
+    LONGEST_DISTANCE_KILL("FLOAT", Float.class),
 
     BLOCKS_DESTROYED("INTEGER", Integer.class);
 

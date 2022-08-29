@@ -5,6 +5,7 @@ import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 public class StatsData {
 
@@ -41,6 +42,11 @@ public class StatsData {
         if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
         weaponData.putIfAbsent(weaponTitle, new HashMap<>());
         weaponData.get(weaponTitle).compute(stat, (key, value) -> value == null ? data : (float) value + data);
+    }
+
+    public void set(String weaponTitle, WeaponStat stat, BiFunction<WeaponStat, Object, Float> compute) {
+        weaponData.putIfAbsent(weaponTitle, new HashMap<>());
+        weaponData.get(weaponTitle).compute(stat, compute);
     }
 
     public void set(String weaponTitle, WeaponStat stat, String data) {

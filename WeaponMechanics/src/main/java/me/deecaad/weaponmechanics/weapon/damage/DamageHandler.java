@@ -122,9 +122,12 @@ public class DamageHandler {
 
         // On all damage
         useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");
-        if (shooterData != null) shooterData.add(weaponTitle, WeaponStat.TOTAL_DAMAGE, (float) damageEntityEvent.getFinalDamage());
+        if (shooterData != null) {
+            shooterData.add(weaponTitle, WeaponStat.TOTAL_DAMAGE, (float) damageEntityEvent.getFinalDamage());
+            shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_HIT,
+                    (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
+        }
         if (victimData != null) victimData.add(PlayerStat.DAMAGE_TAKEN, (float) damageEntityEvent.getFinalDamage());
-
 
         boolean killed = false;
         if (victim.isDead() || victim.getHealth() <= 0.0) {
@@ -141,6 +144,8 @@ public class DamageHandler {
                 } else {
                     shooterData.add(weaponTitle, WeaponStat.OTHER_KILLS, 1);
                 }
+                shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_KILL,
+                        (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
             }
         }
 
