@@ -219,8 +219,8 @@ public class ShootHandler implements IValidator {
         SelectiveFireState selectiveFireState = SelectiveFireState.SINGLE;
         if (usesSelectiveFire) {
             int selectiveFireStateId = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
-            if (selectiveFireStateId >= 0 && selectiveFireStateId < SelectiveFireState.values().length) {
-                selectiveFireState = SelectiveFireState.values()[selectiveFireStateId];
+            if (selectiveFireStateId >= 0 && selectiveFireStateId < SelectiveFireState.count()) {
+                selectiveFireState = SelectiveFireState.getState(selectiveFireStateId);
             }
         }
 
