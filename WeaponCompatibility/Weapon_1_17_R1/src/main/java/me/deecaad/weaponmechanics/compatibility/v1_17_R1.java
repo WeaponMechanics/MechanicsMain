@@ -64,7 +64,7 @@ public class v1_17_R1 implements IWeaponCompatibility {
     @Override
     public void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute) {
         pitch *= -1;
-        ((CraftPlayer) player).getHandle().connection.send(new ClientboundPlayerPositionPacket(0, 0, 0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0, true));
+        ((CraftPlayer) player).getHandle().connection.send(new ClientboundPlayerPositionPacket(0, 0, 0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0, false));
     }
 
     @Override
