@@ -113,6 +113,11 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         boolean mainhand = slot == EquipmentSlot.HAND;
         boolean isDualWielding = mainWeapon != null && offWeapon != null && mainStack != null && offStack != null;
 
+        if (isDualWielding && !mainhand) {
+            // Don't use WeaponInfoDisplay for both hands at same time...
+            return;
+        }
+
         if (actionBar != null) {
             if (isDualWielding) {
                 String offHand, mainHand;
