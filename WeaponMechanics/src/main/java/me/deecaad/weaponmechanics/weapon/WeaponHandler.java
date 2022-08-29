@@ -150,8 +150,8 @@ public class WeaponHandler {
         // 3) Auto
         SelectiveFireState nextState = selectiveFireState.getNext();
 
-        if (!hasBurst && nextState == BURST || !hasAuto && nextState == AUTO) {
-            nextState = selectiveFireState.getNext();
+        if ((!hasBurst && nextState == BURST) || (!hasAuto && nextState == AUTO)) {
+            nextState = nextState.getNext();
         }
 
         SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, selectiveFireState, nextState);
