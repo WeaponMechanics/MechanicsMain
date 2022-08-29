@@ -190,9 +190,6 @@ public class ScopeHandler implements IValidator {
                 Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
                 if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
                 return true;
             } else {
                 debug.log(LogLevel.WARN, "For some reason zoom in was called on entity when it shouldn't have.",
@@ -217,9 +214,6 @@ public class ScopeHandler implements IValidator {
 
         Mechanics zoomMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Mechanics.class);
         if (zoomMechanics != null) zoomMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
@@ -258,9 +252,6 @@ public class ScopeHandler implements IValidator {
 
         Mechanics zoomOffMechanics = getConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
         if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 

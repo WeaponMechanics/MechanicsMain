@@ -57,7 +57,7 @@ public class WeaponListeners implements Listener {
 
             if (e.getEntityType() == EntityType.PLAYER) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, e.getSlot());
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, e.getSlot(), mainhand ? weaponStack : null, mainhand ? null : weaponStack);
             }
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());

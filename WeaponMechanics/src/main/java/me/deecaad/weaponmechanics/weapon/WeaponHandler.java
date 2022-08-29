@@ -156,14 +156,14 @@ public class WeaponHandler {
 
         SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, selectiveFireState, nextState);
 
+        entityWrapper.getMainHandData().cancelTasks();
+        entityWrapper.getOffHandData().cancelTasks();
+
         Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", Mechanics.class);
         if (selectiveFireMechanics != null) selectiveFireMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = config.getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
-        entityWrapper.getMainHandData().cancelTasks();
-        entityWrapper.getOffHandData().cancelTasks();
         return true;
     }
 
@@ -188,14 +188,14 @@ public class WeaponHandler {
         // Then do the switch
         ammoTypes.updateToNextAmmoType(weaponStack);
 
+        entityWrapper.getMainHandData().cancelTasks();
+        entityWrapper.getOffHandData().cancelTasks();
+
         Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
         if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
-        entityWrapper.getMainHandData().cancelTasks();
-        entityWrapper.getOffHandData().cancelTasks();
 
         return true;
     }

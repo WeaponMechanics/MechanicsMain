@@ -34,7 +34,7 @@ public class PlaceholderValidator implements IValidator {
         convert(configuration, "Placeholder_Symbols.Selective_Fire.SINGLE");
         convert(configuration, "Placeholder_Symbols.Selective_Fire.BURST");
         convert(configuration, "Placeholder_Symbols.Selective_Fire.AUTO");
-        convert(configuration, "Placeholder_Symbols.Dual_Wield_Split");
+        convert(configuration, "Placeholder_Symbols.Dual_Wield.Split");
     }
 
     private void convert(Configuration configuration, String key) {

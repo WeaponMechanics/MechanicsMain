@@ -102,7 +102,13 @@ Placeholder_Symbols:
     SINGLE: "S"
     BURST: "B"
     AUTO: "A"
-  Dual_Wield_Split: " <gray>| "
+  Dual_Wield:
+    Split: " <gray>| "
+
+    # These two aren't actually placeholder symbols, but are used when weapon
+    # doesn't have Dual_Wield section defined in Weapon_Info_Display.
+    Main_Hand: "<gold>%ammo-left%<gray>»<gold>%reload% <gold>%firearm-state%%weapon-title%"
+    Off_Hand: "<gold>%weapon-title%%firearm-state% <gold>%reload%<gray>«<gold>%ammo-left%"
 
 # This is the global damaging system. It defines how bullets damage entities
 # with potion effects, armor, and other statuses.
