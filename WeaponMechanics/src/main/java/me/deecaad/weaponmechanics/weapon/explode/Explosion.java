@@ -28,6 +28,7 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
 import me.deecaad.weaponmechanics.weapon.projectile.RemoveOnBlockCollisionProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
+import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -39,6 +40,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -206,7 +208,8 @@ public class Explosion implements Serializer<Explosion> {
         // Handle worldguard flags
         WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(cause);
-        if (!worldGuard.testFlag(origin, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-explode")) {
+        PlayerWrapper playerWrapper = cause.getType() == EntityType.PLAYER ? (PlayerWrapper) entityWrapper : null;
+        if (!worldGuard.testFlag(origin, playerWrapper != null ? playerWrapper.getPlayer() : null, "weapon-explode")) {
             Object obj = worldGuard.getValue(origin, "weapon-explode-message");
             if (obj != null && !obj.toString().isEmpty()) {
                 Component component = MechanicsCore.getPlugin().message.deserialize(obj.toString());
@@ -278,8 +281,8 @@ public class Explosion implements Serializer<Explosion> {
         if (blockDamage != null) {
             int timeOffset = regeneration == null ? -1 : (solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate());
 
-            damageBlocks(transparent, true, origin, timeOffset);
-            damageBlocks(solid, false, origin, 0);
+            damageBlocks(transparent, true, origin, timeOffset, playerWrapper, projectile);
+            damageBlocks(solid, false, origin, 0, playerWrapper, projectile);
         }
 
         if (projectile != null && projectile.getWeaponTitle() != null) {
@@ -322,7 +325,7 @@ public class Explosion implements Serializer<Explosion> {
                 projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
     }
 
-    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, int timeOffset) {
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, int timeOffset, PlayerWrapper playerWrapper, WeaponProjectile projectile) {
         boolean isRegenerate = regeneration != null;
 
         if (isRegenerate)
@@ -330,6 +333,8 @@ public class Explosion implements Serializer<Explosion> {
 
         List<BlockDamageData.DamageData> brokenBlocks = isRegenerate ? new ArrayList<>(regeneration.getMaxBlocksPerUpdate()) : null;
         Location temp = new Location(null, 0, 0, 0);
+
+        int blocksBroken = 0;
 
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
@@ -383,21 +388,29 @@ public class Explosion implements Serializer<Explosion> {
                 data.remove();
             }
 
-            if (data.isBroken() && blockDamage.isBreakBlocks() && NumberUtil.chance(blockChance)) {
+            if (data.isBroken() && blockDamage.isBreakBlocks()) {
 
-                Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-                Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
+                // For stat tracking
+                blocksBroken += 1;
 
-                // We want blocks to fly out of the newly formed crater.
-                velocity.setY(Math.abs(velocity.getY()));
+                if (NumberUtil.chance(blockChance)) {
+                    Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+                    Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 
-                // This method will add the falling block to the WeaponMechanics
-                // ticker, but it is only added on the next tick. This is
-                // important, since otherwise the projectile would spawn BEFORE
-                // all the blocks were destroyed.
-                spawnFallingBlock(loc, state, velocity);
+                    // We want blocks to fly out of the newly formed crater.
+                    velocity.setY(Math.abs(velocity.getY()));
+
+                    // This method will add the falling block to the WeaponMechanics
+                    // ticker, but it is only added on the next tick. This is
+                    // important, since otherwise the projectile would spawn BEFORE
+                    // all the blocks were destroyed.
+                    spawnFallingBlock(loc, state, velocity);
+                }
             }
         }
+
+        if (blocksBroken != 0 && playerWrapper != null && playerWrapper.getStatsData() != null
+                && projectile != null && projectile.getWeaponTitle() != null) playerWrapper.getStatsData().add(projectile.getWeaponTitle(), WeaponStat.BLOCKS_DESTROYED, blocksBroken);
     }
 
     protected void spawnFallingBlock(Location location, BlockState state, Vector velocity) {

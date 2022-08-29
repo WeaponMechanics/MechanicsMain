@@ -6,8 +6,8 @@ public enum PlayerStat {
 
     UUID("VARCHAR(255)", String.class),
 
-    WEAPON_DEATHS("INTEGER", int.class),
-    DAMAGE_TAKEN("FLOAT", float.class);
+    WEAPON_DEATHS("INTEGER", Integer.class),
+    DAMAGE_TAKEN("FLOAT", Float.class);
 
     private final String columnType;
     private final Class<?> classType;

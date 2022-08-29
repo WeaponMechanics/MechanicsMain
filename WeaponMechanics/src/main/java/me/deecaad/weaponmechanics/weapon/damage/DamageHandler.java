@@ -10,11 +10,16 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
+import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
+import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponDamageEntityEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponKillEntityEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.StatsData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -112,28 +117,79 @@ public class DamageHandler {
         victimCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
         victimCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
 
+        StatsData shooterData = shooter.getType() == EntityType.PLAYER ? ((PlayerWrapper) shooterWrapper).getStatsData() : null;
+        StatsData victimData = victim.getType() == EntityType.PLAYER ? ((PlayerWrapper) victimWrapper).getStatsData() : null;
+
         // On all damage
         useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");
+        if (shooterData != null) shooterData.add(weaponTitle, WeaponStat.TOTAL_DAMAGE, (float) damageEntityEvent.getFinalDamage());
+        if (victimData != null) victimData.add(PlayerStat.DAMAGE_TAKEN, (float) damageEntityEvent.getFinalDamage());
 
-        // On point
-        if (point != null)
-            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage." + point.getReadable());
+
+        boolean killed = false;
+        if (victim.isDead() || victim.getHealth() <= 0.0) {
+            killed = true;
+            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, weaponStack, shooter, victim, damageEntityEvent));
+
+            // On kill
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Kill");
+            if (victimData != null) victimData.add(PlayerStat.WEAPON_DEATHS, 1);
+
+            if (shooterData != null) {
+                if (victim.getType() == EntityType.PLAYER) {
+                    shooterData.add(weaponTitle, WeaponStat.PLAYER_KILLS, 1);
+                } else {
+                    shooterData.add(weaponTitle, WeaponStat.OTHER_KILLS, 1);
+                }
+            }
+        }
 
         // On backstab
         if (damageEntityEvent.isBackstab()) {
             useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Backstab");
+            if (shooterData != null) {
+                shooterData.add(weaponTitle, WeaponStat.BACKSTABS, 1);
+                if (killed) shooterData.add(weaponTitle, WeaponStat.BACKSTAB_KILLS, 1);
+            }
         }
 
         // On critical
         if (damageEntityEvent.isCritical()) {
             useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Critical_Hit");
+            if (shooterData != null) {
+                shooterData.add(weaponTitle, WeaponStat.CRITICAL_HITS, 1);
+                if (killed) shooterData.add(weaponTitle, WeaponStat.CRITICAL_KILLS, 1);
+            }
         }
 
-        if (victim.isDead() || victim.getHealth() <= 0.0) {
-            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, weaponStack, shooter, victim, damageEntityEvent));
+        // On point
+        if (point != null) {
+            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage." + point.getReadable());
 
-            // On kill
-            useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Kill");
+            if (shooterData != null) {
+                switch (point) {
+                    case HEAD:
+                        shooterData.add(weaponTitle, WeaponStat.HEAD_HITS, 1);
+                        if (killed) shooterData.add(weaponTitle, WeaponStat.HEAD_KILLS, 1);
+                        break;
+                    case BODY:
+                        shooterData.add(weaponTitle, WeaponStat.BODY_HITS, 1);
+                        if (killed) shooterData.add(weaponTitle, WeaponStat.BODY_KILLS, 1);
+                        break;
+                    case ARMS:
+                        shooterData.add(weaponTitle, WeaponStat.ARM_HITS, 1);
+                        if (killed) shooterData.add(weaponTitle, WeaponStat.ARM_KILLS, 1);
+                        break;
+                    case LEGS:
+                        shooterData.add(weaponTitle, WeaponStat.LEG_HITS, 1);
+                        if (killed) shooterData.add(weaponTitle, WeaponStat.LEG_KILLS, 1);
+                        break;
+                    case FEET:
+                        shooterData.add(weaponTitle, WeaponStat.FOOT_HITS, 1);
+                        if (killed) shooterData.add(weaponTitle, WeaponStat.FOOT_KILLS, 1);
+                        break;
+                }
+            }
         }
 
         return true;
