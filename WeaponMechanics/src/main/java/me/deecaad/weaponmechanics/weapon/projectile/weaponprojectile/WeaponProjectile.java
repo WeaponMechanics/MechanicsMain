@@ -64,7 +64,8 @@ public class WeaponProjectile extends AProjectile {
                     .withBlockFilter(this::equalToLastHit)
                     .withEntityFilter(entity ->
                             equalToLastHit(entity)
-                            || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId()))
+                                    || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId())
+                                    || (entity.getPassengers().contains(getShooter())))
                     .enableLiquidChecks()
                     .withRaySize(projectileSettings.getSize());
         }
