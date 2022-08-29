@@ -119,97 +119,85 @@ public class WeaponHandler {
     public void tryUses(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         if (!weaponStack.hasItemMeta()) return;
 
-        // Try shooting (and melee), then reloading, then scoping
         if (shootHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, victim)
                 || reloadHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
-                || scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)) {
+                || scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
+                || tryUseSelectiveFire(entityWrapper, weaponTitle, weaponStack, slot, triggerType)
+                || tryUseAmmoTypeSwitch(entityWrapper, weaponTitle, weaponStack, slot, triggerType)) {
             getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
             return;
         }
 
         getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+    }
 
-        // Scoping wasn't valid, try selective fire
+    private boolean tryUseSelectiveFire(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType) {
         Configuration config = getConfigurations();
         Trigger selectiveFireTrigger = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Trigger", Trigger.class);
-        if (selectiveFireTrigger != null && selectiveFireTrigger.check(triggerType, slot, entityWrapper)) {
-            boolean hasBurst = config.getInt(weaponTitle + ".Shoot.Burst.Shots_Per_Burst") != 0 && config.getInt(weaponTitle + ".Shoot.Burst.Ticks_Between_Each_Shot") != 0;
-            boolean hasAuto = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second") != 0;
-
-            // Order is
-            // 1) Single
-            // 2) Burst
-            // 3) Auto
-            // TODO simplify logic
-            if (!CustomTag.SELECTIVE_FIRE.hasInteger(weaponStack)) {
-                if (hasBurst) {
-                    SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, BURST);
-                } else if (hasAuto) {
-                    SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, AUTO);
-                }
-            } else {
-                int currentSelectiveFire = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
-                switch (currentSelectiveFire) {
-                    case (1): // 1 = burst, can't use SelectiveFireState.BURST.getId() here
-                        if (hasAuto) {
-                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, BURST, AUTO);
-                        } else {
-                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, BURST, SINGLE);
-                        }
-                        break;
-                    case (2): // 2 = auto, can't use SelectiveFireState.AUTO.getId() here
-                        SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, AUTO, SINGLE);
-                        break;
-                    default:
-                        if (hasBurst) {
-                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, BURST);
-                        } else if (hasAuto) {
-                            SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, SINGLE, AUTO);
-                        }
-                        break;
-                }
-            }
-
-            Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", Mechanics.class);
-            if (selectiveFireMechanics != null) selectiveFireMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-            WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
-            entityWrapper.getMainHandData().cancelTasks();
-            entityWrapper.getOffHandData().cancelTasks();
-            return;
+        if (selectiveFireTrigger == null || !selectiveFireTrigger.check(triggerType, slot, entityWrapper)) {
+            return false;
         }
 
-        // Selective fire wasn't valid, try ammo type switch
+        boolean hasBurst = config.getInt(weaponTitle + ".Shoot.Burst.Shots_Per_Burst") != 0 && config.getInt(weaponTitle + ".Shoot.Burst.Ticks_Between_Each_Shot") != 0;
+        boolean hasAuto = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second") != 0;
+
+        int selectiveFireStateId = CustomTag.SELECTIVE_FIRE.getInteger(weaponStack);
+        SelectiveFireState selectiveFireState = SelectiveFireState.getState(selectiveFireStateId);
+
+        // Order is
+        // 1) Single
+        // 2) Burst
+        // 3) Auto
+        SelectiveFireState nextState = selectiveFireState.getNext();
+
+        if ((!hasBurst && nextState == BURST) || (!hasAuto && nextState == AUTO)) {
+            nextState = nextState.getNext();
+        }
+
+        SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, selectiveFireState, nextState);
+
+        Mechanics selectiveFireMechanics = config.getObject(weaponTitle + ".Shoot.Selective_Fire.Mechanics", Mechanics.class);
+        if (selectiveFireMechanics != null) selectiveFireMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+
+        WeaponInfoDisplay weaponInfoDisplay = config.getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+
+        entityWrapper.getMainHandData().cancelTasks();
+        entityWrapper.getOffHandData().cancelTasks();
+        return true;
+    }
+
+    private boolean tryUseAmmoTypeSwitch(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType) {
+        Configuration config = getConfigurations();
         Trigger ammoTypeSwitchTrigger = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Trigger", Trigger.class);
-        if (ammoTypeSwitchTrigger != null && entityWrapper instanceof PlayerWrapper && ammoTypeSwitchTrigger.check(triggerType, slot, entityWrapper)) {
-
-            AmmoTypes ammoTypes = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-            if (ammoTypes != null) {
-
-                // First empty the current ammo
-                int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
-                if (ammoLeft > 0) {
-                    ammoTypes.giveAmmo(weaponStack, (PlayerWrapper) entityWrapper, ammoLeft, config.getInt(weaponTitle + ".Reload.Magazine_Size"));
-                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
-                }
-
-                // Then do the switch
-                ammoTypes.updateToNextAmmoType(weaponStack);
-
-                Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
-                if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
-                entityWrapper.getMainHandData().cancelTasks();
-                entityWrapper.getOffHandData().cancelTasks();
-
-                // Here has to be return if new triggers gets added
-            }
+        if (ammoTypeSwitchTrigger == null || entityWrapper.getEntity().getType() != EntityType.PLAYER
+                || !ammoTypeSwitchTrigger.check(triggerType, slot, entityWrapper)) {
+            return false;
         }
+
+        AmmoTypes ammoTypes = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
+        if (ammoTypes == null) return false;
+
+        // First empty the current ammo
+        int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weaponStack);
+        if (ammoLeft > 0) {
+            ammoTypes.giveAmmo(weaponStack, (PlayerWrapper) entityWrapper, ammoLeft, config.getInt(weaponTitle + ".Reload.Magazine_Size"));
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+        }
+
+        // Then do the switch
+        ammoTypes.updateToNextAmmoType(weaponStack);
+
+        Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
+        if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+
+        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
+        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+
+        entityWrapper.getMainHandData().cancelTasks();
+        entityWrapper.getOffHandData().cancelTasks();
+
+        return true;
     }
 
     /**

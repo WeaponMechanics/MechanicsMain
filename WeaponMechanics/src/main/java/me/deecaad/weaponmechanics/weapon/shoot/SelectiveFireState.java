@@ -8,20 +8,14 @@ import org.bukkit.inventory.ItemStack;
 
 public enum SelectiveFireState {
 
-    SINGLE(0),
-    BURST(1),
-    AUTO(2);
+    SINGLE,
+    BURST,
+    AUTO;
 
-    private final int id;
+    private static final SelectiveFireState[] VALUES = values();
 
-    SelectiveFireState(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
+   SelectiveFireState() {
+   }
 
     /**
      * Helper function to set item's selective fire state and call a
@@ -34,6 +28,21 @@ public enum SelectiveFireState {
         if (event.isCancelled())
             return;
 
-        CustomTag.SELECTIVE_FIRE.setInteger(item, event.getNewState().id);
+        CustomTag.SELECTIVE_FIRE.setInteger(item, event.getNewState().ordinal());
+    }
+
+    public static SelectiveFireState getState(int ordinal) {
+        return VALUES[ordinal];
+    }
+
+    public static int count() {
+        return VALUES.length;
+    }
+
+    public SelectiveFireState getNext() {
+        int nextId = this.ordinal() + 1;
+        return nextId >= count()
+                ? getState(0)
+                : getState(nextId);
     }
 }
