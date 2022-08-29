@@ -41,6 +41,7 @@
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Delay_Between_Shots: 9
     Spread:

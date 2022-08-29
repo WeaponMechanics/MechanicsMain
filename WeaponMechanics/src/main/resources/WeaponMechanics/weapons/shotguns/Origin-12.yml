@@ -42,6 +42,7 @@ Origin_12:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 60
     Projectiles_Per_Shot: 10
     Delay_Between_Shots: 7
