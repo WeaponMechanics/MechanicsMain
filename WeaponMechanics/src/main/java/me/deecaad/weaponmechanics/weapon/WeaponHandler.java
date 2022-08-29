@@ -124,7 +124,6 @@ public class WeaponHandler {
                 || scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
                 || tryUseSelectiveFire(entityWrapper, weaponTitle, weaponStack, slot, triggerType)
                 || tryUseAmmoTypeSwitch(entityWrapper, weaponTitle, weaponStack, slot, triggerType)) {
-            getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
             return;
         }
 
@@ -164,6 +163,9 @@ public class WeaponHandler {
 
         WeaponInfoDisplay weaponInfoDisplay = config.getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+
+        getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+
         return true;
     }
 
@@ -196,6 +198,8 @@ public class WeaponHandler {
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+
+        getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
 
         return true;
     }

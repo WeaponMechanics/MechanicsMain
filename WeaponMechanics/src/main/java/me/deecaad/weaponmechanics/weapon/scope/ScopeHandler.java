@@ -63,8 +63,11 @@ public class ScopeHandler implements IValidator {
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
 
-        // Don't try to scope if either one of the hands is reloading
-        if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+        // Don't try to scope if either one of the hands is reloading or running firearm actions
+        HandData main = entityWrapper.getMainHandData();
+        HandData off = entityWrapper.getOffHandData();
+        if (main.isReloading() || main.hasRunningFirearmAction()
+                || off.isReloading() || off.hasRunningFirearmAction()) {
             return false;
         }
 

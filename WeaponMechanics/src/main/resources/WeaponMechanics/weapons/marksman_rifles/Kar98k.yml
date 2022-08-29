@@ -41,6 +41,7 @@ Kar98k:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 220
     Delay_Between_Shots: 18
     Spread:
