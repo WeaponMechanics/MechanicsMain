@@ -27,6 +27,7 @@ import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
@@ -210,6 +211,7 @@ public class WeaponMechanics {
             List<IValidator> validators = new ArrayList<>();
             validators.add(new HitBox());
             validators.add(new PlaceholderValidator());
+            validators.add(new AssistData());
 
             FileReader basicConfigurationReader = new FileReader(debug, null, validators);
             Configuration filledMap = basicConfigurationReader.fillOneFile(configyml);

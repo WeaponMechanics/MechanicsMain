@@ -31,6 +31,13 @@ Database:
   SQLite:
     Absolute_Path: "plugins/WeaponMechanics/weaponmechanics.db"
 
+# Used to keep track of weapon assists
+Assists_Event:
+  Enable: true
+  Only_Players: true # true to only track player kill assists
+  Required_Damage_Amount: 0 # damage amount for assist, 0 to disable
+  Timer: 100 # last damage time in ticks before death for assist, 0 to disable
+
 # Change messages sent for player
 Messages:
   Permissions:

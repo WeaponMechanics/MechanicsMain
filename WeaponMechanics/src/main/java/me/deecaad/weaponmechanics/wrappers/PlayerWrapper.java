@@ -124,7 +124,6 @@ public class PlayerWrapper extends EntityWrapper {
      */
     @Nullable
     public StatsData getStatsData() {
-        System.out.println(statsData.toString());
         return statsData;
     }
 }

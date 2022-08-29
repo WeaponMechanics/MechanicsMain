@@ -21,7 +21,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
@@ -77,8 +79,9 @@ public class DamageHandler {
 
         fireTicks = damageEntityEvent.getFireTicks();
         point = damageEntityEvent.getPoint();
+        double finalDamage = damageEntityEvent.getFinalDamage();
 
-        if (DamageUtil.apply(shooter, victim, damageEntityEvent.getFinalDamage())) {
+        if (DamageUtil.apply(shooter, victim, finalDamage)) {
             WeaponMechanics.debug.debug("Damage was cancelled");
 
             // Damage was cancelled
@@ -123,11 +126,11 @@ public class DamageHandler {
         // On all damage
         useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage");
         if (shooterData != null) {
-            shooterData.add(weaponTitle, WeaponStat.TOTAL_DAMAGE, (float) damageEntityEvent.getFinalDamage());
+            shooterData.add(weaponTitle, WeaponStat.TOTAL_DAMAGE, (float) finalDamage);
             shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_HIT,
                     (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
         }
-        if (victimData != null) victimData.add(PlayerStat.DAMAGE_TAKEN, (float) damageEntityEvent.getFinalDamage());
+        if (victimData != null) victimData.add(PlayerStat.DAMAGE_TAKEN, (float) finalDamage);
 
         boolean killed = false;
         if (victim.isDead() || victim.getHealth() <= 0.0) {
@@ -147,6 +150,19 @@ public class DamageHandler {
                 shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_KILL,
                         (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
             }
+        } else if (shooter.getType() == EntityType.PLAYER && getBasicConfigurations().getBool("Assists_Event.Enable", true)
+                && (!getBasicConfigurations().getBool("Assists_Event.Only_Players", true) || victim.getType() == EntityType.PLAYER)) {
+
+            // If shot didn't kill entity, log assist damage
+            AssistData assistData;
+            if (victim.hasMetadata("wm_assist_data")) {
+                assistData = (AssistData) victim.getMetadata("wm_assist_data").get(0).value();
+            } else {
+                victim.setMetadata("wm_assist_data",
+                        new FixedMetadataValue(WeaponMechanics.getPlugin(), assistData = new AssistData()));
+            }
+            assistData.logDamage((Player) shooter, weaponTitle, weaponStack, finalDamage);
+
         }
 
         // On backstab
