@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -10,6 +12,7 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.skin.Skin;
+import me.deecaad.weaponmechanics.weapon.skin.SkinList;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -56,9 +59,10 @@ public class InfoHandler implements IValidator {
     private WeaponHandler weaponHandler;
 
     /**
-     * Validator instance
+     * Default constructor for validator
      */
-    public InfoHandler() { }
+    public InfoHandler() {
+    }
 
     public InfoHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -232,8 +236,8 @@ public class InfoHandler implements IValidator {
         }
 
         // Apply default skin
-        Map skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
-        Skin defaultSkin = (Skin) (skins == null ? null : skins.get("Default"));
+        SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
+        Skin defaultSkin = skins == null ? null : skins.getSkin(null, null);
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
         }
@@ -255,7 +259,10 @@ public class InfoHandler implements IValidator {
         } else
             return false;
 
-        Mechanics.use(weaponTitle + ".Info.Weapon_Get_Mechanics", new CastData(WeaponMechanics.getEntityWrapper(entity), weaponTitle, weaponStack));
+
+        Mechanics weaponGetMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Get_Mechanics", Mechanics.class);
+        if (weaponGetMechanics != null) weaponGetMechanics.use(new CastData(WeaponMechanics.getEntityWrapper(entity), weaponTitle, weaponStack));
+
         return true;
     }
 
@@ -265,12 +272,12 @@ public class InfoHandler implements IValidator {
      * @param player the player for which to send denied message if not allowed to dual wield
      * @param mainWeaponTitle the main hand weapon title
      * @param offWeaponTitle the off hand weapon title
-     * @return whether or not dual wielding is allowed
+     * @return whether dual wielding is allowed
      */
     public boolean denyDualWielding(TriggerType checkCause, @Nullable Player player, @Nullable String mainWeaponTitle, @Nullable String offWeaponTitle) {
 
         // Just simple check whether other hand is empty anyway
-        if (mainWeaponTitle == null && offWeaponTitle != null || offWeaponTitle == null && mainWeaponTitle != null) return false;
+        if (mainWeaponTitle == null || offWeaponTitle == null) return false;
 
         // Check that main hand weapon allows
         if (mainWeaponTitle != null) {
@@ -322,12 +329,16 @@ public class InfoHandler implements IValidator {
         return "Info";
     }
 
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Info");
+    }
+
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        int weaponEquipDelay = configuration.getInt(path + ".Weapon_Equip_Delay");
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        int weaponEquipDelay = data.of("Weapon_Equip_Delay").assertPositive().getInt(0);
         if (weaponEquipDelay != 0) {
             // Convert to millis
-            configuration.set(path + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
+            configuration.set(data.key + ".Weapon_Equip_Delay", weaponEquipDelay * 50);
         }
     }
 }

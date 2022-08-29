@@ -364,7 +364,7 @@ public class WeaponMechanics {
                 Bukkit.getPluginManager().addPermission(permission);
             }
 
-            permission.addParent(parent, false);
+            permission.addParent(parent, true);
         }
     }
 

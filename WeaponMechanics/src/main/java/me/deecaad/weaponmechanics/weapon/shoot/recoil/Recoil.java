@@ -33,9 +33,10 @@ public class Recoil implements Serializer<Recoil> {
     private ModifyRecoilWhen modifyRecoilWhen;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public Recoil() { }
+    public Recoil() {
+    }
 
     public Recoil(long pushTime, long recoverTime, List<Float> randomHorizontal, List<Float> randomVertical, RecoilPattern recoilPattern, ModifyRecoilWhen modifyRecoilWhen) {
         this.pushTime = pushTime;

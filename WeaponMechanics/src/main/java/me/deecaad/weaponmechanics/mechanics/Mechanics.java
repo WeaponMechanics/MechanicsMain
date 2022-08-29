@@ -25,7 +25,7 @@ public class Mechanics implements Serializer<Mechanics> {
     private List<IMechanic<?>> mechanicList;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
     public Mechanics() {
     }

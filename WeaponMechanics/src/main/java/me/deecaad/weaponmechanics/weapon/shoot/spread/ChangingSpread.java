@@ -16,9 +16,10 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     private Bounds bounds;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public ChangingSpread() { }
+    public ChangingSpread() {
+    }
 
     public ChangingSpread(double startingAmount, int resetTime, ModifySpreadWhen increaseChangeWhen, Bounds bounds) {
         this.startingAmount = startingAmount;
@@ -109,7 +110,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
          */
         public boolean checkBounds(HandData handData, double startingAmount) {
             double currentSpreadChange = handData.getSpreadChange();
-            if (min != 0.0 && currentSpreadChange < min) {
+            if (min != 0.0 && currentSpreadChange <= min) {
                 if (resetAfterReachingBound) {
                     handData.setSpreadChange(startingAmount);
                     return true;

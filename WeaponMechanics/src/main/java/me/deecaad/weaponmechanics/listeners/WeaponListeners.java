@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -57,7 +59,7 @@ public class WeaponListeners implements Listener {
 
             if (e.getEntityType() == EntityType.PLAYER) {
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, e.getSlot());
+                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, e.getSlot(), mainhand ? weaponStack : null, !mainhand ? weaponStack : null);
             }
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());
@@ -91,8 +93,16 @@ public class WeaponListeners implements Listener {
 
     @EventHandler (ignoreCancelled = true)
     public void itemHeld(PlayerItemHeldEvent e) {
-        WeaponMechanics.getEntityWrapper(e.getPlayer()).getMainHandData().cancelTasks();
+        Player player = e.getPlayer();
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(player);
+        entityWrapper.getMainHandData().cancelTasks();
         // No need to cancel off hand tasks since this is only called when changing held slot
+        // Unless player is now dual wielding
+        EntityEquipment entityEquipment = player.getEquipment();
+        ItemStack nextSlot = player.getInventory().getItem(e.getNewSlot());
+        if (entityEquipment.getItemInOffHand().getType() != Material.AIR && nextSlot != null && nextSlot.getType() != Material.AIR) {
+            entityWrapper.getOffHandData().cancelTasks(true);
+        }
     }
 
     @EventHandler
@@ -103,7 +113,8 @@ public class WeaponListeners implements Listener {
     @EventHandler (ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
-        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper((Player) e.getWhoClicked());
+        Player player = (Player) e.getWhoClicked();
+        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
 
         // Keep track of when last inventory click drop happens
         ClickType clickType = e.getClick();
@@ -115,8 +126,8 @@ public class WeaponListeners implements Listener {
         // Off hand is also considered as quickbar slot
         if (e.getSlotType() != InventoryType.SlotType.QUICKBAR) return;
 
-        playerWrapper.getMainHandData().cancelTasks();
-        playerWrapper.getOffHandData().cancelTasks();
+        playerWrapper.getMainHandData().cancelTasks(true);
+        playerWrapper.getOffHandData().cancelTasks(true);
     }
 
     @EventHandler (ignoreCancelled = true)

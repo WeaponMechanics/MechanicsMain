@@ -34,7 +34,7 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
         if (hits != null) {
             RayTraceResult firstHit = hits.get(0);
             setRawLocation(firstHit.getHitLocation());
-            onCollide(firstHit.getBlock());
+            onCollide(firstHit);
             return true;
         }
         setRawLocation(possibleNextLocation);

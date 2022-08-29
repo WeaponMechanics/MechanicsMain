@@ -12,10 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommandMechanic implements IMechanic<CommandMechanic> {
 
@@ -59,6 +56,13 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
     @Override
     public String getKeyword() {
         return "Commands";
+    }
+
+    @Override
+    public boolean shouldSerialize(SerializeData data) {
+
+        // Let Mechanics handle all automatic serializer stuff
+        return false;
     }
 
     @Override

@@ -6,22 +6,22 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import java.util.List;
 
 /**
- * For reload
+ * For equipping
  */
-public class FinishMechanics extends Mechanics {
+public class WeaponGetMechanics extends Mechanics {
 
     /**
      * Default constructor for serializer
      */
-    public FinishMechanics() {
+    public WeaponGetMechanics() {
     }
 
-    public FinishMechanics(List<IMechanic<?>> mechanicList) {
+    public WeaponGetMechanics(List<IMechanic<?>> mechanicList) {
         super(mechanicList);
     }
 
     @Override
     public String getKeyword() {
-        return "Finish_Mechanics";
+        return "Weapon_Get_Mechanics";
     }
 }

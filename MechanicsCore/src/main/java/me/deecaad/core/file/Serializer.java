@@ -40,6 +40,18 @@ public interface Serializer<T> {
     }
 
     /**
+     * After the {@link #getKeyword()} check and {@link #getParentKeywords()}
+     * check, this final check can be customized by the serializer in order to
+     * "fine tune" when a serializer should be automatically serialized.
+     *
+     * @param data The config information.
+     * @return true if the serializer should serialize.
+     */
+    default boolean shouldSerialize(SerializeData data) {
+        return true;
+    }
+
+    /**
      * Basically if this is not null then all other serializers will be used except these which
      * have useLater() returning not null. useLater() should only return something else than null if path to configuration option is used.
      *

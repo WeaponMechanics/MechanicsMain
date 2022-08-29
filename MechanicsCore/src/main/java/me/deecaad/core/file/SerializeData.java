@@ -12,31 +12,62 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Wraps a key (<i>Usually</i> pointing to a {@link ConfigurationSection}) with
- * serializer functions to help ensure valid config. The key will not point to
- * a configuration section when the internal {@link Serializer} does not use
- * a configuration section (or when the configuration writer did something
- * very wrong).
+ * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along
+ * with useful "validation methods". These methods will throw a
+ * {@link SerializerException} if the server admin input an incorrect value.
+ * This allows us, the developers, to quickly and easily check if the config is
+ * valid (Without long if/else if/else chains, or otherwise). Uses a builder
+ * pattern for nice one-liners.
+ *
+ * <p>For example, to get a positive integer from config, we can use
+ * <code>SerializeData#of("your.key").assertExists().assertPositive().getInt()</code>.
  */
 public class SerializeData {
 
-    public final Serializer<?> serializer;
+    public final String serializer;
     public final File file;
     public final String key;
     public final ConfigurationSection config;
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
+    public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
         this.serializer = serializer;
         this.file = file;
         this.key = key;
         this.config = config;
     }
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
+    public SerializeData(@Nonnull String serializer, @Nonnull SerializeData other, @Nonnull String relative) {
         this.serializer = serializer;
         this.file = other.file;
         this.key = other.getPath(relative);
         this.config = other.config;
+    }
+
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
+        this.serializer = getSimpleName(serializer);
+        this.file = file;
+        this.key = key;
+        this.config = config;
+    }
+
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
+        this.serializer = getSimpleName(serializer);
+        this.file = other.file;
+        this.key = other.getPath(relative);
+        this.config = other.config;
+    }
+
+    private static String getSimpleName(Serializer<?> serializer) {
+
+        // Sometimes a class will end with 'Serializer' in its name, like
+        // 'ColorSerializer'. This information may be confusing to some people,
+        // so we can strip it away here.
+        String simple = serializer.getClass().getSimpleName();
+        int index = simple.indexOf("Serializer");
+        if (index > 0)
+            simple = simple.substring(0, index);
+
+        return simple;
     }
 
     private String getPath(String relative) {

@@ -2,8 +2,7 @@ package me.deecaad.weaponmechanics.weapon.scope;
 
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -31,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import org.vivecraft.VSE;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
@@ -40,7 +40,11 @@ public class ScopeHandler implements IValidator {
     private static final IScopeCompatibility scopeCompatibility = WeaponCompatibilityAPI.getScopeCompatibility();
     private WeaponHandler weaponHandler;
 
-    public ScopeHandler() {}
+    /**
+     * Defualt constructor for validator
+     */
+    public ScopeHandler() {
+    }
 
     public ScopeHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -59,8 +63,11 @@ public class ScopeHandler implements IValidator {
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
         Configuration config = getConfigurations();
 
-        // Don't try to scope if either one of the hands is reloading
-        if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+        // Don't try to scope if either one of the hands is reloading or running firearm actions
+        HandData main = entityWrapper.getMainHandData();
+        HandData off = entityWrapper.getOffHandData();
+        if (main.isReloading() || main.hasRunningFirearmAction()
+                || off.isReloading() || off.hasRunningFirearmAction()) {
             return false;
         }
 
@@ -186,9 +193,6 @@ public class ScopeHandler implements IValidator {
                 Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
                 if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
                 return true;
             } else {
                 debug.log(LogLevel.WARN, "For some reason zoom in was called on entity when it shouldn't have.",
@@ -213,9 +217,6 @@ public class ScopeHandler implements IValidator {
 
         Mechanics zoomMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Mechanics.class);
         if (zoomMechanics != null) zoomMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
@@ -254,9 +255,6 @@ public class ScopeHandler implements IValidator {
 
         Mechanics zoomOffMechanics = getConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
         if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
@@ -323,42 +321,38 @@ public class ScopeHandler implements IValidator {
         return "Scope";
     }
 
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Scope");
+    }
+
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        Trigger trigger = configuration.getObject(path + ".Trigger", Trigger.class);
-        if (trigger == null) {
-            debug.log(LogLevel.ERROR, "Tried to use scope without defining trigger for it.",
-                    "Located at file " + file + " in " + path + ".Trigger in configurations.");
-        }
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        Trigger trigger = configuration.getObject(data.key + ".Trigger", Trigger.class);
+        if (trigger == null)
+            throw new SerializerMissingKeyException(data.serializer, data.key + ".Trigger", data.of("Trigger").getLocation());
 
-        double zoomAmount = configuration.getDouble(path + ".Zoom_Amount");
-        if (zoomAmount < 1 || zoomAmount > 10) {
-            debug.log(LogLevel.ERROR, "Tried to use scope without defining proper zoom amount for it, or it was missing.",
-                    "Zoom amount has to be between 1 and 10.",
-                    "Located at file " + file + " in " + path + ".Zoom_Amount in configurations.");
-        }
+        double zoomAmount = configuration.getDouble(data.key + ".Zoom_Amount");
+        if (zoomAmount < 1 || zoomAmount > 10)
+            throw new SerializerRangeException(data.serializer, 1.0, zoomAmount, 10.0, data.of("Zoom_Amount").getLocation());
 
-        List<String> zoomStacks = configuration.getList(path + ".Zoom_Stacking.Stacks", null);
+        List<String> zoomStacks = configuration.getList(data.key + ".Zoom_Stacking.Stacks", null);
         if (zoomStacks != null) {
-            try {
-                zoomStacks.stream().mapToDouble(Double::parseDouble).forEach(zoomStack -> {
-                    if (zoomStack < 1 || zoomStack > 10) {
-                        debug.log(LogLevel.ERROR, "Tried to use zoom stacks without defining proper zoom amounts for it.",
-                                "Zoom amount has to be between 1 and 10.",
-                                "Located at file " + file + " in " + path + ".Zoom_Stacking.Stacks in configurations.");
-                    }
-                });
-            } catch (NumberFormatException e) {
-                debug.log(LogLevel.ERROR, "Tried to use zoom stacks without defining proper zoom amounts for it.",
-                        "Zoom amount has to be number.",
-                        "Located at file " + file + " in " + path + ".Zoom_Stacking.Stacks in configurations.");
+            for (int i = 0; i < zoomStacks.size(); i++) {
+                String zoomStack = zoomStacks.get(i);
+                try {
+                    double v = Double.parseDouble(zoomStack);
+                    if (v < 1 || v > 10)
+                        throw new SerializerRangeException(data.serializer, 1.0, v, 10.0, data.ofList("Zoom_Stacking.Stacks").getLocation(i));
+                } catch (NumberFormatException e) {
+                    throw new SerializerTypeException(data.serializer, Number.class, String.class, zoomStack, data.ofList("Zoom_Stacking.Stacks").getLocation(i));
+                }
             }
         }
 
-        int shootDelayAfterScope = configuration.getInt(path + ".Shoot_Delay_After_Scope");
+        int shootDelayAfterScope = configuration.getInt(data.key + ".Shoot_Delay_After_Scope");
         if (shootDelayAfterScope != 0) {
             // Convert to millis
-            configuration.set(path + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
+            configuration.set(data.key + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
         }
     }
 }

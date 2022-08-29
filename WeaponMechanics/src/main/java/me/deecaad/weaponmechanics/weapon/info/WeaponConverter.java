@@ -22,9 +22,10 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     private boolean enchantments;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public WeaponConverter() { }
+    public WeaponConverter() {
+    }
 
     public WeaponConverter(boolean type, boolean name, boolean lore, boolean enchantments) {
         this.type = type;

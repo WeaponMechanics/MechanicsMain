@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
@@ -99,17 +100,9 @@ public abstract class ProjectileScript<T extends AProjectile> {
     public void onEnd() {}
 
     /**
-     * Called when the projectile collides with a block.
+     * Called when the projectile collides with a block or living entity.
      *
-     * @param block The non-null block.
+     * @param hit The non-null ray trace result of block or living entity.
      */
-    public void onCollide(@Nonnull Block block) {}
-
-    /**
-     * Called when the projectile collides with an entity. Note that
-     * projectiles are allowed to skip collision checks.
-     *
-     * @param entity The non-null entity.
-     */
-    public void onCollide(@Nonnull Entity entity) {}
+    public void onCollide(@Nonnull RayTraceResult hit) {}
 }

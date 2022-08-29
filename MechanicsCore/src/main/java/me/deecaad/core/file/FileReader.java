@@ -203,6 +203,7 @@ public class FileReader {
 
             String[] keySplit = key.split("\\.");
             if (keySplit.length > 0) {
+
                 // Get the last "key name" of the key
                 String lastKey = keySplit[keySplit.length - 1].toLowerCase();
 
@@ -210,10 +211,17 @@ public class FileReader {
                 if (startsWithDeny == null) {
                     IValidator validator = this.validators.get(lastKey);
                     if (validator != null) {
-                        validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+                        // Get the first "key name" of the key
+                        String firstKey = keySplit[0].toLowerCase();
 
-                        if (validator.denyKeys())
-                            startsWithDeny = key;
+                        String keyWithoutFirstKey = keySplit.length == 1 ? null : key.substring(firstKey.length());
+                        if (keyWithoutFirstKey == null || validator.getAllowedPaths() == null || validator.getAllowedPaths().stream().anyMatch(keyWithoutFirstKey::equalsIgnoreCase)) {
+
+                            validatorDatas.add(new ValidatorData(validator, file, configuration, key));
+
+                            if (validator.denyKeys())
+                                startsWithDeny = key;
+                        }
                     }
                 }
 
@@ -225,6 +233,11 @@ public class FileReader {
                     // -> Don't try to serialize this serializer under serializer
                     String keyWithoutLastKey = keySplit.length == 1 ? null : key.substring(0, key.length() - lastKey.length() - 1);
                     if (startsWithDeny != null && (serializer.getParentKeywords() == null || keyWithoutLastKey == null || serializer.getParentKeywords().stream().noneMatch(keyWithoutLastKey::endsWith))) {
+                        continue;
+                    }
+
+                    if (!serializer.shouldSerialize(new SerializeData(serializer, file, key, configuration))) {
+                        debug.debug("Skipping " + key + " due to skip");
                         continue;
                     }
 
@@ -244,14 +257,14 @@ public class FileReader {
                             // If this serialization happened within serializer (meaning this is child serializer), startsWithDeny is not null
                             if (startsWithDeny == null) startsWithDeny = key;
 
-                        } catch (SerializerException e) {
-                            e.log(debug);
+                        } catch (SerializerException ex) {
+                            ex.log(debug);
                             if (startsWithDeny == null) startsWithDeny = key;
-                        } catch (Exception e) {
+                        } catch (Exception ex) {
 
                             // Any Exception other than SerializerException
                             // should be fixed by the dev of the serializer.
-                            throw new InternalError("Unhandled caught exception from serializer " + serializer.getKeyword() + "!", e);
+                            throw new InternalError("Unhandled caught exception from serializer " + serializer + "!", ex);
                         }
                     }
                     continue;
@@ -291,10 +304,17 @@ public class FileReader {
         if (!validatorDatas.isEmpty()) {
             for (ValidatorData validatorData : validatorDatas) {
 
+                if (!validatorData.validator.shouldValidate(new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection))) {
+                    debug.debug("Skipping " + validatorData.path + " due to skip");
+                    continue;
+                }
+
                 try {
-                    validatorData.getValidator().validate(filledMap, validatorData.getFile(), validatorData.getConfigurationSection(), validatorData.getPath());
+                    validatorData.getValidator().validate(filledMap, new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection));
                 } catch (SerializerException ex) {
                     ex.log(debug);
+                } catch (Exception ex) {
+                    throw new InternalError("Unhandled caught exception from validator " + validatorData.validator + "!", ex);
                 }
             }
         }

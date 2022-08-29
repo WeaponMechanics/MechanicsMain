@@ -16,7 +16,11 @@ public class Detonation implements Serializer<Detonation> {
     private int delay;
     private boolean removeProjectileOnDetonation;
 
-    public Detonation() { }
+    /**
+     * Default constructor for serializer
+     */
+    public Detonation() {
+    }
 
     public Detonation(Set<ExplosionTrigger> triggers, int delay, boolean removeProjectileOnDetonation) {
         this.triggers = triggers;
@@ -34,11 +38,6 @@ public class Detonation implements Serializer<Detonation> {
 
     public boolean isRemoveProjectileOnDetonation() {
         return removeProjectileOnDetonation;
-    }
-
-    @Override
-    public String getKeyword() {
-        return "Detonation";
     }
 
     @Override

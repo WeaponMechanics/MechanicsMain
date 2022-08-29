@@ -31,16 +31,18 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     private boolean disableEntityCollisions;
     private int maximumAliveTicks;
     private double maximumTravelDistance;
+    private double size;
 
     /**
      * Empty constructor to be used as serializer
      */
-    public ProjectileSettings() { }
+    public ProjectileSettings() {
+    }
 
     public ProjectileSettings(EntityType projectileDisguise, Object disguiseData, double gravity,
                               boolean removeAtMinimumSpeed, double minimumSpeed, boolean removeAtMaximumSpeed, double maximumSpeed,
                               double decrease, double decreaseInWater, double decreaseWhenRainingOrSnowing, boolean disableEntityCollisions,
-                              int maximumAliveTicks, double maximumTravelDistance) {
+                              int maximumAliveTicks, double maximumTravelDistance, double size) {
         this.projectileDisguise = projectileDisguise;
         this.disguiseData = disguiseData;
         this.gravity = gravity;
@@ -54,6 +56,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         this.disableEntityCollisions = disableEntityCollisions;
         this.maximumAliveTicks = maximumAliveTicks;
         this.maximumTravelDistance = maximumTravelDistance;
+        this.size = size;
     }
 
     /**
@@ -154,6 +157,14 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return maximumTravelDistance;
     }
 
+    /**
+     *
+     * @return the projectile size, 0.1 if not used
+     */
+    public double getSize() {
+        return size;
+    }
+
     @Override
     public String getKeyword() {
         return "Projectile_Settings";
@@ -209,9 +220,10 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         boolean disableEntityCollisions = data.of("Disable_Entity_Collisions").getBool(false);
         int maximumAliveTicks = data.of("Maximum_Alive_Ticks").assertPositive().getInt(600);
         double maximumTravelDistance = data.of("Maximum_Travel_Distance").assertPositive().getDouble(-1);
+        double size = data.of("Size").assertPositive().getDouble(0.1);
 
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
                 removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing,
-                disableEntityCollisions, maximumAliveTicks, maximumTravelDistance);
+                disableEntityCollisions, maximumAliveTicks, maximumTravelDistance, size);
     }
 }

@@ -20,9 +20,10 @@ public class SpreadImage implements Serializer<SpreadImage> {
     private int height, width;
     
     /**
-     * Default constructor for serialization
+     * Default constructor for serializer
      */
-    public SpreadImage() {}
+    public SpreadImage() {
+    }
     
     public SpreadImage(Sprite sprite, double fovWidth, double fovHeight) {
         this.points = new ProbabilityMap<>();

@@ -41,6 +41,7 @@ FN_FAL:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Selective_Fire:
       Trigger:

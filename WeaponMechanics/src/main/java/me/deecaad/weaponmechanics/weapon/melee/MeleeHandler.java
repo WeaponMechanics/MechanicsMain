@@ -4,6 +4,8 @@ import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
@@ -29,11 +31,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
@@ -45,7 +47,11 @@ public class MeleeHandler implements IValidator {
 
     private WeaponHandler weaponHandler;
 
-    public MeleeHandler() {}
+    /**
+     * Default constructor for validator
+     */
+    public MeleeHandler() {
+    }
 
     public MeleeHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -182,25 +188,29 @@ public class MeleeHandler implements IValidator {
         return "Melee";
     }
 
+    public List<String> getAllowedPaths() {
+        return Collections.singletonList(".Melee");
+    }
+
     @Override
-    public void validate(Configuration configuration, File file, ConfigurationSection configurationSection, String path) {
-        boolean enableMelee = configurationSection.getBoolean(path + ".Enable_Melee");
-        String meleeAttachment = configurationSection.getString(path + ".Melee_Attachment");
+    public void validate(Configuration configuration, SerializeData data) throws SerializerException {
+        boolean enableMelee = data.of("Enable_Melee").getBool(false);
+        String meleeAttachment = data.of("Melee_Attachment").get(null);
         if (!enableMelee && meleeAttachment == null) {
-            debug.log(LogLevel.ERROR, "Tried to use melee without enable melee or melee attachment.",
-                    "Located at file " + file + " in " + path + " in configurations.");
+            throw data.exception(null, "You must use either 'Enable_Melee: true' or 'Melee_Attachment: <weapon>'",
+                    "You cannot use the 'Melee' key without 1 of those 2 options");
         }
 
-        int meleeHitDelay = configuration.getInt(path + ".Melee_Hit_Delay");
+        int meleeHitDelay = data.of("Melee_Hit_Delay").assertPositive().getInt(0);
         if (meleeHitDelay != 0) {
             // Convert to millis
-            configuration.set(path + ".Melee_Hit_Delay", meleeHitDelay * 50);
+            configuration.set(data.key + ".Melee_Hit_Delay", meleeHitDelay * 50);
         }
 
-        int meleeMissDelay = configuration.getInt(path + ".Melee_Miss.Melee_Miss_Delay");
+        int meleeMissDelay = data.of("Melee_Miss.Melee_Miss_Delay").assertPositive().getInt(0);
         if (meleeMissDelay != 0) {
             // Convert to millis
-            configuration.set(path + ".Melee_Miss.Melee_Miss_Delay", meleeMissDelay * 50);
+            configuration.set(data.key + ".Melee_Miss.Melee_Miss_Delay", meleeMissDelay * 50);
         }
     }
 }

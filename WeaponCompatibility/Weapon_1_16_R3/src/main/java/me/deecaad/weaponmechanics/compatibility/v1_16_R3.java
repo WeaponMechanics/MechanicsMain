@@ -12,11 +12,14 @@ import net.minecraft.server.v1_16_R3.EntityLiving;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPosition;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -53,11 +56,24 @@ public class v1_16_R3 implements IWeaponCompatibility {
     }
 
     @Override
-    public HitBox getHitBox(Block block) {
-        if (block.isEmpty() || block.isLiquid() || block.isPassable()) return null;
+    public HitBox getHitBox(Block block, boolean allowLiquid) {
+        if (block.isEmpty()) return null;
 
-        BoundingBox boundingBox = block.getBoundingBox();
-        HitBox hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid) {
+            if (block.isPassable() || block.isLiquid()) return null;
+        } else if (!isLiquid && block.isPassable()) {
+            // Check like this because liquid is also passable...
+            return null;
+        }
+
+        HitBox hitBox;
+        if (isLiquid) {
+            hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+        } else {
+            BoundingBox boundingBox = block.getBoundingBox();
+            hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        }
         hitBox.setBlockHitBox(block);
 
         if (WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
@@ -75,6 +91,12 @@ public class v1_16_R3 implements IWeaponCompatibility {
         }
 
         return hitBox;
+    }
+
+    @Override
+    public Vector getLastLocation(Entity entity) {
+        net.minecraft.server.v1_16_R3.Entity nms = ((CraftEntity) entity).getHandle();
+        return new Vector(nms.lastX, nms.lastY, nms.lastZ);
     }
 
     @Nonnull
@@ -106,6 +128,8 @@ public class v1_16_R3 implements IWeaponCompatibility {
 
         EntityLiving nms = ((CraftLivingEntity) victim).getHandle();
         nms.combatTracker.trackDamage(damageSource, (float) damage, (float) health);
+        nms.setLastDamager(((CraftLivingEntity) source).getHandle());
+        if (source instanceof Player) nms.e(((CraftPlayer) source).getHandle());
     }
 
     @Override

@@ -10,6 +10,7 @@ import me.deecaad.core.commands.SuggestionsBuilder;
 import me.deecaad.core.commands.Tooltip;
 import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.TaskChain;
@@ -101,6 +102,7 @@ public class WeaponMechanicsCommand {
     };
 
     public static void build() {
+
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 
         MapArgumentType weaponDataMap = new MapArgumentType()
@@ -237,6 +239,15 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("name", new GreedyArgumentType(), null).withDesc("What is the entity's custom name"))
                         .executes(CommandExecutor.player((sender, args) -> spawn(sender, (Location) args[1], (EntityType) args[0], (String) args[2], (int) args[3], (boolean) args[4], (String) args[5]))))
 
+                .withSubcommand(new CommandBuilder("meta")
+                        .withPermission("weaponmechanics.commands.test.meta")
+                        .withArgument(new Argument<>("targets", new EntityListArgumentType()).withDesc("Which entities to change"))
+                        .withArgument(new Argument<>("flag", new EnumArgumentType<>(EntityCompatibility.EntityMeta.class)).withDesc("Which flag to set"))
+                        .withArgument(new Argument<>("time", new TimeArgumentType()).withDesc("How long to show"))
+                        .executes(CommandExecutor.player((sender, args) -> {
+                            meta(sender, (List<Entity>) args[0], (EntityCompatibility.EntityMeta) args[1], (int) args[2]);
+                        })))
+
                 .withSubcommand(new CommandBuilder("firework")
                         .withPermission("weaponmechanics.commands.test.firework")
                         .withDescription("Spawns in a fake firework")
@@ -265,10 +276,11 @@ public class WeaponMechanicsCommand {
                         .withDescription("Ray traces blocks/entities")
                         .withRequirements(LivingEntity.class::isInstance)
                         .withArgument(new Argument<>("highlight-box", new BooleanArgumentType(), false).withDesc("false=show point, true=show hitbox"))
+                        .withArgument(new Argument<>("size", new DoubleArgumentType(0), 0.1).withDesc("Size of ray-trace"))
                         .withArgument(new Argument<>("distance", new IntegerArgumentType(1), 10).withDesc("How far to ray-trace"))
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long to show the particles"))
                         .executes(CommandExecutor.entity((sender, args) -> {
-                            ray((LivingEntity) sender, (boolean) args[0], (int) args[1], (int) args[2]);
+                            ray((LivingEntity) sender, (boolean) args[0], (double) args[1], (int) args[2], (int) args[3]);
                         })))
 
                 .withSubcommand(new CommandBuilder("recoil")
@@ -622,6 +634,30 @@ public class WeaponMechanicsCommand {
         }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
     }
 
+    public static void meta(Player sender, List<Entity> targets, EntityCompatibility.EntityMeta flag, int ticks) {
+        EntityCompatibility compatibility = CompatibilityAPI.getEntityCompatibility();
+
+        sender.sendMessage(GREEN + "Making " + targets.size() + " targets " + flag);
+
+        for (Entity entity : targets) {
+            Object packet = compatibility.generateMetaPacket(entity);
+            compatibility.modifyMetaPacket(packet, flag, true);
+
+            CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                sender.sendMessage(GREEN + "Resetting META...");
+                for (Entity entity : targets) {
+                    Object packet = compatibility.generateMetaPacket(entity);
+                    CompatibilityAPI.getCompatibility().sendPackets(sender, packet);
+                }
+            }
+        }.runTaskLater(WeaponMechanics.getPlugin(), ticks);
+    }
+
     public static void hitbox(CommandSender sender, List<Entity> targets, int ticks) {
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
         new BukkitRunnable() {
@@ -725,10 +761,12 @@ public class WeaponMechanicsCommand {
         }.runTaskLater(WeaponMechanics.getPlugin(), time);
     }
 
-    public static void ray(LivingEntity sender, boolean box, int distance, int ticks) {
+    public static void ray(LivingEntity sender, boolean box, double size, int distance, int ticks) {
 
         sender.sendMessage(ChatColor.GREEN + "Showing hitboxes in distance " + distance + " for " + NumberUtil.toTime(ticks / 20));
-        RayTrace rayTrace = new RayTrace().withEntityFilter(entity -> entity.getEntityId() == sender.getEntityId());
+        RayTrace rayTrace = new RayTrace()
+                .withEntityFilter(entity -> entity.getEntityId() == sender.getEntityId())
+                .withRaySize(size);
         if (box) {
             rayTrace.withOutlineHitBox(sender);
         } else {
@@ -775,7 +813,7 @@ public class WeaponMechanicsCommand {
     public static void shoot(LivingEntity sender, double speed, double gravity, EntityType entity) {
         ProjectileSettings projectileSettings = new ProjectileSettings(entity, null,
                 gravity, false, -1, false,
-                -1, 0.99, 0.96, 0.98, false, 600, -1);
+                -1, 0.99, 0.96, 0.98, false, 600, -1, 0.1);
         Projectile projectile = new Projectile(projectileSettings, null, null, null, null);
         projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null);
     }

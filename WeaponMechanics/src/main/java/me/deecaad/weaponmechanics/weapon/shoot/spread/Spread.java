@@ -20,9 +20,10 @@ public class Spread implements Serializer<Spread> {
     private ChangingSpread changingSpread;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer
      */
-    public Spread() { }
+    public Spread() {
+    }
 
     public Spread(SpreadImage spreadImage) {
         this.spreadImage = spreadImage;

@@ -15,7 +15,11 @@ public class Circumstance implements Serializer<Circumstance> {
 
     private List<CircumstanceData> circumstances;
 
-    public Circumstance() {}
+    /**
+     * Default constructor for serializer
+     */
+    public Circumstance() {
+    }
 
     public Circumstance(List<CircumstanceData> circumstances) {
         this.circumstances = circumstances;
@@ -71,11 +75,9 @@ public class Circumstance implements Serializer<Circumstance> {
         public boolean deny(EntityWrapper entityWrapper) {
             switch (type) {
                 case RELOADING:
-                    return required != (entityWrapper.getMainHandData().isReloading()
-                            || entityWrapper.getOffHandData().isReloading());
+                    return required != entityWrapper.isReloading();
                 case ZOOMING:
-                    return required != (entityWrapper.getMainHandData().getZoomData().isZooming()
-                            || entityWrapper.getOffHandData().getZoomData().isZooming());
+                    return required != entityWrapper.isZooming();
                 case SNEAKING:
                     return required != entityWrapper.isSneaking();
                 case STANDING:

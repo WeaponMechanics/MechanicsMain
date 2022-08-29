@@ -54,11 +54,19 @@ public class WeaponProjectile extends AProjectile {
         this.bouncy = bouncy;
 
         if (projectileSettings.isDisableEntityCollisions()) {
-            this.rayTrace = new RayTrace().withBlockFilter(this::equalToLastHit).disableEntityChecks();
+            this.rayTrace = new RayTrace()
+                    .withBlockFilter(this::equalToLastHit)
+                    .disableEntityChecks()
+                    .enableLiquidChecks()
+                    .withRaySize(projectileSettings.getSize());
         } else {
             this.rayTrace = new RayTrace()
                     .withBlockFilter(this::equalToLastHit)
-                    .withEntityFilter(entity -> equalToLastHit(entity) || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId()));
+                    .withEntityFilter(entity ->
+                            equalToLastHit(entity)
+                            || (getShooter() != null && getAliveTicks() < 10 && entity.getEntityId() == getShooter().getEntityId()))
+                    .enableLiquidChecks()
+                    .withRaySize(projectileSettings.getSize());
         }
     }
 
@@ -265,10 +273,11 @@ public class WeaponProjectile extends AProjectile {
                 return true;
             }
 
-            if (hit.isBlock()) {
-                onCollide(hit.getBlock());
-            } else {
-                onCollide(hit.getLivingEntity());
+            onCollide(hit);
+
+            // We only want to let onCollide to be called onLiquid hits
+            if (hit.isBlock() && hit.getBlock().isLiquid()) {
+                continue;
             }
 
             // Returned true and that most likely means that block hit was cancelled, skipping...

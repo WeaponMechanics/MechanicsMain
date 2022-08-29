@@ -18,7 +18,11 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
     private NumberModifier inMidair;
     private NumberModifier gliding;
 
-    public AModifyWhen() { }
+    /**
+     * Default constructor for serializer.
+     */
+    public AModifyWhen() {
+    }
 
     public AModifyWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
                        NumberModifier standing, NumberModifier walking, NumberModifier riding,

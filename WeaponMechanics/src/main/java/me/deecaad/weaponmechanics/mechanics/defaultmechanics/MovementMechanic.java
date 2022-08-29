@@ -12,6 +12,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class MovementMechanic implements IMechanic<MovementMechanic> {
@@ -79,6 +81,12 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
     }
 
     @Override
+    public boolean shouldSerialize(SerializeData data) {
+        // Let Mechanics handle auto serializer stuff
+        return false;
+    }
+
+    @Override
     @Nonnull
     public MovementMechanic serialize(SerializeData data) throws SerializerException {
         double movementSpeed = data.of("Movement_Speed").assertExists().getDouble();
@@ -89,7 +97,7 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
         movementSpeed /= 20.0;
         verticalSpeed /= 20.0;
 
-        Circumstance circumstance = data.of("Circumstance").serializeNonStandardSerializer(new Circumstance());
+        Circumstance circumstance = data.of("Circumstance").serialize(Circumstance.class);
 
         return new MovementMechanic(movementSpeed, towardsTarget, verticalSpeed, circumstance);
     }
