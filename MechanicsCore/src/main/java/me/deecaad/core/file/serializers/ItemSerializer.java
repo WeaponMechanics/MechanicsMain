@@ -242,7 +242,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (CompatibilityAPI.getVersion() >= 1.11 && data.config.contains(data.key + ".Potion_Color")) {
+        if (CompatibilityAPI.getVersion() >= 1.11 && data.has("Potion_Color")) {
             try {
                 Color color = data.of("Potion_Color").serializeNonStandardSerializer(new ColorSerializer());
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
@@ -253,7 +253,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                         SerializerException.forValue(type));
             }
         }
-        if (data.config.contains(data.key + ".Leather_Color")) {
+        if (data.has("Leather_Color")) {
             try {
                 Color color = data.of("Leather_Color").serializeNonStandardSerializer(new ColorSerializer());
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
@@ -265,41 +265,46 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (data.config.contains(data.key + ".Firework")) {
+        if (data.has("Firework")) {
 
-            // <FireworkEffect.Type>-<Color>-<Boolean=Trail>-<Boolean=Flicker>-<Color=Fade>
-            List<String[]> list = data.ofList("Firework.Effects")
-                    .addArgument(FireworkEffect.Type.class, true)
-                    .addArgument(ColorSerializer.class, true, true)
-                    .addArgument(boolean.class, false)
-                    .addArgument(boolean.class, false)
-                    .addArgument(ColorSerializer.class, false)
-                    .assertExists().assertList().get();
+            try {
+                // <FireworkEffect.Type>-<Color>-<Boolean=Trail>-<Boolean=Flicker>-<Color=Fade>
+                List<String[]> list = data.ofList("Firework.Effects")
+                        .addArgument(FireworkEffect.Type.class, true)
+                        .addArgument(ColorSerializer.class, true, true)
+                        .addArgument(boolean.class, false)
+                        .addArgument(boolean.class, false)
+                        .addArgument(ColorSerializer.class, false)
+                        .assertExists().assertList().get();
 
-            FireworkMeta meta = (FireworkMeta) itemMeta;
-            meta.setPower(data.of("Firework.Power").assertPositive().getInt(1));
-            for (String[] split : list) {
+                FireworkMeta meta = (FireworkMeta) itemMeta;
+                meta.setPower(data.of("Firework.Power").assertPositive().getInt(1));
+                for (String[] split : list) {
 
-                FireworkEffect.Builder builder = FireworkEffect.builder();
-                builder.with(FireworkEffect.Type.valueOf(split[0]));
+                    FireworkEffect.Builder builder = FireworkEffect.builder();
+                    builder.with(FireworkEffect.Type.valueOf(split[0]));
 
-                // Handle initial colors
-                String[] colors = split[1].split(", ?");
-                for (String color : colors)
-                    builder.withColor(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
+                    // Handle initial colors
+                    String[] colors = split[1].split(", ?");
+                    for (String color : colors)
+                        builder.withColor(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
 
-                builder.trail(split.length > 2 && split[2].equalsIgnoreCase("true"));
-                builder.flicker(split.length > 3 && split[3].equalsIgnoreCase("true"));
+                    builder.trail(split.length > 2 && split[2].equalsIgnoreCase("true"));
+                    builder.flicker(split.length > 3 && split[3].equalsIgnoreCase("true"));
 
-                // Handle the fade colors
-                String[] fadeColors = split.length > 4 ? split[4].split(", ?") : new String[0];
-                for (String color : fadeColors)
-                    builder.withFade(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
+                    // Handle the fade colors
+                    String[] fadeColors = split.length > 4 ? split[4].split(", ?") : new String[0];
+                    for (String color : fadeColors)
+                        builder.withFade(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
 
-                // Add the newly constructed firework effect to the list.
-                meta.addEffect(builder.build());
+                    // Add the newly constructed firework effect to the list.
+                    meta.addEffect(builder.build());
+                }
+                itemStack.setItemMeta(meta);
+            } catch (ClassCastException ex) {
+                throw data.exception("Firework", "Tried to use Firework when the item wasn't a firework rocket!",
+                        SerializerException.forValue(type));
             }
-            itemStack.setItemMeta(meta);
         }
 
         if (data.of("Deny_Use_In_Crafting").getBool(false)) {
@@ -310,7 +315,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
     }
 
     public ItemStack serializeRecipe(SerializeData data, ItemStack itemStack) throws SerializerException {
-        if (data.config.contains(data.key + ".Recipe")) {
+        if (data.has("Recipe")) {
             ShapedRecipe recipe;
             if (ReflectionUtil.getMCVersion() < 13) {
                 recipe = new ShapedRecipe(itemStack);
