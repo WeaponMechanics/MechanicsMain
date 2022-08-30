@@ -105,6 +105,11 @@ public class TriggerEntityListeners implements Listener {
 
     @EventHandler
     public void death(EntityDeathEvent e) {
+        Entity entity = e.getEntity();
+
+        // Don't remove when its player
+        if (entity.getType() == EntityType.PLAYER) return;
+
         // If entity had EntityWrapper data, remove it
         WeaponMechanics.removeEntityWrapper(e.getEntity());
     }

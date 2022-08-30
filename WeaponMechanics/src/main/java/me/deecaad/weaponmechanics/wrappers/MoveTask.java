@@ -40,8 +40,11 @@ public class MoveTask extends BukkitRunnable {
     @Override
     public void run() {
         LivingEntity entity = entityWrapper.getEntity();
-        if (entity == null || !entity.isValid()) { // Just an extra check in case something odd happened
-            cancel();
+        if (entity == null || !entity.isValid() || entity.isDead()) { // Just an extra check in case something odd happened
+
+            // Only cancel task IF it isn't player, otherwise just don't do anything
+            if (!entityWrapper.isPlayer()) cancel();
+
             return;
         }
 

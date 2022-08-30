@@ -36,21 +36,18 @@ public class TriggerPlayerListeners implements Listener {
     }
 
     @EventHandler
-    public void respawn(PlayerRespawnEvent e) {
-        // Add PlayerWrapper because it is cleared in EntityDeathEvent (PlayerDeathEvent extends EntityDeathEvent)
-        getPlayerWrapper(e.getPlayer());
-    }
-
-    @EventHandler
     public void join(PlayerJoinEvent e) {
         // Add PlayerWrapper
-        getPlayerWrapper(e.getPlayer());
+        PlayerWrapper playerWrapper = getPlayerWrapper(e.getPlayer());
+        weaponHandler.getStatsHandler().load(playerWrapper);
     }
 
     @EventHandler
     public void quit(PlayerQuitEvent e) {
         // Remove EntityWrapper data and cancel move task
-        removeEntityWrapper(e.getPlayer());
+        Player player = e.getPlayer();
+        weaponHandler.getStatsHandler().save(getPlayerWrapper(player), false);
+        removeEntityWrapper(player);
     }
 
     @EventHandler (ignoreCancelled = true)

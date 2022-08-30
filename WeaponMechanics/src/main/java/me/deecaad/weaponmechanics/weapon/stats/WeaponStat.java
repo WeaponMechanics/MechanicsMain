@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 public enum WeaponStat {
 
-    UUID("VARCHAR(255)", String.class),
-    WEAPON_TITLE("VARCHAR(255)", String.class),
+    UUID("VARCHAR(255) NOT NULL", String.class),
+    WEAPON_TITLE("VARCHAR(255) NOT NULL", String.class),
 
     SKIN("VARCHAR(255)", String.class),
 
@@ -46,27 +46,35 @@ public enum WeaponStat {
     private final String columnType;
     private final Class<?> classType;
 
+    private final Object defaultValue;
+
     WeaponStat(String columnType, Class<?> classType) {
         this.columnType = columnType;
         this.classType = classType;
-    }
 
-    public String getColumnType() {
-        return columnType;
+        if (classType == String.class) {
+            this.defaultValue = null;
+        } else {
+            this.defaultValue = 0;
+        }
     }
 
     public Class<?> getClassType() {
         return classType;
     }
 
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
+
     public static String getCreateTableString() {
         StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS weapon_stats (");
         Arrays.stream(values()).forEach(stat -> builder
-                .append(stat.name().toLowerCase())
+                .append(stat.name())
                 .append(" ")
-                .append(stat.getColumnType())
+                .append(stat.columnType)
                 .append(", "));
-        builder.append("PRIMARY KEY (uuid))");
+        builder.append("PRIMARY KEY (UUID, WEAPON_TITLE))");
 
         return builder.toString();
     }

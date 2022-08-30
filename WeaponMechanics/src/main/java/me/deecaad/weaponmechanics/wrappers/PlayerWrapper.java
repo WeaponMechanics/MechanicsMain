@@ -29,7 +29,7 @@ public class PlayerWrapper extends EntityWrapper {
         this.player = player;
         Configuration config = WeaponMechanics.getBasicConfigurations();
         if (config.getBool("Database.Enable", true)) {
-            statsData = new StatsData();
+            statsData = new StatsData(player.getUniqueId());
         }
     }
 
@@ -124,6 +124,19 @@ public class PlayerWrapper extends EntityWrapper {
      */
     @Nullable
     public StatsData getStatsData() {
+
+        System.out.println(statsData);
+
+        return (statsData == null || !statsData.isSync()) ? null : statsData;
+    }
+
+    /**
+     * This method might not be safe to use nor should be used. Use {@link #getStatsData()} instead.
+     * By unsafe I mean that this object might not have been synced yet.
+     *
+     * @return the unsafe stats data object
+     */
+    public StatsData getStatsDataUnsafe() {
         return statsData;
     }
 }
