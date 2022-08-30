@@ -240,7 +240,7 @@ public class WeaponMechanicsCommand {
                         .withDescription("Shows the hitboxes of nearby entities")
                         .withArgument(new Argument<>("targets", new EntityListArgumentType()).withDesc("Whose hitbox to show"))
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long to show the hitbox"))
-                        .executes(CommandExecutor.any((sender, args) -> {
+                        .executes(CommandExecutor.player((sender, args) -> {
                             hitbox(sender, (List<Entity>) args[0], (int) args[1]);
                         })))
 
@@ -635,6 +635,8 @@ public class WeaponMechanicsCommand {
     }
 
     public static void hitbox(CommandSender sender, List<Entity> targets, int ticks) {
+        sender.sendMessage(GREEN + "Showing hitboxes of " + targets.size() + " entities for " + ticks + " ticks.");
+
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
         new BukkitRunnable() {
             int ticksPassed = 0;
@@ -667,8 +669,7 @@ public class WeaponMechanicsCommand {
 
                     HitBox box = WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(entity);
                     if (box == null) {
-                        sender.sendMessage(RED + "Couldn't find hitbox for " + entity);
-                        return;
+                        continue;
                     }
 
                     double max = box.getMaxY();
