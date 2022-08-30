@@ -412,6 +412,9 @@ public class WeaponMechanicsCommand {
         softDepends.addAll(MechanicsCore.getPlugin().getDescription().getSoftDepend());
         softDepends.remove("MechanicsCore");
         softDepends.removeIf(name -> Bukkit.getPluginManager().getPlugin(name) == null);
+        if (softDepends.isEmpty()) {
+            softDepends.add("No supported plugins installed");
+        }
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Supported plugins: " + GRAY + String.join(", ", softDepends));
     }
 
