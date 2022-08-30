@@ -26,6 +26,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -294,6 +295,11 @@ public class ReloadHandler implements IValidator {
                 if (ammoPerReload != -1) {
                     // Start the loop
                     startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, true);
+                } else if (!hasNext()) {
+                    // If there isn't close task, try to start reload
+                    // on other hand also IF the weapon is empty
+
+                    tryReloadInOtherHandIfEmpty(entityWrapper, shooter, mainhand, dualWield);
                 }
             }
 
@@ -333,7 +339,7 @@ public class ReloadHandler implements IValidator {
             return true;
         }
 
-        ChainTask closeTask = getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot);
+        ChainTask closeTask = getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, dualWield);
 
         if (state == FirearmState.CLOSE) {
             closeTask.startChain();
@@ -405,7 +411,7 @@ public class ReloadHandler implements IValidator {
     }
 
     private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
-                                   String weaponTitle, boolean mainhand, EquipmentSlot slot) {
+                                   String weaponTitle, boolean mainhand, EquipmentSlot slot, boolean dualWield) {
 
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.CLOSE);
         Bukkit.getPluginManager().callEvent(event);
@@ -427,6 +433,9 @@ public class ReloadHandler implements IValidator {
 
                 firearmAction.changeState(taskReference, FirearmState.READY);
                 finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
+
+                // Try to start reload on other hand also IF the weapon is empty
+                tryReloadInOtherHandIfEmpty(entityWrapper, entityWrapper.getEntity(), mainhand, dualWield);
             }
 
             @Override
@@ -530,6 +539,24 @@ public class ReloadHandler implements IValidator {
 
             weaponStack.setAmount(1);
         }
+    }
+
+    private void tryReloadInOtherHandIfEmpty(EntityWrapper entityWrapper, LivingEntity shooter, boolean mainhand, boolean dualWield) {
+        if (!dualWield) return;
+
+        EntityEquipment entityEquipment = shooter.getEquipment();
+        if (entityEquipment == null) return;
+
+        ItemStack otherStack = mainhand ? entityEquipment.getItemInOffHand() : entityEquipment.getItemInMainHand();
+        String otherWeapon = weaponHandler.getInfoHandler().getWeaponTitle(otherStack, false);
+
+        if (otherWeapon == null) return;
+
+        // If other weapon isn't empty, don't automatically try to reload
+        if (getAmmoLeft(otherStack, otherWeapon) != 0) return;
+
+        startReloadWithoutTrigger(entityWrapper, otherWeapon, otherStack,
+                mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, dualWield, false);
     }
 
     @Override

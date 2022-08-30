@@ -13,7 +13,8 @@ import org.bukkit.command.defaults.BukkitCommand;
 import java.util.*;
 
 import static me.deecaad.core.MechanicsCore.debug;
-import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.Component.newline;
+import static net.kyori.adventure.text.Component.text;
 
 @Deprecated()
 public class SubCommands {

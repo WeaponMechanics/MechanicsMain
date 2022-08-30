@@ -12,9 +12,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 public class MovementMechanic implements IMechanic<MovementMechanic> {
 

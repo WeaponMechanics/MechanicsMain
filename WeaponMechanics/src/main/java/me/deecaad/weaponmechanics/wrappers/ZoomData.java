@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.wrappers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 import org.vivecraft.VSE;

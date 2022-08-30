@@ -1,19 +1,13 @@
 package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
