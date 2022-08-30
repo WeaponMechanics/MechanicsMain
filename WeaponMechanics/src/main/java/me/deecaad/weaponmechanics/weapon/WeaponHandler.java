@@ -32,8 +32,10 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
-import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
+import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.AUTO;
+import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.BURST;
 
 /**
  * Class to generally handle weapon functions

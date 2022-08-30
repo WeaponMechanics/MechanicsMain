@@ -20,7 +20,6 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.List;
 
 public class FireworkMechanic implements IMechanic<FireworkMechanic> {

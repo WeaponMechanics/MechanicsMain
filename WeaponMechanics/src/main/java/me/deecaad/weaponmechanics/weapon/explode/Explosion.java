@@ -11,7 +11,6 @@ import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;

@@ -4,7 +4,6 @@ import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
-
 import java.util.List;
 
 import static me.deecaad.core.MechanicsCore.debug;

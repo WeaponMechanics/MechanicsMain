@@ -2,8 +2,8 @@ package me.deecaad.weaponmechanics.lib;
 
 import io.lumine.mythic.api.adapters.AbstractItemStack;
 import io.lumine.mythic.api.config.MythicLineConfig;
-import io.lumine.mythic.api.drops.IItemDrop;
 import io.lumine.mythic.api.drops.DropMetadata;
+import io.lumine.mythic.api.drops.IItemDrop;
 import io.lumine.mythic.bukkit.adapters.BukkitItemStack;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;

@@ -2,15 +2,10 @@ package me.deecaad.weaponmechanics.commands.testcommands;
 
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
-import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 @CommandPermission(permission = "weaponmechanics.commands.test.raytrace")
 public class RayTraceCommand extends SubCommand {
