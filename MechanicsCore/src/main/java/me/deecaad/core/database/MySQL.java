@@ -11,7 +11,7 @@ public class MySQL extends HikariBased {
 
         config.setPoolName("WMMySQL");
         config.setDriverClassName("com.mysql.jdbc.Driver");
-        config.setJdbcUrl("jdbc:mysql://" + hostname + ":" + port + "/" + database);
+        config.setJdbcUrl("jdbc:mysql://" + hostname + ":" + port + "/" + database + "?createDatabaseIfNotExist=true");
         config.setUsername(username);
         config.setPassword(password);
 

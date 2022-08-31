@@ -261,9 +261,9 @@ public class WeaponMechanics {
             } else {
                 String hostname = basicConfiguration.getString("Database.MySQL.Hostname", "localhost");
                 int port = basicConfiguration.getInt("Database.MySQL.Port", 3306);
-                String databaseName = basicConfiguration.getString("Database.MySQL.Hostname", "weaponmechanics");
-                String username = basicConfiguration.getString("Database.MySQL.Hostname", "root");
-                String password = basicConfiguration.getString("Database.MySQL.Hostname", "");
+                String databaseName = basicConfiguration.getString("Database.MySQL.Database", "weaponmechanics");
+                String username = basicConfiguration.getString("Database.MySQL.Username", "root");
+                String password = basicConfiguration.getString("Database.MySQL.Password", "");
                 database = new MySQL(hostname, port, databaseName, username, password);
             }
             database.executeUpdate(true, PlayerStat.getCreateTableString(), WeaponStat.getCreateTableString());
