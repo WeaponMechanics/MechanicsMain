@@ -3,9 +3,6 @@ package me.deecaad.core.database;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 public class MySQL extends HikariBased {
 
     public MySQL(String hostname, int port, String database, String username, String password) {

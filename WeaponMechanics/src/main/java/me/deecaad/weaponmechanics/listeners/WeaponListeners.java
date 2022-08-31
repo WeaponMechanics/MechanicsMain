@@ -28,7 +28,10 @@ import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -36,8 +39,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class WeaponListeners implements Listener {
 

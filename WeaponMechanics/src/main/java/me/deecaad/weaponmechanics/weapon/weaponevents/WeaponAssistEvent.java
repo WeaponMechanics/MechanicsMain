@@ -4,7 +4,6 @@ import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-
 import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
