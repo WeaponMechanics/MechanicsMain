@@ -8,8 +8,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along

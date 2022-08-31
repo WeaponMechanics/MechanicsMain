@@ -4,7 +4,6 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 import java.util.List;
 

@@ -45,6 +45,10 @@ public abstract class ChainTask extends BukkitRunnable {
         this.nextTask.setup();
     }
 
+    public boolean hasNext() {
+        return this.nextTask != null;
+    }
+
     /**
      * Does stuff when chain task is run
      */

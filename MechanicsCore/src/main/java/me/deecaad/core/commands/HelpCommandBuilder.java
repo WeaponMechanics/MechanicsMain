@@ -2,16 +2,17 @@ package me.deecaad.core.commands;
 
 import me.deecaad.core.MechanicsCore;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.Locale;
 
-import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.Component.newline;
+import static net.kyori.adventure.text.Component.text;
 
 /**
  * Consider the command: /wm test explosion sphere 5.0 3 DEFAULT #logs

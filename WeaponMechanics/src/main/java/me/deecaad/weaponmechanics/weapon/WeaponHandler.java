@@ -32,8 +32,10 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
-import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
+import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.AUTO;
+import static me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState.BURST;
 
 /**
  * Class to generally handle weapon functions
@@ -124,7 +126,6 @@ public class WeaponHandler {
                 || scopeHandler.tryUse(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield)
                 || tryUseSelectiveFire(entityWrapper, weaponTitle, weaponStack, slot, triggerType)
                 || tryUseAmmoTypeSwitch(entityWrapper, weaponTitle, weaponStack, slot, triggerType)) {
-            getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
             return;
         }
 
@@ -164,6 +165,9 @@ public class WeaponHandler {
 
         WeaponInfoDisplay weaponInfoDisplay = config.getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+
+        getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
+
         return true;
     }
 
@@ -196,6 +200,8 @@ public class WeaponHandler {
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
+
+        getSkinHandler().tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot);
 
         return true;
     }

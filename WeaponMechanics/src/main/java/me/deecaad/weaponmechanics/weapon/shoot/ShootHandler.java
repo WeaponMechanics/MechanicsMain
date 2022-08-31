@@ -560,10 +560,19 @@ public class ShootHandler implements IValidator {
     }
 
     private void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+        if (entityWrapper.isReloading()) return;
+
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
+        HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+
         if (!dualWield) {
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
+            handData.cancelTasks();
+            if (!reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop)) {
+                // Only update skin if reload was cancelled
+                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+            }
+
             return;
         }
 
@@ -571,7 +580,13 @@ public class ShootHandler implements IValidator {
                 reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInOffHand(), null) == 0
                 : reloadHandler.getAmmoLeft(entityWrapper.getEntity().getEquipment().getItemInMainHand(), null) == 0) {
             // Now we know that both weapons are empty assuming the other weapon's ammo amount is already checked before this
-            reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
+
+            handData.cancelTasks();
+
+            if (!reloadHandler.startReloadWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop)) {
+                // Only update skin if reload was cancelled
+                weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+            }
         }
     }
 

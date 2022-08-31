@@ -3,11 +3,7 @@ package me.deecaad.core.file;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.plugin.Plugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;

@@ -2,13 +2,7 @@ package me.deecaad.core.utils.primitive;
 
 import me.deecaad.core.utils.NumberUtil;
 
-import java.util.AbstractSet;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.PrimitiveIterator;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**

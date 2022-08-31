@@ -4,23 +4,14 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponSkinEvent;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class SkinList implements Serializer<SkinList> {
 

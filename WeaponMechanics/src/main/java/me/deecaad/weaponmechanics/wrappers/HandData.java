@@ -1,16 +1,17 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
@@ -65,6 +66,13 @@ public class HandData {
      * Does not cancel recoil task.
      */
     public void cancelTasks() {
+        cancelTasks(false);
+    }
+
+    /**
+     * @param trySkinUpdate whether to also try to update skin
+     */
+    public void cancelTasks(boolean trySkinUpdate) {
         if (fullAutoTask != 0) {
             Bukkit.getScheduler().cancelTask(fullAutoTask);
             fullAutoTask = 0;
@@ -76,6 +84,30 @@ public class HandData {
         stopReloadingTasks();
         stopFirearmActionTasks();
         ifZoomingForceZoomOut();
+
+        if (!trySkinUpdate) return;
+
+        // Try to update skin in given hand
+        LivingEntity livingEntity = entityWrapper.getEntity();
+        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
+
+        EntityEquipment entityEquipment = livingEntity.getEquipment();
+        if (entityEquipment == null) return;
+
+        ItemStack weaponStack;
+        String weaponTitle;
+
+        if (mainhand) {
+            weaponStack = entityEquipment.getItemInMainHand();
+        } else {
+            weaponStack = entityEquipment.getItemInOffHand();
+        }
+
+        weaponTitle = WeaponMechanics.getWeaponHandler().getInfoHandler().getWeaponTitle(weaponStack, false);
+
+        if (weaponTitle == null) return;
+
+        WeaponMechanics.getWeaponHandler().getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
     }
 
     public void ifZoomingForceZoomOut() {

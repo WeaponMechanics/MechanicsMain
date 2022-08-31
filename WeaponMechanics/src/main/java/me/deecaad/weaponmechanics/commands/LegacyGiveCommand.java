@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.commands;
 
 import me.deecaad.core.commands.CommandPermission;
 import me.deecaad.core.commands.SubCommand;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

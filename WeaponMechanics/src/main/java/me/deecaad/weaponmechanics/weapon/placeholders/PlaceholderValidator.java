@@ -5,9 +5,6 @@ import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.StringUtil;
-import org.bukkit.configuration.ConfigurationSection;
-
-import java.io.File;
 
 public class PlaceholderValidator implements IValidator {
 

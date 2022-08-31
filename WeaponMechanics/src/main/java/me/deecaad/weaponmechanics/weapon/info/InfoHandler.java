@@ -261,12 +261,12 @@ public class InfoHandler implements IValidator {
      * @param player the player for which to send denied message if not allowed to dual wield
      * @param mainWeaponTitle the main hand weapon title
      * @param offWeaponTitle the off hand weapon title
-     * @return whether or not dual wielding is allowed
+     * @return whether dual wielding is allowed
      */
     public boolean denyDualWielding(TriggerType checkCause, @Nullable Player player, @Nullable String mainWeaponTitle, @Nullable String offWeaponTitle) {
 
         // Just simple check whether other hand is empty anyway
-        if (mainWeaponTitle == null && offWeaponTitle != null || offWeaponTitle == null && mainWeaponTitle != null) return false;
+        if (mainWeaponTitle == null || offWeaponTitle == null) return false;
 
         // Check that main hand weapon allows
         if (mainWeaponTitle != null) {
