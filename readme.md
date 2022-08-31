@@ -5,7 +5,6 @@
   [![Download](https://img.shields.io/github/downloads/WeaponMechanics/MechanicsMain/total?color=green)](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
   ![Lines Of Code](https://img.shields.io/tokei/lines/github/WeaponMechanics/MechanicsMain)
   [![Version](https://img.shields.io/github/v/release/WeaponMechanics/MechanicsMain?include_prereleases&label=version)](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
-  [![Version](https://img.shields.io/github/v/release/WeaponMechanics/MechanicsMain?include_prereleases&label=version)](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
   [![Wiki](https://img.shields.io/badge/-wiki%20-blueviolet)](https://github.com/WeaponMechanics/MechanicsMain/wiki)
   [![License](https://img.shields.io/github/license/WeaponMechanics/MechanicsMain)](https://github.com/WeaponMechanics/MechanicsMain/blob/master/LICENSE)
 </div>
