@@ -120,13 +120,10 @@ public class PlayerWrapper extends EntityWrapper {
     }
 
     /**
-     * @return the stats data or null if disabled
+     * @return the stats data or null if disabled or not yet synced
      */
     @Nullable
     public StatsData getStatsData() {
-
-        System.out.println(statsData);
-
         return (statsData == null || !statsData.isSync()) ? null : statsData;
     }
 

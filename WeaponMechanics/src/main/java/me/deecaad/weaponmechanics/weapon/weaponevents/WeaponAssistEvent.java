@@ -32,8 +32,8 @@ public class WeaponAssistEvent extends PlayerEvent {
 
     /**
      * Return the map containing the weapon title as key and damage info as value.
-     * DamageInfo has methods {@link AssistData.DamageInfo#getDamage()}
-     * and {@link AssistData.DamageInfo#getWeaponStack()}.
+     * DamageInfo has methods {@link AssistData.DamageInfo#getDamage()},
+     * {@link AssistData.DamageInfo#getWeaponStack()} and {@link AssistData.DamageInfo#getLastHitTime()}.
      *
      * @return the non-null map of assists
      */

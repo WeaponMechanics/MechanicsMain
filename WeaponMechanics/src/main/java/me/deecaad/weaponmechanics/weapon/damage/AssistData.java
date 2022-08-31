@@ -85,6 +85,10 @@ public class AssistData implements IValidator {
             return weaponStack;
         }
 
+        public long getLastHitTime() {
+            return lastHitTime;
+        }
+
         @Override
         public String toString() {
             return "DamageInfo{" +

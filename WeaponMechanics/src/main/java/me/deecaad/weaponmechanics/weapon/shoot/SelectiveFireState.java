@@ -14,8 +14,8 @@ public enum SelectiveFireState {
 
     private static final SelectiveFireState[] VALUES = values();
 
-   SelectiveFireState() {
-   }
+    SelectiveFireState() {
+    }
 
     /**
      * Helper function to set item's selective fire state and call a

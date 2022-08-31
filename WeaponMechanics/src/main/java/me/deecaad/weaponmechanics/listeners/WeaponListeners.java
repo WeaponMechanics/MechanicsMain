@@ -140,7 +140,6 @@ public class WeaponListeners implements Listener {
 
             entity.removeMetadata("wm_assist_data", WeaponMechanics.getPlugin());
         }
-        WeaponMechanics.removeEntityWrapper(entity);
     }
 
     @EventHandler

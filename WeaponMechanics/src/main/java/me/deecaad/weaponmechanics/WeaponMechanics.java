@@ -182,36 +182,10 @@ public class WeaponMechanics {
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
-        debug.info("Enabled WeaponMechanics in " + seconds + "s");
+        debug.debug("Enabled WeaponMechanics in " + seconds + "s");
 
         WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
-    }
-
-    void setupDatabase() {
-        if (basicConfiguration.getBool("Database.Enable", true)) {
-
-            debug.debug("Starting database init...");
-
-            if (basicConfiguration.getString("Database.Type", "SQLITE").equals("SQLITE")) {
-                String absolutePath = basicConfiguration.getString("Database.SQLite.Absolute_Path", "plugins/WeaponMechanics/weaponmechanics.db");
-                try {
-                    database = new SQLite(absolutePath);
-                } catch (IOException | SQLException e) {
-                    debug.log(LogLevel.WARN, "Failed to initialized database!", e);
-                }
-            } else {
-                String hostname = basicConfiguration.getString("Database.MySQL.Hostname", "localhost");
-                int port = basicConfiguration.getInt("Database.MySQL.Port", 3306);
-                String databaseName = basicConfiguration.getString("Database.MySQL.Hostname", "weaponmechanics");
-                String username = basicConfiguration.getString("Database.MySQL.Hostname", "root");
-                String password = basicConfiguration.getString("Database.MySQL.Hostname", "");
-                database = new MySQL(hostname, port, databaseName, username, password);
-            }
-            database.executeUpdate(true, PlayerStat.getCreateTableString(), WeaponStat.getCreateTableString());
-
-            debug.debug("Finished database init.");
-        }
     }
 
     void setupDebugger() {
@@ -269,6 +243,30 @@ public class WeaponMechanics {
             if (!pack.exists()) {
                 FileUtil.downloadFile(pack, link, connection, read);
             }
+        }
+    }
+
+    void setupDatabase() {
+        if (basicConfiguration.getBool("Database.Enable", true)) {
+
+            debug.debug("Setting up database");
+
+            if (basicConfiguration.getString("Database.Type", "SQLITE").equals("SQLITE")) {
+                String absolutePath = basicConfiguration.getString("Database.SQLite.Absolute_Path", "plugins/WeaponMechanics/weaponmechanics.db");
+                try {
+                    database = new SQLite(absolutePath);
+                } catch (IOException | SQLException e) {
+                    debug.log(LogLevel.WARN, "Failed to initialized database!", e);
+                }
+            } else {
+                String hostname = basicConfiguration.getString("Database.MySQL.Hostname", "localhost");
+                int port = basicConfiguration.getInt("Database.MySQL.Port", 3306);
+                String databaseName = basicConfiguration.getString("Database.MySQL.Hostname", "weaponmechanics");
+                String username = basicConfiguration.getString("Database.MySQL.Hostname", "root");
+                String password = basicConfiguration.getString("Database.MySQL.Hostname", "");
+                database = new MySQL(hostname, port, databaseName, username, password);
+            }
+            database.executeUpdate(true, PlayerStat.getCreateTableString(), WeaponStat.getCreateTableString());
         }
     }
 
@@ -383,7 +381,7 @@ public class WeaponMechanics {
     }
 
     void registerPermissions() {
-        debug.info("Registering permissions"); // keep this on info just in case for infinite loop
+        debug.debug("Registering permissions");
 
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
         if (parent == null) {

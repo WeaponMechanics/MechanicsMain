@@ -1,15 +1,13 @@
 package me.deecaad.core.database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class SQLite extends Database {
-
-    private final String absolutePath;
-    private Connection connection;
+public class SQLite extends HikariBased {
 
     public SQLite(String absolutePath) throws IOException, SQLException {
         super(DatabaseType.SQLITE);
@@ -22,19 +20,12 @@ public class SQLite extends Database {
             db.createNewFile();
         }
 
-        this.absolutePath = absolutePath;
-        this.connection = DriverManager.getConnection("jdbc:sqlite:" + absolutePath);
-    }
+        HikariConfig config = new HikariConfig();
 
-    @Override
-    public Connection getConnection() throws SQLException {
-        return this.connection == null || this.connection.isClosed()
-                ? this.connection = DriverManager.getConnection("jdbc:sqlite:" + absolutePath)
-                : this.connection;
-    }
+        config.setPoolName("WMSQLite");
+        config.setDriverClassName("org.sqlite.JDBC");
+        config.setJdbcUrl("jdbc:sqlite:" + absolutePath);
 
-    @Override
-    public void close() throws SQLException {
-        if (this.connection != null && !this.connection.isClosed()) this.connection.close();
+        dataSource = new HikariDataSource(config);
     }
 }

@@ -12,14 +12,12 @@ import java.util.function.BiFunction;
 public class StatsData {
 
     private final UUID uuid;
-    private final Map<PlayerStat, Object> playerData;
-    private final Map<String, Map<WeaponStat, Object>> weaponData;
+    private Map<PlayerStat, Object> playerData;
+    private Map<String, Map<WeaponStat, Object>> weaponData;
     private boolean isSync;
 
     public StatsData(UUID uuid) {
         this.uuid = uuid;
-        this.playerData = new HashMap<>();
-        this.weaponData = new HashMap<>();
     }
 
     /**
@@ -29,8 +27,11 @@ public class StatsData {
         return isSync;
     }
 
-    public void setSync(boolean sync) {
-        isSync = sync;
+    public void setData(Map<PlayerStat, Object> playerData, Map<String, Map<WeaponStat, Object>> weaponData) {
+        if (isSync) throw new IllegalArgumentException("Tried to set data after sync");
+        this.playerData = playerData;
+        this.weaponData = weaponData;
+        isSync = true;
     }
 
     public void add(PlayerStat stat, int data) {

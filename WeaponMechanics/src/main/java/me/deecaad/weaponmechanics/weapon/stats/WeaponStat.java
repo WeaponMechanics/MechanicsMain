@@ -45,8 +45,9 @@ public enum WeaponStat {
 
     private final String columnType;
     private final Class<?> classType;
-
     private final Object defaultValue;
+
+    public static final WeaponStat[] VALUES = values();
 
     WeaponStat(String columnType, Class<?> classType) {
         this.columnType = columnType;
@@ -54,6 +55,8 @@ public enum WeaponStat {
 
         if (classType == String.class) {
             this.defaultValue = null;
+        } else if (classType == Float.class) {
+            this.defaultValue = (float) 0.0;
         } else {
             this.defaultValue = 0;
         }
@@ -69,7 +72,7 @@ public enum WeaponStat {
 
     public static String getCreateTableString() {
         StringBuilder builder = new StringBuilder("CREATE TABLE IF NOT EXISTS weapon_stats (");
-        Arrays.stream(values()).forEach(stat -> builder
+        Arrays.stream(VALUES).forEach(stat -> builder
                 .append(stat.name())
                 .append(" ")
                 .append(stat.columnType)

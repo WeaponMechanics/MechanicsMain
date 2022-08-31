@@ -2,14 +2,11 @@ package me.deecaad.core.database;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
 import java.sql.*;
-import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class Database {
 
@@ -35,9 +32,9 @@ public abstract class Database {
      * @param resultSet the result set used
      */
     public void close(@Nullable Connection connection, @Nullable Statement statement, @Nullable ResultSet resultSet) {
-        if (connection != null) try { connection.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
-        if (statement != null) try { statement.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
         if (resultSet != null) try { resultSet.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
+        if (statement != null) try { statement.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
+        if (connection != null) try { connection.close(); } catch (SQLException e) { MechanicsCore.debug.log(LogLevel.ERROR, e); }
     }
 
     /**
@@ -99,6 +96,7 @@ public abstract class Database {
 
             // Finally actually commit the changes when everything is done
             connection.commit();
+            connection.setAutoCommit(true);
         } catch (SQLException e) {
             MechanicsCore.debug.log(LogLevel.ERROR, e);
         } finally {
@@ -119,42 +117,48 @@ public abstract class Database {
      */
     public void executeQuery(String sql, Consumer<ResultSet> consumer) {
         if (sql == null || sql.isEmpty() || consumer == null) throw new IllegalArgumentException("Empty statement or null consumer");
-        //new BukkitRunnable() {
-        //    public void run() {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-            resultSet = preparedStatement.executeQuery();
-
-            aa(resultSet);
-            //consumer.accept(resultSet);
-
-        } catch (SQLException e) {
-            MechanicsCore.debug.log(LogLevel.ERROR, e);
-        } finally {
-            close(connection, preparedStatement, resultSet);
-        }
-        //    }
-        //}.runTaskAsynchronously(MechanicsCore.getPlugin());
+        new BukkitRunnable() {
+            public void run() {
+                Connection connection = null;
+                PreparedStatement preparedStatement = null;
+                ResultSet resultSet = null;
+                try {
+                    connection = getConnection();
+                    preparedStatement = connection.prepareStatement(sql);
+                    resultSet = preparedStatement.executeQuery();
+                    consumer.accept(resultSet);
+                } catch (SQLException e) {
+                    MechanicsCore.debug.log(LogLevel.ERROR, e);
+                } finally {
+                    close(connection, preparedStatement, resultSet);
+                }
+            }
+        }.runTaskAsynchronously(MechanicsCore.getPlugin());
     }
 
-    private void aa(ResultSet rs) {
+    /**
+     * Simple method to print the result set to console.
+     * Requires LogLevel.DEBUG
+     *
+     * @param rs the query result
+     */
+    public void printResultSet(ResultSet rs) {
         try {
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnsNumber = rsmd.getColumnCount();
 
+            StringBuilder builder = new StringBuilder();
+
             while (rs.next()) {
                 for (int i = 1; i <= columnsNumber; i++) {
-                    if (i > 1) System.out.print(" | ");
-                    System.out.print(rs.getString(i));
+                    builder.append(" | ").append(rs.getString(i));
                 }
-                System.out.println("-");
+                builder.append(System.lineSeparator());
             }
+
+            MechanicsCore.debug.log(LogLevel.DEBUG, builder.toString());
         } catch (SQLException e) {
-            e.printStackTrace();
+            MechanicsCore.debug.log(LogLevel.ERROR, e);
         }
     }
 
@@ -171,4 +175,9 @@ public abstract class Database {
      * Has to be called on when server disables or plugin is reloaded
      */
     public abstract void close() throws SQLException;
+
+    /**
+     * @return whether this database is closed
+     */
+    public abstract boolean isClosed();
 }
