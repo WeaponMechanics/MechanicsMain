@@ -3,11 +3,10 @@ package me.deecaad.weaponmechanics.wrappers;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiFunction;
+
+import static org.bukkit.ChatColor.*;
 
 public class StatsData {
 
@@ -99,6 +98,27 @@ public class StatsData {
         if (data == null) return defaultValue;
 
         return data.getOrDefault(stat, defaultValue);
+    }
+
+    public List<String> getPlayerData() {
+        if (!isSync) return null;
+        if (playerData.isEmpty()) return null;
+        List<String> data = new ArrayList<>();
+        for (Map.Entry<PlayerStat, Object> entry : playerData.entrySet()) {
+            data.add("" + GOLD + entry.getKey() + ": " + GRAY + entry.getValue());
+        }
+        return data;
+    }
+
+    public List<String> getWeaponData(String weapon) {
+        if (!isSync) return null;
+        Map<WeaponStat, Object> data = weaponData.get(weapon);
+        if (data == null || data.isEmpty()) return null;
+        List<String> dataList = new ArrayList<>();
+        for (Map.Entry<WeaponStat, Object> entry : data.entrySet()) {
+            dataList.add("" + GOLD + entry.getKey() + ": " + GRAY + entry.getValue());
+        }
+        return dataList;
     }
 
     @Override

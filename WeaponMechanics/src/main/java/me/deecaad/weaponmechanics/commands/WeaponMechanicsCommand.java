@@ -30,6 +30,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileS
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import me.deecaad.weaponmechanics.wrappers.StatsData;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEventSource;
@@ -240,7 +241,7 @@ public class WeaponMechanicsCommand {
                         .withDescription("Shows the hitboxes of nearby entities")
                         .withArgument(new Argument<>("targets", new EntityListArgumentType()).withDesc("Whose hitbox to show"))
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long to show the hitbox"))
-                        .executes(CommandExecutor.player((sender, args) -> {
+                        .executes(CommandExecutor.any((sender, args) -> {
                             hitbox(sender, (List<Entity>) args[0], (int) args[1]);
                         })))
 
@@ -278,12 +279,67 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("disguise", new EntityTypeArgumentType(), null).withDesc("Which disguise to use"))
                         .executes(CommandExecutor.entity((sender, args) -> {
                             shoot((LivingEntity) sender, (double) args[0], (double) args[1], (EntityType) args[2]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("stats")
+                        .withPermission("weaponmechanics.commands.test.stats")
+                        .withDescription("Check player stats")
+                        .withArgument(new Argument<>("type", new StringArgumentType()).withDesc("Which stats to fetch").append(SuggestionsBuilder.from("player", "weapon")))
+                        .withArgument(new Argument<>("target", new PlayerArgumentType()).withDesc("Whose stats to check"))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType(), null).withDesc("Which weapon stats to check").replace(WEAPON_SUGGESTIONS))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            stats(sender, (String) args[0], (Player) args[1], (String) args[2]);
                         })));
 
 
         command.withSubcommand(test);
         command.registerHelp(HelpCommandBuilder.HelpColor.from(GOLD, GRAY, SYM));
         command.register();
+    }
+
+    public static void stats(CommandSender sender, String type, Player target, String weapon) {
+        if (target == null) {
+            sender.sendMessage(RED + "No target found");
+            return;
+        }
+
+        PlayerWrapper wrapper = WeaponMechanics.getPlayerWrapper(target);
+        StatsData statsData = wrapper.getStatsData();
+
+        if (statsData == null) {
+            sender.sendMessage(RED + "Stats are disabled or not yet synced...");
+            return;
+        }
+
+        if ("player".equals(type)) {
+            List<String> playerData = statsData.getPlayerData();
+            if (playerData == null) {
+                sender.sendMessage(RED + "No player stats found from " + target.getName());
+                return;
+            }
+
+            sender.sendMessage(GOLD + "Showing stats of " + target.getName() + ":");
+            for (String msg : playerData) {
+                sender.sendMessage(msg);
+            }
+            return;
+        }
+
+        if (weapon == null) {
+            sender.sendMessage(RED + "Weapon title has to be defined when trying to fetch weapon stats");
+            return;
+        }
+
+        List<String> weaponData = statsData.getWeaponData(weapon);
+        if (weaponData == null) {
+            sender.sendMessage(RED + "No weapon stats found from " + weapon + " of player " + target.getName());
+            return;
+        }
+
+        sender.sendMessage(GOLD + "Showing " + target.getName() + " stats of " + weapon + ":");
+        for (String msg : weaponData) {
+            sender.sendMessage(msg);
+        }
     }
 
     public static void give(CommandSender sender, List<Entity> targets, String weaponTitle, int amount, Map<String, Object> data) {
