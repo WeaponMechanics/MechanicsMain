@@ -179,8 +179,8 @@ public class InfoHandler implements IValidator {
         weaponStack.setItemMeta(weaponMeta);
 
         // Apply default skin
-        Map skins = getConfigurations().getObject(weaponTitle + ".Skin", Map.class);
-        Skin defaultSkin = (Skin) (skins == null ? null : skins.get("Default"));
+        SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
+        Skin defaultSkin = skins == null ? null : skins.getSkin(null, null);
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
         }

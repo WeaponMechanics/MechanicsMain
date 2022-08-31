@@ -300,6 +300,10 @@ public final class NumberUtil {
         return min + factor * (max - min);
     }
 
+    public static double invLerp(double min, double max, double value) {
+        return (value - min) / (max - min);
+    }
+
     public static int intFloor(double value) {
         int i = (int) value;
         return value < (double) i ? i - 1 : i;

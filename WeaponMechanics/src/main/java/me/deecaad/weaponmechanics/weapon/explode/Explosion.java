@@ -226,31 +226,24 @@ public class Explosion implements Serializer<Explosion> {
             return;
         }
 
-        List<Block> blocks;
-        BlockRegenSorter sorter;
-        DoubleMap<LivingEntity> entities;
+        List<Block> blocks = shape.getBlocks(origin);
+        BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
+        DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
         if (projectile != null) {
             // This event is not cancellable. If developers want to cancel
             // explosions, they should use ProjectilePreExplodeEvent
-            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, shape.getBlocks(origin),
-                    new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
+            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, blocks, sorter, entities);
             Bukkit.getPluginManager().callEvent(event);
             blocks = event.getBlocks();
             sorter = event.getSorter();
             entities = event.getEntities();
-        } else {
-            blocks = shape.getBlocks(origin);
-            sorter = new LayerDistanceSorter(origin, this);
-            entities = exposure.mapExposures(origin, shape);
         }
-
-        int initialCapacity = Math.max(blocks.size(), 10);
-        List<Block> transparent = new ArrayList<>(initialCapacity);
-        List<Block> solid = new ArrayList<>(initialCapacity);
 
         // Sort the blocks into different categories (To make regeneration more
         // reliable). In the future, this may also be used to filter out
         // redstone contraptions.
+        List<Block> transparent = new ArrayList<>(blocks.size());
+        List<Block> solid = new ArrayList<>(blocks.size());
         for (Block block : blocks) {
             if (block.getType().isSolid()) {
                 solid.add(block);
@@ -263,7 +256,7 @@ public class Explosion implements Serializer<Explosion> {
         // good. Generally, sorters should generate lower blocks before higher
         // blocks, and outer blocks before inner blocks. If the sorter is null,
         // the sorting stage will be skipped, but this will cause blocks to
-        // regenerate in a random order.
+        // regenerate in an undefined order.
         try {
             if (sorter == null) {
                 debug.debug("Null sorter used while regenerating explosion... Was this intentional?");

@@ -38,7 +38,8 @@ Assists_Event:
   Required_Damage_Amount: 0 # damage amount for assist, 0 to disable
   Timer: 100 # last damage time in ticks before death for assist, 0 to disable
 
-# Change messages sent for player
+# Most Messages are handled per weapon
+# WorldGuard message is configurable using the weapon-shoot-message flag
 Messages:
   Permissions:
     Use_Weapon: "&4You do not have permission to use %weapon-title%"
