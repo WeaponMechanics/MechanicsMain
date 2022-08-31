@@ -17,6 +17,8 @@ Update_Checker:
     Minor: 1
     Patch: 1
 
+# Most Messages are handled per weapon
+# WorldGuard message is configurable using the weapon-shoot-message flag
 Messages:
   Permissions:
     Use_Weapon: "&4You do not have permission to use %weapon-title%"
@@ -68,6 +70,11 @@ Check_For_New_Player_Rate: 50
 # ENDER_DRAGON have multiple hitboxes. Disabling this option saves a bit
 # of resources when ray tracing blocks or entities with multiple hitboxes.
 Check_Accurate_Hitboxes: true
+
+# If set to true, the damage dropoff will change uniformly with distance.
+# See https://github.com/WeaponMechanics/MechanicsMain/issues/100 for more
+# information.
+Smooth_Damage_Dropoff: false
 
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but
