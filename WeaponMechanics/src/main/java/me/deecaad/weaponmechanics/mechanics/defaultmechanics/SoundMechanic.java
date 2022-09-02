@@ -236,7 +236,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
 
         public SoundMechanicData(float volume, float pitch, int delay, float noise, double minDistance,
                                  double maxDistance, MaterialCategory headMaterial, String soundCategory) {
-            this.volume = volume;
+            this.volume = Math.min(volume, 1.0f);
             this.pitch = pitch;
             this.delay = delay;
             this.noise = noise;
@@ -249,7 +249,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         public abstract void play(CastData castData);
 
         public float getVolume() {
-            return volume;
+            return (float) (maxDistance / 16f);
         }
 
         public float getPitch() {
