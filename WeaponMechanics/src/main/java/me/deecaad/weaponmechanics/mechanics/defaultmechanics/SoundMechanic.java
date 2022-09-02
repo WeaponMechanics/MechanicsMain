@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -18,7 +19,6 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -126,12 +126,14 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         return false;
     }
 
-    protected SoundMechanicData serialize(SerializeData data, Sound sound, float volume, float pitch, int delay, float noise, double distance, MaterialCategory mat, String category) throws SerializerException {
-        return new BukkitSound(sound, volume, pitch, delay, noise, distance, mat, getSoundCategory(data, category));
+    protected SoundMechanicData serialize(SerializeData data, Sound sound, float volume, float pitch, int delay, float noise,
+                                          double minDistance, double maxDistance, MaterialCategory mat, String category) throws SerializerException {
+        return new BukkitSound(sound, volume, pitch, delay, noise, minDistance, maxDistance, mat, getSoundCategory(data, category));
     }
 
-    protected SoundMechanicData serialize(SerializeData data, String sound, float volume, float pitch, int delay, float noise, double distance, MaterialCategory mat, String category) throws SerializerException {
-        return new CustomSound(sound, volume, pitch, delay, noise, distance, mat, getSoundCategory(data, category));
+    protected SoundMechanicData serialize(SerializeData data, String sound, float volume, float pitch, int delay, float noise,
+                                          double minDistance, double maxDistance, MaterialCategory mat, String category) throws SerializerException {
+        return new CustomSound(sound, volume, pitch, delay, noise, minDistance, maxDistance, mat, getSoundCategory(data, category));
     }
 
     public String getSoundCategory(SerializeData data, String category) throws SerializerException {
@@ -158,7 +160,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
                 .addArgument(double.class, false).assertArgumentRange(0.5, 2.0)
                 .addArgument(int.class, false).assertArgumentPositive()
                 .addArgument(double.class, false).assertArgumentRange(0.0, 1.0)
-                .addArgument(double.class, false).assertArgumentPositive()
+                .addArgument(double.class, false, true).assertArgumentPositive()
                 .addArgument(MaterialCategory.class, false)
                 .addArgument(String.class, false, true) // Cannot use SoundCategory since it didn't exist
                 .assertList().assertExists().get();
@@ -173,9 +175,32 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             float pitch = split.length > 2 ? Float.parseFloat(split[2]) : 1.0f;
             int delay = split.length > 3 ? Integer.parseInt(split[3]) : 0;
             float noise = split.length > 4 ? Float.parseFloat(split[4]) : 0.0f;
-            double distance = split.length > 5 ? Double.parseDouble(split[5]) : Double.NaN;
+            // 5 is min/max distance
             MaterialCategory mat = split.length > 6 ? MaterialCategory.valueOf(split[6].toUpperCase(Locale.ROOT)) : MaterialCategory.ALL;
             String category = split.length > 7 ? split[7].toUpperCase(Locale.ROOT) : null;
+
+            // How close/How far away from the sound does the player have to be
+            // in order to hear it. We allow ranges for #70
+            double minDistance = Double.NaN;
+            double maxDistance = Double.NaN;
+            try {
+                if (split.length > 5 && split[5].contains(":")) {
+                    String[] distanceData = split[5].split(":");
+                    minDistance = Double.parseDouble(distanceData[0]);
+                    maxDistance = Double.parseDouble(distanceData[1]);
+
+                    if (maxDistance < minDistance)
+                        throw data.listException(null, i, "Invalid min/max distance, make sure max is bigger than min",
+                                SerializerException.forValue(split[5]));
+
+                } else if (split.length > 5) {
+                    maxDistance = Double.parseDouble(split[5]);
+                }
+            } catch (NumberFormatException ex) {
+                throw data.listException(null, i, "Invalid min/max distance, make sure it is a number",
+                        SerializerException.forValue(split[5]),
+                        ex.getMessage());
+            }
 
             if (delay > 0)
                 delayedCounter++;
@@ -183,13 +208,13 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             String stringSound = split[0].trim();
             if (stringSound.toLowerCase().startsWith("custom:")) {
                 stringSound = stringSound.substring("custom:".length());
-                soundList.add(serialize(data, stringSound, volume, pitch, delay, noise, distance, mat, category));
+                soundList.add(serialize(data, stringSound, volume, pitch, delay, noise, minDistance, maxDistance, mat, category));
                 continue;
             }
 
             try {
                 Sound sound = Sound.valueOf(stringSound.toUpperCase(Locale.ROOT));
-                soundList.add(serialize(data, sound, volume, pitch, delay, noise, distance, mat, category));
+                soundList.add(serialize(data, sound, volume, pitch, delay, noise, minDistance, maxDistance, mat, category));
             } catch (IllegalArgumentException e) {
                 throw new SerializerEnumException(this, Sound.class, stringSound, false, data.ofList().getLocation(i));
             }
@@ -204,16 +229,19 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         private final float pitch;
         private final int delay;
         private final float noise;
-        private final double distance;
+        private final double minDistance;
+        private final double maxDistance;
         private final MaterialCategory headMaterial;
         private final String soundCategory;
 
-        public SoundMechanicData(float volume, float pitch, int delay, float noise, double distance, MaterialCategory headMaterial, String soundCategory) {
-            this.volume = Math.min(volume, 1f);
+        public SoundMechanicData(float volume, float pitch, int delay, float noise, double minDistance,
+                                 double maxDistance, MaterialCategory headMaterial, String soundCategory) {
+            this.volume = volume;
             this.pitch = pitch;
             this.delay = delay;
             this.noise = noise;
-            this.distance = Double.isNaN(distance) ? Math.max(1, volume) * 16 : distance;
+            this.minDistance = Double.isNaN(minDistance) ? -1.0 : minDistance;
+            this.maxDistance = Double.isNaN(maxDistance) ? Math.max(1, volume) * 16 : maxDistance;
             this.headMaterial = headMaterial;
             this.soundCategory = soundCategory;
         }
@@ -236,6 +264,14 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             return noise;
         }
 
+        public double getMinDistance() {
+            return minDistance;
+        }
+
+        public double getMaxDistance() {
+            return maxDistance;
+        }
+
         public MaterialCategory getHeadMaterial() {
             return headMaterial;
         }
@@ -256,14 +292,9 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             return NumberUtil.minMax(MIN_PITCH, pitch, MAX_PITCH);
         }
 
-        public double getDistance() {
-            return distance;
-        }
-
-        public Iterable<Entity> getPlayers(CastData cast) {
+        public Iterable<Player> getPlayers(CastData cast) {
             Location location = cast.getCastLocation();
-            double distance = getDistance();
-            return location.getWorld().getNearbyEntities(location, distance, distance, distance, Player.class::isInstance);
+            return DistanceUtil.getPlayersInRange(location, minDistance, maxDistance);
         }
     }
 
@@ -271,8 +302,9 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
 
         private final Sound sound;
 
-        public BukkitSound(Sound sound, float volume, float pitch, int delay, float noise, double distance, MaterialCategory headMaterial, String soundCategory) {
-            super(volume, pitch, delay, noise, distance, headMaterial, soundCategory);
+        public BukkitSound(Sound sound, float volume, float pitch, int delay, float noise, double minDistance,
+                           double maxDistance, MaterialCategory headMaterial, String soundCategory) {
+            super(volume, pitch, delay, noise, minDistance, maxDistance, headMaterial, soundCategory);
             this.sound = sound;
         }
 
@@ -280,8 +312,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         public void play(CastData castData) {
             Location location = castData.getCastLocation();
 
-            for (Entity entity : getPlayers(castData)) {
-                Player player = (Player) entity;
+            for (Player player : getPlayers(castData)) {
                 if (!getHeadMaterial().test(player))
                     continue;
 
@@ -299,8 +330,8 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
 
         private final String sound;
 
-        public CustomSound(String sound, float volume, float pitch, int delay, float noise, double distance, MaterialCategory headMaterial, String soundCategory) {
-            super(volume, pitch, delay, noise, distance, headMaterial, soundCategory);
+        public CustomSound(String sound, float volume, float pitch, int delay, float noise, double minDistance, double maxDistance, MaterialCategory headMaterial, String soundCategory) {
+            super(volume, pitch, delay, noise, minDistance, maxDistance, headMaterial, soundCategory);
             this.sound = sound;
         }
 
@@ -308,8 +339,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         public void play(CastData castData) {
             Location location = castData.getCastLocation();
 
-            for (Entity entity : getPlayers(castData)) {
-                Player player = (Player) entity;
+            for (Player player : getPlayers(castData)) {
                 if (!getHeadMaterial().test(player))
                     continue;
 
