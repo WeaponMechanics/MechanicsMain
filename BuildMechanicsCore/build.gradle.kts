@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.5.0"
+version = "1.4.9"
 
 plugins {
     `maven-publish`
@@ -77,10 +77,6 @@ tasks.named<ShadowJar>("shadowJar") {
 
         relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure") {
             include(dependency("net.kyori::"))
-        }
-
-        relocate ("com.zaxxer.hikari", "me.deecaad.core.lib.hikari") {
-            include(dependency("com.zaxxer::"))
         }
     }
 }

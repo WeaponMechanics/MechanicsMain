@@ -340,9 +340,13 @@ public class DamageUtil {
         if (teams == null || teams.isEmpty()) return true;
 
         for (Team team : teams) {
+            Set<String> entries = team.getEntries();
+
+            // Seems like this has to be also checked...
+            if (!entries.contains(cause.getName())) continue;
 
             // If not in same team -> continue
-            if (!team.getEntries().contains(victim.getName())) continue;
+            if (!entries.contains(victim.getName())) continue;
 
             // Now we know they're in same team.
             // -> If friendly is not enabled
