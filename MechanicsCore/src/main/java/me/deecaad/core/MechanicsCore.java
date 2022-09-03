@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.jar.JarFile;
 
 public class MechanicsCore extends JavaPlugin {
@@ -70,20 +71,7 @@ public class MechanicsCore extends JavaPlugin {
             FileUtil.copyResourcesTo(getClassLoader().getResource("MechanicsCore/Items"), itemsFolder.toPath());
         }
 
-        for (File file : itemsFolder.listFiles()) {
-            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-
-            for (String key : config.getKeys(false)) {
-                SerializeData data = new SerializeData(new ItemSerializer(), file, key, config);
-
-                try {
-                    ItemStack registry = data.of().serializeNonStandardSerializer(new ItemSerializer());
-                    ItemSerializer.ITEM_REGISTRY.put(key, registry::clone);
-                } catch (SerializerException ex) {
-                    ex.log(debug);
-                }
-            }
-        }
+        loadItems(itemsFolder);
 
         if (ReflectionUtil.getMCVersion() >= 13) {
             MechanicsCoreCommand.build();
@@ -107,6 +95,39 @@ public class MechanicsCore extends JavaPlugin {
         debug = null;
         adventure.close();
         adventure = null;
+    }
+
+    public void loadItems(File directory) {
+        if (!directory.isDirectory())
+            throw new IllegalArgumentException(directory + " is not a directory");
+
+        for (File file : directory.listFiles()) {
+
+            // Allow sub-folders
+            if (file.isDirectory()) {
+                loadItems(file);
+                continue;
+            }
+
+            // Quick check to see if somebody added a file type that isn't a
+            // YAML file. Otherwise we might get a stacktrace in console
+            if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".yml") && !file.getName().toLowerCase(Locale.ROOT).endsWith(".yaml")) {
+                debug.error(file + " was not a YAML file? Make sure it ends with .yml");
+                continue;
+            }
+
+            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+            for (String key : config.getKeys(false)) {
+                SerializeData data = new SerializeData(new ItemSerializer(), file, key, config);
+
+                try {
+                    ItemStack registry = data.of().serializeNonStandardSerializer(new ItemSerializer());
+                    ItemSerializer.ITEM_REGISTRY.put(key, registry::clone);
+                } catch (SerializerException ex) {
+                    ex.log(debug);
+                }
+            }
+        }
     }
 
     /**
