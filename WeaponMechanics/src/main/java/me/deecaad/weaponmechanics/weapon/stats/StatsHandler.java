@@ -24,6 +24,11 @@ public class StatsHandler {
         generateReplaces();
     }
 
+    /**
+     * Loads data to player wrapper from database
+     *
+     * @param playerWrapper the player wrapper
+     */
     public void load(PlayerWrapper playerWrapper) {
         Database database = WeaponMechanics.getDatabase();
         if (database == null) return;
@@ -38,6 +43,12 @@ public class StatsHandler {
         fetchAndInsertPlayerStats(database, playerWrapper.getPlayer().getUniqueId(), statsData);
     }
 
+    /**
+     * Saves data from player wrapper to database
+     *
+     * @param playerWrapper the player wrapper
+     * @param forceSync true means that saving is forced to be sync (used on disable)
+     */
     public void save(PlayerWrapper playerWrapper, boolean forceSync) {
         Database database = WeaponMechanics.getDatabase();
         if (database == null) return;
@@ -77,6 +88,7 @@ public class StatsHandler {
                 if (stat.getClassType() == String.class) {
                     Object value = statsData.get(weapon, stat, stat.getDefaultValue());
                     if (value == null) {
+                        // Append SQL null value
                         builder.append("NULL");
                     } else {
                         builder.append("'")

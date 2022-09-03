@@ -26,37 +26,79 @@ public class StatsData {
         return isSync;
     }
 
-    public void setData(Map<PlayerStat, Object> playerData, Map<String, Map<WeaponStat, Object>> weaponData) {
-        if (isSync) throw new IllegalArgumentException("Tried to set data after sync");
-        this.playerData = playerData;
-        this.weaponData = weaponData;
-        isSync = true;
-    }
-
+    /**
+     * Adds given data to player stat.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param stat the stat
+     * @param data the amount to add
+     */
     public void add(PlayerStat stat, int data) {
         if (!isSync) return;
         if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
         playerData.compute(stat, (key, value) -> value == null ? data : (int) value + data);
     }
 
+    /**
+     * Adds given data to player stat.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param stat the stat
+     * @param data the amount to add
+     */
     public void add(PlayerStat stat, float data) {
         if (!isSync) return;
         if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
         playerData.compute(stat, (key, value) -> value == null ? data : (float) value + data);
     }
 
+    /**
+     * Set given data to player stat.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param stat the stat
+     * @param data the data to set
+     */
     public void set(PlayerStat stat, String data) {
         if (!isSync) return;
         if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
         playerData.put(stat, data);
     }
 
+    /**
+     * Used to get the synced data.
+     * When data isn't yet synced, default value is always returned.
+     * Assigns default value to be 0 or null depending on stat type
+     *
+     * @param stat the player stat
+     * @return the data object
+     */
+    public Object get(PlayerStat stat) {
+        return get(stat, stat.getDefaultValue());
+    }
+
+    /**
+     * Used to get the synced data.
+     * When data isn't yet synced, default value is always returned.
+     *
+     * @param stat the player stat
+     * @param defaultValue the default value for player stat
+     * @return the data object
+     */
     public Object get(PlayerStat stat, Object defaultValue) {
         if (!isSync) return defaultValue;
         if (stat == PlayerStat.UUID) return uuid;
         return playerData.getOrDefault(stat, defaultValue);
     }
 
+    /**
+     * Adds given data to weapon's weapon stat.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the stat
+     * @param data the amount to add
+     */
     public void add(String weaponTitle, WeaponStat stat, int data) {
         if (!isSync) return;
         if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
@@ -64,6 +106,14 @@ public class StatsData {
         weaponData.get(weaponTitle).compute(stat, (key, value) -> value == null ? data : (int) value + data);
     }
 
+    /**
+     * Adds given data to weapon's weapon stat.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the stat
+     * @param data the amount to add
+     */
     public void add(String weaponTitle, WeaponStat stat, float data) {
         if (!isSync) return;
         if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
@@ -71,12 +121,29 @@ public class StatsData {
         weaponData.get(weaponTitle).compute(stat, (key, value) -> value == null ? data : (float) value + data);
     }
 
+    /**
+     * Set given data to weapon's weapon stat using BiFunction.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     * Useful when you want to update stat's value conditionally (e.g. longest distance hit)
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the stat
+     * @param compute the BiFunction
+     */
     public void set(String weaponTitle, WeaponStat stat, BiFunction<WeaponStat, Object, Float> compute) {
         if (!isSync) return;
         weaponData.putIfAbsent(weaponTitle, new HashMap<>());
         weaponData.get(weaponTitle).compute(stat, compute);
     }
 
+    /**
+     * Set given data to weapon's weapon stat.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the stat
+     * @param data the data to set
+     */
     public void set(String weaponTitle, WeaponStat stat, String data) {
         if (!isSync) return;
         if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
@@ -84,11 +151,36 @@ public class StatsData {
         weaponData.get(weaponTitle).put(stat, data);
     }
 
+    /**
+     * @return the weapon titles which have some data saved, null if not synced yet
+     */
     public Set<String> getWeapons() {
         if (!isSync) return null;
         return weaponData.keySet();
     }
 
+    /**
+     * Used to get the synced data.
+     * When data isn't yet synced, default value is always returned.
+     * Assigns default value to be 0 or null depending on stat type
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the weapon stat
+     * @return the data object
+     */
+    public Object get(String weaponTitle, WeaponStat stat) {
+        return get(weaponTitle, stat, stat.getDefaultValue());
+    }
+
+    /**
+     * Used to get the synced data.
+     * When data isn't yet synced, default value is always returned.
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the weapon stat
+     * @param defaultValue the default value for weapon stat
+     * @return the data object
+     */
     public Object get(String weaponTitle, WeaponStat stat, Object defaultValue) {
         if (!isSync) return defaultValue;
         if (stat == WeaponStat.UUID) return uuid;
@@ -98,6 +190,23 @@ public class StatsData {
         if (data == null) return defaultValue;
 
         return data.getOrDefault(stat, defaultValue);
+    }
+
+    /**
+     * This method can only be used once during StatsData object lifetime.
+     * Used to insert the database data via hashmaps.
+     *
+     * @param playerData the player data
+     * @param weaponData the weapon data
+     */
+    public void setData(Map<PlayerStat, Object> playerData, Map<String, Map<WeaponStat, Object>> weaponData) {
+        if (isSync) throw new IllegalArgumentException("Tried to set data after sync");
+        if (playerData == null) throw new IllegalArgumentException("Tried to set null value for player data");
+        if (weaponData == null) throw new IllegalArgumentException("Tried to set null value for weapon data");
+
+        this.playerData = playerData;
+        this.weaponData = weaponData;
+        isSync = true;
     }
 
     public List<String> getPlayerData() {
