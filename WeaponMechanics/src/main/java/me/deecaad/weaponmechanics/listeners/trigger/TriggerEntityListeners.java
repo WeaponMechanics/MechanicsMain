@@ -6,6 +6,7 @@ import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
+import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -42,14 +43,12 @@ public class TriggerEntityListeners implements Listener {
 
         // Only when victim has been damaged by WM projectile
         // when Use_Vanilla_Damaging is true
-        if (!victim.hasMetadata("wm_vanilla_dmg")) return;
-        victim.removeMetadata("wm_vanilla_dmg", WeaponMechanics.getPlugin());
+        if (!MetadataKey.VANILLA_DAMAGE.has(victim)) return;
+        MetadataKey.VANILLA_DAMAGE.remove(victim);
 
         if (e.isCancelled()) {
             // If cancelled set this new meta to let WM know not to use mechanics anymore
-
-            e.getEntity().setMetadata("wm_cancelled_dmg",
-                    new FixedMetadataValue(WeaponMechanics.getPlugin(), null));
+            MetadataKey.CANCELLED_DAMAGE.set(victim, null);
         }
     }
 
@@ -57,7 +56,7 @@ public class TriggerEntityListeners implements Listener {
     public void damage(EntityDamageByEntityEvent e) {
         Entity victim = e.getEntity();
 
-        if (victim.hasMetadata("wm_vanilla_dmg")) {
+        if (MetadataKey.VANILLA_DAMAGE.has(victim)) {
             // Don't try melee nor cancel the damage if this entity was just hit by
             // WM projectile while using ´Use_Vanilla_Damaging´.
             return;
