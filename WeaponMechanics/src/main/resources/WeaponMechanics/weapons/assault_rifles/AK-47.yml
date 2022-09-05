@@ -56,6 +56,8 @@ AK-47:
       Custom_Model_Data: 121
     Scope:
       Custom_Model_Data: 131
+    Sprint:
+      Custom_Model_Data: 136
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

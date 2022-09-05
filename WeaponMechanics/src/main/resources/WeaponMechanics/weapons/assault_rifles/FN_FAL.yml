@@ -34,6 +34,8 @@ FN_FAL:
       Custom_Model_Data: 141
     Scope:
       Custom_Model_Data: 151
+    Sprint:
+      Custom_Model_Data: 156
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:
@@ -41,6 +43,7 @@ FN_FAL:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
         Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Selective_Fire:

@@ -34,6 +34,8 @@
       Custom_Model_Data: 181
     Scope:
       Custom_Model_Data: 191
+    Sprint:
+      Custom_Model_Data: 196
   Projectile: "pistol.Projectile"
   Shoot:
     Trigger:
@@ -41,6 +43,7 @@
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
         Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Delay_Between_Shots: 9

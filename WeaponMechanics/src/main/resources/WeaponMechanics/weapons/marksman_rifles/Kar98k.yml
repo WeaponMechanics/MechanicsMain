@@ -34,6 +34,8 @@ Kar98k:
       Custom_Model_Data: 221
     Scope:
       Custom_Model_Data: 231
+    Sprint:
+      Custom_Model_Data: 236
   Projectile: "marksman_rifle.Projectile"
   Shoot:
     Trigger:
@@ -41,6 +43,7 @@ Kar98k:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
         Dual_Wielding: "DENY"
     Projectile_Speed: 220
     Delay_Between_Shots: 18

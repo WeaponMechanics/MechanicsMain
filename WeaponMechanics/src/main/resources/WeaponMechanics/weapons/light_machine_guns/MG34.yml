@@ -34,6 +34,8 @@ MG34:
       Custom_Model_Data: 241
     Scope:
       Custom_Model_Data: 251
+    Sprint:
+      Custom_Model_Data: 256
   Projectile: "light_machine_gun.Projectile"
   Shoot:
     Trigger:
@@ -41,6 +43,7 @@ MG34:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
         Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 13
