@@ -2,12 +2,15 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
+import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
 /**
  * Simple class to handle weapon item serialization a bit differently.
@@ -40,12 +43,14 @@ public class WeaponItemSerializer extends ItemSerializer {
 
         String defaultSelectiveFire = data.config.getString(weaponTitle + ".Shoot.Selective_Fire.Default");
         if (defaultSelectiveFire != null) {
-            if (defaultSelectiveFire.equalsIgnoreCase("BURST")) {
-                CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, 1);
-            } else if (defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
-                CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, 2);
-            } else {
-                CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, 0);
+
+            try {
+                SelectiveFireState state = SelectiveFireState.valueOf(defaultSelectiveFire);
+                CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, state.ordinal());
+            } catch (IllegalArgumentException e) {
+                throw data.exception(null, SerializerException.forValue(defaultSelectiveFire),
+                        SerializerException.didYouMean(defaultSelectiveFire, Arrays.asList("SINGLE", "BURST", "AUTO"))
+                );
             }
         }
 
