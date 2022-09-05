@@ -7,6 +7,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
@@ -140,24 +141,18 @@ public class DamageUtil {
                 return true;
             }
 
-            // Set this metadata and check it on EntityDamageByEntityEvent to deny
-            // unintentional melee casts and unintentional damage cancel. LivingEntity.damage()
-            // always uses ENTITY_ATTACK as DamageCause. Using NMS so change damage cause would require
-            // spawning of actual entity projectile.
-
-            victim.setMetadata("wm_vanilla_dmg",
-                    new FixedMetadataValue(WeaponMechanics.getPlugin(), null));
+            MetadataKey.VANILLA_DAMAGE.set(victim, null);
 
             victim.damage(damage, cause);
 
-            if (victim.hasMetadata("wm_cancelled_dmg")) {
-                victim.removeMetadata("wm_cancelled_dmg", WeaponMechanics.getPlugin());
+            if (MetadataKey.CANCELLED_DAMAGE.has(victim)) {
+                MetadataKey.CANCELLED_DAMAGE.remove(victim);
 
                 // Damage was cancelled
                 return true;
             }
 
-
+            // Vanilla thing to allow constant hits from projectiles
             victim.setNoDamageTicks(0);
 
             // Successfully damaged using vanilla damaging
