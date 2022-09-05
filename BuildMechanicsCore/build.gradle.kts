@@ -75,7 +75,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_18_R2"))
         include(project(":Core_1_19_R1"))
 
-        relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure") {
+        relocate ("net.kyori", "me.deecaad.core.lib.adventure") {
             include(dependency("net.kyori::"))
         }
     }
