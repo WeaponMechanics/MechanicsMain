@@ -24,7 +24,9 @@ public class PFirearmState extends PlaceholderHandler {
         if (itemStack == null || weaponTitle == null) return null;
 
         FirearmAction firearmAction = getConfigurations().getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
-        if (firearmAction == null) return null;
+
+        // Simply don't show anything
+        if (firearmAction == null) return "";
 
         FirearmState state = firearmAction.getState(itemStack);
 
