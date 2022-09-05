@@ -32,21 +32,15 @@ tasks.register("buildForSpigotRelease").configure {
     println("Compile WeaponMechanics")
     dependsOn(":BuildWeaponMechanics:shadowJar")
 
-
+    println("Generate zip file")
+    finalizedBy("zipForSpigotRelease")
 }
 
-tasks.register("zipForSpigotRelease").configure {
-    val mechanicsCoreVersion = project(":BuildMechanicsCore").version.toString()
-    val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
+tasks.register<Zip>("zipForSpigotRelease") {
+    archiveFileName.set("WeaponMechanics.zip")
+    destinationDirectory.set(layout.buildDirectory)
 
-    // The zip file is used for the spigot download link.
-    println("Writing zip")
-    val jars = arrayOf("build/MechanicsCore-$mechanicsCoreVersion.jar", "build/WeaponMechanics-$weaponMechanicsVersion.jar")
-    val zip = ZipOutputStream(BufferedOutputStream(FileOutputStream("build/WeaponMechanics.zip")))
-    for (jar in jars) {
-
-        println("Copying $jar")
-        val input = BufferedInputStream(FileInputStream(jar))
-        input.copyTo(zip, 1024) // increasing this number may lower build time
+    from (layout.buildDirectory) {
+        include("*.jar")
     }
 }
