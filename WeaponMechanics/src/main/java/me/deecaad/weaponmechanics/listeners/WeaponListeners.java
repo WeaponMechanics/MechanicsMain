@@ -5,6 +5,7 @@ import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
@@ -123,8 +124,8 @@ public class WeaponListeners implements Listener {
     @EventHandler
     public void death(EntityDeathEvent e) {
         LivingEntity entity = e.getEntity();
-        if (entity.hasMetadata("wm_assist_data")) {
-            AssistData allData = (AssistData) entity.getMetadata("wm_assist_data").get(0).value();
+        if (MetadataKey.ASSIST_DATA.has(entity)) {
+            AssistData allData = (AssistData) MetadataKey.ASSIST_DATA.get(entity).get(0).value();
             Map<Player, Map<String, AssistData.DamageInfo>> assistData = allData.getAssists(entity.getKiller());
             if (assistData != null) {
                 assistData.forEach((player, data) -> {
@@ -141,24 +142,16 @@ public class WeaponListeners implements Listener {
                 });
             }
 
-            entity.removeMetadata("wm_assist_data", WeaponMechanics.getPlugin());
+            MetadataKey.ASSIST_DATA.remove(entity);
         }
-    }
-
-    @EventHandler
-    public void teleport(PlayerChangedWorldEvent e) {
-        // Cleanup some data on world change
-        Player player = e.getPlayer();
-        if (!player.hasMetadata("wm_assist_data")) return;
-        player.removeMetadata("wm_assist_data", WeaponMechanics.getPlugin());
     }
 
     @EventHandler
     public void quit(PlayerQuitEvent e) {
         // Cleanup metadata on player quit
         Player player = e.getPlayer();
-        if (!player.hasMetadata("wm_assist_data")) return;
-        player.removeMetadata("wm_assist_data", WeaponMechanics.getPlugin());
+        if (!MetadataKey.ASSIST_DATA.has(player)) return;
+        MetadataKey.ASSIST_DATA.remove(player);
     }
 
     @EventHandler
@@ -168,23 +161,9 @@ public class WeaponListeners implements Listener {
 
         // Cleanup metadata on chunk unload...
         for (Entity entity : e.getChunk().getEntities()) {
-            if (!entity.hasMetadata("wm_assist_data")) continue;
-            entity.removeMetadata("wm_assist_data", WeaponMechanics.getPlugin());
+            if (!MetadataKey.ASSIST_DATA.has(entity)) continue;
+            MetadataKey.ASSIST_DATA.remove(entity);
         }
-    }
-
-    @EventHandler
-    public void entityTeleport(EntityTeleportEvent e) {
-        // Cleanup some data on world change
-        Entity entity = e.getEntity();
-        if (!entity.hasMetadata("wm_assist_data")) return;
-
-        try {
-            // If same world, don't remove
-            if (e.getFrom().getWorld().getName().equals(e.getTo().getWorld().getName())) return;
-        } catch (IllegalArgumentException ignored) { }
-
-        entity.removeMetadata("wm_assist_data", WeaponMechanics.getPlugin());
     }
 
     @EventHandler (ignoreCancelled = true)

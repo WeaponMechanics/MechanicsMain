@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
+import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
@@ -155,11 +156,10 @@ public class DamageHandler {
 
             // If shot didn't kill entity, log assist damage
             AssistData assistData;
-            if (victim.hasMetadata("wm_assist_data")) {
-                assistData = (AssistData) victim.getMetadata("wm_assist_data").get(0).value();
+            if (MetadataKey.ASSIST_DATA.has(victim)) {
+                assistData = (AssistData) MetadataKey.ASSIST_DATA.get(victim).get(0).value();
             } else {
-                victim.setMetadata("wm_assist_data",
-                        new FixedMetadataValue(WeaponMechanics.getPlugin(), assistData = new AssistData()));
+                MetadataKey.ASSIST_DATA.set(victim, assistData = new AssistData());
             }
             assistData.logDamage((Player) shooter, weaponTitle, weaponStack, finalDamage);
 
