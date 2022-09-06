@@ -13,17 +13,22 @@ public class WeaponMechanicsLoader extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        try {
-            int connect = getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 10) * 1000;
-            int read = getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 30) * 1000;
-            AutoMechanicsDownload downloader = new AutoMechanicsDownload(connect, read);
-            downloader.MECHANICS_CORE.install();
-        } catch (Throwable e) {
-            getLogger().log(Level.WARNING, "Failed to use auto-installer", e);
-        }
 
-        if (Bukkit.getPluginManager().getPlugin("MechanicsCore") == null) {
-            return;
+        // Only use AutoMechanicsDownload if Core isn't installed
+        if (Bukkit.getPluginManager().getPlugin("MechanicsCore") != null) {
+            try {
+                int connect = getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 10) * 1000;
+                int read = getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 30) * 1000;
+                AutoMechanicsDownload downloader = new AutoMechanicsDownload(connect, read);
+                downloader.MECHANICS_CORE.install();
+            } catch (Throwable e) {
+                getLogger().log(Level.WARNING, "Failed to use auto-installer", e);
+            }
+
+            // Installation failed...
+            if (Bukkit.getPluginManager().getPlugin("MechanicsCore") == null) {
+                return;
+            }
         }
 
         plugin = new WeaponMechanics(this);
