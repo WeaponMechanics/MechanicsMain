@@ -28,11 +28,10 @@ public class ResourcePackListener implements Listener {
             // Unfortunately, minecraft doesn't automatically download new
             // versions of the pack, so we have to have a unique link in order
             // to force the players to download the most recent pack.
-            String def = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack";
-            if ((def + ".zip").equals(link)) {
+            if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
                 AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
                 String version = auto.RESOURCE_PACK_VERSION;
-                link = def + "-" + version + ".zip";
+                link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
             }
 
             WeaponMechanics.debug.debug("Sending " + player.getName() + " resource pack: " + link);
