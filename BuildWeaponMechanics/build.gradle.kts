@@ -88,6 +88,12 @@ tasks.named<ShadowJar>("shadowJar") {
             include(dependency("org.bstats:"))
         }
     }
+
+    relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure")
+
+    doFirst {
+        println("Compile WeaponMechanics")
+    }
 }
 
 tasks.named("assemble").configure {
