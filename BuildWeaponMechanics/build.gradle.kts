@@ -56,8 +56,6 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    dependsOn("versionFile")
-
     destinationDirectory.set(file("../build"))
     archiveFileName.set("WeaponMechanics-${version}.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
@@ -90,11 +88,6 @@ tasks.named<ShadowJar>("shadowJar") {
             include(dependency("org.bstats:"))
         }
     }
-}
-
-tasks.register("versionFile").configure {
-    val file = file("../WeaponMechanics/src/main/resources/version.txt")
-    file.writeText(project(":BuildMechanicsCore").version.toString());
 }
 
 tasks.named("assemble").configure {
