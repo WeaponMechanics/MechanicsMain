@@ -4,14 +4,11 @@ import me.cjcrafter.auto.AutoMechanicsDownload;
 import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
-
-import static org.bukkit.ChatColor.GREEN;
 
 public class ResourcePackListener implements Listener {
 

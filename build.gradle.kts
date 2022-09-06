@@ -6,6 +6,15 @@ tasks.register("buildForSpigotRelease").configure {
     folder.deleteRecursively()
     folder.mkdir()
 
+    // todo REMOVE versions.txt WITHIN FEW WEEKS TO ALLOW PEOPLE TO UPDATE
+    val mechanicsCoreVersion = project(":BuildMechanicsCore").version.toString()
+    val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
+    println("Writing versions.txt")
+    val file = file("build/versions.txt")
+    file.appendText("MechanicsCore: $mechanicsCoreVersion\n")
+    file.appendText("WeaponMechanics: $weaponMechanicsVersion\n")
+    file.appendText("WeaponMechanicsResourcePack: 1.1.0\n")
+
     println("Compile MechanicsCore")
     dependsOn(":BuildMechanicsCore:shadowJar")
     println("Compile WeaponMechanics")
