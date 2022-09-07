@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.cjcrafter.auto.AutoMechanicsDownload;
+import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.entity.Player;
@@ -23,18 +24,26 @@ public class ResourcePackListener implements Listener {
                 return;
             }
 
-            // So when the server admin uses the default link, we should change
-            // the link to find the latest version of the resource pack.
-            // Unfortunately, minecraft doesn't automatically download new
-            // versions of the pack, so we have to have a unique link in order
-            // to force the players to download the most recent pack.
-            String def = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack";
-            if ((def + ".zip").equals(link)) {
-                AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
-                String version = auto.RESOURCE_PACK_VERSION;
-                link = def + "-" + version + ".zip";
-            }
+            if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
+                // So when the server admin uses the default link, we should change
+                // the link to find the latest version of the resource pack.
+                // Unfortunately, minecraft doesn't automatically download new
+                // versions of the pack, so we have to have a unique link in order
+                // to force the players to download the most recent pack.
+                new TaskChain(WeaponMechanics.getPlugin())
+                        .thenRunAsync((data) -> {
+                            AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
+                            String version = auto.RESOURCE_PACK_VERSION;
+                            return "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
+                        }).thenRunSync((data) -> {
+                            if (!player.isOnline()) return null;
 
+                            WeaponMechanics.debug.debug("Sending " + player.getName() + " resource pack: " + data);
+                            player.setResourcePack((String) data);
+                            return null;
+                        });
+                return;
+            }
             WeaponMechanics.debug.debug("Sending " + player.getName() + " resource pack: " + link);
             player.setResourcePack(link);
         }

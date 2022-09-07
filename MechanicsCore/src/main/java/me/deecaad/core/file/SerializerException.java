@@ -7,6 +7,7 @@ import me.deecaad.core.utils.StringUtil;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -43,11 +44,27 @@ public class SerializerException extends Exception {
         serializerName = simple;
     }
 
+    public String getSerializerName() {
+        return serializerName;
+    }
+
+    public String[] getMessages() {
+        return messages.clone();
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
     public void setLocation(String location) {
         this.location = location;
     }
 
     public void log(Debugger debug) {
+        log(debug, LogLevel.ERROR);
+    }
+
+    public void log(Debugger debug, LogLevel level) {
         LinkedList<String> collected = new LinkedList<>();
 
         collected.add("A mistake was found in your configurations when making '" + serializerName + "'");
@@ -55,7 +72,7 @@ public class SerializerException extends Exception {
         collected.add(location);
         collected.add(""); // Add an empty string for blank line between errors
 
-        debug.log(LogLevel.ERROR, collected.toArray(new String[0]));
+        debug.log(level, collected.toArray(new String[0]));
     }
 
     public SerializerException addMessage(String message) {
@@ -92,30 +109,45 @@ public class SerializerException extends Exception {
         return "Example values: " + builder;
     }
 
-    public static String possibleValues(Iterable<String> options, int count) {
+    public static String possibleValues(Iterable<String> options, String actual, int count) {
 
         // We want to know how many elements are in the iterable. We don't care
         // about performance. We need this to tell the user how many options there
         // actually are. This is important since we may only show 5 or 6 options,
         // but it is important for the USER to know that there are more than 5 or 6.
-        int i = 0;
-        for (String ignore : options) {
-            i++;
-        }
+        ArrayList<String> arr = new ArrayList<>();
+        options.forEach(arr::add);
+        int[] table = StringUtil.mapToCharTable(actual);
 
-        count = Math.min(i, count);
+        // Sort the list based on what is most similar to 'actual'.
+        arr.sort((a, b) -> {
+            int[] localA = StringUtil.mapToCharTable(a);
+            int[] localB = StringUtil.mapToCharTable(b);
+
+            int differenceA = Math.abs(actual.length() - a.length());
+            int differenceB = Math.abs(actual.length() - b.length());
+
+            for (int i = 0; i < table.length; i++) {
+                differenceA += Math.abs(table[i] - localA[i]);
+                differenceB += Math.abs(table[i] - localB[i]);
+            }
+
+            return Integer.compare(differenceA, differenceB);
+        });
+
+        count = Math.min(arr.size(), count);
         StringBuilder builder = new StringBuilder("Showing ");
-        Iterator<String> iterator = options.iterator();
 
         // Writes either 'All' or a fraction like '4/32'
-        if (count == i)
+        if (count == arr.size())
             builder.append("All");
         else
-            builder.append(count).append('/').append(i);
+            builder.append(count).append('/').append(arr.size());
 
         builder.append(" Options:");
 
         // Append some possible values
+        Iterator<String> iterator = arr.iterator();
         while (iterator.hasNext() && count-- > 0) {
             String next = iterator.next();
             builder.append(" '").append(next).append("'");

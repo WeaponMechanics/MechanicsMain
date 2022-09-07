@@ -35,6 +35,8 @@ M4A1:
       Custom_Model_Data: 161
     Scope:
       Custom_Model_Data: 171
+    Sprint:
+      Custom_Model_Data: 176
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:
@@ -42,6 +44,7 @@ M4A1:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
         Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 14

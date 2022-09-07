@@ -56,6 +56,8 @@ AK-47:
       Custom_Model_Data: 121
     Scope:
       Custom_Model_Data: 131
+    Sprint:
+      Custom_Model_Data: 136
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:
@@ -63,6 +65,7 @@ AK-47:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
         Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 10

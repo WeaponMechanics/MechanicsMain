@@ -50,9 +50,13 @@ Mechanics_Core_Download:
   Connection_Timeout: 10
   Read_Timeout: 30
 
-# Automatically down resource pack if wanted.
+# Automatically download resource pack if wanted.
 Resource_Pack_Download:
   Enabled: true  # even when this is false, you can use "Automatically_Send_To_Player"
+  #
+  # THIS DEFAULT LINK IS PURELY FOR TESTING PURPOSES!
+  # You should replace it with your own resource pack link as soon as possible.
+  #
   Link: "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip"
   Connection_Timeout: 10
   Read_Timeout: 30
