@@ -241,7 +241,7 @@ public class WeaponMechanicsCommand {
                         .withDescription("Shows the hitboxes of nearby entities")
                         .withArgument(new Argument<>("targets", new EntityListArgumentType()).withDesc("Whose hitbox to show"))
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long to show the hitbox"))
-                        .executes(CommandExecutor.any((sender, args) -> {
+                        .executes(CommandExecutor.player((sender, args) -> {
                             hitbox(sender, (List<Entity>) args[0], (int) args[1]);
                         })))
 
