@@ -78,6 +78,10 @@ tasks.named<ShadowJar>("shadowJar") {
         relocate ("net.kyori", "me.deecaad.core.lib") {
             include(dependency("net.kyori::"))
         }
+
+        relocate ("com.zaxxer.hikari", "me.deecaad.core.lib.hikari") {
+            include(dependency("com.zaxxer::"))
+        }
     }
 
     doFirst {
