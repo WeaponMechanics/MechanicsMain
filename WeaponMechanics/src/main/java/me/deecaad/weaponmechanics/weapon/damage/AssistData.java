@@ -46,13 +46,26 @@ public class AssistData implements IValidator {
             // Might be null if damager has quit
             if (playerByUuid == null) return;
 
-            value.forEach((weaponTitle, damageInfo) -> {
-                if (requiredDamageAmount != 0 && damageInfo.damage < requiredDamageAmount) return;
-                if (timer != 0 && NumberUtil.hasMillisPassed(damageInfo.lastHitTime, timer)) return;
+            assists.putIfAbsent(playerByUuid, new HashMap<>());
 
-                assists.putIfAbsent(playerByUuid, new HashMap<>());
-                assists.get(playerByUuid).put(weaponTitle, damageInfo);
-            });
+            double totalDamage = 0;
+            long lastHitTime = 0;
+            for (Map.Entry<String, DamageInfo> entry : value.entrySet()) {
+
+                DamageInfo entryValue = entry.getValue();
+                totalDamage += entryValue.damage;
+                if (lastHitTime == 0) lastHitTime = entryValue.lastHitTime;
+                lastHitTime = Math.max(lastHitTime, entryValue.lastHitTime);
+
+                assists.get(playerByUuid).put(entry.getKey(), entryValue);
+            }
+
+            if ((requiredDamageAmount != 0 && totalDamage < requiredDamageAmount)
+                    || (timer != 0 && NumberUtil.hasMillisPassed(lastHitTime, timer))) {
+
+                // Remove since it wasn't valid
+                assists.remove(playerByUuid);
+            }
         });
 
         return assists.isEmpty() ? null : assists;
