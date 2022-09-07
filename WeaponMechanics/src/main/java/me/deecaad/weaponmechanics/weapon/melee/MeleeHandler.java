@@ -154,7 +154,9 @@ public class MeleeHandler implements IValidator {
                 return null;
             }
 
-            RayTrace rayTrace = new RayTrace().withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId());
+            RayTrace rayTrace = new RayTrace()
+                    .withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId()
+                                    || entity.getPassengers().contains(shooter));
             List<RayTraceResult> hits = rayTrace.cast(eyeLocation.getWorld(), eyeLocationToVector, direction, range);
 
             if (hits == null) return null;
