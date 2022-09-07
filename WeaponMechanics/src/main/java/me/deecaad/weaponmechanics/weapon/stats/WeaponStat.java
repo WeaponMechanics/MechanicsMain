@@ -7,7 +7,7 @@ public enum WeaponStat {
     UUID("VARCHAR(255) NOT NULL", String.class),
     WEAPON_TITLE("VARCHAR(255) NOT NULL", String.class),
 
-    SKIN("VARCHAR(255)", String.class),
+    HAND_SKIN("VARCHAR(255)", String.class),
     OFF_SKIN("VARCHAR(255)", String.class),
 
     EQUIP_TIMES("INTEGER", Integer.class),
