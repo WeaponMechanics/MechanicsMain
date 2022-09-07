@@ -94,7 +94,7 @@ public class StatsHandler {
                                 .append("'");
                     }
                 } else if (type == Set.class) {
-                    Set<String> value = (Set<String>) statsData.get(weapon, stat);
+                    Set<?> value = (Set<?>) statsData.get(weapon, stat);
                     if (value == null) {
                         // Append SQL null value
                         builder.append("NULL");
