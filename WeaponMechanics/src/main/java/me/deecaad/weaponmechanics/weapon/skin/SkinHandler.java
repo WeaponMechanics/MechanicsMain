@@ -68,8 +68,8 @@ public class SkinHandler {
         // Checks are like this due to when PlayerToggleSprintEvent is called player isn't yet actually sprinting
         // since the event is also cancellable. This ignores the cancelling of sprint event,
         // it doesn't do anything if its cancelled anyway :p
-        // + disable when dual wielding
-        if ((entityWrapper.isSprinting() || triggerType == TriggerType.START_SPRINT) && !entityWrapper.isDualWielding()) {
+        // + disable when dual wielding ++ don't even try when its END_SPRINT
+        if (triggerType != TriggerType.END_SPRINT && (entityWrapper.isSprinting() || triggerType == TriggerType.START_SPRINT) && !entityWrapper.isDualWielding()) {
             Skin sprintSkin = skins.getSkin(event.getSkin(), SkinList.SkinIdentifier.SPRINT);
             if (sprintSkin != null) {
                 sprintSkin.apply(weaponStack);

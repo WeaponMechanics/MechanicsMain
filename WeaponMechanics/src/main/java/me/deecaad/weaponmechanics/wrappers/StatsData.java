@@ -155,14 +155,20 @@ public class StatsData {
         if (!isSync) return;
         if (stat.getClassType() != Set.class) throw new IllegalArgumentException("Tried to add to set when stat wasn't set " + stat + " " + data);
         weaponData.putIfAbsent(weaponTitle, new HashMap<>());
-        weaponData.get(weaponTitle).compute(stat, (key, value) -> value == null ? new HashSet<>(Collections.singletonList(data)) : ((Set<String>) value).add(data));
+        Map<WeaponStat, Object> dataMap = weaponData.get(weaponTitle);
+        Object mapData = dataMap.get(stat);
+        if (mapData == null) {
+            dataMap.put(stat, new HashSet<>(Collections.singleton(data)));
+            return;
+        }
+        ((Set<String>) mapData).add(data);
     }
 
     public void removeFromSet(String weaponTitle, WeaponStat stat, String data) {
         if (!isSync) return;
-        if (!stat.getClassType().isInstance(data)) throw new IllegalArgumentException("Tried to give invalid data for stat " + stat + " " + data);
+        if (stat.getClassType() != Set.class) throw new IllegalArgumentException("Tried to remove from set when stat wasn't set " + stat + " " + data);
         Map<WeaponStat, Object> dataMap = weaponData.get(weaponTitle);
-        if (dataMap == null && dataMap.containsKey(stat)) return;
+        if (dataMap == null || !dataMap.containsKey(stat)) return;
         Set<String> dataSet = (Set<String>) dataMap.get(stat);
         dataSet.remove(data);
     }
