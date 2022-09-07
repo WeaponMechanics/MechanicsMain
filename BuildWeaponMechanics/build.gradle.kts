@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.10.0"
+version = "1.10.1"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -89,7 +89,7 @@ tasks.named<ShadowJar>("shadowJar") {
         }
     }
 
-    relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure")
+    relocate ("net.kyori", "me.deecaad.core.lib")
 
     doFirst {
         println("Compile WeaponMechanics")
