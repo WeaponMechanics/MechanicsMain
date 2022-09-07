@@ -96,6 +96,10 @@ Check_For_New_Player_Rate: 50
 # of resources when ray tracing blocks or entities with multiple hitboxes.
 Check_Accurate_Hitboxes: true
 
+# If set to true, the damage dropoff will change uniformly with distance.
+# See https://github.com/WeaponMechanics/MechanicsMain/issues/100 for more information.
+Smooth_Damage_Dropoff: false
+
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but
 # they improve smaller ones.
