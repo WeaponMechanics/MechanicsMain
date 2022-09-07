@@ -5,3 +5,16 @@
 #   3: Debug
 Debug_Level: 2
 Print_Traces: false
+
+# The MechanicsCore item registry is *very* primitive. Imagine you have 'steel'
+# and 'steel_sheet' as 2 custom items. When MechanicsCore first loads,
+# 'steel_sheet' will actually be broken since 'steel' doesn't exist yet. To fix
+# this, we loop a few times until no errors occur. If you have a *highly
+# complex* crafting system, then you may want to raise this number. You should
+# never need to lower it.
+Item_Loop_Limit: 10
+
+# When a mistake is found in config, how many options do we print?
+# Bigger numbers = more information
+# Smaller numbers = tidier console
+Show_Serialize_Options: 32

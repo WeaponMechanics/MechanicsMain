@@ -440,7 +440,7 @@ public final class StringUtil {
         return closest;
     }
 
-    private static int[] mapToCharTable(String str) {
+    public static int[] mapToCharTable(String str) {
         int[] table = new int[LOWER_ALPHABET.length()];
         for (int i = 0; i < str.length(); i++) {
 
