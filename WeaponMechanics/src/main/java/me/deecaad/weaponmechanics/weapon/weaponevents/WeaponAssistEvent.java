@@ -16,6 +16,11 @@ public class WeaponAssistEvent extends PlayerEvent {
     private final LivingEntity killed;
     private final Map<String, AssistData.DamageInfo> assists;
 
+    /**
+     * Consider using {@link WeaponKillEntityEvent} instead. Only down-side of that event is
+     * that it isn't called when entity dies for other causes than weapon. This event is still
+     * called everytime entity dies for any reason.
+     */
     public WeaponAssistEvent(Player who, LivingEntity killed, Map<String, AssistData.DamageInfo> assists) {
         super(who);
         this.killed = killed;

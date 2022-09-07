@@ -77,16 +77,28 @@ public class AssistData implements IValidator {
             return this;
         }
 
+        /**
+         * @return the total damage done using this weapon
+         */
         public double getDamage() {
             return damage;
         }
 
+        /**
+         * Using this to e.g. set meta is unreliable since
+         * the reference might be old at this point.
+         *
+         * @return the weapon stack used to damage.
+         */
         public ItemStack getWeaponStack() {
             return weaponStack;
         }
 
-        public long getLastHitTime() {
-            return lastHitTime;
+        /**
+         * @return the last hit time in ticks
+         */
+        public int getLastHitTime() {
+            return (int) ((System.currentTimeMillis() - lastHitTime) / 50);
         }
 
         @Override
