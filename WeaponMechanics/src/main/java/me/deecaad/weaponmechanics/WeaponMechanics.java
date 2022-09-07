@@ -6,6 +6,9 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
+import me.deecaad.core.database.Database;
+import me.deecaad.core.database.MySQL;
+import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.*;
 import me.deecaad.core.packetlistener.PacketHandlerListener;
@@ -26,12 +29,15 @@ import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutSetSlotBobFix;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
+import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
+import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bstats.bukkit.Metrics;
@@ -53,6 +59,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -71,6 +78,7 @@ public class WeaponMechanics {
     PacketHandlerListener packetListener;
     TimingManager timingManager;
     Metrics metrics;
+    Database database;
 
     // public so people can import a static variable
     public static Debugger debug;
@@ -145,9 +153,12 @@ public class WeaponMechanics {
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
+        setupDatabase();
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Add PlayerWrapper in onEnable in case server is reloaded for example
-            getPlayerWrapper(player);
+            PlayerWrapper playerWrapper = getPlayerWrapper(player);
+            weaponHandler.getStatsHandler().load(playerWrapper);
         }
 
         // Configuration is serialized the tick after the server starts. This
@@ -171,7 +182,7 @@ public class WeaponMechanics {
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
-        debug.info("Enabled WeaponMechanics in " + seconds + "s");
+        debug.debug("Enabled WeaponMechanics in " + seconds + "s");
 
         WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
@@ -209,6 +220,7 @@ public class WeaponMechanics {
             List<IValidator> validators = new ArrayList<>();
             validators.add(new HitBox());
             validators.add(new PlaceholderValidator());
+            validators.add(new AssistData());
 
             FileReader basicConfigurationReader = new FileReader(debug, null, validators);
             Configuration filledMap = basicConfigurationReader.fillOneFile(configyml);
@@ -231,6 +243,30 @@ public class WeaponMechanics {
             if (!pack.exists()) {
                 FileUtil.downloadFile(pack, link, connection, read);
             }
+        }
+    }
+
+    void setupDatabase() {
+        if (basicConfiguration.getBool("Database.Enable", true)) {
+
+            debug.debug("Setting up database");
+
+            if (basicConfiguration.getString("Database.Type", "SQLITE").equals("SQLITE")) {
+                String absolutePath = basicConfiguration.getString("Database.SQLite.Absolute_Path", "plugins/WeaponMechanics/weaponmechanics.db");
+                try {
+                    database = new SQLite(absolutePath);
+                } catch (IOException | SQLException e) {
+                    debug.log(LogLevel.WARN, "Failed to initialized database!", e);
+                }
+            } else {
+                String hostname = basicConfiguration.getString("Database.MySQL.Hostname", "localhost");
+                int port = basicConfiguration.getInt("Database.MySQL.Port", 3306);
+                String databaseName = basicConfiguration.getString("Database.MySQL.Database", "weaponmechanics");
+                String username = basicConfiguration.getString("Database.MySQL.Username", "root");
+                String password = basicConfiguration.getString("Database.MySQL.Password", "");
+                database = new MySQL(hostname, port, databaseName, username, password);
+            }
+            database.executeUpdate(true, PlayerStat.getCreateTableString(), WeaponStat.getCreateTableString());
         }
     }
 
@@ -345,7 +381,7 @@ public class WeaponMechanics {
     }
 
     void registerPermissions() {
-        debug.info("Registering permissions"); // keep this on info just in case for infinite loop
+        debug.debug("Registering permissions");
 
         Permission parent = Bukkit.getPluginManager().getPermission("weaponmechanics.use.*");
         if (parent == null) {
@@ -491,10 +527,13 @@ public class WeaponMechanics {
                     registerCommands();
                     registerPermissions();
                     registerUpdateChecker();
+                    setupDatabase();
 
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         // Add PlayerWrapper in onEnable in case server is reloaded for example
-                        getPlayerWrapper(player);
+
+                        PlayerWrapper playerWrapper = getPlayerWrapper(player);
+                        weaponHandler.getStatsHandler().load(playerWrapper);
                     }
                     WeaponMechanicsAPI.setInstance(this);
                 });
@@ -506,6 +545,20 @@ public class WeaponMechanics {
         HandlerList.unregisterAll(getPlugin());
         Bukkit.getServer().getScheduler().cancelTasks(getPlugin());
 
+        // Close database and save data in SYNC
+        if (database != null) {
+            for (EntityWrapper entityWrapper : entityWrappers.values()) {
+                if (!entityWrapper.isPlayer()) continue;
+                weaponHandler.getStatsHandler().save((PlayerWrapper) entityWrapper, true);
+            }
+            try {
+                database.close();
+            } catch (SQLException e) {
+                debug.log(LogLevel.WARN, "Couldn't close database properly...", e);
+            }
+        }
+
+        database = null;
         weaponHandler = null;
         updateChecker = null;
         entityWrappers = null;
@@ -557,6 +610,9 @@ public class WeaponMechanics {
      */
     @Nullable
     public static EntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
+        if (entity.getType() == EntityType.PLAYER) {
+            return getPlayerWrapper((Player) entity);
+        }
         EntityWrapper wrapper = plugin.entityWrappers.get(entity);
         if (wrapper == null) {
             if (noAutoAdd) {
@@ -650,5 +706,13 @@ public class WeaponMechanics {
 
     public static MCTiming timing(String name) {
         return plugin.timingManager.of(name);
+    }
+
+    /**
+     * @return the database instance if enabled
+     */
+    @Nullable
+    public static Database getDatabase() {
+        return plugin.database;
     }
 }

@@ -1,8 +1,12 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nullable;
 
 /**
  * Wraps a {@link Player} object to simplify per-player data/methods that
@@ -18,10 +22,15 @@ public class PlayerWrapper extends EntityWrapper {
     private long lastInventoryDrop;
     private MessageHelper messageHelper;
     private long lastAmmoConvert;
+    private StatsData statsData;
 
     public PlayerWrapper(Player player) {
         super(player);
         this.player = player;
+        Configuration config = WeaponMechanics.getBasicConfigurations();
+        if (config.getBool("Database.Enable", true)) {
+            statsData = new StatsData(player.getUniqueId());
+        }
     }
 
     public Player getPlayer() {
@@ -108,5 +117,23 @@ public class PlayerWrapper extends EntityWrapper {
     @Override
     public boolean isPlayer() {
         return true;
+    }
+
+    /**
+     * @return the stats data or null if disabled or not yet synced
+     */
+    @Nullable
+    public StatsData getStatsData() {
+        return (statsData == null || !statsData.isSync()) ? null : statsData;
+    }
+
+    /**
+     * This method might not be safe to use nor should be used. Use {@link #getStatsData()} instead.
+     * By unsafe I mean that this object might not have been synced yet.
+     *
+     * @return the unsafe stats data object
+     */
+    public StatsData getStatsDataUnsafe() {
+        return statsData;
     }
 }

@@ -3,6 +3,9 @@ package me.deecaad.weaponmechanics.utils;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.entity.Entity;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+
+import java.util.List;
 
 public enum MetadataKey {
 
@@ -13,8 +16,8 @@ public enum MetadataKey {
      * spawning of actual entity projectile.
      */
     VANILLA_DAMAGE("wm_vanilla_dmg"),
-
-    CANCELLED_DAMAGE("wm_cancelled_dmg");
+    CANCELLED_DAMAGE("wm_cancelled_dmg"),
+    ASSIST_DATA("wm_assist_data");
 
     private final String id;
 
@@ -33,7 +36,7 @@ public enum MetadataKey {
         entity.setMetadata(id, new FixedMetadataValue(WeaponMechanics.getPlugin(), object));
     }
 
-    public Object get(Entity entity) {
+    public List<MetadataValue> get(Entity entity) {
         return entity.getMetadata(id);
     }
 

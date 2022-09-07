@@ -22,6 +22,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProje
 import me.deecaad.weaponmechanics.weapon.reload.ReloadHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
+import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
@@ -602,8 +603,12 @@ public class ShootHandler implements IValidator {
         if (shootMechanics != null) shootMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
         if (entityWrapper instanceof PlayerWrapper) {
+            PlayerWrapper playerWrapper = (PlayerWrapper) entityWrapper;
+            // Counts melees as shots also
+            if (playerWrapper.getStatsData() != null) playerWrapper.getStatsData().add(weaponTitle, WeaponStat.SHOTS, 1);
+
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
