@@ -19,12 +19,13 @@ public enum PlayerStat {
         this.columnType = columnType;
         this.classType = classType;
 
-        if (classType == String.class) {
-            this.defaultValue = null;
+        if (classType == Integer.class) {
+            this.defaultValue = 0;
         } else if (classType == Float.class) {
             this.defaultValue = (float) 0.0;
         } else {
-            this.defaultValue = 0;
+            // String, Set
+            this.defaultValue = null;
         }
     }
 

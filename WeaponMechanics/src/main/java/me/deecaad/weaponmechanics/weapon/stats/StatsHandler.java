@@ -8,10 +8,7 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.StatsData;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class StatsHandler {
 
@@ -85,8 +82,9 @@ public class StatsHandler {
                 if (j != 0) {
                     builder.append(", ");
                 }
-                if (stat.getClassType() == String.class) {
-                    Object value = statsData.get(weapon, stat, stat.getDefaultValue());
+                Class<?> type = stat.getClassType();
+                if (type == String.class) {
+                    Object value = statsData.get(weapon, stat);
                     if (value == null) {
                         // Append SQL null value
                         builder.append("NULL");
@@ -95,8 +93,23 @@ public class StatsHandler {
                                 .append(value)
                                 .append("'");
                     }
+                } else if (type == Set.class) {
+                    Set<String> value = (Set<String>) statsData.get(weapon, stat);
+                    if (value == null) {
+                        // Append SQL null value
+                        builder.append("NULL");
+                    } else {
+                        builder.append("'");
+
+                        // Append each string from set separated with comma
+                        value.forEach(val -> builder.append(val).append(","));
+
+                        // Take the last , out
+                        builder.deleteCharAt(builder.length() - 1);
+                        builder.append("'");
+                    }
                 } else {
-                    builder.append(statsData.get(weapon, stat, stat.getDefaultValue()));
+                    builder.append(statsData.get(weapon, stat));
                 }
             }
 
@@ -121,7 +134,7 @@ public class StatsHandler {
                 builder.append(", ");
             }
             if (stat.getClassType() == String.class) {
-                Object value = statsData.get(stat, stat.getDefaultValue());
+                Object value = statsData.get(stat);
                 if (value == null) {
                     builder.append("NULL");
                 } else {
@@ -130,7 +143,7 @@ public class StatsHandler {
                             .append("'");
                 }
             } else {
-                builder.append(statsData.get(stat, stat.getDefaultValue()));
+                builder.append(statsData.get(stat));
             }
         }
         return builder.append(")").toString();
@@ -175,11 +188,12 @@ public class StatsHandler {
                     for (PlayerStat stat : PlayerStat.VALUES) {
                         if (stat == PlayerStat.UUID) continue;
 
-                        if (stat.getClassType() == Integer.class) {
+                        Class<?> type = stat.getClassType();
+                        if (type == Integer.class) {
                             int data = playerSet.getInt(stat.name());
                             if (data == 0) continue;
                             playerData.put(stat, data);
-                        } else if (stat.getClassType() == Float.class) {
+                        } else if (type == Float.class) {
                             float data = playerSet.getFloat(stat.name());
                             if (data == 0.0) continue;
                             playerData.put(stat, data);
@@ -212,19 +226,28 @@ public class StatsHandler {
 
                     for (WeaponStat stat : WeaponStat.VALUES) {
                         if (stat == WeaponStat.UUID || stat == WeaponStat.WEAPON_TITLE) continue;
+                        Class<?> type = stat.getClassType();
 
-                        if (stat.getClassType() == Integer.class) {
+                        if (type == Integer.class) {
                             int data = weaponSet.getInt(stat.name());
                             if (data == 0) continue;
                             newWeaponMap.put(stat, data);
-                        } else if (stat.getClassType() == Float.class) {
+                        } else if (type == Float.class) {
                             float data = weaponSet.getFloat(stat.name());
                             if (data == 0.0) continue;
                             newWeaponMap.put(stat, data);
                         } else {
                             String data = weaponSet.getString(stat.name());
                             if (data == null) continue;
-                            newWeaponMap.put(stat, data);
+
+                            if (type == String.class) {
+                                newWeaponMap.put(stat, data);
+                                continue;
+                            }
+
+                            // Sets are comma separated in database
+                            newWeaponMap.put(stat, new HashSet<>(Arrays.asList(data.split(","))));
+
                         }
                     }
                 }
