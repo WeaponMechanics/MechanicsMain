@@ -151,6 +151,14 @@ public class StatsData {
         weaponData.get(weaponTitle).put(stat, data);
     }
 
+    /**
+     * Adds given data to weapon's weapon stat set.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the stat
+     * @param data the data to add
+     */
     public void addToSet(String weaponTitle, WeaponStat stat, String data) {
         if (!isSync) return;
         if (stat.getClassType() != Set.class) throw new IllegalArgumentException("Tried to add to set when stat wasn't set " + stat + " " + data);
@@ -164,6 +172,14 @@ public class StatsData {
         ((Set<String>) mapData).add(data);
     }
 
+    /**
+     * Removes given data from weapon's weapon stat set.
+     * Doesn't do anything if this hasn't yet been synced with database.
+     *
+     * @param weaponTitle the weapon title
+     * @param stat the stat
+     * @param data the data to remove
+     */
     public void removeFromSet(String weaponTitle, WeaponStat stat, String data) {
         if (!isSync) return;
         if (stat.getClassType() != Set.class) throw new IllegalArgumentException("Tried to remove from set when stat wasn't set " + stat + " " + data);
