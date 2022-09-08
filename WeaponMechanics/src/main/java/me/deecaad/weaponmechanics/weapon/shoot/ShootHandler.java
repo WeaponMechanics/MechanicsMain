@@ -24,6 +24,7 @@ import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
+import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPostShootEvent;
@@ -53,7 +54,7 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
-public class ShootHandler implements IValidator {
+public class ShootHandler implements IValidator, TriggerListener {
 
     private WeaponHandler weaponHandler;
 
@@ -92,17 +93,12 @@ public class ShootHandler implements IValidator {
         this.weaponHandler = weaponHandler;
     }
 
-    /**
-     * Tries to use shoot
-     *
-     * @param entityWrapper the entity who used trigger
-     * @param weaponTitle   the weapon title
-     * @param weaponStack   the weapon stack
-     * @param slot          the slot used on trigger
-     * @param triggerType   the trigger type trying to activate shoot
-     * @param dualWield     whether this was dual wield
-     * @return true if was able to shoot
-     */
+    @Override
+    public boolean allowOtherTriggers() {
+        return false;
+    }
+
+    @Override
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity knownVictim) {
 
         if (triggerType == TriggerType.MELEE && slot == EquipmentSlot.HAND) {
@@ -236,6 +232,9 @@ public class ShootHandler implements IValidator {
 
         int shootDelayAfterScope = config.getInt(weaponTitle + ".Scope.Shoot_Delay_After_Scope");
         if (shootDelayAfterScope != 0 && !NumberUtil.hasMillisPassed(handData.getLastScopeTime(), shootDelayAfterScope)) return false;
+
+        int shootDelayAfterReload = config.getInt(weaponTitle + ".Reload.Shoot_Delay_After_Reload");
+        if (shootDelayAfterReload != 0 && !NumberUtil.hasMillisPassed(handData.getLastReloadTime(), shootDelayAfterReload)) return false;
 
         if (isMelee) {
             return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);

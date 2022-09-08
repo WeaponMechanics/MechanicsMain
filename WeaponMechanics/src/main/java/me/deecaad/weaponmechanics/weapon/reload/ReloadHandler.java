@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
+import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
@@ -29,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +38,7 @@ import java.util.List;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
-public class ReloadHandler implements IValidator {
+public class ReloadHandler implements IValidator, TriggerListener {
 
     private WeaponHandler weaponHandler;
 
@@ -50,18 +52,13 @@ public class ReloadHandler implements IValidator {
         this.weaponHandler = weaponHandler;
     }
 
-    /**
-     * Tries to use reload
-     *
-     * @param entityWrapper the entity who used trigger
-     * @param weaponTitle the weapon title
-     * @param weaponStack the weapon stack
-     * @param slot the slot used on trigger
-     * @param triggerType the trigger type trying to activate reload
-     * @param dualWield whether this was dual wield
-     * @return true if was able to start reloading
-     */
-    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    @Override
+    public boolean allowOtherTriggers() {
+        return false;
+    }
+
+    @Override
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Reload.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
@@ -584,6 +581,12 @@ public class ReloadHandler implements IValidator {
         if (unloadAmmoOnReload && ammoPerReload != -99) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
             throw data.exception(null, "Cannot use 'Ammo_Per_Reload' and 'Unload_Ammo_On_Reload' at the same time");
+        }
+
+        int shootDelayAfterReload = configuration.getInt(data.key + ".Shoot_Delay_After_Reload");
+        if (shootDelayAfterReload != 0) {
+            // Convert to millis
+            configuration.set(data.key + ".Shoot_Delay_After_Reload", shootDelayAfterReload * 50);
         }
     }
 }
