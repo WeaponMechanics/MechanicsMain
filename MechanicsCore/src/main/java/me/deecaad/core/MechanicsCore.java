@@ -134,7 +134,7 @@ public class MechanicsCore extends JavaPlugin {
             for (String key : config.getKeys(false)) {
 
                 // The item was already added
-                if (added.contains(key))
+                if (excludes.contains(key))
                     continue;
 
                 SerializeData data = new SerializeData(new ItemSerializer(), file, key, config);
