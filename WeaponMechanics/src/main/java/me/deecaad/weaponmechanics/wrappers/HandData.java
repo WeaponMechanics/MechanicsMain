@@ -152,6 +152,10 @@ public class HandData {
         this.lastScopeTime = lastScopeTime;
     }
 
+    public long getLastReloadTime() {
+        return reloadStart;
+    }
+
     public long getLastEquipTime() {
         return lastEquipTime;
     }
@@ -226,7 +230,6 @@ public class HandData {
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
 
-            reloadStart = 0;
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
         }
@@ -246,7 +249,6 @@ public class HandData {
                 CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, reloadWeaponStack.getType(), 0);
             }
 
-            reloadStart = 0;
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
         }

@@ -237,6 +237,9 @@ public class ShootHandler implements IValidator {
         int shootDelayAfterScope = config.getInt(weaponTitle + ".Scope.Shoot_Delay_After_Scope");
         if (shootDelayAfterScope != 0 && !NumberUtil.hasMillisPassed(handData.getLastScopeTime(), shootDelayAfterScope)) return false;
 
+        int shootDelayAfterReload = config.getInt(weaponTitle + ".Reload.Shoot_Delay_After_Reload");
+        if (shootDelayAfterReload != 0 && !NumberUtil.hasMillisPassed(handData.getLastReloadTime(), shootDelayAfterReload)) return false;
+
         if (isMelee) {
             return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
         }

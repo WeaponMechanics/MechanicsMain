@@ -585,5 +585,11 @@ public class ReloadHandler implements IValidator {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
             throw data.exception(null, "Cannot use 'Ammo_Per_Reload' and 'Unload_Ammo_On_Reload' at the same time");
         }
+
+        int shootDelayAfterReload = configuration.getInt(data.key + ".Shoot_Delay_After_Reload");
+        if (shootDelayAfterReload != 0) {
+            // Convert to millis
+            configuration.set(data.key + ".Shoot_Delay_After_Reload", shootDelayAfterReload * 50);
+        }
     }
 }
