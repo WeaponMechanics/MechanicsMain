@@ -217,6 +217,9 @@ public class ScopeHandler implements IValidator {
 
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
 
+        HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+        handData.setLastScopeTime(System.currentTimeMillis());
+
         return true;
     }
 
@@ -254,9 +257,6 @@ public class ScopeHandler implements IValidator {
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
-
-        HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-        handData.setLastScopeTime(System.currentTimeMillis());
 
         return true;
     }
