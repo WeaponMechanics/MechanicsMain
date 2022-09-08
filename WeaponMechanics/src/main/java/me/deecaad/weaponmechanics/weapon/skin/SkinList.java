@@ -77,6 +77,7 @@ public class SkinList implements Serializer<SkinList> {
 
                 Map<SkinIdentifier, Skin> temp = serializeOne(data.move(key));
                 map.put(key, temp);
+                continue;
             }
 
             // Since SCOPE_STACK matches to different keys, we need to handle
