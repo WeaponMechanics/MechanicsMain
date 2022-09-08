@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
+import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -23,6 +24,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.VSE;
 
 import java.util.Collections;
@@ -30,7 +32,7 @@ import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
-public class ScopeHandler implements IValidator {
+public class ScopeHandler implements IValidator, TriggerListener {
 
     private static final IScopeCompatibility scopeCompatibility = WeaponCompatibilityAPI.getScopeCompatibility();
     private WeaponHandler weaponHandler;
@@ -45,17 +47,13 @@ public class ScopeHandler implements IValidator {
         this.weaponHandler = weaponHandler;
     }
 
-    /**
-     * Tries to use scope
-     *
-     * @param entityWrapper the entity who used trigger
-     * @param weaponTitle the weapon title
-     * @param weaponStack the weapon stack
-     * @param slot the slot used on trigger
-     * @param triggerType the trigger type trying to activate scope
-     * @return true if the scope used successfully to zoom in, our or stack
-     */
-    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    @Override
+    public boolean allowOtherTriggers() {
+        return false;
+    }
+
+    @Override
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Configuration config = getConfigurations();
 
         // Don't try to scope if either one of the hands is reloading or running firearm actions
