@@ -29,7 +29,7 @@ public class SkinList implements Serializer<SkinList> {
     }
 
     public Set<String> getSkins() {
-        return map.keySet();
+        return new HashSet<>(map.keySet());
     }
 
     public Skin getSkin(@Nullable String skin, @Nullable SkinIdentifier id) {
@@ -76,7 +76,7 @@ public class SkinList implements Serializer<SkinList> {
                 }
 
                 Map<SkinIdentifier, Skin> temp = serializeOne(data.move(key));
-                map.put(key, temp);
+                map.put(key.toLowerCase(Locale.ROOT), temp);
                 continue;
             }
 
@@ -88,7 +88,7 @@ public class SkinList implements Serializer<SkinList> {
             defaultSkinData.put(id, data.of(key).assertExists().serialize(Skin.class));
         }
 
-        map.put("Default", defaultSkinData);
+        map.put("default", defaultSkinData);
         return new SkinList(map);
     }
 
