@@ -55,7 +55,7 @@ public final class NumberUtil {
      *
      * @param length The upper bound, exclusive.
      * @return The random index.
-     * @throws IllegalArgumentException If <code>length <= 0</code>.
+     * @throws IllegalArgumentException If <code>length smaller than equal to 0</code>.
      */
     public static int random(int length) {
         return ThreadLocalRandom.current().nextInt(length);

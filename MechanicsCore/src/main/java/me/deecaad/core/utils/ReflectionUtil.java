@@ -91,7 +91,7 @@ public final class ReflectionUtil {
     }
 
     /**
-     * Returns the {@link net.minecraft.server} class with the given name.
+     * Returns the NMS class with the given name.
      * In mc versions 1.17 and higher, <code>pack</code> is used for the
      * package the class is in. Previous versions ignore <code>pack</code>.
      *
@@ -117,7 +117,7 @@ public final class ReflectionUtil {
 
     /**
      * Returns the net.minecraft.network.protocol.game packet for the
-     * given class name in 1.17+, or the {@link net.minecraft.server} packet
+     * given class name in 1.17+, or the NMS packet
      * for older versions.
      *
      * @param className The non-null name of the class to get.
@@ -128,7 +128,7 @@ public final class ReflectionUtil {
     }
 
     /**
-     * Returns the {@link org.bukkit.craftbukkit} class with the given package
+     * Returns the CraftBukkit class with the given package
      * and name.
      *
      * @param className The non-null name of the class to get.

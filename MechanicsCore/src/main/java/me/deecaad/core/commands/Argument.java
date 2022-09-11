@@ -137,7 +137,7 @@ public class Argument<T> {
 
     /**
      * Used for the help command. Shows this short description for this
-     * argument. The description should be relatively short (<10 words).
+     * argument. The description should be relatively short (smaller than 10 words).
      *
      * @param description The description to use, or null.
      * @return A non-null reference to this (builder pattern).

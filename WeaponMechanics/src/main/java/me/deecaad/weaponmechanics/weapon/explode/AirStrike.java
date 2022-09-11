@@ -46,8 +46,8 @@ public class AirStrike implements Serializer<AirStrike> {
      * See arguments.
      *
      * @param projectile The non-null projectile to spawn for each bomb.
-     * @param min        The minimum number of bombs to spawn (per layer). min < max.
-     * @param max        The maximum number of bombs to spawn (per layer). max > min.
+     * @param min        The minimum number of bombs to spawn (per layer).
+     * @param max        The maximum number of bombs to spawn (per layer).
      * @param height     The vertical distance above the initial projectile to
      *                   spawn the layers.
      * @param yVariation The random variations in the <code>height</code> parameter.

@@ -31,7 +31,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
     /**
      * Initializes and registers this runnable. This runnable can be cancelled
-     * using {@link #cancel()} or by cancelling all tasks for code>plugin</code>
+     * using {@link #cancel()} or by cancelling all tasks for <code>plugin</code>
      * using <code>Bukkit.getScheduler().cancelTasks(plugin)</code>.
      *
      * <p> WeaponMechanics initializes one of these by default. You probably

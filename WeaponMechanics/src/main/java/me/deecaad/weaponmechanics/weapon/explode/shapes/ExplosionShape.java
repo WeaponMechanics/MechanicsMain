@@ -30,8 +30,7 @@ public interface ExplosionShape {
      * explosion were to trigger at the given <code>origin</code>. This list
      * will not contain any air blocks, but may still contain liquids/bedrock/
      * otherwise.
-     *
-     * @implNote
+     * <p>
      * Implementations should not filter blocks out by material (Like IRON_BLOCK,
      * DIRT, STONE). Instead, let {@link me.deecaad.weaponmechanics.weapon.explode.BlockDamage}
      * handle that. You may still filter out "tough" blocks, like liquids,

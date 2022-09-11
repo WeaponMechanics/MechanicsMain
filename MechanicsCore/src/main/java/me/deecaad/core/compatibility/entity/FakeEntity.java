@@ -94,7 +94,7 @@ public abstract class FakeEntity {
 
     /**
      * Sets this entity's meta-data at the given <code>metaFlag</code> index.
-     * You can toggle a meta flag by checking {@link #getMeta(int)}. <
+     * You can toggle a meta flag by checking {@link #getMeta(int)}. smaller than
      * <code>metaFlag</code> should be one of the flag constants in the
      * {@link FakeEntity} (this) class. After these modifications, call
      * {@link #updateMeta()} to show player's changes.
@@ -214,8 +214,7 @@ public abstract class FakeEntity {
 
     /**
      * Sends an entity rotation packet to all players who can see this entity.
-     *
-     * @implNote
+     * <p>
      * Implementing classes should set <code>this.location</code> using
      * {@link Location#setYaw(float)} and {@link Location#setPitch(float)}.
      *

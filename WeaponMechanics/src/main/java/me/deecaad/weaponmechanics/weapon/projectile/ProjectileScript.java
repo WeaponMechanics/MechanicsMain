@@ -49,7 +49,7 @@ public abstract class ProjectileScript<T extends AProjectile> {
      * Each time a projectile iterates through its list of scripts, it will
      * check this method <i>BEFORE</i> calling any api methods [{@link #onStart()},
      * {@link #onTickStart()}, {@link #onTickEnd()}, {@link #onEnd()},
-     * {@link #onCollide(Block)}, {@link #onCollide(Entity)}]. This can be used
+     * {@link #onCollide(RayTraceResult)}]. This can be used
      * to remove a script from a projectile without removing the projectile.
      *
      * @return <code>true</code> will remove the script from the projectile.
@@ -62,7 +62,7 @@ public abstract class ProjectileScript<T extends AProjectile> {
      * Each time a projectile iterates through its list of scripts, it will
      * check this method <i>AFTER</i> calling any api methods [{@link #onStart()},
      * {@link #onTickStart()}, {@link #onTickEnd()}, {@link #onEnd()},
-     * {@link #onCollide(Block)}, {@link #onCollide(Entity)}]. This can be used
+     * {@link #onCollide(RayTraceResult)}]. This can be used
      * to completely remove a projectile.
      *
      * @return <code>true</code> will remove the projectile.
