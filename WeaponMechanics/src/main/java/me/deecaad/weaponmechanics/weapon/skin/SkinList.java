@@ -34,7 +34,7 @@ public class SkinList implements Serializer<SkinList> {
 
     public Skin getSkin(@Nullable String skin, @Nullable SkinIdentifier id) {
         if (skin == null) {
-            skin = "Default";
+            skin = "default";
         }
 
         if (id == null) {
@@ -47,7 +47,7 @@ public class SkinList implements Serializer<SkinList> {
 
     @Override
     public String getKeyword() {
-        return "Skin";
+        return "skin";
     }
 
     @NotNull
