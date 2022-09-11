@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.5.2"
+version = "1.5.3"
 
 plugins {
     `maven-publish`
@@ -48,7 +48,6 @@ bukkit {
 
     authors = listOf("DeeCaaD", "CJCrafter")
     softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
-    loadBefore = listOf("WeaponMechanics") // pretty hacky, but needed sometimes.
 }
 
 tasks.named<ShadowJar>("shadowJar") {
