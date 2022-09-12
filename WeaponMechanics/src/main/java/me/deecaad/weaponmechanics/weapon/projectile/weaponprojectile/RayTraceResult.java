@@ -43,6 +43,12 @@ public class RayTraceResult {
     private LivingEntity livingEntity;
     private DamagePoint hitPoint;
 
+    public RayTraceResult(Vector hitLocation, double distanceTravelled, BlockFace hitFace) {
+        this.hitLocation = hitLocation;
+        this.distanceTravelled = distanceTravelled;
+        this.hitFace = hitFace;
+    }
+
     public RayTraceResult(Vector hitLocation, double distanceTravelled, BlockFace hitFace, Block block) {
         this.hitLocation = hitLocation;
         this.distanceTravelled = distanceTravelled;
