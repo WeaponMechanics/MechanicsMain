@@ -365,7 +365,7 @@ public class HitBox implements IValidator {
 
         if (block != null) {
             return new RayTraceResult(normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace, block);
-        } else if (livingEntity != null) {
+        } else if (livingEntity == null) {
             // When not entity or block hitbox
             return new RayTraceResult(normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace);
         }
