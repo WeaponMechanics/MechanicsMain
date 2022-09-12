@@ -484,15 +484,24 @@ public class ReloadHandler implements IValidator, TriggerListener {
      * @return -1 if infinity, otherwise current ammo amount
      */
     public int getAmmoLeft(ItemStack weaponStack, String weaponTitle) {
+        // If something odd happens...
+        if (!weaponStack.hasItemMeta()) return 0;
+
         if (weaponTitle == null && CustomTag.WEAPON_TITLE.hasString(weaponStack)) {
             weaponTitle = CustomTag.WEAPON_TITLE.getString(weaponStack);
         }
         if (weaponTitle == null) return -1;
-        if (CustomTag.AMMO_LEFT.hasInteger(weaponStack) && getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size") != 0) {
-            return CustomTag.AMMO_LEFT.getInteger(weaponStack);
-        } else {
-            return -1;
+
+        // If ammo is disabled for this weapon
+        if (getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size") == 0) return -1;
+
+        if (!CustomTag.AMMO_LEFT.hasInteger(weaponStack)) {
+            // If the ammo was added later on, add the tag
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+            return 0;
         }
+
+        return CustomTag.AMMO_LEFT.getInteger(weaponStack);
     }
 
     /**

@@ -87,6 +87,9 @@ public class WeaponListeners implements Listener {
             handData.setLastEquipTime(System.currentTimeMillis());
 
             Bukkit.getPluginManager().callEvent(new WeaponEquipEvent(weaponTitle, weaponStack, entity, e.getSlot() == EquipmentSlot.HAND));
+        } else {
+            // If not-weapon was equipped, cancel all tasks
+            handData.cancelTasks(false);
         }
 
         ItemStack dequipped = e.getDequipped();
