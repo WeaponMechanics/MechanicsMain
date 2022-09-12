@@ -6,10 +6,14 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -153,17 +157,37 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * }</pre></blockquote>
      *
      * @param block The non-null block to damage.
-     * @return The DamageData associated with the block.
+     * @param player The nullable player who is breaking block
+     * @return The DamageData associated with the block or null if player couldn't damage the block.
      */
     @Nullable
-    public BlockDamageData.DamageData damage(Block block) {
+    public BlockDamageData.DamageData damage(Block block, @Nullable Player player) {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
+
+            boolean dropItems = true;
+            if (player != null) {
+                BlockBreakEvent breakEvent = new BlockBreakEvent(block, player);
+                Bukkit.getPluginManager().callEvent(breakEvent);
+
+                // Couldn't damage the block
+                if (breakEvent.isCancelled()) return null;
+
+                // Added in 1.12
+                if (ReflectionUtil.getMCVersion() >= 12) {
+                    dropItems = breakEvent.isDropItems();
+                }
+            }
+
             int max = getMaxDurability(block);
             BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
             if (data.isBroken() && dropBlockChance > 0.0) {
-                Location location = block.getLocation();
-                for (ItemStack item : block.getDrops()) {
-                    block.getWorld().dropItemNaturally(location, item);
+
+                // Event may change this in 1.12+
+                if (dropItems) {
+                    Location location = block.getLocation();
+                    for (ItemStack item : block.getDrops()) {
+                        block.getWorld().dropItemNaturally(location, item);
+                    }
                 }
             }
 

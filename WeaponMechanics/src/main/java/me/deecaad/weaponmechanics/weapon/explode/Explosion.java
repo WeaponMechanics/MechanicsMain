@@ -343,9 +343,9 @@ public class Explosion implements Serializer<Explosion> {
             // after breaking the block, we will get AIR (not good for visual
             // effects).
             BlockState state = block.getState();
-            BlockDamageData.DamageData data = blockDamage.damage(block);
+            BlockDamageData.DamageData data = blockDamage.damage(block, playerWrapper != null ? playerWrapper.getPlayer() : null);
 
-            // This happens when a block is blacklisted
+            // This happens when a block is blacklisted or block break was cancelled
             if (data == null)
                 continue;
 
