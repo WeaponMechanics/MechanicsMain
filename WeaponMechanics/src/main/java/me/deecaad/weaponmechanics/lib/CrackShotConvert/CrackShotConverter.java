@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -47,6 +48,7 @@ public class CrackShotConverter {
 
         // SHOOTING
         RIGHT_CLICK_TO_SHOOT("", "Shoot.Trigger.Main_Hand", new ShootButtonsConvert()),
+        DUAL_WIELD("Shooting.Dual_Wield", "", new DualWieldConvert()), // After shoot buttons so this can override triggers
         DELAY_BETWEEN_SHOTS("Shooting.Delay_Between_Shots", "Shoot.Delay_Between_Shots", new ValueNonZeroConvert()),
         RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
         PROJECTILE_AMOUNT("Shooting.Projectile_Amount", "Shoot.Projectiles_Per_Shot", new ValueNonZeroConvert()),
@@ -414,11 +416,39 @@ public class CrackShotConverter {
         }
     }
 
+    private static class DualWieldConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            if (!fromConfig.getBoolean(from)) return;
+
+            String weapon = from.split("\\.")[0];
+
+            String weaponName = fromConfig.getString(weapon + ".Item_Information.Item_Name", weapon);
+            weaponName = StringUtil.colorAdventure(weaponName);
+
+            toConfig.set(to + "Info.Dual_Wield.Whitelist", true);
+            toConfig.set(to + "Info.Dual_Wield.Weapons", Collections.singletonList(weapon));
+
+            toConfig.set(to + "Info.Weapon_Info_Display.Action_Bar.Dual_Wield.Main_Hand", "%ammo-left%»%reload% %firearm-state%" + weaponName);
+            toConfig.set(to + "Info.Weapon_Info_Display.Action_Bar.Dual_Wield.Off_Hand", weaponName + "%firearm-state% %reload%«%ammo-left%");
+
+            toConfig.set(to + "Shoot.Trigger.Main_Hand", "right_click");
+            toConfig.set(to + "Shoot.Trigger.Off_Hand", "right_click");
+
+
+            toConfig.set(to + "Reload.Trigger.Off_Hand", "drop_item");
+
+            toConfig.set(to + "Shoot.Trigger.Dual_Wield.Main_Hand", "right_click");
+            toConfig.set(to + "Shoot.Trigger.Dual_Wield.Off_Hand", "left_click");
+        }
+    }
+
     private static class ProjectileTypeConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            String type = fromConfig.getString(from + ".Projectile_Type");
+            String type = fromConfig.getString(from + "Projectile_Type");
             if (type == null) return;
 
             if (type.equalsIgnoreCase("splash")) {
@@ -463,7 +493,7 @@ public class CrackShotConverter {
                     }
 
                 } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    WeaponMechanics.debug.error("Energy projectile subtype invalid: " + from + " " + Arrays.toString(energySettings));
+                    WeaponMechanics.debug.error("Energy projectile subtype invalid: " + from + "Projectile_Subtype " + Arrays.toString(energySettings));
                 }
 
                 return;
@@ -698,11 +728,17 @@ public class CrackShotConverter {
                 return;
             }
 
-            if (fromConfig.getBoolean(from + "On_Impact_With_Anything", false)) {
+            String weapon = from.split("\\.")[0];
+            String type = fromConfig.getString(weapon + ".Shooting.Projectile_Type");
+
+            if (type != null && (type.equalsIgnoreCase("grenade")
+                    || type.equalsIgnoreCase("flare"))) {
+                toConfig.set(to + "Detonation.Impact_When.Spawn", true);
+            } else if (fromConfig.getBoolean(from + "On_Impact_With_Anything", false)) {
                 toConfig.set(to + "Detonation.Impact_When.Entity", true);
                 toConfig.set(to + "Detonation.Impact_When.Block", true);
             } else {
-                toConfig.set(to + "Detonation.Impact_When.Spawn", true);
+                toConfig.set(to + "Detonation.Impact_When.Entity", true);
             }
 
             if (!fromConfig.getBoolean(from + "Explosion_No_Grief", false)) {
