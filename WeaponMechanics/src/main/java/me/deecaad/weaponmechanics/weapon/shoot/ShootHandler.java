@@ -615,6 +615,16 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (projectile == null || isMelee) {
             debug.debug("Missing projectile/isMelee for " + weaponTitle);
             // No projectile defined or was melee trigger
+
+            // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
+            if (!isMelee) {
+                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+                Bukkit.getPluginManager().callEvent(event);
+
+                HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+                handData.setLastShotTime(System.currentTimeMillis());
+            }
+
             return;
         }
 
