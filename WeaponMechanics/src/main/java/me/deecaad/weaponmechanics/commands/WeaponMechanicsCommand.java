@@ -546,7 +546,7 @@ public class WeaponMechanicsCommand {
 
             sender.sendMessage(GREEN + "Converting config...");
             WeaponMechanics pl = WeaponMechanicsAPI.getInstance();
-            File outputPath = new File(pl.getDataFolder().getPath() + "/crackshotconvert/");
+            File outputPath = new File(pl.getDataFolder().getPath() + "/weapons/crackshotconvert/");
             new TaskChain(WeaponMechanics.getPlugin())
                     .thenRunSync(() -> sender.sendMessage(GREEN + "Starting CrackShot conversion"))
                     .thenRunAsync(() -> new Converter(sender).convertAllFiles(outputPath))
