@@ -165,6 +165,9 @@ public class BlockDamage implements Serializer<BlockDamage> {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
 
             boolean dropItems = true;
+
+            /*
+            Maybe EntityExplodeEvent...
             if (player != null) {
                 BlockBreakEvent breakEvent = new BlockBreakEvent(block, player);
                 Bukkit.getPluginManager().callEvent(breakEvent);
@@ -177,6 +180,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     dropItems = breakEvent.isDropItems();
                 }
             }
+             */
 
             int max = getMaxDurability(block);
             BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
