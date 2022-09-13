@@ -439,6 +439,11 @@ public class CrackShotConverter {
                     toConfig.set(to + "Shoot.Projectile_Speed", range * 5);
                     toConfig.set(to + "Projectile.Projectile_Settings.Maximum_Travel_Distance", range);
 
+                    double raySize = Double.parseDouble(energySettings[1]);
+                    if (raySize > 0.1) {
+                        toConfig.set(to + "Projectile.Projectile_Settings.Size", raySize);
+                    }
+
                     int victims = Integer.parseInt(energySettings[3]);
                     if (victims == 0) {
                         toConfig.set(to + "Projectile.Through.Entities.Allow_Any", true);
