@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
@@ -243,11 +242,6 @@ public class HandData {
             reloadTasks.clear();
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), getReloadElapsedTime()));
-
-            LivingEntity entity = entityWrapper.getEntity();
-            if (reloadWeaponStack != null && entity.getType() == EntityType.PLAYER && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, reloadWeaponStack.getType())) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, reloadWeaponStack.getType(), 0);
-            }
 
             reloadWeaponStack = null;
             reloadWeaponTitle = null;

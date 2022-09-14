@@ -19,6 +19,10 @@ public class ZoomData {
         this.handData = handData;
     }
 
+    public HandData getHandData() {
+        return handData;
+    }
+
     /**
      * @return <code>true</code> if the entity is scoped.
      */

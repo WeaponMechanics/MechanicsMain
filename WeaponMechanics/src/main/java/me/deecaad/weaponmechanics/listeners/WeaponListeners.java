@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.listeners;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
@@ -97,10 +96,6 @@ public class WeaponListeners implements Listener {
             if (!alreadyUsedEquipMechanics) {
                 Mechanics holsterMechanics = getConfigurations().getObject(dequippedWeapon + ".Info.Weapon_Holster_Mechanics", Mechanics.class);
                 if (holsterMechanics != null) holsterMechanics.use(new CastData(entityWrapper, dequippedWeapon, dequipped));
-            }
-
-            if (weaponTitle == null && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, dequipped.getType())) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, dequipped.getType(), 0);
             }
         }
     }
