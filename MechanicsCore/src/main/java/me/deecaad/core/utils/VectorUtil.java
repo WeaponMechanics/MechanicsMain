@@ -19,8 +19,9 @@ public final class VectorUtil {
 
     // All horizontal block faces
     private static final BlockFace[] AXIS = new BlockFace[]{NORTH, NORTH_NORTH_EAST, NORTH_EAST, EAST_NORTH_EAST, EAST, EAST_SOUTH_EAST, SOUTH_EAST, SOUTH_SOUTH_EAST, SOUTH, SOUTH_SOUTH_WEST, SOUTH_WEST, WEST_SOUTH_WEST, WEST, WEST_NORTH_WEST, NORTH_WEST, NORTH_NORTH_WEST};
-    public static final double PI_2 = Math.PI * 2;
-    public static final double GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+    public static final double HALF_PI = Math.PI / 2.0;
+    public static final double PI_2 = Math.PI * 2.0;
+    public static final double GOLDEN_ANGLE = Math.PI * (3.0 - Math.sqrt(5.0));
 
     // Don't let anyone instantiate this class
     private VectorUtil() {
