@@ -6,6 +6,7 @@ import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -320,7 +321,16 @@ public class CrackShotPlusConverter {
             if (barColor == null) barColor = "WHITE";
 
             String barStyle = CSPapi.getString(from + "Bar.Style");
-            if (barStyle == null) barStyle = "PROGRESS";
+            if (barStyle == null) barStyle = "NOTCHED_20";
+
+            try {
+                BossBar.Overlay.valueOf(barStyle);
+            } catch (IllegalArgumentException e) {
+                String temp = barStyle;
+                barStyle = StringUtil.didYouMean(barStyle, EnumUtil.getOptions(BossBar.Overlay.class));
+                WeaponMechanics.debug.error("Invalid boss bar style: " + temp + " swapped to: " + barStyle);
+            }
+
 
             toConfig.set(to + ".Send_All_Server", true);
             toConfig.set(to + ".Boss_Bar.Title", title);
