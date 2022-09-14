@@ -301,7 +301,19 @@ public class Quaternion implements Cloneable {
      */
     public static Quaternion fromTo(Vector from, Vector to) {
         Vector axis = from.crossProduct(to);
-        double angle = from.angle(to);
+        double angle = VectorUtil.getAngleBetween(from, to);
+
+        // When the angle is almost 180 degrees, axis becomes 0, 0, 0... and
+        // we cannot rotate about that axis. So we try to find an arbitrary
+        // perpendicular vector. In the off chance that it's still zero, we try
+        // again (The second time, it is impossible for it to still be zero)
+        if (angle > 3.1401) {
+            Vector arbitrary = from.crossProduct(RIGHT);
+            axis = arbitrary.crossProduct(from);
+            if (axis.lengthSquared() < 0.000001f)
+                axis = UP;
+        }
+
         return angleAxis(angle, axis);
     }
 
@@ -334,5 +346,4 @@ public class Quaternion implements Cloneable {
         double z = axis.getZ() * s;
         return new Quaternion(x, y, z, w);
     }
-
 }

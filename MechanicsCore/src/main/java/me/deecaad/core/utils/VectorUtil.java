@@ -262,14 +262,16 @@ public final class VectorUtil {
      */
     public static double getAngleBetween(@Nonnull Vector a, @Nonnull Vector b) {
 
-        double magnitudeA = a.length();
-        double magnitudeB = b.length();
+        // ALGEBRA: sqrt(a) * sqrt(b) = sqrt(a * b)
+        double denominator = Math.sqrt(a.lengthSquared() * b.lengthSquared());
+        if (NumberUtil.equals(denominator, 0.0))
+            return 0f;
 
-        double dot = a.dot(b);
+        double dot = NumberUtil.minMax(-1.0, a.dot(b) / denominator, 1.0);
 
         // This Math.min is requires for parallel vectors, as floating point
         // issues often cause numbers like 1.002
-        return Math.acos(Math.min(1.0, dot / (magnitudeA * magnitudeB)));
+        return Math.acos(dot);
     }
 
     /**

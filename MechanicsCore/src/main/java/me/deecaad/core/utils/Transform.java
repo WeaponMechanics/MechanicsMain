@@ -1,10 +1,14 @@
 package me.deecaad.core.utils;
 
+import org.bukkit.Location;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class Transform {
+public class Transform implements Iterable<Transform> {
 
     private Vector localPosition;
     private Quaternion localRotation;
@@ -13,16 +17,23 @@ public class Transform {
     private Transform parent;
     private List<Transform> children;
 
-
     public Transform() {
+        children = new ArrayList<>();
+        localRotation = Quaternion.identity();
+        localPosition = new Vector();
     }
 
     public Transform(Transform parent) {
+        this();
         setParent(parent);
     }
 
     public Transform getParent() {
         return parent;
+    }
+
+    public Transform getChild(int i) {
+        return children.get(i);
     }
 
     public void setParent(Transform parent) {
@@ -55,12 +66,24 @@ public class Transform {
         return getRotation().multiply(Quaternion.FORWARD);
     }
 
+    public void setForward(Vector forward) {
+        setRotation(Quaternion.lookAt(forward, Quaternion.UP));
+    }
+
     public Vector getRight() {
         return getRotation().multiply(Quaternion.RIGHT);
     }
 
+    public void setRight(Vector right) {
+        setRotation(Quaternion.fromTo(Quaternion.RIGHT, right));
+    }
+
     public Vector getUp() {
         return getRotation().multiply(Quaternion.UP);
+    }
+
+    public void setUp(Vector up) {
+        setRotation(Quaternion.fromTo(Quaternion.UP, up));
     }
 
     public Vector getLocalPosition() {
@@ -78,6 +101,10 @@ public class Transform {
         return parent.getPosition().add(parent.getRotation().multiply(localPosition));
     }
 
+    public void setPosition(Location position) {
+        setPosition(position.toVector());
+    }
+
     public void setPosition(Vector position) {
         if (parent == null) {
             localPosition = position;
@@ -91,7 +118,7 @@ public class Transform {
     }
 
     public void setLocalRotation(Quaternion localRotation) {
-        this.localRotation = localRotation;
+        this.localRotation = localRotation.normalize();
     }
 
     public Quaternion getRotation() {
@@ -99,5 +126,23 @@ public class Transform {
             return getLocalRotation();
 
         return parent.getRotation().multiply(localRotation);
+    }
+
+    public void setRotation(Quaternion rotation) {
+        if (parent == null) {
+            localRotation = rotation.normalize();
+        } else {
+            localRotation = parent.getRotation().inverse().multiply(rotation);
+        }
+    }
+
+    public void applyRotation(Quaternion rotation) {
+        localRotation.multiply(rotation.normalize());
+    }
+
+    @NotNull
+    @Override
+    public Iterator<Transform> iterator() {
+        return children.iterator();
     }
 }
