@@ -82,7 +82,7 @@ public class HandData {
         }
         stopReloadingTasks();
         stopFirearmActionTasks();
-        ifZoomingForceZoomOut();
+        getZoomData().ifZoomingForceZoomOut();
 
         if (!trySkinUpdate) return;
 
@@ -107,16 +107,6 @@ public class HandData {
         if (weaponTitle == null) return;
 
         WeaponMechanics.getWeaponHandler().getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-    }
-
-    public void ifZoomingForceZoomOut() {
-        if (getZoomData().isZooming()) {
-
-            // IF player is in VR this happens
-            if (getZoomData().getZoomAmount() == 0) return;
-
-            WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
-        }
     }
 
     public boolean isUsingFullAuto() {

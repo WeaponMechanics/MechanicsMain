@@ -131,8 +131,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
         }
 
         // On reload force zoom out
-        entityWrapper.getMainHandData().ifZoomingForceZoomOut();
-        entityWrapper.getOffHandData().ifZoomingForceZoomOut();
+        entityWrapper.getMainHandData().getZoomData().ifZoomingForceZoomOut();
+        entityWrapper.getOffHandData().getZoomData().ifZoomingForceZoomOut();
 
         boolean mainhand = slot == EquipmentSlot.HAND;
         HandData handData = mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();

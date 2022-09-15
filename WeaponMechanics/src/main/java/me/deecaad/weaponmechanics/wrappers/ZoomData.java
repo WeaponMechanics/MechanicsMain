@@ -1,12 +1,20 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
+import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.vivecraft.VSE;
 
 import java.util.List;
+
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ZoomData {
 
@@ -14,6 +22,8 @@ public class ZoomData {
     private double zoomAmount;
     private int zoomStacks;
     private boolean zoomNightVision;
+    private ItemStack scopeWeaponStack;
+    private String scopeWeaponTitle;
 
     public ZoomData(HandData handData) {
         this.handData = handData;
@@ -102,5 +112,34 @@ public class ZoomData {
      */
     public void setZoomNightVision(boolean zoomNightVision) {
         this.zoomNightVision = zoomNightVision;
+    }
+
+    public void ifZoomingForceZoomOut() {
+        if (isZooming()) {
+
+            // IF player is in VR this happens
+            if (getZoomAmount() == 0) return;
+
+            EntityWrapper entityWrapper = handData.getEntityWrapper();
+
+            ScopeHandler scopeHandler = WeaponMechanics.getWeaponHandler().getScopeHandler();
+            scopeHandler.updateZoom(entityWrapper, this, 0);
+            setZoomStacks(0);
+            if (hasZoomNightVision()) scopeHandler.useNightVision(entityWrapper, this);
+
+            Mechanics zoomOffMechanics = getConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
+            if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, this.scopeWeaponTitle, this.scopeWeaponStack));
+
+            WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack, entityWrapper.getEntity(), WeaponScopeEvent.ScopeType.OUT, 0, 0);
+            Bukkit.getPluginManager().callEvent(weaponScopeEvent);
+        }
+
+        // This just ensures that these are set to null
+        setScopeData(null, null);
+    }
+
+    public void setScopeData(String weaponTitle, ItemStack weaponStack) {
+        this.scopeWeaponTitle = weaponTitle;
+        this.scopeWeaponStack = weaponStack;
     }
 }
