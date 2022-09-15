@@ -189,20 +189,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             }
         }
 
-        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(),
-                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime);
-        Bukkit.getPluginManager().callEvent(reloadEvent);
-
-        reloadDuration = reloadEvent.getReloadTime();
-        tempAmmoToAdd = reloadEvent.getReloadAmount();
-        tempMagazineSize = reloadEvent.getMagazineSize();
-        firearmOpenTime = reloadEvent.getFirearmOpenTime();
-        firearmCloseTime = reloadEvent.getFirearmCloseTime();
-
-        final int finalAmmoToAdd = tempAmmoToAdd;
-        final int magazineSize = tempMagazineSize;
-
-        if (ammoLeft >= magazineSize || reloadDuration == 0) {
+        if (ammoLeft >= tempMagazineSize || reloadDuration == 0) {
             // Don't try to reload if already full
             // Or reload duration is 0 because of firearm states
 
@@ -232,6 +219,19 @@ public class ReloadHandler implements IValidator, TriggerListener {
             if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
             return false;
         }
+
+        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(),
+                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime);
+        Bukkit.getPluginManager().callEvent(reloadEvent);
+
+        reloadDuration = reloadEvent.getReloadTime();
+        tempAmmoToAdd = reloadEvent.getReloadAmount();
+        tempMagazineSize = reloadEvent.getMagazineSize();
+        firearmOpenTime = reloadEvent.getFirearmOpenTime();
+        firearmCloseTime = reloadEvent.getFirearmCloseTime();
+
+        final int finalAmmoToAdd = tempAmmoToAdd;
+        final int magazineSize = tempMagazineSize;
 
         boolean unloadAmmoOnReload = config.getBool(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
 
