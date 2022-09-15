@@ -139,7 +139,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * broken, and users of this method MUST handle block regeneration.
      *
      * <blockquote><pre>{@code
-     *      BlockDamageData.DamageData data = blockDamage.damage(block);
+     *      BlockDamageData.DamageData data = blockDamage.damage(block, null);
      *      boolean regenerate = true;
      *
      *      if (regenerate) {
@@ -157,7 +157,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
      * }</pre></blockquote>
      *
      * @param block The non-null block to damage.
-     * @param player The nullable player who is breaking block
+     * @param player The nullable player who is breaking block, explosions should always give null
      * @return The DamageData associated with the block or null if player couldn't damage the block.
      */
     @Nullable
@@ -166,9 +166,9 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
             boolean dropItems = true;
 
-            /*
-            Maybe EntityExplodeEvent...
             if (player != null) {
+                // Allow nullable player since explosions should use EntityExplodeEvent
+                // and pass null player for this method
                 BlockBreakEvent breakEvent = new BlockBreakEvent(block, player);
                 Bukkit.getPluginManager().callEvent(breakEvent);
 
@@ -180,7 +180,6 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     dropItems = breakEvent.isDropItems();
                 }
             }
-             */
 
             int max = getMaxDurability(block);
             BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
