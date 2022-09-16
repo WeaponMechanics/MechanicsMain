@@ -73,14 +73,18 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     }
 
     public void send(PlayerWrapper playerWrapper, EquipmentSlot slot) {
+        send(playerWrapper, slot, null, null);
+    }
+
+    public void send(PlayerWrapper playerWrapper, EquipmentSlot slot, ItemStack knownNewMainStack, ItemStack knownNewOffStack) {
         Player player = playerWrapper.getPlayer();
         MessageHelper messageHelper = playerWrapper.getMessageHelper();
 
         String mainWeapon = playerWrapper.getMainHandData().getCurrentWeaponTitle();
         String offWeapon = playerWrapper.getOffHandData().getCurrentWeaponTitle();
 
-        ItemStack mainStack = player.getEquipment().getItemInMainHand();
-        ItemStack offStack = player.getEquipment().getItemInOffHand();
+        ItemStack mainStack = knownNewMainStack == null ? player.getEquipment().getItemInMainHand() : knownNewMainStack;
+        ItemStack offStack = knownNewOffStack == null ? player.getEquipment().getItemInOffHand() : knownNewOffStack;
 
         InfoHandler infoHandler = WeaponMechanics.getWeaponHandler().getInfoHandler();
         String checkCorrectMain = infoHandler.getWeaponTitle(mainStack, false);
@@ -130,8 +134,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
                 // OFF HAND < dual wield split > MAIN HAND
                 // IF inverted: MAIN HAND < dual wield split > OFF HAND
-                offHand = getDisplay(offDisplay, player, offStack, offWeapon, EquipmentSlot.OFF_HAND, mainDisplay, false, hasInvertedMainHand);
-                mainHand = getDisplay(mainDisplay, player, mainStack, mainWeapon, EquipmentSlot.HAND, offDisplay, false, hasInvertedMainHand);
+                offHand = getDualDisplay(offDisplay, player, offStack, offWeapon, EquipmentSlot.OFF_HAND, mainDisplay, false, hasInvertedMainHand);
+                mainHand = getDualDisplay(mainDisplay, player, mainStack, mainWeapon, EquipmentSlot.HAND, offDisplay, false, hasInvertedMainHand);
 
                 Audience audience = MechanicsCore.getPlugin().adventure.player(player);
                 audience.sendActionBar(MechanicsCore.getPlugin().message.deserialize(buildDisplay(new StringBuilder(), hasInvertedMainHand, mainHand, offHand).toString()));
@@ -170,8 +174,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
                 // OFF HAND < dual wield split > MAIN HAND
                 // IF inverted: MAIN HAND < dual wield split > OFF HAND
-                offHand = getDisplay(offDisplay, player, offStack, offWeapon, EquipmentSlot.OFF_HAND, mainDisplay, true, hasInvertedMainHand);
-                mainHand = getDisplay(mainDisplay, player, mainStack, mainWeapon, EquipmentSlot.HAND, offDisplay, true, hasInvertedMainHand);
+                offHand = getDualDisplay(offDisplay, player, offStack, offWeapon, EquipmentSlot.OFF_HAND, mainDisplay, true, hasInvertedMainHand);
+                mainHand = getDualDisplay(mainDisplay, player, mainStack, mainWeapon, EquipmentSlot.HAND, offDisplay, true, hasInvertedMainHand);
 
                 buildDisplay(builder, hasInvertedMainHand, mainHand, offHand);
             } else {
@@ -258,30 +262,41 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         }
     }
 
-    private String getDisplay(WeaponInfoDisplay display, Player player, ItemStack stack, String weapon, EquipmentSlot slot, WeaponInfoDisplay otherDisplay, boolean bossbar, boolean isInverted) {
+    private String getDualDisplay(WeaponInfoDisplay display, Player player, ItemStack stack, String weapon, EquipmentSlot slot, WeaponInfoDisplay otherDisplay, boolean bossbar, boolean isInverted) {
         if (display == null) return null;
 
         String toApply;
 
-        if (isInverted) {
-            if (slot == EquipmentSlot.HAND) {
-                toApply = bossbar
-                        ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : display.bossBar
-                        : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : display.actionBar;
-            } else {
-                toApply = bossbar
-                        ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : display.bossBar
-                        : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : display.actionBar;
-            }
+        if (otherDisplay == null) {
+            toApply = bossbar
+                    ? PlaceholderAPI.applyPlaceholders(display.bossBar, player, stack, weapon, slot)
+                    : PlaceholderAPI.applyPlaceholders(display.actionBar, player, stack, weapon, slot);
         } else {
-            if (slot == EquipmentSlot.HAND) {
-                toApply = bossbar
-                        ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : display.bossBar
-                        : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : display.actionBar;
+            String mainHand = getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Main_Hand",
+                    "<gold>%ammo-left%<gray>»<gold>%reload% <gold>%firearm-state%%weapon-title%");
+            String offHand = getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Off_Hand",
+                    "<gold>%weapon-title%%firearm-state% <gold>%reload%<gray>«<gold>%ammo-left%");
+
+            if (isInverted) {
+                if (slot == EquipmentSlot.HAND) {
+                    toApply = bossbar
+                            ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : offHand
+                            : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : offHand;
+                } else {
+                    toApply = bossbar
+                            ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : mainHand
+                            : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : mainHand;
+                }
             } else {
-                toApply = bossbar
-                        ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : display.bossBar
-                        : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : display.actionBar;
+                if (slot == EquipmentSlot.HAND) {
+                    toApply = bossbar
+                            ? display.dualWieldMainBossBar != null ? display.dualWieldMainBossBar : mainHand
+                            : display.dualWieldMainActionBar != null ? display.dualWieldMainActionBar : mainHand;
+                } else {
+                    toApply = bossbar
+                            ? display.dualWieldOffBossBar != null ? display.dualWieldOffBossBar : offHand
+                            : display.dualWieldOffActionBar != null ? display.dualWieldOffActionBar : offHand;
+                }
             }
         }
 
@@ -289,7 +304,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     }
 
     private StringBuilder buildDisplay(StringBuilder builder, boolean hasInvertedMainHand, String mainHand, String offHand) {
-        String dualWieldSplit = getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield_Split", " &7| ");
+        String dualWieldSplit = getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Split", " &7| ");
         if (hasInvertedMainHand) {
             if (mainHand != null) {
                 builder.append(mainHand);

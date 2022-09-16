@@ -10,7 +10,10 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,21 +36,18 @@ public class TriggerPlayerListeners implements Listener {
     }
 
     @EventHandler
-    public void respawn(PlayerRespawnEvent e) {
-        // Add PlayerWrapper because it is cleared in EntityDeathEvent (PlayerDeathEvent extends EntityDeathEvent)
-        getPlayerWrapper(e.getPlayer());
-    }
-
-    @EventHandler
     public void join(PlayerJoinEvent e) {
         // Add PlayerWrapper
-        getPlayerWrapper(e.getPlayer());
+        PlayerWrapper playerWrapper = getPlayerWrapper(e.getPlayer());
+        weaponHandler.getStatsHandler().load(playerWrapper);
     }
 
     @EventHandler
     public void quit(PlayerQuitEvent e) {
         // Remove EntityWrapper data and cancel move task
-        removeEntityWrapper(e.getPlayer());
+        Player player = e.getPlayer();
+        weaponHandler.getStatsHandler().save(getPlayerWrapper(player), false);
+        removeEntityWrapper(player);
     }
 
     @EventHandler (ignoreCancelled = true)

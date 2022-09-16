@@ -89,9 +89,9 @@ public final class StringUtil {
     }
 
     /**
-     * Colors a given <code>string</code> by replacing the <code>&</code>
-     * character with <code>§</code>. This method also translates hex strings
-     * formatted by <code>&#000000</code> to a minecraft chat hex string.
+     * Colors a given <code>string</code> by replacing the <code>{@literal &}</code>
+     * character with <code>{@literal §}</code>. This method also translates hex strings
+     * formatted by <code>{@literal &}#000000</code> to a minecraft chat hex string.
      *
      * <p>This method should only be called during data serialization or through
      * bukkit commands.
@@ -149,7 +149,7 @@ public final class StringUtil {
     /**
      * Returns the string value of the config, adjusted to fit the
      * adventure format. Adventure text is formatting using html-like tags
-     * instead of the legacy <code>&</code> symbol. If the string in config
+     * instead of the legacy <code>{@literal &}</code> symbol. If the string in config
      * contains the legacy color system, we will attempt to convert it.
      *
      * <p>The returned string should be parsed using
@@ -440,7 +440,7 @@ public final class StringUtil {
         return closest;
     }
 
-    private static int[] mapToCharTable(String str) {
+    public static int[] mapToCharTable(String str) {
         int[] table = new int[LOWER_ALPHABET.length()];
         for (int i = 0; i < str.length(); i++) {
 

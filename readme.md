@@ -1,11 +1,12 @@
+![Image](https://user-images.githubusercontent.com/18332343/188478631-ecccb1a6-51aa-4f9c-bfa6-de666c2658d9.png)  
 <div align="center">
-  
-# Weapon Mechanics 
+
   [![Discord](https://img.shields.io/discord/306158221473742848.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/ERVgpfg)
   [![Download](https://img.shields.io/github/downloads/WeaponMechanics/MechanicsMain/total?color=green)](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
   [![Version](https://img.shields.io/github/v/release/WeaponMechanics/MechanicsMain?include_prereleases&label=version)](https://github.com/WeaponMechanics/MechanicsMain/releases/latest)
   [![Wiki](https://img.shields.io/badge/-wiki%20-blueviolet)](https://github.com/WeaponMechanics/MechanicsMain/wiki)
   [![License](https://img.shields.io/github/license/WeaponMechanics/MechanicsMain)](https://github.com/WeaponMechanics/MechanicsMain/blob/master/LICENSE)
+
 </div>
 
 

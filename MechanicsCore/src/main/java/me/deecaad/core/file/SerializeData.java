@@ -8,8 +8,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along
@@ -679,11 +677,11 @@ public class SerializeData {
          * number type (for example, an integer), you should use
          * {@link #getInt(int)}.
          *
-         * @param min Inclusive minimum bound. min < max.
-         * @param max Inclusive maximum bound. max > min.
+         * @param min Inclusive minimum bound.
+         * @param max Inclusive maximum bound.
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the value is not in range.
-         * @throws IllegalArgumentException If min > max.
+         * @throws IllegalArgumentException If min larger than max.
          */
         @Nonnull
         public ConfigAccessor assertRange(int min, int max) throws SerializerException {
@@ -710,11 +708,11 @@ public class SerializeData {
          * number type (for example, an integer), you should use
          * {@link #getInt(int)}.
          *
-         * @param min Inclusive minimum bound. min < max.
-         * @param max Inclusive maximum bound. max > min.
+         * @param min Inclusive minimum bound.
+         * @param max Inclusive maximum bound.
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the value is not in range.
-         * @throws IllegalArgumentException If min > max.
+         * @throws IllegalArgumentException If min larger than max.
          */
         @Nonnull
         public ConfigAccessor assertRange(double min, double max) throws SerializerException {
@@ -828,7 +826,7 @@ public class SerializeData {
         /**
          * Returns the string value of the config, adjusted to fit the
          * adventure format. Adventure text is formatting using html-like tags
-         * instead of the legacy <code>&</code> symbol. If the string in config
+         * instead of the legacy <code>{@literal &}</code> symbol. If the string in config
          * contains the legacy color system, we will attempt to convert it.
          *
          * <p>The returned string should be parsed using
@@ -851,7 +849,7 @@ public class SerializeData {
         /**
          * Returns the string value of the config, adjusted to fit the
          * adventure format. Adventure text is formatting using html-like tags
-         * instead of the legacy <code>&</code> symbol. If the string in config
+         * instead of the legacy <code>{@literal &}</code> symbol. If the string in config
          * contains the legacy color system, we will attempt to convert it.
          *
          * <p>The returned string should be parsed using

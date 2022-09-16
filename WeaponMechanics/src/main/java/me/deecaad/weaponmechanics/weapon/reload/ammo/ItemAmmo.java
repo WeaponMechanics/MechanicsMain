@@ -4,7 +4,6 @@ import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;

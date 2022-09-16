@@ -230,6 +230,14 @@ public class EntityWrapper {
         return offHandData == null ? offHandData = new HandData(this, false) : offHandData;
     }
 
+    public boolean isReloading() {
+        return getMainHandData().isReloading() || getOffHandData().isReloading();
+    }
+
+    public boolean isZooming() {
+        return getMainHandData().getZoomData().isZooming() || getOffHandData().getZoomData().isZooming();
+    }
+
     public boolean isPlayer() {
         return false;
     }

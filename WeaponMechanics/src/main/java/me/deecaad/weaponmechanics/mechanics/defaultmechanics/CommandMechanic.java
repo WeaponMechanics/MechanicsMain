@@ -12,7 +12,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CommandMechanic implements IMechanic<CommandMechanic> {
 

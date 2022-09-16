@@ -22,7 +22,9 @@ public class PAmmoType extends PlaceholderHandler {
         if (itemStack == null || weaponTitle == null) return null;
 
         AmmoTypes ammoTypes = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-        if (ammoTypes == null) return null;
+
+        // Simply don't show anything
+        if (ammoTypes == null) return "";
 
         return ammoTypes.getCurrentAmmoSymbol(itemStack);
     }

@@ -23,8 +23,10 @@ public class PAmmoAvailable extends PlaceholderHandler {
         if (itemStack == null || weaponTitle == null) return null;
 
         AmmoTypes ammoTypes = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-        if (ammoTypes == null) return null;
 
-        return "" + ammoTypes.getMaximumAmmo(itemStack, getPlayerWrapper(player), getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size"));
+        // Simply don't show anything
+        if (ammoTypes == null) return "";
+
+        return String.valueOf(ammoTypes.getMaximumAmmo(itemStack, getPlayerWrapper(player), getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size")));
     }
 }

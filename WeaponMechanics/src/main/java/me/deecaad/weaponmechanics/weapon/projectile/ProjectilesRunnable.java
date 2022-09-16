@@ -31,7 +31,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
     /**
      * Initializes and registers this runnable. This runnable can be cancelled
-     * using {@link #cancel()} or by cancelling all tasks for code>plugin</code>
+     * using {@link #cancel()} or by cancelling all tasks for <code>plugin</code>
      * using <code>Bukkit.getScheduler().cancelTasks(plugin)</code>.
      *
      * <p> WeaponMechanics initializes one of these by default. You probably
@@ -63,6 +63,8 @@ public class ProjectilesRunnable extends BukkitRunnable {
         if (projectile == null)
             throw new IllegalArgumentException("Cannot add null projectile!");
 
+        if (projectile.isDead()) return;
+
         if (Bukkit.getServer().isPrimaryThread()) {
             tickOnAdd(projectile);
             return;
@@ -84,6 +86,9 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
         if (Bukkit.getServer().isPrimaryThread()) {
             for (AProjectile projectile : projectiles) {
+
+                if (projectile.isDead()) continue;
+
                 tickOnAdd(projectile);
             }
             return;

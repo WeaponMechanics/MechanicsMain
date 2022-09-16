@@ -1,17 +1,27 @@
 package me.deecaad.core.compatibility.entity;
 
+import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_16_R3;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.DataWatcher;
+import net.minecraft.server.v1_16_R3.EnumItemSlot;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityEquipment;
 import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Entity_1_16_R3 implements EntityCompatibility {
@@ -42,6 +52,43 @@ public class Entity_1_16_R3 implements EntityCompatibility {
     @Override
     public int getId(Object obj) {
         return (int) ReflectionUtil.invokeField(ID, obj);
+    }
+
+    @Override
+    public void setSlot(Player bukkit, EquipmentSlot slot, @Nullable ItemStack item) {
+        if (item == null) {
+            item = bukkit.getEquipment().getItem(slot); // added in 1.15
+        }
+
+        int id = bukkit.getEntityId();
+        EnumItemSlot nmsSlot;
+        switch (slot) {
+            case HEAD:
+                nmsSlot = EnumItemSlot.HEAD;
+                break;
+            case CHEST:
+                nmsSlot = EnumItemSlot.CHEST;
+                break;
+            case LEGS:
+                nmsSlot = EnumItemSlot.LEGS;
+                break;
+            case FEET:
+                nmsSlot = EnumItemSlot.FEET;
+                break;
+            case HAND:
+                nmsSlot = EnumItemSlot.MAINHAND;
+                break;
+            case OFF_HAND:
+                nmsSlot = EnumItemSlot.OFFHAND;
+                break;
+            default:
+                throw new RuntimeException("unreachable");
+        };
+
+        List<Pair<EnumItemSlot, net.minecraft.server.v1_16_R3.ItemStack>> temp = new ArrayList<>(1);
+        temp.add(new Pair<>(nmsSlot, CraftItemStack.asNMSCopy(item)));
+        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(id, temp);
+        ((CraftPlayer) bukkit).getHandle().playerConnection.sendPacket(packet);
     }
 
     @Override

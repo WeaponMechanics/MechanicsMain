@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
 import co.aikar.timings.lib.MCTiming;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
@@ -11,31 +10,29 @@ import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
+import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
-import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.vivecraft.VSE;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
-public class ScopeHandler implements IValidator {
+public class ScopeHandler implements IValidator, TriggerListener {
 
     private static final IScopeCompatibility scopeCompatibility = WeaponCompatibilityAPI.getScopeCompatibility();
     private WeaponHandler weaponHandler;
@@ -50,21 +47,20 @@ public class ScopeHandler implements IValidator {
         this.weaponHandler = weaponHandler;
     }
 
-    /**
-     * Tries to use scope
-     *
-     * @param entityWrapper the entity who used trigger
-     * @param weaponTitle the weapon title
-     * @param weaponStack the weapon stack
-     * @param slot the slot used on trigger
-     * @param triggerType the trigger type trying to activate scope
-     * @return true if the scope used successfully to zoom in, our or stack
-     */
-    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    @Override
+    public boolean allowOtherTriggers() {
+        return false;
+    }
+
+    @Override
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Configuration config = getConfigurations();
 
-        // Don't try to scope if either one of the hands is reloading
-        if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
+        // Don't try to scope if either one of the hands is reloading or running firearm actions
+        HandData main = entityWrapper.getMainHandData();
+        HandData off = entityWrapper.getOffHandData();
+        if (main.isReloading() || main.hasRunningFirearmAction()
+                || off.isReloading() || off.hasRunningFirearmAction()) {
             return false;
         }
 
@@ -182,6 +178,8 @@ public class ScopeHandler implements IValidator {
                     return false;
                 }
 
+                zoomData.setScopeData(weaponTitle, weaponStack);
+
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
 
@@ -189,9 +187,6 @@ public class ScopeHandler implements IValidator {
 
                 Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
                 if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
-
-                WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
 
                 return true;
             } else {
@@ -213,17 +208,19 @@ public class ScopeHandler implements IValidator {
             return false;
         }
 
+        zoomData.setScopeData(weaponTitle, weaponStack);
+
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
         Mechanics zoomMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Mechanics.class);
         if (zoomMechanics != null) zoomMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
-        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
         if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
+
+        HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+        handData.setLastScopeTime(System.currentTimeMillis());
 
         return true;
     }
@@ -253,42 +250,25 @@ public class ScopeHandler implements IValidator {
             return false;
         }
 
+        zoomData.setScopeData(null, null);
+
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
 
         Mechanics zoomOffMechanics = getConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
         if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
-        WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-        if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
-
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
         if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
-
-        HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-        handData.setLastScopeTime(System.currentTimeMillis());
 
         return true;
     }
 
     /**
-     * Forces zooming out for entity
-     *
-     * @param entityWrapper the entity wrapper from whom to force zoom out
-     * @param zoomData the zoom data of entity wrappers hand data
-     */
-    public void forceZoomOut(EntityWrapper entityWrapper, ZoomData zoomData) {
-        ScopeHandler scopeHandler = WeaponMechanics.getWeaponHandler().getScopeHandler();
-        scopeHandler.updateZoom(entityWrapper, zoomData, 0);
-        zoomData.setZoomStacks(0);
-        if (zoomData.hasZoomNightVision()) scopeHandler.useNightVision(entityWrapper, zoomData);
-    }
-
-    /**
      * Updates the zoom amount of entity.
      */
-    private void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, double newZoomAmount) {
+    public void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, double newZoomAmount) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for FOV changes
             zoomData.setZoomAmount(newZoomAmount);

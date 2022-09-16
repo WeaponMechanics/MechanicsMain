@@ -35,6 +35,8 @@ Origin_12:
       Custom_Model_Data: 81
     Scope:
       Custom_Model_Data: 91
+    Sprint:
+      Custom_Model_Data: 96
   Projectile: "shotgun.Projectile"
   Shoot:
     Trigger:
@@ -42,6 +44,8 @@ Origin_12:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 60
     Projectiles_Per_Shot: 10
     Delay_Between_Shots: 7

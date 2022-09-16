@@ -5,9 +5,6 @@ import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.StringUtil;
-import org.bukkit.configuration.ConfigurationSection;
-
-import java.io.File;
 
 public class PlaceholderValidator implements IValidator {
 
@@ -34,7 +31,7 @@ public class PlaceholderValidator implements IValidator {
         convert(configuration, "Placeholder_Symbols.Selective_Fire.SINGLE");
         convert(configuration, "Placeholder_Symbols.Selective_Fire.BURST");
         convert(configuration, "Placeholder_Symbols.Selective_Fire.AUTO");
-        convert(configuration, "Placeholder_Symbols.Dual_Wield_Split");
+        convert(configuration, "Placeholder_Symbols.Dual_Wield.Split");
     }
 
     private void convert(Configuration configuration, String key) {

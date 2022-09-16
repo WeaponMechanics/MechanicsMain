@@ -19,7 +19,8 @@ import java.util.List;
 public final class DistanceUtil {
 
     // Don't let anyone instantiate this class
-    private DistanceUtil() { }
+    private DistanceUtil() {
+    }
 
     /**
      * Returns the default viewing distance of worlds, defined by the vanilla
@@ -48,35 +49,55 @@ public final class DistanceUtil {
         return distance << 4;
     }
 
+    public static List<Player> getPlayersInRange(@Nonnull Location origin) {
+        return getPlayersInRange(origin, -1.0, getRange(origin.getWorld()));
+    }
+
     /**
      * Returns the entities withing range
      *
+     * @param min    How far away from the origin must the player be
+     * @param max    How close to the origin must the player be
      * @param origin The coordinates that from where entities are taken
      * @return The entities withing range of view distance from origin
      */
-    public static List<Player> getPlayersInRange(@Nonnull Location origin) {
+    public static List<Player> getPlayersInRange(@Nonnull Location origin, double min, double max) {
         World world = origin.getWorld();
         if (world == null)
             throw new IllegalArgumentException();
 
-        double distance = getRange(world);
-
         // AABB
-        double x1 = origin.getX() - distance;
-        double y1 = origin.getY() - distance;
-        double z1 = origin.getZ() - distance;
-        double x2 = origin.getX() + distance;
-        double y2 = origin.getY() + distance;
-        double z2 = origin.getZ() + distance;
+        double x1max = origin.getX() - max;
+        double y1max = origin.getY() - max;
+        double z1max = origin.getZ() - max;
+        double x2max = origin.getX() + max;
+        double y2max = origin.getY() + max;
+        double z2max = origin.getZ() + max;
+
+        double x1min = origin.getX() - min;
+        double y1min = origin.getY() - min;
+        double z1min = origin.getZ() - min;
+        double x2min = origin.getX() + min;
+        double y2min = origin.getY() + min;
+        double z2min = origin.getZ() + min;
 
         // Collect all players in box
         List<Player> players = new LinkedList<>();
         for (Player player : world.getPlayers()) {
             Location pos = player.getLocation();
 
-            if (pos.getX() > x1 && pos.getX() < x2
-                    && pos.getY() > y1 && pos.getY() < y2
-                    && pos.getZ() > z1 && pos.getZ() < z2) {
+            if (pos.getX() > x1max && pos.getX() < x2max
+                    && pos.getY() > y1max && pos.getY() < y2max
+                    && pos.getZ() > z1max && pos.getZ() < z2max) {
+
+                // Minimum range exclusion check, if applicable
+                if (min != -1) {
+                    if (pos.getX() > x1min && pos.getX() < x2min
+                            && pos.getY() > y1min && pos.getY() < y2min
+                            && pos.getZ() > z1min && pos.getZ() < z2min) {
+                        continue;
+                    }
+                }
 
                 players.add(player);
             }
@@ -103,7 +124,7 @@ public final class DistanceUtil {
      *     DistanceUtils.sendPacket(origin, packet, distance)
      * </code></pre></blockquote>
      *
-     * @param origin The coordinates that the packet is being spawned at.
+     * @param origin  The coordinates that the packet is being spawned at.
      * @param packets The packets to send to players in view.
      */
     public static void sendPacket(@Nonnull Location origin, Object... packets) {

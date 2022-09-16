@@ -20,7 +20,7 @@ public class CrackShotConvertCommand extends SubCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         WeaponMechanics plugin = WeaponMechanicsAPI.getInstance();
-        File outputPath = new File(plugin.getDataFolder().getPath() + "/crackshotconvert/");
+        File outputPath = new File(plugin.getDataFolder().getPath() + "/weapons/crackshotconvert/");
         new TaskChain(WeaponMechanics.getPlugin()).thenRunAsync(() -> new Converter(sender).convertAllFiles(outputPath));
     }
 }

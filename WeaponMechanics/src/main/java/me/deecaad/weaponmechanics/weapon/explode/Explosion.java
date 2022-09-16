@@ -11,7 +11,6 @@ import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.StringUtil;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
@@ -28,6 +27,7 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ShapeFactory;
 import me.deecaad.weaponmechanics.weapon.projectile.RemoveOnBlockCollisionProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
+import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileExplodeEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectilePreExplodeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -39,7 +39,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -206,7 +209,8 @@ public class Explosion implements Serializer<Explosion> {
         // Handle worldguard flags
         WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(cause);
-        if (!worldGuard.testFlag(origin, entityWrapper instanceof PlayerWrapper ? ((PlayerWrapper) entityWrapper).getPlayer() : null, "weapon-explode")) {
+        PlayerWrapper playerWrapper = cause.getType() == EntityType.PLAYER ? (PlayerWrapper) entityWrapper : null;
+        if (!worldGuard.testFlag(origin, playerWrapper != null ? playerWrapper.getPlayer() : null, "weapon-explode")) {
             Object obj = worldGuard.getValue(origin, "weapon-explode-message");
             if (obj != null && !obj.toString().isEmpty()) {
                 Component component = MechanicsCore.getPlugin().message.deserialize(obj.toString());
@@ -224,31 +228,32 @@ public class Explosion implements Serializer<Explosion> {
             return;
         }
 
-        List<Block> blocks;
-        BlockRegenSorter sorter;
-        DoubleMap<LivingEntity> entities;
+        List<Block> blocks = shape.getBlocks(origin);
+        BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
+        DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
         if (projectile != null) {
             // This event is not cancellable. If developers want to cancel
             // explosions, they should use ProjectilePreExplodeEvent
-            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, shape.getBlocks(origin),
-                    new LayerDistanceSorter(origin, this), exposure.mapExposures(origin, shape));
+            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, blocks, sorter, entities);
             Bukkit.getPluginManager().callEvent(event);
             blocks = event.getBlocks();
             sorter = event.getSorter();
             entities = event.getEntities();
-        } else {
-            blocks = shape.getBlocks(origin);
-            sorter = new LayerDistanceSorter(origin, this);
-            entities = exposure.mapExposures(origin, shape);
-        }
 
-        int initialCapacity = Math.max(blocks.size(), 10);
-        List<Block> transparent = new ArrayList<>(initialCapacity);
-        List<Block> solid = new ArrayList<>(initialCapacity);
+            // Late check on bukkit event, which is cancellable because it requires blocks list...
+            // + just default yield to 5, it can't be exactly used nicely in this...
+            EntityExplodeEvent entityExplodeEvent = new EntityExplodeEvent(projectile.getShooter(), origin, blocks, 5);
+            Bukkit.getPluginManager().callEvent(entityExplodeEvent);
+
+            // Some plugin cancelled the block damage
+            if (entityExplodeEvent.isCancelled()) return;
+        }
 
         // Sort the blocks into different categories (To make regeneration more
         // reliable). In the future, this may also be used to filter out
         // redstone contraptions.
+        List<Block> transparent = new ArrayList<>(blocks.size());
+        List<Block> solid = new ArrayList<>(blocks.size());
         for (Block block : blocks) {
             if (block.getType().isSolid()) {
                 solid.add(block);
@@ -261,7 +266,7 @@ public class Explosion implements Serializer<Explosion> {
         // good. Generally, sorters should generate lower blocks before higher
         // blocks, and outer blocks before inner blocks. If the sorter is null,
         // the sorting stage will be skipped, but this will cause blocks to
-        // regenerate in a random order.
+        // regenerate in an undefined order.
         try {
             if (sorter == null) {
                 debug.debug("Null sorter used while regenerating explosion... Was this intentional?");
@@ -278,8 +283,8 @@ public class Explosion implements Serializer<Explosion> {
         if (blockDamage != null) {
             int timeOffset = regeneration == null ? -1 : (solid.size() * regeneration.getInterval() / regeneration.getMaxBlocksPerUpdate());
 
-            damageBlocks(transparent, true, origin, timeOffset);
-            damageBlocks(solid, false, origin, 0);
+            damageBlocks(transparent, true, origin, timeOffset, playerWrapper, projectile);
+            damageBlocks(solid, false, origin, 0, playerWrapper, projectile);
         }
 
         if (projectile != null && projectile.getWeaponTitle() != null) {
@@ -322,7 +327,7 @@ public class Explosion implements Serializer<Explosion> {
                 projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
     }
 
-    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, int timeOffset) {
+    protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, int timeOffset, PlayerWrapper playerWrapper, WeaponProjectile projectile) {
         boolean isRegenerate = regeneration != null;
 
         if (isRegenerate)
@@ -330,6 +335,8 @@ public class Explosion implements Serializer<Explosion> {
 
         List<BlockDamageData.DamageData> brokenBlocks = isRegenerate ? new ArrayList<>(regeneration.getMaxBlocksPerUpdate()) : null;
         Location temp = new Location(null, 0, 0, 0);
+
+        int blocksBroken = 0;
 
         int size = blocks.size();
         for (int i = 0; i < size; i++) {
@@ -346,9 +353,13 @@ public class Explosion implements Serializer<Explosion> {
             // after breaking the block, we will get AIR (not good for visual
             // effects).
             BlockState state = block.getState();
-            BlockDamageData.DamageData data = blockDamage.damage(block);
 
-            // This happens when a block is blacklisted
+            // ALWAYS give null player on explosions so BlockBreakEvent isn't called.
+            // Explosions already call EntityExplodeEvent. Single block breaks should
+            // only call the BlockBreakEvent
+            BlockDamageData.DamageData data = blockDamage.damage(block, null);
+
+            // This happens when a block is blacklisted or block break was cancelled
             if (data == null)
                 continue;
 
@@ -383,21 +394,29 @@ public class Explosion implements Serializer<Explosion> {
                 data.remove();
             }
 
-            if (data.isBroken() && blockDamage.isBreakBlocks() && NumberUtil.chance(blockChance)) {
+            if (data.isBroken() && blockDamage.isBreakBlocks()) {
 
-                Location loc = block.getLocation().add(0.5, 0.5, 0.5);
-                Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
+                // For stat tracking
+                blocksBroken += 1;
 
-                // We want blocks to fly out of the newly formed crater.
-                velocity.setY(Math.abs(velocity.getY()));
+                if (NumberUtil.chance(blockChance)) {
+                    Location loc = block.getLocation().add(0.5, 0.5, 0.5);
+                    Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 
-                // This method will add the falling block to the WeaponMechanics
-                // ticker, but it is only added on the next tick. This is
-                // important, since otherwise the projectile would spawn BEFORE
-                // all the blocks were destroyed.
-                spawnFallingBlock(loc, state, velocity);
+                    // We want blocks to fly out of the newly formed crater.
+                    velocity.setY(Math.abs(velocity.getY()));
+
+                    // This method will add the falling block to the WeaponMechanics
+                    // ticker, but it is only added on the next tick. This is
+                    // important, since otherwise the projectile would spawn BEFORE
+                    // all the blocks were destroyed.
+                    spawnFallingBlock(loc, state, velocity);
+                }
             }
         }
+
+        if (blocksBroken != 0 && playerWrapper != null && playerWrapper.getStatsData() != null
+                && projectile != null && projectile.getWeaponTitle() != null) playerWrapper.getStatsData().add(projectile.getWeaponTitle(), WeaponStat.BLOCKS_DESTROYED, blocksBroken);
     }
 
     protected void spawnFallingBlock(Location location, BlockState state, Vector velocity) {

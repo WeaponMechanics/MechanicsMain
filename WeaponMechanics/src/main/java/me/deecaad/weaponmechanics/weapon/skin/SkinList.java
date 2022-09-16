@@ -4,23 +4,14 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponSkinEvent;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
-import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class SkinList implements Serializer<SkinList> {
 
@@ -38,12 +29,12 @@ public class SkinList implements Serializer<SkinList> {
     }
 
     public Set<String> getSkins() {
-        return map.keySet();
+        return new HashSet<>(map.keySet());
     }
 
     public Skin getSkin(@Nullable String skin, @Nullable SkinIdentifier id) {
         if (skin == null) {
-            skin = "Default";
+            skin = "default";
         }
 
         if (id == null) {
@@ -56,7 +47,7 @@ public class SkinList implements Serializer<SkinList> {
 
     @Override
     public String getKeyword() {
-        return "Skin";
+        return "skin";
     }
 
     @NotNull
@@ -85,7 +76,8 @@ public class SkinList implements Serializer<SkinList> {
                 }
 
                 Map<SkinIdentifier, Skin> temp = serializeOne(data.move(key));
-                map.put(key, temp);
+                map.put(key.toLowerCase(Locale.ROOT), temp);
+                continue;
             }
 
             // Since SCOPE_STACK matches to different keys, we need to handle
@@ -96,7 +88,7 @@ public class SkinList implements Serializer<SkinList> {
             defaultSkinData.put(id, data.of(key).assertExists().serialize(Skin.class));
         }
 
-        map.put("Default", defaultSkinData);
+        map.put("default", defaultSkinData);
         return new SkinList(map);
     }
 

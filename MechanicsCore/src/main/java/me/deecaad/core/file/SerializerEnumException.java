@@ -1,26 +1,58 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.EnumUtil;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class SerializerEnumException extends SerializerException {
+
+    private final Set<String> options;
+    private final String actual;
+    private final boolean allowWildcard;
 
     public <T extends Enum<T>> SerializerEnumException(@NotNull String name, Class<T> enumClass,
                                                        String actual, boolean allowWildcard, @NotNull String location) {
 
         super(name, getMessages(enumClass, actual, allowWildcard), location);
+
+        this.options = EnumUtil.getOptions(enumClass);
+        this.actual = actual;
+        this.allowWildcard = allowWildcard;
     }
 
     public <T extends Enum<T>> SerializerEnumException(@NotNull Serializer<?> serializer, Class<T> enumClass,
                                                        String actual, boolean allowWildcard, @NotNull String location) {
 
         super(serializer, getMessages(enumClass, actual, allowWildcard), location);
+
+        this.options = EnumUtil.getOptions(enumClass);
+        this.actual = actual;
+        this.allowWildcard = allowWildcard;
+
+        // 1.13+ remove the legacy materials, so they don't clutter the console.
+        if (enumClass == Material.class) {
+            this.options.removeIf(name -> name.startsWith("LEGACY_"));
+        }
+    }
+
+    public Set<String> getOptions() {
+        return new HashSet<>(options);
+    }
+
+    public String getActual() {
+        return actual;
+    }
+
+    public boolean isAllowWildcard() {
+        return allowWildcard;
     }
 
     private static <T extends Enum<T>> String[] getMessages(Class<T> enumClass, String actual, boolean allowWildcard) {
