@@ -290,12 +290,13 @@ public class WeaponMechanicsCommand {
                 .withSubcommand(new CommandBuilder("transform")
                         .withPermission("weaponmechanics.commands.test.transform")
                         .withDescription("Test the Transform.class")
-                        .withArgument(new Argument<>("children", new IntegerArgumentType(1, 64), 16).withDesc("How many diamonds"))
+                        .withArgument(new Argument<>("children", new IntegerArgumentType(1, 128), 16).withDesc("How many diamonds"))
                         .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long should the animation last"))
-                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0, 4 * Math.PI), 2 * Math.PI).withDesc("How fast to spin"))
+                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0, 720), 2 * Math.PI).withDesc("How fast to spin"))
                         .withArgument(new Argument<>("radius", new DoubleArgumentType(0, 24), 2.0).withDesc("Radius of the circle"))
+                        .withArgument(new Argument<>("particles", new BooleanArgumentType(), false).withDesc("true to show particle axis"))
                         .executes(CommandExecutor.entity((sender, args) -> {
-                            transform(sender, (int) args[0], (int) args[1], Math.toRadians((double) args[2]), (double) args[3]);
+                            transform(sender, (int) args[0], (int) args[1], Math.toRadians((double) args[2]), (double) args[3], (boolean) args[4]);
                         })));
 
 
@@ -858,7 +859,7 @@ public class WeaponMechanicsCommand {
         projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null);
     }
 
-    public static void transform(Entity sender, int children, int time, double speed, double radius) {
+    public static void transform(Entity sender, int children, int time, double speed, double radius, boolean particles) {
         EntityCompatibility compatibility = CompatibilityAPI.getEntityCompatibility();
 
         Transform parent = new Transform();
@@ -872,11 +873,15 @@ public class WeaponMechanicsCommand {
             double z = Math.sin(angle) * radius;
 
             transform.setLocalPosition(new Vector(x, 0, z));
+            transform.setForward(transform.getLocalPosition().normalize().crossProduct(new Vector(0, 1, 0)).normalize());
 
             for (int j = 0; j < children / 2; j++) {
+                angle = j / ((double) children / 2) * VectorUtil.PI_2;
+                x = Math.cos(angle) * radius / 3.0;
+                z = Math.sin(angle) * radius / 3.0;
+
                 Transform local = new Transform(transform);
-                local.setLocalPosition(new Vector(x / 3.0, 0, z / 3.0));
-                local.setRight(local.getLocalPosition().normalize());
+                local.setLocalPosition(new Vector(x, 0, z));
 
                 FakeEntity entity = compatibility.generateFakeEntity(transform.getPosition().toLocation(sender.getWorld()), new ItemStack(Material.DIAMOND));
 
@@ -897,27 +902,27 @@ public class WeaponMechanicsCommand {
                 double deltaTime = 1.0 / 20.0;
                 double rotationSpeed = ticks * speed / time * deltaTime;
                 Quaternion spin = Quaternion.angleAxis(rotationSpeed, parent.getUp());
-                parent.setForward(loc.getDirection());
+                //parent.setForward(loc.getDirection());
                 parent.applyRotation(spin);
 
                 for (int i = 0; i < children; i++) {
-                    FakeEntity entity = entities.get(i);
                     Transform transform = parent.getChild(i);
 
                     // SPIN
-                    transform.applyRotation(Quaternion.angleAxis(rotationSpeed * 2, transform.getForward()));
+                    if (particles) transform.debugRay(sender.getWorld(), transform.getPosition(), localForward, Color.BLACK);
+                    transform.applyRotation(Quaternion.angleAxis(rotationSpeed * 2, localForward));
+                    if (particles) transform.debug(sender.getWorld());
 
                     for (int j = 0; j < children / 2; j++) {
                         Transform local = transform.getChild(j);
+                        if (particles) local.debug(sender.getWorld());
+
                         Vector position = local.getPosition();
                         Vector rotation = local.getRotation().getEulerAngles();
+
+                        FakeEntity entity = entities.get(i * children / 2 + j);
                         entity.setPosition(position, (float) rotation.getX(), (float) rotation.getY());
-
-                        if (position.distance(sender.getLocation().toVector()) > 30)
-                            System.out.println("Far... " + position);
                     }
-                    //transform.setLocalRotation(transform.getLocalRotation().multiply(spin));
-
                 }
 
                 if (ticks++ >= time) {

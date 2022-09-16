@@ -113,12 +113,12 @@ public class Quaternion implements Cloneable {
     }
 
     /**
-     * Interpolates this quaternion with the given quaternion. When t=0, this
+     * Interpolates this quaternion with the given  When t=0, this
      * quaternion is returned. When t is 0, the given quaternion is returned.
      * See {@link NumberUtil#lerp(double, double, double)} for more
      * information on interpolation.
      *
-     * @param other The other quaternion.
+     * @param other The other
      * @param t A number, will be clamped 0..1
      * @return A non-null reference to this (builder pattern).
      */
@@ -159,7 +159,7 @@ public class Quaternion implements Cloneable {
                 * vector.getY();
         double tempZ = 2 * x * z * vector.getX() + 2 * y * z * vector.getY() + z * z * vector.getZ() - 2 * w * y * vector.getX()
                 - y * y * vector.getZ() + 2 * w * x * vector.getY() - x * x * vector.getZ() + w * w * vector.getZ();
-        return vector.setX(tempX).setY(tempY).setZ(tempZ);
+        return new Vector(tempX, tempY, tempZ);
     }
 
     public double dot(Quaternion other) {
@@ -212,9 +212,9 @@ public class Quaternion implements Cloneable {
     /**
      * Returns <code>true</code> when the "length" of the quaternion is zero.
      * Generally, you need a unit quaternion in order to do math. Use
-     * {@link #normalize()} to make this quaternion a unit quaternion.
+     * {@link #normalize()} to make this quaternion a unit
      *
-     * @return true if this is a unit quaternion.
+     * @return true if this is a unit
      */
     public boolean isUnit() {
         return dot(this) < EPSILON;
@@ -224,7 +224,7 @@ public class Quaternion implements Cloneable {
      * Returns <code>true</code> when the scalar component (<code>w</code>) is
      * zero. Pure quaternions usually hold a vector.
      *
-     * @return true if this is a pure quaternion.
+     * @return true if this is a pure
      */
     public boolean isPure() {
         return w < EPSILON;
@@ -233,7 +233,7 @@ public class Quaternion implements Cloneable {
     /**
      * Returns the identity quaternion, which is a quaternion with 0 rotation.
      *
-     * @return A copy of the identity quaternion.
+     * @return A copy of the identity
      */
     public static Quaternion identity() {
         return new Quaternion(0, 0, 0, 1);
@@ -253,53 +253,65 @@ public class Quaternion implements Cloneable {
         return fromAxis(x, y, direction);
     }
 
-    public static Quaternion fromAxis(Vector xAxis, Vector yAxis, Vector zAxis) {
-        double t = xAxis.getX() + yAxis.getY() + zAxis.getZ();
+    public static Quaternion fromAxis(Vector right, Vector up, Vector forward) {
+        double m00 = right.getX();
+        double m01 = right.getY();
+        double m02 = right.getZ();
+        double m10 = up.getX();
+        double m11 = up.getY();
+        double m12 = up.getZ();
+        double m20 = forward.getX();
+        double m21 = forward.getY();
+        double m22 = forward.getZ();
+
+        // New quaternion values
         double x, y, z, w;
 
-        // we protect the division by s by ensuring that s>=1
-        if (t >= 0) { // |w| >= .5
-            double s = Math.sqrt(t + 1); // |s|>=1 ...
-            w = 0.5f * s;
-            s = 0.5f / s;
-            x = (yAxis.getZ() - zAxis.getY()) * s;
-            y = (zAxis.getX() - xAxis.getZ()) * s;
-            z = (xAxis.getY() - yAxis.getX()) * s;
-        } else if ((xAxis.getX() > yAxis.getY()) && (xAxis.getX() > zAxis.getZ())) {
-            double s = Math.sqrt(1.0f + xAxis.getX() - yAxis.getY() - zAxis.getZ()); // |s|>=1
-            x = s * 0.5f; // |x| >= .5
-            s = 0.5f / s;
-            y = (xAxis.getY() + yAxis.getX()) * s;
-            z = (zAxis.getX() + xAxis.getZ()) * s;
-            w = (yAxis.getZ() - zAxis.getY()) * s;
-        } else if (yAxis.getY() > zAxis.getZ()) {
-            double s = Math.sqrt(1.0f + yAxis.getY() - xAxis.getX() - zAxis.getZ()); // |s|>=1
-            y = s * 0.5f; // |y| >= .5
-            s = 0.5f / s;
-            x = (xAxis.getY() + yAxis.getX()) * s;
-            z = (yAxis.getZ() + zAxis.getY()) * s;
-            w = (zAxis.getX() - xAxis.getZ()) * s;
+        double num8 = (m00 + m11) + m22;
+        if (num8 > 0f) {
+            double num = Math.sqrt(num8 + 1f);
+            w = num * 0.5f;
+            num = 0.5f / num;
+            x = (m12 - m21) * num;
+            y = (m20 - m02) * num;
+            z = (m01 - m10) * num;
+        }
+        else if ((m00 >= m11) && (m00 >= m22)) {
+            double num7 = Math.sqrt(((1f + m00) - m11) - m22);
+            double num4 = 0.5f / num7;
+            x = 0.5f * num7;
+            y = (m01 + m10) * num4;
+            z = (m02 + m20) * num4;
+            w = (m12 - m21) * num4;
+        }
+        else if (m11 > m22) {
+            double num6 = Math.sqrt(((1f + m11) - m00) - m22);
+            double num3 = 0.5f / num6;
+            x = (m10 + m01) * num3;
+            y = 0.5f * num6;
+            z = (m21 + m12) * num3;
+            w = (m20 - m02) * num3;
         } else {
-            double s = Math.sqrt(1.0f + zAxis.getZ() - xAxis.getX() - yAxis.getY()); // |s|>=1
-            z = s * 0.5f; // |z| >= .5
-            s = 0.5f / s;
-            x = (zAxis.getX() + xAxis.getZ()) * s;
-            y = (yAxis.getZ() + zAxis.getY()) * s;
-            w = (xAxis.getY() - yAxis.getX()) * s;
+            double num5 = Math.sqrt(((1f + m22) - m00) - m11);
+            double num2 = 0.5f / num5;
+            x = (m20 + m02) * num2;
+            y = (m21 + m12) * num2;
+            z = 0.5f * num5;
+            w = (m01 - m10) * num2;
         }
 
         return new Quaternion(x, y, z, w);
     }
 
     /**
-     * Creates a quaternion that rotates between the 2 given vectors. Make sure
-     * that the given vectors are not opposites. from != -to.
+     * Creates a quaternion that rotates between the 2 given vectors.
      *
      * @param from From direction.
      * @param to   To direction.
      * @return A new quaternion rotation from -> to.
      */
     public static Quaternion fromTo(Vector from, Vector to) {
+        from = from.clone();
         Vector axis = from.crossProduct(to);
         double angle = VectorUtil.getAngleBetween(from, to);
 
@@ -307,10 +319,10 @@ public class Quaternion implements Cloneable {
         // we cannot rotate about that axis. So we try to find an arbitrary
         // perpendicular vector. In the off chance that it's still zero, we try
         // again (The second time, it is impossible for it to still be zero)
-        if (angle > 3.1401) {
+        if (VectorUtil.isEmpty(axis) || angle > 3.1401) {
             Vector arbitrary = from.crossProduct(RIGHT);
             axis = arbitrary.crossProduct(from);
-            if (axis.lengthSquared() < 0.000001f)
+            if (VectorUtil.isEmpty(axis))
                 axis = UP;
         }
 
@@ -321,7 +333,7 @@ public class Quaternion implements Cloneable {
      * Creates a new Quaternion from the given Euler angles.
      *
      * @param angles The yaw, pitch, and roll stored in x, y, and z respectively.
-     * @return A new quaternion.
+     * @return A new
      * @see #setEulerAngles(Vector)
      */
     public static Quaternion fromEuler(Vector angles) {
