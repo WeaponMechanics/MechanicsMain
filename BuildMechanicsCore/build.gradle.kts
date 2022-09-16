@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.4.7"
+version = "1.5.6"
 
 plugins {
     `maven-publish`
@@ -48,7 +48,6 @@ bukkit {
 
     authors = listOf("DeeCaaD", "CJCrafter")
     softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
-    loadBefore = listOf("WeaponMechanics") // pretty hacky, but needed sometimes.
 }
 
 tasks.named<ShadowJar>("shadowJar") {
@@ -75,9 +74,21 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_18_R2"))
         include(project(":Core_1_19_R1"))
 
-        relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure") {
+        relocate ("net.kyori", "me.deecaad.core.lib") {
             include(dependency("net.kyori::"))
         }
+
+        relocate ("com.zaxxer.hikari", "me.deecaad.core.lib.hikari") {
+            include(dependency("com.zaxxer::"))
+        }
+
+        relocate ("org.slf4j", "me.deecaad.core.lib.slf4j") {
+            include(dependency("org.slf4j::"))
+        }
+    }
+
+    doFirst {
+        println("Compile MechanicsCore")
     }
 }
 

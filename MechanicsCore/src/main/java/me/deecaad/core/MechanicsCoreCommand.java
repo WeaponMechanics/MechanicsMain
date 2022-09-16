@@ -1,10 +1,6 @@
 package me.deecaad.core;
 
-import me.deecaad.core.commands.Argument;
-import me.deecaad.core.commands.CommandBuilder;
-import me.deecaad.core.commands.CommandExecutor;
-import me.deecaad.core.commands.HelpCommandBuilder;
-import me.deecaad.core.commands.SuggestionsBuilder;
+import me.deecaad.core.commands.*;
 import me.deecaad.core.commands.arguments.StringArgumentType;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.serializers.ItemSerializer;
@@ -23,14 +19,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.checker.units.qual.C;
 
-import javax.naming.Name;
-import java.awt.*;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 

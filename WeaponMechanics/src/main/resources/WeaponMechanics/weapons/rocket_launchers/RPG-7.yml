@@ -34,6 +34,8 @@ RPG-7:
       Custom_Model_Data: 101
     Scope:
       Custom_Model_Data: 111
+    Sprint:
+      Custom_Model_Data: 116
   Projectile: "rocket_launcher.Projectile"
   Shoot:
     Trigger:
@@ -41,6 +43,8 @@ RPG-7:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 50
     Spread:
       Base_Spread: 5.5

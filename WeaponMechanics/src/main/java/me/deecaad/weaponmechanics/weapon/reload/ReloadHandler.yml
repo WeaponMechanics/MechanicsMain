@@ -4,6 +4,7 @@ Reload:
   Ammo_Per_Reload: <amount>
   Unload_Ammo_On_Reload: <true/false>
   Reload_Duration: <ticks>
+  Shoot_Delay_After_Reload: <ticks>
   Start_Mechanics: <MechanicsSerializer>
   Finish_Mechanics: <MechanicsSerializer>
   Ammo:

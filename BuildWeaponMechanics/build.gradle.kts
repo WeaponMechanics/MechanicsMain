@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.9.8"
+version = "1.11.8"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -56,8 +56,6 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    dependsOn("versionFile")
-
     destinationDirectory.set(file("../build"))
     archiveFileName.set("WeaponMechanics-${version}.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
@@ -89,14 +87,13 @@ tasks.named<ShadowJar>("shadowJar") {
         relocate ("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
             include(dependency("org.bstats:"))
         }
-
-        relocate ("net.kyori.adventure", "me.deecaad.core.lib.adventure")
     }
-}
 
-tasks.register("versionFile").configure {
-    val file = file("../WeaponMechanics/src/main/resources/version.txt")
-    file.writeText(project(":BuildMechanicsCore").version.toString());
+    relocate ("net.kyori", "me.deecaad.core.lib")
+
+    doFirst {
+        println("Compile WeaponMechanics")
+    }
 }
 
 tasks.named("assemble").configure {

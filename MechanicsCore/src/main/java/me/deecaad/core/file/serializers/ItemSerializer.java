@@ -78,9 +78,20 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (type != null)
                 return new ItemStack(type);
 
-        } catch (SerializerTypeException e) {
-            // Let continue since this wasn't one-liner
+        } catch (SerializerTypeException ex) {
+            // We only catch **TYPE** exceptions, since when this element is
+            // NOT a 1 liner, the type exception will be thrown.
+        } catch (SerializerEnumException ex) {
+            // We catch the ENUM exception since we want to compare it against
+            // the ITEM_REGISTRY as well. For example, steel_sheet from the
+            // registry should be included as a valid option.
+            Collection<String> options = ex.getOptions();
+            options.addAll(ITEM_REGISTRY.keySet());
+            throw new SerializerOptionsException(ex.getSerializerName(), "Material", options, ex.getActual(), data.of().getLocation())
+                    .addMessage("https://github.com/WeaponMechanics/MechanicsMain/wiki/References#materials");
         }
+
+        data.of().assertType(ConfigurationSection.class);
 
         ItemStack itemStack = serializeWithoutRecipe(data);
         itemStack = serializeRecipe(data, itemStack);
@@ -101,7 +112,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         String name = data.of("Name").getAdventure(null);
         if (name != null) {
-            Component component = MechanicsCore.getPlugin().message.deserialize(name);
+            Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + name);
 
             if (ReflectionUtil.getMCVersion() < 16) {
                 String element = LegacyComponentSerializer.legacySection().serialize(component);
@@ -117,7 +128,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             List<String> temp = new ArrayList<>(lore.size());
 
             for (Object obj : lore) {
-                Component component = MechanicsCore.getPlugin().message.deserialize(StringUtil.colorAdventure(obj.toString()));
+                Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
                 String element = ReflectionUtil.getMCVersion() < 16 ? LegacyComponentSerializer.legacySection().serialize(component) : GsonComponentSerializer.gson().serialize(component);
                 temp.add(element);
             }
@@ -332,18 +343,32 @@ public class ItemSerializer implements Serializer<ItemStack> {
             //   - DEF
             //   - GHI
             List<Object> shape = data.of("Recipe.Shape").assertExists().assertType(List.class).get();
+            String[] shapeArr = shape.stream().map(Object::toString).toArray(String[]::new);
             if (shape.size() < 1 || shape.size() > 3)
                 throw new SerializerRangeException(this, 1, shape.size(), 3,  data.of("Recipe.Shape").getLocation());
 
-            recipe.shape(shape.stream().map(Object::toString).toArray(String[]::new));
-
             Set<Character> ingredientChars = new HashSet<>();
-            for (String str : recipe.getShape()) {
+            for (int i = 0; i < shapeArr.length; i++) {
+                String str = shapeArr[i];
+
+                // Before we get mad at the user, let's try removing trailing whitespace
+                if (str.length() > 3)
+                    shapeArr[i] = str = str.trim();
+
                 if (str.length() < 1 || str.length() > 3)
-                    throw new SerializerRangeException(this, 1, shape.size(), 3,  data.of("Recipe.Shape").getLocation());
+                    throw new SerializerRangeException(this, 1, shape.size(), 3, data.of("Recipe.Shape").getLocation());
 
                 for (char c : str.toCharArray())
                     ingredientChars.add(c);
+            }
+
+            // Set shape AFTER our checks above, so we can be more verbose to
+            // the user and try to correct their mistakes automatically.
+            try {
+                recipe.shape(shapeArr);
+            } catch (Throwable ex) {
+                throw data.exception("Recipe.Shape", "Recipe Shape was formatted incorrectly",
+                        ex.getMessage(), SerializerException.forValue(shape));
             }
 
             // Shaped recipes in 1.12 and lower just use a map of

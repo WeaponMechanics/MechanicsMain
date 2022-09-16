@@ -21,7 +21,6 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -43,6 +42,12 @@ public class RayTraceResult {
     // If living entity
     private LivingEntity livingEntity;
     private DamagePoint hitPoint;
+
+    public RayTraceResult(Vector hitLocation, double distanceTravelled, BlockFace hitFace) {
+        this.hitLocation = hitLocation;
+        this.distanceTravelled = distanceTravelled;
+        this.hitFace = hitFace;
+    }
 
     public RayTraceResult(Vector hitLocation, double distanceTravelled, BlockFace hitFace, Block block) {
         this.hitLocation = hitLocation;

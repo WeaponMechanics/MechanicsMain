@@ -33,6 +33,8 @@ Uzi:
       Custom_Model_Data: 1
     Scope:
       Custom_Model_Data: 11
+    Sprint:
+      Custom_Model_Data: 16
   Projectile: "sub_machine_gun.Projectile"
   Shoot:
     Trigger:
@@ -40,6 +42,8 @@ Uzi:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 11
     Spread:

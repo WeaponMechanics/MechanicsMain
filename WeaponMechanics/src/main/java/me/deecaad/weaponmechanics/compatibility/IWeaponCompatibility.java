@@ -4,11 +4,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ComplexEntityPart;
-import org.bukkit.entity.ComplexLivingEntity;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 

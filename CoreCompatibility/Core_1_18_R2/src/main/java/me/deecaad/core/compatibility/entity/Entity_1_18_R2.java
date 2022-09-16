@@ -1,17 +1,26 @@
 package me.deecaad.core.compatibility.entity;
 
+import com.mojang.datafixers.util.Pair;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_18_R2;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // https://nms.screamingsandals.org/1.18.1/
@@ -40,6 +49,28 @@ public class Entity_1_18_R2 implements EntityCompatibility {
     @Override
     public int getId(Object obj) {
         return ((ClientboundSetEntityDataPacket) obj).getId();
+    }
+
+    @Override
+    public void setSlot(Player bukkit, EquipmentSlot slot, @Nullable ItemStack item) {
+        if (item == null) {
+            item = bukkit.getEquipment().getItem(slot); // added in 1.15
+        }
+
+        int id = bukkit.getEntityId();
+        net.minecraft.world.entity.EquipmentSlot nmsSlot = switch (slot) {
+            case HEAD -> net.minecraft.world.entity.EquipmentSlot.HEAD;
+            case CHEST -> net.minecraft.world.entity.EquipmentSlot.CHEST;
+            case LEGS -> net.minecraft.world.entity.EquipmentSlot.LEGS;
+            case FEET -> net.minecraft.world.entity.EquipmentSlot.FEET;
+            case HAND -> net.minecraft.world.entity.EquipmentSlot.MAINHAND;
+            case OFF_HAND -> net.minecraft.world.entity.EquipmentSlot.OFFHAND;
+        };
+
+        List<Pair<net.minecraft.world.entity.EquipmentSlot, net.minecraft.world.item.ItemStack>> temp = new ArrayList<>(1);
+        temp.add(new Pair<>(nmsSlot, CraftItemStack.asNMSCopy(item)));
+        ClientboundSetEquipmentPacket packet = new ClientboundSetEquipmentPacket(id, temp);
+        ((CraftPlayer) bukkit).getHandle().connection.send(packet);
     }
 
     @Override

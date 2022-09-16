@@ -1,52 +1,81 @@
-import java.io.FileOutputStream
-import java.io.BufferedOutputStream
-import java.io.FileInputStream
-import java.io.BufferedInputStream
-import java.util.zip.ZipOutputStream
+import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
+
+plugins {
+    id("com.github.breadmoirai.github-release") version "2.4.1"
+}
+
+tasks.register<GithubReleaseTask>("createGithubRelease").configure {
+    // https://github.com/BreadMoirai/github-release-gradle-plugin
+    val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
+
+    owner.set("WeaponMechanics")
+    repo.set("MechanicsMain")
+    authorization.set("Token ${findProperty("pass").toString()}")
+    tagName.set("v${weaponMechanicsVersion}")
+    targetCommitish.set("master")
+    releaseName.set("v${weaponMechanicsVersion} BETA")
+    draft.set(true)
+    prerelease.set(false)
+    generateReleaseNotes.set(true)
+    body.set("")
+    overwrite.set(false)
+    allowUploadToExisting.set(false)
+    apiEndpoint.set("https://api.github.com")
+
+    setReleaseAssets(file("build").listFiles())
+
+    // If set to true, you can debug that this would do
+    dryRun.set(false)
+
+    doFirst {
+        println("Creating GitHub release")
+    }
+}
 
 // This is a helper method to compile MechanicsCore, WeaponMechanics, and to
 // put all the stuff in zip files and such for github release.
 tasks.register("buildForSpigotRelease").configure {
-    val mechanicsCoreVersion = project(":BuildMechanicsCore").version.toString()
-    val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
-
     println("Cleaning build directory")
     val folder = file("build")
     folder.deleteRecursively()
     folder.mkdir()
 
-    // We need a `versions.txt` file which contains information on the current
-    // versions of each plugin which is to be included in the release. For
-    // example:
-    //   MechanicsCore: 1.0.0-BETA
-    //   WeaponMechanics: 1.0.0-BETA
-    //   WeaponMechanicsResourcePack: 1.0.0
-    println("Writing version.txt")
+    // todo REMOVE versions.txt WITHIN FEW WEEKS TO ALLOW PEOPLE TO UPDATE
+    val mechanicsCoreVersion = project(":BuildMechanicsCore").version.toString()
+    val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
+    println("Writing versions.txt")
     val file = file("build/versions.txt")
     file.appendText("MechanicsCore: $mechanicsCoreVersion\n")
     file.appendText("WeaponMechanics: $weaponMechanicsVersion\n")
-    file.appendText("WeaponMechanicsResourcePack: 1.0.0\n")
+    file.appendText("WeaponMechanicsResourcePack: 1.2.0\n")
 
-    println("Compile MechanicsCore")
     dependsOn(":BuildMechanicsCore:shadowJar")
-    println("Compile WeaponMechanics")
     dependsOn(":BuildWeaponMechanics:shadowJar")
 
-
+    finalizedBy("resourcePackForSpigotRelease", "zipForSpigotRelease")
 }
 
-tasks.register("zipForSpigotRelease").configure {
-    val mechanicsCoreVersion = project(":BuildMechanicsCore").version.toString()
-    val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
+tasks.register<Copy>("resourcePackForSpigotRelease") {
+    dependsOn("buildForSpigotRelease")
+    val resourcePackVersion = "1.2.1"
+    from("${layout.projectDirectory}\\resourcepack\\WeaponMechanicsResourcePack-${resourcePackVersion}.zip")
+    into(layout.buildDirectory)
 
-    // The zip file is used for the spigot download link.
-    println("Writing zip")
-    val jars = arrayOf("build/MechanicsCore-$mechanicsCoreVersion.jar", "build/WeaponMechanics-$weaponMechanicsVersion.jar")
-    val zip = ZipOutputStream(BufferedOutputStream(FileOutputStream("build/WeaponMechanics.zip")))
-    for (jar in jars) {
+    doFirst {
+        println("Copy resource pack")
+    }
+}
 
-        println("Copying $jar")
-        val input = BufferedInputStream(FileInputStream(jar))
-        input.copyTo(zip, 1024) // increasing this number may lower build time
+tasks.register<Zip>("zipForSpigotRelease") {
+    dependsOn("buildForSpigotRelease", "resourcePackForSpigotRelease")
+    archiveFileName.set("WeaponMechanics.zip")
+    destinationDirectory.set(layout.buildDirectory)
+
+    from (layout.buildDirectory) {
+        include("*.jar")
+    }
+
+    doFirst {
+        println("Generate zip file")
     }
 }

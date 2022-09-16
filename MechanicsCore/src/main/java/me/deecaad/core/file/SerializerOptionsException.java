@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.MechanicsCore;
 import org.jetbrains.annotations.NotNull;
 
 public class SerializerOptionsException extends SerializerException {
@@ -21,7 +22,7 @@ public class SerializerOptionsException extends SerializerException {
                 "Could not match config to any " + type,
                 forValue(actual),
                 didYouMean(actual, options),
-                possibleValues(options, 8)
+                possibleValues(options, actual, MechanicsCore.getPlugin().getConfig().getInt("Show_Serialize_Options", 32))
         };
     }
 }

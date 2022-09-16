@@ -35,6 +35,8 @@ FR_5_56:
       Custom_Model_Data: 311
     Scope:
       Custom_Model_Data: 321
+    Sprint:
+      Custom_Model_Data: 326
     Reload:
       Custom_Model_Data: 331
   Projectile: "assault_rifle.Projectile"
@@ -44,6 +46,8 @@ FR_5_56:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Selective_Fire:
       Trigger:

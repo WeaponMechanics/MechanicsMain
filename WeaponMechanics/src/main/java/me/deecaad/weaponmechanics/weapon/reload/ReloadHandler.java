@@ -14,6 +14,7 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
+import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreReloadEvent;
@@ -26,8 +27,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +38,7 @@ import java.util.List;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
-public class ReloadHandler implements IValidator {
+public class ReloadHandler implements IValidator, TriggerListener {
 
     private WeaponHandler weaponHandler;
 
@@ -49,18 +52,13 @@ public class ReloadHandler implements IValidator {
         this.weaponHandler = weaponHandler;
     }
 
-    /**
-     * Tries to use reload
-     *
-     * @param entityWrapper the entity who used trigger
-     * @param weaponTitle the weapon title
-     * @param weaponStack the weapon stack
-     * @param slot the slot used on trigger
-     * @param triggerType the trigger type trying to activate reload
-     * @param dualWield whether this was dual wield
-     * @return true if was able to start reloading
-     */
-    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield) {
+    @Override
+    public boolean allowOtherTriggers() {
+        return false;
+    }
+
+    @Override
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Reload.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
@@ -133,8 +131,8 @@ public class ReloadHandler implements IValidator {
         }
 
         // On reload force zoom out
-        entityWrapper.getMainHandData().ifZoomingForceZoomOut();
-        entityWrapper.getOffHandData().ifZoomingForceZoomOut();
+        entityWrapper.getMainHandData().getZoomData().ifZoomingForceZoomOut();
+        entityWrapper.getOffHandData().getZoomData().ifZoomingForceZoomOut();
 
         boolean mainhand = slot == EquipmentSlot.HAND;
         HandData handData = mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
@@ -191,20 +189,7 @@ public class ReloadHandler implements IValidator {
             }
         }
 
-        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(),
-                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime);
-        Bukkit.getPluginManager().callEvent(reloadEvent);
-
-        reloadDuration = reloadEvent.getReloadTime();
-        tempAmmoToAdd = reloadEvent.getReloadAmount();
-        tempMagazineSize = reloadEvent.getMagazineSize();
-        firearmOpenTime = reloadEvent.getFirearmOpenTime();
-        firearmCloseTime = reloadEvent.getFirearmCloseTime();
-
-        final int finalAmmoToAdd = tempAmmoToAdd;
-        final int magazineSize = tempMagazineSize;
-
-        if (ammoLeft >= magazineSize || reloadDuration == 0) {
+        if (ammoLeft >= tempMagazineSize || reloadDuration == 0) {
             // Don't try to reload if already full
             // Or reload duration is 0 because of firearm states
 
@@ -234,6 +219,19 @@ public class ReloadHandler implements IValidator {
             if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
             return false;
         }
+
+        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(),
+                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime);
+        Bukkit.getPluginManager().callEvent(reloadEvent);
+
+        reloadDuration = reloadEvent.getReloadTime();
+        tempAmmoToAdd = reloadEvent.getReloadAmount();
+        tempMagazineSize = reloadEvent.getMagazineSize();
+        firearmOpenTime = reloadEvent.getFirearmOpenTime();
+        firearmCloseTime = reloadEvent.getFirearmCloseTime();
+
+        final int finalAmmoToAdd = tempAmmoToAdd;
+        final int magazineSize = tempMagazineSize;
 
         boolean unloadAmmoOnReload = config.getBool(weaponTitle + ".Reload.Unload_Ammo_On_Reload");
 
@@ -294,6 +292,11 @@ public class ReloadHandler implements IValidator {
                 if (ammoPerReload != -1) {
                     // Start the loop
                     startReloadWithoutTrigger(entityWrapper, weaponTitle, taskReference, slot, dualWield, true);
+                } else if (!hasNext()) {
+                    // If there isn't close task, try to start reload
+                    // on other hand also IF the weapon is empty
+
+                    tryReloadInOtherHandIfEmpty(entityWrapper, shooter, mainhand, dualWield);
                 }
             }
 
@@ -333,7 +336,7 @@ public class ReloadHandler implements IValidator {
             return true;
         }
 
-        ChainTask closeTask = getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot);
+        ChainTask closeTask = getCloseTask(firearmCloseTime, firearmAction, weaponStack, handData, entityWrapper, weaponTitle, mainhand, slot, dualWield);
 
         if (state == FirearmState.CLOSE) {
             closeTask.startChain();
@@ -405,7 +408,7 @@ public class ReloadHandler implements IValidator {
     }
 
     private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
-                                   String weaponTitle, boolean mainhand, EquipmentSlot slot) {
+                                   String weaponTitle, boolean mainhand, EquipmentSlot slot, boolean dualWield) {
 
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.CLOSE);
         Bukkit.getPluginManager().callEvent(event);
@@ -427,6 +430,9 @@ public class ReloadHandler implements IValidator {
 
                 firearmAction.changeState(taskReference, FirearmState.READY);
                 finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
+
+                // Try to start reload on other hand also IF the weapon is empty
+                tryReloadInOtherHandIfEmpty(entityWrapper, entityWrapper.getEntity(), mainhand, dualWield);
             }
 
             @Override
@@ -478,15 +484,24 @@ public class ReloadHandler implements IValidator {
      * @return -1 if infinity, otherwise current ammo amount
      */
     public int getAmmoLeft(ItemStack weaponStack, String weaponTitle) {
+        // If something odd happens...
+        if (!weaponStack.hasItemMeta()) return 0;
+
         if (weaponTitle == null && CustomTag.WEAPON_TITLE.hasString(weaponStack)) {
             weaponTitle = CustomTag.WEAPON_TITLE.getString(weaponStack);
         }
         if (weaponTitle == null) return -1;
-        if (CustomTag.AMMO_LEFT.hasInteger(weaponStack) && getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size") != 0) {
-            return CustomTag.AMMO_LEFT.getInteger(weaponStack);
-        } else {
-            return -1;
+
+        // If ammo is disabled for this weapon
+        if (getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size") == 0) return -1;
+
+        if (!CustomTag.AMMO_LEFT.hasInteger(weaponStack)) {
+            // If the ammo was added later on, add the tag
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+            return 0;
         }
+
+        return CustomTag.AMMO_LEFT.getInteger(weaponStack);
     }
 
     /**
@@ -532,6 +547,24 @@ public class ReloadHandler implements IValidator {
         }
     }
 
+    private void tryReloadInOtherHandIfEmpty(EntityWrapper entityWrapper, LivingEntity shooter, boolean mainhand, boolean dualWield) {
+        if (!dualWield) return;
+
+        EntityEquipment entityEquipment = shooter.getEquipment();
+        if (entityEquipment == null) return;
+
+        ItemStack otherStack = mainhand ? entityEquipment.getItemInOffHand() : entityEquipment.getItemInMainHand();
+        String otherWeapon = weaponHandler.getInfoHandler().getWeaponTitle(otherStack, false);
+
+        if (otherWeapon == null) return;
+
+        // If other weapon isn't empty, don't automatically try to reload
+        if (getAmmoLeft(otherStack, otherWeapon) != 0) return;
+
+        startReloadWithoutTrigger(entityWrapper, otherWeapon, otherStack,
+                mainhand ? EquipmentSlot.OFF_HAND : EquipmentSlot.HAND, dualWield, false);
+    }
+
     @Override
     public String getKeyword() {
         return "Reload";
@@ -557,6 +590,12 @@ public class ReloadHandler implements IValidator {
         if (unloadAmmoOnReload && ammoPerReload != -99) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
             throw data.exception(null, "Cannot use 'Ammo_Per_Reload' and 'Unload_Ammo_On_Reload' at the same time");
+        }
+
+        int shootDelayAfterReload = configuration.getInt(data.key + ".Shoot_Delay_After_Reload");
+        if (shootDelayAfterReload != 0) {
+            // Convert to millis
+            configuration.set(data.key + ".Shoot_Delay_After_Reload", shootDelayAfterReload * 50);
         }
     }
 }

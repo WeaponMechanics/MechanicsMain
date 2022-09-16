@@ -32,8 +32,8 @@ AUG:
   Skin:
     Default:
       Custom_Model_Data: 21
-    Scope:
-      Custom_Model_Data: 31
+    Sprint:
+      Custom_Model_Data: 36
   Projectile: "sub_machine_gun.Projectile"
   Shoot:
     Trigger:
@@ -41,6 +41,8 @@ AUG:
       Off_Hand: "RIGHT_CLICK"
       Circumstance:
         Swimming: "DENY"
+        Sprinting: "DENY"
+        Dual_Wielding: "DENY"
     Projectile_Speed: 80
     Fully_Automatic_Shots_Per_Second: 13
     Spread:

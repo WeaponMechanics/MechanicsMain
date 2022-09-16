@@ -1,16 +1,16 @@
 package me.deecaad.weaponmechanics.wrappers;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.shoot.ShootHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
@@ -65,6 +65,13 @@ public class HandData {
      * Does not cancel recoil task.
      */
     public void cancelTasks() {
+        cancelTasks(false);
+    }
+
+    /**
+     * @param trySkinUpdate whether to also try to update skin
+     */
+    public void cancelTasks(boolean trySkinUpdate) {
         if (fullAutoTask != 0) {
             Bukkit.getScheduler().cancelTask(fullAutoTask);
             fullAutoTask = 0;
@@ -75,17 +82,31 @@ public class HandData {
         }
         stopReloadingTasks();
         stopFirearmActionTasks();
-        ifZoomingForceZoomOut();
-    }
+        getZoomData().ifZoomingForceZoomOut();
 
-    public void ifZoomingForceZoomOut() {
-        if (getZoomData().isZooming()) {
+        if (!trySkinUpdate) return;
 
-            // IF player is in VR this happens
-            if (getZoomData().getZoomAmount() == 0) return;
+        // Try to update skin in given hand
+        LivingEntity livingEntity = entityWrapper.getEntity();
+        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getGameMode() == GameMode.SPECTATOR) return;
 
-            WeaponMechanics.getWeaponHandler().getScopeHandler().forceZoomOut(entityWrapper, zoomData);
+        EntityEquipment entityEquipment = livingEntity.getEquipment();
+        if (entityEquipment == null) return;
+
+        ItemStack weaponStack;
+        String weaponTitle;
+
+        if (mainhand) {
+            weaponStack = entityEquipment.getItemInMainHand();
+        } else {
+            weaponStack = entityEquipment.getItemInOffHand();
         }
+
+        weaponTitle = WeaponMechanics.getWeaponHandler().getInfoHandler().getWeaponTitle(weaponStack, false);
+
+        if (weaponTitle == null) return;
+
+        WeaponMechanics.getWeaponHandler().getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
     }
 
     public boolean isUsingFullAuto() {
@@ -118,6 +139,10 @@ public class HandData {
 
     public void setLastScopeTime(long lastScopeTime) {
         this.lastScopeTime = lastScopeTime;
+    }
+
+    public long getLastReloadTime() {
+        return reloadStart;
     }
 
     public long getLastEquipTime() {
@@ -194,7 +219,6 @@ public class HandData {
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
 
-            reloadStart = 0;
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
         }
@@ -209,12 +233,6 @@ public class HandData {
 
             Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), getReloadElapsedTime()));
 
-            LivingEntity entity = entityWrapper.getEntity();
-            if (reloadWeaponStack != null && entity.getType() == EntityType.PLAYER && CompatibilityAPI.getEntityCompatibility().hasCooldown((Player) entity, reloadWeaponStack.getType())) {
-                CompatibilityAPI.getEntityCompatibility().setCooldown((Player) entity, reloadWeaponStack.getType(), 0);
-            }
-
-            reloadStart = 0;
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
         }

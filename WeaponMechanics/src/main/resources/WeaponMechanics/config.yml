@@ -17,6 +17,29 @@ Update_Checker:
     Minor: 1
     Patch: 1
 
+# WeaponMechanics stores statistics of players such as how
+# much damage has the player done using some weapon.
+Database:
+  Enable: true # whether statistics should be tracked
+  Type: "SQLITE" # available is SQLITE and MYSQL
+  MySQL:
+    Hostname: "localhost"
+    Port: 3306
+    Database: "weaponmechanics"
+    Username: "root"
+    Password: ""
+  SQLite:
+    Absolute_Path: "plugins/WeaponMechanics/weaponmechanics.db"
+
+# Used to keep track of weapon assists
+Assists_Event:
+  Enable: true
+  Only_Players: true # true to only track player kill assists
+  Required_Damage_Amount: 0 # damage amount for assist, 0 to disable
+  Timer: 100 # last damage time in ticks before death for assist, 0 to disable
+
+# Most Messages are handled per weapon
+# WorldGuard message is configurable using the weapon-shoot-message flag
 Messages:
   Permissions:
     Use_Weapon: "&4You do not have permission to use %weapon-title%"
@@ -27,9 +50,13 @@ Mechanics_Core_Download:
   Connection_Timeout: 10
   Read_Timeout: 30
 
-# Automatically down resource pack if wanted.
+# Automatically download resource pack if wanted.
 Resource_Pack_Download:
   Enabled: true  # even when this is false, you can use "Automatically_Send_To_Player"
+  #
+  # THIS DEFAULT LINK IS PURELY FOR TESTING PURPOSES!
+  # You should replace it with your own resource pack link as soon as possible.
+  #
   Link: "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip"
   Connection_Timeout: 10
   Read_Timeout: 30
@@ -69,6 +96,10 @@ Check_For_New_Player_Rate: 50
 # of resources when ray tracing blocks or entities with multiple hitboxes.
 Check_Accurate_Hitboxes: true
 
+# If set to true, the damage dropoff will change uniformly with distance.
+# See https://github.com/WeaponMechanics/MechanicsMain/issues/100 for more information.
+Smooth_Damage_Dropoff: false
+
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but
 # they improve smaller ones.
@@ -102,7 +133,13 @@ Placeholder_Symbols:
     SINGLE: "S"
     BURST: "B"
     AUTO: "A"
-  Dual_Wield_Split: " <gray>| "
+  Dual_Wield:
+    Split: " <gray>| "
+
+    # These two aren't actually placeholder symbols, but are used when weapon
+    # doesn't have Dual_Wield section defined in Weapon_Info_Display.
+    Main_Hand: "<gold>%ammo-left%<gray>»<gold>%reload% <gold>%firearm-state%%weapon-title%"
+    Off_Hand: "<gold>%weapon-title%%firearm-state% <gold>%reload%<gray>«<gold>%ammo-left%"
 
 # This is the global damaging system. It defines how bullets damage entities
 # with potion effects, armor, and other statuses.

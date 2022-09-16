@@ -1,13 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.melee;
 
 import co.aikar.timings.lib.MCTiming;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
@@ -25,7 +23,6 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -34,11 +31,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.*;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class MeleeHandler implements IValidator {
 
@@ -157,7 +154,9 @@ public class MeleeHandler implements IValidator {
                 return null;
             }
 
-            RayTrace rayTrace = new RayTrace().withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId());
+            RayTrace rayTrace = new RayTrace()
+                    .withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId()
+                                    || entity.getPassengers().contains(shooter));
             List<RayTraceResult> hits = rayTrace.cast(eyeLocation.getWorld(), eyeLocationToVector, direction, range);
 
             if (hits == null) return null;

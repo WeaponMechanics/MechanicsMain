@@ -24,7 +24,7 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
     public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, SkinList skinList) {
         super(weaponTitle, weaponStack, shooter);
         this.skinList = skinList;
-        this.skin = "Default";
+        this.skin = "default";
     }
 
     /**
@@ -49,9 +49,18 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
         return skin;
     }
 
+    /**
+     * <ul>
+     *     <li>Only lowercase letters</li>
+     *     <li>Use null for default skin</li>
+     *     <li>Make sure skin exists</li>
+     * </ul>
+     *
+     * @param skin The nullable skin name.
+     */
     public void setSkin(String skin) {
         if (skin == null)
-            skin = "Default";
+            skin = "default";
 
         this.skin = skin;
     }

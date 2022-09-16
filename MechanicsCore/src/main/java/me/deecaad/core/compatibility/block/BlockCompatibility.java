@@ -3,7 +3,6 @@ package me.deecaad.core.compatibility.block;
 import me.deecaad.core.compatibility.ICompatibility;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
 import org.bukkit.SoundGroup;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;

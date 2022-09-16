@@ -2,12 +2,16 @@ package me.deecaad.core;
 
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
-import me.deecaad.core.file.*;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerInstancer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -22,8 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarFile;
 
 public class MechanicsCore extends JavaPlugin {
@@ -68,20 +71,8 @@ public class MechanicsCore extends JavaPlugin {
             FileUtil.copyResourcesTo(getClassLoader().getResource("MechanicsCore/Items"), itemsFolder.toPath());
         }
 
-        for (File file : itemsFolder.listFiles()) {
-            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-
-            for (String key : config.getKeys(false)) {
-                SerializeData data = new SerializeData(new ItemSerializer(), file, key, config);
-
-                try {
-                    ItemStack registry = data.of().serializeNonStandardSerializer(new ItemSerializer());
-                    ItemSerializer.ITEM_REGISTRY.put(key, registry::clone);
-                } catch (SerializerException ex) {
-                    ex.log(debug);
-                }
-            }
-        }
+        int registeredCount = loadItems(itemsFolder);
+        debug.info("Registered " + registeredCount + " custom items from " + itemsFolder);
 
         if (ReflectionUtil.getMCVersion() >= 13) {
             MechanicsCoreCommand.build();
@@ -105,6 +96,72 @@ public class MechanicsCore extends JavaPlugin {
         debug = null;
         adventure.close();
         adventure = null;
+    }
+
+    public int loadItems(File directory) {
+        int loadLimit = getConfig().getInt("Item_Loop_Limit", 10);
+        List<String> registered = new ArrayList<>();
+        while (--loadLimit > 0) {
+            registered.addAll(loadItems(directory, registered, loadLimit == 1));
+        }
+        return registered.size();
+    }
+
+    public List<String> loadItems(File directory, List<String> excludes, boolean isError) {
+        if (!directory.isDirectory())
+            throw new IllegalArgumentException(directory + " is not a directory");
+
+        List<String> added = new ArrayList<>();
+        for (File file : directory.listFiles()) {
+
+            // Allow sub-folders
+            if (file.isDirectory()) {
+                Set<String> temp = new HashSet<>(excludes);
+                temp.addAll(added);
+
+                added.addAll(loadItems(file, new ArrayList<>(temp), isError));
+                continue;
+            }
+
+            // Quick check to see if somebody added a file type that isn't a
+            // YAML file. Otherwise we might get a stacktrace in console
+            if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".yml") && !file.getName().toLowerCase(Locale.ROOT).endsWith(".yaml")) {
+                debug.error(file + " was not a YAML file? Make sure it ends with .yml");
+                continue;
+            }
+
+            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+            for (String key : config.getKeys(false)) {
+
+                // The item was already added
+                if (excludes.contains(key))
+                    continue;
+
+                SerializeData data = new SerializeData(new ItemSerializer(), file, key, config);
+
+                try {
+                    ItemStack registry = data.of().serializeNonStandardSerializer(new ItemSerializer());
+                    ItemSerializer.ITEM_REGISTRY.put(key, registry::clone);
+                    added.add(key);
+                } catch (SerializerException ex) {
+
+                    if (!isError) {
+                        // At this point, we're not quite sure if this is an error
+                        // or not. Since custom item loading order is undefined, we
+                        // simply run this a few times and keep our fingers crossed
+                        // that the admin hasn't nested their files horribly.
+                        ex.addMessage("This is a debug message, and can be ignored. Check below for actual errors.");
+                        ex.log(debug, LogLevel.DEBUG);
+                    } else {
+                        ex.addMessage("Failed to load item in " + getConfig().getInt("Item_Loop_Limit", 10) + " attempts");
+                        ex.log(debug);
+                    }
+
+                    debug.log(LogLevel.DEBUG, "", ex);
+                }
+            }
+        }
+        return added;
     }
 
     /**

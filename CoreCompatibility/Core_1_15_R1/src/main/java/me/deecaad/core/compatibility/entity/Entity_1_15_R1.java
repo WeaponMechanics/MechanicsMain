@@ -5,11 +5,19 @@ import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_15_R1.DataWatcher;
+import net.minecraft.server.v1_15_R1.EnumItemSlot;
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntityEquipment;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -42,6 +50,41 @@ public class Entity_1_15_R1 implements EntityCompatibility {
     @Override
     public int getId(Object obj) {
         return (int) ReflectionUtil.invokeField(ID, obj);
+    }
+
+    @Override
+    public void setSlot(Player bukkit, EquipmentSlot slot, @Nullable ItemStack item) {
+        if (item == null) {
+            item = bukkit.getEquipment().getItem(slot); // added in 1.15
+        }
+
+        int id = bukkit.getEntityId();
+        EnumItemSlot nmsSlot;
+        switch (slot) {
+            case HEAD:
+                nmsSlot = EnumItemSlot.HEAD;
+                break;
+            case CHEST:
+                nmsSlot = EnumItemSlot.CHEST;
+                break;
+            case LEGS:
+                nmsSlot = EnumItemSlot.LEGS;
+                break;
+            case FEET:
+                nmsSlot = EnumItemSlot.FEET;
+                break;
+            case HAND:
+                nmsSlot = EnumItemSlot.MAINHAND;
+                break;
+            case OFF_HAND:
+                nmsSlot = EnumItemSlot.OFFHAND;
+                break;
+            default:
+                throw new RuntimeException("unreachable");
+        };
+
+        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(id, nmsSlot, CraftItemStack.asNMSCopy(item));
+        ((CraftPlayer) bukkit).getHandle().playerConnection.sendPacket(packet);
     }
 
     @Override

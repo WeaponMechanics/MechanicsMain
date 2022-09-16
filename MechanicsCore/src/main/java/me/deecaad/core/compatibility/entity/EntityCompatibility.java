@@ -9,9 +9,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface EntityCompatibility {
@@ -113,6 +115,18 @@ public interface EntityCompatibility {
      * @return The entity's id.
      */
     int getId(Object obj);
+
+    /**
+     * Uses a packet to spawn a fake item in the player's inventory. If the
+     * player is in {@link org.bukkit.GameMode#CREATIVE}, then they will be
+     * able to grab the item, regardless. This issue isn't present with
+     * standard players.
+     *
+     * @param player The non-null player to see the change
+     * @param slot   The slot number to set.
+     * @param item   Which item to replace, or null.
+     */
+    void setSlot(Player player, EquipmentSlot slot, @Nullable ItemStack item);
 
     /**
      * Creates a metadata packet for the entity, force updating all metadata.
