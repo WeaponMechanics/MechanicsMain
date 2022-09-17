@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics;
 
 import co.aikar.timings.lib.MCTiming;
 import co.aikar.timings.lib.TimingManager;
+import me.cjcrafter.auto.UpdateChecker;
+import me.cjcrafter.auto.UpdateInfo;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
@@ -15,7 +17,6 @@ import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
-import me.deecaad.core.web.SpigotResource;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
@@ -43,12 +44,16 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -404,23 +409,32 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
-        if (basicConfiguration.getBool("Update_Checker.Enable")) {
+        if (!basicConfiguration.getBool("Update_Checker.Enable", true)) return;
 
-            debug.debug("Checking for updates");
-            try {
-                //Integer.parseInt("%%__RESOURCE__%%");
+        debug.debug("Registering update checker");
 
-                int majorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Major", 1);
-                int minorsBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Minor", 3);
-                int patchesBehind = basicConfiguration.getInt("Update_Checker.Required_Versions_Behind.Patch", 1);
-                SpigotResource spigotResource = new SpigotResource(getPlugin(), "99913");
-                updateChecker = new UpdateChecker(spigotResource, majorsBehind, minorsBehind, patchesBehind);
-            } catch (NumberFormatException e) {
-                // %%__RESOURCE__%% is converted to resource ID on download (only in premium resources)
-                // Here is just extra check that its been converted
-                // -> If its not converted its localhost test version most likely
+        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.spigot(99913, "WeaponMechanics"));
+
+        Listener listener = new Listener() {
+            @EventHandler
+            public void onJoin(PlayerJoinEvent event) {
+                Player player = event.getPlayer();
+                if (player.isOp()) {
+                    new TaskChain(javaPlugin)
+                            .thenRunAsync((callback) -> updateChecker.hasUpdate())
+                            .thenRunSync((callback) -> {
+                                UpdateInfo update = (UpdateInfo) callback;
+                                if (callback != null) {
+                                    player.sendMessage(ChatColor.RED + "WeaponMechanics is out of date! " + update.current + " -> " + update.newest);
+                                }
+
+                                return null;
+                            });
+                }
             }
-        }
+        };
+
+        Bukkit.getPluginManager().registerEvents(listener, javaPlugin);
     }
 
     void registerBStats() {
@@ -685,16 +699,6 @@ public class WeaponMechanics {
      */
     public static MainCommand getMainCommand() {
         return plugin.mainCommand;
-    }
-
-    /**
-     * Returns WeaponMechanics's update checker
-     *
-     * @return the update checker or null if not used
-     */
-    @Nullable
-    public static UpdateChecker getUpdateChecker() {
-        return plugin.updateChecker;
     }
 
     /**
