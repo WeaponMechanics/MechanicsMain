@@ -39,7 +39,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -53,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
+import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
 public class Explosion implements Serializer<Explosion> {
 
@@ -242,11 +242,11 @@ public class Explosion implements Serializer<Explosion> {
 
             // Late check on bukkit event, which is cancellable because it requires blocks list...
             // + just default yield to 5, it can't be exactly used nicely in this...
-            EntityExplodeEvent entityExplodeEvent = new EntityExplodeEvent(projectile.getShooter(), origin, blocks, 5);
-            Bukkit.getPluginManager().callEvent(entityExplodeEvent);
-
-            // Some plugin cancelled the block damage
-            if (entityExplodeEvent.isCancelled()) return;
+            if (!getBasicConfigurations().getBool("Disable_Entity_Explode_Event")) {
+                EntityExplodeEvent entityExplodeEvent = new EntityExplodeEvent(projectile.getShooter(), origin, blocks, 5);
+                Bukkit.getPluginManager().callEvent(entityExplodeEvent);
+                if (entityExplodeEvent.isCancelled()) return;
+            }
         }
 
         // Sort the blocks into different categories (To make regeneration more
