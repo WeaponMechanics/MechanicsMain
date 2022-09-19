@@ -357,7 +357,7 @@ public class Explosion implements Serializer<Explosion> {
             // ALWAYS give null player on explosions so BlockBreakEvent isn't called.
             // Explosions already call EntityExplodeEvent. Single block breaks should
             // only call the BlockBreakEvent
-            BlockDamageData.DamageData data = blockDamage.damage(block, null);
+            BlockDamageData.DamageData data = blockDamage.damage(block, null, isRegenerate);
 
             // This happens when a block is blacklisted or block break was cancelled
             if (data == null)
