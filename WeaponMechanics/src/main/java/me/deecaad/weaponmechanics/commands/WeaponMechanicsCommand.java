@@ -593,7 +593,7 @@ public class WeaponMechanicsCommand {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(regen, Math.max(1, (int) shape.getArea() / 100), 1);
-                BlockDamage blockDamage = new BlockDamage(isBreakBlocks, 1, 1, true, 0.0, new HashMap<>(), new HashMap<>()) {
+                BlockDamage blockDamage = new BlockDamage(isBreakBlocks, 1, 1, true, 0.0, null, new HashMap<>(), new HashMap<>(), new HashMap<>()) {
                     @Override
                     public boolean isBlacklisted(Block block) {
                         return blackList.test(block);
