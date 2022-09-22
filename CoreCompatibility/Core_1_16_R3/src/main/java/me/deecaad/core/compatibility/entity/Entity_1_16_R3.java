@@ -61,28 +61,13 @@ public class Entity_1_16_R3 implements EntityCompatibility {
         }
 
         int id = bukkit.getEntityId();
-        EnumItemSlot nmsSlot;
-        switch (slot) {
-            case HEAD:
-                nmsSlot = EnumItemSlot.HEAD;
-                break;
-            case CHEST:
-                nmsSlot = EnumItemSlot.CHEST;
-                break;
-            case LEGS:
-                nmsSlot = EnumItemSlot.LEGS;
-                break;
-            case FEET:
-                nmsSlot = EnumItemSlot.FEET;
-                break;
-            case HAND:
-                nmsSlot = EnumItemSlot.MAINHAND;
-                break;
-            case OFF_HAND:
-                nmsSlot = EnumItemSlot.OFFHAND;
-                break;
-            default:
-                throw new RuntimeException("unreachable");
+        EnumItemSlot nmsSlot = switch (slot) {
+            case HEAD -> EnumItemSlot.HEAD;
+            case CHEST -> EnumItemSlot.CHEST;
+            case LEGS -> EnumItemSlot.LEGS;
+            case FEET -> EnumItemSlot.FEET;
+            case HAND -> EnumItemSlot.MAINHAND;
+            case OFF_HAND -> EnumItemSlot.OFFHAND;
         };
 
         List<Pair<EnumItemSlot, net.minecraft.server.v1_16_R3.ItemStack>> temp = new ArrayList<>(1);

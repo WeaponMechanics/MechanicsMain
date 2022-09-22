@@ -94,12 +94,10 @@ public class EntityEquipmentEvent extends EntityEvent {
 
         // While it would be better to check for offhand/mainhand only, that
         // may throw errors in minecraft 1.8.8
-        switch (slot) {
-            case HEAD: case CHEST: case LEGS: case FEET:
-                return true;
-            default:
-                return false;
-        }
+        return switch (slot) {
+            case HEAD, CHEST, LEGS, FEET -> true;
+            default -> false;
+        };
     }
 
     @Override

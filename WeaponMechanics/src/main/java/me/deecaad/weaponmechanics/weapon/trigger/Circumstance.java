@@ -73,32 +73,19 @@ public class Circumstance implements Serializer<Circumstance> {
         }
 
         public boolean deny(EntityWrapper entityWrapper) {
-            switch (type) {
-                case RELOADING:
-                    return required != entityWrapper.isReloading();
-                case ZOOMING:
-                    return required != entityWrapper.isZooming();
-                case SNEAKING:
-                    return required != entityWrapper.isSneaking();
-                case STANDING:
-                    return required != entityWrapper.isStanding();
-                case WALKING:
-                    return required != entityWrapper.isWalking();
-                case RIDING:
-                    return required != entityWrapper.isRiding();
-                case SPRINTING:
-                    return required != entityWrapper.isSprinting();
-                case DUAL_WIELDING:
-                    return required != entityWrapper.isDualWielding();
-                case SWIMMING:
-                    return required != entityWrapper.isSwimming();
-                case IN_MIDAIR:
-                    return required != entityWrapper.isInMidair();
-                case GLIDING:
-                    return required != entityWrapper.isGliding();
-                default:
-                    return false;
-            }
+            return required != switch (type) {
+                case RELOADING -> entityWrapper.isReloading();
+                case ZOOMING -> entityWrapper.isZooming();
+                case SNEAKING -> entityWrapper.isSneaking();
+                case STANDING -> entityWrapper.isStanding();
+                case WALKING -> entityWrapper.isWalking();
+                case RIDING -> entityWrapper.isRiding();
+                case SPRINTING -> entityWrapper.isSprinting();
+                case DUAL_WIELDING -> entityWrapper.isDualWielding();
+                case SWIMMING -> entityWrapper.isSwimming();
+                case IN_MIDAIR -> entityWrapper.isInMidair();
+                case GLIDING -> entityWrapper.isGliding();
+            };
         }
     }
 

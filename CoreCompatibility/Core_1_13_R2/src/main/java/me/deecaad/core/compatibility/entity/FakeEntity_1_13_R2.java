@@ -65,26 +65,16 @@ public class FakeEntity_1_13_R2 extends FakeEntity {
         // require extra data in order to display. We only need to use these
         // constructors when we are given the data (data != null).
         if (data != null) {
-
-            // Cannot use java 16 switch statements, unfortunately.
-            switch (type) {
-                case DROPPED_ITEM:
-                    entity = new EntityItem(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
-                    break;
-                case FALLING_BLOCK:
-                    entity = new EntityFallingBlock(world.getHandle(), x, y, z, block =
-                            (data.getClass() == Material.class
-                                    ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
-                                    : ((CraftBlockState) data).getHandle()
-                            ));
-                    break;
-                case FIREWORK:
-                    entity = new EntityFireworks(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
-                    break;
-                default:
-                    entity = world.createEntity(location, type.getEntityClass());
-                    break;
-            }
+            entity = switch (type) {
+                case DROPPED_ITEM -> new EntityItem(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                case FALLING_BLOCK -> new EntityFallingBlock(world.getHandle(), x, y, z, block =
+                        (data.getClass() == Material.class
+                                ? ((CraftBlockData) ((Material) data).createBlockData()).getState()
+                                : ((CraftBlockState) data).getHandle()
+                        ));
+                case FIREWORK -> new EntityFireworks(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                default -> world.createEntity(location, type.getEntityClass());
+            };
         } else {
             entity = world.createEntity(location, type.getEntityClass());
         }
@@ -106,22 +96,17 @@ public class FakeEntity_1_13_R2 extends FakeEntity {
 
     @Override
     public Object getData() {
-        switch (type) {
-            case DROPPED_ITEM:
-                return CraftItemStack.asBukkitCopy(item);
-            case FALLING_BLOCK:
-                return CraftBlockData.fromData(block);
-            default:
-                return null;
-        }
+        return switch (type) {
+            case DROPPED_ITEM -> CraftItemStack.asBukkitCopy(item);
+            case FALLING_BLOCK -> CraftBlockData.fromData(block);
+            default -> null;
+        };
     }
 
     @Override
     public void setData(@Nullable Object data) {
         switch (type) {
-            case DROPPED_ITEM:
-                ((EntityItem) entity).setItemStack(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
-                break;
+            case DROPPED_ITEM -> ((EntityItem) entity).setItemStack(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
         }
     }
 
@@ -290,29 +275,14 @@ public class FakeEntity_1_13_R2 extends FakeEntity {
         if (!type.isAlive())
             throw new IllegalStateException("Cannot set equipment of " + type);
 
-        EnumItemSlot slot;
-        switch (equipmentSlot) {
-            case HAND:
-                slot = EnumItemSlot.MAINHAND;
-                break;
-            case OFF_HAND:
-                slot = EnumItemSlot.OFFHAND;
-                break;
-            case FEET:
-                slot = EnumItemSlot.FEET;
-                break;
-            case CHEST:
-                slot = EnumItemSlot.CHEST;
-                break;
-            case LEGS:
-                slot = EnumItemSlot.LEGS;
-                break;
-            case HEAD:
-                slot = EnumItemSlot.HEAD;
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
+        EnumItemSlot slot = switch (equipmentSlot) {
+            case HAND -> EnumItemSlot.MAINHAND;
+            case OFF_HAND -> EnumItemSlot.OFFHAND;
+            case FEET -> EnumItemSlot.FEET;
+            case CHEST -> EnumItemSlot.CHEST;
+            case LEGS -> EnumItemSlot.LEGS;
+            case HEAD -> EnumItemSlot.HEAD;
+        };
 
         EntityLiving livingEntity = (EntityLiving) entity;
         livingEntity.setSlot(slot, CraftItemStack.asNMSCopy(itemStack));
