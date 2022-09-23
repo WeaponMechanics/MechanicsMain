@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class BlockDamage implements Serializer<BlockDamage> {
@@ -30,8 +31,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
     private int defaultBlockDurability;
     private boolean isBlacklist;
     private double dropBlockChance;
+    private Material defaultMask;
     private Map<Material, Integer> blockList;
     private Map<Material, Integer> shotsToBreak;
+    private Map<Material, Material> maskMap;
 
     /**
      * Default constructor for serializers
@@ -40,32 +43,29 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     /**
-     * See parameters.
-     *
-     * @param isBreakBlocks          <code>true</code> for broken blocks to be
-     *                               replaced with air, <code>false</code> for
-     *                               broken blocks to appear cracked.
-     * @param damage                 The amount of damage to apply to a block.
-     *                               Total damage is calculated using
-     *                               <code>damage / blockDurability</code>.
-     * @param defaultBlockDurability The default durability of each block that
-     *                               is not specified in <code>blockList</code>
-     *                               or <code>shotsToBreak</code>.
-     * @param isBlacklist            <code>true</code> to turn <code>blockList</code>
-     *                               into a blacklist, meaning all blocks on the list
-     *                               will not be broken.
-     * @param blockList              The blacklist or whitelist of blocks.
-     * @param shotsToBreak           When <code>blacklist == true</code>, then use
-     *                               this parameter to specify block durability.
+     * @param isBreakBlocks          true breaks blocks, false cracks them.
+     * @param damage                 amount of damage done to a block, usually 1.
+     * @param defaultBlockDurability default durability of whitelisted blocks
+     * @param isBlacklist            true = damage all blocks but the ones in
+     *                               blockList. false = damage ONLY the blocks
+     *                               in blockList.
+     * @param dropBlockChance        Chance 0..1 to drop a broken block as an item.
+     * @param defaultMask            Mask material, usually AIR
+     * @param blockList              blacklist/whitelist
+     * @param shotsToBreak           used in case of blacklist
+     * @param maskMap                per block mask type.
      */
-    public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, double dropBlockChance, Map<Material, Integer> blockList, Map<Material, Integer> shotsToBreak) {
+    public BlockDamage(boolean isBreakBlocks, int damage, int defaultBlockDurability, boolean isBlacklist, double dropBlockChance,
+                       Material defaultMask, Map<Material, Integer> blockList, Map<Material, Integer> shotsToBreak, Map<Material, Material> maskMap) {
         this.isBreakBlocks = isBreakBlocks;
         this.damage = damage;
         this.defaultBlockDurability = defaultBlockDurability;
         this.isBlacklist = isBlacklist;
         this.dropBlockChance = dropBlockChance;
+        this.defaultMask = defaultMask == null ? BlockDamageData.MASK : defaultMask;
         this.blockList = blockList;
         this.shotsToBreak = shotsToBreak;
+        this.maskMap = maskMap;
     }
 
     public boolean isBreakBlocks() {
@@ -118,6 +118,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
         return shotsToBreak;
     }
 
+    public Material getMask(Block block) {
+        return maskMap.getOrDefault(block.getType(), defaultMask);
+    }
+
     public boolean isBlacklisted(Block block) {
         return isBlacklist == blockList.containsKey(block.getType());
     }
@@ -156,12 +160,12 @@ public class BlockDamage implements Serializer<BlockDamage> {
      *      }
      * }</pre></blockquote>
      *
-     * @param block The non-null block to damage.
+     * @param block  The non-null block to damage.
      * @param player The nullable player who is breaking block, explosions should always give null
      * @return The DamageData associated with the block or null if player couldn't damage the block.
      */
     @Nullable
-    public BlockDamageData.DamageData damage(Block block, @Nullable Player player) {
+    public BlockDamageData.DamageData damage(Block block, @Nullable Player player, boolean isRegenerate) {
         if (!isBlacklisted(block) && !BlockDamageData.isBroken(block)) {
 
             boolean dropItems = true;
@@ -182,7 +186,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
             }
 
             int max = getMaxDurability(block);
-            BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks);
+            BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks, isRegenerate, getMask(block));
             if (data.isBroken() && dropBlockChance > 0.0) {
 
                 // Event may change this in 1.12+
@@ -208,6 +212,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
         int defaultBlockDurability = data.of("Default_Block_Durability").assertPositive().getInt(1);
         boolean isBlacklist = data.of("Blacklist").getBool(false);
         Double dropChance = data.of("Drop_Broken_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
+        Material defaultMask = data.of("Default_Mask").getEnum(Material.class, BlockDamageData.MASK);
 
         SerializeData.ConfigListAccessor accessor = data.ofList("Block_List")
                 .addArgument(Material.class, true);
@@ -218,6 +223,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
         if (!isBlacklist)
             accessor.addArgument(int.class, false);
 
+        // Only can use block mask when isBreakBlocks
+        if (isBreakBlocks)
+            accessor.addArgument(Material.class, false);
+
         // This does the bulk of our validation.
         List<String[]> strings = accessor.assertExists().assertList().get();
 
@@ -226,19 +235,27 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     "This happens when you use 'Blacklist: false' and an empty 'Block_List'");
         }
 
+        Map<Material, Material> maskMap = new HashMap<>();
         Map<Material, Integer> blockList = new HashMap<>(strings.size());
         for (String[] split : strings) {
 
             List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
             int durability = split.length > 1 ? Integer.parseInt(split[1]) : damage;
+            Material mask = split.length > 2 ? Material.valueOf(split[2].toUpperCase(Locale.ROOT)) : null;
 
             materials.forEach(material -> blockList.put(material, durability));
+            if (mask != null) materials.forEach(material -> maskMap.put(material, mask));
         }
 
-        strings = data.ofList("Shots_To_Break_Blocks")
+        SerializeData.ConfigListAccessor temp = data.ofList("Shots_To_Break_Blocks")
                 .addArgument(Material.class, true)
-                .addArgument(int.class, true)
-                .assertList().get();
+                .addArgument(int.class, true);
+
+        // Only can use block mask when isBreakBlocks
+        if (isBreakBlocks)
+            temp.addArgument(Material.class, false);
+
+        strings = temp.assertList().get();
         Map<Material, Integer> shotsToBreak = new HashMap<>(strings.size());
 
         if (isBlacklist) {
@@ -246,8 +263,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
                 List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
                 int durability = Integer.parseInt(split[1]);
+                Material mask = split.length > 2 ? Material.valueOf(split[2].toUpperCase(Locale.ROOT)) : null;
 
                 materials.forEach(material -> shotsToBreak.put(material, durability));
+                if (mask != null) materials.forEach(material -> maskMap.put(material, mask));
             }
         } else if (!strings.isEmpty()) {
             throw data.exception(null, "Found 'Block_Damage' that uses 'Shots_To_Break_Blocks' when 'Blacklist: false'",
@@ -259,6 +278,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
             dropChance = 0.0;
         }
 
-        return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, dropChance, blockList, shotsToBreak);
+        if (data.has("Default_Mask") && !isBreakBlocks) {
+            throw data.exception("Default_Mask", "Cannot use 'Default_Mask' when 'Break_Blocks: false'",
+                    "We have to be able to BREAK the blocks before we can REPLACE them");
+        }
+
+        return new BlockDamage(isBreakBlocks, damage, defaultBlockDurability, isBlacklist, dropChance, defaultMask, blockList, shotsToBreak, maskMap);
     }
 }

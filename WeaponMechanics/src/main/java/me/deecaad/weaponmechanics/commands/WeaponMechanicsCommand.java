@@ -9,7 +9,6 @@ import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.utils.*;
-import me.deecaad.weaponmechanics.UpdateChecker;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -452,13 +451,6 @@ public class WeaponMechanicsCommand {
 
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Authors: " + GRAY + String.join(", ", desc.getAuthors()));
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Command:" + GRAY + " /weaponmechanics");
-
-        // Informs the user about any updates
-        UpdateChecker updateChecker = WeaponMechanics.getUpdateChecker();
-        if (updateChecker != null && updateChecker.hasUpdate()) {
-            updateChecker.onUpdateFound(sender, updateChecker.getSpigotResource());
-        }
-
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Server: " + GRAY + Bukkit.getName() + " " + Bukkit.getVersion());
         sender.sendMessage("  " + GRAY + SYM + GOLD + " MechanicsCore: " + GRAY + MechanicsCore.getPlugin().getDescription().getVersion());
         sender.sendMessage("  " + GRAY + SYM + GOLD + " Java: " + GRAY + System.getProperty("java.version"));
@@ -601,7 +593,7 @@ public class WeaponMechanicsCommand {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(regen, Math.max(1, (int) shape.getArea() / 100), 1);
-                BlockDamage blockDamage = new BlockDamage(isBreakBlocks, 1, 1, true, 0.0, new HashMap<>(), new HashMap<>()) {
+                BlockDamage blockDamage = new BlockDamage(isBreakBlocks, 1, 1, true, 0.0, null, new HashMap<>(), new HashMap<>(), new HashMap<>()) {
                     @Override
                     public boolean isBlacklisted(Block block) {
                         return blackList.test(block);
