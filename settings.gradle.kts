@@ -15,6 +15,7 @@ include(":BuildMechanicsCore")
 include(":BuildWeaponMechanics")
 
 include(":CoreCompatibility")
+include(":CoreLoader")
 include(":WorldGuardV6")
 include(":WorldGuardV7")
 include(":Core_1_9_R2")
@@ -30,6 +31,7 @@ include(":Core_1_18_R2")
 include(":Core_1_19_R1")
 
 include(":WeaponCompatibility")
+include(":WeaponLoader")
 include(":Weapon_1_9_R2")
 include(":Weapon_1_10_R1")
 include(":Weapon_1_11_R1")
@@ -46,6 +48,9 @@ include(":Weapon_1_19_R1")
 // All projects in the non-root directory need to have their directories updates.
 project(":WorldGuardV7").projectDir = file("CoreCompatibility/WorldGuardV7")
 project(":WorldGuardV6").projectDir = file("CoreCompatibility/WorldGuardV6")
+
+project(":CoreLoader").projectDir = file("MechanicsCore/CoreLoader")
+project(":WeaponLoader").projectDir = file("WeaponMechanics/WeaponLoader")
 
 project(":Core_1_9_R2").projectDir  = file("CoreCompatibility/Core_1_9_R2")
 project(":Core_1_10_R1").projectDir = file("CoreCompatibility/Core_1_10_R1")

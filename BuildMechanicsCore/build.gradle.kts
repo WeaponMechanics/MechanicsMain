@@ -16,6 +16,7 @@ configurations {
 
 dependencies {
     implementation(project(":MechanicsCore"))
+    implementation(project(":CoreLoader"))
     implementation(project(":CoreCompatibility"))
     implementation(project(":WorldGuardV6"))
     implementation(project(":WorldGuardV7"))
@@ -58,6 +59,7 @@ tasks.named<ShadowJar>("shadowJar") {
 
     dependencies {
         include(project(":MechanicsCore"))
+        include(project(":CoreLoader"))
         include(project(":CoreCompatibility"))
         include(project(":WorldGuardV6"))
         include(project(":WorldGuardV7"))

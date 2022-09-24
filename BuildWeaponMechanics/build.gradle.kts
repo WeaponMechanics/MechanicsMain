@@ -17,6 +17,7 @@ configurations {
 dependencies {
     implementation(project(":WeaponMechanics"))
     implementation(project(":WeaponCompatibility"))
+    implementation(project(":WeaponLoader"))
 
     implementation(project(":Weapon_1_9_R2" ))
     implementation(project(":Weapon_1_10_R1"))
@@ -63,6 +64,7 @@ tasks.named<ShadowJar>("shadowJar") {
     dependencies {
         include(project(":WeaponMechanics"))
         include(project(":WeaponCompatibility"))
+        include(project(":WeaponLoader"))
 
         include(project(":Weapon_1_9_R2" ))
         include(project(":Weapon_1_10_R1"))

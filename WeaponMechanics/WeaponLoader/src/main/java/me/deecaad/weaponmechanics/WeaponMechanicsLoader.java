@@ -2,12 +2,12 @@ package me.deecaad.weaponmechanics;
 
 import me.cjcrafter.auto.AutoMechanicsDownload;
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.logging.Level;
 
 public class WeaponMechanicsLoader extends JavaPlugin {
@@ -17,6 +17,20 @@ public class WeaponMechanicsLoader extends JavaPlugin {
     @Override
     public void onLoad() {
         PluginManager pm = Bukkit.getPluginManager();
+
+        // Check java version... WeaponMechanics only supports using java 16
+        // or higher. This check is done now, so we can disable the plugin
+        // before an error occurs
+        if (ReflectionUtil.getJavaVersion() < 16) {
+            getLogger().log(Level.SEVERE, "Cannot use java version " + ReflectionUtil.getJavaVersion() + " with WeaponMechanics");
+            getLogger().log(Level.SEVERE, "Found Java Version: " + System.getProperty("java.version"));
+            getLogger().log(Level.SEVERE, "WeaponMechanics requires AT LEAST java 16 in order to run (you can run newer versions)");
+            getLogger().log(Level.SEVERE, "Update Java for Local Servers: https://www.java.com/en/download/help/java_update.html");
+            getLogger().log(Level.SEVERE, "If you are using a server host, contact customer support for instructions on how to update to the latest java version");
+
+            pm.disablePlugin(this);
+            return;
+        }
 
         // Only use AutoMechanicsDownload if Core isn't installed
         if (pm.getPlugin("MechanicsCore") != null) {
@@ -53,19 +67,11 @@ public class WeaponMechanicsLoader extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        plugin.onDisable();
+        if (plugin != null) plugin.onDisable();
     }
 
     @Override
     public void onEnable() {
-        plugin.onEnable();
-    }
-
-    ClassLoader getClassLoader0() {
-        return getClassLoader();
-    }
-
-    File getFile0() {
-        return getFile();
+        if (plugin != null) plugin.onEnable();
     }
 }

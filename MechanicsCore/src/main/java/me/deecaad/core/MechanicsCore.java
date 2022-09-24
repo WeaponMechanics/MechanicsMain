@@ -28,24 +28,48 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
 
-public class MechanicsCore extends JavaPlugin {
+public class MechanicsCore {
 
-    private static MechanicsCore plugin;
+    private static MechanicsCore instance;
     public static Debugger debug; // public for import
 
+    private final JavaPlugin javaPlugin;
     public BukkitAudiences adventure;
     public MiniMessage message;
 
-    @Override
+    MechanicsCore(JavaPlugin plugin) {
+        this.javaPlugin = plugin;
+        instance = this;
+    }
+
+    public org.bukkit.configuration.Configuration getConfig() {
+        return javaPlugin.getConfig();
+    }
+
+    public Logger getLogger() {
+        return javaPlugin.getLogger();
+    }
+
+    public File getDataFolder() {
+        return javaPlugin.getDataFolder();
+    }
+
+    public ClassLoader getClassLoader() {
+        return (ClassLoader) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader"), javaPlugin);
+    }
+
+    public File getFile() {
+        return (File) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getFile"), javaPlugin);
+    }
+
     public void onLoad() {
         int level = getConfig().getInt("Debug_Level");
         boolean printTraces = getConfig().getBoolean("Print_Traces");
         debug = new Debugger(getLogger(), level, printTraces);
-        plugin = this;
     }
 
-    @Override
     public void onEnable() {
         debug.debug("Loading config.yml");
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
@@ -56,12 +80,12 @@ public class MechanicsCore extends JavaPlugin {
         // The methods we use that allow EntityEquipmentEvent to trigger simply
         // don't exist in 1.10 and lower.
         if (ReflectionUtil.getMCVersion() >= 11) {
-            Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
+            Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, javaPlugin);
         }
-        Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), javaPlugin);
 
         // Adventure Chat API
-        adventure = BukkitAudiences.create(this);
+        adventure = BukkitAudiences.create(javaPlugin);
         message = MiniMessage.miniMessage();
 
         // Handle MechanicsCore custom item registry (You can get items using
@@ -84,15 +108,13 @@ public class MechanicsCore extends JavaPlugin {
                 List<Serializer<?>> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
                 event.addSerializers(serializers);
             }
-        }, this);
+        }, javaPlugin);
     }
 
-    @Override
     public void onDisable() {
-        HandlerList.unregisterAll(this);
-        getServer().getScheduler().cancelTasks(this);
+        HandlerList.unregisterAll(javaPlugin);
+        Bukkit.getServer().getScheduler().cancelTasks(javaPlugin);
         PlaceholderAPI.onDisable();
-        plugin = null;
         debug = null;
         adventure.close();
         adventure = null;
@@ -167,7 +189,11 @@ public class MechanicsCore extends JavaPlugin {
     /**
      * @return the MechanicsCore plugin instance
      */
-    public static MechanicsCore getPlugin() {
-        return plugin;
+    public static JavaPlugin getPlugin() {
+        return instance.javaPlugin;
+    }
+
+    public static MechanicsCore getInstance() {
+        return instance;
     }
 }

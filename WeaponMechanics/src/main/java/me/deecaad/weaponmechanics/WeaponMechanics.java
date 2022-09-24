@@ -72,7 +72,7 @@ import java.util.logging.Logger;
 public class WeaponMechanics {
 
     private static WeaponMechanics plugin;
-    WeaponMechanicsLoader javaPlugin;
+    JavaPlugin javaPlugin;
     Map<LivingEntity, EntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
@@ -88,7 +88,7 @@ public class WeaponMechanics {
     // public so people can import a static variable
     public static Debugger debug;
 
-    public WeaponMechanics(WeaponMechanicsLoader javaPlugin) {
+    public WeaponMechanics(JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
     }
 
@@ -105,11 +105,11 @@ public class WeaponMechanics {
     }
 
     public ClassLoader getClassLoader() {
-        return javaPlugin.getClassLoader0();
+        return (ClassLoader) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader"), javaPlugin);
     }
 
     public File getFile() {
-        return javaPlugin.getFile0();
+        return (File) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getFile"), javaPlugin);
     }
 
     public void onLoad() {
@@ -516,7 +516,7 @@ public class WeaponMechanics {
     }
 
     public TaskChain onReload() {
-        MechanicsCore mechanicsCore = MechanicsCore.getPlugin();
+        JavaPlugin mechanicsCore = MechanicsCore.getPlugin();
 
         this.onDisable();
         mechanicsCore.onDisable();

@@ -83,7 +83,7 @@ public class HelpCommandBuilder {
         if (help.subcommands.isEmpty()) {
             help.cache = buildCommandWithoutSubcommands(help, parent, color).build();
             help.executes(CommandExecutor.any((sender, args) -> {
-                MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
+                MechanicsCore.getInstance().adventure.sender(sender).sendMessage(help.cache);
             }));
 
             // When a sub-command has at least 1 required argument, then we
@@ -98,7 +98,7 @@ public class HelpCommandBuilder {
                         .withRequirements(parent.requirements);
 
                 friend.executes(CommandExecutor.any((sender, args) -> {
-                    MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
+                    MechanicsCore.getInstance().adventure.sender(sender).sendMessage(help.cache);
                 }));
 
                 parent.friend = friend;
@@ -110,14 +110,14 @@ public class HelpCommandBuilder {
         else {
             help.cache = buildCommandWithSubcommands(help, parent, color).build();
             help.executes(CommandExecutor.any((sender, args) -> {
-                MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
+                MechanicsCore.getInstance().adventure.sender(sender).sendMessage(help.cache);
             }));
 
             // Consider the command '/wm'. It doesn't have an executor, and it
             // should show useful information.
             if (parent.executor == null) {
                 parent.executes(CommandExecutor.any((sender, args) -> {
-                    MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(help.cache);
+                    MechanicsCore.getInstance().adventure.sender(sender).sendMessage(help.cache);
                 }));
             }
         }

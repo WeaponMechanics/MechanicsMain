@@ -152,7 +152,7 @@ public class SubCommands {
                 }
             }
 
-            MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(builder);
+            MechanicsCore.getInstance().adventure.sender(sender).sendMessage(builder);
             return true;
         }
 

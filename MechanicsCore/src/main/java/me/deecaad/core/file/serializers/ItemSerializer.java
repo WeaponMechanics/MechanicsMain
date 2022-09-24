@@ -112,7 +112,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         String name = data.of("Name").getAdventure(null);
         if (name != null) {
-            Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + name);
+            Component component = MechanicsCore.getInstance().message.deserialize("<!italic>" + name);
 
             if (ReflectionUtil.getMCVersion() < 16) {
                 String element = LegacyComponentSerializer.legacySection().serialize(component);
@@ -128,7 +128,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             List<String> temp = new ArrayList<>(lore.size());
 
             for (Object obj : lore) {
-                Component component = MechanicsCore.getPlugin().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
+                Component component = MechanicsCore.getInstance().message.deserialize("<!italic>" + StringUtil.colorAdventure(obj.toString()));
                 String element = ReflectionUtil.getMCVersion() < 16 ? LegacyComponentSerializer.legacySection().serialize(component) : GsonComponentSerializer.gson().serialize(component);
                 temp.add(element);
             }
