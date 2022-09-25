@@ -75,6 +75,13 @@ public class SkinList implements Serializer<SkinList> {
                     continue;
                 }
 
+                // Skip anything that isn't a configuration section. This is
+                // used for the HAND feature in WMC.
+                if (!data.of(key).is(ConfigurationSection.class)) {
+                    WeaponMechanics.debug.debug("Found bad skinlist? at " + data.of(key).getLocation());
+                    continue;
+                }
+
                 Map<SkinIdentifier, Skin> temp = serializeOne(data.move(key));
                 map.put(key.toLowerCase(Locale.ROOT), temp);
                 continue;
