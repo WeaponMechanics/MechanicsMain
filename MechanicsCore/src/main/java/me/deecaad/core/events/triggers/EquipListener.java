@@ -172,7 +172,7 @@ public class EquipListener implements Listener {
 
         List<Object> inventory = CompatibilityAPI.getEntityCompatibility().generateNonNullList(36, (old, current, index) -> {
 
-            // FAWE, and other crappy plugins may try to add an item to the
+            // Some plugins may try to add an item to the
             // player's inventory async. This is unsafe, and should not be
             // done!!! Either way, the high and mighty wouldn't listen to me,
             // so we have to add our own check.
