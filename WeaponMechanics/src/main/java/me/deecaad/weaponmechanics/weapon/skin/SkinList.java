@@ -12,7 +12,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+/**
+ * @see SkinHandler
+ */
 public class SkinList implements Serializer<SkinList> {
 
     private final Map<String, Map<SkinIdentifier, Skin>> map;
@@ -114,6 +118,7 @@ public class SkinList implements Serializer<SkinList> {
             if (id == null)
                 throw data.exception(key, "Found an unknown skin identifier",
                         SerializerException.forValue(key),
+                        SerializerException.didYouMean(key, Arrays.stream(SkinIdentifier.VALUES).map(SkinIdentifier::getKey).collect(Collectors.toList())),
                         "See: https://github.com/WeaponMechanics/MechanicsMain/wiki/Skins");
 
             // Since SCOPE_STACK matches to different keys, we need to handle
@@ -183,12 +188,12 @@ public class SkinList implements Serializer<SkinList> {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             SkinIdentifier that = (SkinIdentifier) o;
-            return Objects.equals(key, that.key);
+            return key.equals(that.key);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(key);
+            return key.hashCode();
         }
 
         public static SkinIdentifier fromString(String str) {
