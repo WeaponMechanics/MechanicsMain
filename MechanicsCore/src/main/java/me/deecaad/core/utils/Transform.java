@@ -40,8 +40,7 @@ public class Transform {
     public void setParent(Transform parent) {
         // First we need to adjust based on the previous parent.
         if (this.parent != null) {
-            Vector position = this.parent.getPosition();
-            localPosition.add(position);
+            localPosition = getPosition();
             localRotation = getRotation();
 
             this.parent.children.remove(this);
@@ -49,13 +48,14 @@ public class Transform {
 
         // Now we need to adjust it for the new parent's position
         if (parent != null) {
-            Vector position = parent.getPosition();
-            localPosition.subtract(position);
 
             // Bit more complicated... Find the difference between the 2
             // quaternions
             Quaternion parentRotation = parent.getRotation();
             localRotation = parentRotation.inverse().multiply(localRotation);
+
+            Vector position = parent.getPosition();
+            localPosition.subtract(position);
 
             parent.children.add(this);
         }
@@ -96,10 +96,10 @@ public class Transform {
     }
 
     public Vector getPosition() {
-        if (parent == null)
+        if (getParent() == null)
             return getLocalPosition();
 
-        return parent.getPosition().add(parent.getRotation().multiply(localPosition));
+        return getParent().getPosition().add(getParent().getRotation().multiply(localPosition));
     }
 
     public void setPosition(Location position) {
@@ -107,10 +107,13 @@ public class Transform {
     }
 
     public void setPosition(Vector position) {
-        if (parent == null) {
-            localPosition = position;
+        if (getParent() == null) {
+            setLocalPosition(position);
         } else {
-            localPosition = parent.getPosition().subtract(position);
+            Vector parentPos = getParent().getPosition();
+            Quaternion parentRot = getParent().getRotation();
+
+            setLocalPosition(parentRot.multiply(position.subtract(parentPos)));
         }
     }
 
@@ -123,17 +126,17 @@ public class Transform {
     }
 
     public Quaternion getRotation() {
-        if (parent == null)
+        if (getParent() == null)
             return getLocalRotation();
 
-        return parent.getRotation().multiply(localRotation);
+        return getParent().getRotation().multiply(localRotation);
     }
 
     public void setRotation(Quaternion rotation) {
-        if (parent == null) {
-            localRotation = rotation.normalize();
+        if (getParent() == null) {
+            setLocalRotation(rotation.normalize());
         } else {
-            localRotation = parent.getRotation().inverse().multiply(rotation);
+            setLocalRotation(getParent().getRotation().inverse().multiply(rotation));
         }
     }
 

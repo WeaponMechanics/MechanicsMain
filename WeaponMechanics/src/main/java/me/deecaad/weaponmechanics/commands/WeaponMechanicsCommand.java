@@ -855,7 +855,7 @@ public class WeaponMechanicsCommand {
         EntityCompatibility compatibility = CompatibilityAPI.getEntityCompatibility();
 
         Transform parent = new Transform();
-        parent.setPosition(sender.getLocation());
+        parent.setParent(new EntityTransform(sender));
 
         List<FakeEntity> entities = new ArrayList<>(children * children / 2);
         for (int i = 0; i < children; i++) {
@@ -888,8 +888,9 @@ public class WeaponMechanicsCommand {
             int ticks = 0;
             @Override
             public void run() {
-                Location loc = sender.getLocation();
-                parent.setPosition(loc);
+
+                if (particles)
+                    parent.getParent().debug(sender.getWorld());
 
                 double deltaTime = 1.0 / 20.0;
                 double rotationSpeed = ticks * speed / time * deltaTime;
@@ -900,9 +901,6 @@ public class WeaponMechanicsCommand {
                 for (int i = 0; i < children; i++) {
                     Transform transform = parent.getChild(i);
 
-                    // SPIN
-                    if (particles) transform.debugRay(sender.getWorld(), transform.getPosition(), localForward, Color.BLACK);
-                    transform.applyRotation(Quaternion.angleAxis(rotationSpeed * 2, localForward));
                     if (particles) transform.debug(sender.getWorld());
 
                     for (int j = 0; j < children / 2; j++) {
