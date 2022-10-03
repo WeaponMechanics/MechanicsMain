@@ -601,6 +601,10 @@ public class ShootHandler implements IValidator, TriggerListener {
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
         if (shootMechanics != null) shootMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
 
+        // Reset fall distance for #134
+        if (config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance"))
+            livingEntity.setFallDistance(0.0f);
+
         if (entityWrapper instanceof PlayerWrapper) {
             PlayerWrapper playerWrapper = (PlayerWrapper) entityWrapper;
             // Counts melees as shots also
@@ -615,6 +619,16 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (projectile == null || isMelee) {
             debug.debug("Missing projectile/isMelee for " + weaponTitle);
             // No projectile defined or was melee trigger
+
+            // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
+            if (!isMelee) {
+                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+                Bukkit.getPluginManager().callEvent(event);
+
+                HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+                handData.setLastShotTime(System.currentTimeMillis());
+            }
+
             return;
         }
 
@@ -820,5 +834,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default").getLocation());
             }
         }
+
+        configuration.set(data.key + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool(false));
     }
 }

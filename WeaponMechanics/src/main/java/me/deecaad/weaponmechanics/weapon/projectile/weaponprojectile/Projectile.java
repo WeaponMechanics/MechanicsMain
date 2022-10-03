@@ -63,8 +63,6 @@ public class Projectile implements Serializer<Projectile> {
      * @param location the location containing pitch and yaw
      */
     public WeaponProjectile shoot(WeaponProjectile projectile, Location location) {
-
-        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
         if (mechanics != null) mechanics.use(new CastData(projectile));
         EntityType type = projectileSettings.getProjectileDisguise();
         if (type != null) {
@@ -97,6 +95,7 @@ public class Projectile implements Serializer<Projectile> {
         Explosion explosion = getConfigurations().getObject(projectile.getWeaponTitle() + ".Explosion", Explosion.class);
         if (explosion != null) explosion.handleExplosion(projectile.getShooter(), projectile, ExplosionTrigger.SPAWN);
 
+        WeaponMechanics.getProjectilesRunnable().addProjectile(projectile);
         return projectile;
     }
 

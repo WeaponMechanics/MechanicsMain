@@ -137,7 +137,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemMeta.setLore(temp);
             else
                 ReflectionUtil.setField(loreField, itemMeta, temp);
-                //ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta), temp, true);
+            //ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta), temp, true);
         }
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
@@ -326,74 +326,81 @@ public class ItemSerializer implements Serializer<ItemStack> {
     }
 
     public ItemStack serializeRecipe(SerializeData data, ItemStack itemStack) throws SerializerException {
-        if (data.has("Recipe")) {
-            ShapedRecipe recipe;
-            if (ReflectionUtil.getMCVersion() < 13) {
-                recipe = new ShapedRecipe(itemStack);
-            } else {
-                recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), itemStack);
+        if (!data.has("Recipe"))
+            return itemStack;
 
-                if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
-                    return itemStack;
-                }
+        // Create a copy of the item with a set amount to be the result of the
+        // crafting recipe.
+        int resultAmount = data.of("Recipe.Output_Amount").assertRange(1, 64).getInt(1);
+        ItemStack result = itemStack.clone();
+        result.setAmount(resultAmount);
+
+        ShapedRecipe recipe;
+        if (ReflectionUtil.getMCVersion() < 13) {
+            recipe = new ShapedRecipe(result);
+        } else {
+            recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), result);
+
+            if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
+                return itemStack;
             }
-
-            // The Recipe.Shape should be a list looking similar to:
-            //   - ABC
-            //   - DEF
-            //   - GHI
-            List<Object> shape = data.of("Recipe.Shape").assertExists().assertType(List.class).get();
-            String[] shapeArr = shape.stream().map(Object::toString).toArray(String[]::new);
-            if (shape.size() < 1 || shape.size() > 3)
-                throw new SerializerRangeException(this, 1, shape.size(), 3,  data.of("Recipe.Shape").getLocation());
-
-            Set<Character> ingredientChars = new HashSet<>();
-            for (int i = 0; i < shapeArr.length; i++) {
-                String str = shapeArr[i];
-
-                // Before we get mad at the user, let's try removing trailing whitespace
-                if (str.length() > 3)
-                    shapeArr[i] = str = str.trim();
-
-                if (str.length() < 1 || str.length() > 3)
-                    throw new SerializerRangeException(this, 1, shape.size(), 3, data.of("Recipe.Shape").getLocation());
-
-                for (char c : str.toCharArray())
-                    ingredientChars.add(c);
-            }
-
-            // Set shape AFTER our checks above, so we can be more verbose to
-            // the user and try to correct their mistakes automatically.
-            try {
-                recipe.shape(shapeArr);
-            } catch (Throwable ex) {
-                throw data.exception("Recipe.Shape", "Recipe Shape was formatted incorrectly",
-                        ex.getMessage(), SerializerException.forValue(shape));
-            }
-
-            // Shaped recipes in 1.12 and lower just use a map of
-            // characters and ItemStacks. In 1.13 and higher, recipes
-            // use Characters and RecipeChoices.
-            final Map<Character, Object> ingredients = new HashMap<>();
-            data.of("Recipe.Ingredients").assertExists().assertType(ConfigurationSection.class);
-            for (char c : ingredientChars) {
-                
-                // Spaces (' ') in spigot are ignored and treated as air for recipes
-                if (c == ' ')
-                    continue;
-                
-                ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(new ItemSerializer());
-
-                if (CompatibilityAPI.getVersion() < 1.13)
-                    ingredients.put(c, item);
-                else
-                    ingredients.put(c, new RecipeChoice.ExactChoice(item));
-            }
-
-            // Finalize and register the new recipe.
-            ReflectionUtil.setField(ingredientsField, recipe, ingredients);
-            Bukkit.addRecipe(recipe);
         }
+
+        // The Recipe.Shape should be a list looking similar to:
+        //   - ABC
+        //   - DEF
+        //   - GHI
+        List<Object> shape = data.of("Recipe.Shape").assertExists().assertType(List.class).get();
+        String[] shapeArr = shape.stream().map(Object::toString).toArray(String[]::new);
+        if (shape.size() < 1 || shape.size() > 3)
+            throw new SerializerRangeException(this, 1, shape.size(), 3, data.of("Recipe.Shape").getLocation());
+
+        Set<Character> ingredientChars = new HashSet<>();
+        for (int i = 0; i < shapeArr.length; i++) {
+            String str = shapeArr[i];
+
+            // Before we get mad at the user, let's try removing trailing whitespace
+            if (str.length() > 3)
+                shapeArr[i] = str = str.trim();
+
+            if (str.length() < 1 || str.length() > 3)
+                throw new SerializerRangeException(this, 1, shape.size(), 3, data.of("Recipe.Shape").getLocation());
+
+            for (char c : str.toCharArray())
+                ingredientChars.add(c);
+        }
+
+        // Set shape AFTER our checks above, so we can be more verbose to
+        // the user and try to correct their mistakes automatically.
+        try {
+            recipe.shape(shapeArr);
+        } catch (Throwable ex) {
+            throw data.exception("Recipe.Shape", "Recipe Shape was formatted incorrectly",
+                    ex.getMessage(), SerializerException.forValue(shape));
+        }
+
+        // Shaped recipes in 1.12 and lower just use a map of
+        // characters and ItemStacks. In 1.13 and higher, recipes
+        // use Characters and RecipeChoices.
+        final Map<Character, Object> ingredients = new HashMap<>();
+        data.of("Recipe.Ingredients").assertExists().assertType(ConfigurationSection.class);
+        for (char c : ingredientChars) {
+
+            // Spaces (' ') in spigot are ignored and treated as air for recipes
+            if (c == ' ')
+                continue;
+
+            ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(new ItemSerializer());
+
+            if (CompatibilityAPI.getVersion() < 1.13)
+                ingredients.put(c, item);
+            else
+                ingredients.put(c, new RecipeChoice.ExactChoice(item));
+        }
+
+        // Finalize and register the new recipe.
+        ReflectionUtil.setField(ingredientsField, recipe, ingredients);
+        Bukkit.addRecipe(recipe);
         return itemStack;
     }
 

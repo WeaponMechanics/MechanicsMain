@@ -33,3 +33,4 @@ Item: <Material>
       '0': <ItemSerializer>
       '1': <ItemSerializer>
       <etc.>
+    Output_Amount: <Integer>

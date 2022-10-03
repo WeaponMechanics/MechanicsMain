@@ -38,23 +38,32 @@ public final class BlockDamageData {
     }
 
     /**
+     * Shorthand for {@link #damage(Block, double, boolean, boolean, Material)}
+     */
+    public static DamageData damage(@Nonnull Block block, double damage, boolean isBreak, boolean isRegenerate) {
+        return damage(block, damage, isBreak, isRegenerate, MASK);
+    }
+
+    /**
      * Damages the given <code>block</code> for the given percentage of
      * <code>damage</code>. Note that the returned value should be checked to
      * schedule a block regeneration task.
      *
-     * @param block   The non-null block to damage.
-     * @param damage  The percentage of damage [0.0, 1.0].
-     * @param isBreak Whether the block will break or not.
+     * @param block        The non-null block to damage.
+     * @param damage       The percentage of damage [0.0, 1.0].
+     * @param isBreak      Whether the block will break or not.
+     * @param isRegenerate false is will cause inventories to drop and block updates.
+     * @param mask         The block to replace... Usually {@link #MASK}.
      * @return <code>true</code> if the block was broken.
      */
-    public static DamageData damage(@Nonnull Block block, double damage, boolean isBreak) {
+    public static DamageData damage(@Nonnull Block block, double damage, boolean isBreak, boolean isRegenerate, Material mask) {
         ChunkPos pos = new ChunkPos(block);
 
         // Get the DamageData for the given block, or create a new one if needed
         Map<Block, DamageData> map = DAMAGE_MAP.computeIfAbsent(pos, k -> new HashMap<>());
         DamageData damageData = map.computeIfAbsent(block, DamageData::new);
 
-        damageData.damage(damage, isBreak);
+        damageData.damage(damage, isBreak, isRegenerate, mask);
         return damageData;
     }
 
@@ -68,6 +77,15 @@ public final class BlockDamageData {
         return map.get(block);
     }
 
+    /**
+     * Returns true if the given block is broken by WeaponMechanics. Note that
+     * is only returns true if the block is scheduled to regenerate. When
+     * regeneration is turned off, this method will return false for any
+     * block.
+     *
+     * @param block The non-null block position to test.
+     * @return true if the block is broken and going to regenerate.
+     */
     public static boolean isBroken(@Nonnull Block block) {
         DamageData data = getBlockDamage(block);
         return data != null && data.isBroken();
@@ -197,12 +215,16 @@ public final class BlockDamageData {
             this.block = block;
         }
 
-        public void damage(double amount, boolean isBreak) {
+        public void damage(double amount, boolean isBreak, boolean isRegenerate) {
+            damage(amount, isBreak, isRegenerate, MASK);
+        }
+
+        public void damage(double amount, boolean isBreak, boolean isRegenerate, Material mask) {
             durability -= amount;
 
             // Either break the block or send a crack packet
             if (isBreak && isBroken()) {
-                destroy();
+                destroy(isRegenerate, mask);
             } else {
                 sendCrackPacket();
             }
@@ -212,13 +234,13 @@ public final class BlockDamageData {
             return durability <= EPSILON;
         }
 
-        public void destroy() {
+        public void destroy(boolean isRegenerate, Material mask) {
             state = block.getState();
 
             // We need to clear the contents of the inventory(s). If we skip
             // this, items will be dropped on the ground and double chests will
             // not regenerate with all of their items.
-            if (state instanceof InventoryHolder) {
+            if (isRegenerate && state instanceof InventoryHolder) {
                 Inventory inv;
                 if (state instanceof Chest) {
                     inv = ((Chest) state).getBlockInventory();
@@ -228,7 +250,7 @@ public final class BlockDamageData {
                 inv.clear();
             }
 
-            block.setType(MASK, false);
+            block.setType(mask, !isRegenerate);
         }
 
         public void regenerate() {
@@ -253,7 +275,7 @@ public final class BlockDamageData {
 
             // -1 will remove crack effect from block
             int crack = (durability >= 1.0 - EPSILON)
-                    ?  -1
+                    ? -1
                     : (int) NumberUtil.lerp(MAX_BLOCK_CRACK, 0, durability);
 
             Object packet = CompatibilityAPI.getBlockCompatibility().getCrackPacket(block, crack, packetId);

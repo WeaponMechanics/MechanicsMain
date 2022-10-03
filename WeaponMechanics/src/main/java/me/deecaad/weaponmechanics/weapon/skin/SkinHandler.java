@@ -30,61 +30,62 @@ public class SkinHandler {
         if (skins == null || !weaponStack.hasItemMeta())
             return false;
 
-        WeaponSkinEvent event = new WeaponSkinEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), skins);
+        WeaponSkinEvent event = new WeaponSkinEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), skins, triggerType);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled())
             return false;
 
-        Skin reloadSkin = skins.getSkin(event.getSkin(), SkinList.SkinIdentifier.RELOAD);
+        Skin skin = getSkin(skins, event.getSkin(), hand, weaponStack, triggerType);
+        if (skin != null) {
+            skin.apply(weaponStack);
+            return true;
+        }
+
+        return false;
+    }
+
+    public Skin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType) {
+        Skin reloadSkin = skins.getSkin(skin, SkinList.SkinIdentifier.RELOAD);
         if ((!hand.isReloading() || reloadSkin == null) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
-            Skin emptyAmmoSkin = skins.getSkin(event.getSkin(), SkinList.SkinIdentifier.NO_AMMO);
-            if (emptyAmmoSkin != null) {
-                emptyAmmoSkin.apply(weaponStack);
-                return true;
-            }
+            Skin emptyAmmoSkin = skins.getSkin(skin, SkinList.SkinIdentifier.NO_AMMO);
+            if (emptyAmmoSkin != null)
+                return emptyAmmoSkin;
         }
 
         if (hand.getZoomData().isZooming()) {
-            Skin zoomSkin = skins.getSkin(event.getSkin(), SkinList.SkinIdentifier.SCOPE);
+            Skin zoomSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SCOPE);
 
-            Skin stackySkin = skins.getSkin(event.getSkin(), new SkinList.SkinIdentifier("Scope_" + hand.getZoomData().getZoomStacks()));
-            if (stackySkin != null) {
+            Skin stackySkin = skins.getSkin(skin, new SkinList.SkinIdentifier("Scope_" + hand.getZoomData().getZoomStacks()));
+            if (stackySkin != null)
                 zoomSkin = stackySkin;
-            }
 
-            if (zoomSkin != null) {
-                zoomSkin.apply(weaponStack);
-                return true;
-            }
+            if (zoomSkin != null)
+                return zoomSkin;
         }
 
         if (hand.isReloading()) {
-            if (reloadSkin != null) {
-                reloadSkin.apply(weaponStack);
-                return true;
-            }
+            if (reloadSkin != null)
+                return reloadSkin;
         }
 
         // Checks are like this due to when PlayerToggleSprintEvent is called player isn't yet actually sprinting
         // since the event is also cancellable. This ignores the cancelling of sprint event,
         // it doesn't do anything if its cancelled anyway :p
         // + disable when dual wielding ++ don't even try when its END_SPRINT
+        EntityWrapper entityWrapper = hand.getEntityWrapper();
         if (triggerType != TriggerType.END_SPRINT
                 && (entityWrapper.isSprinting() || triggerType == TriggerType.START_SPRINT)
                 && !entityWrapper.isDualWielding()) {
-            Skin sprintSkin = skins.getSkin(event.getSkin(), SkinList.SkinIdentifier.SPRINT);
-            if (sprintSkin != null) {
-                sprintSkin.apply(weaponStack);
-                return true;
-            }
+
+            Skin sprintSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SPRINT);
+            if (sprintSkin != null)
+                return sprintSkin;
         }
 
-        Skin defaultSkin = skins.getSkin(event.getSkin(), SkinList.SkinIdentifier.DEFAULT);
-        if (defaultSkin != null) {
-            defaultSkin.apply(weaponStack);
-            return true;
-        }
+        Skin defaultSkin = skins.getSkin(skin, SkinList.SkinIdentifier.DEFAULT);
+        if (defaultSkin != null)
+            return defaultSkin;
 
-        return false;
+        return null;
     }
 }

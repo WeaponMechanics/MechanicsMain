@@ -63,6 +63,8 @@ public class ProjectilesRunnable extends BukkitRunnable {
         if (projectile == null)
             throw new IllegalArgumentException("Cannot add null projectile!");
 
+        if (projectile.isDead()) return;
+
         if (Bukkit.getServer().isPrimaryThread()) {
             tickOnAdd(projectile);
             return;
@@ -84,6 +86,9 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
         if (Bukkit.getServer().isPrimaryThread()) {
             for (AProjectile projectile : projectiles) {
+
+                if (projectile.isDead()) continue;
+
                 tickOnAdd(projectile);
             }
             return;

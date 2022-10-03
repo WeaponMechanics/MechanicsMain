@@ -178,6 +178,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
                     return false;
                 }
 
+                zoomData.setScopeData(weaponTitle, weaponStack);
+
                 updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
                 zoomData.setZoomStacks(zoomStack);
 
@@ -205,6 +207,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (weaponScopeEvent.isCancelled()) {
             return false;
         }
+
+        zoomData.setScopeData(weaponTitle, weaponStack);
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
@@ -246,6 +250,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
             return false;
         }
 
+        zoomData.setScopeData(null, null);
+
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
 
@@ -260,22 +266,9 @@ public class ScopeHandler implements IValidator, TriggerListener {
     }
 
     /**
-     * Forces zooming out for entity
-     *
-     * @param entityWrapper the entity wrapper from whom to force zoom out
-     * @param zoomData the zoom data of entity wrappers hand data
-     */
-    public void forceZoomOut(EntityWrapper entityWrapper, ZoomData zoomData) {
-        ScopeHandler scopeHandler = WeaponMechanics.getWeaponHandler().getScopeHandler();
-        scopeHandler.updateZoom(entityWrapper, zoomData, 0);
-        zoomData.setZoomStacks(0);
-        if (zoomData.hasZoomNightVision()) scopeHandler.useNightVision(entityWrapper, zoomData);
-    }
-
-    /**
      * Updates the zoom amount of entity.
      */
-    private void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, double newZoomAmount) {
+    public void updateZoom(EntityWrapper entityWrapper, ZoomData zoomData, double newZoomAmount) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for FOV changes
             zoomData.setZoomAmount(newZoomAmount);
