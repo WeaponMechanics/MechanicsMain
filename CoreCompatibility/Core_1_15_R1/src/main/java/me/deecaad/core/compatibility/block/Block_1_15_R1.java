@@ -143,25 +143,13 @@ public class Block_1_15_R1 implements BlockCompatibility {
         soundData.pitch = sounds.y;
         soundData.volume = sounds.x;
 
-        switch (type) {
-            case BREAK:
-                soundData.sound = bukkit(sounds, 0);
-                break;
-            case STEP:
-                soundData.sound = bukkit(sounds, 1);
-                break;
-            case PLACE:
-                soundData.sound = bukkit(sounds, 2);
-                break;
-            case HIT:
-                soundData.sound = bukkit(sounds, 3);
-                break;
-            case FALL:
-                soundData.sound = bukkit(sounds, 4);
-                break;
-            default:
-                throw new InternalError("unreachable code");
-        }
+        soundData.sound = switch (type) {
+            case BREAK -> bukkit(sounds, 0);
+            case STEP -> bukkit(sounds, 1);
+            case PLACE -> bukkit(sounds, 2);
+            case HIT -> bukkit(sounds, 3);
+            case FALL -> bukkit(sounds, 4);
+        };
 
         return soundData;
     }

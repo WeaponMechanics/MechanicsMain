@@ -241,17 +241,14 @@ public class ShootHandler implements IValidator, TriggerListener {
         }
 
         if (usesSelectiveFire) {
-            switch (selectiveFireState) {
-                case BURST:
-                    return burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-                case AUTO:
-                    return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
-                default:
-                    return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
-            }
+            return switch (selectiveFireState) {
+                case BURST -> burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
+                case AUTO -> fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
+                default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+            };
         }
 
-        // First try full auto, then burst then single fire
+        // First try full auto, then burst, then single fire
         return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield)
                 || burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield)
                 || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
@@ -537,26 +534,17 @@ public class ShootHandler implements IValidator, TriggerListener {
             return false;
         }
 
-        switch (triggerType) {
-            case START_SNEAK:
-                return entityWrapper.isSneaking();
-            case START_SPRINT:
-                return entityWrapper.isSprinting();
-            case RIGHT_CLICK:
-                return entityWrapper.isRightClicking();
-            case START_SWIM:
-                return entityWrapper.isSwimming();
-            case START_GLIDE:
-                return entityWrapper.isGliding();
-            case START_WALK:
-                return entityWrapper.isWalking();
-            case START_IN_MIDAIR:
-                return entityWrapper.isInMidair();
-            case START_STAND:
-                return entityWrapper.isStanding();
-            default:
-                return false;
-        }
+        return switch (triggerType) {
+            case START_SNEAK -> entityWrapper.isSneaking();
+            case START_SPRINT -> entityWrapper.isSprinting();
+            case RIGHT_CLICK -> entityWrapper.isRightClicking();
+            case START_SWIM -> entityWrapper.isSwimming();
+            case START_GLIDE -> entityWrapper.isGliding();
+            case START_WALK -> entityWrapper.isWalking();
+            case START_IN_MIDAIR -> entityWrapper.isInMidair();
+            case START_STAND -> entityWrapper.isStanding();
+            default -> false;
+        };
     }
 
     private void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {

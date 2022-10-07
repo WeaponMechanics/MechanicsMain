@@ -139,41 +139,18 @@ public class Trigger implements Serializer<Trigger> {
 
     private boolean isDisabled(TriggerType trigger) {
         if (trigger == null) return false;
-        switch (trigger) {
-            case START_SNEAK:
-            case END_SNEAK:
-            case DOUBLE_SNEAK:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak");
-            case START_SPRINT:
-            case END_SPRINT:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint");
-            case RIGHT_CLICK:
-            case LEFT_CLICK:
-            case MELEE:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click");
-            case DROP_ITEM:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item");
-            case JUMP:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump");
-            case DOUBLE_JUMP:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump");
-            case START_SWIM:
-            case END_SWIM:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim");
-            case START_GLIDE:
-            case END_GLIDE:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide");
-            case SWAP_HANDS:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Hand_Items");
-            case START_WALK:
-            case END_WALK:
-            case START_STAND:
-            case END_STAND:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
-            case START_IN_MIDAIR:
-            case END_IN_MIDAIR:
-                return getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair");
-        }
-        return false;
+        return switch (trigger) {
+            case START_SNEAK, END_SNEAK, DOUBLE_SNEAK -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak");
+            case START_SPRINT, END_SPRINT -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint");
+            case RIGHT_CLICK, LEFT_CLICK, MELEE -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click");
+            case DROP_ITEM -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item");
+            case JUMP -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump");
+            case DOUBLE_JUMP -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump");
+            case START_SWIM, END_SWIM -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim");
+            case START_GLIDE, END_GLIDE -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide");
+            case SWAP_HANDS -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Hand_Items");
+            case START_WALK, END_WALK, START_STAND, END_STAND -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
+            case START_IN_MIDAIR, END_IN_MIDAIR -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair");
+        };
     }
 }
