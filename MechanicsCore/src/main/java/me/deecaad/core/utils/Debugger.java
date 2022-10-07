@@ -164,7 +164,9 @@ public class Debugger {
                 log(level, new Throwable());
             }
 
-            errors++;
+            // Only alert users about actual errors
+            if (level == LogLevel.ERROR)
+                errors++;
         }
     }
 
