@@ -172,7 +172,7 @@ public class EquipListener implements Listener {
         Object playerInventory = ReflectionUtil.invokeField(playerInventoryField, handle);
 
         List<Object> inventory = CompatibilityAPI.getEntityCompatibility().generateNonNullList(36, (old, current, index) -> {
-            if (isBadPluginDeveloper())
+            if (isIllegalModification())
                 return;
 
             // Filters out cancelled PlayerDropItemEvent
@@ -193,7 +193,7 @@ public class EquipListener implements Listener {
             }
         });
         List<Object> armor = CompatibilityAPI.getEntityCompatibility().generateNonNullList(4, (old, current, index) -> {
-            if (isBadPluginDeveloper())
+            if (isIllegalModification())
                 return;
 
             EquipmentSlot slot = switch (index) {
@@ -207,7 +207,7 @@ public class EquipListener implements Listener {
             Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, slot, old, current));
         });
         List<Object> offhand = CompatibilityAPI.getEntityCompatibility().generateNonNullList(1, (old, current, index) -> {
-            if (isBadPluginDeveloper())
+            if (isIllegalModification())
                 return;
 
             Bukkit.getPluginManager().callEvent(new EntityEquipmentEvent(player, EquipmentSlot.OFF_HAND, old, current));
@@ -237,12 +237,11 @@ public class EquipListener implements Listener {
      * Returns <code>true</code> when the inventory is modified asynchronously.
      * Developers -- DO NOT MODIFY THE INVENTORY OF ANY ENTITY ASYNCHRONOUSLY.
      * You obviously didn't look into spigot source code, or you just don't
-     * care about safety. This is an unsafe operation. It's not our
-     * responsibility to fix your broken code. Fix it.
+     * care about safety. This is an unsafe operation.
      *
      * @return true if the inventory was modified async.
      */
-    private static boolean isBadPluginDeveloper() {
+    private static boolean isIllegalModification() {
         if (Bukkit.isPrimaryThread())
             return false;
 
