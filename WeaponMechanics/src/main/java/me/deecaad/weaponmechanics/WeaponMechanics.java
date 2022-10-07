@@ -115,15 +115,6 @@ public class WeaponMechanics {
     public void onLoad() {
         setupDebugger();
 
-        // Check Java version and warn users about untested/unsupported versions
-        if (ReflectionUtil.getJavaVersion() < 8) {
-            debug.error("Detected a JAVA version under java 1.8. This plugin will NOT work in versions under java 1.8.");
-            debug.error("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
-        } else if (ReflectionUtil.getJavaVersion() > 17) {
-            debug.debug("Detected a JAVA version above java 17. This plugin has not been tested in versions above java 17.");
-            debug.debug("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
-        }
-
         // Register all WorldGuard flags
         WorldGuardCompatibility guard = CompatibilityAPI.getWorldGuardCompatibility();
         if (guard.isInstalled()) {
