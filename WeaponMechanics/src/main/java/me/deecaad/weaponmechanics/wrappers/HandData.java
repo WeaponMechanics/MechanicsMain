@@ -217,7 +217,7 @@ public class HandData {
             }
             reloadTasks.clear();
 
-            Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity()));
+            Bukkit.getPluginManager().callEvent(new WeaponReloadCompleteEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND));
 
             reloadWeaponStack = null;
             reloadWeaponTitle = null;
@@ -231,7 +231,7 @@ public class HandData {
             }
             reloadTasks.clear();
 
-            Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), getReloadElapsedTime()));
+            Bukkit.getPluginManager().callEvent(new WeaponReloadCancelEvent(reloadWeaponTitle, reloadWeaponStack, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, getReloadElapsedTime()));
 
             reloadWeaponStack = null;
             reloadWeaponTitle = null;

@@ -126,7 +126,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         Configuration config = getConfigurations();
 
-        WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot);
         Bukkit.getPluginManager().callEvent(preShootEvent);
         if (preShootEvent.isCancelled()) return false;
 
@@ -472,7 +472,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (state == FirearmState.CLOSE) {
             // Only do CLOSE state
 
-            WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+            WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
             Bukkit.getPluginManager().callEvent(event);
 
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
@@ -491,7 +491,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         // Update state
         if (state != FirearmState.OPEN) firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
-        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
         Bukkit.getPluginManager().callEvent(event);
 
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
@@ -512,7 +512,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
 
-                WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+                WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
                 Bukkit.getPluginManager().callEvent(event);
 
                 event.useMechanics(castData, false);
@@ -610,7 +610,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
             // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
             if (!isMelee) {
-                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
                 Bukkit.getPluginManager().callEvent(event);
 
                 HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
@@ -642,7 +642,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             }
 
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
+            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, motion, weaponStack, weaponTitle, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
@@ -652,7 +652,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             projectile.shoot(bullet, shootLocation);
         }
 
-        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         Bukkit.getPluginManager().callEvent(event);
 
         // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
@@ -682,7 +682,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
 
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, normalizedDirection.clone().multiply(projectileSpeed), null, weaponTitle);
+            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, normalizedDirection.clone().multiply(projectileSpeed), null, weaponTitle, null);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
@@ -692,7 +692,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             projectile.shoot(bullet, shootLocation);
         }
 
-        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity);
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity, null);
         Bukkit.getPluginManager().callEvent(event);
     }
 

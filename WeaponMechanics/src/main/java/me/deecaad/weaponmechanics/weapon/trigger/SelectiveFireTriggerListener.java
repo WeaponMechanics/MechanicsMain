@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.trigger;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -50,7 +49,7 @@ public class SelectiveFireTriggerListener implements TriggerListener {
             nextState = nextState.getNext();
         }
 
-        SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, selectiveFireState, nextState);
+        SelectiveFireState.setState(entityWrapper, weaponTitle, weaponStack, slot, selectiveFireState, nextState);
 
         entityWrapper.getMainHandData().cancelTasks();
         entityWrapper.getOffHandData().cancelTasks();

@@ -58,7 +58,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
     }
 
     @Override
-    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot,
+                          TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
+
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Reload.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
@@ -77,7 +79,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
      * @param isReloadLoop whether this is reloading loop
      * @return true if was able to start reloading
      */
-    public boolean startReloadWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+    public boolean startReloadWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack,
+                                             EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
 
         // This method is called from many places in reload handler and shoot handler as well
         // so that's why even startReloadWithoutTriggerAndWithoutTiming() is a separated method
@@ -89,7 +92,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
         return result;
     }
 
-    private boolean startReloadWithoutTriggerAndWithoutTiming(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+    private boolean startReloadWithoutTriggerAndWithoutTiming(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack,
+                                                              EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
 
         // Don't try to reload if either one of the hands is already reloading / full autoing
         HandData mainHandData = entityWrapper.getMainHandData();
@@ -99,7 +103,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             return false;
         }
 
-        WeaponPreReloadEvent preReloadEvent = new WeaponPreReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        WeaponPreReloadEvent preReloadEvent = new WeaponPreReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot);
         Bukkit.getPluginManager().callEvent(preReloadEvent);
         if (preReloadEvent.isCancelled()) return false;
 
@@ -220,7 +224,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
             return false;
         }
 
-        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(),
+        WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
                 reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime);
         Bukkit.getPluginManager().callEvent(reloadEvent);
 
@@ -369,7 +373,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
     private ChainTask getOpenTask(int firearmOpenTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData,
                                   EntityWrapper entityWrapper, String weaponTitle, boolean mainhand, EquipmentSlot slot) {
 
-        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.OPEN);
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, firearmAction, FirearmState.OPEN);
         Bukkit.getPluginManager().callEvent(event);
 
         return new ChainTask(event.getTime()) {
@@ -410,7 +414,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
     private ChainTask getCloseTask(int firearmCloseTime, FirearmAction firearmAction, ItemStack weaponStack, HandData handData, EntityWrapper entityWrapper,
                                    String weaponTitle, boolean mainhand, EquipmentSlot slot, boolean dualWield) {
 
-        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), firearmAction, FirearmState.CLOSE);
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, firearmAction, FirearmState.CLOSE);
         Bukkit.getPluginManager().callEvent(event);
 
         return new ChainTask(event.getTime()) {
