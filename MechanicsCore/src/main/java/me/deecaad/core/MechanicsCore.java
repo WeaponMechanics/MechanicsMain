@@ -28,43 +28,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 
-public class MechanicsCore {
+public class MechanicsCore extends JavaPlugin {
 
     private static MechanicsCore instance;
     public static Debugger debug; // public for import
 
-    private final JavaPlugin javaPlugin;
     public BukkitAudiences adventure;
     public MiniMessage message;
 
-    MechanicsCore(JavaPlugin plugin) {
-        this.javaPlugin = plugin;
-        instance = this;
-    }
-
-    public org.bukkit.configuration.Configuration getConfig() {
-        return javaPlugin.getConfig();
-    }
-
-    public Logger getLogger() {
-        return javaPlugin.getLogger();
-    }
-
-    public File getDataFolder() {
-        return javaPlugin.getDataFolder();
-    }
-
-    public ClassLoader getClassLoader() {
-        return (ClassLoader) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader"), javaPlugin);
-    }
-
-    public File getFile() {
-        return (File) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getFile"), javaPlugin);
-    }
-
     public void onLoad() {
+        instance = this;
+
         int level = getConfig().getInt("Debug_Level");
         boolean printTraces = getConfig().getBoolean("Print_Traces");
         debug = new Debugger(getLogger(), level, printTraces);
@@ -80,12 +55,12 @@ public class MechanicsCore {
         // The methods we use that allow EntityEquipmentEvent to trigger simply
         // don't exist in 1.10 and lower.
         if (ReflectionUtil.getMCVersion() >= 11) {
-            Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, javaPlugin);
+            Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         }
-        Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), javaPlugin);
+        Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
 
         // Adventure Chat API
-        adventure = BukkitAudiences.create(javaPlugin);
+        adventure = BukkitAudiences.create(this);
         message = MiniMessage.miniMessage();
 
         // Handle MechanicsCore custom item registry (You can get items using
@@ -108,12 +83,12 @@ public class MechanicsCore {
                 List<Serializer<?>> serializers = new SerializerInstancer(new JarFile(getFile())).createAllInstances(getClassLoader());
                 event.addSerializers(serializers);
             }
-        }, javaPlugin);
+        }, this);
     }
 
     public void onDisable() {
-        HandlerList.unregisterAll(javaPlugin);
-        Bukkit.getServer().getScheduler().cancelTasks(javaPlugin);
+        HandlerList.unregisterAll(this);
+        Bukkit.getServer().getScheduler().cancelTasks(this);
         PlaceholderAPI.onDisable();
         debug = null;
         adventure.close();
@@ -186,14 +161,11 @@ public class MechanicsCore {
         return added;
     }
 
+
     /**
      * @return the MechanicsCore plugin instance
      */
-    public static JavaPlugin getPlugin() {
-        return instance.javaPlugin;
-    }
-
-    public static MechanicsCore getInstance() {
+    public static MechanicsCore getPlugin() {
         return instance;
     }
 }

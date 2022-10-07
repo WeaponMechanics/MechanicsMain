@@ -154,7 +154,7 @@ public abstract class SubCommand extends BukkitCommand {
             builder.append(text("/" + prefix + " " + String.join(" ", args)).color(NamedTextColor.GOLD).clickEvent(click).hoverEvent(hover));
             builder.append(text(": " + description).color(NamedTextColor.GRAY).clickEvent(click).hoverEvent(hover));
 
-            MechanicsCore.getInstance().adventure.sender(sender).sendMessage(builder);
+            MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(builder);
 
             return true;
         } else {

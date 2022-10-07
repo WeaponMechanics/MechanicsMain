@@ -154,7 +154,7 @@ public final class MechanicsCoreCommand {
                 })
                 .build();
 
-        MechanicsCore.getInstance().adventure.sender(sender).sendMessage(table);
+        MechanicsCore.getPlugin().adventure.sender(sender).sendMessage(table);
     }
 
     public static void tableColors(CommandSender sender) {
@@ -218,16 +218,16 @@ public final class MechanicsCoreCommand {
                         case 0:
                             return new ColorData("&#7D5A2D", "<#7D5A2D>", TextColor.color(125, 90, 45)).alt("The five boxing wizards jump quickly").build();
                         case 1:
-                            return text("<rainbow> = ").append(MechanicsCore.getInstance().message.deserialize("<rainbow>The quick brown fox jumps over the lazy dog"));
+                            return text("<rainbow> = ").append(MechanicsCore.getPlugin().message.deserialize("<rainbow>The quick brown fox jumps over the lazy dog"));
                         case 2:
-                            return text("<gradient:green:#ff0000> = ").append(MechanicsCore.getInstance().message.deserialize("<gradient:green:#ff0000>A wizard's job is to vex chumps"));
+                            return text("<gradient:green:#ff0000> = ").append(MechanicsCore.getPlugin().message.deserialize("<gradient:green:#ff0000>A wizard's job is to vex chumps"));
                         default:
                             throw new RuntimeException("unreachable code");
                     }
                 })
                 .build();
 
-        Audience audience = MechanicsCore.getInstance().adventure.sender(sender);
+        Audience audience = MechanicsCore.getPlugin().adventure.sender(sender);
         audience.sendMessage(colorComponent.append(decorationComponent).append(miscComponent).append(new TableBuilder.Line('=', Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH)).build()));
     }
 
