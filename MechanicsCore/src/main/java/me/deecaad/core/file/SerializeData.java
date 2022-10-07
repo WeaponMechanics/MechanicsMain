@@ -490,6 +490,18 @@ public class SerializeData {
         }
 
         /**
+         * Returns <code>true</code> when the object stored in this location
+         * matches the given <code>type</code>.
+         *
+         * @param type Which type to check for
+         * @return true, if the value matched the type.
+         */
+        public boolean is(Class<?> type) {
+            Object value = config.get(getPath(relative));
+            return value != null && type.isAssignableFrom(value.getClass());
+        }
+
+        /**
          * Asserts that the value at this key is an instance of the given
          * class. Ensures that the datatype matches what the developer
          * expected the user to give.

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.events.EntityEquipmentEvent;
-import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
