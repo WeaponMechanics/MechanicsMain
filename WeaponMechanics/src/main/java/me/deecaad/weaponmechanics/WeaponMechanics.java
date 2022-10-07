@@ -41,10 +41,14 @@ import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
@@ -165,12 +169,12 @@ public class WeaponMechanics {
         // some disgusting NMS shit.
         new TaskChain(javaPlugin)
                 .thenRunSync(() -> {
-                            loadConfig();
-                            registerPlaceholders();
-                            registerListeners();
-                            registerBStats();
-                            registerPermissions();
-                        });
+                    loadConfig();
+                    registerPlaceholders();
+                    registerListeners();
+                    registerBStats();
+                    registerPermissions();
+                });
 
 
         registerCommands();
@@ -404,24 +408,43 @@ public class WeaponMechanics {
 
         debug.debug("Registering update checker");
 
-        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.spigot(99913, "WeaponMechanics"));
+        // Show update information in console during plugin loading phase.
+        // Don't run this async since we want all the WeaponMechanics messages
+        // to be clumped together in console.
+        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.github("WeaponMechanics", "MechanicsMain"));
+        UpdateInfo consoleUpdate = updateChecker.hasUpdate();
+        if (consoleUpdate != null) {
+            debug.warn("WeaponMechanics is outdated! %s -> %s".formatted(consoleUpdate.current, consoleUpdate.newest),
+                    "Download v" + consoleUpdate.newest + ": https://www.spigotmc.org/resources/99913/");
+        }
 
         Listener listener = new Listener() {
             @EventHandler
             public void onJoin(PlayerJoinEvent event) {
-                Player player = event.getPlayer();
-                if (player.isOp()) {
-                    new TaskChain(javaPlugin)
-                            .thenRunAsync((callback) -> updateChecker.hasUpdate())
-                            .thenRunSync((callback) -> {
-                                UpdateInfo update = (UpdateInfo) callback;
-                                if (callback != null) {
-                                    player.sendMessage(ChatColor.RED + "WeaponMechanics is out of date! " + update.current + " -> " + update.newest);
-                                }
 
-                                return null;
-                            });
-                }
+                // Only show updates to players with OPERATOR perms
+                Player player = event.getPlayer();
+                if (!player.isOp())
+                    return;
+
+                // Run ASYNC since update checker has to download data from the
+                // internet. SYNC callback is probably optional, but don't risk
+                // it.
+                new TaskChain(javaPlugin)
+                        .thenRunAsync((callback) -> updateChecker.hasUpdate())
+                        .thenRunSync((callback) -> {
+                            UpdateInfo update = (UpdateInfo) callback;
+                            if (callback != null) {
+                                Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+                                TextComponent message = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(update.current, update.newest), NamedTextColor.RED)
+                                        .hoverEvent(Component.text("Click to download the update"))
+                                        .clickEvent(ClickEvent.openUrl("https://www.spigotmc.org/resources/99913/"));
+
+                                audience.sendMessage(message);
+                            }
+
+                            return null;
+                        });
             }
         };
 
@@ -609,7 +632,7 @@ public class WeaponMechanics {
      * This method will return null if no auto add is set to true and EntityWrapper is not found.
      * If no auto add is false then new EntityWrapper is automatically created if not found and returned by this method.
      *
-     * @param entity the entity
+     * @param entity    the entity
      * @param noAutoAdd true means that EntityWrapper wont be automatically added if not found
      * @return the entity wrapper or null if no auto add is true and EntityWrapper was not found
      */
