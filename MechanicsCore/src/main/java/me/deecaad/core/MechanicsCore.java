@@ -50,7 +50,7 @@ public class MechanicsCore extends JavaPlugin {
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
             FileUtil.copyResourcesTo(getClassLoader().getResource("MechanicsCore"), getDataFolder().toPath());
         }
-        FileUtil.ensureDefaults(getClassLoader(), "MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
+        FileUtil.ensureDefaults(getClassLoader().getResource("MechanicsCore/config.yml"), new File(getDataFolder(), "config.yml"));
 
         // The methods we use that allow EntityEquipmentEvent to trigger simply
         // don't exist in 1.10 and lower.
