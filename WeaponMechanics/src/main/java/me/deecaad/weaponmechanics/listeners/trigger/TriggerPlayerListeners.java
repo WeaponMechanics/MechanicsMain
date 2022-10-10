@@ -246,7 +246,7 @@ public class TriggerPlayerListeners implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler (ignoreCancelled = true, priority = EventPriority.LOW)
     public void dropItem(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
