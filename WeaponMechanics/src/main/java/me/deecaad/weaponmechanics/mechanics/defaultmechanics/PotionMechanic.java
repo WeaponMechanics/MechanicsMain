@@ -80,8 +80,6 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
             int duration = Integer.parseInt(split[1]);
             int amplifier = Integer.parseInt(split[2]) - 1; // subtract one since 0 is potion level 1
 
-            if (amplifier < 1) amplifier = 1;
-
             boolean allowParticles = split.length <= 3 || Boolean.parseBoolean(split[3]);
             boolean produceMoreParticles = split.length > 4 && Boolean.parseBoolean(split[4]);
             boolean icon = split.length > 5 && Boolean.parseBoolean(split[5]);
