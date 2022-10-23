@@ -43,7 +43,6 @@ import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
@@ -407,43 +406,43 @@ public class WeaponMechanics {
 
         debug.debug("Registering update checker");
 
-        // Show update information in console during plugin loading phase.
-        // Don't run this async since we want all the WeaponMechanics messages
-        // to be clumped together in console.
         updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.github("WeaponMechanics", "MechanicsMain"));
-        UpdateInfo consoleUpdate = updateChecker.hasUpdate();
-        if (consoleUpdate != null) {
-            debug.warn("WeaponMechanics is outdated! %s -> %s".formatted(consoleUpdate.current, consoleUpdate.newest),
-                    "Download v" + consoleUpdate.newest + ": https://www.spigotmc.org/resources/99913/");
+
+        try {
+            UpdateInfo consoleUpdate = updateChecker.hasUpdate();
+                if (consoleUpdate != null) {
+                    Audience audience = MechanicsCore.getPlugin().adventure.sender(Bukkit.getConsoleSender());
+                    Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(consoleUpdate.current, consoleUpdate.newest), NamedTextColor.RED)
+                            .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
+                            .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
+
+                    audience.sendMessage(component);
+                }
+        } catch (Throwable ex) {
+            debug.log(LogLevel.DEBUG, "UpdateChecker error", ex);
+            debug.error("UpdateChecker failed to connect: " + ex.getMessage());
+            return;
         }
 
         Listener listener = new Listener() {
             @EventHandler
             public void onJoin(PlayerJoinEvent event) {
+                if (event.getPlayer().isOp()) {
+                    new TaskChain(javaPlugin)
+                            .thenRunAsync((callback) -> updateChecker.hasUpdate())
+                            .thenRunSync((callback) -> {
+                                UpdateInfo update = (UpdateInfo) callback;
+                                if (callback != null) {
+                                    Audience audience = MechanicsCore.getPlugin().adventure.player(event.getPlayer());
+                                    Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(update.current, update.newest), NamedTextColor.RED)
+                                            .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
+                                            .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
 
-                // Only show updates to players with OPERATOR perms
-                Player player = event.getPlayer();
-                if (!player.isOp())
-                    return;
-
-                // Run ASYNC since update checker has to download data from the
-                // internet. SYNC callback is probably optional, but don't risk
-                // it.
-                new TaskChain(javaPlugin)
-                        .thenRunAsync((callback) -> updateChecker.hasUpdate())
-                        .thenRunSync((callback) -> {
-                            UpdateInfo update = (UpdateInfo) callback;
-                            if (callback != null) {
-                                Audience audience = MechanicsCore.getPlugin().adventure.player(player);
-                                TextComponent message = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(update.current, update.newest), NamedTextColor.RED)
-                                        .hoverEvent(Component.text("Click to download the update"))
-                                        .clickEvent(ClickEvent.openUrl("https://www.spigotmc.org/resources/99913/"));
-
-                                audience.sendMessage(message);
-                            }
-
-                            return null;
-                        });
+                                    audience.sendMessage(component);
+                                }
+                                return null;
+                            });
+                }
             }
         };
 
