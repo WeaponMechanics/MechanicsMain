@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report any errors or bugs or other behavior related issues here.
-labels: [ bug ]
+labels: [ bug, new ]
 body:
   - type: checkboxes
     attributes:
