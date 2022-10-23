@@ -12,17 +12,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class BlockDamage implements Serializer<BlockDamage> {
 
@@ -185,16 +184,25 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 }
             }
 
+            // Calculate dropped blocks BEFORE the block is broken.
+            Collection<ItemStack> drops = NumberUtil.chance(dropBlockChance) ? block.getDrops() : null;
+            if (block.getState() instanceof InventoryHolder inv) {
+                if (drops == null)
+                    drops = new ArrayList<>();
+
+                if (inv instanceof Chest)
+                    Collections.addAll(drops, ((Chest) inv).getBlockInventory().getContents());
+                else
+                    Collections.addAll(drops, inv.getInventory().getContents());
+            }
+
             int max = getMaxDurability(block);
             BlockDamageData.DamageData data = BlockDamageData.damage(block, (double) damage / (double) max, isBreakBlocks, isRegenerate, getMask(block));
-            if (data.isBroken() && dropBlockChance > 0.0) {
+            if (data.isBroken() && drops != null && dropItems) {
 
-                // Event may change this in 1.12+
-                if (dropItems) {
-                    Location location = block.getLocation();
-                    for (ItemStack item : block.getDrops()) {
-                        block.getWorld().dropItemNaturally(location, item);
-                    }
+                Location location = block.getLocation();
+                for (ItemStack item : drops) {
+                    block.getWorld().dropItemNaturally(location, item);
                 }
             }
 
