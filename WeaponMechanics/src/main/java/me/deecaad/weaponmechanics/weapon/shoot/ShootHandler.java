@@ -84,6 +84,8 @@ public class ShootHandler implements IValidator, TriggerListener {
      *
      *         print("\t{" + ", ".join(map(str, collection)) + "},")
      * }</pre></blockquote>
+     *
+     * TODO Switch from int -> boolean for 12.8mb -> 400kb of ram
      */
     private static final int[][] AUTO = new int[][] {
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 perfect
