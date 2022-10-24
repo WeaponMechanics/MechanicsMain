@@ -186,7 +186,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
             // Calculate dropped blocks BEFORE the block is broken.
             Collection<ItemStack> drops = NumberUtil.chance(dropBlockChance) ? block.getDrops() : null;
-            if (block.getState() instanceof InventoryHolder inv) {
+            if (block.getState() instanceof InventoryHolder inv && !isRegenerate) {
                 if (drops == null)
                     drops = new ArrayList<>();
 
