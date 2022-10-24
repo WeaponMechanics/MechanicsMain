@@ -1,6 +1,6 @@
 name: Feature Request
 description: If you have features request, post it here
-labels: [ enhancement ]
+labels: [ enhancement, new ]
 body:
 
   - type: textarea
