@@ -85,7 +85,7 @@ public class ShootHandler implements IValidator, TriggerListener {
      *         print("\t{" + ", ".join(map(str, collection)) + "},")
      * }</pre></blockquote>
      *
-     * TODO Switch from int -> boolean for 12.8mb -> 400kb of ram
+     * TODO Switch from int -> boolean for 1.6kb -> 400bits of ram
      */
     private static final int[][] AUTO = new int[][] {
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 perfect
@@ -110,7 +110,8 @@ public class ShootHandler implements IValidator, TriggerListener {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}  // 20 good
     };
 
-    public ShootHandler() { }
+    public ShootHandler() {
+    }
 
     public ShootHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
