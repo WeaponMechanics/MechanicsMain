@@ -21,6 +21,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     testImplementation("org.spigotmc:spigot-api:1.19.1-R0.1-SNAPSHOT")
     testImplementation("org.jetbrains:annotations:23.0.0")
+    testImplementation("com.mojang:brigadier:1.0.18")
 }
 
 tasks.test {

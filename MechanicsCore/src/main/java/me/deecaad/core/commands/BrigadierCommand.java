@@ -91,8 +91,7 @@ public class BrigadierCommand implements Command<Object> {
 
             // LiteralArgumentTypes are just hard-coded string values, which
             // are usually used as sub-commands. These must be registered
-            if (argument.getType() instanceof LiteralArgumentType) {
-                LiteralArgumentType literal = (LiteralArgumentType) argument.getType();
+            if (argument.getType() instanceof LiteralArgumentType literal) {
                 temp = literal(literal.getLiteral());
             }
 
