@@ -89,8 +89,8 @@ public class RecoilTask extends TimerTask {
                 pitchPerIteration = 0;
             } else {
                 // Multiply back to original push time
-                yawPerIteration *= rotations;
-                pitchPerIteration *= rotations;
+                yawPerIteration *= -rotations;
+                pitchPerIteration *= -rotations;
 
                 // Then recalculate the yaw and pitch per iteration based on recover time
                 rotations = (int) (recoverTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
