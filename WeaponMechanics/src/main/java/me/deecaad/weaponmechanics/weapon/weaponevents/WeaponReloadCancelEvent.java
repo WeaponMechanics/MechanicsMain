@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,8 +16,8 @@ public class WeaponReloadCancelEvent extends WeaponEvent {
 
     private final int elapsedTime;
 
-    public WeaponReloadCancelEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, int elapsedTime) {
-        super(weaponTitle, weaponItem, weaponUser);
+    public WeaponReloadCancelEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand, int elapsedTime) {
+        super(weaponTitle, weaponItem, weaponUser, hand);
         this.elapsedTime = elapsedTime;
     }
 

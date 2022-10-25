@@ -27,7 +27,7 @@ public class JarSearcher {
     /**
      * This constructor will throw an {@link IllegalArgumentException} if the
      * given <code>jar</code> is null. {@link JarFile} instances can be
-     * obtained via {@link FileCopier#getJarFile(Plugin, File)}.
+     * obtained via {@link me.deecaad.core.utils.FileUtil#getJarFile(Plugin, File)}.
      *
      * @param jar The <code>.jar</code> file to search.
      */

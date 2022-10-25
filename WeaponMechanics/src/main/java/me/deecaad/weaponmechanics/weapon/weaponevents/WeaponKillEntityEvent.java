@@ -5,6 +5,7 @@ import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +22,9 @@ public class WeaponKillEntityEvent extends WeaponEvent {
     private final LivingEntity victim;
     private final WeaponDamageEntityEvent damageEvent;
 
-    public WeaponKillEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, LivingEntity victim, WeaponDamageEntityEvent damageEvent) {
-        super(weaponTitle, weaponItem, weaponUser);
+    public WeaponKillEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
+                                 LivingEntity victim, WeaponDamageEntityEvent damageEvent) {
+        super(weaponTitle, weaponItem, weaponUser, hand);
         this.victim = victim;
         this.damageEvent = damageEvent;
     }

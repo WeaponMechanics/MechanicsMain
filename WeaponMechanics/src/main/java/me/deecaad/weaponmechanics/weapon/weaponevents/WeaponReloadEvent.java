@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,9 +20,9 @@ public class WeaponReloadEvent extends WeaponEvent {
     private int firearmOpenTime;
     private int firearmCloseTime;
 
-    public WeaponReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, int reloadTime, int reloadAmount, int magazineSize,
-                             int firearmOpenTime, int firearmCloseTime) {
-        super(weaponTitle, weaponItem, weaponUser);
+    public WeaponReloadEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
+                             int reloadTime, int reloadAmount, int magazineSize, int firearmOpenTime, int firearmCloseTime) {
+        super(weaponTitle, weaponItem, weaponUser, hand);
         this.reloadTime = reloadTime;
         this.reloadAmount = reloadAmount;
         this.magazineSize = magazineSize;

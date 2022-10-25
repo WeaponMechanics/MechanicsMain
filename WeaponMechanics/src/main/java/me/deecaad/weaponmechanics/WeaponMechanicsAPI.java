@@ -9,6 +9,8 @@ import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.IAmmoType;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.ItemAmmo;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Chunk;
@@ -198,6 +200,44 @@ public final class WeaponMechanicsAPI {
 
         return ammoTypes.getCurrentAmmoName(weaponStack);
     }
+
+    /**
+     * Returns the ammo item stack from given weapon and ammo type. If the weapon doesn't use ammo,
+     * this method will return <code>null</code>.
+     *
+     * @param weaponTitle The non-null weapon-title of the weapon.
+     * @param ammoType The non-null ammo type name
+     * @param magazine Whether magazine or bullet item should be fetched
+     * @return The ammo item, or null
+     */
+    @Nullable
+    public static ItemStack getAmmoItem(@Nonnull String weaponTitle, @Nonnull String ammoType, boolean magazine) {
+        checkState();
+        notNull(weaponTitle);
+        notNull(ammoType);
+
+        AmmoTypes ammoTypes = plugin.configurations.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
+        if (ammoTypes == null) return null;
+
+        for (IAmmoType iAmmoType : ammoTypes.getAmmoTypes()) {
+            if (iAmmoType.getAmmoName().equals(ammoType)) {
+
+                if (!(iAmmoType instanceof ItemAmmo itemAmmo)) {
+                    throw new IllegalArgumentException("Weapon " + weaponTitle + " ammo type name " + ammoType + " is not item ammo");
+                }
+
+                ItemStack item = magazine ? itemAmmo.getMagazineItem() : itemAmmo.getBulletItem();
+                if (item == null) {
+                    throw new NullPointerException("Weapon " + weaponTitle + " does not have " + (magazine ? "magazine" : "bullet item") + " defined on ammo type " + ammoType);
+                }
+
+                return item;
+            }
+        }
+
+        throw new NullPointerException("Weapon " + weaponTitle + " does not have ammo type named " + ammoType + " (it is case sensitive)");
+    }
+
 
     public static void shoot(LivingEntity shooter, String weaponTitle, Location target) {
         shoot(shooter, weaponTitle, target.toVector().subtract(shooter.getEyeLocation().toVector()));

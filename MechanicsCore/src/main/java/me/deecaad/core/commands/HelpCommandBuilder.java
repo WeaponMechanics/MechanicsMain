@@ -16,11 +16,10 @@ import static net.kyori.adventure.text.Component.text;
 
 /**
  * Consider the command: /wm test explosion sphere 5.0 3 DEFAULT #logs
- * It is relatively intuitive, but what is 'test'? 'explosion'? What other
- * options do we have? What do they all do?
  *
- * <p>We want to be able to use /wm help, /wm help test,
- * /wm help test explosion, and /wm help test explosion sphere.
+ * <p>It is relatively intuitive, but what is 'test'? 'explosion'? What other
+ * options do we have? What do they all do? We want to be able to use /wm help,
+ * /wm help test, /wm help test explosion, and /wm help test explosion sphere.
  *
  * <p>For any
  * command with sub-commands, 'help' should list the sub-commands with

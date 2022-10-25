@@ -4,6 +4,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponSelectiveFireChangeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public enum SelectiveFireState {
@@ -21,8 +22,8 @@ public enum SelectiveFireState {
      * Helper function to set item's selective fire state and call a
      * {@link me.deecaad.weaponmechanics.weapon.weaponevents.WeaponSelectiveFireChangeEvent}.
      */
-    public static void setState(EntityWrapper entity, String weaponTitle, ItemStack item, SelectiveFireState oldState, SelectiveFireState newState) {
-        WeaponSelectiveFireChangeEvent event = new WeaponSelectiveFireChangeEvent(weaponTitle, item, entity.getEntity(), oldState, newState);
+    public static void setState(EntityWrapper entity, String weaponTitle, ItemStack item, EquipmentSlot slot, SelectiveFireState oldState, SelectiveFireState newState) {
+        WeaponSelectiveFireChangeEvent event = new WeaponSelectiveFireChangeEvent(weaponTitle, item, entity.getEntity(), slot, oldState, newState);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled())

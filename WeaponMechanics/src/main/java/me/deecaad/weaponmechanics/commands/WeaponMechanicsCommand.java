@@ -840,6 +840,6 @@ public class WeaponMechanicsCommand {
                 gravity, false, -1, false,
                 -1, 0.99, 0.96, 0.98, false, 600, -1, 0.1);
         Projectile projectile = new Projectile(projectileSettings, null, null, null, null);
-        projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null);
+        projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null, null);
     }
 }

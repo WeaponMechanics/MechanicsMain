@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,8 +23,8 @@ public class WeaponFirearmEvent extends WeaponEvent {
     private Mechanics mechanics;
     private int time;
 
-    public WeaponFirearmEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, FirearmAction action, FirearmState state) {
-        super(weaponTitle, weaponStack, shooter);
+    public WeaponFirearmEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, FirearmAction action, FirearmState state) {
+        super(weaponTitle, weaponStack, shooter, hand);
         this.action = action;
         this.state = state;
 

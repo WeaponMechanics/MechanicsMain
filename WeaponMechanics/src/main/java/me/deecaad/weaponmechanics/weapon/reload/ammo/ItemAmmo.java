@@ -32,6 +32,14 @@ public class ItemAmmo implements IAmmoType {
         this.ammoConverter = ammoConverter;
     }
 
+    public ItemStack getBulletItem() {
+        return bulletItem == null ? null : bulletItem.clone();
+    }
+
+    public ItemStack getMagazineItem() {
+        return magazineItem == null ? null : magazineItem.clone();
+    }
+
     @Override
     public String getAmmoName() {
         return ammoName;

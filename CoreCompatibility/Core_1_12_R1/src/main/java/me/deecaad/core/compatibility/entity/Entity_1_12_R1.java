@@ -73,33 +73,33 @@ public class Entity_1_12_R1 implements EntityCompatibility {
         int id = bukkit.getEntityId();
         EnumItemSlot nmsSlot;
         switch (slot) {
-            case HEAD:
+            case HEAD -> {
                 nmsSlot = EnumItemSlot.HEAD;
                 item = item == null ? equipment.getHelmet() : item;
-                break;
-            case CHEST:
+            }
+            case CHEST -> {
                 nmsSlot = EnumItemSlot.CHEST;
                 item = item == null ? equipment.getChestplate() : item;
-                break;
-            case LEGS:
+            }
+            case LEGS -> {
                 nmsSlot = EnumItemSlot.LEGS;
                 item = item == null ? equipment.getLeggings() : item;
-                break;
-            case FEET:
+            }
+            case FEET -> {
                 nmsSlot = EnumItemSlot.FEET;
                 item = item == null ? equipment.getBoots() : item;
-                break;
-            case HAND:
+            }
+            case HAND -> {
                 nmsSlot = EnumItemSlot.MAINHAND;
                 item = item == null ? equipment.getItemInMainHand() : item;
-                break;
-            case OFF_HAND:
+            }
+            case OFF_HAND -> {
                 nmsSlot = EnumItemSlot.OFFHAND;
                 item = item == null ? equipment.getItemInOffHand() : item;
-                break;
-            default:
-                throw new RuntimeException("unreachable");
-        };
+            }
+            default -> throw new RuntimeException("unreachable");
+        }
+        ;
 
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(id, nmsSlot, CraftItemStack.asNMSCopy(item));
         ((CraftPlayer) bukkit).getHandle().playerConnection.sendPacket(packet);

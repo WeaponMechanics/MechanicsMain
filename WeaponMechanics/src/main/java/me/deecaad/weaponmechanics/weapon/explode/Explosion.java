@@ -221,6 +221,12 @@ public class Explosion implements Serializer<Explosion> {
             return;
         }
 
+        // If the projectile is rolling or sticked to block
+        // -> add 0.5 Y to ensure the explosion doesn't happen slightly inside the block
+        if (projectile != null && (projectile.isRolling() || projectile.getStickedData() != null)) {
+            origin.add(0.0, 0.5, 0.0);
+        }
+
         // If the projectile uses airstrikes, then the airstrike should be
         // triggered instead of the explosion.
         if (projectile != null && airStrike != null && projectile.getIntTag("airstrike-bomb") == 0) {

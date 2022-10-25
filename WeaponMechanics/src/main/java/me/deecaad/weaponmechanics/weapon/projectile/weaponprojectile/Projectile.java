@@ -52,8 +52,8 @@ public class Projectile implements Serializer<Projectile> {
      * @param weaponStack the weapon stack used to shoot
      * @param weaponTitle the weapon title used to shoot
      */
-    public WeaponProjectile shoot(LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle) {
-        return shoot(create(shooter, location, motion, weaponStack, weaponTitle), location);
+    public WeaponProjectile shoot(LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle, EquipmentSlot hand) {
+        return shoot(create(shooter, location, motion, weaponStack, weaponTitle, hand), location);
     }
 
     /**
@@ -108,8 +108,8 @@ public class Projectile implements Serializer<Projectile> {
      * @param weaponStack the weapon stack used to shoot
      * @param weaponTitle the weapon title used to shoot
      */
-    public WeaponProjectile create(LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle) {
-        return new WeaponProjectile(projectileSettings, shooter, location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
+    public WeaponProjectile create(LivingEntity shooter, Location location, Vector motion, ItemStack weaponStack, String weaponTitle, EquipmentSlot hand) {
+        return new WeaponProjectile(projectileSettings, shooter, location, motion, weaponStack, weaponTitle, hand, sticky, through, bouncy);
     }
 
     @Override

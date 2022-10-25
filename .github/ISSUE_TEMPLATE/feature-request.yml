@@ -1,6 +1,6 @@
 name: Feature Request
 description: If you have features request, post it here
-labels: [ enhancement ]
+labels: [ enhancement, new ]
 body:
 
   - type: textarea
@@ -27,3 +27,12 @@ body:
         ```
     validations:
       required: true
+
+  - type: checkboxes
+    attributes:
+      label: Payment (optional)
+      description: |
+        You can pay to add your request quickly (<1 month). There is an $8 minimum payment requirement. All features we add are available for everyone to use; no private features. We use PayPal for all transactions. After checking this option, we will give you an estimate and our PayPal information.
+      options:
+        - label: I'm willing to pay for this feature
+          required: false

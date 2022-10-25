@@ -30,6 +30,10 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
         this.ammoTypes = ammoTypes;
     }
 
+    public List<IAmmoType> getAmmoTypes() {
+        return ammoTypes;
+    }
+
     public String getCurrentAmmoName(ItemStack weaponStack) {
         return ammoTypes.get(CustomTag.AMMO_TYPE_INDEX.getInteger(weaponStack)).getAmmoName();
     }

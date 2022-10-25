@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -22,6 +23,7 @@ public class WeaponProjectile extends AProjectile {
 
     private final ItemStack weaponStack;
     private final String weaponTitle;
+    private final EquipmentSlot hand;
 
     private final Sticky sticky;
     private final Through through;
@@ -42,13 +44,14 @@ public class WeaponProjectile extends AProjectile {
     private final RayTrace rayTrace;
 
     public WeaponProjectile(ProjectileSettings projectileSettings, LivingEntity shooter, Location location,
-                            Vector motion, ItemStack weaponStack, String weaponTitle,
+                            Vector motion, ItemStack weaponStack, String weaponTitle, EquipmentSlot hand,
                             Sticky sticky, Through through, Bouncy bouncy) {
         super(shooter, location, motion);
 
         this.projectileSettings = projectileSettings;
         this.weaponStack = weaponStack;
         this.weaponTitle = weaponTitle;
+        this.hand = hand;
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
@@ -78,7 +81,7 @@ public class WeaponProjectile extends AProjectile {
      * @return the cloned projectile
      */
     public WeaponProjectile clone(Location location, Vector motion) {
-        return new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, sticky, through, bouncy);
+        return new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, hand, sticky, through, bouncy);
     }
 
     @Override
@@ -141,6 +144,15 @@ public class WeaponProjectile extends AProjectile {
      */
     public String getWeaponTitle() {
         return weaponTitle;
+    }
+
+    /**
+     * Can be null through API
+     *
+     * @return the hand used to shoot this projectile.
+     */
+    public EquipmentSlot getHand() {
+        return hand;
     }
 
     /**

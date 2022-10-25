@@ -172,7 +172,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 int currentStacks = zoomData.getZoomStacks();
                 double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks));
                 int zoomStack = currentStacks + 1;
-                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.STACK, zoomAmount, zoomStack);
+                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.STACK, zoomAmount, zoomStack);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
                 if (weaponScopeEvent.isCancelled()) {
                     return false;
@@ -202,7 +202,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         if (zoomAmount == 0) return false;
 
         // zoom stack = 0, because its not used OR this is first zoom in
-        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0);
+        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0);
         Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         if (weaponScopeEvent.isCancelled()) {
             return false;
@@ -244,7 +244,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         LivingEntity entity = entityWrapper.getEntity();
 
         // Zoom amount and stack 0 because zooming out
-        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, WeaponScopeEvent.ScopeType.OUT, 0, 0);
+        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.OUT, 0, 0);
         Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         if (weaponScopeEvent.isCancelled()) {
             return false;

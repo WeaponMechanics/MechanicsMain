@@ -12,7 +12,7 @@ public class LayerDistanceSorter extends BlockRegenSorter {
 
     @Override
     public int compare(Block a, Block b) {
-        int height = a.getY() - b.getY();
+        int height = Integer.compare(a.getY(), b.getY());
 
         if (height != 0)
             return height;
@@ -28,7 +28,8 @@ public class LayerDistanceSorter extends BlockRegenSorter {
         int distanceA = square(a.getX() - x) + square(a.getY() - y) + square(a.getZ() - z);
         int distanceB = square(b.getX() - x) + square(b.getY() - y) + square(b.getZ() - z);
 
-        return distanceA - distanceB;
+        // Negative for outer blocks before inner blocks
+        return -Integer.compare(distanceA, distanceB);
     }
 
     private static int square(int a) {

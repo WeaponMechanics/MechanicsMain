@@ -24,7 +24,7 @@ public class ExplosionInteractionListeners implements Listener {
         BlockDamageData.regenerate(chunk);
     }
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onItemFrameBreak(HangingBreakEvent e) {
         BlockFace attachment = e.getEntity().getAttachedFace();
         Block in = e.getEntity().getLocation().getBlock();

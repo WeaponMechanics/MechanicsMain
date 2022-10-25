@@ -64,27 +64,19 @@ public class FakeEntity_1_10_R1 extends FakeEntity {
         // require extra data in order to display. We only need to use these
         // constructors when we are given the data (data != null).
         if (data != null) {
-
-            // Cannot use java 16 switch statements, unfortunately.
-            switch (type) {
-                case DROPPED_ITEM:
-                    entity = new EntityItem(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
-                    break;
-                case FALLING_BLOCK:
+            entity = switch (type) {
+                case DROPPED_ITEM -> new EntityItem(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                case FALLING_BLOCK -> {
                     if (data.getClass() == Material.class) {
-                        entity = new EntityFallingBlock(world.getHandle(), x, y, z, block = CraftMagicNumbers.getBlock((Material) data).fromLegacyData(0));
+                        yield new EntityFallingBlock(world.getHandle(), x, y, z, block = CraftMagicNumbers.getBlock((Material) data).fromLegacyData(0));
                     } else {
                         MaterialData state = ((org.bukkit.block.BlockState) data).getData();
-                        entity = new EntityFallingBlock(world.getHandle(), x, y, z, block = CraftMagicNumbers.getBlock(state.getItemType()).fromLegacyData(state.getData()));
+                        yield new EntityFallingBlock(world.getHandle(), x, y, z, block = CraftMagicNumbers.getBlock(state.getItemType()).fromLegacyData(state.getData()));
                     }
-                    break;
-                case FIREWORK:
-                    entity = new EntityFireworks(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
-                    break;
-                default:
-                    entity = world.createEntity(location, type.getEntityClass());
-                    break;
-            }
+                }
+                case FIREWORK -> new EntityFireworks(world.getHandle(), x, y, z, item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                default -> world.createEntity(location, type.getEntityClass());
+            };
         } else {
             entity = world.createEntity(location, type.getEntityClass());
         }
@@ -106,25 +98,22 @@ public class FakeEntity_1_10_R1 extends FakeEntity {
 
     @Override
     public Object getData() {
-        switch (type) {
-            case DROPPED_ITEM:
-                return CraftItemStack.asBukkitCopy(item);
-            case FALLING_BLOCK:
+        return switch (type) {
+            case DROPPED_ITEM -> CraftItemStack.asBukkitCopy(item);
+            case FALLING_BLOCK -> {
                 int combined = Block.getCombinedId(block);
                 int mat = combined & 4095;
                 int data = combined >> 12 & 15;
-                return new MaterialData(mat, (byte) data);
-            default:
-                return null;
-        }
+                yield new MaterialData(mat, (byte) data);
+            }
+            default -> null;
+        };
     }
 
     @Override
     public void setData(@Nullable Object data) {
         switch (type) {
-            case DROPPED_ITEM:
-                ((EntityItem) entity).setItemStack(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
-                break;
+            case DROPPED_ITEM -> ((EntityItem) entity).setItemStack(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
         }
     }
 

@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.weapon.damage.DamageUtil;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,11 +33,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private double distanceTravelled;
     private boolean isCancelled;
 
-    public WeaponDamageEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser,
+    public WeaponDamageEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
                                    LivingEntity victim, double baseDamage, boolean isBackstab, boolean isCritical,
                                    DamagePoint point, int armorDamage, int fireTicks, double distanceTravelled) {
 
-        super(weaponTitle, weaponItem, weaponUser);
+        super(weaponTitle, weaponItem, weaponUser, hand);
 
         this.victim = victim;
         this.baseDamage = baseDamage;

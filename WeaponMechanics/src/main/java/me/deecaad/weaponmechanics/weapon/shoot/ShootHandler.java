@@ -59,35 +59,59 @@ public class ShootHandler implements IValidator, TriggerListener {
     private WeaponHandler weaponHandler;
 
     /**
-     * Hardcoded full auto values
+     * Hardcoded full auto values. For every 1 in the array, the gun will fire
+     * on that tick. Some indexes are marked as <i>"perfect"</i>. This means
+     * that the delay between shots is exactly equal no matter what. Some
+     * indexes are marked as <i>"good"</i>. This means that the distance
+     * between zeros are equal.
+     *
+     * Calculated using python: <blockquote><pre>{@code
+     *     from collections import deque
+     *
+     *     for shotsPerSecond in range(1, 21):
+     *         collection = deque([0] * 20)
+     *         accumulate = 0
+     *         for i in range(0, 20):
+     *
+     *             accumulate += shotsPerSecond / 20 + 0.00000000001
+     *             if accumulate >= 1.0:
+     *                 accumulate -= 1.0
+     *                 collection[i] = 1
+     *
+     *         # shift over so the first tick is always a shot
+     *         while collection[0] == 0:
+     *             collection.rotate(-1)
+     *
+     *         print("\t{" + ", ".join(map(str, collection)) + "},")
+     * }</pre></blockquote>
+     *
+     * TODO Switch from int -> boolean for 1.6kb -> 400bits of ram
      */
     private static final int[][] AUTO = new int[][] {
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 good
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2 good
-            {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}, // 3
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0}, // 4 good
-            {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}, // 5 good
-
-            {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0}, // 6
-            {1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0}, // 7
-            {1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0}, // 8
-            {1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, // 9
-            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, // 10 good
-
-            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1}, // 11
-            {1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1}, // 12
-            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1}, // 13
-            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1}, // 14
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 perfect
+            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2 perfect
+            {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+            {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0}, // 4 perfect
+            {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}, // 5 perfect
+            {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0},
+            {1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0},
+            {1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0},
+            {1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
+            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, // 10 perfect
+            {1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
+            {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0},
+            {1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0},
+            {1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0},
             {1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0}, // 15 good
-
-            {1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1}, // 16
-            {1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1}, // 17
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, // 18
-            {1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 19
+            {1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0}, // 16 good
+            {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, // 18 good
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, // 19 good
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}  // 20 good
     };
 
-    public ShootHandler() { }
+    public ShootHandler() {
+    }
 
     public ShootHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
@@ -126,7 +150,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         Configuration config = getConfigurations();
 
-        WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        WeaponPreShootEvent preShootEvent = new WeaponPreShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot);
         Bukkit.getPluginManager().callEvent(preShootEvent);
         if (preShootEvent.isCancelled()) return false;
 
@@ -241,17 +265,14 @@ public class ShootHandler implements IValidator, TriggerListener {
         }
 
         if (usesSelectiveFire) {
-            switch (selectiveFireState) {
-                case BURST:
-                    return burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-                case AUTO:
-                    return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
-                default:
-                    return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
-            }
+            return switch (selectiveFireState) {
+                case BURST -> burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
+                case AUTO -> fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
+                default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
+            };
         }
 
-        // First try full auto, then burst then single fire
+        // First try full auto, then burst, then single fire
         return fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield)
                 || burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield)
                 || singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
@@ -475,7 +496,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (state == FirearmState.CLOSE) {
             // Only do CLOSE state
 
-            WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+            WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
             Bukkit.getPluginManager().callEvent(event);
 
             // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
@@ -494,7 +515,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         // Update state
         if (state != FirearmState.OPEN) firearmAction.changeState(weaponStack, FirearmState.OPEN);
 
-        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+        WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
         Bukkit.getPluginManager().callEvent(event);
 
         // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
@@ -515,7 +536,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
                 castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
 
-                WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, firearmAction, state);
+                WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
                 Bukkit.getPluginManager().callEvent(event);
 
                 event.useMechanics(castData, false);
@@ -537,26 +558,17 @@ public class ShootHandler implements IValidator, TriggerListener {
             return false;
         }
 
-        switch (triggerType) {
-            case START_SNEAK:
-                return entityWrapper.isSneaking();
-            case START_SPRINT:
-                return entityWrapper.isSprinting();
-            case RIGHT_CLICK:
-                return entityWrapper.isRightClicking();
-            case START_SWIM:
-                return entityWrapper.isSwimming();
-            case START_GLIDE:
-                return entityWrapper.isGliding();
-            case START_WALK:
-                return entityWrapper.isWalking();
-            case START_IN_MIDAIR:
-                return entityWrapper.isInMidair();
-            case START_STAND:
-                return entityWrapper.isStanding();
-            default:
-                return false;
-        }
+        return switch (triggerType) {
+            case START_SNEAK -> entityWrapper.isSneaking();
+            case START_SPRINT -> entityWrapper.isSprinting();
+            case RIGHT_CLICK -> entityWrapper.isRightClicking();
+            case START_SWIM -> entityWrapper.isSwimming();
+            case START_GLIDE -> entityWrapper.isGliding();
+            case START_WALK -> entityWrapper.isWalking();
+            case START_IN_MIDAIR -> entityWrapper.isInMidair();
+            case START_STAND -> entityWrapper.isStanding();
+            default -> false;
+        };
     }
 
     private void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
@@ -622,7 +634,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
             // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
             if (!isMelee) {
-                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
                 Bukkit.getPluginManager().callEvent(event);
 
                 HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
@@ -654,7 +666,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             }
 
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, motion, weaponStack, weaponTitle);
+            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, motion, weaponStack, weaponTitle, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
@@ -664,7 +676,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             projectile.shoot(bullet, shootLocation);
         }
 
-        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity());
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         Bukkit.getPluginManager().callEvent(event);
 
         // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
@@ -694,7 +706,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
 
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, normalizedDirection.clone().multiply(projectileSpeed), null, weaponTitle);
+            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, normalizedDirection.clone().multiply(projectileSpeed), null, weaponTitle, null);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
@@ -704,7 +716,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             projectile.shoot(bullet, shootLocation);
         }
 
-        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity);
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity, null);
         Bukkit.getPluginManager().callEvent(event);
     }
 
