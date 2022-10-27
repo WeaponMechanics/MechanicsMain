@@ -406,4 +406,8 @@ public class HitBox {
             }
         }
     }
+
+    public HitBox cloneDimensions() {
+        return new HitBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
 }

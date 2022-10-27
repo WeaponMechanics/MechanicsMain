@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.compatibility.RayTraceResult;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
@@ -293,7 +294,7 @@ public class WeaponProjectile extends AProjectile {
             }
 
             // Returned true and that most likely means that block hit was cancelled, skipping...
-            if (hit.handleHit(this)) continue;
+            if (rayTrace.handleHit(hit, this)) continue;
 
             // Sticky
             if (sticky != null && sticky.handleSticking(this, hit)) {
