@@ -1,7 +1,6 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;

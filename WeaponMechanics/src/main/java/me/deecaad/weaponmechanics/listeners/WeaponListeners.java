@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;

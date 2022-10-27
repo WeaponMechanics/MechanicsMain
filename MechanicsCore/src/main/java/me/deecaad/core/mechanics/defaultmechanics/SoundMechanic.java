@@ -1,18 +1,16 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+package me.deecaad.core.mechanics.defaultmechanics;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.IMechanic;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
-import me.deecaad.weaponmechanics.weapon.reload.ReloadSound;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -27,8 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getPlugin;
+import static me.deecaad.core.MechanicsCore.getPlugin;
 
 public class SoundMechanic implements IMechanic<SoundMechanic> {
 
@@ -45,7 +44,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
      */
     public SoundMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
+        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
     }
 
     public SoundMechanic(int delayCounter, List<SoundMechanicData> soundList) {
@@ -62,25 +61,14 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
             return;
         }
 
-
-        // Check if this is start reload cast
-        Integer reloadData = castData.getData(ReloadSound.getDataKeyword(), Integer.class);
-        Integer firearmActionData = castData.getData(FirearmSound.getDataKeyword(), Integer.class);
-        
-        if (reloadData != null) {
-            if (reloadData == ReloadSound.MAIN_HAND.getId()) {
-                castData.getCasterWrapper().getMainHandData().addReloadTasks(startWithDelays(castData));
-            } else {
-                castData.getCasterWrapper().getOffHandData().addReloadTasks(startWithDelays(castData));
-            }
-        } else if (firearmActionData != null) {
-            if (firearmActionData == FirearmSound.MAIN_HAND.getId()) {
-                castData.getCasterWrapper().getMainHandData().addFirearmActionTasks(startWithDelays(castData));
-            } else {
-                castData.getCasterWrapper().getOffHandData().addFirearmActionTasks(startWithDelays(castData));
-            }
-        } else {
+        Consumer<Integer> taskIdConsumer = castData.getTaskIdConsumer();
+        if (taskIdConsumer == null) {
             startWithDelays(castData);
+            return;
+        }
+
+        for (int task : startWithDelays(castData)) {
+            taskIdConsumer.accept(task);
         }
     }
 
@@ -249,7 +237,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         public abstract void play(CastData castData);
 
         public float getVolume() {
-            return volume < 1.0f ? volume : (float) (maxDistance / 16f);
+            return (float) (maxDistance / 16f);
         }
 
         public float getPitch() {

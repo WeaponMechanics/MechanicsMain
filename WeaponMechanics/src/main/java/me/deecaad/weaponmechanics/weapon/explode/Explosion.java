@@ -15,7 +15,6 @@ import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;

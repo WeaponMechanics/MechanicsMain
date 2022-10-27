@@ -18,6 +18,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -34,6 +35,12 @@ public class Entity_1_16_R3 implements EntityCompatibility {
                     new InternalError()
             );
         }
+    }
+
+    @Override
+    public Vector getLastLocation(Entity entity) {
+        net.minecraft.server.v1_16_R3.Entity nms = ((CraftEntity) entity).getHandle();
+        return new Vector(nms.lastX, nms.lastY, nms.lastZ);
     }
 
     @Override

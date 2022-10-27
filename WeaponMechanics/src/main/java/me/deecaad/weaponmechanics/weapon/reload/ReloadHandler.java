@@ -4,7 +4,6 @@ import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.file.*;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;

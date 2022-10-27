@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;

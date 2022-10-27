@@ -1,4 +1,4 @@
-# me.deecaad.weaponmechanics.mechanics.defaultmechanics.SoundMechanic
+# me.deecaad.core.mechanics.defaultmechanics.SoundMechanic
 Sounds:
   - <sound>-<volume>-<pitch>,<etc.>
   - <sound>-<volume>-<pitch>-<delay>-<pitchNoise>,<etc.>

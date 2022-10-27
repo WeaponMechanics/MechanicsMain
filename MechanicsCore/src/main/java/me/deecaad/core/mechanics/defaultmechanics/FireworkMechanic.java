@@ -1,16 +1,16 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+package me.deecaad.core.mechanics.defaultmechanics;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.DistanceUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.IMechanic;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -32,7 +32,7 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
      */
     public FireworkMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
+        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
     }
 
     public FireworkMechanic(LocationAdjuster locationAdjuster, ItemStack fireworkItem) {
@@ -42,7 +42,9 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
 
     @Override
     public void use(CastData castData) {
-        Location location = locationAdjuster != null ? locationAdjuster.getNewLocation(castData.getCastLocation()) : castData.getCastLocation();
+        Location location = locationAdjuster != null
+                ? locationAdjuster.getNewLocation(castData.getCastLocation())
+                : castData.getCastLocation();
 
         List<Player> players = DistanceUtil.getPlayersInRange(location);
         if (players.isEmpty()) {
@@ -63,7 +65,7 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
                 fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
                 fakeEntity.remove();
             }
-        }.runTaskLater(WeaponMechanics.getPlugin(), flightTime);
+        }.runTaskLater(MechanicsCore.getPlugin(), flightTime);
     }
 
     @Override

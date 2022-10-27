@@ -5,7 +5,6 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;

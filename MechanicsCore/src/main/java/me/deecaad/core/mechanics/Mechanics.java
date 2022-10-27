@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.mechanics;
+package me.deecaad.core.mechanics;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
@@ -10,8 +10,7 @@ import org.bukkit.plugin.Plugin;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.core.MechanicsCore.debug;
 
 public class Mechanics implements Serializer<Mechanics> {
 
@@ -22,8 +21,7 @@ public class Mechanics implements Serializer<Mechanics> {
     /**
      * Default constructor for serializer
      */
-    public Mechanics() {
-    }
+    public Mechanics() { }
 
     public Mechanics(List<IMechanic<?>> mechanicList) {
         this.mechanicList = mechanicList;
@@ -55,39 +53,11 @@ public class Mechanics implements Serializer<Mechanics> {
         mechanicSerializers.put(mechanic.getKeyword(), mechanic);
     }
 
-    /**
-     * Use all registered mechanics under specific path with given cast data.
-     *
-     * @param path the path to mechanics (e.g. WeaponName.Damage)
-     * @param castData the cast data for this use of mechanics
-     */
-    public static void use(String path, CastData castData) {
-        for (String keyword : registeredMechanics) {
-
-            IMechanic<?> mechanic;
-            try {
-                mechanic = getConfigurations().getObject(path + "." + keyword, IMechanic.class);
-            } catch (ClassCastException exc) {
-                debug.log(LogLevel.ERROR,
-                        "Tried to get mechanic using keyword " + keyword + " at path " + path + ", but"
-                                + " couldn't cast it to IMechanic class?",
-                                "This might be plugin sided issue or this keyword was used somewhere it wasn't supposed to.",
-                                "Or serializer at this path didn't work properly because of misconfiguration.");
-                continue;
-            }
-
-            if (mechanic == null) continue;
-            if (mechanic.requireEntity() && castData.getCaster() == null) continue;
-            if (mechanic.requirePlayer() && (castData.getCaster() == null || castData.getCaster().getType() != EntityType.PLAYER)) continue;
-
-            mechanic.use(castData);
-        }
-    }
-
     public void use(CastData castData) {
         for (IMechanic<?> mechanic : mechanicList) {
             if (mechanic.requireEntity() && castData.getCaster() == null) continue;
-            if (mechanic.requirePlayer() && (castData.getCaster() == null || castData.getCaster().getType() != EntityType.PLAYER)) continue;
+            if (mechanic.requirePlayer() && (castData.getCaster() == null
+                    || castData.getCaster().getType() != EntityType.PLAYER)) continue;
 
             mechanic.use(castData);
         }

@@ -1,8 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.trigger;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
