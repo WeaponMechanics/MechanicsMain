@@ -22,7 +22,6 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;

@@ -1,8 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
+import me.deecaad.core.compatibility.RayTraceResult;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;

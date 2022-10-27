@@ -5,14 +5,14 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -134,7 +134,7 @@ public class MeleeHandler implements IValidator {
         }
 
         if (event.getMechanics() != null) {
-            event.getMechanics().use(new CastData(entityWrapper, weaponTitle, weaponStack));
+            event.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
         }
 
         if (event.getMeleeMissDelay() != 0) {

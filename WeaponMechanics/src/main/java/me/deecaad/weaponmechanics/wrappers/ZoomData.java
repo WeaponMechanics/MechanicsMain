@@ -1,7 +1,8 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
@@ -18,7 +19,7 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ZoomData {
 
-    private HandData handData;
+    private final HandData handData;
     private double zoomAmount;
     private int zoomStacks;
     private boolean zoomNightVision;
@@ -128,9 +129,11 @@ public class ZoomData {
             if (hasZoomNightVision()) scopeHandler.useNightVision(entityWrapper, this);
 
             Mechanics zoomOffMechanics = getConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
-            if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, this.scopeWeaponTitle, this.scopeWeaponStack));
+            if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper.getEntity(), this.scopeWeaponTitle, this.scopeWeaponStack));
 
-            WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack, entityWrapper.getEntity(), getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, WeaponScopeEvent.ScopeType.OUT, 0, 0);
+            WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack,
+                    entityWrapper.getEntity(), getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
+                    WeaponScopeEvent.ScopeType.OUT, 0, 0);
             Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         }
 

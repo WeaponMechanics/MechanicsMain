@@ -4,8 +4,9 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.entity.Player;
@@ -67,7 +68,7 @@ public class DualWield implements Serializer<DualWield> {
                 Trigger trigger = config.getObject(weaponTitle + type + ".Trigger", Trigger.class);
                 if (trigger != null && (trigger.getMainhand() == checkCause || trigger.getOffhand() == checkCause)) {
 
-                    if (mechanics != null) mechanics.use(new CastData(WeaponMechanics.getEntityWrapper(player), weaponTitle, null));
+                    if (mechanics != null) mechanics.use(new CastData(player, weaponTitle, null));
 
                     break;
                 }

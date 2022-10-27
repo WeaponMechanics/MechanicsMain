@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
+import me.deecaad.core.compatibility.RayTraceResult;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -18,7 +18,6 @@ import java.util.function.Predicate;
 
 public class RayTrace {
 
-    private static final IWeaponCompatibility weaponCompatibility = WeaponCompatibilityAPI.getWeaponCompatibility();
     private boolean disableEntityChecks;
     private boolean disableBlockChecks;
     private Predicate<LivingEntity> entityFilter;
@@ -99,9 +98,9 @@ public class RayTrace {
             if (this.outlineHitBox) {
                 RayTraceResult firstHit = hits.get(0);
                 if (firstHit.isBlock()) {
-                    weaponCompatibility.getHitBox(firstHit.getBlock()).outlineAllBoxes(entity);
+                    CompatibilityAPI.getBlockCompatibility().getHitBox(firstHit.getBlock()).outlineAllBoxes(entity);
                 } else {
-                    HitBox entityBox = weaponCompatibility.getHitBox(firstHit.getLivingEntity());
+                    HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(firstHit.getLivingEntity());
                     entityBox.grow(raySize);
                     entityBox.outlineAllBoxes(entity);
                 }
@@ -191,7 +190,7 @@ public class RayTrace {
     private RayTraceResult rayBlock(Block block, Vector start, Vector direction) {
         if (blockFilter != null && blockFilter.test(block)) return null;
 
-        HitBox blockBox = weaponCompatibility.getHitBox(block, allowLiquid);
+        HitBox blockBox = CompatibilityAPI.getBlockCompatibility().getHitBox(block, allowLiquid);
         if (blockBox == null) return null;
 
         return blockBox.rayTrace(start, direction);
@@ -223,7 +222,7 @@ public class RayTrace {
         if (!entity.getType().isAlive()) return null;
         if (entityFilter != null && entityFilter.test((LivingEntity) entity)) return null;
 
-        HitBox entityBox = weaponCompatibility.getHitBox(entity);
+        HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(entity);
         if (entityBox == null) return null;
 
         entityBox.grow(raySize);

@@ -1,7 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.trigger;
 
 import me.deecaad.core.file.Configuration;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
@@ -49,7 +50,7 @@ public class AmmoTypeSwitchTriggerListener implements TriggerListener {
         entityWrapper.getOffHandData().cancelTasks();
 
         Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
-        if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+        if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);

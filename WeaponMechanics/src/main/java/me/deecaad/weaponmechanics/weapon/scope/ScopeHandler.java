@@ -2,12 +2,13 @@ package me.deecaad.weaponmechanics.weapon.scope;
 
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.file.*;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
@@ -185,7 +186,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
                 Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
-                if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+                if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entity, weaponTitle, weaponStack));
 
                 return true;
             } else {
@@ -212,7 +213,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
         Mechanics zoomMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Mechanics.class);
-        if (zoomMechanics != null) zoomMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+        if (zoomMechanics != null) zoomMechanics.use(new CastData(entity, weaponTitle, weaponStack));
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
@@ -255,7 +256,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
         zoomData.setZoomStacks(0);
 
         Mechanics zoomOffMechanics = getConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
-        if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+        if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entity, weaponTitle, weaponStack));
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
