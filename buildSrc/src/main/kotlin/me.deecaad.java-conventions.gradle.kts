@@ -44,6 +44,10 @@ repositories {
     }
 
     maven {
+        url = uri("https://repo.dmulloy2.net/repository/public/")
+    }
+
+    maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsAutoDownload")
         credentials {
