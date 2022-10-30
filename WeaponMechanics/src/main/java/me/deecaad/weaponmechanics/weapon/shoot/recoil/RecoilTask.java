@@ -82,15 +82,20 @@ public class RecoilTask extends TimerTask {
 
             // Rotation finished, start recovering
 
-            rotations = (int) (recoverTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
 
             if (yawPerIteration == 0 && pitchPerIteration == 0) {
                 // Non-repeating pattern which reached its end was used, meaning we don't really want to do recovery anymore
                 yawPerIteration = 0;
                 pitchPerIteration = 0;
             } else {
-                yawPerIteration *= -1;
-                pitchPerIteration *= -1;
+                // Multiply back to original push time
+                yawPerIteration *= -rotations;
+                pitchPerIteration *= -rotations;
+
+                // Then recalculate the yaw and pitch per iteration based on recover time
+                rotations = (int) (recoverTime / Recoil.MILLIS_BETWEEN_ROTATIONS);
+                yawPerIteration = yawPerIteration / rotations;
+                pitchPerIteration = pitchPerIteration / rotations;
             }
 
             counter = 0;

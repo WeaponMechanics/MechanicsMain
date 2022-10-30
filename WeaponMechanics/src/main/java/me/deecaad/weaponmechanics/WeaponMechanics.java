@@ -408,7 +408,7 @@ public class WeaponMechanics {
 
         debug.debug("Registering update checker");
 
-        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.github("WeaponMechanics", "MechanicsMain"));
+        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.spigot(99913, "WeaponMechanics"));
 
         try {
             UpdateInfo consoleUpdate = updateChecker.hasUpdate();
