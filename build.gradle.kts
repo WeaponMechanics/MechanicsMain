@@ -75,6 +75,8 @@ tasks.register<Zip>("zipForSpigotRelease") {
         include("*.jar")
     }
 
+    from ("install-instructions.txt")
+
     doFirst {
         println("Generate zip file")
     }
