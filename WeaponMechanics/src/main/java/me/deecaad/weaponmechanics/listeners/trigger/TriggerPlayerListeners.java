@@ -368,6 +368,12 @@ public class TriggerPlayerListeners implements Listener {
         String weaponTitle = !isValid(weapon) ? null : weaponHandler.getInfoHandler().getWeaponTitle(weapon, false);
 
         if (weaponTitle != null && getConfigurations().getBool(weaponTitle + ".Info.Cancel.Break_Blocks")) {
+
+            // WeaponMechanicsCosmetics calls the BlockBreakEvent for block
+            // damage, so we need to make sure that this doesn't interfere.
+            if ("WeaponMechanicsBlockDamage".equals(event.getEventName()))
+                return;
+
             event.setCancelled(true);
         }
     }
