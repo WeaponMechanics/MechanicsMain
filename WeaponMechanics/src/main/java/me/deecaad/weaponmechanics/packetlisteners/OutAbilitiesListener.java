@@ -23,14 +23,14 @@ public class OutAbilitiesListener extends PacketAdapter {
     public void onPacketSending(PacketEvent event) {
         EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
 
-        ZoomData main = entity.getMainHandData().getZoomData();
-        ZoomData off = entity.getOffHandData().getZoomData();
+        ZoomData mainZoomData = entity.getMainHandData().getZoomData();
+        ZoomData offZoomData = entity.getOffHandData().getZoomData();
 
         // Player is not scoped in, no need to modify their FOV
-        if (!main.isZooming() && !off.isZooming())
+        if (!mainZoomData.isZooming() && !offZoomData.isZooming())
             return;
 
-        double zoomAmount = main.isZooming() ? main.getZoomAmount() : off.getZoomAmount();
+        double zoomAmount = mainZoomData.isZooming() ? mainZoomData.getZoomAmount() : offZoomData.getZoomAmount();
 
         // Player is in VR (Vivecraft must be installed!)
         if (zoomAmount == 0)
