@@ -404,7 +404,7 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
-        if (!basicConfiguration.getBool("Update_Checker.Enable", true)) return;
+        if (!basicConfiguration.getBool("Update_Checker.Enable", true) || updateChecker != null) return;
 
         debug.debug("Registering update checker");
 
@@ -588,7 +588,7 @@ public class WeaponMechanics {
 
         database = null;
         weaponHandler = null;
-        updateChecker = null;
+        //updateChecker = null; do not reset update checker
         entityWrappers = null;
         mainCommand = null;
         configurations = null;
