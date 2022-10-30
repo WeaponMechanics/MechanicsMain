@@ -45,6 +45,7 @@ bukkit {
     apiVersion = "1.13"
 
     authors = listOf("DeeCaaD", "CJCrafter")
+    depend = listOf("ProtocolLib") // TODO switch to soft depends and add auto installer
     softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus", "Vivecraft-Spigot-Extensions")
 
     permissions {
