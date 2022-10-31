@@ -1,5 +1,7 @@
-package me.deecaad.core.compatibility;
+package me.deecaad.core.utils.ray;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;

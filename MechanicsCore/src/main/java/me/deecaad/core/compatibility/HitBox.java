@@ -1,6 +1,7 @@
 package me.deecaad.core.compatibility;
 
 import me.deecaad.core.file.serializers.ColorSerializer;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -258,8 +259,15 @@ public class HitBox {
             if (closestHit == -1 || boxPartHit.getDistanceTravelled() < closestHit) {
                 closestHit = boxPartHit.getDistanceTravelled();
                 hit = boxPartHit;
+
+                if (mainBoxHit.isBlock()) {
+                    boxPart.setBlockHitBox(mainBoxHit.getBlock());
+                } else {
+                    boxPart.setLivingEntity(mainBoxHit.getLivingEntity());
+                }
             }
         }
+
         return hit;
     }
 

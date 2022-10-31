@@ -237,7 +237,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
         public abstract void play(CastData castData);
 
         public float getVolume() {
-            return (float) (maxDistance / 16f);
+            return volume < 1.0f ? volume : (float) (maxDistance / 16f);
         }
 
         public float getPitch() {

@@ -1,6 +1,8 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.utils.ray.RayTrace;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 

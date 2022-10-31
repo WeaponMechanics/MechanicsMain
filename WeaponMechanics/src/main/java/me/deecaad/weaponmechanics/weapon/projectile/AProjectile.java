@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.compatibility.RayTraceResult;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.utils.VectorUtil;
 import org.bukkit.Location;
 import org.bukkit.World;

@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.melee;
 import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.compatibility.RayTraceResult;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
@@ -16,7 +16,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
+import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponMeleeMissEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -104,7 +104,7 @@ public class MeleeHandler implements IValidator {
         if (hit != null) {
             boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
             if (result) {
-                hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack, slot);
+                weaponHandler.getHitHandler().handleMeleeHit(hit, shooter, direction, weaponTitle, weaponStack, slot);
             }
             return result;
         }

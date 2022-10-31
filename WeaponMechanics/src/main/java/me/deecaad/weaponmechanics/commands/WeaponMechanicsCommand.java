@@ -4,6 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.*;
 import me.deecaad.core.commands.arguments.*;
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.entity.EntityCompatibility;
 import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
@@ -22,7 +23,7 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
-import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
+import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
@@ -769,7 +770,7 @@ public class WeaponMechanicsCommand {
                         continue;
                     }
 
-                    HitBox box = WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(entity);
+                    HitBox box = CompatibilityAPI.getEntityCompatibility().getHitBox(entity);
                     if (box == null) {
                         continue;
                     }
