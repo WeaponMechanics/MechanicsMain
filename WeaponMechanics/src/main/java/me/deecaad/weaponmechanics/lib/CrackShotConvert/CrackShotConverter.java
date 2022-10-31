@@ -788,7 +788,7 @@ public class CrackShotConverter {
             }
 
             String weapon = from.split("\\.")[0];
-            to = weapon + "_Ammo.Item_Ammo.";
+            to = to + weapon + "_Ammo.Item_Ammo.";
 
             toConfig.set(to + "Ammo_Converter_Check.Type", true);
             new MaterialConvert().convert(from + "Ammo_Item_ID", to + "Bullet_Item.Type", fromConfig, toConfig);
