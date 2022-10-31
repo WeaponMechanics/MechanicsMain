@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.12.4"
+version = "1.13.1"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -45,6 +45,7 @@ bukkit {
     apiVersion = "1.13"
 
     authors = listOf("DeeCaaD", "CJCrafter")
+    depend = listOf("ProtocolLib") // TODO switch to soft depends and add auto installer
     softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus", "Vivecraft-Spigot-Extensions")
 
     permissions {

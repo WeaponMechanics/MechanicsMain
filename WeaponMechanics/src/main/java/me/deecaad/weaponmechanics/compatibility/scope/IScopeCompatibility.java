@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.compatibility.scope;
 
-import me.deecaad.core.packetlistener.Packet;
+import com.comphenix.protocol.events.PacketEvent;
 import org.bukkit.entity.Player;
 
 public interface IScopeCompatibility {
@@ -27,8 +27,8 @@ public interface IScopeCompatibility {
     void removeNightVision(Player player);
 
     /**
-     * @param packet the remove entity effect packet
+     * @param event the remove entity effect packet
      * @return true if packet is removing night vision
      */
-    boolean isRemoveNightVisionPacket(Packet packet);
+    boolean isRemoveNightVisionPacket(PacketEvent event);
 }

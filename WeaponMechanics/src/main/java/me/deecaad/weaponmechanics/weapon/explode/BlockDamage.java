@@ -172,7 +172,12 @@ public class BlockDamage implements Serializer<BlockDamage> {
             if (player != null) {
                 // Allow nullable player since explosions should use EntityExplodeEvent
                 // and pass null player for this method
-                BlockBreakEvent breakEvent = new BlockBreakEvent(block, player);
+                BlockBreakEvent breakEvent = new BlockBreakEvent(block, player) {
+                    @Override
+                    public @NotNull String getEventName() {
+                        return "WeaponMechanicsBlockDamage";
+                    }
+                };
                 Bukkit.getPluginManager().callEvent(breakEvent);
 
                 // Couldn't damage the block

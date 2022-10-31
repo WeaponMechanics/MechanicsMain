@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics;
 
 import co.aikar.timings.lib.MCTiming;
 import co.aikar.timings.lib.TimingManager;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import me.cjcrafter.auto.UpdateChecker;
 import me.cjcrafter.auto.UpdateInfo;
 import me.deecaad.core.MechanicsCore;
@@ -13,7 +15,6 @@ import me.deecaad.core.database.MySQL;
 import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.*;
-import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
@@ -83,7 +84,7 @@ public class WeaponMechanics {
     WeaponHandler weaponHandler;
     UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
-    PacketHandlerListener packetListener;
+    ProtocolManager protocolManager;
     TimingManager timingManager;
     Metrics metrics;
     Database database;
@@ -182,6 +183,10 @@ public class WeaponMechanics {
         long tookMillis = System.currentTimeMillis() - millisCurrent;
         double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
         debug.debug("Enabled WeaponMechanics in " + seconds + "s");
+
+        // Shameless self-promotion
+        if (Bukkit.getPluginManager().getPlugin("WeaponMechanicsCosmetics") == null)
+            debug.info("Buy WeaponMechanicsCosmetics to support our development: https://www.spigotmc.org/resources/104539/");
 
         WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
@@ -341,11 +346,12 @@ public class WeaponMechanics {
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        packetListener = new PacketHandlerListener(getPlugin(), debug);
-        packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutSetSlotBobFix(getPlugin()), true);
+        protocolManager = ProtocolLibrary.getProtocolManager();
+
+        protocolManager.addPacketListener(new OutAbilitiesListener(javaPlugin));
+        protocolManager.addPacketListener(new OutEntityEffectListener(javaPlugin));
+        protocolManager.addPacketListener(new OutRemoveEntityEffectListener(javaPlugin));
+        protocolManager.addPacketListener(new OutSetSlotBobFix(javaPlugin));
     }
 
     void registerCommands() {
@@ -402,11 +408,11 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
-        if (!basicConfiguration.getBool("Update_Checker.Enable", true)) return;
+        if (!basicConfiguration.getBool("Update_Checker.Enable", true) || updateChecker != null) return;
 
         debug.debug("Registering update checker");
 
-        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.github("WeaponMechanics", "MechanicsMain"));
+        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.spigot(99913, "WeaponMechanics"));
 
         try {
             UpdateInfo consoleUpdate = updateChecker.hasUpdate();
@@ -584,9 +590,12 @@ public class WeaponMechanics {
             }
         }
 
+        // Unregister packet listeners
+        protocolManager.removePacketListeners(javaPlugin);
+
         database = null;
         weaponHandler = null;
-        updateChecker = null;
+        //updateChecker = null; do not reset update checker
         entityWrappers = null;
         mainCommand = null;
         configurations = null;
@@ -594,8 +603,6 @@ public class WeaponMechanics {
         projectilesRunnable = null;
         plugin = null;
         debug = null;
-        packetListener.close();
-        packetListener = null;
         WeaponMechanicsAPI.setInstance(null);
     }
 

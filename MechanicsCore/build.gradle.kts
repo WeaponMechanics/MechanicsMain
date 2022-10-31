@@ -9,6 +9,8 @@ dependencies {
     compileOnly("io.netty:netty-all:4.1.80.Final")
     compileOnly("com.mojang:brigadier:1.0.18")
 
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 
     implementation("net.kyori:adventure-api:4.11.0")
