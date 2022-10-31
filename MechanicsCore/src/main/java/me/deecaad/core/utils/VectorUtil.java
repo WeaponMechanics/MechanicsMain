@@ -19,8 +19,9 @@ public final class VectorUtil {
 
     // All horizontal block faces
     private static final BlockFace[] AXIS = new BlockFace[]{NORTH, NORTH_NORTH_EAST, NORTH_EAST, EAST_NORTH_EAST, EAST, EAST_SOUTH_EAST, SOUTH_EAST, SOUTH_SOUTH_EAST, SOUTH, SOUTH_SOUTH_WEST, SOUTH_WEST, WEST_SOUTH_WEST, WEST, WEST_NORTH_WEST, NORTH_WEST, NORTH_NORTH_WEST};
-    public static final double PI_2 = Math.PI * 2;
-    public static final double GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+    public static final double HALF_PI = Math.PI / 2.0;
+    public static final double PI_2 = Math.PI * 2.0;
+    public static final double GOLDEN_ANGLE = Math.PI * (3.0 - Math.sqrt(5.0));
 
     // Don't let anyone instantiate this class
     private VectorUtil() {
@@ -261,14 +262,16 @@ public final class VectorUtil {
      */
     public static double getAngleBetween(@Nonnull Vector a, @Nonnull Vector b) {
 
-        double magnitudeA = a.length();
-        double magnitudeB = b.length();
+        // ALGEBRA: sqrt(a) * sqrt(b) = sqrt(a * b)
+        double denominator = Math.sqrt(a.lengthSquared() * b.lengthSquared());
+        if (NumberUtil.equals(denominator, 0.0))
+            return 0f;
 
-        double dot = a.dot(b);
+        double dot = NumberUtil.minMax(-1.0, a.dot(b) / denominator, 1.0);
 
         // This Math.min is requires for parallel vectors, as floating point
         // issues often cause numbers like 1.002
-        return Math.acos(Math.min(1.0, dot / (magnitudeA * magnitudeB)));
+        return Math.acos(dot);
     }
 
     /**

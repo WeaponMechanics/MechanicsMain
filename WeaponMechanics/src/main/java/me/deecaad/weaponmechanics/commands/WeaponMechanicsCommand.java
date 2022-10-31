@@ -41,10 +41,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -60,8 +57,7 @@ import java.util.stream.IntStream;
 
 import static me.deecaad.core.commands.arguments.IntegerArgumentType.ITEM_COUNT;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static net.kyori.adventure.text.Component.empty;
-import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.Component.*;
 import static org.bukkit.ChatColor.*;
 
 @SuppressWarnings("unchecked")
@@ -312,6 +308,18 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("weapon", new StringArgumentType(), null).withDesc("Which weapon stats to check").replace(WEAPON_SUGGESTIONS))
                         .executes(CommandExecutor.any((sender, args) -> {
                             stats(sender, (String) args[0], (Player) args[1], (String) args[2]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("transform")
+                        .withPermission("weaponmechanics.commands.test.transform")
+                        .withDescription("Test the Transform.class")
+                        .withArgument(new Argument<>("children", new IntegerArgumentType(1, 128), 16).withDesc("How many diamonds"))
+                        .withArgument(new Argument<>("time", new TimeArgumentType(), 200).withDesc("How long should the animation last"))
+                        .withArgument(new Argument<>("speed", new DoubleArgumentType(0, 720), 2 * Math.PI).withDesc("How fast to spin"))
+                        .withArgument(new Argument<>("radius", new DoubleArgumentType(0, 24), 2.0).withDesc("Radius of the circle"))
+                        .withArgument(new Argument<>("particles", new BooleanArgumentType(), false).withDesc("true to show particle axis"))
+                        .executes(CommandExecutor.entity((sender, args) -> {
+                            transform(sender, (int) args[0], (int) args[1], Math.toRadians((double) args[2]), (double) args[3], (boolean) args[4]);
                         })));
 
 
@@ -888,5 +896,77 @@ public class WeaponMechanicsCommand {
                 -1, 0.99, 0.96, 0.98, false, 600, -1, 0.1);
         Projectile projectile = new Projectile(projectileSettings, null, null, null, null);
         projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null, null);
+    }
+
+    public static void transform(Entity sender, int children, int time, double speed, double radius, boolean particles) {
+        EntityCompatibility compatibility = CompatibilityAPI.getEntityCompatibility();
+
+        Transform parent = new Transform();
+        parent.setParent(new EntityTransform(sender));
+
+        List<FakeEntity> entities = new ArrayList<>(children * children / 2);
+        for (int i = 0; i < children; i++) {
+            Transform transform = new Transform(parent);
+            double angle = i * VectorUtil.PI_2 / children;
+            double x = Math.cos(angle) * radius;
+            double z = Math.sin(angle) * radius;
+
+            transform.setLocalPosition(new Vector(x, 0, z));
+            transform.setForward(transform.getLocalPosition().normalize().crossProduct(new Vector(0, 1, 0)).normalize());
+
+            for (int j = 0; j < children / 2; j++) {
+                angle = j / ((double) children / 2) * VectorUtil.PI_2;
+                x = Math.cos(angle) * radius / 3.0;
+                z = Math.sin(angle) * radius / 3.0;
+
+                Transform local = new Transform(transform);
+                local.setLocalPosition(new Vector(x, 0, z));
+
+                FakeEntity entity = compatibility.generateFakeEntity(transform.getPosition().toLocation(sender.getWorld()), new ItemStack(Material.DIAMOND));
+
+                entity.setGravity(false);
+                entity.show();
+
+                entities.add(entity);
+            }
+        }
+
+        new BukkitRunnable() {
+            int ticks = 0;
+            @Override
+            public void run() {
+
+                if (particles)
+                    parent.getParent().debug(sender.getWorld());
+
+                double deltaTime = 1.0 / 20.0;
+                double rotationSpeed = ticks * speed / time * deltaTime;
+                Quaternion spin = Quaternion.angleAxis(rotationSpeed, parent.getUp());
+                //parent.setForward(loc.getDirection());
+                parent.applyRotation(spin);
+
+                for (int i = 0; i < children; i++) {
+                    Transform transform = parent.getChild(i);
+
+                    if (particles) transform.debug(sender.getWorld());
+
+                    for (int j = 0; j < children / 2; j++) {
+                        Transform local = transform.getChild(j);
+                        if (particles) local.debug(sender.getWorld());
+
+                        Vector position = local.getPosition();
+                        Vector rotation = local.getRotation().getEulerAngles();
+
+                        FakeEntity entity = entities.get(i * children / 2 + j);
+                        entity.setPosition(position, (float) rotation.getX(), (float) rotation.getY());
+                    }
+                }
+
+                if (ticks++ >= time) {
+                    entities.forEach(FakeEntity::remove);
+                    cancel();
+                }
+            }
+        }.runTaskTimerAsynchronously(WeaponMechanics.getPlugin(), 0, 0);
     }
 }
