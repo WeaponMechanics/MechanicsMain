@@ -1,0 +1,19 @@
+# me.deecaad.core.trigger.Trigger
+Trigger:
+  Main_Hand: <TriggerType>-<Amount>
+  Off_Hand: <TriggerType>-<Amount>
+  Dual_Wield:
+    Main_Hand: <TriggerType>-<Amount>
+    Off_Hand: <TriggerType>-<Amount>
+  Circumstance:
+    Reloading: <DENY/REQUIRED>
+    Zooming: <DENY/REQUIRED>
+    Sneaking: <DENY/REQUIRED>
+    Standing: <DENY/REQUIRED>
+    Walking: <DENY/REQUIRED>
+    Riding: <DENY/REQUIRED>
+    Sprinting: <DENY/REQUIRED>
+    Dual_Wielding: <DENY/REQUIRED>
+    Swimming: <DENY/REQUIRED>
+    In_Midair: <DENY/REQUIRED>
+    Gliding: <DENY/REQUIRED>

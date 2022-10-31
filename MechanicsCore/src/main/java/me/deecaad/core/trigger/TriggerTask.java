@@ -1,10 +1,10 @@
-package me.deecaad.weaponmechanics.wrappers;
+package me.deecaad.core.trigger;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
+import me.deecaad.core.trigger.events.PlayerJumpEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -13,21 +13,25 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class MoveTask extends BukkitRunnable {
+public class TriggerTask extends BukkitRunnable {
 
-    private final EntityWrapper entityWrapper;
+    private static final FileConfiguration config = MechanicsCore.getPlugin().getConfig();
+
+    private final TriggerEntity triggerEntity;
     private Location from;
     private int sameMatches;
     private int jumps;
     private int groundTicks;
 
-    public MoveTask(EntityWrapper entityWrapper) {
-        this.entityWrapper = entityWrapper;
-        LivingEntity entity = entityWrapper.getEntity();
+    public TriggerTask(TriggerEntity triggerEntity) {
+        this.triggerEntity = triggerEntity;
+        LivingEntity entity = triggerEntity.getEntity();
         this.from = entity.getLocation();
         if (entity instanceof Player) {
             this.jumps = ((Player) entity).getStatistic(Statistic.JUMP);
@@ -38,11 +42,11 @@ public class MoveTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        LivingEntity entity = entityWrapper.getEntity();
+        LivingEntity entity = triggerEntity.getEntity();
         if (entity == null || !entity.isValid() || entity.isDead()) { // Just an extra check in case something odd happened
 
             // Only cancel task IF it isn't player, otherwise just don't do anything
-            if (!entityWrapper.isPlayer()) cancel();
+            if (entity.getType() != EntityType.PLAYER) cancel();
 
             return;
         }
@@ -52,27 +56,27 @@ public class MoveTask extends BukkitRunnable {
 
         this.from = to;
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim")) {
+        if (!config.getBoolean("Disabled_Trigger_Checks.Swim")) {
             if (isSwimming(entity)) {
-                entityWrapper.setSwimming(true);
+                triggerEntity.setSwimming(true);
 
                 // -> Can't be walking, standing, in mid air at same time
                 return;
             } else {
-                entityWrapper.setSwimming(false);
+                triggerEntity.setSwimming(false);
             }
         }
 
         boolean inMidairCheck = isInMidair(entity);
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking")) {
+        if (!config.getBoolean("Disabled_Trigger_Checks.Standing_And_Walking")) {
             if (isSameLocationNonRotation(from, to)) {
                 ++this.sameMatches;
             } else {
                 this.sameMatches = 0;
             }
             if (this.sameMatches > 3) {
-                entityWrapper.setStanding(true);
+                triggerEntity.setStanding(true);
 
                 // -> Can't be walking, swimming, in mid air at same time
                 // Swimming is already returned above if it was true
@@ -80,7 +84,7 @@ public class MoveTask extends BukkitRunnable {
             } else if (!inMidairCheck) {
 
                 // Only walking if not in mid air
-                entityWrapper.setWalking(true);
+                triggerEntity.setWalking(true);
             }
         }
 
@@ -91,8 +95,8 @@ public class MoveTask extends BukkitRunnable {
             ++groundTicks;
         }
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair")) {
-            entityWrapper.setInMidair(inMidairCheck);
+        if (!config.getBoolean("Disabled_Trigger_Checks.In_Midair")) {
+            triggerEntity.setInMidair(inMidairCheck);
         }
 
         if (!(entity instanceof Player player)) {
@@ -100,7 +104,7 @@ public class MoveTask extends BukkitRunnable {
         }
 
         if (this.jumps != -1) {
-            if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump")) {
+            if (!config.getBoolean("Disabled_Trigger_Checks.Jump")) {
                 if (from.getY() < to.getY() && !player.getLocation().getBlock().isLiquid()) {
                     int currentJumps = player.getStatistic(Statistic.JUMP);
                     int jumpsLast = this.jumps;
@@ -115,7 +119,7 @@ public class MoveTask extends BukkitRunnable {
             }
         }
 
-        if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")
+        if (!config.getBoolean("Disabled_Trigger_Checks.Double_Jump")
                 && (player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE)) {
             if (player.getFallDistance() > 3.0) {
                 // https://minecraft.gamepedia.com/Damage#Fall_damage
