@@ -252,6 +252,13 @@ public class HitBox {
         RayTraceResult hit = null;
         double closestHit = -1;
         for (HitBox boxPart : voxelShape) {
+
+            if (mainBoxHit.isBlock()) {
+                boxPart.setBlockHitBox(mainBoxHit.getBlock());
+            } else {
+                boxPart.setLivingEntity(mainBoxHit.getLivingEntity());
+            }
+
             RayTraceResult boxPartHit = boxPart.ray(location, normalizedMotion);
             if (boxPartHit == null) continue;
 
@@ -259,12 +266,6 @@ public class HitBox {
             if (closestHit == -1 || boxPartHit.getDistanceTravelled() < closestHit) {
                 closestHit = boxPartHit.getDistanceTravelled();
                 hit = boxPartHit;
-
-                if (mainBoxHit.isBlock()) {
-                    boxPart.setBlockHitBox(mainBoxHit.getBlock());
-                } else {
-                    boxPart.setLivingEntity(mainBoxHit.getLivingEntity());
-                }
             }
         }
 
