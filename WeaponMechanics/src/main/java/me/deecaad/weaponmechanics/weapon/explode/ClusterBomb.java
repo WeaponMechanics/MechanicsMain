@@ -81,7 +81,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
             // or use the projectile settings for this cluster bomb
             Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
             if (projectileHandler != null) {
-                WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle())
+                WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, splitLocation, vector, projectile.getWeaponStack(), projectile.getWeaponTitle(), projectile.getHand())
                         : projectile.clone(splitLocation, vector);
                 newProjectile.setIntTag("cluster-split-level", currentDepth + 1);
                 projectileHandler.shoot(newProjectile, splitLocation);

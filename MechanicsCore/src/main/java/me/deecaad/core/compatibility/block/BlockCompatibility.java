@@ -125,25 +125,13 @@ public interface BlockCompatibility {
         soundData.pitch = sounds.getPitch();
         soundData.volume = sounds.getVolume();
 
-        switch (type) {
-            case BREAK:
-                soundData.sound = sounds.getBreakSound();
-                break;
-            case STEP:
-                soundData.sound = sounds.getStepSound();
-                break;
-            case PLACE:
-                soundData.sound = sounds.getPlaceSound();
-                break;
-            case HIT:
-                soundData.sound = sounds.getHitSound();
-                break;
-            case FALL:
-                soundData.sound = sounds.getFallSound();
-                break;
-            default:
-                throw new InternalError("unreachable code");
-        }
+        soundData.sound = switch (type) {
+            case BREAK -> sounds.getBreakSound();
+            case STEP -> sounds.getStepSound();
+            case PLACE -> sounds.getPlaceSound();
+            case HIT -> sounds.getHitSound();
+            case FALL ->  sounds.getFallSound();
+        };
 
         return soundData;
     }

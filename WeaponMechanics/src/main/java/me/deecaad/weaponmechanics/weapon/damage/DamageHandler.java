@@ -23,8 +23,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
@@ -46,14 +46,14 @@ public class DamageHandler {
      */
     public boolean tryUse(LivingEntity victim, WeaponProjectile projectile, double damage, DamagePoint point, boolean isBackstab) {
         return tryUse(victim, damage, point, isBackstab, projectile.getShooter(), projectile.getWeaponTitle(),
-                projectile.getWeaponStack(), projectile.getDistanceTravelled());
+                projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled());
     }
 
     /**
      * @return false if damaging was cancelled
      */
     public boolean tryUse(LivingEntity victim, double damage, DamagePoint point, boolean isBackstab,
-                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, double distanceTravelled) {
+                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled) {
         Configuration config = getConfigurations();
 
         if (!DamageUtil.canHarmScoreboardTeams(shooter, victim)) {
@@ -72,7 +72,7 @@ public class DamageHandler {
         int armorDamage = config.getInt(weaponTitle + ".Damage.Armor_Damage");
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
 
-        WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, victim,
+        WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, slot, victim,
                 damage, isBackstab, isCritical, point, armorDamage, fireTicks, distanceTravelled);
         Bukkit.getPluginManager().callEvent(damageEntityEvent);
 
@@ -136,7 +136,7 @@ public class DamageHandler {
         boolean killed = false;
         if (victim.isDead() || victim.getHealth() <= 0.0) {
             killed = true;
-            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, weaponStack, shooter, victim, damageEntityEvent));
+            Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, weaponStack, shooter, slot, victim, damageEntityEvent));
 
             // On kill
             useMechanics(config, shooterCast, victimCast, weaponTitle + ".Damage.Kill");

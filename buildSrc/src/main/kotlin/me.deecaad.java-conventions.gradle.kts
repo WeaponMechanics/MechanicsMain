@@ -44,6 +44,10 @@ repositories {
     }
 
     maven {
+        url = uri("https://repo.dmulloy2.net/repository/public/")
+    }
+
+    maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsAutoDownload")
         credentials {
@@ -66,7 +70,7 @@ java {
 tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
-        options.release.set(8)
+        options.release.set(16)
     }
     javadoc {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything

@@ -30,7 +30,7 @@ public class SkinHandler {
         if (skins == null || !weaponStack.hasItemMeta())
             return false;
 
-        WeaponSkinEvent event = new WeaponSkinEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), skins, triggerType);
+        WeaponSkinEvent event = new WeaponSkinEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, skins, triggerType);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled())
             return false;

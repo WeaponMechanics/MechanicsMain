@@ -194,7 +194,7 @@ public class AirStrike implements Serializer<AirStrike> {
                     // or use the projectile settings for this airstrike
                     Projectile projectileHandler = getProjectile() != null ? getProjectile() : getConfigurations().getObject(projectile.getWeaponTitle() + ".Projectile", Projectile.class);
                     if (projectileHandler != null) {
-                        WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle())
+                        WeaponProjectile newProjectile = getProjectile() != null ? projectileHandler.create(shooter, location, new Vector(0, 0, 0), projectile.getWeaponStack(), projectile.getWeaponTitle(), projectile.getHand())
                                 : projectile.clone(location, new Vector(0, 0, 0));
                         newProjectile.setIntTag("airstrike-bomb", 1);
                         projectileHandler.shoot(newProjectile, location);

@@ -15,7 +15,7 @@ public abstract class ProjectileEvent extends WeaponEvent {
     protected final WeaponProjectile projectile;
 
     protected ProjectileEvent(WeaponProjectile projectile) {
-        super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter());
+        super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter(), projectile.getHand());
 
         this.projectile = projectile;
     }

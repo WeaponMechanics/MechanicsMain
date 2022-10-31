@@ -4,6 +4,7 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,10 +21,10 @@ public class WeaponMeleeMissEvent extends WeaponEvent implements Cancellable {
     private boolean consume;
     private boolean isCancelled;
 
-    public WeaponMeleeMissEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, int meleeMissDelay,
-                                Mechanics mechanics, boolean consume) {
+    public WeaponMeleeMissEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand,
+                                int meleeMissDelay, Mechanics mechanics, boolean consume) {
 
-        super(weaponTitle, weaponStack, shooter);
+        super(weaponTitle, weaponStack, shooter, hand);
 
         this.meleeMissDelay = meleeMissDelay;
         this.mechanics = mechanics;

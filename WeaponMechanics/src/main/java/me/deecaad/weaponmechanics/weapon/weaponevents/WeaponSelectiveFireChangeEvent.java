@@ -4,6 +4,7 @@ import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,8 +21,9 @@ public class WeaponSelectiveFireChangeEvent extends WeaponEvent implements Cance
     private SelectiveFireState newState;
     private boolean cancelled;
 
-    public WeaponSelectiveFireChangeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, SelectiveFireState oldState, SelectiveFireState newState) {
-        super(weaponTitle, weaponStack, shooter);
+    public WeaponSelectiveFireChangeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand,
+                                          SelectiveFireState oldState, SelectiveFireState newState) {
+        super(weaponTitle, weaponStack, shooter, hand);
 
         this.oldState = oldState;
         this.newState = newState;

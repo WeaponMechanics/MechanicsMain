@@ -31,27 +31,26 @@ import java.util.jar.JarFile;
 
 public class MechanicsCore extends JavaPlugin {
 
-    private static MechanicsCore plugin;
+    private static MechanicsCore instance;
     public static Debugger debug; // public for import
 
     public BukkitAudiences adventure;
     public MiniMessage message;
 
-    @Override
     public void onLoad() {
+        instance = this;
+
         int level = getConfig().getInt("Debug_Level");
         boolean printTraces = getConfig().getBoolean("Print_Traces");
         debug = new Debugger(getLogger(), level, printTraces);
-        plugin = this;
     }
 
-    @Override
     public void onEnable() {
         debug.debug("Loading config.yml");
         if (!getDataFolder().exists() || getDataFolder().listFiles() == null || getDataFolder().listFiles().length == 0) {
             FileUtil.copyResourcesTo(getClassLoader().getResource("MechanicsCore"), getDataFolder().toPath());
         }
-        FileUtil.ensureDefaults(getClassLoader(), "MechanicsCore/config.yml", new File(getDataFolder(), "config.yml"));
+        FileUtil.ensureDefaults(getClassLoader().getResource("MechanicsCore/config.yml"), new File(getDataFolder(), "config.yml"));
 
         // The methods we use that allow EntityEquipmentEvent to trigger simply
         // don't exist in 1.10 and lower.
@@ -87,12 +86,10 @@ public class MechanicsCore extends JavaPlugin {
         }, this);
     }
 
-    @Override
     public void onDisable() {
         HandlerList.unregisterAll(this);
-        getServer().getScheduler().cancelTasks(this);
+        Bukkit.getServer().getScheduler().cancelTasks(this);
         PlaceholderAPI.onDisable();
-        plugin = null;
         debug = null;
         adventure.close();
         adventure = null;
@@ -164,10 +161,11 @@ public class MechanicsCore extends JavaPlugin {
         return added;
     }
 
+
     /**
      * @return the MechanicsCore plugin instance
      */
     public static MechanicsCore getPlugin() {
-        return plugin;
+        return instance;
     }
 }

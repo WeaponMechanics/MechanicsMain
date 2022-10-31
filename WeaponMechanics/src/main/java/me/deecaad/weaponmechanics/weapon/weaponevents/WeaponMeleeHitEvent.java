@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,8 +20,8 @@ public class WeaponMeleeHitEvent extends WeaponEvent implements Cancellable {
     private boolean isBackstab;
     private boolean isCancelled;
 
-    public WeaponMeleeHitEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, LivingEntity victim, int meleeHitDelay, boolean isBackstab) {
-        super(weaponTitle, weaponStack, shooter);
+    public WeaponMeleeHitEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, LivingEntity victim, int meleeHitDelay, boolean isBackstab) {
+        super(weaponTitle, weaponStack, shooter, hand);
         this.victim = victim;
         this.meleeHitDelay = meleeHitDelay;
         this.isBackstab = isBackstab;

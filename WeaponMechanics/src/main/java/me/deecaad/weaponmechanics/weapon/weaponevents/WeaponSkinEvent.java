@@ -5,6 +5,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,15 +24,15 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
 
     private boolean cancel;
 
-    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, SkinList skinList) {
-        super(weaponTitle, weaponStack, shooter);
+    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinList skinList) {
+        super(weaponTitle, weaponStack, shooter, hand);
         this.skinList = skinList;
         this.cause = null;
         this.skin = "default";
     }
 
-    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, SkinList skinList, TriggerType cause) {
-        super(weaponTitle, weaponStack, shooter);
+    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinList skinList, TriggerType cause) {
+        super(weaponTitle, weaponStack, shooter, hand);
         this.skinList = skinList;
         this.cause = cause;
         this.skin = "default";

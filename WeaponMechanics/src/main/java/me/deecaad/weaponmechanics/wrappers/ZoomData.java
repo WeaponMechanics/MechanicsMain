@@ -8,6 +8,7 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.vivecraft.VSE;
@@ -130,7 +131,7 @@ public class ZoomData {
             Mechanics zoomOffMechanics = getConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
             if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper, this.scopeWeaponTitle, this.scopeWeaponStack));
 
-            WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack, entityWrapper.getEntity(), WeaponScopeEvent.ScopeType.OUT, 0, 0);
+            WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack, entityWrapper.getEntity(), getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, WeaponScopeEvent.ScopeType.OUT, 0, 0);
             Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         }
 

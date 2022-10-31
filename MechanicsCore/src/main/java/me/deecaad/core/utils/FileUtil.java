@@ -1,13 +1,11 @@
 package me.deecaad.core.utils;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.yaml.snakeyaml.Yaml;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -15,6 +13,9 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Map;
+import java.util.jar.JarFile;
+
+import static me.deecaad.core.MechanicsCore.debug;
 
 /**
  * This final utility class outlines static methods that work with files,
@@ -44,6 +45,9 @@ public final class FileUtil {
      * @throws InternalError If an IO or URI exception occurs.
      */
     public static void copyResourcesTo(URL source, Path target) {
+        if (source == null)
+            throw new IllegalArgumentException("Resource was null, make sure you put in the correct path!");
+
         try {
             PathReference pathReference = PathReference.of(source.toURI());
 
@@ -104,60 +108,83 @@ public final class FileUtil {
     }
 
     /**
+     * Returns the jar file from the given arguments. The file should point to
+     * a <code>.jar</code> file. You can get the {@link File} from your plugin
+     * using the protected {@link JavaPlugin#getFile()} method.
+     *
+     * @param plugin The non-null plugin who owns the jar file.
+     * @param jar    The non-null file pointing to the jar
+     * @return The non-null jar file.
+     */
+    public JarFile getJarFile(Plugin plugin, File jar) {
+        if (jar == null || !jar.exists()) {
+            try {
+                jar = new File(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getFile());
+            } catch (SecurityException e) {
+                try {
+                    Method method = plugin.getClass().getDeclaredMethod("getFile");
+                    method.setAccessible(true);
+                    jar = (File) method.invoke(plugin);
+                } catch (Exception e1) {
+                    debug.log(LogLevel.ERROR, "Failed to invoke JavaPlugin#getFile()", e1);
+                }
+            }
+            if (jar == null) {
+                debug.log(LogLevel.WARN, "Could not locate " + plugin.getDescription().getName() + " jar file...");
+                throw new InternalError();
+            }
+        }
+        try {
+            return new JarFile(jar);
+        } catch (IOException e) {
+            debug.log(LogLevel.ERROR, "Failed to create jar file: " + jar, e);
+            throw new InternalError(e);
+        }
+    }
+
+    /**
      * Ensures that a given <code>file</code> has all config options
      * defined by the <code>resource</code>.
      *
-     * @param loader   The non-null loading plugin's class loader.
-     * @param resource The non-null name of the resource to copy.
+     * @param resource The non-null resource to copy.
      * @param file     The output file that should have the default values.
      */
-    public static void ensureDefaults(ClassLoader loader, String resource, File file) {
+    public static void ensureDefaults(URL resource, File file) {
+        if (resource == null)
+            throw new IllegalArgumentException("Resource was null, make sure you put in the correct path!");
 
-        Yaml yaml = new Yaml();
-        InputStream input;
+        // First ensure the file exists
+        ensureFile(resource, file);
+
+        // Spigot added their comment configuration stuff in 1.18
+        if (ReflectionUtil.getMCVersion() < 18)
+            return;
+
+        YamlConfiguration from;
         try {
-            URL url = loader.getResource(resource);
-            if (url == null) {
-                throw new InternalError("Unknown resource: " + resource);
-            }
-
-            input = url.openStream();
+            from = YamlConfiguration.loadConfiguration(new InputStreamReader(resource.openStream()));
         } catch (IOException e) {
             throw new InternalError(e);
         }
+        YamlConfiguration to = YamlConfiguration.loadConfiguration(file);
 
-        // If the file does not exist, just write a new file.
-        if (!file.exists()) {
+        // Loop through each key, and make sure it exists. If it does not, then
+        // set the default value and add block/inline comments.
+        boolean madeChanges = false;
+        for (String key : from.getKeys(true)) {
+            if (to.contains(key))
+                continue;
 
-            try (FileOutputStream output = new FileOutputStream(file)) {
-                if (!file.createNewFile()) {
-                    throw new InternalError("Failed to create new file " + file);
-                }
-
-                int data;
-                while ((data = input.read()) != -1) {
-                    output.write(data);
-                }
-            } catch (IOException e) {
-                throw new InternalError(e);
-            }
-            return;
+            to.set(key, from.get(key));
+            to.setComments(key, from.getComments(key));
+            to.setInlineComments(key, from.getInlineComments(key));
+            madeChanges = true;
         }
 
-        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        Map<String, Object> defaults = yaml.load(input);
-
-        for (Map.Entry<String, Object> entry : defaults.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-
-            if (!config.contains(key)) {
-                config.set(key, value);
-            }
-        }
-
+        // Apply/Write those changes to the file (if changes were made)
         try {
-            config.save(file);
+            if (madeChanges)
+                to.save(file);
         } catch (IOException e) {
             throw new InternalError(e);
         }
@@ -179,10 +206,10 @@ public final class FileUtil {
         }
     }
 
-    public static void ensureFile(ClassLoader loader, String resource, File file) {
+    public static void ensureFile(URL resource, File file) {
         if (!file.exists()) {
             try (
-                    InputStream in = loader.getResourceAsStream(resource);
+                    InputStream in = new BufferedInputStream(resource.openStream());
                     FileOutputStream out = new FileOutputStream(file);
             ) {
                 int data;

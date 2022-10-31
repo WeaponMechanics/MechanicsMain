@@ -1,6 +1,6 @@
 name: Code Improvement
 description: If you found 'bad code' or code that may be improved, report it here.
-labels: [ enhancement ]
+labels: [ enhancement, new ]
 body:
   - type: input
     attributes:

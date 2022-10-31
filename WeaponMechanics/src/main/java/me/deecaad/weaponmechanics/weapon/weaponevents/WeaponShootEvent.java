@@ -16,7 +16,7 @@ public class WeaponShootEvent extends WeaponEvent {
     private WeaponProjectile projectile;
 
     public WeaponShootEvent(WeaponProjectile projectile) {
-        super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter());
+        super(projectile.getWeaponTitle(), projectile.getWeaponStack(), projectile.getShooter(), projectile.getHand());
 
         this.projectile = projectile;
     }

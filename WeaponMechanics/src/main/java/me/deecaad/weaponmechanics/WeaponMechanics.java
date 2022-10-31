@@ -2,6 +2,8 @@ package me.deecaad.weaponmechanics;
 
 import co.aikar.timings.lib.MCTiming;
 import co.aikar.timings.lib.TimingManager;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import me.cjcrafter.auto.UpdateChecker;
 import me.cjcrafter.auto.UpdateInfo;
 import me.deecaad.core.MechanicsCore;
@@ -13,7 +15,6 @@ import me.deecaad.core.database.MySQL;
 import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.*;
-import me.deecaad.core.packetlistener.PacketHandlerListener;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
@@ -41,10 +42,13 @@ import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
@@ -72,7 +76,7 @@ import java.util.logging.Logger;
 public class WeaponMechanics {
 
     private static WeaponMechanics plugin;
-    WeaponMechanicsLoader javaPlugin;
+    JavaPlugin javaPlugin;
     Map<LivingEntity, EntityWrapper> entityWrappers;
     Configuration configurations;
     Configuration basicConfiguration;
@@ -80,7 +84,7 @@ public class WeaponMechanics {
     WeaponHandler weaponHandler;
     UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
-    PacketHandlerListener packetListener;
+    ProtocolManager protocolManager;
     TimingManager timingManager;
     Metrics metrics;
     Database database;
@@ -88,7 +92,7 @@ public class WeaponMechanics {
     // public so people can import a static variable
     public static Debugger debug;
 
-    public WeaponMechanics(WeaponMechanicsLoader javaPlugin) {
+    public WeaponMechanics(JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
     }
 
@@ -105,24 +109,15 @@ public class WeaponMechanics {
     }
 
     public ClassLoader getClassLoader() {
-        return javaPlugin.getClassLoader0();
+        return (ClassLoader) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getClassLoader"), javaPlugin);
     }
 
     public File getFile() {
-        return javaPlugin.getFile0();
+        return (File) ReflectionUtil.invokeMethod(ReflectionUtil.getMethod(JavaPlugin.class, "getFile"), javaPlugin);
     }
 
     public void onLoad() {
         setupDebugger();
-
-        // Check Java version and warn users about untested/unsupported versions
-        if (ReflectionUtil.getJavaVersion() < 8) {
-            debug.error("Detected a JAVA version under java 1.8. This plugin will NOT work in versions under java 1.8.");
-            debug.error("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
-        } else if (ReflectionUtil.getJavaVersion() > 17) {
-            debug.debug("Detected a JAVA version above java 17. This plugin has not been tested in versions above java 17.");
-            debug.debug("Detected JAVA version: " + ReflectionUtil.getJavaVersion());
-        }
 
         // Register all WorldGuard flags
         WorldGuardCompatibility guard = CompatibilityAPI.getWorldGuardCompatibility();
@@ -174,12 +169,12 @@ public class WeaponMechanics {
         // some disgusting NMS shit.
         new TaskChain(javaPlugin)
                 .thenRunSync(() -> {
-                            loadConfig();
-                            registerPlaceholders();
-                            registerListeners();
-                            registerBStats();
-                            registerPermissions();
-                        });
+                    loadConfig();
+                    registerPlaceholders();
+                    registerListeners();
+                    registerBStats();
+                    registerPermissions();
+                });
 
 
         registerCommands();
@@ -213,8 +208,7 @@ public class WeaponMechanics {
         }
 
         try {
-            // TODO bad programmars comment out broken code
-            //FileUtil.ensureDefaults(getClassLoader(), "WeaponMechanics/config.yml", new File(getDataFolder(), "config.yml"));
+            FileUtil.ensureDefaults(getClassLoader().getResource("WeaponMechanics/config.yml"), new File(getDataFolder(), "config.yml"));
         } catch (YAMLException e) {
             debug.error("WeaponMechanics jar corruption... This is most likely caused by using /reload after building jar!");
         }
@@ -348,11 +342,12 @@ public class WeaponMechanics {
 
     void registerPacketListeners() {
         debug.debug("Creating packet listeners");
-        packetListener = new PacketHandlerListener(getPlugin(), debug);
-        packetListener.addPacketHandler(new OutAbilitiesListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutRemoveEntityEffectListener(), true); // used with scopes
-        packetListener.addPacketHandler(new OutSetSlotBobFix(getPlugin()), true);
+        protocolManager = ProtocolLibrary.getProtocolManager();
+
+        protocolManager.addPacketListener(new OutAbilitiesListener(javaPlugin));
+        protocolManager.addPacketListener(new OutEntityEffectListener(javaPlugin));
+        protocolManager.addPacketListener(new OutRemoveEntityEffectListener(javaPlugin));
+        protocolManager.addPacketListener(new OutSetSlotBobFix(javaPlugin));
     }
 
     void registerCommands() {
@@ -409,25 +404,44 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
-        if (!basicConfiguration.getBool("Update_Checker.Enable", true)) return;
+        if (!basicConfiguration.getBool("Update_Checker.Enable", true) || updateChecker != null) return;
 
         debug.debug("Registering update checker");
 
         updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.spigot(99913, "WeaponMechanics"));
 
+        try {
+            UpdateInfo consoleUpdate = updateChecker.hasUpdate();
+                if (consoleUpdate != null) {
+                    Audience audience = MechanicsCore.getPlugin().adventure.sender(Bukkit.getConsoleSender());
+                    Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(consoleUpdate.current, consoleUpdate.newest), NamedTextColor.RED)
+                            .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
+                            .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
+
+                    audience.sendMessage(component);
+                }
+        } catch (Throwable ex) {
+            debug.log(LogLevel.DEBUG, "UpdateChecker error", ex);
+            debug.error("UpdateChecker failed to connect: " + ex.getMessage());
+            return;
+        }
+
         Listener listener = new Listener() {
             @EventHandler
             public void onJoin(PlayerJoinEvent event) {
-                Player player = event.getPlayer();
-                if (player.isOp()) {
+                if (event.getPlayer().isOp()) {
                     new TaskChain(javaPlugin)
                             .thenRunAsync((callback) -> updateChecker.hasUpdate())
                             .thenRunSync((callback) -> {
                                 UpdateInfo update = (UpdateInfo) callback;
                                 if (callback != null) {
-                                    player.sendMessage(ChatColor.RED + "WeaponMechanics is out of date! " + update.current + " -> " + update.newest);
-                                }
+                                    Audience audience = MechanicsCore.getPlugin().adventure.player(event.getPlayer());
+                                    Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(update.current, update.newest), NamedTextColor.RED)
+                                            .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
+                                            .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
 
+                                    audience.sendMessage(component);
+                                }
                                 return null;
                             });
                 }
@@ -516,7 +530,7 @@ public class WeaponMechanics {
     }
 
     public TaskChain onReload() {
-        MechanicsCore mechanicsCore = MechanicsCore.getPlugin();
+        JavaPlugin mechanicsCore = MechanicsCore.getPlugin();
 
         this.onDisable();
         mechanicsCore.onDisable();
@@ -574,7 +588,7 @@ public class WeaponMechanics {
 
         database = null;
         weaponHandler = null;
-        updateChecker = null;
+        //updateChecker = null; do not reset update checker
         entityWrappers = null;
         mainCommand = null;
         configurations = null;
@@ -582,8 +596,6 @@ public class WeaponMechanics {
         projectilesRunnable = null;
         plugin = null;
         debug = null;
-        packetListener.close();
-        packetListener = null;
         WeaponMechanicsAPI.setInstance(null);
     }
 
@@ -618,7 +630,7 @@ public class WeaponMechanics {
      * This method will return null if no auto add is set to true and EntityWrapper is not found.
      * If no auto add is false then new EntityWrapper is automatically created if not found and returned by this method.
      *
-     * @param entity the entity
+     * @param entity    the entity
      * @param noAutoAdd true means that EntityWrapper wont be automatically added if not found
      * @return the entity wrapper or null if no auto add is true and EntityWrapper was not found
      */

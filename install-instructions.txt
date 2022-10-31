@@ -1,0 +1,17 @@
+To install WeaponMechanics:
+
+1. Stop your server
+2. Install ProtocolLib: https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar
+3. Drag and drop all 3 jar files into the plugins folder
+  * Includes these 3 files:
+  * WeaponMechanics-x.x.x.jar
+  * MechanicsCore-x.x.x.jar
+  * ProtocolLib.jar
+4. Start your server
+
+Tips:
+* Use /wm reload, NEVER use /reload, or a plugin like Plugman. ALWAYS use /wm reload
+* Read console for errors, we made sure that users can read them and understand them
+* Check out the wiki: https://github.com/WeaponMechanics/MechanicsMain/wiki
+* Get support: https://discord.gg/ERVgpfg
+* Special Effects Addon: https://www.spigotmc.org/resources/104539/

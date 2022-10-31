@@ -173,29 +173,16 @@ public final class ReflectionUtil {
         for (int i = 0; i < parameters.length; i++) {
             classes[i] = parameters[i].getClass();
 
-            switch (parameters[i].getClass().getSimpleName()) {
-                case "Double":
-                    classes[i] = double.class;
-                    break;
-                case "Integer":
-                    classes[i] = int.class;
-                    break;
-                case "Float":
-                    classes[i] = float.class;
-                    break;
-                case "Boolean":
-                    classes[i] = boolean.class;
-                    break;
-                case "Byte":
-                    classes[i] = byte.class;
-                    break;
-                case "Short":
-                    classes[i] = short.class;
-                    break;
-                case "Long":
-                    classes[i] = long.class;
-                    break;
-            }
+            classes[i] = switch (parameters[i].getClass().getSimpleName()) {
+                case "Double" -> double.class;
+                case "Integer" -> int.class;
+                case "Float" -> float.class;
+                case "Boolean" -> boolean.class;
+                case "Byte" -> byte.class;
+                case "Short" -> short.class;
+                case "Long" -> long.class;
+                default -> classes[i];
+            };
         }
 
         try {

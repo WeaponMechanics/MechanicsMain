@@ -30,13 +30,10 @@ public class PFirearmState extends PlaceholderHandler {
 
         FirearmState state = firearmAction.getState(itemStack);
 
-        switch (state) {
-            case OPEN:
-                return getBasicConfigurations().getString("Placeholder_Symbols." + firearmAction.getFirearmType().name() + ".Open", " □");
-            case CLOSE:
-                return getBasicConfigurations().getString("Placeholder_Symbols." + firearmAction.getFirearmType().name() + ".Close", " ■");
-            default:
-                return "";
-        }
+        return switch (state) {
+            case OPEN -> getBasicConfigurations().getString("Placeholder_Symbols." + firearmAction.getFirearmType().name() + ".Open", " □");
+            case CLOSE -> getBasicConfigurations().getString("Placeholder_Symbols." + firearmAction.getFirearmType().name() + ".Close", " ■");
+            default -> "";
+        };
     }
 }

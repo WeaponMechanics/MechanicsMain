@@ -27,6 +27,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.IAmmoType;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.StatsData;
@@ -70,6 +71,17 @@ public class WeaponMechanicsCommand {
         return info.getSortedWeaponList().stream().map(Tooltip::of).toArray(Tooltip[]::new);
     };
 
+    public static Function<CommandData, Tooltip[]> AMMO_SUGGESTIONS = (data) -> {
+        String weaponTitle = (String) data.previousArguments[data.previousArguments.length - 1];
+        Configuration config = WeaponMechanics.getConfigurations();
+        if (!config.containsKey(weaponTitle + ".Reload.Ammo.Ammo_Types")) {
+            return null;
+        }
+
+        AmmoTypes types = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
+        return types.getAmmoTypes().stream().map(IAmmoType::getAmmoName).map(Tooltip::of).toArray(Tooltip[]::new);
+    };
+
     public static void build() {
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
@@ -108,9 +120,21 @@ public class WeaponMechanicsCommand {
                 .withSubcommand(new CommandBuilder("ammo")
                         .withPermission("weaponmechanics.commands.ammo")
                         .withDescription("Gets ammo for held weapon")
-                        .withArguments(new Argument<>("amount", new IntegerArgumentType(), 64).withDesc("How much ammo to give").replace(ITEM_COUNT))
+                        .withArgument(new Argument<>("amount", new IntegerArgumentType(), 64).withDesc("How much ammo to give").replace(ITEM_COUNT))
                         .executes(CommandExecutor.player((sender, args) -> {
                             giveAmmo(sender, (int) args[0]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("giveammo")
+                        .withPermission("weaponmechanics.commands.giveammo")
+                        .withDescription("Gives ammo of a certain type to a player")
+                        .withArgument(new Argument<>("player", new PlayerArgumentType()).withDesc("Who recieves the ammo"))
+                        .withArgument(new Argument<>("weapon", new StringArgumentType()).withDesc("Which weapon the ammo is for").replace(WEAPON_SUGGESTIONS))
+                        .withArgument(new Argument<>("ammo", new StringArgumentType()).withDesc("Which ammo to give").replace(AMMO_SUGGESTIONS))
+                        .withArgument(new Argument<>("magazine", new BooleanArgumentType(), false).withDesc("Whether to give the magazine or bullet"))
+                        .withArgument(new Argument<>("amount", new IntegerArgumentType(), 64).withDesc("How much ammo to give").replace(ITEM_COUNT))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            giveAmmo(sender, (Player) args[0], (String) args[1], (String) args[2], (boolean) args[3], (int) args[4]);
                         })))
 
                 .withSubcommand(new CommandBuilder("info")
@@ -450,6 +474,29 @@ public class WeaponMechanicsCommand {
         ammo.giveAmmo(sender.getInventory().getItemInMainHand(), WeaponMechanics.getPlayerWrapper(sender), amount, 64);
 
         sender.sendMessage(GREEN + "Sent ammo");
+    }
+
+    public static void giveAmmo(CommandSender sender, Player player, String weaponTitle, String ammoName, boolean magazine, int amount) {
+        ItemStack item;
+        try {
+            item = WeaponMechanicsAPI.getAmmoItem(weaponTitle, ammoName, magazine);
+        } catch (Throwable ex) {
+            sender.sendMessage(RED + ex.getMessage());
+            return;
+        }
+
+        if (item == null) {
+            sender.sendMessage(RED + "No such ammo exists");
+            return;
+        }
+
+        item.setAmount(amount);
+
+        Map<Integer, ItemStack> overflow = player.getInventory().addItem(item);
+        if (overflow == null || !overflow.isEmpty())
+            sender.sendMessage(RED + player.getName() + "'s inventory was full");
+        else
+            sender.sendMessage(GREEN + player.getName() + " recieved " + amount + " " + ammoName);
     }
 
     public static void info(CommandSender sender) {
@@ -848,7 +895,7 @@ public class WeaponMechanicsCommand {
                 gravity, false, -1, false,
                 -1, 0.99, 0.96, 0.98, false, 600, -1, 0.1);
         Projectile projectile = new Projectile(projectileSettings, null, null, null, null);
-        projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null);
+        projectile.shoot(sender, sender.getEyeLocation(), sender.getLocation().getDirection().multiply(speed), null, null, null);
     }
 
     public static void transform(Entity sender, int children, int time, double speed, double radius, boolean particles) {

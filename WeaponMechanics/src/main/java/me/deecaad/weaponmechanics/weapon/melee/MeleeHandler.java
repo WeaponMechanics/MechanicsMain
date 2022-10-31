@@ -103,7 +103,7 @@ public class MeleeHandler implements IValidator {
         if (hit != null) {
             boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
             if (result) {
-                hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack);
+                hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack, slot);
             }
             return result;
         }
@@ -123,7 +123,7 @@ public class MeleeHandler implements IValidator {
         boolean consumeOnMiss = getConfigurations().getBool(weaponTitle + ".Melee.Melee_Miss.Consume_On_Miss");
         Mechanics missMechanics = getConfigurations().getObject(weaponTitle + ".Melee.Melee_Miss.Mechanics", Mechanics.class);
 
-        WeaponMeleeMissEvent event = new WeaponMeleeMissEvent(weaponTitle, weaponStack, shooter, meleeMissDelay / 50, missMechanics, consumeOnMiss);
+        WeaponMeleeMissEvent event = new WeaponMeleeMissEvent(weaponTitle, weaponStack, shooter, slot, meleeMissDelay / 50, missMechanics, consumeOnMiss);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled())

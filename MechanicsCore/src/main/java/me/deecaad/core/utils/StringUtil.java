@@ -225,15 +225,10 @@ public final class StringUtil {
      * @return The non-null string ordinal.
      */
     public static String ordinal(int i) {
-        switch (i % 100) {
-            case 11:
-            case 12:
-            case 13:
-                return i + "th";
-            default:
-                return i + SUFFIXES[i % 10];
-
-        }
+        return switch (i % 100) {
+            case 11, 12, 13 -> i + "th";
+            default -> i + SUFFIXES[i % 10];
+        };
     }
 
     /**
