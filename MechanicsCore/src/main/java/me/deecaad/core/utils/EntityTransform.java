@@ -45,6 +45,11 @@ public class EntityTransform extends Transform {
 
     @Override
     public Quaternion getLocalRotation() {
+        Vector view = entity.getLocation().getDirection();
+        Vector localUp = Quaternion.UP;
+        if (localUp.equals(view))
+            localUp = Quaternion.BACKWARD; // TODO improve
+
         return Quaternion.lookAt(entity.getLocation().getDirection(), Quaternion.UP);
     }
 
