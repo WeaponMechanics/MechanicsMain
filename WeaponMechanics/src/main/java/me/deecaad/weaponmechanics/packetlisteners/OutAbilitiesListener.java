@@ -5,6 +5,7 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.scope.ScopeLevel;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import org.bukkit.plugin.Plugin;
@@ -36,6 +37,6 @@ public class OutAbilitiesListener extends PacketAdapter {
         if (zoomAmount == 0)
             return;
 
-        event.getPacket().getFloat().write(1, (float) zoomAmount);
+        event.getPacket().getFloat().write(1, ScopeLevel.getScope(zoomAmount));
     }
 }

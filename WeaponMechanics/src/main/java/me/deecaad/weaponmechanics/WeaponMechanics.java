@@ -590,6 +590,9 @@ public class WeaponMechanics {
             }
         }
 
+        // Unregister packet listeners
+        protocolManager.removePacketListeners(javaPlugin);
+
         database = null;
         weaponHandler = null;
         //updateChecker = null; do not reset update checker
