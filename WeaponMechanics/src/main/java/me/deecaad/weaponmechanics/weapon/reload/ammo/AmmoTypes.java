@@ -8,15 +8,20 @@ import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class AmmoTypes implements Serializer<AmmoTypes> {
+
+    private static final Set<String> REGISTERED_AMMO_TITLES = new HashSet<>();
 
     private List<IAmmoType> ammoTypes;
 
@@ -118,8 +123,21 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
     @Override
     @Nonnull
     public AmmoTypes serialize(SerializeData data) throws SerializerException {
+
         List<IAmmoType> ammoTypes = new ArrayList<>();
-        for (String ammoName : data.config.getConfigurationSection(data.key).getKeys(false)) {
+        ConfigurationSection config = data.of().assertExists().get();
+        for (String ammoName : config.getKeys(false)) {
+
+            // We have to check if an ammo-title with this name has already
+            // been registered. Duplicates are not allowed.
+            if (!REGISTERED_AMMO_TITLES.add(ammoName)) {
+                throw data.exception(null, "Found duplicate ammo name",
+                        SerializerException.forValue(ammoName),
+                        "Instead of using a duplicate ammo names, try using something more specific, like 'AK-47_Ammo'",
+                        "If you want to re-use ammo in each weapon, use the 'server > plugins > WeaponMechanics > ammo' folder",
+                        "Ammo Tutorial: https://www.youtube.com/watch?v=eJwB0G1a4cE");
+            }
+
             SerializeData move = data.move(ammoName);
 
             String symbol = move.of("Symbol").assertType(String.class).get(null);
