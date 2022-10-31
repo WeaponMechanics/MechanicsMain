@@ -184,6 +184,10 @@ public class WeaponMechanics {
         double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
         debug.debug("Enabled WeaponMechanics in " + seconds + "s");
 
+        // Shameless self-promotion
+        if (Bukkit.getPluginManager().getPlugin("WeaponMechanicsCosmetics") == null)
+            debug.info("Buy WeaponMechanicsCosmetics to support our development: https://www.spigotmc.org/resources/104539/");
+
         WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
     }
