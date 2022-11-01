@@ -21,6 +21,10 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
+        blockDamageData();
+        if (true)
+            return;
+
         int MAXIMUM_CAPACITY = 1 << 30;
         int n = -1 >>> Integer.numberOfLeadingZeros(700 - 1);
         int cap = (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
@@ -96,17 +100,17 @@ public class Tools {
     }
 
     private static void blockDamageData() {
-        System.out.println("        Block_List:");
+        System.out.println("\n\n\n\n");
+
+        System.out.print("blocks = [");
+
         for (Material mat : Material.values()) {
             if (mat.isLegacy() || !mat.isBlock() || mat.isAir()) continue;
 
-            int durability = (int) (mat.getBlastResistance() + mat.getHardness()) + 1;
-            if (durability > 18) {
-                continue;
-            }
-
-            System.out.println("          - " + mat.name().toLowerCase() + "~" + durability);
+            System.out.print("(\"" + mat.name() + "\", " + mat.getBlastResistance() + ", " + mat.getHardness() + ")");
+            System.out.print(", ");
         }
+        System.out.println("]\n\n\n\n");
     }
 
     private static void fontData() {
