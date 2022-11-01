@@ -39,6 +39,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
     public record DamageConfig(BreakMode mode, int blockDurability, Material mask) {
     }
 
+
     private double dropBlockChance;
     private int damage;
 
@@ -169,6 +170,20 @@ public class BlockDamage implements Serializer<BlockDamage> {
     public Material getMask(Material material) {
         DamageConfig config = blocks.get(material);
         return config == null ? defaultMask : config.mask;
+    }
+
+    /**
+     * Returns <code>true</code> if at least 1 block can be broken through the
+     * {@link #damage(Block, Player, boolean)} method. Useful for checking if
+     * a weapon can be used for griefing.
+     *
+     * @return true if blocks can be broken.
+     */
+    public boolean canBreakBlocks() {
+        if (defaultMode == BreakMode.BREAK)
+            return true;
+
+        return blocks.values().stream().anyMatch(config -> config.mode == BreakMode.BREAK);
     }
 
     /**
@@ -323,7 +338,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 throw data.listException("Blocks", i, "Tried to use '0' for block durability, must be at least '1'");
             }
 
-            // Fill up the map in the loop, so we can collect all of the values.
+            if (mask == null)
+                mask = Material.AIR;
+
+            // Fill up the map in the loop, so we can collect all the values.
             DamageConfig config = new DamageConfig(mode, blockDurability, mask);
             for (Material mat : materials)
                 blocks.put(mat, config);

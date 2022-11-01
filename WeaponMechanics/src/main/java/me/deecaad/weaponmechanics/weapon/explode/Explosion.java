@@ -400,7 +400,7 @@ public class Explosion implements Serializer<Explosion> {
                 data.remove();
             }
 
-            if (data.isBroken() && blockDamage.isBreakBlocks()) {
+            if (data.isBroken() && blockDamage.getBreakMode(state.getType()) == BlockDamage.BreakMode.BREAK) {
 
                 // For stat tracking
                 blocksBroken += 1;
@@ -483,7 +483,7 @@ public class Explosion implements Serializer<Explosion> {
         // This check determines if the player tried to use Block Regeneration
         // when blocks cannot even be broken in the first place. Easy mistake
         // to make when copying/pasting and deleting chunks of config.
-        if ((blockDamage == null || !blockDamage.isBreakBlocks()) && regeneration != null) {
+        if ((blockDamage == null || !blockDamage.canBreakBlocks()) && regeneration != null) {
             throw data.exception(null, "Found an Explosion that defines 'Regeneration' when 'Block_Damage' cannot break blocks!",
                     "This happens when 'Block_Damage.Break_Blocks: false' or when 'Block_Damage' was not added AND you tried to add 'Regeneration'");
         }
