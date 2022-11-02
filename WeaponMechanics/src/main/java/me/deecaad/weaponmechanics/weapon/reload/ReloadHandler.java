@@ -291,7 +291,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                 CustomTag.AMMO_LEFT.setInteger(taskReference, finalAmmoSet);
 
-                finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
+                // If there is still close task coming, don't call finish reload
+                // Close task will always call it anyway
+                if (!hasNext()) finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
 
                 if (ammoPerReload != -1) {
                     // Start the loop
