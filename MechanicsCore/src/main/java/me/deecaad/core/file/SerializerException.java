@@ -75,6 +75,13 @@ public class SerializerException extends Exception {
         debug.log(level, collected.toArray(new String[0]));
     }
 
+    public SerializerException addMessage(boolean condition, String message) {
+        if (condition)
+            addMessage(message);
+
+        return this;
+    }
+
     public SerializerException addMessage(String message) {
         String[] copy = new String[messages.length + 1];
         System.arraycopy(messages, 0, copy, 0, messages.length);

@@ -6,6 +6,7 @@ import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 
@@ -27,6 +28,13 @@ public class SerializeData {
     public final String key;
     public final ConfigurationSection config;
 
+    /**
+     * Wiki link to be used in exception messages in order to better assist
+     * users in solving their issues.
+     */
+    @Nullable
+    public String wikiLink;
+
     public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
         this.serializer = serializer;
         this.file = file;
@@ -46,6 +54,8 @@ public class SerializeData {
         this.file = file;
         this.key = key;
         this.config = config;
+
+        wikiLink = serializer.getWikiLink();
     }
 
     public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
@@ -53,8 +63,18 @@ public class SerializeData {
         this.file = other.file;
         this.key = other.getPath(relative);
         this.config = other.config;
+
+        wikiLink = serializer.getWikiLink();
     }
 
+    /**
+     * Returns the simplified nam of the serializer. This is done by stripping
+     * away the first instance of "Serializer" in the name, and anything after
+     * that.
+     *
+     * @param serializer The non-null serializer to get the name.
+     * @return The simplified name
+     */
     private static String getSimpleName(Serializer<?> serializer) {
 
         // Sometimes a class will end with 'Serializer' in its name, like
@@ -68,8 +88,14 @@ public class SerializeData {
         return simple;
     }
 
+    /**
+     * Returns the path to the key.
+     *
+     * @param relative The non-null relative path.
+     * @return The total path + relative path.
+     */
     private String getPath(String relative) {
-        return key == null || "".equals(key) ? relative : (key + "." + relative);
+        return key == null || key.isEmpty() ? relative : (key + "." + relative);
     }
 
     /**
@@ -168,7 +194,7 @@ public class SerializeData {
         if (relative != null && !relative.isEmpty())
             key = getPath(relative);
 
-        return new SerializerException(serializer, messages, StringUtil.foundAt(file, key));
+        return new SerializerException(serializer, appendWikiLink(messages), StringUtil.foundAt(file, key));
     }
 
     /**
@@ -189,7 +215,28 @@ public class SerializeData {
         if (relative != null && !relative.isEmpty())
             key = getPath(relative);
 
-        return new SerializerException(serializer, messages, StringUtil.foundAt(file, key, index + 1));
+        return new SerializerException(serializer, appendWikiLink(messages), StringUtil.foundAt(file, key, index + 1));
+    }
+
+    /**
+     * Adds the wiki link, if the wiki link is not null, to the list of
+     * messages. This is used for exceptions.
+     *
+     * @param messages The non-null array of messages to append to.
+     * @return The list (with 1 more element, if the link was added).
+     */
+    private String[] appendWikiLink(String[] messages) {
+        if (wikiLink == null)
+            return messages;
+
+        String[] copy = new String[messages.length + 1];
+        System.arraycopy(messages, 0, copy, 0, messages.length);
+        copy[messages.length] = getWikiMessage();
+        return copy;
+    }
+
+    private String getWikiMessage() {
+        return "Wiki: " + wikiLink;
     }
 
 
@@ -250,7 +297,8 @@ public class SerializeData {
         @Nonnull
         public ConfigListAccessor assertExists() throws SerializerException {
             if (!config.contains(getPath(relative), true))
-                throw new SerializerMissingKeyException(serializer, relative, getLocation());
+                throw new SerializerMissingKeyException(serializer, relative, getLocation())
+                        .addMessage(wikiLink != null, getWikiMessage());
 
             return this;
         }
@@ -286,7 +334,8 @@ public class SerializeData {
                 return this;
 
             if (!(value instanceof List))
-                throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation());
+                throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation())
+                        .addMessage(wikiLink != null, getWikiMessage());
             List<?> list = (List<?>) config.get(getPath(relative));
 
             // Use assertExists for required keys
@@ -352,12 +401,14 @@ public class SerializeData {
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseInt < argument.min || parseInt > argument.max))
                                 throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i))
                                         .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format);
+                                        .addMessage("Valid List Format: " + format)
+                                        .addMessage(wikiLink != null, getWikiMessage());
 
                             if (argument.positive && parseInt < 0)
                                 throw new SerializerNegativeException(serializer, parseInt, getLocation(i))
                                         .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format);
+                                        .addMessage("Valid List Format: " + format)
+                                        .addMessage(wikiLink != null, getWikiMessage());
                         }
 
                         else if (argument.clazz == double.class) {
@@ -366,12 +417,14 @@ public class SerializeData {
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseDouble < argument.min || parseDouble > argument.max))
                                 throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i))
                                         .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format);
+                                        .addMessage("Valid List Format: " + format)
+                                        .addMessage(wikiLink != null, getWikiMessage());
 
                             if (argument.positive && parseDouble < 0.0)
                                 throw new SerializerNegativeException(serializer, parseDouble, getLocation(i))
                                         .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format);
+                                        .addMessage("Valid List Format: " + format)
+                                        .addMessage(wikiLink != null, getWikiMessage());
 
                         } else if (argument.clazz == boolean.class) {
                             argument.clazz = Boolean.class;
@@ -381,14 +434,16 @@ public class SerializeData {
                         } else if (argument.clazz.isEnum() && EnumUtil.parseEnums((Class<Enum>) argument.clazz, component).isEmpty()) {
                             throw new SerializerEnumException(serializer, (Class<Enum>) argument.clazz, component, true, getLocation(i))
                                     .addMessage("Full List Element: " + string)
-                                    .addMessage("Valid List Format: " + format);
+                                    .addMessage("Valid List Format: " + format)
+                                    .addMessage(wikiLink != null, getWikiMessage());
                         }
                     } catch (SerializerException ex) {
                         throw ex; // Rethrow exception so it isn't caught and ignored
                     } catch (Exception ex) {
                         throw new SerializerTypeException(serializer, argument.clazz, null, component, getLocation(i))
                                 .addMessage("Full List Element: " + string)
-                                .addMessage("Valid List Format: " + format);
+                                .addMessage("Valid List Format: " + format)
+                                .addMessage(wikiLink != null, getWikiMessage());
                     }
                 }
             }
@@ -467,7 +522,8 @@ public class SerializeData {
         @Nonnull
         public ConfigAccessor assertExists() throws SerializerException {
             if (!config.contains(getPath(relative), true))
-                throw new SerializerMissingKeyException(serializer, relative, getLocation());
+                throw new SerializerMissingKeyException(serializer, relative, getLocation())
+                        .addMessage(wikiLink != null, getWikiMessage());
 
             exists = true;
             return this;
@@ -518,7 +574,8 @@ public class SerializeData {
             if (value != null) {
                 Class<?> actual = value.getClass();
                 if (!type.isAssignableFrom(actual)) {
-                    throw new SerializerTypeException(serializer, type, actual, value, getLocation());
+                    throw new SerializerTypeException(serializer, type, actual, value, getLocation())
+                            .addMessage(wikiLink != null, getWikiMessage());
                 }
             }
 
@@ -560,7 +617,8 @@ public class SerializeData {
         public int getInt(int def) throws SerializerException {
             Number num = getNumber(def);
             if (Double.compare(Math.floor(num.doubleValue()), Math.ceil(num.doubleValue())) != 0)
-                throw new SerializerTypeException(serializer, Integer.class, Double.class, num, getLocation());
+                throw new SerializerTypeException(serializer, Integer.class, Double.class, num, getLocation())
+                        .addMessage(wikiLink != null, getWikiMessage());
 
             return num.intValue();
         }
@@ -635,7 +693,8 @@ public class SerializeData {
                     return false;
             }
 
-            throw new SerializerTypeException(serializer, Boolean.class, value.getClass(), value, getLocation());
+            throw new SerializerTypeException(serializer, Boolean.class, value.getClass(), value, getLocation())
+                    .addMessage(wikiLink != null, getWikiMessage());
         }
 
         /**
@@ -657,7 +716,8 @@ public class SerializeData {
             try {
                 return (Number) value;
             } catch (ClassCastException ex) {
-                throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation());
+                throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation())
+                        .addMessage(wikiLink != null, getWikiMessage());
             }
         }
 
@@ -677,7 +737,8 @@ public class SerializeData {
             if (value != null) {
 
                 if ((value instanceof Long && value.longValue() < 0L) || value.doubleValue() < 0L)
-                    throw new SerializerNegativeException(serializer, value, getLocation());
+                    throw new SerializerNegativeException(serializer, value, getLocation())
+                            .addMessage(wikiLink != null, getWikiMessage());
             }
 
             return this;
@@ -708,7 +769,8 @@ public class SerializeData {
                 // Silently strips away float point data (without exception)
                 int num = value.intValue();
                 if (num < min || num > max)
-                    throw new SerializerRangeException(serializer, min, num, max, getLocation());
+                    throw new SerializerRangeException(serializer, min, num, max, getLocation())
+                            .addMessage(wikiLink != null, getWikiMessage());
             }
 
             return this;
@@ -738,7 +800,8 @@ public class SerializeData {
 
                 double num = value.doubleValue();
                 if (num < min || num > max)
-                    throw new SerializerRangeException(serializer, min, num, max, getLocation());
+                    throw new SerializerRangeException(serializer, min, num, max, getLocation())
+                            .addMessage(wikiLink != null, getWikiMessage());
             }
 
             return this;
@@ -822,13 +885,15 @@ public class SerializeData {
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
             if (input.startsWith("$"))
-                throw new SerializerEnumException(serializer, clazz, input, false, getLocation());
+                throw new SerializerEnumException(serializer, clazz, input, false, getLocation())
+                        .addMessage(wikiLink != null, getWikiMessage());
 
             // The returned value will have either 0 elements (meaning that the
             // input is invalid) OR 1 element (meaning that the input is valid).
             List<T> list = EnumUtil.parseEnums(clazz, input);
             if (list.isEmpty()) {
-                throw new SerializerEnumException(serializer, clazz, input, false, getLocation());
+                throw new SerializerEnumException(serializer, clazz, input, false, getLocation())
+                        .addMessage(wikiLink != null, getWikiMessage());
             }
 
             // At this point, the list is guaranteed to have exactly 1 element.
