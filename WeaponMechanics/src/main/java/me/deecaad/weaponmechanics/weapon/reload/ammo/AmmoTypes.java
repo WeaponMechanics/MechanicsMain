@@ -181,4 +181,8 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
         }
         return new AmmoTypes(ammoTypes);
     }
+
+    public static void clearRegistry() {
+        REGISTERED_AMMO_TITLES.clear();
+    }
 }
