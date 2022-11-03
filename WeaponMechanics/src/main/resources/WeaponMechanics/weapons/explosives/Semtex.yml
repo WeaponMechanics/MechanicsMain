@@ -66,7 +66,7 @@ Semtex:
     Block_Damage:
       Spawn_Falling_Block_Chance: 0.4
       Default_Mode: BREAK
-      Block_List:
+      Blocks:
         - "BEDROCK cancel"
         - "$WATER cancel"  # stationary_water and moving_water
         - "OBSIDIAN cancel"

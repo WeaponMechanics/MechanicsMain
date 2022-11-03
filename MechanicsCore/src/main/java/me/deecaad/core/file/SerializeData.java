@@ -350,7 +350,7 @@ public class SerializeData {
                 arguments.forEach(arg -> {
                     format.append(arg.clazz.getSimpleName());
                     if (arg.required) format.append('*');
-                    format.append(">-<");
+                    format.append("> <");
                 });
                 format.append('>');
 

@@ -71,7 +71,7 @@ Grenade:
       Blocks:
         - "BEDROCK cancel"
         - "$WATER cancel"  # stationary_water and moving_water
-        - "OBSIDIAN"
+        - "OBSIDIAN cancel"
         - "$LAVA cancel"  # stationary_lava and moving_lava
     Regeneration:
       Ticks_Before_Start: 300
