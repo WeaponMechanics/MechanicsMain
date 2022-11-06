@@ -11,6 +11,11 @@ public class ChanceSerializer implements Serializer<Double> {
     public ChanceSerializer() {
     }
 
+    @Override
+    public boolean canUsePathTo() {
+        return false;
+    }
+
     @NotNull
     @Override
     public Double serialize(SerializeData data) throws SerializerException {
@@ -37,7 +42,7 @@ public class ChanceSerializer implements Serializer<Double> {
 
         // Consider all numbers to be valid
         else if (value instanceof Number) {
-            chance = (double) value;
+            chance = ((Number) value).doubleValue();
         }
 
         // After checking for numbers, and percentages, there is nothing else

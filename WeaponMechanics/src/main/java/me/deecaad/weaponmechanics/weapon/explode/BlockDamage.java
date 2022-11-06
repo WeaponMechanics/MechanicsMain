@@ -278,6 +278,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     @Override
+    public String getKeyword() {
+        return "Block_Damage";
+    }
+
+    @Override
     @NotNull
     public BlockDamage serialize(SerializeData data) throws SerializerException {
 

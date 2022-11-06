@@ -108,6 +108,19 @@ public interface Serializer<T> {
     }
 
     /**
+     * Returns <code>true</code> if the serializer allows path-to. You should
+     * override this method to return <code>false</code> if your serializer
+     * accepts a {@link String} in the main path of the serializer. For
+     * example, the {@link me.deecaad.core.file.serializers.VectorSerializer}
+     * should override this method to return <code>false</code>.
+     *
+     * @return true if the serializer is complicated enough for path-to.
+     */
+    default boolean canUsePathTo() {
+        return true;
+    }
+
+    /**
      * Instantiates a new Object to be added into the finalized configuration.
      * The object should be built off of {@link SerializeData#config}. If there
      * is any misconfiguration (or any other issue preventing the construction

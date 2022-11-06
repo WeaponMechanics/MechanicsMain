@@ -32,8 +32,16 @@ public class SerializeData {
      * Wiki link to be used in exception messages in order to better assist
      * users in solving their issues.
      */
-    @Nullable
-    public String wikiLink;
+    public @Nullable String wikiLink;
+
+    /**
+     * The fully serialized configuration to be used in case a
+     * nested-serializer uses the path-to feature. This should not be read
+     * directly, instead let {@link SerializeData.ConfigAccessor#serialize(Serializer)}
+     * check it automatically.
+     */
+    public @Nullable Configuration pathToConfig;
+
 
     public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
         this.serializer = serializer;
@@ -47,6 +55,8 @@ public class SerializeData {
         this.file = other.file;
         this.key = other.getPath(relative);
         this.config = other.config;
+
+        copyMutables(other);
     }
 
     public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
@@ -64,7 +74,14 @@ public class SerializeData {
         this.key = other.getPath(relative);
         this.config = other.config;
 
+        copyMutables(other);
         wikiLink = serializer.getWikiLink();
+    }
+
+    private SerializeData copyMutables(SerializeData from) {
+        this.wikiLink = from.wikiLink;
+        this.pathToConfig = from.pathToConfig;
+        return this;
     }
 
     /**
@@ -108,7 +125,7 @@ public class SerializeData {
      * @throws IllegalArgumentException If no configuration section exists at the location.
      */
     public SerializeData move(String relative) {
-        return new SerializeData(serializer, this, relative);
+        return new SerializeData(serializer, this, relative).copyMutables(this);
     }
 
     public ConfigListAccessor ofList() {
@@ -121,7 +138,7 @@ public class SerializeData {
         if (key.length() > 0)
             key.setLength(key.length() - 1);
 
-        return new SerializeData(serializer, file, key.toString(), config).ofList(split[split.length - 1]);
+        return new SerializeData(serializer, file, key.toString(), config).copyMutables(this).ofList(split[split.length - 1]);
     }
 
     public ConfigAccessor of() {
@@ -134,7 +151,7 @@ public class SerializeData {
         if (key.length() > 0)
             key.setLength(key.length() - 1);
 
-        return new SerializeData(serializer, file, key.toString(), config).of(split[split.length - 1]);
+        return new SerializeData(serializer, file, key.toString(), config).copyMutables(this).of(split[split.length - 1]);
     }
 
     /**
@@ -969,13 +986,48 @@ public class SerializeData {
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
-        public <T extends Serializer<T>> T serialize(@Nonnull T serializer) throws SerializerException {
+        public <T> T serialize(@Nonnull Serializer<T> serializer) throws SerializerException {
 
             // Use assertExists for required keys
             if (!config.contains(getPath(relative)))
                 return null;
 
             SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
+
+            // Allow path-to compatibility when using nested serializers
+            if (serializer.canUsePathTo() && config.isString(getPath(relative))) {
+                String path = config.getString(getPath(relative));
+
+                // In order for path-to to work, the serializer needs to have a
+                // keyword so the FileReader automatically serializes it.
+                if (serializer.getKeyword() == null)
+                    throw new SerializerPathToException(serializer, data);
+
+                // If we don't have access to the serialized config, we cannot
+                // attempt a path-to.
+                if (pathToConfig == null)
+                    throw new SerializerPathToException(serializer, data);
+
+                // Check to make sure the path points to a serialized object
+                Object obj = pathToConfig.getObject(path);
+                if (obj == null)
+                    throw exception(relative, "Found an invalid path when using 'Path To' feature",
+                            "Path '" + path + "' could not be found. Check for errors above this message.");
+
+                // Technically not "perfect" since a serializer can return a
+                // non-serializer object. ItemSerializer is covered with its
+                // own item-registry system, and other cases are unlikely to
+                // happen since the config is too small for them.
+                if (!serializer.getClass().isInstance(obj))
+                    throw exception(relative, "Found an invalid object when using 'Path To' feature",
+                            "Path '" + path + "' pointed to an improper object type.",
+                            "Should have been '" + serializer.getClass().getSimpleName() + "', but instead got '" + obj.getClass().getSimpleName() + "'",
+                            SerializerException.forValue(obj));
+
+                // Generic fuckery
+                return (T) serializer.getClass().cast(obj);
+            }
+
             return serializer.serialize(data);
         }
 
@@ -1006,6 +1058,7 @@ public class SerializeData {
          * @return The serialized object.
          * @throws SerializerException If there was an error in config.
          */
+        @Deprecated
         public <T> T serializeNonStandardSerializer(@Nonnull Serializer<T> serializer) throws SerializerException {
             // Use assertExists for required keys
             if (!config.contains(getPath(relative)))

@@ -62,6 +62,11 @@ public class ItemSerializer implements Serializer<ItemStack> {
     }
 
     @Override
+    public boolean canUsePathTo() {
+        return false;
+    }
+
+    @Override
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
 
