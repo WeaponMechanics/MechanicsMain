@@ -50,7 +50,22 @@ public enum CustomTag {
     /**
      * integer
      */
-    FIREARM_ACTION_STATE("firearm-action-state");
+    FIREARM_ACTION_STATE("firearm-action-state"),
+
+    /**
+     * integer
+     */
+    DURABILITY("durability"),
+
+    /**
+     * integer
+     */
+    MAX_DURABILITY("max-durability"),
+
+    /**
+     * string
+     */
+    BROKEN_WEAPON("broken-weapon");
 
 
     private final String id;
