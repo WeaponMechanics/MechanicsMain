@@ -292,7 +292,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
                     "You need to update your 'Block_Damage' to match the new format");
         }
 
-        Double dropBlockChance = data.of("Drop_Broken_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
+        Double dropBlockChance = data.of("Drop_Broken_Block_Chance").serialize(new ChanceSerializer());
         if (dropBlockChance == null)
             dropBlockChance = 0.0;
 

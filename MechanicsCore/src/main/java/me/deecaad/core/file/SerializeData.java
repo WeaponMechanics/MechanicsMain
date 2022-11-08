@@ -1093,42 +1093,5 @@ public class SerializeData {
 
             return serializer.serialize(data);
         }
-
-        /**
-         * Usually, all serializers will instantiate an instance of themselves:
-         *
-         * <blockquote><pre>{@code
-         * public class Sound extends Serializer<Sound> {
-         *     // missing implementation
-         * }
-         * }</pre></blockquote>
-         *
-         * But sometimes, a serializer has no choice but to serialize some
-         * other class:
-         *
-         * <blockquote><pre>{@code
-         * public class ColorSerializer extends Serializer<Color> {
-         *     // missing implementation
-         * }
-         * }</pre></blockquote>
-         *
-         * For these situations, this method must be used instead of
-         * {@link #serialize(Serializer)} in order to avoid a compile-time
-         * error.
-         *
-         * @param serializer The non-null serializer to use.
-         * @param <T> The serialized type.
-         * @return The serialized object.
-         * @throws SerializerException If there was an error in config.
-         */
-        @Deprecated
-        public <T> T serializeNonStandardSerializer(@Nonnull Serializer<T> serializer) throws SerializerException {
-            // Use assertExists for required keys
-            if (!config.contains(getPath(relative)))
-                return null;
-
-            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
-            return serializer.serialize(data);
-        }
     }
 }

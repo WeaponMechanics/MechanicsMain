@@ -487,7 +487,7 @@ public class Explosion implements Serializer<Explosion> {
         // explosion should explode (onEntityHit, onBlockHit, after delay, etc.)
         Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class);
 
-        Double blockChance = data.step(BlockDamage.class).of("Spawn_Falling_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
+        Double blockChance = data.step(BlockDamage.class).of("Spawn_Falling_Block_Chance").serialize(new ChanceSerializer());
         if (blockChance == null)
             blockChance = 0.0;
 

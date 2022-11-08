@@ -182,7 +182,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
 
         if (!isInvisible) {
             projectileType = data.of("Type").assertExists().getEnum(EntityType.class);
-            ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serializeNonStandardSerializer(new ItemSerializer());
+            ItemStack projectileItem = data.of("Projectile_Item_Or_Block").serialize(new ItemSerializer());
             if ((projectileType == EntityType.DROPPED_ITEM
                     || projectileType == EntityType.FALLING_BLOCK)
                     && projectileItem == null) {

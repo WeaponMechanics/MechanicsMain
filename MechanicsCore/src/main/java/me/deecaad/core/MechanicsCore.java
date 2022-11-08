@@ -137,7 +137,7 @@ public class MechanicsCore extends JavaPlugin {
                 SerializeData data = new SerializeData(new ItemSerializer(), file, key, config);
 
                 try {
-                    ItemStack registry = data.of().serializeNonStandardSerializer(new ItemSerializer());
+                    ItemStack registry = data.of().serialize(new ItemSerializer());
                     ItemSerializer.ITEM_REGISTRY.put(key, registry::clone);
                     added.add(key);
                 } catch (SerializerException ex) {
