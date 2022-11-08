@@ -110,7 +110,7 @@ public class Mechanics implements Serializer<Mechanics> {
             if (mechanicSerializer == null)
                 continue;
 
-            Object mechanic = data.of(keyword).serializeNonStandardSerializer(mechanicSerializer);
+            Object mechanic = data.of(keyword).serialize(mechanicSerializer);
             if (mechanic == null)
                 continue;
 

@@ -40,7 +40,16 @@ public class SerializeData {
      * directly, instead let {@link SerializeData.ConfigAccessor#serialize(Serializer)}
      * check it automatically.
      */
-    public @Nullable Configuration pathToConfig;
+    public Configuration pathToConfig;
+
+    /**
+     * If this is true, developers are using {@link #step(Serializer)}. This is
+     * an advanced path-to feature which allows developers to get values from
+     * config NOT STORED in the serialized object, but still under the
+     * configuration section of the serializer. When this is true, we pull
+     * values from 'pathToConfig' instead of 'config'
+     */
+    private boolean usingStep;
 
 
     public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
@@ -128,6 +137,52 @@ public class SerializeData {
         return new SerializeData(serializer, this, relative).copyMutables(this);
     }
 
+    /**
+     * Shorthand for {@link #step(Serializer)}.
+     *
+     * @param serializer The non-null serializer that supports path-to.
+     * @return The non-null serialize data.
+     * @throws SerializerException If no path-to config is defined.
+     * @throws InternalError If the serializer has no default constructor.
+     */
+    public <T extends Serializer<T>> SerializeData step(Class<T> serializer) throws SerializerException {
+        return step(ReflectionUtil.newInstance(serializer));
+    }
+
+    /**
+     * Helper method to "step" into a new configuration section. Uses the
+     * {@link Serializer#getKeyword()} to step into the section. Supports
+     * using the {@link Serializer#canUsePathTo()} to step into other
+     * files instead of just nested configuration sections.
+     *
+     * @param serializer The non-null serializer that supports path-to.
+     * @return The non-null serialize data.
+     * @throws SerializerException If no path-to config is defined.
+     */
+    public SerializeData step(Serializer<?> serializer) throws SerializerException {
+        if (serializer.getKeyword() == null || !serializer.canUsePathTo())
+            throw new IllegalArgumentException(serializer + " does not support path-to");
+
+        // Check that the user is trying to use path-to.
+        String relative = serializer.getKeyword();
+        if (config.isString(getPath(relative))) {
+
+            // This exception should be caught by FileReader so this serializer
+            // is saved for late serialization (for path-to support).
+            if (pathToConfig == null)
+                throw new SerializerPathToException(serializer, this);
+
+            String path = config.getString(getPath(relative));
+            SerializeData temp = new SerializeData(serializer, file, path, config); // just pass 'config' for safety's sake
+            temp.copyMutables(this);
+            temp.usingStep = true;
+            return temp;
+        }
+
+        // Just move in when not using path-to.
+        return move(relative);
+    }
+
     public ConfigListAccessor ofList() {
         String[] split = key.split("\\.");
         StringBuilder key = new StringBuilder();
@@ -187,7 +242,7 @@ public class SerializeData {
      * @return <code>true</code> if the key exists.
      */
     public boolean has(String relative) {
-        return config.contains(getPath(relative));
+        return usingStep ? pathToConfig.containsKey(getPath(relative)) : config.contains(getPath(relative));
     }
 
     /**
@@ -313,7 +368,8 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigListAccessor assertExists() throws SerializerException {
-            if (!config.contains(getPath(relative), true))
+            boolean temp = usingStep && pathToConfig.containsKey(getPath(relative));
+            if (temp || !config.contains(getPath(relative), true))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
                         .addMessage(wikiLink != null, getWikiMessage());
 
@@ -346,17 +402,16 @@ public class SerializeData {
 
             // The first step is to assert that the value stored at this key
             // is a list (of any generic-type).
-            Object value = config.get(getPath(relative));
+            Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
             if (value == null)
                 return this;
 
-            if (!(value instanceof List))
+            if (!(value instanceof List<?> list))
                 throw new SerializerTypeException(serializer, List.class, value.getClass(), value, getLocation())
                         .addMessage(wikiLink != null, getWikiMessage());
-            List<?> list = (List<?>) config.get(getPath(relative));
 
             // Use assertExists for required keys
-            if (list == null || list.isEmpty())
+            if (list.isEmpty())
                 return this;
 
             for (int i = 0; i < list.size(); i++) {
@@ -468,17 +523,18 @@ public class SerializeData {
             return this;
         }
 
-        @SuppressWarnings("rawtypes")
         public List<String[]> get() {
             if (!didAssertions)
                 throw new IllegalStateException("Forgot to call assertList()? Did something go wrong?");
 
             // Use assertExists for required keys
-            if (!config.contains(getPath(relative)))
+            boolean temp = usingStep && pathToConfig.containsKey(getPath(relative));
+            if (temp || !config.contains(getPath(relative)))
                 return Collections.emptyList();
 
             List<String[]> list = new ArrayList<>();
-            for (Object obj : (List) config.get(getPath(relative), Collections.emptyList())) {
+            List<?> configList = usingStep ? pathToConfig.getList(getPath(relative)) : config.getList(getPath(relative), Collections.emptyList());
+            for (Object obj : configList) {
                 list.add(StringUtil.split(obj.toString()));
             }
 
@@ -486,18 +542,20 @@ public class SerializeData {
         }
 
         public String getLocation() {
+            String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
             if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key);
+                return StringUtil.foundAt(file, key) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative));
+                return StringUtil.foundAt(file, getPath(relative)) + stepAddon;
             }
         }
 
         public String getLocation(int index) {
+            String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
             if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key, index + 1);
+                return StringUtil.foundAt(file, key, index + 1) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative), index + 1);
+                return StringUtil.foundAt(file, getPath(relative), index + 1) + stepAddon;
             }
         }
 
@@ -538,7 +596,8 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigAccessor assertExists() throws SerializerException {
-            if (!config.contains(getPath(relative), true))
+            boolean temp = usingStep && pathToConfig.containsKey(getPath(relative));
+            if (temp || !config.contains(getPath(relative), true))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
                         .addMessage(wikiLink != null, getWikiMessage());
 
@@ -570,7 +629,7 @@ public class SerializeData {
          * @return true, if the value matched the type.
          */
         public boolean is(Class<?> type) {
-            Object value = config.get(getPath(relative));
+            Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
             return value != null && type.isAssignableFrom(value.getClass());
         }
 
@@ -585,7 +644,7 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigAccessor assertType(Class<?> type) throws SerializerException {
-            Object value = config.get(getPath(relative));
+            Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
 
             // Use assertExists for required keys
             if (value != null) {
@@ -697,7 +756,7 @@ public class SerializeData {
          * @throws SerializerException If the config value is not a boolean.
          */
         public boolean getBool(boolean def) throws SerializerException {
-            Object value = config.get(getPath(relative));
+            Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
             if (value == null)
                 return def;
 
@@ -724,7 +783,7 @@ public class SerializeData {
          * @throws SerializerException If the type is not a number.
          */
         public Number getNumber(Number def) throws SerializerException {
-            Object value = config.get(getPath(relative));
+            Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
 
             // Use assertExists for required keys
             if (value == null)
@@ -846,7 +905,7 @@ public class SerializeData {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
-            return (T) config.get(getPath(relative));
+            return (T) (usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative)));
         }
 
         /**
@@ -861,7 +920,7 @@ public class SerializeData {
          */
         @SuppressWarnings("unchecked")
         public <T> T get(T defaultValue) {
-            return (T) config.get(getPath(relative), defaultValue);
+            return (T) (usingStep ? pathToConfig.getObject(getPath(relative), defaultValue) : config.get(getPath(relative), defaultValue));
         }
 
         /**
@@ -893,7 +952,8 @@ public class SerializeData {
          * @throws SerializerException If there is a misconfiguration in config.
          */
         public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz, T defaultValue) throws SerializerException {
-            String input = config.get(getPath(relative), "").toString().trim();
+            Object value = usingStep ? pathToConfig.getObject(getPath(relative), "") : config.get(getPath(relative), "");
+            String input = value.toString().trim();
 
             // Use assertExists for required keys
             if (input.isEmpty())
@@ -953,10 +1013,10 @@ public class SerializeData {
          * @return The converted string from config.
          */
         public String getAdventure(String defaultValue) {
-            if (!config.contains(getPath(relative)))
+            if (!has(relative))
                 return defaultValue;
 
-            String value = config.getString(getPath(relative));
+            String value = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
             assert value != null;
 
             return StringUtil.colorAdventure(value);
@@ -985,8 +1045,11 @@ public class SerializeData {
          * @param <T> The serializer type.
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
+         * @throws UnsupportedOperationException If this accessor is from {@link #step(Serializer)}.
          */
         public <T> T serialize(@Nonnull Serializer<T> serializer) throws SerializerException {
+            if (usingStep)
+                throw new UnsupportedOperationException("Does not support step()");
 
             // Use assertExists for required keys
             if (!config.contains(getPath(relative)))
@@ -1028,43 +1091,6 @@ public class SerializeData {
                 return (T) serializer.getClass().cast(obj);
             }
 
-            return serializer.serialize(data);
-        }
-
-        /**
-         * Usually, all serializers will instantiate an instance of themselves:
-         *
-         * <blockquote><pre>{@code
-         * public class Sound extends Serializer<Sound> {
-         *     // missing implementation
-         * }
-         * }</pre></blockquote>
-         *
-         * But sometimes, a serializer has no choice but to serialize some
-         * other class:
-         *
-         * <blockquote><pre>{@code
-         * public class ColorSerializer extends Serializer<Color> {
-         *     // missing implementation
-         * }
-         * }</pre></blockquote>
-         *
-         * For these situations, this method must be used instead of
-         * {@link #serialize(Serializer)} in order to avoid a compile-time
-         * error.
-         *
-         * @param serializer The non-null serializer to use.
-         * @param <T> The serialized type.
-         * @return The serialized object.
-         * @throws SerializerException If there was an error in config.
-         */
-        @Deprecated
-        public <T> T serializeNonStandardSerializer(@Nonnull Serializer<T> serializer) throws SerializerException {
-            // Use assertExists for required keys
-            if (!config.contains(getPath(relative)))
-                return null;
-
-            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
             return serializer.serialize(data);
         }
     }
