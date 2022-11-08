@@ -42,6 +42,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
     private Map<ItemStack, Integer> repairItems;
     private int repairPerExp;
     private Mechanics repairMechanics;
+    private Mechanics denyRepairMechanics;
 
     /**
      * Default constructor for serializer
@@ -51,7 +52,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     public CustomDurability(int maxDurability, int minMaxDurability, int loseMaxDurabilityPerRepair, int durabilityPerShot,
                             double chance, ItemStack replaceItem, Mechanics durabilityMechanics, Mechanics breakMechanics,
-                            Map<ItemStack, Integer> repairItems, int repairPerExp, Mechanics repairMechanics) {
+                            Map<ItemStack, Integer> repairItems, int repairPerExp, Mechanics repairMechanics, Mechanics denyRepairMechanics) {
         this.maxDurability = maxDurability;
         this.minMaxDurability = minMaxDurability;
         this.loseMaxDurabilityPerRepair = loseMaxDurabilityPerRepair;
@@ -63,6 +64,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
         this.repairItems = repairItems;
         this.repairPerExp = repairPerExp;
         this.repairMechanics = repairMechanics;
+        this.denyRepairMechanics = denyRepairMechanics;
     }
 
     public int getMaxDurability() {
@@ -145,6 +147,22 @@ public class CustomDurability implements Serializer<CustomDurability> {
         this.repairPerExp = repairPerExp;
     }
 
+    public Mechanics getRepairMechanics() {
+        return repairMechanics;
+    }
+
+    public void setRepairMechanics(Mechanics repairMechanics) {
+        this.repairMechanics = repairMechanics;
+    }
+
+    public Mechanics getDenyRepairMechanics() {
+        return denyRepairMechanics;
+    }
+
+    public void setDenyRepairMechanics(Mechanics denyRepairMechanics) {
+        this.denyRepairMechanics = denyRepairMechanics;
+    }
+
     /**
      * Returns the maximum possible durability that this item can be repaired
      * up to. The more often you repair an item, the less max-durability it
@@ -166,12 +184,13 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     /**
      * Shorthand to use the default 'loseMaxDurabilityPerRepair' with
-     * {@link #modifyMaxDurability(EntityWrapper, ItemStack, int)}.
+     * {@link #modifyMaxDurability(ItemStack, int)}.
      *
      * @param item The item to modify.
+     * @return The new max durability (might be negative).
      */
-    public void modifyMaxDurability(EntityWrapper entity, ItemStack item) {
-        modifyMaxDurability(entity, item, loseMaxDurabilityPerRepair);
+    public int modifyMaxDurability(ItemStack item) {
+        return modifyMaxDurability(item, loseMaxDurabilityPerRepair);
     }
 
     /**
@@ -182,21 +201,12 @@ public class CustomDurability implements Serializer<CustomDurability> {
      *
      * @param item   The item to modify.
      * @param change The amount to subtract from max-durability.
+     * @return The new max durability (might be negative)
      */
-    public void modifyMaxDurability(EntityWrapper entity, ItemStack item, int change) {
+    public int modifyMaxDurability(ItemStack item, int change) {
         int max = Math.max(getMaxDurability(item) - change, minMaxDurability);
-        CastData cast = new CastData(entity);
-
-        // When the config does not define a minimum bound, and we can no
-        // longer store more durability, then we break the item permenantly.
-        if (max == 0) {
-            item.setAmount(0);
-            breakMechanics.use(cast);
-            return;
-        }
-
-        repairMechanics.use(cast);
         CustomTag.MAX_DURABILITY.setInteger(item, max);
+        return max;
     }
 
     /**
@@ -241,6 +251,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
         }
 
         String weaponTitle = CustomTag.WEAPON_TITLE.getString(item);
+        item.setType(replaceItem.getType());
         item.setItemMeta(replaceItem.getItemMeta());
         CustomTag.BROKEN_WEAPON.setString(item, weaponTitle);
         return true;
@@ -281,9 +292,10 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         int repairPerExp = data.of("Repair_Per_Exp").assertPositive().getInt(0);
         Mechanics repairMechanics = data.of("Repair_Mechanics").serialize(Mechanics.class);
+        Mechanics denyRepairMechanics = data.of("Deny_Repair_Mechanics").serialize(Mechanics.class);
 
         return new CustomDurability(maxDurability, minMaxDurability, loseMaxDurabilityPerRepair, durabilityPerShot,
-                chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics);
+                chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics);
     }
 
     /**

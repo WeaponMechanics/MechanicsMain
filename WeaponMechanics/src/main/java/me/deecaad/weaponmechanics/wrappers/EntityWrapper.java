@@ -221,6 +221,11 @@ public class EntityWrapper {
     }
 
     @Nonnull
+    public HandData getHandData(boolean mainHand) {
+        return mainHand ? getMainHandData() : getOffHandData();
+    }
+
+    @Nonnull
     public HandData getMainHandData() {
         return mainHandData == null ? mainHandData = new HandData(this, true) : mainHandData;
     }

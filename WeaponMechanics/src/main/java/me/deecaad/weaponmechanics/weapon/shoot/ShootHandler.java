@@ -679,7 +679,10 @@ public class ShootHandler implements IValidator, TriggerListener {
         // Apply custom durability
         CustomDurability durability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
         if (durability != null) {
-            durability.use(entityWrapper, weaponStack);
+            boolean broke = durability.use(entityWrapper, weaponStack);
+
+            if (broke)
+                entityWrapper.getHandData(mainHand).cancelTasks();
         }
 
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);

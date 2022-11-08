@@ -2,24 +2,33 @@ package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 public class RepairItemListener implements Listener {
 
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
+        if (event instanceof InventoryCreativeEvent) {
+            WeaponMechanics.debug.debug("Cannot use InventoryCreativeEvent for repair item");
+            return;
+        }
+
         if (event.getClickedInventory() instanceof PlayerInventory inventory) {
             ItemStack weapon = inventory.getItem(event.getSlot());
             String weaponTitle = weapon == null ? null : CustomTag.WEAPON_TITLE.getString(weapon);
             ItemStack repairItem = event.getCursor();
+
+            if (weapon == null)
+                return;
 
             // When an item is completely broken, the config can be set, so it
             // is replaced with a broken "dummy" item. This prevents people from
@@ -43,32 +52,42 @@ public class RepairItemListener implements Listener {
 
             // TODO add repair kit compatibility
 
-            // Not a valid repair item
+            // Not a valid repair item... setAmount(1) is required to get by key in map.
+            int availableItems = repairItem.getAmount();
+            repairItem.setAmount(1);
             if (!customDurability.getRepairItems().containsKey(repairItem))
                 return;
 
             // Calculate how many items can possibly be consumed in order to
             // max out the weapons durability.
             int repairPerItem = customDurability.getRepairItems().get(repairItem);
+            repairItem.setAmount(availableItems);
             int durability = CustomTag.DURABILITY.getInteger(weapon);
             int maxDurability = customDurability.getMaxDurability(weapon);
-            int consumeItems = (int) Math.ceil((maxDurability - durability) / (double) repairPerItem);
+
+            // Only allow repairs
+            CastData cast = new CastData(WeaponMechanics.getEntityWrapper(event.getWhoClicked()));
+            if (maxDurability <= 0 || durability >= maxDurability) {
+                if (customDurability.getDenyRepairMechanics() != null)
+                    customDurability.getDenyRepairMechanics().use(cast);
+                return;
+            }
 
             // Consume items until the durability is maxed out, or until we run
             // out of items to repair with.
-            int availableItems = repairItem.getAmount();
-            int accumulate = 0;
-            while (availableItems > 0 && consumeItems > 0) {
-                accumulate += repairPerItem;
+            while (availableItems > 0 && durability < maxDurability) {
+                durability += repairPerItem;
                 availableItems--;
-                consumeItems--;
+                maxDurability = customDurability.modifyMaxDurability(weapon);
             }
 
             // Update durability and the repair material amount
             repairItem.setAmount(availableItems);
-            CustomTag.DURABILITY.setInteger(weapon, Math.min(maxDurability, durability + accumulate));
-            EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(event.getWhoClicked());
-            customDurability.modifyMaxDurability(wrapper, weapon);
+            CustomTag.DURABILITY.setInteger(weapon, Math.min(maxDurability, durability));
+            if (customDurability.getRepairMechanics() != null)
+                customDurability.getRepairMechanics().use(cast);
+
+            event.setCancelled(true);
         }
     }
 
