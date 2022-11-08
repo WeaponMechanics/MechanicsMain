@@ -122,22 +122,17 @@ public class RepairItemListener implements Listener {
         if (customDurability == null)
             return;
 
-        // First we need to determine how many EXP points the weapon is able
-        // to convert to durability (without overflowing too much).
         int durability = CustomTag.DURABILITY.getInteger(weapon);
         int maxDurability = customDurability.getMaxDurability(weapon);
-        int consumeExp = (int) Math.ceil((maxDurability - durability) / (double) customDurability.getRepairPerExp());
 
         int availableExp = event.getAmount();
-        int accumulate = 0;
-        while (availableExp > 0 && consumeExp > 0) {
-            accumulate += customDurability.getRepairPerExp();
+        while (availableExp > 0 && durability < maxDurability) {
+            durability += customDurability.getRepairPerExp();
             availableExp--;
-            consumeExp--;
         }
 
         // Repair the item and consume the experience.
         event.setAmount(availableExp);
-        CustomTag.DURABILITY.setInteger(weapon, Math.min(maxDurability, durability + accumulate));
+        CustomTag.DURABILITY.setInteger(weapon, Math.min(maxDurability, durability));
     }
 }
