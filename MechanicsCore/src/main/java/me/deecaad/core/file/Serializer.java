@@ -121,6 +121,18 @@ public interface Serializer<T> {
     }
 
     /**
+     * Returns <code>true</code> when the given key can be "added" to this
+     * serializer, and should be saved to the main configuration map. This is
+     * useful when using {@link SerializeData#step(Serializer)} with path-to.
+     *
+     * @param key The non-null key to check
+     * @return true if the key should be saved.
+     */
+    default boolean letPassThrough(String key) {
+        return false;
+    }
+
+    /**
      * Instantiates a new Object to be added into the finalized configuration.
      * The object should be built off of {@link SerializeData#config}. If there
      * is any misconfiguration (or any other issue preventing the construction

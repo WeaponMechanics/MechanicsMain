@@ -90,6 +90,7 @@ public class SerializeData {
     private SerializeData copyMutables(SerializeData from) {
         this.wikiLink = from.wikiLink;
         this.pathToConfig = from.pathToConfig;
+        this.usingStep = from.usingStep;
         return this;
     }
 
@@ -368,8 +369,7 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigListAccessor assertExists() throws SerializerException {
-            boolean temp = usingStep && pathToConfig.containsKey(getPath(relative));
-            if (temp || !config.contains(getPath(relative), true))
+            if (!has(relative))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
                         .addMessage(wikiLink != null, getWikiMessage());
 
@@ -388,8 +388,7 @@ public class SerializeData {
         public ConfigListAccessor assertExists(boolean exists) throws SerializerException {
             if (exists)
                 return assertExists();
-            else
-                return this;
+             return this;
         }
 
         @Nonnull
@@ -528,8 +527,7 @@ public class SerializeData {
                 throw new IllegalStateException("Forgot to call assertList()? Did something go wrong?");
 
             // Use assertExists for required keys
-            boolean temp = usingStep && pathToConfig.containsKey(getPath(relative));
-            if (temp || !config.contains(getPath(relative)))
+            if (!has(relative))
                 return Collections.emptyList();
 
             List<String[]> list = new ArrayList<>();
@@ -596,8 +594,7 @@ public class SerializeData {
          */
         @Nonnull
         public ConfigAccessor assertExists() throws SerializerException {
-            boolean temp = usingStep && pathToConfig.containsKey(getPath(relative));
-            if (temp || !config.contains(getPath(relative), true))
+            if (!has(relative))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
                         .addMessage(wikiLink != null, getWikiMessage());
 
@@ -884,10 +881,11 @@ public class SerializeData {
         }
 
         public String getLocation() {
+            String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
             if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key);
+                return StringUtil.foundAt(file, key) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative));
+                return StringUtil.foundAt(file, getPath(relative)) + stepAddon;
             }
         }
 
@@ -1045,20 +1043,23 @@ public class SerializeData {
          * @param <T> The serializer type.
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
-         * @throws UnsupportedOperationException If this accessor is from {@link #step(Serializer)}.
          */
         public <T> T serialize(@Nonnull Serializer<T> serializer) throws SerializerException {
-            if (usingStep)
-                throw new UnsupportedOperationException("Does not support step()");
 
             // Use assertExists for required keys
-            if (!config.contains(getPath(relative)))
+            if (!has(relative))
                 return null;
 
             SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
+            data.copyMutables(SerializeData.this);
 
             // Allow path-to compatibility when using nested serializers
-            if (serializer.canUsePathTo() && config.isString(getPath(relative))) {
+            boolean isString = usingStep ? pathToConfig.getString(getPath(relative)) == null : config.isString(getPath(relative));
+            if (serializer.canUsePathTo() && isString) {
+
+                if (usingStep)
+                    throw exception(relative, "Tried to use doubly nested path-to. This is is not a supported option.");
+
                 String path = config.getString(getPath(relative));
 
                 // In order for path-to to work, the serializer needs to have a

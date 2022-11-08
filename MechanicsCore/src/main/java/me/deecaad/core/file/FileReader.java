@@ -193,6 +193,7 @@ public class FileReader {
         // NON SERIALIZER variable within a serializer is then "skipped"
         // Meaning booleans, numbers, etc. are skipped
         String startsWithDeny = null;
+        Serializer<?> savedSerializer = null;
 
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
@@ -201,6 +202,7 @@ public class FileReader {
             // Booleans, numbers, etc. can then be saved again
             if (startsWithDeny != null && !key.startsWith(startsWithDeny)) {
                 startsWithDeny = null;
+                savedSerializer = null;
             }
 
             String[] keySplit = key.split("\\.");
@@ -257,14 +259,23 @@ public class FileReader {
 
                             // Only update the startsWithDeny if this is the "main serializer"
                             // If this serialization happened within serializer (meaning this is child serializer), startsWithDeny is not null
-                            if (startsWithDeny == null) startsWithDeny = key;
+                            if (startsWithDeny == null) {
+                                startsWithDeny = key;
+                                savedSerializer = serializer;
+                            }
 
                         } catch (SerializerPathToException ex) {
                             nestedPathToSerializers.add(new NestedPathToSerializer(serializer, key, ex));
-                            if (startsWithDeny == null) startsWithDeny = key;
+                            if (startsWithDeny == null) {
+                                startsWithDeny = key;
+                                savedSerializer = serializer;
+                            }
                         } catch (SerializerException ex) {
                             ex.log(debug);
-                            if (startsWithDeny == null) startsWithDeny = key;
+                            if (startsWithDeny == null) {
+                                startsWithDeny = key;
+                                savedSerializer = serializer;
+                            }
                         } catch (Exception ex) {
 
                             // Any Exception other than SerializerException
@@ -276,7 +287,7 @@ public class FileReader {
                 }
             }
 
-            if (startsWithDeny != null && key.startsWith(startsWithDeny)) {
+            if (startsWithDeny != null && key.startsWith(startsWithDeny) && (savedSerializer == null || !savedSerializer.letPassThrough(key))) {
                 continue;
             }
 
