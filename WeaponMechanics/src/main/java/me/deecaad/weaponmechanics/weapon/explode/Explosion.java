@@ -449,12 +449,12 @@ public class Explosion implements Serializer<Explosion> {
         data.of("Explosion_Type_Data.Height").assertPositive();
         data.of("Explosion_Type_Data.Width").assertPositive();
         data.of("Explosion_Type_Data.Radius").assertPositive();
-        data.of("Rays").assertPositive();
+        data.of("Explosion_Type_Data.Rays").assertPositive();
 
         Map<String, Object> typeData = ((ConfigurationSection) data.of("Explosion_Type_Data").assertExists().assertType(ConfigurationSection.class).get()).getValues(false);
 
         // We don't want to require users to define the "Rays" option, since
-        // most people will not understand hat it means. Vanilla MC uses 16.
+        // most people will not understand that it means. Vanilla MC uses 16.
         if (!typeData.containsKey("Rays"))
             typeData.put("Rays", 16);
 

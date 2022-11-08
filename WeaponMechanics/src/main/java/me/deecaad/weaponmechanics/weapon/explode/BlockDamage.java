@@ -283,6 +283,11 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     @Override
+    public boolean letPassThrough(String key) {
+        return key.endsWith("Spawn_Falling_Block_Chance") || key.endsWith("Regenerate_After_Ticks");
+    }
+
+    @Override
     @NotNull
     public BlockDamage serialize(SerializeData data) throws SerializerException {
 
