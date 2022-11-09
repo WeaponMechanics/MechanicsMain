@@ -25,7 +25,7 @@ public class RepairItemListener implements Listener {
         if (event.getClickedInventory() instanceof PlayerInventory inventory) {
             ItemStack weapon = inventory.getItem(event.getSlot());
             String weaponTitle = weapon == null ? null : CustomTag.WEAPON_TITLE.getString(weapon);
-            ItemStack repairItem = event.getCursor();
+
 
             if (weapon == null)
                 return;
@@ -40,75 +40,105 @@ public class RepairItemListener implements Listener {
             }
 
             // Only attempt to repair guns with proper repair items
-            if (weaponTitle == null || repairItem == null)
+            if (weaponTitle == null || event.getCursor() == null)
                 return;
 
-            Configuration config = WeaponMechanics.getConfigurations();
-            CustomDurability customDurability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-
-            // Gun does not use durability
-            if (customDurability == null)
-                return;
-
-            // TODO add repair kit compatibility
-
-            // Not a valid repair item... setAmount(1) is required to get by key in map.
-            int availableItems = repairItem.getAmount();
-            repairItem.setAmount(1);
-            if (!customDurability.getRepairItems().containsKey(repairItem))
-                return;
-
-            // Calculate how many items can possibly be consumed in order to
-            // max out the weapons durability.
-            int repairPerItem = customDurability.getRepairItems().get(repairItem);
-            repairItem.setAmount(availableItems);
-            int durability = CustomTag.DURABILITY.getInteger(weapon);
-            int maxDurability = customDurability.getMaxDurability(weapon);
-
-            // Only allow repairs
             CastData cast = new CastData(WeaponMechanics.getEntityWrapper(event.getWhoClicked()));
-            if (maxDurability <= 0 || durability >= maxDurability) {
-                if (customDurability.getDenyRepairMechanics() != null)
-                    customDurability.getDenyRepairMechanics().use(cast);
-                return;
-            }
-
-            // Consume items until the durability is maxed out, or until we run
-            // out of items to repair with.
-            while (availableItems > 0 && durability < maxDurability) {
-                durability += repairPerItem;
-                availableItems--;
-                maxDurability = customDurability.modifyMaxDurability(weapon);
-            }
-
-            // Update durability and the repair material amount
-            repairItem.setAmount(availableItems);
-            CustomTag.DURABILITY.setInteger(weapon, Math.min(maxDurability, durability));
-            if (customDurability.getRepairMechanics() != null)
-                customDurability.getRepairMechanics().use(cast);
-
-            event.setCancelled(true);
+            repair(weapon, weaponTitle, event.getCursor(), cast);
         }
     }
 
     /**
-     * Handles repairing a completely broken item.
+     * Handles repairing a completely broken item. Remember that when items are
+     * completely broken, their type and meta have been completely changed to
+     * a separate item.
      *
      * @param event The non-null click event involved.
      */
     public void repairBrokenItem(InventoryClickEvent event) {
+        ItemStack weapon = event.getClickedInventory().getItem(event.getSlot());
+        String weaponTitle = CustomTag.BROKEN_WEAPON.getString(weapon);
+        CastData cast = new CastData(WeaponMechanics.getEntityWrapper(event.getWhoClicked()));
+        boolean isConsumedItem = repair(weapon, weaponTitle, event.getCursor(), cast);
 
+        // Only change back to working weapon if durability changed
+        if (!isConsumedItem)
+            return;
+
+        ItemStack weaponTemplate = WeaponMechanics.getWeaponHandler().getInfoHandler().generateWeapon(weaponTitle, 1);
+
+        // Weapon no longer exists in config
+        if (weaponTemplate == null) {
+            WeaponMechanics.debug.debug(event.getWhoClicked() + " has old configuration of weapon '" + weaponTitle +"'");
+            return;
+        }
+
+        int durability = CustomTag.DURABILITY.getInteger(weapon);
+        int maxDurability = CustomTag.MAX_DURABILITY.getInteger(weapon);
+        weapon.setType(weaponTemplate.getType());
+        weapon.setItemMeta(weaponTemplate.getItemMeta());
+        CustomTag.DURABILITY.setInteger(weapon, durability);
+        CustomTag.MAX_DURABILITY.setInteger(weapon, maxDurability);
+    }
+
+    public boolean repair(ItemStack weapon, String weaponTitle, ItemStack repairItem, CastData cast) {
+        // TODO add repair kit compatibility
+
+        Configuration config = WeaponMechanics.getConfigurations();
+        CustomDurability customDurability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
+
+        // We already know that the given event is for a broken weapon, but it
+        // is possible that the server-admin deleted the Custom_Durability
+        // section of the weapon AFTER somebody obtained a broken weapon
+        if (customDurability == null)
+            return false;
+
+        // Not a valid repair item... setAmount(1) is required to get by key in map.
+        int availableItems = repairItem.getAmount();
+        repairItem.setAmount(1);
+        if (!customDurability.getRepairItems().containsKey(repairItem))
+            return false;
+
+        // Calculate how many items can possibly be consumed in order to
+        // max out the weapons durability.
+        int repairPerItem = customDurability.getRepairItems().get(repairItem);
+        repairItem.setAmount(availableItems);
+        int durability = CustomTag.DURABILITY.getInteger(weapon);
+        int maxDurability = customDurability.getMaxDurability(weapon);
+
+        // Only allow repairs
+        if (maxDurability <= 0 || durability >= maxDurability) {
+            if (customDurability.getDenyRepairMechanics() != null)
+                customDurability.getDenyRepairMechanics().use(cast);
+            return false;
+        }
+
+        // Consume items until the durability is maxed out, or until we run
+        // out of items to repair with.
+        while (availableItems > 0 && durability < maxDurability) {
+            durability += repairPerItem;
+            availableItems--;
+            maxDurability = customDurability.modifyMaxDurability(weapon);
+        }
+
+        // Update durability and the repair material amount
+        repairItem.setAmount(availableItems);
+        CustomTag.DURABILITY.setInteger(weapon, Math.min(maxDurability, durability));
+        if (customDurability.getRepairMechanics() != null)
+            customDurability.getRepairMechanics().use(cast);
+
+        return true;
     }
 
     @EventHandler
     public void onExp(PlayerExpChangeEvent event) {
         ItemStack weapon = event.getPlayer().getInventory().getItemInMainHand();
-        String weaponTitle = CustomTag.WEAPON_TITLE.getString(weapon);
+        String weaponTitle = !weapon.hasItemMeta() ? null : CustomTag.WEAPON_TITLE.getString(weapon);
 
         // Allow offhand repair as well
         if (weaponTitle == null) {
             weapon = event.getPlayer().getInventory().getItemInOffHand();
-            weaponTitle = CustomTag.WEAPON_TITLE.getString(weapon);
+            weaponTitle = !weapon.hasItemMeta() ? null : CustomTag.WEAPON_TITLE.getString(weapon);
 
             // Player isn't holding any weapon
             if (weaponTitle == null)

@@ -251,9 +251,11 @@ public class CustomDurability implements Serializer<CustomDurability> {
         }
 
         String weaponTitle = CustomTag.WEAPON_TITLE.getString(item);
+        int maxDurability = getMaxDurability(item);
         item.setType(replaceItem.getType());
         item.setItemMeta(replaceItem.getItemMeta());
         CustomTag.BROKEN_WEAPON.setString(item, weaponTitle);
+        CustomTag.MAX_DURABILITY.setInteger(item, maxDurability);
         return true;
     }
 
