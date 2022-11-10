@@ -65,7 +65,12 @@ public enum CustomTag {
     /**
      * string
      */
-    BROKEN_WEAPON("broken-weapon");
+    BROKEN_WEAPON("broken-weapon"),
+
+    /**
+     * string
+     */
+    REPAIR_KIT_TITLE("repair-kit-title");
 
 
     private final String id;

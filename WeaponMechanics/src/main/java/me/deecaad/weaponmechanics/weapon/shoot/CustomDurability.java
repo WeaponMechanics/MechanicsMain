@@ -204,6 +204,9 @@ public class CustomDurability implements Serializer<CustomDurability> {
      * @return The new max durability (might be negative)
      */
     public int modifyMaxDurability(ItemStack item, int change) {
+        if (change < 0)
+            change = loseMaxDurabilityPerRepair;
+
         int max = Math.max(getMaxDurability(item) - change, minMaxDurability);
         CustomTag.MAX_DURABILITY.setInteger(item, max);
         return max;
@@ -272,7 +275,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         // Make sure users aren't entering tiny values.
         if (maxDurability <= durabilityPerShot) {
-            throw data.exception("Max_Durability", "'Max_Durability' must be less than 'Durability_Per_Shot'",
+            throw data.exception("Max_Durability", "'Max_Durability' cannot be less than 'Durability_Per_Shot'",
                     "Found Max_Durability: " + maxDurability,
                     "Found Durability_Per_Shot: " + durabilityPerShot);
         }
@@ -286,7 +289,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
         ConfigurationSection section = data.of("Repair_Items").assertType(ConfigurationSection.class).get(null);
         Map<ItemStack, Integer> repairItems = new HashMap<>();
         for (String key : section.getKeys(false)) {
-            ItemStack item = data.of("Repair_Items." + key).serialize(new ItemSerializer());
+            ItemStack item = data.of("Repair_Items." + key + ".Item").serialize(new ItemSerializer());
             int healAmount = data.of("Repair_Items." + key + ".Repair_Amount").assertExists().assertPositive().getInt();
 
             repairItems.put(item, healAmount);

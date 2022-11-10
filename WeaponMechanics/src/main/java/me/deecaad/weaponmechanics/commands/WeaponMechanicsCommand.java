@@ -74,12 +74,9 @@ public class WeaponMechanicsCommand {
     public static Function<CommandData, Tooltip[]> AMMO_SUGGESTIONS = (data) -> {
         String weaponTitle = (String) data.previousArguments[data.previousArguments.length - 1];
         Configuration config = WeaponMechanics.getConfigurations();
-        if (!config.containsKey(weaponTitle + ".Reload.Ammo.Ammo_Types")) {
-            return null;
-        }
 
         AmmoTypes types = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-        return types.getAmmoTypes().stream().map(IAmmoType::getAmmoName).map(Tooltip::of).toArray(Tooltip[]::new);
+        return types == null ? null : types.getAmmoTypes().stream().map(IAmmoType::getAmmoName).map(Tooltip::of).toArray(Tooltip[]::new);
     };
 
     public static void build() {
@@ -555,9 +552,7 @@ public class WeaponMechanicsCommand {
                     ItemStack item = info.generateWeapon(title, 1);
                     return text().content(title.toUpperCase(Locale.ROOT))
                             .clickEvent(ClickEvent.runCommand("/wm get " + title))
-                            .hoverEvent(item instanceof HoverEventSource
-                                    ? (HoverEventSource<?>) item // Paper items implement this by default since 1.16
-                                    : LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName()))
+                            .hoverEvent(LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName()))
                             .build();
                 })
                 .build();
