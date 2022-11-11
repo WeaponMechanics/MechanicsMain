@@ -18,18 +18,3 @@ Item_Loop_Limit: 10
 # Bigger numbers = more information
 # Smaller numbers = tidier console
 Show_Serialize_Options: 32
-
-# If you don't use a specific trigger, it can be disabled here. The performance
-# boost is minor, but it's here if you need it.
-Disabled_Trigger_Checks:
-  In_Midair: false
-  Standing_And_Walking: false
-  Jump: false
-  Double_Jump: true # Disabled by default since this allows players to do slight double jump and go over 2 blocks
-  Swim: false
-  Glide: false
-  Sneak: false
-  Sprint: false
-  Right_And_Left_Click: false
-  Drop_Item: false
-  Swap_Hand_Items: false
