@@ -24,7 +24,6 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getEntityWrapper;
@@ -37,7 +36,7 @@ public class TriggerEntityListeners implements Listener {
         this.weaponHandler = weaponHandler;
     }
 
-    @EventHandler (priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void damageMonitor(EntityDamageByEntityEvent e) {
         Entity victim = e.getEntity();
 
@@ -95,9 +94,12 @@ public class TriggerEntityListeners implements Listener {
         if (isSweep) return;
 
         if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.MELEE,
-                livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon)) return;
+                livingEntity.getType() == EntityType.PLAYER ? (Player) livingEntity : null, mainWeapon, offWeapon))
+            return;
 
         if (mainStack.getAmount() != 0) {
+            weaponHandler.tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, mainWeapon != null && offWeapon != null, (LivingEntity) victim);
+
             weaponHandler.tryUses(entityWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.MELEE, mainWeapon != null && offWeapon != null, (LivingEntity) victim);
         }
     }
@@ -137,7 +139,7 @@ public class TriggerEntityListeners implements Listener {
         weaponHandler.useTrigger(e.getLivingEntity(), e.isSwimming() ? TriggerType.START_SWIM : TriggerType.END_SWIM, false);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void toggleGlide(EntityToggleGlideEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide")) return;
 
