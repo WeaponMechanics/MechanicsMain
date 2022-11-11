@@ -50,8 +50,6 @@ public class HitHandler {
      * @return true if hit was cancelled
      */
     public boolean handleHit(RayTraceResult result, WeaponProjectile projectile) {
-
-        System.out.println(result);
         return result.isBlock() ? handleBlockHit(result, projectile) : handleEntityHit(result, projectile);
     }
 
