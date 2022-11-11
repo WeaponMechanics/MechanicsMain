@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics.keywords;
+package me.deecaad.weaponmechanics.mechanics.keywords;
 
 import me.deecaad.core.mechanics.IMechanic;
 import me.deecaad.core.mechanics.Mechanics;

@@ -7,6 +7,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,15 @@ public class Circumstance implements Serializer<Circumstance> {
         this.circumstances = circumstances;
     }
 
-    public boolean deny(EntityWrapper entityWrapper) {
+    /**
+     * If entity wrapper is null, this will always return true
+     *
+     * @param entityWrapper the entity wrapper or null if not used
+     * @return whether to deny
+     */
+    public boolean deny(@Nullable EntityWrapper entityWrapper) {
+        if (entityWrapper == null) return true;
+
         for (CircumstanceData circumstance : this.circumstances) {
             if (circumstance.deny(entityWrapper)) {
                 return true;

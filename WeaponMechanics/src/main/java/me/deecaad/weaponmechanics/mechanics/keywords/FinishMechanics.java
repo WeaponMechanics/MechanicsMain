@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics.keywords;
+package me.deecaad.weaponmechanics.mechanics.keywords;
 
 import me.deecaad.core.mechanics.IMechanic;
 import me.deecaad.core.mechanics.Mechanics;
@@ -6,22 +6,22 @@ import me.deecaad.core.mechanics.Mechanics;
 import java.util.List;
 
 /**
- * For damaging
+ * For reload
  */
-public class VictimMechanics extends Mechanics {
+public class FinishMechanics extends Mechanics {
 
     /**
      * Default constructor for serializer
      */
-    public VictimMechanics() {
+    public FinishMechanics() {
     }
 
-    public VictimMechanics(List<IMechanic<?>> mechanicList) {
+    public FinishMechanics(List<IMechanic<?>> mechanicList) {
         super(mechanicList);
     }
 
     @Override
     public String getKeyword() {
-        return "Victim_Mechanics";
+        return "Finish_Mechanics";
     }
 }

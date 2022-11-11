@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
@@ -38,9 +38,7 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
 
     @Override
     public void use(CastData castData) {
-
-        // todo move when circumstances are moved to core (trigger handling)
-        //if (circumstance != null && circumstance.deny(castData.getCasterWrapper())) return;
+        if (circumstance != null && circumstance.deny(WeaponMechanics.getEntityWrapper(castData.getCaster(), true))) return;
 
         LivingEntity livingEntity = castData.getCaster();
         Vector direction;
