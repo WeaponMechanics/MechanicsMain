@@ -64,7 +64,7 @@ public class ShootHandler implements IValidator, TriggerListener {
      * that the delay between shots is exactly equal no matter what. Some
      * indexes are marked as <i>"good"</i>. This means that the distance
      * between zeros are equal.
-     *
+     * <p>
      * Calculated using python: <blockquote><pre>{@code
      *     from collections import deque
      *
@@ -84,10 +84,10 @@ public class ShootHandler implements IValidator, TriggerListener {
      *
      *         print("\t{" + ", ".join(map(str, collection)) + "},")
      * }</pre></blockquote>
-     *
+     * <p>
      * TODO Switch from int -> boolean for 1.6kb -> 400bits of ram
      */
-    private static final int[][] AUTO = new int[][] {
+    private static final int[][] AUTO = new int[][]{
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 perfect
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2 perfect
             {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
@@ -248,17 +248,21 @@ public class ShootHandler implements IValidator, TriggerListener {
         // Only check if selective fire doesn't have auto selected and it isn't melee
         if (selectiveFireState != SelectiveFireState.AUTO && !isMelee) {
             int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
-            if (delayBetweenShots != 0 && !NumberUtil.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots)) return false;
+            if (delayBetweenShots != 0 && !NumberUtil.hasMillisPassed(handData.getLastShotTime(), delayBetweenShots))
+                return false;
         }
 
         int weaponEquipDelay = config.getInt(weaponTitle + ".Info.Weapon_Equip_Delay");
-        if (weaponEquipDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastEquipTime(), weaponEquipDelay)) return false;
+        if (weaponEquipDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastEquipTime(), weaponEquipDelay))
+            return false;
 
         int shootDelayAfterScope = config.getInt(weaponTitle + ".Scope.Shoot_Delay_After_Scope");
-        if (shootDelayAfterScope != 0 && !NumberUtil.hasMillisPassed(handData.getLastScopeTime(), shootDelayAfterScope)) return false;
+        if (shootDelayAfterScope != 0 && !NumberUtil.hasMillisPassed(handData.getLastScopeTime(), shootDelayAfterScope))
+            return false;
 
         int shootDelayAfterReload = config.getInt(weaponTitle + ".Reload.Shoot_Delay_After_Reload");
-        if (shootDelayAfterReload != 0 && !NumberUtil.hasMillisPassed(handData.getLastReloadTime(), shootDelayAfterReload)) return false;
+        if (shootDelayAfterReload != 0 && !NumberUtil.hasMillisPassed(handData.getLastReloadTime(), shootDelayAfterReload))
+            return false;
 
         if (isMelee) {
             return singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
@@ -267,7 +271,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (usesSelectiveFire) {
             return switch (selectiveFireState) {
                 case BURST -> burstShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield);
-                case AUTO -> fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
+                case AUTO ->
+                        fullAutoShot(entityWrapper, weaponTitle, weaponStack, handData, slot, triggerType, dualWield);
                 default -> singleShot(entityWrapper, weaponTitle, weaponStack, handData, slot, dualWield, isMelee);
             };
         }
@@ -321,7 +326,11 @@ public class ShootHandler implements IValidator, TriggerListener {
             @Override
             public void run() {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) taskReference = weaponStack;
+                if (!taskReference.hasItemMeta()) {
+                    handData.setBurstTask(0);
+                    cancel();
+                    return;
+                }
 
                 // START RELOAD STUFF
 
@@ -382,9 +391,14 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         handData.setFullAutoTask(new BukkitRunnable() {
             int tick = 0;
+
             public void run() {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) taskReference = weaponStack;
+                if (!taskReference.hasItemMeta()) {
+                    handData.setFullAutoTask(0);
+                    cancel();
+                    return;
+                }
 
                 if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
                     handData.setFullAutoTask(0);
@@ -479,9 +493,11 @@ public class ShootHandler implements IValidator, TriggerListener {
             @Override
             public void run() {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) {
-                    taskReference = weaponStack;
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopFirearmActionTasks();
+                    return;
                 }
+
                 firearmAction.changeState(taskReference, FirearmState.READY);
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
                 handData.stopFirearmActionTasks();
@@ -528,7 +544,10 @@ public class ShootHandler implements IValidator, TriggerListener {
             @Override
             public void run() {
                 ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) taskReference = weaponStack;
+                if (!taskReference.hasItemMeta()) {
+                    handData.stopFirearmActionTasks();
+                    return;
+                }
 
                 firearmAction.changeState(taskReference, FirearmState.CLOSE);
 
@@ -620,10 +639,12 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (entityWrapper instanceof PlayerWrapper) {
             PlayerWrapper playerWrapper = (PlayerWrapper) entityWrapper;
             // Counts melees as shots also
-            if (playerWrapper.getStatsData() != null) playerWrapper.getStatsData().add(weaponTitle, WeaponStat.SHOTS, 1);
+            if (playerWrapper.getStatsData() != null)
+                playerWrapper.getStatsData().add(weaponTitle, WeaponStat.SHOTS, 1);
 
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-            if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            if (weaponInfoDisplay != null)
+                weaponInfoDisplay.send(playerWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
@@ -841,7 +862,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (defaultSelectiveFire != null) {
             if (!defaultSelectiveFire.equalsIgnoreCase("SINGLE")
                     && !defaultSelectiveFire.equalsIgnoreCase("BURST")
-                    && !defaultSelectiveFire.equalsIgnoreCase("AUTO") ) {
+                    && !defaultSelectiveFire.equalsIgnoreCase("AUTO")) {
 
                 throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default").getLocation());
             }
