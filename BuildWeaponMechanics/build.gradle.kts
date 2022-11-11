@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 description = "A New Age of Weapons in Minecraft"
-version = "1.13.3"
+version = "1.13.4"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -18,7 +18,7 @@ dependencies {
     implementation(project(":WeaponMechanics"))
     implementation(project(":WeaponCompatibility"))
 
-    implementation(project(":Weapon_1_9_R2" ))
+    implementation(project(":Weapon_1_9_R2"))
     implementation(project(":Weapon_1_10_R1"))
     implementation(project(":Weapon_1_11_R1"))
     implementation(project(":Weapon_1_12_R1"))
@@ -65,7 +65,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":WeaponMechanics"))
         include(project(":WeaponCompatibility"))
 
-        include(project(":Weapon_1_9_R2" ))
+        include(project(":Weapon_1_9_R2"))
         include(project(":Weapon_1_10_R1"))
         include(project(":Weapon_1_11_R1"))
         include(project(":Weapon_1_12_R1"))
@@ -77,20 +77,20 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_18_R2"))
         include(project(":Weapon_1_19_R1"))
 
-        relocate ("me.cjcrafter.auto", "me.deecaad.weaponmechanics.lib.auto") {
+        relocate("me.cjcrafter.auto", "me.deecaad.weaponmechanics.lib.auto") {
             include(dependency("me.cjcrafter:mechanicsautodownload"))
         }
 
-        relocate ("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
+        relocate("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
             include(dependency("co.aikar:minecraft-timings"))
         }
 
-        relocate ("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
+        relocate("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
             include(dependency("org.bstats:"))
         }
     }
 
-    relocate ("net.kyori", "me.deecaad.core.lib")
+    relocate("net.kyori", "me.deecaad.core.lib")
 
     doFirst {
         println("Compile WeaponMechanics")
