@@ -72,11 +72,11 @@ public class ReloadHandler implements IValidator, TriggerListener {
      * Used for example when trying to shoot without ammo.
      *
      * @param entityWrapper the entity who used reload
-     * @param weaponTitle the weapon title
-     * @param weaponStack the weapon stack
-     * @param slot the slot used on reload
-     * @param dualWield whether this was dual wield
-     * @param isReloadLoop whether this is reloading loop
+     * @param weaponTitle   the weapon title
+     * @param weaponStack   the weapon stack
+     * @param slot          the slot used on reload
+     * @param dualWield     whether this was dual wield
+     * @param isReloadLoop  whether this is reloading loop
      * @return true if was able to start reloading
      */
     public boolean startReloadWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack,
@@ -166,7 +166,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         int firearmCloseTime = 0;
 
         if (firearmAction != null) {
-            state =  firearmAction.getState(weaponStack);
+            state = firearmAction.getState(weaponStack);
             isRevolver = firearmAction.getFirearmType() == FirearmType.REVOLVER;
             isPump = firearmAction.getFirearmType() == FirearmType.PUMP;
 
@@ -220,7 +220,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
         AmmoTypes ammoTypes = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class) : null;
         if (ammoTypes != null && !ammoTypes.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
             Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
-            if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, weaponStack));
+            if (outOfAmmoMechanics != null)
+                outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, weaponStack));
             return false;
         }
 
@@ -248,16 +249,12 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
             @Override
             public void task() {
-                ItemStack taskReference = mainhand ? shooter.getEquipment().getItemInMainHand() : shooter.getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) {
-                    taskReference = weaponStack;
-                } else {
-                    handData.setReloadData(weaponTitle, taskReference);
-                }
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
                     return;
                 }
+                handData.setReloadData(weaponTitle, taskReference);
 
                 int ammoLeft = getAmmoLeft(taskReference, weaponTitle);
 
@@ -271,7 +268,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
                     // Just check if for some reason ammo disappeared from entity before reaching reload "complete" state
                     if (removedAmount <= 0) {
                         Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
-                        if (outOfAmmoMechanics != null) outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, taskReference));
+                        if (outOfAmmoMechanics != null)
+                            outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, taskReference));
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);
@@ -380,13 +378,11 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
             @Override
             public void task() {
-                ItemStack taskReference = mainhand ? shooter.getEquipment().getItemInMainHand() : shooter.getEquipment().getItemInOffHand();
-                if (taskReference != weaponStack) {
-                    handData.setReloadData(weaponTitle, taskReference);
-                }
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
                 }
+                handData.setReloadData(weaponTitle, taskReference);
             }
 
             @Override
@@ -418,16 +414,12 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
             @Override
             public void task() {
-                ItemStack taskReference = mainhand ? shooter.getEquipment().getItemInMainHand() : shooter.getEquipment().getItemInOffHand();
-                if (taskReference == weaponStack) {
-                    taskReference = weaponStack;
-                } else {
-                    handData.setReloadData(weaponTitle, taskReference);
-                }
+                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
                 if (!taskReference.hasItemMeta()) {
                     handData.stopReloadingTasks();
                     return;
                 }
+                handData.setReloadData(weaponTitle, taskReference);
 
                 firearmAction.changeState(taskReference, FirearmState.READY);
                 finishReload(entityWrapper, weaponTitle, taskReference, handData, slot);
@@ -463,7 +455,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
         handData.finishReload();
 
         Mechanics reloadFinishMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Finish_Mechanics", Mechanics.class);
-        if (reloadFinishMechanics != null) reloadFinishMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
+        if (reloadFinishMechanics != null)
+            reloadFinishMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
 
         if (entityWrapper instanceof PlayerWrapper) {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
@@ -528,7 +521,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
      * weapon stack amount is more than 1
      *
      * @param entityWrapper the entity
-     * @param weaponStack the item stack to give
+     * @param weaponStack   the item stack to give
      */
     public void handleWeaponStackAmount(EntityWrapper entityWrapper, ItemStack weaponStack) {
 

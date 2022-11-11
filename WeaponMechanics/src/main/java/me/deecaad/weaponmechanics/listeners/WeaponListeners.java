@@ -69,10 +69,12 @@ public class WeaponListeners implements Listener {
 
             if (e.getEntityType() == EntityType.PLAYER) {
                 PlayerWrapper playerWrapper = (PlayerWrapper) entityWrapper;
-                if (playerWrapper.getStatsData() != null) playerWrapper.getStatsData().add(weaponTitle, WeaponStat.EQUIP_TIMES, 1);
+                if (playerWrapper.getStatsData() != null)
+                    playerWrapper.getStatsData().add(weaponTitle, WeaponStat.EQUIP_TIMES, 1);
 
                 WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
-                if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, e.getSlot(), mainhand ? weaponStack : null, !mainhand ? weaponStack : null);
+                if (weaponInfoDisplay != null)
+                    weaponInfoDisplay.send(playerWrapper, e.getSlot(), mainhand ? weaponStack : null, !mainhand ? weaponStack : null);
             }
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, e.getSlot());
@@ -98,12 +100,15 @@ public class WeaponListeners implements Listener {
             // Don't use holster mechanics is equip mechanics were already used
             if (!alreadyUsedEquipMechanics) {
                 Mechanics holsterMechanics = getConfigurations().getObject(dequippedWeapon + ".Info.Weapon_Holster_Mechanics", Mechanics.class);
-                if (holsterMechanics != null) holsterMechanics.use(new CastData(entity, dequippedWeapon, dequipped));
+                if (holsterMechanics != null)
+                    holsterMechanics.use(new CastData(entity, dequippedWeapon, dequipped));
             }
+
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, dequippedWeapon, dequipped, e.getSlot());
         }
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void itemHeld(PlayerItemHeldEvent e) {
         Player player = e.getPlayer();
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(player);
@@ -162,7 +167,7 @@ public class WeaponListeners implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
         Player player = (Player) e.getWhoClicked();
@@ -182,7 +187,7 @@ public class WeaponListeners implements Listener {
         playerWrapper.getOffHandData().cancelTasks(true);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getPlayer());
         entityWrapper.getMainHandData().cancelTasks();
