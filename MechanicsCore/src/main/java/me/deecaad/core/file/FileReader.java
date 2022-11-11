@@ -15,6 +15,7 @@ public class FileReader {
 
     private final Debugger debug;
     private final List<PathToSerializer> pathToSerializers;
+    private final List<NestedPathToSerializer> nestedPathToSerializers;
     private final Map<String, Serializer<?>> serializers;
     private final List<ValidatorData> validatorDatas;
     private final Map<String, IValidator> validators;
@@ -24,6 +25,7 @@ public class FileReader {
         this.serializers = new HashMap<>();
         this.validators = new HashMap<>();
         this.pathToSerializers = new ArrayList<>();
+        this.nestedPathToSerializers = new ArrayList<>();
         this.validatorDatas = new ArrayList<>();
         addSerializers(serializers);
         addValidators(validators);
@@ -191,6 +193,7 @@ public class FileReader {
         // NON SERIALIZER variable within a serializer is then "skipped"
         // Meaning booleans, numbers, etc. are skipped
         String startsWithDeny = null;
+        Serializer<?> savedSerializer = null;
 
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         for (String key : configuration.getKeys(true)) {
@@ -199,6 +202,7 @@ public class FileReader {
             // Booleans, numbers, etc. can then be saved again
             if (startsWithDeny != null && !key.startsWith(startsWithDeny)) {
                 startsWithDeny = null;
+                savedSerializer = null;
             }
 
             String[] keySplit = key.split("\\.");
@@ -242,7 +246,7 @@ public class FileReader {
                     }
 
                     String pathTo = serializer.useLater(configuration, key);
-                    if (pathTo != null) {
+                    if (serializer.canUsePathTo() && pathTo != null) {
                         pathToSerializers.add(new PathToSerializer(serializer, key, pathTo));
                     } else {
                         try {
@@ -255,11 +259,23 @@ public class FileReader {
 
                             // Only update the startsWithDeny if this is the "main serializer"
                             // If this serialization happened within serializer (meaning this is child serializer), startsWithDeny is not null
-                            if (startsWithDeny == null) startsWithDeny = key;
+                            if (startsWithDeny == null) {
+                                startsWithDeny = key;
+                                savedSerializer = serializer;
+                            }
 
+                        } catch (SerializerPathToException ex) {
+                            nestedPathToSerializers.add(new NestedPathToSerializer(serializer, key, ex));
+                            if (startsWithDeny == null) {
+                                startsWithDeny = key;
+                                savedSerializer = serializer;
+                            }
                         } catch (SerializerException ex) {
                             ex.log(debug);
-                            if (startsWithDeny == null) startsWithDeny = key;
+                            if (startsWithDeny == null) {
+                                startsWithDeny = key;
+                                savedSerializer = serializer;
+                            }
                         } catch (Exception ex) {
 
                             // Any Exception other than SerializerException
@@ -271,7 +287,7 @@ public class FileReader {
                 }
             }
 
-            if (startsWithDeny != null && key.startsWith(startsWithDeny)) {
+            if (startsWithDeny != null && key.startsWith(startsWithDeny) && (savedSerializer == null || !savedSerializer.letPassThrough(key))) {
                 continue;
             }
 
@@ -296,90 +312,82 @@ public class FileReader {
      * @return the map with used path to serializers and validators
      */
     public Configuration usePathToSerializersAndValidators(Configuration filledMap) {
-        if (!pathToSerializers.isEmpty()) {
-            for (PathToSerializer pathToSerializer : pathToSerializers) {
-                pathToSerializer.getSerializer().tryPathTo(filledMap, pathToSerializer.getPathWhereToStore(), pathToSerializer.getPathTo());
+
+        // Handle nested-path-to serializers
+        for (NestedPathToSerializer nestedPathTo : nestedPathToSerializers) {
+            try {
+                SerializeData data = new SerializeData(nestedPathTo.serializer, nestedPathTo.ex.data.file, nestedPathTo.path, nestedPathTo.ex.data.config);
+                data.pathToConfig = filledMap;
+                Object serialized = data.of().serialize(nestedPathTo.serializer);
+                filledMap.set(nestedPathTo.path, serialized);
+            } catch (SerializerException ex) {
+                ex.log(debug);
             }
         }
-        if (!validatorDatas.isEmpty()) {
-            for (ValidatorData validatorData : validatorDatas) {
 
-                if (!validatorData.validator.shouldValidate(new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection))) {
-                    debug.debug("Skipping " + validatorData.path + " due to skip");
-                    continue;
-                }
+        // Handle path-to serializers
+        for (PathToSerializer pathToSerializer : pathToSerializers) {
+            pathToSerializer.serializer.tryPathTo(filledMap, pathToSerializer.pathWhereToStore, pathToSerializer.pathTo);
+        }
 
-                try {
-                    validatorData.getValidator().validate(filledMap, new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection));
-                } catch (SerializerException ex) {
-                    ex.log(debug);
-                } catch (Exception ex) {
-                    throw new InternalError("Unhandled caught exception from validator " + validatorData.validator + "!", ex);
-                }
+        // Handle validators
+        for (ValidatorData validatorData : validatorDatas) {
+
+            SerializeData data = new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection);
+            data.pathToConfig = filledMap;
+
+            if (!validatorData.validator.shouldValidate(data)) {
+                debug.debug("Skipping " + validatorData.path + " due to skip");
+                continue;
+            }
+
+            try {
+                validatorData.validator.validate(filledMap, data);
+            } catch (SerializerException ex) {
+                ex.log(debug);
+            } catch (Exception ex) {
+                throw new InternalError("Unhandled caught exception from validator " + validatorData.validator + "!", ex);
             }
         }
         return filledMap;
     }
 
     /**
-     * Class to hold path to serializer data for later on use
+     * Stores temporary data to help with the 'Path To' feature of serializers,
+     * specifically when used nested in {@link SerializeData}.
+     *
+     * @param serializer Type of the serialized object.
+     * @param path       The "base-key" location of the outer serialized object.
+     * @param ex         The failure which contains copy-from and paste-to locations.
      */
-    public static class PathToSerializer {
-
-        private final Serializer<?> serializer;
-        private final String pathWhereToStore;
-        private final String pathTo;
-
-        public PathToSerializer(Serializer<?> serializer, String pathWhereToStore, String pathTo) {
-            this.serializer = serializer;
-            this.pathWhereToStore = pathWhereToStore;
-            this.pathTo = pathTo;
-        }
-
-        public Serializer<?> getSerializer() {
-            return serializer;
-        }
-
-        public String getPathWhereToStore() {
-            return pathWhereToStore;
-        }
-
-        public String getPathTo() {
-            return pathTo;
-        }
+    public record NestedPathToSerializer(Serializer<?> serializer, String path, SerializerPathToException ex) {
     }
 
     /**
-     * Class to help validators
+     * Stores temporary data to help with the 'Path To' feature of serializers.
+     * This is saved, so we can do a "second loop" of serialization which can
+     * re-use values that have already been serialized. This is useful for
+     * REALLY long configuration sections, so they don't need to be copy-pasted
+     * between multiple files (just put it once!)
+     *
+     * @param serializer       Type of the serialized object.
+     * @param pathWhereToStore Where in config should we store the value.
+     * @param pathTo           Where should we pull the values from.
      */
-    public static class ValidatorData {
+    public record PathToSerializer(Serializer<?> serializer, String pathWhereToStore, String pathTo) {
+    }
 
-        private final IValidator validator;
-        private final File file;
-        private final ConfigurationSection configurationSection;
-        private final String path;
-
-        public ValidatorData(IValidator validator, File file, ConfigurationSection configurationSection, String path) {
-            this.validator = validator;
-            this.file = file;
-            this.configurationSection = configurationSection;
-            this.path = path;
-        }
-
-        public IValidator getValidator() {
-            return validator;
-        }
-
-        public File getFile() {
-            return file;
-        }
-
-        public ConfigurationSection getConfigurationSection() {
-            return configurationSection;
-        }
-
-        public String getPath() {
-            return path;
-        }
+    /**
+     * Stores temporary data to help with 'Validators', a type of serializer
+     * checked AFTER all serialization is done. This is useful when you don't
+     * want to store any specific object, but you do want to check to make sure
+     * input is valid.
+     *
+     * @param validator            Which validator to use.
+     * @param file                 Which file the config is from.
+     * @param configurationSection The configuration section in question.
+     * @param path                 The string path to the configuration section.
+     */
+    public record ValidatorData(IValidator validator, File file, ConfigurationSection configurationSection, String path) {
     }
 }

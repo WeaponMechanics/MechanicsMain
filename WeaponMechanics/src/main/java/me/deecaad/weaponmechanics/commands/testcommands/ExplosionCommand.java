@@ -10,12 +10,13 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.OptimizedExposure;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.bukkit.ChatColor.GOLD;
 import static org.bukkit.ChatColor.GRAY;
@@ -58,7 +59,7 @@ public class ExplosionCommand extends SubCommand {
             @Override
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
-                BlockDamage blockDamage = new BlockDamage(true, 1, 1, true, 0.5, null, new HashMap<>(), new HashMap<>(), new HashMap<>());
+                BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of());
                 Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0.9, true,
                         null, null, new Flashbang(10.0, null), null);
                 explosion.explode(player, loc, null);

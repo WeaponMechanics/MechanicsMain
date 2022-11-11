@@ -9,8 +9,8 @@ public class Quaternion implements Cloneable {
     public static final double EPSILON = 1.11e-16;
     static final Vector UP = new Vector(0, 1, 0);
     static final Vector DOWN = new Vector(0, -1, 0);
-    static final Vector LEFT = new Vector(-1, 0, 0);
-    static final Vector RIGHT = new Vector(1, 0, 0);
+    static final Vector LEFT = new Vector(1, 0, 0);
+    static final Vector RIGHT = new Vector(-1, 0, 0);
     static final Vector FORWARD = new Vector(0, 0, 1);
     static final Vector BACKWARD = new Vector(0, 0, -1);
 

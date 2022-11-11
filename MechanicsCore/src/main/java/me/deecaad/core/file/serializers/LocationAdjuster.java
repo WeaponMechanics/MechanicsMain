@@ -61,6 +61,11 @@ public class LocationAdjuster implements Serializer<LocationAdjuster> {
     }
 
     @Override
+    public boolean canUsePathTo() {
+        return false;
+    }
+
+    @Override
     @Nonnull
     public LocationAdjuster serialize(SerializeData data) throws SerializerException {
         String input = data.of().assertExists().assertType(String.class).get();

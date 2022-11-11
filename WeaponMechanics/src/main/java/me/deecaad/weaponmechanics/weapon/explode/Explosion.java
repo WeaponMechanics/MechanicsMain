@@ -7,7 +7,6 @@ import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerMissingKeyException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
@@ -39,6 +38,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -400,7 +400,7 @@ public class Explosion implements Serializer<Explosion> {
                 data.remove();
             }
 
-            if (data.isBroken() && blockDamage.isBreakBlocks()) {
+            if (data.isBroken() && blockDamage.getBreakMode(state.getType()) == BlockDamage.BreakMode.BREAK) {
 
                 // For stat tracking
                 blocksBroken += 1;
@@ -449,17 +449,12 @@ public class Explosion implements Serializer<Explosion> {
         data.of("Explosion_Type_Data.Height").assertPositive();
         data.of("Explosion_Type_Data.Width").assertPositive();
         data.of("Explosion_Type_Data.Radius").assertPositive();
-        data.of("Rays").assertPositive();
+        data.of("Explosion_Type_Data.Rays").assertPositive();
 
-        // We always want at least one.
-        if (!data.config.contains(data.key + ".Explosion_Type_Data")) {
-            throw new SerializerMissingKeyException(data.serializer, "Explosion_Type_Data", data.of("Explosion_Type_Data").getLocation());
-        }
-
-        Map<String, Object> typeData = data.config.getConfigurationSection(data.key + ".Explosion_Type_Data").getValues(false);
+        Map<String, Object> typeData = ((ConfigurationSection) data.of("Explosion_Type_Data").assertExists().assertType(ConfigurationSection.class).get()).getValues(false);
 
         // We don't want to require users to define the "Rays" option, since
-        // most people will not understand hat it means. Vanilla MC uses 16.
+        // most people will not understand that it means. Vanilla MC uses 16.
         if (!typeData.containsKey("Rays"))
             typeData.put("Rays", 16);
 
@@ -483,7 +478,7 @@ public class Explosion implements Serializer<Explosion> {
         // This check determines if the player tried to use Block Regeneration
         // when blocks cannot even be broken in the first place. Easy mistake
         // to make when copying/pasting and deleting chunks of config.
-        if ((blockDamage == null || !blockDamage.isBreakBlocks()) && regeneration != null) {
+        if ((blockDamage == null || !blockDamage.canBreakBlocks()) && regeneration != null) {
             throw data.exception(null, "Found an Explosion that defines 'Regeneration' when 'Block_Damage' cannot break blocks!",
                     "This happens when 'Block_Damage.Break_Blocks: false' or when 'Block_Damage' was not added AND you tried to add 'Regeneration'");
         }
@@ -492,7 +487,7 @@ public class Explosion implements Serializer<Explosion> {
         // explosion should explode (onEntityHit, onBlockHit, after delay, etc.)
         Detonation detonation = data.of("Detonation").assertExists().serialize(Detonation.class);
 
-        Double blockChance = data.of("Block_Damage.Spawn_Falling_Block_Chance").serializeNonStandardSerializer(new ChanceSerializer());
+        Double blockChance = data.step(BlockDamage.class).of("Spawn_Falling_Block_Chance").serialize(new ChanceSerializer());
         if (blockChance == null)
             blockChance = 0.0;
 

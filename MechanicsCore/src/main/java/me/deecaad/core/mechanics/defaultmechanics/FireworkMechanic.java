@@ -82,7 +82,7 @@ public class FireworkMechanic implements IMechanic<FireworkMechanic> {
     @Override
     @Nonnull
     public FireworkMechanic serialize(SerializeData data) throws SerializerException {
-        ItemStack fireworkItem = data.of("Item").assertExists().serializeNonStandardSerializer(new ItemSerializer());
+        ItemStack fireworkItem = data.of("Item").assertExists().serialize(new ItemSerializer());
 
         if (!(fireworkItem.getItemMeta() instanceof FireworkMeta)) {
             throw data.exception(null, "Item Type should be a firework when using a Firework Mechanic");

@@ -87,14 +87,13 @@ Airstrike:
         Impact_When:
           Block: true
     Block_Damage:
-      Break_Blocks: true
       Spawn_Falling_Block_Chance: 0.24
-      Blacklist: true
-      Block_List:
-        - "BEDROCK"
-        - "$WATER" # stationary_water and moving_water
-        - "OBSIDIAN"
-        - "$LAVA" # stationary_lava and moving_lava
+      Default_Mode: BREAK
+      Blocks:
+        - "BEDROCK cancel"
+        - "$WATER cancel"  # stationary_water and moving_water
+        - "OBSIDIAN cancel"
+        - "$LAVA cancel"  # stationary_lava and moving_lava
     Regeneration:
       Ticks_Before_Start: 300
       Max_Blocks_Per_Update: 5

@@ -62,6 +62,11 @@ public class ItemSerializer implements Serializer<ItemStack> {
     }
 
     @Override
+    public boolean canUsePathTo() {
+        return false;
+    }
+
+    @Override
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
 
@@ -255,7 +260,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         if (CompatibilityAPI.getVersion() >= 1.11 && data.has("Potion_Color")) {
             try {
-                Color color = data.of("Potion_Color").serializeNonStandardSerializer(new ColorSerializer());
+                Color color = data.of("Potion_Color").serialize(new ColorSerializer());
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
                 potionMeta.setColor(color);
                 itemStack.setItemMeta(potionMeta);
@@ -266,7 +271,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
         if (data.has("Leather_Color")) {
             try {
-                Color color = data.of("Leather_Color").serializeNonStandardSerializer(new ColorSerializer());
+                Color color = data.of("Leather_Color").serialize(new ColorSerializer());
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);
@@ -390,7 +395,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             if (c == ' ')
                 continue;
 
-            ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serializeNonStandardSerializer(new ItemSerializer());
+            ItemStack item = data.of("Recipe.Ingredients." + c).assertExists().serialize(new ItemSerializer());
 
             if (CompatibilityAPI.getVersion() < 1.13)
                 ingredients.put(c, item);

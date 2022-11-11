@@ -13,15 +13,20 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class AmmoTypes implements Serializer<AmmoTypes> {
 
-    private static final Set<String> REGISTERED_AMMO_TITLES = new HashSet<>();
+    /**
+     * Stores the names of currently registered ammo types, and their path
+     * in config. This is used to determine if duplicate ammo names exist.
+     * This can be cleared using {@link #clearRegistry()}.
+     */
+    private static final Map<String, String> REGISTERED_AMMO_TITLES = new HashMap<>();
 
     private List<IAmmoType> ammoTypes;
 
@@ -130,13 +135,17 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
 
             // We have to check if an ammo-title with this name has already
             // been registered. Duplicates are not allowed.
-            if (!REGISTERED_AMMO_TITLES.add(ammoName)) {
+            if (REGISTERED_AMMO_TITLES.containsKey(ammoName)) {
                 throw data.exception(null, "Found duplicate ammo name",
                         SerializerException.forValue(ammoName),
-                        "Instead of using a duplicate ammo names, try using something more specific, like 'AK-47_Ammo'",
+                        "Instead of using a duplicate ammo names, try using something more specific, like 'AK-47_Ammo_1'",
                         "If you want to re-use ammo in each weapon, use the 'server > plugins > WeaponMechanics > ammo' folder",
-                        "Ammo Tutorial: https://www.youtube.com/watch?v=eJwB0G1a4cE");
+                        "Ammo Tutorial: https://www.youtube.com/watch?v=eJwB0G1a4cE",
+                        "Original Ammo is stored at: " + REGISTERED_AMMO_TITLES.get(ammoName));
             }
+
+            // Store the location of the ammo key, in case we find duplicates
+            REGISTERED_AMMO_TITLES.put(ammoName, data.of(ammoName).getLocation());
 
             SerializeData move = data.move(ammoName);
 
@@ -157,8 +166,8 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             }
 
             // Item
-            ItemStack bulletItem = move.of("Item_Ammo.Bullet_Item").serializeNonStandardSerializer(new ItemSerializer());
-            ItemStack magazineItem = move.of("Item_Ammo.Magazine_Item").serializeNonStandardSerializer(new ItemSerializer());
+            ItemStack bulletItem = move.of("Item_Ammo.Bullet_Item").serialize(new ItemSerializer());
+            ItemStack magazineItem = move.of("Item_Ammo.Magazine_Item").serialize(new ItemSerializer());
 
             if (magazineItem == null && bulletItem == null) {
                 throw move.exception(null, "Tried to use ammo without any options? You should use at least one of the ammo types!");
@@ -180,5 +189,9 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             ammoTypes.add(new ItemAmmo(ammoName, symbol, bulletItem, magazineItem, ammoConverter));
         }
         return new AmmoTypes(ammoTypes);
+    }
+
+    public static void clearRegistry() {
+        REGISTERED_AMMO_TITLES.clear();
     }
 }

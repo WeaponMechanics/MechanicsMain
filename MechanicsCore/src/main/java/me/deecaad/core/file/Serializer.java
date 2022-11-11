@@ -4,6 +4,7 @@ import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static me.deecaad.core.MechanicsCore.debug;
@@ -92,6 +93,43 @@ public interface Serializer<T> {
             return;
         }
         filledMap.set(pathWhereToStore, obj);
+    }
+
+    /**
+     * Returns a link to the page on the wiki that describes this serializer.
+     * This method is called from {@link SerializeData}, and is used to help
+     * the user find potential solutions to their problem.
+     *
+     * @return The nullable link to the wiki.
+     */
+    @Nullable
+    default String getWikiLink() {
+        return null;
+    }
+
+    /**
+     * Returns <code>true</code> if the serializer allows path-to. You should
+     * override this method to return <code>false</code> if your serializer
+     * accepts a {@link String} in the main path of the serializer. For
+     * example, the {@link me.deecaad.core.file.serializers.VectorSerializer}
+     * should override this method to return <code>false</code>.
+     *
+     * @return true if the serializer is complicated enough for path-to.
+     */
+    default boolean canUsePathTo() {
+        return true;
+    }
+
+    /**
+     * Returns <code>true</code> when the given key can be "added" to this
+     * serializer, and should be saved to the main configuration map. This is
+     * useful when using {@link SerializeData#step(Serializer)} with path-to.
+     *
+     * @param key The non-null key to check
+     * @return true if the key should be saved.
+     */
+    default boolean letPassThrough(String key) {
+        return false;
     }
 
     /**
