@@ -186,6 +186,10 @@ public class RepairItemListener implements Listener {
                 return false;
             }
 
+            if (!kit.canUseWeapon(weaponTitle)) {
+                return false;
+            }
+
             int durability = CustomTag.DURABILITY.getInteger(weapon);
             int maxDurability = customDurability.getMaxDurability(weapon);
             int availableRepair = CustomTag.DURABILITY.getInteger(repairItem);
@@ -284,6 +288,10 @@ public class RepairItemListener implements Listener {
     }
 
 
+    /**
+     * Repair-Kits are items that can be used to repair multiple different
+     * weapons/armors, instead of redefining a repair-item for every weapon.
+     */
     public static class RepairKit implements Serializer<RepairKit> {
 
         private ItemStack item;
@@ -374,6 +382,7 @@ public class RepairItemListener implements Listener {
 
             // Make sure to set custom tags BEFORE adding the recipe so the
             // tags are automatically added to crafted repair-kits.
+            data.of("Item").assertExists();
             ItemStack item = new ItemSerializer().serializeWithoutRecipe(data.move("Item"));
             CustomTag.DURABILITY.setInteger(item, totalDurability);
             CustomTag.REPAIR_KIT_TITLE.setString(item, repairKitTitle);
