@@ -205,7 +205,7 @@ public class RepairItemListener implements Listener {
             else {
                 CustomTag.DURABILITY.setInteger(weapon, durability + availableRepair);
                 repairItem.setAmount(0);
-                kit.getBreakMechanics().use(cast);
+                if (kit.getBreakMechanics() != null) kit.getBreakMechanics().use(cast);
             }
 
             // When "overrideMaxDurabilityLoss" is -1, it is automatically set

@@ -240,14 +240,14 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         int durability = CustomTag.DURABILITY.getInteger(item) - durabilityPerShot;
         if (durability > 0) {
-            durabilityMechanics.use(new CastData(entity));
+            if (durabilityMechanics != null) durabilityMechanics.use(new CastData(entity));
             CustomTag.DURABILITY.setInteger(item, durability);
             return false;
         }
 
         // When the item has broken, we have to either destroy it or replace
         // the broken item with the 'replaceItem'
-        breakMechanics.use(new CastData(entity));
+        if (breakMechanics != null) breakMechanics.use(new CastData(entity));
         if (replaceItem == null) {
             item.setAmount(0);
             return true;
@@ -260,6 +260,34 @@ public class CustomDurability implements Serializer<CustomDurability> {
         CustomTag.BROKEN_WEAPON.setString(item, weaponTitle);
         CustomTag.MAX_DURABILITY.setInteger(item, maxDurability);
         return true;
+    }
+
+    /**
+     * Fully repairs the given weapon. This method assumes that the given
+     * weapon uses this custom durability. You should always manually check
+     * if the weapon actually does use custom durability.
+     *
+     * @param weapon              The non-null weapon to repair.
+     * @param repairMaxDurability true to also repair max-durability.
+     * @return true if changes were made to the weapon.
+     * @throws IllegalArgumentException If the weapon has no meta or is null.
+     */
+    public boolean repair(ItemStack weapon, boolean repairMaxDurability) {
+        if (weapon == null || !weapon.hasItemMeta())
+            throw new IllegalArgumentException("Cannot repair " + weapon + " since it is not a weapon");
+
+        boolean changes = false;
+
+        int maxDurability = getMaxDurability(weapon);
+        if (repairMaxDurability) {
+            int newMax = getMaxDurability();
+            changes = maxDurability != newMax;
+            CustomTag.MAX_DURABILITY.setInteger(weapon, maxDurability);
+        }
+
+        changes |= maxDurability != CustomTag.DURABILITY.getInteger(weapon);
+        CustomTag.DURABILITY.setInteger(weapon, maxDurability);
+        return changes;
     }
 
     @NotNull
