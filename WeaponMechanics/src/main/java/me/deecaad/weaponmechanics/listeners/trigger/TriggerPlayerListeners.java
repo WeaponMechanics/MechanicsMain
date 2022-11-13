@@ -50,7 +50,7 @@ public class TriggerPlayerListeners implements Listener {
         removeEntityWrapper(player);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void toggleSneak(PlayerToggleSneakEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak")) return;
 
@@ -65,7 +65,7 @@ public class TriggerPlayerListeners implements Listener {
         weaponHandler.useTrigger(player, isSneaking ? TriggerType.START_SNEAK : TriggerType.END_SNEAK, false);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void toggleSprint(PlayerToggleSprintEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint")) return;
 
@@ -78,7 +78,7 @@ public class TriggerPlayerListeners implements Listener {
         weaponHandler.useTrigger(e.getPlayer(), e.isDoubleJump() ? TriggerType.DOUBLE_JUMP : TriggerType.JUMP, false);
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void toggleFlight(PlayerToggleFlightEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump")) return;
 
@@ -187,15 +187,19 @@ public class TriggerPlayerListeners implements Listener {
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
         if (rightClick) {
-            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon)) return;
+            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.RIGHT_CLICK, player, mainWeapon, offWeapon))
+                return;
 
-            if (mainWeapon != null) weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield, null);
+            if (mainWeapon != null)
+                weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.RIGHT_CLICK, dualWield, null);
 
-            if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield, null);
+            if (offWeapon != null)
+                weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.RIGHT_CLICK, dualWield, null);
             return;
         }
 
-        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon)) return;
+        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.LEFT_CLICK, player, mainWeapon, offWeapon))
+            return;
 
         if (mainWeapon != null) {
             weaponHandler.tryUses(playerWrapper, mainWeapon, mainStack, EquipmentSlot.HAND, TriggerType.LEFT_CLICK, dualWield, null);
@@ -206,14 +210,15 @@ public class TriggerPlayerListeners implements Listener {
             }
         }
 
-        if (offWeapon != null) weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield, null);
+        if (offWeapon != null)
+            weaponHandler.tryUses(playerWrapper, offWeapon, offStack, EquipmentSlot.OFF_HAND, TriggerType.LEFT_CLICK, dualWield, null);
     }
 
     /**
      * This is simply used to cancel player arm swing animation from OTHER players.
      * It can't be cancelled from the player doing the arm swing.
      */
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void animation(PlayerAnimationEvent e) {
         if (e.getAnimationType() != PlayerAnimationType.ARM_SWING) return;
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click")) return;
@@ -246,7 +251,7 @@ public class TriggerPlayerListeners implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true, priority = EventPriority.LOW)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void dropItem(PlayerDropItemEvent e) {
         Player player = e.getPlayer();
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item")) return;
@@ -266,18 +271,14 @@ public class TriggerPlayerListeners implements Listener {
 
         if (mainWeapon == null && offWeapon == null) return;
 
-        // Cancel reload (and other tasks) since drop item will most of the time cause
-        // itemstack reference change which will cause other bugs (e.g. infinite reload bug)
-        playerWrapper.getMainHandData().cancelTasks();
-        playerWrapper.getOffHandData().cancelTasks();
-
         if (mainWeapon != null && getConfigurations().getBool(mainWeapon + ".Info.Cancel.Drop_Item")
                 || offWeapon != null && getConfigurations().getBool(offWeapon + ".Info.Cancel.Drop_Item")) {
 
             e.setCancelled(true);
         }
 
-        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon)) return;
+        if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.DROP_ITEM, player, mainWeapon, offWeapon))
+            return;
 
         boolean dualWield = mainWeapon != null && offWeapon != null;
 
@@ -301,7 +302,7 @@ public class TriggerPlayerListeners implements Listener {
     // Event priority LOW to ensure that this is ran before.
     // Weapon listeners PlayerSwapHandItemsEvent is ran.
     // Basically lower priority means that it will be one of the first EventHandlers to run.
-    @EventHandler (ignoreCancelled = true, priority = EventPriority.LOW)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void swapHandItems(PlayerSwapHandItemsEvent e) {
         if (getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Main_And_Hand_Items")) return;
 
@@ -329,15 +330,18 @@ public class TriggerPlayerListeners implements Listener {
         } else {
             playerWrapper.getMainHandData().cancelTasks();
             playerWrapper.getOffHandData().cancelTasks();
-            if (toMainWeapon != null) weaponHandler.getSkinHandler().tryUse(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND);
-            if (toOffWeapon != null) weaponHandler.getSkinHandler().tryUse(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND);
+            if (toMainWeapon != null)
+                weaponHandler.getSkinHandler().tryUse(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND);
+            if (toOffWeapon != null)
+                weaponHandler.getSkinHandler().tryUse(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND);
         }
 
         boolean dualWield = toMainWeapon != null && toOffWeapon != null;
 
         if (isValid(toMain)) {
             // SWAP_TO_MAIN_HAND
-            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, toMainWeapon, toOffWeapon)) return;
+            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, toMainWeapon, toOffWeapon))
+                return;
 
             // Only check off hand going to main hand
             if (toMainWeapon != null) {
@@ -349,7 +353,8 @@ public class TriggerPlayerListeners implements Listener {
         }
         if (isValid(toOff)) {
             // SWAP_TO_OFF_HAND
-            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, toMainWeapon, toOffWeapon)) return;
+            if (weaponHandler.getInfoHandler().denyDualWielding(TriggerType.SWAP_HANDS, player, toMainWeapon, toOffWeapon))
+                return;
 
             // Only check main hand going to off hand
             if (toOffWeapon != null) {
@@ -359,7 +364,7 @@ public class TriggerPlayerListeners implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
 

@@ -4,6 +4,7 @@ import co.aikar.timings.lib.MCTiming;
 import co.aikar.timings.lib.TimingManager;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import me.cjcrafter.auto.AutoMechanicsDownload;
 import me.cjcrafter.auto.UpdateChecker;
 import me.cjcrafter.auto.UpdateInfo;
 import me.deecaad.core.MechanicsCore;
@@ -240,14 +241,24 @@ public class WeaponMechanics {
 
         // Ensure that the resource pack exists in the folder
         if (basicConfiguration.getBool("Resource_Pack_Download.Enabled")) {
-            String link = basicConfiguration.getString("Resource_Pack_Download.Link");
-            int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
-            int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
+            new TaskChain(WeaponMechanics.getPlugin())
+                    .thenRunAsync((data) -> {
+                        String link = basicConfiguration.getString("Resource_Pack_Download.Link");
+                        int connection = basicConfiguration.getInt("Resource_Pack_Download.Connection_Timeout");
+                        int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
 
-            File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
-            if (!pack.exists()) {
-                FileUtil.downloadFile(pack, link, connection, read);
-            }
+                        if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
+                            AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
+                            String version = auto.RESOURCE_PACK_VERSION;
+                            link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
+                        }
+
+                        File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
+                        if (!pack.exists()) {
+                            FileUtil.downloadFile(pack, link, connection, read);
+                        }
+                        return null;
+                    });
         }
     }
 

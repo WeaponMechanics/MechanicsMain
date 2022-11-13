@@ -32,6 +32,8 @@ AUG:
   Skin:
     Default:
       Custom_Model_Data: 21
+    Scope:
+      Custom_Model_Data: 31
     Sprint:
       Custom_Model_Data: 36
   Projectile: "sub_machine_gun.Projectile"
