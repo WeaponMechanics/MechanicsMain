@@ -11,11 +11,6 @@ public class ChanceSerializer implements Serializer<Double> {
     public ChanceSerializer() {
     }
 
-    @Override
-    public boolean canUsePathTo() {
-        return false;
-    }
-
     @NotNull
     @Override
     public Double serialize(SerializeData data) throws SerializerException {

@@ -95,11 +95,6 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
         return raw;
     }
 
-    @Override
-    public boolean canUsePathTo() {
-        return false;
-    }
-
     @NotNull
     @Override
     public VectorSerializer serialize(SerializeData data) throws SerializerException {

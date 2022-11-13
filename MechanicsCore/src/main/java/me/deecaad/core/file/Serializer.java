@@ -117,7 +117,7 @@ public interface Serializer<T> {
      * @return true if the serializer is complicated enough for path-to.
      */
     default boolean canUsePathTo() {
-        return true;
+        return getKeyword() != null;
     }
 
     /**
