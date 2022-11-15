@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.listeners;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
@@ -157,12 +158,10 @@ public class RepairItemListener implements Listener {
             return;
         }
 
-        int durability = CustomTag.DURABILITY.getInteger(weapon);
-        int maxDurability = CustomTag.MAX_DURABILITY.getInteger(weapon);
+        CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(weapon, weaponTemplate, "PublicBukkitValues");
+        CustomTag.WEAPON_TITLE.setString(weapon, weaponTitle);
         weapon.setType(weaponTemplate.getType());
         weapon.setItemMeta(weaponTemplate.getItemMeta());
-        CustomTag.DURABILITY.setInteger(weapon, durability);
-        CustomTag.MAX_DURABILITY.setInteger(weapon, maxDurability);
     }
 
     public boolean repair(ItemStack weapon, String weaponTitle, ItemStack repairItem, CastData cast) {

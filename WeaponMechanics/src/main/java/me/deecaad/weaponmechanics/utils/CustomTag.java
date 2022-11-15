@@ -121,4 +121,8 @@ public enum CustomTag {
     public void setDouble(ItemStack item, double value) {
         CompatibilityAPI.getNBTCompatibility().setDouble(item, "WeaponMechanics", id, value);
     }
+
+    public void remove(ItemStack item) {
+        CompatibilityAPI.getNBTCompatibility().remove(item, "WeaponMechanics", id);
+    }
 }

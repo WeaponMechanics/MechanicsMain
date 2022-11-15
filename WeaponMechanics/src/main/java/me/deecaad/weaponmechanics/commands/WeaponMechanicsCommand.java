@@ -13,6 +13,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -538,14 +539,14 @@ public class WeaponMechanicsCommand {
                 ItemStack mainHand = inventory instanceof PlayerInventory playerInventory ? playerInventory.getItemInMainHand() : null;
                 ItemStack[] items = mode == RepairMode.INVENTORY ? inventory.getContents() : new ItemStack[] { mainHand };
                 for (ItemStack item : items) {
-                    if (item == null)
+                    if (item == null || !item.hasItemMeta())
                         continue;
 
                     String title = WeaponMechanicsAPI.getWeaponTitle(item);
+                    if (title == null) title = CustomTag.BROKEN_WEAPON.getString(item);
                     CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(title + ".Shoot.Custom_Durability", CustomDurability.class);
                     if (customDurability == null)
                         continue;
-
 
                     if (!customDurability.repair(item, repairFully))
                         continue;
@@ -563,6 +564,9 @@ public class WeaponMechanicsCommand {
                 EntityEquipment equipment = living.getEquipment();
                 ItemStack item = equipment == null ? null : equipment.getItemInMainHand();
                 String weaponTitle = item == null ? null : WeaponMechanicsAPI.getWeaponTitle(item);
+
+                if (weaponTitle == null && item != null && item.hasItemMeta())
+                    weaponTitle = CustomTag.BROKEN_WEAPON.getString(item);
 
                 if (weaponTitle == null)
                     continue;

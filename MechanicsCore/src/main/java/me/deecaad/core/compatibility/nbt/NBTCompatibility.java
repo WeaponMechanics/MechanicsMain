@@ -30,9 +30,7 @@ public interface NBTCompatibility {
      * value. Otherwise, this method will return <code>null</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to check existence of.
      * @return <code>true</code> if the NBT compound uses the tag.
      */
@@ -47,9 +45,7 @@ public interface NBTCompatibility {
      * item's compound, then this method will return <code>null</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to pull some value from.
      * @return The value of the tag, or <code>null</code>.
      */
@@ -64,9 +60,7 @@ public interface NBTCompatibility {
      * item's compound, then this method will return <code>def</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to pull some value from.
      * @param def        The default value to return if the key is not present.
      * @return The value of the tag, or <code>null</code>.
@@ -87,9 +81,7 @@ public interface NBTCompatibility {
      * {@link #getString(ItemStack, String, String)}.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to store the value at.
      * @param value      The value that will be stored.
      */
@@ -107,9 +99,7 @@ public interface NBTCompatibility {
      * value. Otherwise, this method will return <code>null</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to check existence of.
      * @return <code>true</code> if the NBT compound uses the tag.
      */
@@ -124,9 +114,7 @@ public interface NBTCompatibility {
      * item's compound, then this method will return <code>0</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to pull some value from.
      * @return The value of the tag, or <code>0</code>.
      */
@@ -141,9 +129,7 @@ public interface NBTCompatibility {
      * item's compound, then this method will return <code>def</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to pull some value from.
      * @param def        The default value to return if the key is not present.
      * @return The value of the tag, or <code>0</code>.
@@ -164,9 +150,7 @@ public interface NBTCompatibility {
      * {@link #getInt(ItemStack, String, String)}.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to store the value at.
      * @param value      The value that will be stored.
      */
@@ -184,9 +168,7 @@ public interface NBTCompatibility {
      * value. Otherwise, this method will return <code>null</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to check existence of.
      * @return <code>true</code> if the NBT compound uses the tag.
      */
@@ -201,9 +183,7 @@ public interface NBTCompatibility {
      * item's compound, then this method will return <code>0.0</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to pull some value from.
      * @return The value of the tag, or <code>0</code>.
      */
@@ -218,9 +198,7 @@ public interface NBTCompatibility {
      * item's compound, then this method will return <code>def</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to pull some value from.
      * @param def        The default value to return if the key is not present.
      * @return The value of the tag, or <code>0</code>.
@@ -241,9 +219,7 @@ public interface NBTCompatibility {
      * {@link #getDouble(ItemStack, String, String)}.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
-     * @param plugin     The name of the compound to put the tag in, or
-     *                   <code>null</code> to use the default bukkit compound.
-     *                   This should be a plugin name, e.x. WeaponMechanics.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
      * @param key        The non-null name of the tag to store the value at.
      * @param value      The value that will be stored.
      */
@@ -252,6 +228,23 @@ public interface NBTCompatibility {
         PersistentDataContainer nbt = getCompound(meta);
 
         nbt.set(getKey(plugin, key), PersistentDataType.DOUBLE, value);
+        bukkitItem.setItemMeta(meta);
+    }
+
+    /**
+     * Removes the given NBT tag from the item. To check to see if there was
+     * a key to delete, use {@link #hasString(ItemStack, String, String)} (or
+     * one of the <code>hasX</code> methods).
+     *
+     * @param bukkitItem The non-null item that has an NBT tag compound.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
+     * @param key        The non-null name of the tag to remove.
+     */
+    default void remove(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+        ItemMeta meta = bukkitItem.getItemMeta();
+        PersistentDataContainer nbt = getCompound(meta);
+
+        nbt.remove(getKey(plugin, key));
         bukkitItem.setItemMeta(meta);
     }
 
@@ -300,6 +293,17 @@ public interface NBTCompatibility {
     default NamespacedKey getKey(String plugin, String key) {
         return new NamespacedKey(plugin.toLowerCase(), key.toLowerCase());
     }
+
+    /**
+     * Copies the NBT tags from item to the other. This method will replace the
+     * previous NBT tags of the item. A <i>COPY</i> of the tags are used, so
+     * any modifications to one of the item's tags will not be reflected in the
+     * other after this method is used.
+     *
+     * @param fromItem The non-null item to copy the tags from.
+     * @param toItem   The non-null item to override the tags.
+     */
+    default void copyTagsFromTo(@Nonnull ItemStack fromItem, @Nonnull ItemStack toItem, String path) {}  // TODO implement this
 
     /**
      * Returns a NMS item stack based on the given <code>bukkitStack</code>.

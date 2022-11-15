@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -254,12 +255,12 @@ public class CustomDurability implements Serializer<CustomDurability> {
             return true;
         }
 
-        String weaponTitle = CustomTag.WEAPON_TITLE.getString(item);
-        int maxDurability = getMaxDurability(item);
-        item.setType(replaceItem.getType());
-        item.setItemMeta(replaceItem.getItemMeta());
-        CustomTag.BROKEN_WEAPON.setString(item, weaponTitle);
-        CustomTag.MAX_DURABILITY.setInteger(item, maxDurability);
+        ItemStack template = replaceItem.clone();
+        CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(item, template, "PublicBukkitValues");
+        CustomTag.WEAPON_TITLE.remove(item);
+        item.setType(template.getType());
+        item.setItemMeta(template.getItemMeta());
+
         return true;
     }
 
