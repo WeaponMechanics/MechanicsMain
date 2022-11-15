@@ -302,8 +302,10 @@ public interface NBTCompatibility {
      *
      * @param fromItem The non-null item to copy the tags from.
      * @param toItem   The non-null item to override the tags.
+     * @param path     The path to the compound to copy, or null to copy every
+     *                 tag. Example: <code>"PublicBukkitValues"</code>
      */
-    default void copyTagsFromTo(@Nonnull ItemStack fromItem, @Nonnull ItemStack toItem, String path) {}  // TODO implement this
+    void copyTagsFromTo(@Nonnull ItemStack fromItem, @Nonnull ItemStack toItem, String path);
 
     /**
      * Returns a NMS item stack based on the given <code>bukkitStack</code>.

@@ -10,8 +10,10 @@ import net.minecraft.nbt.StringTagVisitor;
 import net.minecraft.nbt.Tag;
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +30,22 @@ public class NBT_1_18_R2 implements NBTCompatibility {
                     new InternalError()
             );
         }
+    }
+
+    @Override
+    public void copyTagsFromTo(@NotNull ItemStack fromItem, @NotNull ItemStack toItem, @Nullable String path) {
+        net.minecraft.world.item.ItemStack nms = getNMSStack(toItem);
+        CompoundTag from = getNMSStack(fromItem).getTag();
+        CompoundTag to = nms.getTag();
+
+        if (path == null) {
+            nms.setTag(from.copy());
+            toItem.setItemMeta(nms.getBukkitStack().getItemMeta());
+            return;
+        }
+
+        to.put(path, from.getCompound(path).copy());
+        toItem.setItemMeta(nms.getBukkitStack().getItemMeta());
     }
 
     @Nonnull
