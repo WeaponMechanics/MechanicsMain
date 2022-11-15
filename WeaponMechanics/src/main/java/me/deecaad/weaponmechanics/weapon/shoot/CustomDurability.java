@@ -6,6 +6,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -275,6 +276,26 @@ public class CustomDurability implements Serializer<CustomDurability> {
     public boolean repair(ItemStack weapon, boolean repairMaxDurability) {
         if (weapon == null || !weapon.hasItemMeta())
             throw new IllegalArgumentException("Cannot repair " + weapon + " since it is not a weapon");
+
+        // When weapon is fully broken, we have to set it back to the weapon item.
+        String weaponTitle = CustomTag.BROKEN_WEAPON.getString(weapon);
+        if (weaponTitle != null) {
+            ItemStack weaponTemplate = WeaponMechanics.getWeaponHandler().getInfoHandler().generateWeapon(weaponTitle, 1);
+
+            // Weapon no longer exists in config
+            if (weaponTemplate == null) {
+                WeaponMechanics.debug.warn("Tried to repair weapon '" + weaponTitle + "' when it no longer exists in config... ignoring...");
+                return false;
+            }
+
+            int durability = CustomTag.DURABILITY.getInteger(weapon);
+            int maxDurability = CustomTag.MAX_DURABILITY.getInteger(weapon);
+            weapon.setType(weaponTemplate.getType());
+            weapon.setItemMeta(weaponTemplate.getItemMeta());
+            CustomTag.DURABILITY.setInteger(weapon, durability);
+            CustomTag.MAX_DURABILITY.setInteger(weapon, maxDurability);
+            return true;
+        }
 
         boolean changes = false;
 
