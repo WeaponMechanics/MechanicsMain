@@ -92,7 +92,9 @@ public class WeaponMechanicsCommand {
                 .with("ammo", MapArgumentType.INT(1, 10, 30))
                 .with("firemode", MapArgumentType.INT(0, 1, 2))
                 .with("skipMainhand", MapArgumentType.INT(0, 1))
-                .with("slot", MapArgumentType.INT(IntStream.rangeClosed(0, 40).boxed().toArray(Integer[]::new)));
+                .with("slot", MapArgumentType.INT(IntStream.rangeClosed(0, 40).boxed().toArray(Integer[]::new)))
+                .with("durability", MapArgumentType.INT(500, 1000))
+                .with("maxDurability", MapArgumentType.INT(500, 1000));
 
         CommandBuilder command = new CommandBuilder("wm")
                 .withAliases("weaponmechanics")
