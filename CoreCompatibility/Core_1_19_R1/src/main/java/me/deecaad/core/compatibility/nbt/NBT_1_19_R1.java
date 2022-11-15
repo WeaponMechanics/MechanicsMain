@@ -45,6 +45,7 @@ public class NBT_1_19_R1 implements NBTCompatibility {
         }
 
         to.put(path, from.getCompound(path).copy());
+        toItem.setItemMeta(nms.getBukkitStack().getItemMeta());
     }
 
     @Nonnull

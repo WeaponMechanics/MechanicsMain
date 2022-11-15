@@ -159,9 +159,10 @@ public class RepairItemListener implements Listener {
         }
 
         CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(weapon, weaponTemplate, "PublicBukkitValues");
-        CustomTag.WEAPON_TITLE.setString(weapon, weaponTitle);
         weapon.setType(weaponTemplate.getType());
         weapon.setItemMeta(weaponTemplate.getItemMeta());
+        CustomTag.WEAPON_TITLE.setString(weapon, weaponTitle);
+        CustomTag.BROKEN_WEAPON.remove(weapon);
     }
 
     public boolean repair(ItemStack weapon, String weaponTitle, ItemStack repairItem, CastData cast) {

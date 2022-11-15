@@ -257,9 +257,11 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         ItemStack template = replaceItem.clone();
         CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(item, template, "PublicBukkitValues");
-        CustomTag.WEAPON_TITLE.remove(item);
         item.setType(template.getType());
         item.setItemMeta(template.getItemMeta());
+        CustomTag.WEAPON_TITLE.remove(item);
+        CustomTag.BROKEN_WEAPON.setString(item, CustomTag.WEAPON_TITLE.getString(template));
+        CustomTag.DURABILITY.setInteger(item, 0);
 
         return true;
     }
@@ -289,12 +291,17 @@ public class CustomDurability implements Serializer<CustomDurability> {
                 return false;
             }
 
-            int durability = CustomTag.DURABILITY.getInteger(weapon);
-            int maxDurability = CustomTag.MAX_DURABILITY.getInteger(weapon);
+            // Turn the broken-weapon into a functional weapon
+            CompatibilityAPI.getNBTCompatibility().copyTagsFromTo(weapon, weaponTemplate, "PublicBukkitValues");
             weapon.setType(weaponTemplate.getType());
             weapon.setItemMeta(weaponTemplate.getItemMeta());
-            CustomTag.DURABILITY.setInteger(weapon, durability);
-            CustomTag.MAX_DURABILITY.setInteger(weapon, maxDurability);
+            CustomTag.WEAPON_TITLE.setString(weapon, weaponTitle);
+            CustomTag.BROKEN_WEAPON.remove(weapon);
+
+            // Add durability back to the weapon
+            if (repairMaxDurability) CustomTag.MAX_DURABILITY.setInteger(weapon, getMaxDurability());
+            CustomTag.DURABILITY.setInteger(weapon, getMaxDurability(weapon));
+
             return true;
         }
 
