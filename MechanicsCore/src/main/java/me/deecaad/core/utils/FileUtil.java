@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
@@ -51,12 +52,12 @@ public final class FileUtil {
         try {
             PathReference pathReference = PathReference.of(source.toURI());
 
-            Files.walkFileTree(pathReference.getPath(), new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(pathReference.path, new SimpleFileVisitor<>() {
 
                 // "Visit" directories first so we can create the directory.
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    Path currentTarget = target.resolve(pathReference.getPath().relativize(dir).toString());
+                    Path currentTarget = target.resolve(pathReference.path.relativize(dir).toString());
                     Files.createDirectories(currentTarget);
                     return FileVisitResult.CONTINUE;
                 }
@@ -64,7 +65,7 @@ public final class FileUtil {
                 // "Visit" each file and copy the relative path
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.copy(file, target.resolve(pathReference.getPath().relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(file, target.resolve(pathReference.path.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -73,31 +74,13 @@ public final class FileUtil {
         }
     }
 
-    public static class PathReference {
-        private final Path path;
-        private final FileSystem fileSystem;
-
-        private PathReference(Path path, FileSystem fileSystem) {
-            this.path = path;
-            this.fileSystem = fileSystem;
-        }
-
-        public Path getPath() {
-            return path;
-        }
-
-        public FileSystem getFileSystem() {
-            return fileSystem;
-        }
+    public record PathReference(Path path, FileSystem fileSystem) {
 
         public static PathReference of(URI resource) throws IOException {
-            try
-            {
+            try {
                 // first try getting a path via existing file systems
                 return new PathReference(Paths.get(resource), null);
-            }
-            catch (final FileSystemNotFoundException e)
-            {
+            } catch (final FileSystemNotFoundException e) {
                 // This generally occurs when the file is in a .jar file.
                 final Map<String, ?> env = Collections.emptyMap();
                 final FileSystem fs = FileSystems.newFileSystem(resource, env);

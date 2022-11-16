@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.mechanics.CastData;
 import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
+import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import me.deecaad.weaponmechanics.weapon.skin.Skin;
 import me.deecaad.weaponmechanics.weapon.skin.SkinList;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -209,10 +210,19 @@ public class InfoHandler implements IValidator {
         int firemode = (int) data.getOrDefault("firemode", -1);
         boolean skipMainhand = ((int) data.getOrDefault("skipMainhand", 0)) == 1;
         int slot = (int) data.getOrDefault("slot", -1);
+        int durability = (int) data.getOrDefault("durability", -1);
+        int maxDurability = (int) data.getOrDefault("maxDurability", -1);
 
         if (slot != -1) skipMainhand = true;
         if (ammo != -1) CustomTag.AMMO_LEFT.setInteger(weaponStack, ammo);
         if (firemode != -1) CustomTag.SELECTIVE_FIRE.setInteger(weaponStack, firemode);
+
+        // Custom Durability Arguments
+        CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
+        if (customDurability != null) {
+            CustomTag.DURABILITY.setInteger(weaponStack, durability == -1 ? customDurability.getMaxDurability() : durability);
+            CustomTag.MAX_DURABILITY.setInteger(weaponStack, maxDurability == -1 ? customDurability.getMaxDurability() : maxDurability);
+        }
 
         boolean isPlayer = entity instanceof Player;
         Player player = isPlayer ? (Player) entity : null;

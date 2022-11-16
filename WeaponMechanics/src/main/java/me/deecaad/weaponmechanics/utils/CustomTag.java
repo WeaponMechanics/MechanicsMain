@@ -50,7 +50,27 @@ public enum CustomTag {
     /**
      * integer
      */
-    FIREARM_ACTION_STATE("firearm-action-state");
+    FIREARM_ACTION_STATE("firearm-action-state"),
+
+    /**
+     * integer
+     */
+    DURABILITY("durability"),
+
+    /**
+     * integer
+     */
+    MAX_DURABILITY("max-durability"),
+
+    /**
+     * string
+     */
+    BROKEN_WEAPON("broken-weapon"),
+
+    /**
+     * string
+     */
+    REPAIR_KIT_TITLE("repair-kit-title");
 
 
     private final String id;
@@ -100,5 +120,9 @@ public enum CustomTag {
 
     public void setDouble(ItemStack item, double value) {
         CompatibilityAPI.getNBTCompatibility().setDouble(item, "WeaponMechanics", id, value);
+    }
+
+    public void remove(ItemStack item) {
+        CompatibilityAPI.getNBTCompatibility().remove(item, "WeaponMechanics", id);
     }
 }

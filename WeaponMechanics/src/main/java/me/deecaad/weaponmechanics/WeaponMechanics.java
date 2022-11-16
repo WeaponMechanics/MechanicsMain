@@ -23,6 +23,7 @@ import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsMainCommand;
 import me.deecaad.weaponmechanics.lib.MythicMobsLoader;
 import me.deecaad.weaponmechanics.listeners.ExplosionInteractionListeners;
+import me.deecaad.weaponmechanics.listeners.RepairItemListener;
 import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
@@ -310,7 +311,7 @@ public class WeaponMechanics {
             event.addValidators(validators);
             Bukkit.getPluginManager().callEvent(event);
 
-            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml");
+            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits");
             configurations.add(temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -343,6 +344,7 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new RepairItemListener(), getPlugin());
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
 
             // We need to make sure we are running MM v5

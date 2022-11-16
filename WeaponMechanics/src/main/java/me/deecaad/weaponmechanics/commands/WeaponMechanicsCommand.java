@@ -13,6 +13,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
@@ -28,6 +29,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.IAmmoType;
+import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.StatsData;
@@ -41,8 +43,11 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -57,7 +62,8 @@ import java.util.stream.IntStream;
 
 import static me.deecaad.core.commands.arguments.IntegerArgumentType.ITEM_COUNT;
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
-import static net.kyori.adventure.text.Component.*;
+import static net.kyori.adventure.text.Component.empty;
+import static net.kyori.adventure.text.Component.text;
 import static org.bukkit.ChatColor.*;
 
 @SuppressWarnings("unchecked")
@@ -74,12 +80,9 @@ public class WeaponMechanicsCommand {
     public static Function<CommandData, Tooltip[]> AMMO_SUGGESTIONS = (data) -> {
         String weaponTitle = (String) data.previousArguments[data.previousArguments.length - 1];
         Configuration config = WeaponMechanics.getConfigurations();
-        if (!config.containsKey(weaponTitle + ".Reload.Ammo.Ammo_Types")) {
-            return null;
-        }
 
         AmmoTypes types = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-        return types.getAmmoTypes().stream().map(IAmmoType::getAmmoName).map(Tooltip::of).toArray(Tooltip[]::new);
+        return types == null ? null : types.getAmmoTypes().stream().map(IAmmoType::getAmmoName).map(Tooltip::of).toArray(Tooltip[]::new);
     };
 
     public static void build() {
@@ -90,7 +93,9 @@ public class WeaponMechanicsCommand {
                 .with("ammo", MapArgumentType.INT(1, 10, 30))
                 .with("firemode", MapArgumentType.INT(0, 1, 2))
                 .with("skipMainhand", MapArgumentType.INT(0, 1))
-                .with("slot", MapArgumentType.INT(IntStream.rangeClosed(0, 40).boxed().toArray(Integer[]::new)));
+                .with("slot", MapArgumentType.INT(IntStream.rangeClosed(0, 40).boxed().toArray(Integer[]::new)))
+                .with("durability", MapArgumentType.INT(500, 1000))
+                .with("maxDurability", MapArgumentType.INT(500, 1000));
 
         CommandBuilder command = new CommandBuilder("wm")
                 .withAliases("weaponmechanics")
@@ -173,6 +178,16 @@ public class WeaponMechanicsCommand {
                         .withDescription("Reloads config")
                         .executes(CommandExecutor.any((sender, args) -> {
                             WeaponMechanicsAPI.getInstance().onReload().thenRunSync(() -> sender.sendMessage(GREEN + "Reloaded configuration"));
+                        })))
+
+                .withSubcommand(new CommandBuilder("repair")
+                        .withPermission("weaponmechanics.commands.repair")
+                        .withDescription("Repairs the weapons in a target player's inventory")
+                        .withArgument(new Argument<>("target", new EntityListArgumentType(), null).withDesc("Whose inventory to search for weapons"))
+                        .withArgument(new Argument<>("mode", new EnumArgumentType<>(RepairMode.class), RepairMode.HAND).withDesc("Search the whole inventory, or just hand"))
+                        .withArgument(new Argument<>("repair-max", new BooleanArgumentType(), false).withDesc("Repair max-durability as well"))
+                        .executes(CommandExecutor.any((sender, args) -> {
+                            repair(sender, (List<Entity>) args[0], (RepairMode) args[1], (Boolean) args[2]);
                         })));
 
 
@@ -499,6 +514,78 @@ public class WeaponMechanicsCommand {
             sender.sendMessage(GREEN + player.getName() + " recieved " + amount + " " + ammoName);
     }
 
+    private enum RepairMode { HAND, INVENTORY }
+
+    public static void repair(CommandSender sender, List<Entity> targets, RepairMode mode, boolean repairFully) {
+        if (targets == null) {
+            if (sender instanceof Entity entity)
+                targets = List.of(entity);
+            else {
+                sender.sendMessage(RED + "You must specify a target");
+                return;
+            }
+        }
+
+        int repairedWeapons = 0;
+        int repairedEntities = 0;
+
+        for (Entity entity : targets) {
+
+            // Repair anything with an inventory (usually players)
+            if (entity instanceof InventoryHolder holder) {
+                Inventory inventory = holder.getInventory();
+                boolean repairedOne = false;
+
+                ItemStack mainHand = inventory instanceof PlayerInventory playerInventory ? playerInventory.getItemInMainHand() : null;
+                ItemStack[] items = mode == RepairMode.INVENTORY ? inventory.getContents() : new ItemStack[] { mainHand };
+                for (ItemStack item : items) {
+                    if (item == null || !item.hasItemMeta())
+                        continue;
+
+                    String title = WeaponMechanicsAPI.getWeaponTitle(item);
+                    if (title == null) title = CustomTag.BROKEN_WEAPON.getString(item);
+                    CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(title + ".Shoot.Custom_Durability", CustomDurability.class);
+                    if (customDurability == null)
+                        continue;
+
+                    if (!customDurability.repair(item, repairFully))
+                        continue;
+
+                    repairedWeapons++;
+                    if (!repairedOne) {
+                        repairedEntities++;
+                        repairedOne = true;
+                    }
+                }
+            }
+
+            // Repair all other entities that can use weapons
+            else if (entity instanceof LivingEntity living) {
+                EntityEquipment equipment = living.getEquipment();
+                ItemStack item = equipment == null ? null : equipment.getItemInMainHand();
+                String weaponTitle = item == null ? null : WeaponMechanicsAPI.getWeaponTitle(item);
+
+                if (weaponTitle == null && item != null && item.hasItemMeta())
+                    weaponTitle = CustomTag.BROKEN_WEAPON.getString(item);
+
+                if (weaponTitle == null)
+                    continue;
+
+                CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
+                if (customDurability == null)
+                    continue;
+
+                if (!customDurability.repair(item, repairFully))
+                    continue;
+
+                repairedWeapons++;
+                repairedEntities++;
+            }
+        }
+
+        sender.sendMessage(GREEN + "Repaired " + repairedWeapons + " weapons in " + repairedEntities + " different inventories.");
+    }
+
     public static void info(CommandSender sender) {
         PluginDescriptionFile desc = WeaponMechanics.getPlugin().getDescription();
         sender.sendMessage("" + GRAY + GOLD + BOLD + "Weapon" + GRAY + BOLD + "Mechanics"
@@ -555,9 +642,7 @@ public class WeaponMechanicsCommand {
                     ItemStack item = info.generateWeapon(title, 1);
                     return text().content(title.toUpperCase(Locale.ROOT))
                             .clickEvent(ClickEvent.runCommand("/wm get " + title))
-                            .hoverEvent(item instanceof HoverEventSource
-                                    ? (HoverEventSource<?>) item // Paper items implement this by default since 1.16
-                                    : LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName()))
+                            .hoverEvent(LegacyComponentSerializer.legacySection().deserialize(item.getItemMeta().getDisplayName()))
                             .build();
                 })
                 .build();

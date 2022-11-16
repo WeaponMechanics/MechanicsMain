@@ -697,6 +697,15 @@ public class ShootHandler implements IValidator, TriggerListener {
             projectile.shoot(bullet, shootLocation);
         }
 
+        // Apply custom durability
+        CustomDurability durability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
+        if (durability != null) {
+            boolean broke = durability.use(entityWrapper, weaponStack);
+
+            if (broke)
+                entityWrapper.getHandData(mainHand).cancelTasks();
+        }
+
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         Bukkit.getPluginManager().callEvent(event);
 
@@ -867,6 +876,9 @@ public class ShootHandler implements IValidator, TriggerListener {
                 throw new SerializerOptionsException(data.serializer, "Selective Fire Default", Arrays.asList("SINGLE", "BURST", "AUTO"), defaultSelectiveFire, data.of("Selective_Fire.Default").getLocation());
             }
         }
+
+        CustomDurability durability = data.of("Custom_Durability").serialize(CustomDurability.class);
+        if (durability != null) configuration.set(data.key + ".Custom_Durability", durability);
 
         configuration.set(data.key + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool(false));
     }

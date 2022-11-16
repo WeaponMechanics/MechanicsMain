@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along
@@ -537,6 +538,10 @@ public class SerializeData {
             }
 
             return list;
+        }
+
+        public Stream<String[]> stream() {
+            return get().stream();
         }
 
         public String getLocation() {
