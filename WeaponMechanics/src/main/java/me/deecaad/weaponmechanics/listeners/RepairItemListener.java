@@ -45,9 +45,14 @@ public class RepairItemListener implements Listener {
     public RepairItemListener() {
         File repairKitFolder = new File(WeaponMechanics.getPlugin().getDataFolder(), "repair_kits");
         repairKits = new HashMap<>();
-        if (!repairKitFolder.exists())
 
         try {
+
+            // Ensure the folder exists
+            if (!repairKitFolder.exists())
+                FileUtil.copyResourcesTo(getClass().getClassLoader().getResource("WeaponMechanics/repair_kits"), repairKitFolder.toPath());
+
+            // Read in all files within the folder
             FileUtil.PathReference pathReference = FileUtil.PathReference.of(repairKitFolder.toURI());
             Files.walkFileTree(pathReference.path(), new SimpleFileVisitor<>() {
                 @Override
@@ -93,7 +98,7 @@ public class RepairItemListener implements Listener {
         }
     }
 
-    @EventHandler (ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
 
         // Don't let creative players use repair items, since this event loves
@@ -154,7 +159,7 @@ public class RepairItemListener implements Listener {
 
         // Weapon no longer exists in config
         if (weaponTemplate == null) {
-            WeaponMechanics.debug.debug(event.getWhoClicked() + " has old configuration of weapon '" + weaponTitle +"'");
+            WeaponMechanics.debug.debug(event.getWhoClicked() + " has old configuration of weapon '" + weaponTitle + "'");
             return;
         }
 
