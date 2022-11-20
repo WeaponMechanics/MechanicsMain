@@ -300,7 +300,7 @@ public class SerializeData {
      * @return The list (with 1 more element, if the link was added).
      */
     private String[] appendWikiLink(String[] messages) {
-        if (wikiLink == null)
+        if (wikiLink == null || Arrays.stream(messages).anyMatch(str -> str.startsWith("Wiki: ")))
             return messages;
 
         String[] copy = new String[messages.length + 1];

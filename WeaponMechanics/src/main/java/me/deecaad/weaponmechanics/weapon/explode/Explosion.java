@@ -439,6 +439,11 @@ public class Explosion implements Serializer<Explosion> {
     }
 
     @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Explosion#regeneration";
+    }
+
+    @Override
     @Nonnull
     public Explosion serialize(SerializeData data) throws SerializerException {
 
@@ -474,6 +479,13 @@ public class Explosion implements Serializer<Explosion> {
 
         BlockDamage blockDamage = data.of("Block_Damage").serialize(BlockDamage.class);
         RegenerationData regeneration = data.of("Regeneration").serialize(RegenerationData.class);
+
+        // Mistake that happens when copy-pasting. Explosions use the
+        // 'Regeneration' config, not this option from WMC.
+        if (data.has("Block_Damage.Ticks_Before_Regenerate")) {
+            throw data.exception("Block_Damage.Ticks_Before_Regenerate", "You cannot use 'Ticks_Before_Regenerate' in Explosions",
+                    "Use the 'Explosion.Regeneration' section instead", "Wiki: https://github.com/WeaponMechanics/MechanicsMain/wiki/Explosion#regeneration");
+        }
 
         // This check determines if the player tried to use Block Regeneration
         // when blocks cannot even be broken in the first place. Easy mistake
