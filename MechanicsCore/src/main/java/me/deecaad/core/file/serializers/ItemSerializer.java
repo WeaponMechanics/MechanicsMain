@@ -191,6 +191,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         itemStack.setItemMeta(itemMeta);
 
+        // #198
+        data.ofList("Tags")
+                .addArgument(String.class, true)
+                .addArgument(int.class, true)
+                .assertList().stream().forEach(split -> {
+                    CompatibilityAPI.getNBTCompatibility().setInt(itemStack, "Custom", split[0], Integer.parseInt(split[1]));
+                });
+
         List<String[]> attributes = data.ofList("Attributes")
                 .addArgument(AttributeType.class, true)
                 .addArgument(double.class, true)
