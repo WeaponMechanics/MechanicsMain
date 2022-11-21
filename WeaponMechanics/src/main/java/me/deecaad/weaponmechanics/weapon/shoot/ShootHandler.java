@@ -296,7 +296,8 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, isMelee);
 
-        if (consumeItemOnShoot && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
+        boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
+        if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
             return true;
         }
 
@@ -355,9 +356,11 @@ public class ShootHandler implements IValidator, TriggerListener {
                 // Only make the first projectile of burst modify spread change if its used
                 shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, shots == 0, false);
 
-                if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
+                boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
+                if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                     return;
                 }
+
 
                 if (++shots >= shotsPerBurst) {
                     handData.setBurstTask(0);
@@ -448,17 +451,11 @@ public class ShootHandler implements IValidator, TriggerListener {
 
                 // END RELOAD STUFF
 
-                if (shootAmount == 1) {
+                for (int i = 0; i < shootAmount; ++i) {
                     shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
-                    if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
+                    boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
+                    if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
                         return;
-                    }
-                } else if (shootAmount > 1) { // Don't try to shoot in this tick if shoot amount is 0
-                    for (int i = 0; i < shootAmount; ++i) {
-                        shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
-                        if (consumeItemOnShoot && handleConsumeItemOnShoot(taskReference, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
-                            return;
-                        }
                     }
                 }
 
