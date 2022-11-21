@@ -56,7 +56,7 @@ public class DamageHandler {
                           LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled) {
         Configuration config = getConfigurations();
 
-        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim)) {
+        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim) && !config.getBool(weaponTitle + ".Damage.Ignore_Teams")) {
             return false;
         }
 
