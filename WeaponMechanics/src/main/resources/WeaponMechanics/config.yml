@@ -102,6 +102,7 @@ Disable_Entity_Explode_Event: false
 # regeneration. These effects don't look very pretty on larger explosions, but
 # they improve smaller ones.
 Explosions:
+  Attempt_Copy_Data: false  # When using block masks, should we attempt to copy data (like block connections)
   Cuboid:
     Noise_Chance: 0.20
     Noise_Distance: 1.0

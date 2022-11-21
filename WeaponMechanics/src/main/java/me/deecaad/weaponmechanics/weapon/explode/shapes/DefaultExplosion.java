@@ -52,7 +52,7 @@ public class DefaultExplosion implements ExplosionShape {
 
         // If the explosion is too small, then no blocks are destroyed
         if (yield < 0.1F) {
-            return new ArrayList<>(0);
+            return List.of();
         }
 
         World world = origin.getWorld();

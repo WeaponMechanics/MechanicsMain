@@ -4,12 +4,18 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.data.*;
+import org.bukkit.block.data.type.Candle;
+import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -248,6 +254,34 @@ public final class BlockDamageData {
                     inv = ((InventoryHolder) state).getInventory();
                 }
                 inv.clear();
+            }
+
+            // #212 - Try to copy the block data from the previous block.
+            boolean attemptCopy = WeaponMechanics.getBasicConfigurations().getBool("Explosions.Attempt_Copy_Data", false);
+            if (attemptCopy && ReflectionUtil.getMCVersion() >= 13) {
+                BlockData oldData = block.getBlockData();
+                BlockData newData = mask.createBlockData();
+
+                if (newData instanceof MultipleFacing newFace && oldData instanceof MultipleFacing oldFace)
+                    for (BlockFace face : oldFace.getAllowedFaces())
+                        newFace.setFace(face, oldFace.hasFace(face));
+                if (newData instanceof Orientable newOrient && oldData instanceof Orientable oldOrient)
+                    newOrient.setAxis(oldOrient.getAxis());
+                if (newData instanceof Ageable newAge && oldData instanceof Ageable oldAge)
+                    newAge.setAge(oldAge.getAge());
+                if (newData instanceof Lightable newLight && oldData instanceof Lightable oldLight)
+                    newLight.setLit(oldLight.isLit());
+                if (newData instanceof Candle newCandle && oldData instanceof Candle oldCandle)
+                    newCandle.setCandles(oldCandle.getCandles());
+                if (newData instanceof SeaPickle newPickle && oldData instanceof SeaPickle oldPickle)
+                    newPickle.setPickles(oldPickle.getPickles());
+                if (newData instanceof Waterlogged newWater && oldData instanceof Waterlogged oldWater)
+                    newWater.setWaterlogged(oldWater.isWaterlogged());
+                if (newData instanceof Rotatable newRotate && oldData instanceof Rotatable oldRotate)
+                    newRotate.setRotation(oldRotate.getRotation());
+
+                block.setBlockData(newData, false);
+                return;
             }
 
             block.setType(mask, !isRegenerate);
