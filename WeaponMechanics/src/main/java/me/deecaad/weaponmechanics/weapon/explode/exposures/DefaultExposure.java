@@ -1,14 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.explode.exposures;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.primitive.DoubleMap;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceResult;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.ExplosionShape;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -87,7 +87,7 @@ public class DefaultExposure implements ExplosionExposure {
      * @return The level of exposure of the entity to the epxlosion
      */
     private static double getExposure(Vector vec3d, Entity entity) {
-        HitBox box = WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(entity);
+        HitBox box = CompatibilityAPI.getEntityCompatibility().getHitBox(entity);
 
         if (box == null) {
             return 0.0;

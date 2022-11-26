@@ -82,13 +82,6 @@ Recoil_Millis_Between_Rotations: 20
 # Use ticks, 20 ticks = 1 second.
 Check_For_New_Player_Rate: 50
 
-# Defines whether accurate block and entity hitboxes are used.
-# Most of the time block or entity only has one hitbox, but for
-# example blocks such as STAIRS, CAULDRON, LECTERN or entities such as
-# ENDER_DRAGON have multiple hitboxes. Disabling this option saves a bit
-# of resources when ray tracing blocks or entities with multiple hitboxes.
-Check_Accurate_Hitboxes: true
-
 # If set to true, the damage dropoff will change uniformly with distance.
 # See https://github.com/WeaponMechanics/MechanicsMain/issues/100 for more information.
 Smooth_Damage_Dropoff: false

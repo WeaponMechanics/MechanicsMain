@@ -4,17 +4,15 @@ import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
-import me.deecaad.weaponmechanics.weapon.firearm.FirearmSound;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
@@ -502,8 +500,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         };
 
         // Init cast data
-        CastData castData = new CastData(entityWrapper, weaponTitle, weaponStack);
-        castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
+        CastData castData = new CastData(shooter, weaponTitle, weaponStack, handData::addFirearmActionTask);
 
         // Check if OPEN state was already completed
         if (state == FirearmState.CLOSE) {
@@ -531,7 +528,6 @@ public class ShootHandler implements IValidator, TriggerListener {
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
         Bukkit.getPluginManager().callEvent(event);
 
-        // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
         event.useMechanics(castData, true);
 
         if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
@@ -548,14 +544,10 @@ public class ShootHandler implements IValidator, TriggerListener {
 
                 firearmAction.changeState(taskReference, FirearmState.CLOSE);
 
-                // Set the extra data so SoundMechanic knows to save task id to hand's firearm action tasks
-                CastData castData = new CastData(entityWrapper, weaponTitle, taskReference);
-                castData.setData(FirearmSound.getDataKeyword(), mainhand ? FirearmSound.MAIN_HAND.getId() : FirearmSound.OFF_HAND.getId());
-
                 WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, state);
                 Bukkit.getPluginManager().callEvent(event);
 
-                event.useMechanics(castData, false);
+                event.useMechanics(new CastData(shooter, weaponTitle, taskReference, handData::addFirearmActionTask), false);
 
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
@@ -627,7 +619,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         LivingEntity livingEntity = entityWrapper.getEntity();
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
-        if (shootMechanics != null) shootMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+        if (shootMechanics != null) shootMechanics.use(new CastData(livingEntity, weaponTitle, weaponStack));
 
         // Reset fall distance for #134
         if (config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance"))
@@ -797,7 +789,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         if (!dualWield) return livingEntity.getEyeLocation();
 
-        double dividedWidth = WeaponCompatibilityAPI.getWeaponCompatibility().getWidth(livingEntity) / 2.0;
+        double dividedWidth = CompatibilityAPI.getEntityCompatibility().getWidth(livingEntity) / 2.0;
 
         double distance;
         if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getMainHand() == MainHand.LEFT) {

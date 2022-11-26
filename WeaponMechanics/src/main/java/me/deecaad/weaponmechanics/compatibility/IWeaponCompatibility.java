@@ -1,15 +1,10 @@
 package me.deecaad.weaponmechanics.compatibility;
 
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
-import org.bukkit.block.Block;
-import org.bukkit.entity.*;
-import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 
 public interface IWeaponCompatibility {
 
@@ -18,117 +13,6 @@ public interface IWeaponCompatibility {
      */
     @Nonnull
     IScopeCompatibility getScopeCompatibility();
-
-    /**
-     * If entity is invulnerable or non alive this will always return null.
-     * Otherwise this will always have non null value.
-     *
-     * @param entity the entity
-     * @return the living entity's hit box
-     */
-    default HitBox getHitBox(Entity entity) {
-        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
-
-        // This default should only be used after 1.13 R2
-
-        HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
-                .grow(getWidth(entity), getHeight(entity));
-        hitBox.setLivingEntity((LivingEntity) entity);
-
-        if (entity instanceof ComplexLivingEntity && WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
-            for (ComplexEntityPart entityPart : ((ComplexLivingEntity) entity).getParts()) {
-                BoundingBox boxPart = entityPart.getBoundingBox();
-                hitBox.addVoxelShapePart(new HitBox(boxPart.getMinX(), boxPart.getMinY(), boxPart.getMinZ(), boxPart.getMaxX(), boxPart.getMaxY(), boxPart.getMaxZ()));
-            }
-        }
-
-        return hitBox;
-    }
-
-    /**
-     * If block is air, liquid or some other passable block (e.g. torch, flower)
-     * then this method WILL always return null. Basically if this method returns null
-     * means that block is passable.
-     *
-     * @param block the block
-     * @return the block's hit box or null if its passable for example
-     */
-    default HitBox getHitBox(Block block) {
-        return getHitBox(block, false);
-    }
-
-    default HitBox getHitBox(Block block, boolean allowLiquid) {
-
-        // This default should only be used after 1.17
-        if (block.isEmpty()) return null;
-
-        boolean isLiquid = block.isLiquid();
-        if (!allowLiquid) {
-            if (block.isPassable() || block.isLiquid()) return null;
-        } else if (!isLiquid && block.isPassable()) {
-            // Check like this because liquid is also passable...
-            return null;
-        }
-
-        HitBox hitBox;
-        if (isLiquid) {
-            hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
-        } else {
-            BoundingBox boundingBox = block.getBoundingBox();
-            hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
-        }
-        hitBox.setBlockHitBox(block);
-
-        // This default should only be used after 1.17 R1
-        if (WeaponMechanics.getBasicConfigurations().getBool("Check_Accurate_Hitboxes", true)) {
-            Collection<BoundingBox> voxelShape = block.getCollisionShape().getBoundingBoxes();
-            if (voxelShape.size() > 1) {
-                int x = block.getX();
-                int y = block.getY();
-                int z = block.getZ();
-                for (BoundingBox boxPart : voxelShape) {
-                    hitBox.addVoxelShapePart(new HitBox(x + boxPart.getMinX(), y + boxPart.getMinY(), z + boxPart.getMinZ(),
-                            x + boxPart.getMaxX(), y + boxPart.getMaxY(), z + boxPart.getMaxZ()));
-                }
-            }
-        }
-
-        return hitBox;
-    }
-
-    /**
-     * Used to get width of entity
-     *
-     * @param entity the entity whose width to get
-     * @return the width of entity
-     */
-    default double getWidth(Entity entity) {
-        // 1.12 ->
-        // -> entity.getWidth
-        // <- 1.11
-        // -> nmsEntity.width
-        return entity.getWidth();
-    }
-
-    /**
-     * Used to get height of entity
-     *
-     * @param entity the entity whose height to get
-     * @return the height of entity
-     */
-    default double getHeight(Entity entity) {
-        // 1.12 ->
-        // -> entity.getHeight
-        // <- 1.11
-        // -> nmsEntity.height
-        return entity.getHeight();
-    }
-
-    /**
-     * @param entity the entity whose last location to get
-     * @return the vector of entity's last location
-     */
-    Vector getLastLocation(Entity entity);
 
     /**
      * Rotates player's camera rotation with given values.

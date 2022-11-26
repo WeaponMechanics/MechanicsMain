@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.ICompatibility;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -8,10 +9,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,6 +35,63 @@ public interface BlockCompatibility {
      * @see #getCrackPacket(Block, int)
      */
     AtomicInteger IDS = new AtomicInteger(0);
+
+    /**
+     * If block is air, or some other passable block (e.g. torch, flower)
+     * then this method WILL always return null. Basically if this method returns null
+     * means that block is passable.
+     *
+     * @param block the block
+     * @return the block's hit box or null if it's passable for example
+     */
+    default HitBox getHitBox(Block block) {
+        return getHitBox(block, false);
+    }
+
+    /**
+     * If block is air, or some other passable block (e.g. torch, flower)
+     * then this method WILL always return null. Basically if this method returns null
+     * means that block is passable.
+     *
+     * @param block the block
+     * @param allowLiquid whether liquid should be considered as having hit box
+     * @return the block's hit box or null if it's passable for example
+     */
+    default HitBox getHitBox(Block block, boolean allowLiquid) {
+        // This default should only be used after 1.17
+        if (block.isEmpty()) return null;
+
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid) {
+            if (block.isPassable() || block.isLiquid()) return null;
+        } else if (!isLiquid && block.isPassable()) {
+            // Check like this because liquid is also passable...
+            return null;
+        }
+
+        HitBox hitBox;
+        if (isLiquid) {
+            hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+        } else {
+            BoundingBox boundingBox = block.getBoundingBox();
+            hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        }
+        hitBox.setBlockHitBox(block);
+
+        // This default should only be used after 1.17 R1
+        Collection<BoundingBox> voxelShape = block.getCollisionShape().getBoundingBoxes();
+        if (voxelShape.size() > 1) {
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
+            for (BoundingBox boxPart : voxelShape) {
+                hitBox.addVoxelShapePart(new HitBox(x + boxPart.getMinX(), y + boxPart.getMinY(), z + boxPart.getMinZ(),
+                        x + boxPart.getMaxX(), y + boxPart.getMaxY(), z + boxPart.getMaxZ()));
+            }
+        }
+
+        return hitBox;
+    }
 
     /**
      * Returns a block break animation packet for the given <code>block</code>

@@ -1,19 +1,20 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+package me.deecaad.core.mechanics.defaultmechanics;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.IMechanic;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
      */
     public CommandMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
+        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
     }
 
     public CommandMechanic(List<CommandData> commandList) {
@@ -35,19 +36,13 @@ public class CommandMechanic implements IMechanic<CommandMechanic> {
 
     @Override
     public void use(CastData castData) {
+        Player player = castData.getCaster().getType() == EntityType.PLAYER ? (Player) castData.getCaster() : null;
+        String itemTitle = castData.getItemTitle();
+        ItemStack itemStack = castData.getItemStack();
+        Map<String, String> tempPlaceholders = castData.getTempPlaceholders();
 
-        Map<String, String> tempPlaceholders = null;
-        String shooterName = castData.getData(CommonDataTags.SHOOTER_NAME.name(), String.class);
-        String victimName = castData.getData(CommonDataTags.VICTIM_NAME.name(), String.class);
-        if (shooterName != null || victimName != null) {
-            tempPlaceholders = new HashMap<>();
-            tempPlaceholders.put("%shooter%", shooterName != null ? shooterName : castData.getCaster().getName());
-            tempPlaceholders.put("%victim%", victimName);
-        }
-
-        Player player = castData.getCaster() instanceof Player ? (Player) castData.getCaster() : null;
         for (CommandData commandData : commandList) {
-            String command = PlaceholderAPI.applyPlaceholders(commandData.getCommand(), player, castData.getWeaponStack(), castData.getWeaponTitle(), null, tempPlaceholders);
+            String command = PlaceholderAPI.applyPlaceholders(commandData.getCommand(), player, itemStack, itemTitle, null, tempPlaceholders);
             if (commandData.isConsole()) {
                 Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
             } else if (player != null) {

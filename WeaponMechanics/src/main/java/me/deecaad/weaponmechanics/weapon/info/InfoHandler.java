@@ -4,11 +4,10 @@ import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.StringUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
@@ -260,7 +259,7 @@ public class InfoHandler implements IValidator {
 
 
         Mechanics weaponGetMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Get_Mechanics", Mechanics.class);
-        if (weaponGetMechanics != null) weaponGetMechanics.use(new CastData(WeaponMechanics.getEntityWrapper(entity), weaponTitle, weaponStack));
+        if (weaponGetMechanics != null) weaponGetMechanics.use(new CastData(entity, weaponTitle, weaponStack));
 
         return true;
     }

@@ -1,13 +1,12 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.IMechanic;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -16,11 +15,11 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 
 public class MessageMechanic implements IMechanic<MessageMechanic> {
@@ -48,7 +47,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
      */
     public MessageMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
+        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
     }
 
     public MessageMechanic(boolean sendServer, boolean sendWorld, String chatStr, String actionBarStr, int actionBarTime,
@@ -91,7 +90,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
             for (Player player : Bukkit.getOnlinePlayers())
                 send(player, cast);
         } else if (sendWorld) {
-            for (Player player : cast.getCastWorld().getPlayers())
+            for (Player player : cast.getCastLocation().getWorld().getPlayers())
                 send(player, cast);
         } else if (cast.getCaster() != null && cast.getCaster().getType() == EntityType.PLAYER) {
             send((Player) cast.getCaster(), cast);
@@ -102,14 +101,18 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
         MiniMessage PARSER = MechanicsCore.getPlugin().message;
         Audience audience = MechanicsCore.getPlugin().adventure.player(player);
 
-        Component chat = chatStr == null ? null : PARSER.deserialize(placeholders(chatStr, player, cast));
-        Component actionBar = actionBarStr == null ? null : PARSER.deserialize(placeholders(actionBarStr, player, cast));
+        String itemTitle = cast.getItemTitle();
+        ItemStack itemStack = cast.getItemStack();
+        Map<String, String> tempPlaceholders = cast.getTempPlaceholders();
 
-        Component titleComponent = titleStr == null ? Component.empty() : PARSER.deserialize(placeholders(titleStr, player, cast));
-        Component subtitleComponent = subtitleStr == null ? Component.empty() : PARSER.deserialize(placeholders(subtitleStr, player, cast));
+        Component chat = chatStr == null ? null : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(chatStr, player, itemStack, itemTitle, null, tempPlaceholders));
+        Component actionBar = actionBarStr == null ? null : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(actionBarStr, player, itemStack, itemTitle, null, tempPlaceholders));
+
+        Component titleComponent = titleStr == null ? Component.empty() : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(titleStr, player, itemStack, itemTitle, null, tempPlaceholders));
+        Component subtitleComponent = subtitleStr == null ? Component.empty() : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(subtitleStr, player, itemStack, itemTitle, null, tempPlaceholders));
         Title title = titleStr == null && subtitleStr == null ? null : Title.title(titleComponent, subtitleComponent, times);
 
-        BossBar bossBar = bossBarStr == null ? null : BossBar.bossBar(PARSER.deserialize(placeholders(bossBarStr, player, cast)), progress, color, overlay);
+        BossBar bossBar = bossBarStr == null ? null : BossBar.bossBar(PARSER.deserialize(PlaceholderAPI.applyPlaceholders(bossBarStr, player, itemStack, itemTitle, null, tempPlaceholders)), progress, color, overlay);
 
         if (chat != null) audience.sendMessage(chat);
         if (title != null) audience.showTitle(title);
@@ -133,7 +136,7 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
 
                     audience.sendActionBar(actionBar);
                 }
-            }.runTaskTimer(WeaponMechanics.getPlugin(), 40, 40);
+            }.runTaskTimer(MechanicsCore.getPlugin(), 40, 40);
         }
 
         if (bossBar != null) {
@@ -143,22 +146,8 @@ public class MessageMechanic implements IMechanic<MessageMechanic> {
                 public void run() {
                     audience.hideBossBar(bossBar);
                 }
-            }.runTaskLater(WeaponMechanics.getPlugin(), bossBarTime);
+            }.runTaskLater(MechanicsCore.getPlugin(), bossBarTime);
         }
-    }
-
-    private String placeholders(String text, Player player, CastData data) {
-
-        Map<String, String> tempPlaceholders = null;
-        String shooterName = data.getData(CommonDataTags.SHOOTER_NAME.name(), String.class);
-        String victimName = data.getData(CommonDataTags.VICTIM_NAME.name(), String.class);
-        if (shooterName != null || victimName != null) {
-            tempPlaceholders = new HashMap<>();
-            tempPlaceholders.put("%shooter%", shooterName != null ? shooterName : player.getName());
-            tempPlaceholders.put("%victim%", victimName);
-        }
-
-        return PlaceholderAPI.applyPlaceholders(text, player, data.getWeaponStack(), data.getWeaponTitle(), null, tempPlaceholders);
     }
 
     @NotNull

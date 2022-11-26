@@ -3,12 +3,10 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -91,8 +89,7 @@ public class Flashbang implements Serializer<Flashbang> {
 
     public void effect(WeaponProjectile projectile, LivingEntity entity) {
         if (mechanics != null) {
-            EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity);
-            mechanics.use(new CastData(wrapper, projectile.getWeaponTitle(), projectile.getWeaponStack()));
+            mechanics.use(new CastData(entity, projectile.getWeaponTitle(), projectile.getWeaponStack()));
         }
     }
 

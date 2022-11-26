@@ -1,11 +1,12 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.DataTag;
+import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.IMechanic;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.trigger.Circumstance;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -37,14 +38,13 @@ public class MovementMechanic implements IMechanic<MovementMechanic> {
 
     @Override
     public void use(CastData castData) {
-
-        if (circumstance != null && circumstance.deny(castData.getCasterWrapper())) return;
+        if (circumstance != null && circumstance.deny(WeaponMechanics.getEntityWrapper(castData.getCaster(), true))) return;
 
         LivingEntity livingEntity = castData.getCaster();
         Vector direction;
 
         if (towardsTarget) {
-            Location targetLocation = castData.getData(CommonDataTags.TARGET_LOCATION.name(), Location.class);
+            Location targetLocation = castData.getData(DataTag.TARGET_LOCATION.name(), Location.class);
             if (targetLocation == null) {
                 // There wasn't any target
                 return;

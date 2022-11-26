@@ -1,21 +1,22 @@
 package me.deecaad.weaponmechanics.weapon.melee;
 
 import co.aikar.timings.lib.MCTiming;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
-import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
-import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.RayTraceResult;
+import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponMeleeMissEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -103,7 +104,7 @@ public class MeleeHandler implements IValidator {
         if (hit != null) {
             boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
             if (result) {
-                hit.handleMeleeHit(shooter, direction, weaponTitle, weaponStack, slot);
+                weaponHandler.getHitHandler().handleMeleeHit(hit, shooter, direction, weaponTitle, weaponStack, slot);
             }
             return result;
         }
@@ -135,7 +136,7 @@ public class MeleeHandler implements IValidator {
         }
 
         if (event.getMechanics() != null) {
-            event.getMechanics().use(new CastData(entityWrapper, weaponTitle, weaponStack));
+            event.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
         }
 
         if (event.getMeleeMissDelay() != 0) {
@@ -173,7 +174,7 @@ public class MeleeHandler implements IValidator {
         }
 
         // Simply check where known victim was hit and whether it was in range
-        HitBox entityBox = weaponCompatibility.getHitBox(knownVictim);
+        HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(knownVictim);
         if (entityBox == null) return null;
 
         RayTraceResult rayTraceResult = entityBox.rayTrace(eyeLocationToVector, direction);

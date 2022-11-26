@@ -1,10 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.compatibility.HitBox;
+import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -100,7 +100,7 @@ public class Ray {
      * @return The collision data
      */
     public TraceResult trace(@Nonnull TraceCollision collision, @Nonnegative double accuracy, boolean isShow) {
-        IWeaponCompatibility factory = WeaponCompatibilityAPI.getWeaponCompatibility();
+        BlockCompatibility factory = CompatibilityAPI.getBlockCompatibility();
 
         // Store the entities between the starting and ending point of the ray. Map the
         // entities to their hit box. If this ray is too long, this method becomes
@@ -203,7 +203,7 @@ public class Ray {
 
                 for (Entity entity : chunk.getEntities()) {
                     if (contains(min, max, entity.getLocation(reuse)) && collision.canHit(entity)) {
-                        temp.put(entity, WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(entity));
+                        temp.put(entity, CompatibilityAPI.getEntityCompatibility().getHitBox(entity));
                     }
                 }
             }

@@ -1,4 +1,4 @@
-# me.deecaad.weaponmechanics.mechanics.defaultmechanics.MessageMechanic
+# me.deecaad.core.mechanics.defaultmechanics.MessageMechanic
 # https://docs.adventure.kyori.net/minimessage/format.html
 Message:
   Send_All_Server: <true/false>

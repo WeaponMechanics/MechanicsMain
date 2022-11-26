@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_10_R1.*;
@@ -42,6 +43,38 @@ public class Block_1_10_R1 implements BlockCompatibility {
         for (int i = 0; i < soundFields.length; i++) {
             soundFields[i] = ReflectionUtil.getField(SoundEffectType.class, SoundEffect.class, i);
         }
+    }
+
+    @Override
+    public HitBox getHitBox(Block block, boolean allowLiquid) {
+        if (block.isEmpty()) return null;
+
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid && isLiquid) return null;
+
+        if (isLiquid) {
+            HitBox hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+            hitBox.setBlockHitBox(block);
+            return hitBox;
+        }
+
+        WorldServer worldServer = ((CraftWorld) block.getWorld()).getHandle();
+        BlockPosition blockPosition = new BlockPosition(block.getX(), block.getY(), block.getZ());
+        IBlockData blockData = worldServer.getType(blockPosition);
+        net.minecraft.server.v1_10_R1.Block nmsBlock = blockData.getBlock();
+
+        // Passable block check -> false means passable (thats why !)
+        if (!(blockData.d(worldServer, blockPosition) != net.minecraft.server.v1_10_R1.Block.k && nmsBlock.a(blockData, false))) return null;
+
+        AxisAlignedBB aabb = blockData.c(worldServer, blockPosition);
+        // 1.12 -> e
+        // 1.11 -> d
+        // 1.9 - 1.10 -> c
+
+        int x = blockPosition.getX(), y = blockPosition.getY(), z = blockPosition.getZ();
+        HitBox hitBox = new HitBox(x + aabb.a, y + aabb.b, z + aabb.c, x + aabb.d, y + aabb.e, z + aabb.f);
+        hitBox.setBlockHitBox(block);
+        return hitBox;
     }
 
     @Override

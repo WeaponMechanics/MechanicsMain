@@ -5,9 +5,9 @@ import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
 import org.bukkit.Location;
@@ -63,7 +63,8 @@ public class Projectile implements Serializer<Projectile> {
      * @param location the location containing pitch and yaw
      */
     public WeaponProjectile shoot(WeaponProjectile projectile, Location location) {
-        if (mechanics != null) mechanics.use(new CastData(projectile));
+        if (mechanics != null) mechanics.use(new CastData(projectile.getShooter(),
+                location, projectile.getWeaponTitle(), projectile.getWeaponStack()));
         EntityType type = projectileSettings.getProjectileDisguise();
         if (type != null) {
 

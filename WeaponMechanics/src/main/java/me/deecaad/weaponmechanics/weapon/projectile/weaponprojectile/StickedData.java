@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -37,7 +38,7 @@ public class StickedData {
         if (livingEntity != null) {
             return livingEntity.isDead() || !worldName.equals(livingEntity.getWorld().getName()) ? null : livingEntity.getLocation().clone().add(relativeLocation).toVector();
         }
-        return WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(blockLocation.getBlock()) == null ? null : blockLocation.clone().add(relativeLocation).toVector();
+        return CompatibilityAPI.getBlockCompatibility().getHitBox(blockLocation.getBlock()) == null ? null : blockLocation.clone().add(relativeLocation).toVector();
     }
 
     public boolean isBlockStick() {
@@ -53,6 +54,6 @@ public class StickedData {
     public Block getBlock() {
         if (blockLocation == null) return null;
         Block block = blockLocation.getBlock();
-        return WeaponCompatibilityAPI.getWeaponCompatibility().getHitBox(block) == null ? null : block;
+        return CompatibilityAPI.getBlockCompatibility().getHitBox(block) == null ? null : block;
     }
 }

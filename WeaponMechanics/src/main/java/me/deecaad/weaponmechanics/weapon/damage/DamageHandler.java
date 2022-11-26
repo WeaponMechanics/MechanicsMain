@@ -1,13 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.DataTag;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
-import me.deecaad.weaponmechanics.mechanics.defaultmechanics.CommonDataTags;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -26,6 +26,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -100,26 +103,17 @@ public class DamageHandler {
         }
 
         EntityWrapper shooterWrapper = WeaponMechanics.getEntityWrapper(shooter, true);
-        CastData shooterCast;
-        if (shooterWrapper != null) {
-            shooterCast = new CastData(shooterWrapper, weaponTitle, weaponStack);
-        } else {
-            shooterCast = new CastData(shooter, weaponTitle, weaponStack);
-        }
-        shooterCast.setData(CommonDataTags.TARGET_LOCATION.name(), victim.getLocation());
-        shooterCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
-        shooterCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
+
+        Map<String, String> tempPlaceholders = new HashMap<>();
+        tempPlaceholders.put("%shooter%", shooter.getName());
+        tempPlaceholders.put("%victim%", victim.getName());
+
+        CastData shooterCast = new CastData(shooter, weaponTitle, weaponStack, tempPlaceholders)
+                .setData(DataTag.TARGET_LOCATION.name(), victim.getLocation());
 
         EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim, true);
-        CastData victimCast;
-        if (victimWrapper != null) {
-            victimCast = new CastData(victimWrapper, weaponTitle, weaponStack);
-        } else {
-            victimCast = new CastData(victim, weaponTitle, weaponStack);
-        }
-        victimCast.setData(CommonDataTags.TARGET_LOCATION.name(), shooter.getLocation());
-        victimCast.setData(CommonDataTags.SHOOTER_NAME.name(), shooter.getName());
-        victimCast.setData(CommonDataTags.VICTIM_NAME.name(), victim.getName());
+        CastData victimCast = new CastData(victim, weaponTitle, weaponStack, tempPlaceholders)
+                .setData(DataTag.TARGET_LOCATION.name(), shooter.getLocation());
 
         StatsData shooterData = shooter.getType() == EntityType.PLAYER ? ((PlayerWrapper) shooterWrapper).getStatsData() : null;
         StatsData victimData = victim.getType() == EntityType.PLAYER ? ((PlayerWrapper) victimWrapper).getStatsData() : null;

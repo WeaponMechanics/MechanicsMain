@@ -1,13 +1,13 @@
-package me.deecaad.weaponmechanics.mechanics.defaultmechanics;
+package me.deecaad.core.mechanics.defaultmechanics;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.IMechanic;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanics;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -26,7 +26,7 @@ public class PotionMechanic implements IMechanic<PotionMechanic> {
      */
     public PotionMechanic() {
         if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(WeaponMechanics.getPlugin(), this);
+        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
     }
 
     public PotionMechanic(List<PotionEffect> potionEffectList) {

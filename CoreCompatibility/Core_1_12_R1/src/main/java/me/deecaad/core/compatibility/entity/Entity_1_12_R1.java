@@ -1,25 +1,22 @@
 package me.deecaad.core.compatibility.entity;
 
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.NonNullList_1_12_R1;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
-import net.minecraft.server.v1_12_R1.DataWatcher;
-import net.minecraft.server.v1_12_R1.EnumItemSlot;
-import net.minecraft.server.v1_12_R1.PacketPlayOutEntityEquipment;
-import net.minecraft.server.v1_12_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +33,29 @@ public class Entity_1_12_R1 implements EntityCompatibility {
                     new InternalError()
             );
         }
+    }
+
+    @Override
+    public HitBox getHitBox(Entity entity) {
+        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
+
+        HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
+                .grow(getWidth(entity), getHeight(entity));
+        hitBox.setLivingEntity((LivingEntity) entity);
+
+        if (entity instanceof ComplexLivingEntity) {
+            for (ComplexEntityPart entityPart : ((ComplexLivingEntity) entity).getParts()) {
+                AxisAlignedBB boxPart = ((CraftEntity) entityPart).getHandle().getBoundingBox();
+                hitBox.addVoxelShapePart(new HitBox(boxPart.a, boxPart.b, boxPart.c, boxPart.d, boxPart.e, boxPart.f));
+            }
+        }
+        return hitBox;
+    }
+
+    @Override
+    public Vector getLastLocation(Entity entity) {
+        net.minecraft.server.v1_12_R1.Entity nms = ((CraftEntity) entity).getHandle();
+        return new Vector(nms.lastX, nms.lastY, nms.lastZ);
     }
 
     @Override

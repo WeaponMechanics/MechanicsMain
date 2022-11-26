@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.mechanics;
+package me.deecaad.core.mechanics;
 
 import me.deecaad.core.file.Serializer;
 
@@ -12,14 +12,14 @@ public interface IMechanic<T> extends Serializer<T> {
     void use(CastData castData);
 
     /**
-     * @return whether this mechanic should only be ran if caster is player
+     * @return whether this mechanic should only be run if caster is player
      */
     default boolean requirePlayer() {
         return false;
     }
 
     /**
-     * @return whether this mechanic should only be ran if CastData has entity specified
+     * @return whether this mechanic should only be run if CastData has entity specified
      */
     default boolean requireEntity() {
         return false;
