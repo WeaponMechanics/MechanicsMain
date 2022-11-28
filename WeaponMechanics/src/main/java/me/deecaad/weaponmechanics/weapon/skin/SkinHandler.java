@@ -21,10 +21,18 @@ public class SkinHandler {
     }
 
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
-        return tryUse(null, entityWrapper, weaponTitle, weaponStack, slot);
+        return tryUse(null, entityWrapper, weaponTitle, weaponStack, slot, false);
+    }
+
+    public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean forceDefault) {
+        return tryUse(null, entityWrapper, weaponTitle, weaponStack, slot, forceDefault);
     }
 
     public boolean tryUse(TriggerType triggerType, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
+        return tryUse(triggerType, entityWrapper, weaponTitle, weaponStack, slot, false);
+    }
+
+    public boolean tryUse(TriggerType triggerType, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean forceDefault) {
         HandData hand = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
         if (skins == null || !weaponStack.hasItemMeta())
@@ -35,7 +43,7 @@ public class SkinHandler {
         if (event.isCancelled())
             return false;
 
-        Skin skin = getSkin(skins, event.getSkin(), hand, weaponStack, triggerType);
+        Skin skin = getSkin(skins, event.getSkin(), hand, weaponStack, triggerType, forceDefault);
         if (skin != null) {
             skin.apply(weaponStack);
             return true;
@@ -45,6 +53,12 @@ public class SkinHandler {
     }
 
     public Skin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType) {
+        return getSkin(skins, skin, hand, weaponStack, triggerType, false);
+    }
+
+    public Skin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType, boolean forceDefault) {
+        if (forceDefault) return skins.getSkin(skin, SkinList.SkinIdentifier.DEFAULT);
+
         Skin reloadSkin = skins.getSkin(skin, SkinList.SkinIdentifier.RELOAD);
         if ((!hand.isReloading() || reloadSkin == null) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
             Skin emptyAmmoSkin = skins.getSkin(skin, SkinList.SkinIdentifier.NO_AMMO);
@@ -82,10 +96,6 @@ public class SkinHandler {
                 return sprintSkin;
         }
 
-        Skin defaultSkin = skins.getSkin(skin, SkinList.SkinIdentifier.DEFAULT);
-        if (defaultSkin != null)
-            return defaultSkin;
-
-        return null;
+        return skins.getSkin(skin, SkinList.SkinIdentifier.DEFAULT);
     }
 }

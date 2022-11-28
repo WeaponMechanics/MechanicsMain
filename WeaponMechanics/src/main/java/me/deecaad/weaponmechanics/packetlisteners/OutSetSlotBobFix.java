@@ -16,13 +16,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +49,7 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
     @EventHandler
     public void click(InventoryClickEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player)) return;
-        Player player = (Player) humanEntity;
+        if (!(humanEntity instanceof Player player)) return;
         mainHand.put(player, null);
         offHand.put(player, null);
     }
@@ -58,10 +57,14 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
     @EventHandler
     public void click(InventoryDragEvent event) {
         HumanEntity humanEntity = event.getWhoClicked();
-        if (!(humanEntity instanceof Player)) return;
-        Player player = (Player) humanEntity;
+        if (!(humanEntity instanceof Player player)) return;
         mainHand.put(player, null);
         offHand.put(player, null);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void held(PlayerItemHeldEvent e) {
+        mainHand.put(e.getPlayer(), null);
     }
 
     @EventHandler
@@ -69,8 +72,6 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
         mainHand.remove(event.getPlayer());
         offHand.remove(event.getPlayer());
     }
-
-
 
     @Override
     public void onPacketReceiving(PacketEvent event) {

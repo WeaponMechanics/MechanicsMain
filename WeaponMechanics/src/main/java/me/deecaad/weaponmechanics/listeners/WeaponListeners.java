@@ -104,7 +104,7 @@ public class WeaponListeners implements Listener {
                     holsterMechanics.use(new CastData(entityWrapper, dequippedWeapon, dequipped));
             }
 
-            weaponHandler.getSkinHandler().tryUse(entityWrapper, dequippedWeapon, dequipped, e.getSlot());
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, dequippedWeapon, dequipped, e.getSlot(), true);
         }
     }
 
