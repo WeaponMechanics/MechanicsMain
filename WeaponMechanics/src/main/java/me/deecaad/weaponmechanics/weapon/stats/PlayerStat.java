@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public enum PlayerStat {
 
-    UUID("VARCHAR(255) NOT NULL", String.class),
+    UUID("VARCHAR(100) NOT NULL", String.class),
 
     WEAPON_DEATHS("INTEGER", Integer.class),
     DAMAGE_TAKEN("FLOAT", Float.class);
