@@ -1,0 +1,53 @@
+We have a string like:
+
+```
+"item(type=DIRT, amount=8, name=<yellow>Smile! \(:, recipe={shape="123456789", 1=item(type=)}) @PIR(radius=10) 50%"
+```
+
+We will use a Stack to trace through and group parentheses. Anything without parentheses will be untouched.
+The percent symbol '%' is a special character, and regex will be used to find any number touching the
+percentage symbol. All whitespace is removed. You can escape ANY character by adding '\' before it.
+The result will look like this:
+
+```
+item@PIR50%
+```
+
+Now we no longer need to percentage `(\d+\\.\d+)?%(\d+\\.\d+)?`
+
+```
+item@PIR
+```
+
+match groups of english characters with prefix (first english characters don't need a prefix)
+
+```
+map = {
+  null: inlineSerializeData("item", input="type=DIRT, amount=8, name=<yellow>Smile! \(:, recipe={shape=123456789, 1=item(type=)}")
+  "@": inlineSerializeData("PIR", radius=10)
+}
+```
+
+###############################################
+# Parsing Arguments
+###############################################
+
+So now we have this:
+
+```
+"type=DIRT, amount=8, name=<yellow>Smile! \(:, recipe={shape=123456789, 1=item(type=STONE)}"
+```
+
+again, we need a Stack to track parens. As long as we are not in a paren, we split at every comma.
+We also remove escaped characters at this point
+
+```
+arguments = {
+    type: "DIRT",
+    amount: "8",
+    name: "<yellow>Smile! (:",
+    recipe: "{shape=123456789, 1=item(type=STONE)}"
+}
+```
+
+That's it!
