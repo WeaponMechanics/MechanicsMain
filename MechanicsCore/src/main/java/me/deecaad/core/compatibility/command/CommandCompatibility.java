@@ -149,7 +149,7 @@ public interface CommandCompatibility {
 
     World.Environment getDimension(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
-    Enchantment getEnchantment(CommandContext<Object> context, String key);
+    Enchantment getEnchantment(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     Entity getEntitySelector(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
