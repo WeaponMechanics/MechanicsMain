@@ -91,8 +91,7 @@ public class BrigadierCommand implements Command<Object> {
 
             // LiteralArgumentTypes are just hard-coded string values, which
             // are usually used as sub-commands. These must be registered
-            if (argument.getType() instanceof LiteralArgumentType) {
-                LiteralArgumentType literal = (LiteralArgumentType) argument.getType();
+            if (argument.getType() instanceof LiteralArgumentType literal) {
                 temp = literal(literal.getLiteral());
             }
 
@@ -222,8 +221,7 @@ public class BrigadierCommand implements Command<Object> {
             // StringArgumentType's allow for additional 'literal constants' to
             // be added. WeaponMechanics uses this for *, **, and *r in the
             // /wm give @p * command.
-            else if (arg.getType() instanceof StringArgumentType) {
-                StringArgumentType type = (StringArgumentType) arg.getType();
+            else if (arg.getType() instanceof StringArgumentType type) {
                 if (type.getLiterals() == null || type.getLiterals().isEmpty())
                     continue;
 
