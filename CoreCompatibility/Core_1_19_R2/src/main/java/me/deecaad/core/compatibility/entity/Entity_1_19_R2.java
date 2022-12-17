@@ -78,8 +78,10 @@ public class Entity_1_19_R2 implements EntityCompatibility {
     }
 
     public static List<SynchedEntityData.DataValue<?>> getEntityData(SynchedEntityData data, boolean forceUpdateAll) {
-        if (!forceUpdateAll)
-            return data.packDirty();
+        if (!forceUpdateAll) {
+            List<SynchedEntityData.DataValue<?>> dirty = data.packDirty();
+            return dirty == null ? List.of() : dirty;
+        }
 
         // 1.19.3 changed the packet arguments, so in order to unpack ALL data
         // (not just the dirty data) we need to manually get it and unpack it.
