@@ -166,7 +166,7 @@ public class Command_1_19_R2 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> enchantment() {
-        return ResourceArgument.resource(COMMAND_BUILD_CONTEXT, Registries.BIOME);
+        return ResourceArgument.resource(COMMAND_BUILD_CONTEXT, Registries.ENCHANTMENT);
     }
 
     @Override
