@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Material;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ItemAmmo implements IAmmoType {
 
@@ -51,174 +53,128 @@ public class ItemAmmo implements IAmmoType {
     }
 
     @Override
-    public boolean hasAmmo(PlayerWrapper playerWrapper) {
-        Player player = playerWrapper.getPlayer();
-        PlayerInventory playerInventory = player.getInventory();
+    public boolean hasAmmo(PlayerWrapper wrapper) {
+        PlayerInventory inventory = wrapper.getPlayer().getInventory();
+        boolean convert = NumberUtil.hasMillisPassed(wrapper.getLastAmmoConvert(), WeaponMechanics.getBasicConfigurations().getInt("Milliseconds_Between_Ammo_Conversions", 10000));
+        boolean hasAmmo = false;
 
-        // Only check hotbar slots and normal inventory slots meaning slots from 0 to 35
+        // Check hotbar + inventory slots
         for (int i = 0; i < 36; ++i) {
 
-            // Don't check currently held slot either since it's weapon
-            if (i == playerInventory.getHeldItemSlot()) continue;
+            // Do not consume held item since it is probably a weapon
+            if (i == inventory.getHeldItemSlot())
+                continue;
 
-            ItemStack potentialAmmo = playerInventory.getItem(i);
-            if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR) continue;
+            ItemStack potentialAmmo = inventory.getItem(i);
+            if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR)
+                continue;
 
+            // The conversion process attempts to convert all items in your
+            // inventory every time you reload (With a 10-second cool down).
+            // When we are on cool down (convert = false), then we just want
+            // to return true ASAP for performance.
             String potentialAmmoName = CustomTag.AMMO_NAME.getString(potentialAmmo);
-            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoName)) continue;
-
-            // Yay found at least one ammo
-            return true;
-        }
-
-        // This is called after the checks above since we don't want
-        // to try converting if there is still ammo in inventory
-
-        // Allow converting only every 10s
-        if (ammoConverter == null || !NumberUtil.hasMillisPassed(playerWrapper.getLastAmmoConvert(), 10000)) return false;
-
-        // We will want to convert whole inventory when this occurs
-        boolean foundAmmo = false;
-
-        // Only check hotbar slots and normal inventory slots meaning slots from 0 to 35
-        for (int i = 0; i < 36; ++i) {
-
-            // Don't check currently held slot either since it's weapon
-            if (i == playerInventory.getHeldItemSlot()) continue;
-
-            ItemStack potentialAmmo = playerInventory.getItem(i);
-            if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR
-                    || CustomTag.AMMO_NAME.getString(potentialAmmo) != null) continue;
-
-            ItemStack convertTo = null;
-            if (bulletItem != null && ammoConverter.isMatch(potentialAmmo, bulletItem)) {
-                convertTo = bulletItem.clone();
-            } else if (magazineItem != null && ammoConverter.isMatch(potentialAmmo, magazineItem)) {
-                convertTo = magazineItem.clone();
+            if (Objects.equals(ammoName, potentialAmmoName)) {
+                hasAmmo = true;
+                if (!convert)
+                    return true;
             }
 
-            // Wasn't valid ammo, check next slot
-            if (convertTo == null) continue;
+            // 1. Don't do conversion checks if we are on cool down
+            // 2. Item *IS* an ammo item, but not the correct one. Skip it.
+            if (!convert || potentialAmmoName != null)
+                continue;
 
-            potentialAmmo.setType(convertTo.getType());
-            potentialAmmo.setItemMeta(convertTo.getItemMeta());
-            updatePlaceholders(potentialAmmo, player);
+            // Determine if this item matches the bullet template, or the
+            // magazine template (or neither).
+            ItemStack ammoTemplate = null;
+            if (bulletItem != null && ammoConverter.isMatch(potentialAmmo, bulletItem))
+                ammoTemplate = bulletItem.clone();
+            if (magazineItem != null && ammoConverter.isMatch(potentialAmmo, magazineItem))
+                ammoTemplate = magazineItem.clone();
 
-            playerInventory.setItem(i, potentialAmmo);
+            // Item did not match either of the ammo templates, skip it.
+            if (ammoTemplate == null)
+                continue;
 
-            foundAmmo = true;
+            // Handle conversion
+            potentialAmmo.setType(ammoTemplate.getType());
+            potentialAmmo.setItemMeta(ammoTemplate.getItemMeta());
+            updatePlaceholders(potentialAmmo, wrapper.getPlayer());
+
+            inventory.setItem(i, potentialAmmo);
+            hasAmmo = true;
         }
 
-        // Update the convert time
-        playerWrapper.convertedAmmo();
-        return foundAmmo;
+        // Regardless of whether we converted any ammo, we should reset the
+        // timer, so we have at least 10 seconds between conversion checks.
+        wrapper.convertedAmmo();
+        return hasAmmo;
     }
 
     @Override
-    public int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
-        PlayerInventory playerInventory = playerWrapper.getPlayer().getInventory();
+    public int removeAmmo(ItemStack weapon, PlayerWrapper wrapper, int amount, int maximumMagSize) {
+        PlayerInventory inventory = wrapper.getPlayer().getInventory();
+        int magazineSlot = -1;
+        int total = 0;
 
-        int foundMagazineSlot = -1;
+        for (int i = 0; i < 36; i++) {
 
-        List<Integer> bulletItemIndexes = null;
-        int foundBulletItemAmount = 0;
+            // Do not consume held item since it is probably a weapon
+            if (i == inventory.getHeldItemSlot())
+                continue;
 
-        // Only check hotbar slots and normal inventory slots meaning slots from 0 to 35
-        for (int i = 0; i < 36; ++i) {
+            ItemStack potentialAmmo = inventory.getItem(i);
+            if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR)
+                continue;
 
-            // Don't check currently held slot either since it's weapon
-            if (i == playerInventory.getHeldItemSlot()) continue;
-
-            ItemStack potentialAmmo = playerInventory.getItem(i);
-            if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR) continue;
-
+            // No conversion checks here (Conversions are handled by the
+            // hasAmmo() method). If the ammo type doesn't match, SKIP.
             String potentialAmmoName = CustomTag.AMMO_NAME.getString(potentialAmmo);
-            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoName)) continue;
+            if (!Objects.equals(ammoName, potentialAmmoName))
+                continue;
 
-            if (CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1) {
-                // Magazine item
+            // Consider that people will configure both BULLETS and MAGAZINES.
+            // Users will shoot their gun until it is half empty, and expect it
+            // to be reloaded using BULLET items (so no ammo is wasted).
+            boolean isMagazine = CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1;
+            boolean canUseMag = bulletItem == null || amount >= maximumMagSize;
 
-                // If its already been found -> continue
-                if (foundMagazineSlot != -1) continue;
-
-                // Update this to first found magazine slot
-                foundMagazineSlot = i;
-
-                // If reloaded from empty clip, then amount is always maximum magazine size
-                if (bulletItem == null || amount >= maximumMagazineSize) {
-                    // Since reloaded from empty clip or bullet item isn't used,
-                    // and we found magazine item, consume the item and reload as full
-                    consumeItem(playerInventory, i, potentialAmmo, 1);
-
+            if (isMagazine) {
+                magazineSlot = i;
+                if (canUseMag) {
+                    consumeItem(inventory, i, potentialAmmo, 1);
                     return amount;
                 }
             } else if (bulletItem != null) {
-                // Bullet item
 
-                int currentItemAmount = potentialAmmo.getAmount();
-
-                // Let's check if current item amount alone is enough
-                if (currentItemAmount >= amount) {
-                    consumeItem(playerInventory, i, potentialAmmo, amount);
-                    return amount;
+                // If the one stack of bullets is enough to fill the gun, then
+                // consume only that stack and stop.
+                if (potentialAmmo.getAmount() >= amount) {
+                    //amount -= potentialAmmo.getAmount();
+                    total += amount;
+                    consumeItem(inventory, i, potentialAmmo, amount);
+                    return total;
                 }
 
-                foundBulletItemAmount += currentItemAmount;
-                if (foundBulletItemAmount < amount) {
-                    if (bulletItemIndexes == null) bulletItemIndexes = new ArrayList<>(2);
-                    bulletItemIndexes.add(i);
-
-                    // Keep searching...
-                    continue;
-                }
-
-                // Here we know we've found enough bullet items to reload
-                break;
+                // Completely consume the ammo
+                amount -= potentialAmmo.getAmount();
+                total += potentialAmmo.getAmount();
+                inventory.setItem(i, null);
             }
         }
 
-        if (foundBulletItemAmount < amount && foundMagazineSlot != -1) {
-            // Consume the magazine found at magazine slot
-            //noinspection ConstantConditions
-            consumeItem(playerInventory, foundMagazineSlot, playerInventory.getItem(foundMagazineSlot), 1);
-
+        // In order for this code to execute, the weapon has to be PARTIALLY
+        // full, with bullet items configured (but no bullets in the inventory),
+        // and magazines in the inventory. So this reload was probably manually
+        // triggered by the player, so we should use the magazines in the inventory.
+        if (total == 0 && magazineSlot != -1) {
+            consumeItem(inventory, magazineSlot, inventory.getItem(magazineSlot), 1);
             return amount;
+            // TODO refund individual bullets?
         }
 
-        if (foundBulletItemAmount == 0) return 0;
-
-        int consumed = 0;
-
-        // Consume the found bullet item ammo from bullet item indexes
-        for (int i : bulletItemIndexes) {
-            ItemStack bulletItem = playerInventory.getItem(i);
-            //noinspection ConstantConditions
-            int currentItemAmount = bulletItem.getAmount();
-
-            if (currentItemAmount < amount) {
-                // Since this happened we can just set the slot item to null,
-                // and stay on track how many bullet items have been consumed,
-                // and how many we still have to remove
-
-                playerInventory.setItem(i, null);
-                consumed += currentItemAmount;
-                amount -= currentItemAmount;
-                continue;
-            }
-
-            // If the player didn't have enough bullet items to fill whole magazine,
-            // the code won't never even reach this point.
-
-            // Here we know that this slot has equal to or more than amount we still need to remove
-
-            consumed += amount;
-            consumeItem(playerInventory, i, bulletItem, amount);
-
-            // This should be last index of list anyway, but let's still make sure to use break here
-            break;
-        }
-
-        return consumed;
+        return total;
     }
 
     private void consumeItem(PlayerInventory playerInventory, int index, ItemStack itemStack, int amount) {
