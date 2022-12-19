@@ -139,6 +139,8 @@ Uzi:
         Color: RED
         Fade_Color: YELLOW
         Size: 0.4
+    Crossbow:
+      Only_When_Scoping: false
 
   Show_Time:
     Reload:

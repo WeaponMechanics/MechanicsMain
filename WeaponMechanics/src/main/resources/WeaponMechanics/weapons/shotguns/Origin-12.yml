@@ -133,6 +133,8 @@ Origin_12:
       Radius: 0.3
       Points: 128
       Loops: 2
+    Crossbow:
+      Only_When_Scoping: false
 
   Show_Time:
     Reload:
