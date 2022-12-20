@@ -80,9 +80,10 @@ public class ItemAmmo implements IAmmoType {
                     return true;
             }
 
-            // 1. Don't do conversion checks if we are on cool down
-            // 2. Item *IS* an ammo item, but not the correct one. Skip it.
-            if (!convert || potentialAmmoName != null)
+            // 1. Don't do conversion checks if there is no converter.
+            // 2. Don't do conversion checks if we are on cool down
+            // 3. Item *IS* an ammo item, but not the correct one. Skip it.
+            if (ammoConverter == null || !convert || potentialAmmoName != null)
                 continue;
 
             // Determine if this item matches the bullet template, or the
@@ -108,7 +109,9 @@ public class ItemAmmo implements IAmmoType {
 
         // Regardless of whether we converted any ammo, we should reset the
         // timer, so we have at least 10 seconds between conversion checks.
-        wrapper.convertedAmmo();
+        if (ammoConverter != null)
+            wrapper.convertedAmmo();
+
         return hasAmmo;
     }
 
