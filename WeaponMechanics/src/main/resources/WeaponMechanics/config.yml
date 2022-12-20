@@ -72,6 +72,12 @@ Disabled_Trigger_Checks:
   Drop_Item: false
   Swap_Hand_Items: false
 
+# This defines the delay between ammo conversion checks. A check occurs whenever
+# a player attempts to reload a weapon. If the player attempts to reload multiple
+# times within this delay, the conversion check will only trigger once. This means
+# that your weapon *MAY* not fill up all the way, and *SOME* ammo may not be consumed.
+Milliseconds_Between_Ammo_Conversions: 8000
+
 # This defines how smooth weapon recoil is. Lower values means smoother recoil,
 # but more packets sent. In default minecraft this value would be 50 (1 tick). In WeaponMechanics, it
 # can be lower. It is recommended to use values divisible by 5.
@@ -767,6 +773,13 @@ Entity_Hitboxes:
     LEGS: 0.15
     FEET: 0.1
   FROG:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.9
+    ARMS: true
+    LEGS: 0.05
+    FEET: 0.05
+  CAMEL:
     Horizontal_Entity: true
     HEAD: 0.0
     BODY: 0.9

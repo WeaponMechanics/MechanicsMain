@@ -140,6 +140,8 @@ RPG-7:
       Maximum_Distance: 4.0
       Sounds:
         - custom:fx.whiz 1 1 0 0.02
+    Crossbow:
+      Only_When_Scoping: false
 
   Trail:
     Distance_Between_Particles: 0.1

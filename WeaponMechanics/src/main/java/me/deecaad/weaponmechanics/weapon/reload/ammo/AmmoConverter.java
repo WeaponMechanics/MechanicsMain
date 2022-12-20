@@ -19,6 +19,13 @@ public class AmmoConverter extends WeaponConverter {
     }
 
     @Override
+    public String getKeyword() {
+        // We have to set this to null, that way FileReader doesn't try to use/add it
+        // to the list of serializers (overriding the WeaponConverter).
+        return null;
+    }
+
+    @Override
     public @NotNull AmmoConverter serialize(SerializeData data) throws SerializerException {
         boolean type = data.of("Type").getBool(false);
         boolean name = data.of("Name").getBool(false);

@@ -15,16 +15,16 @@ repositories {
 }
 
 dependencies {
-    api("org.spigotmc:spigot-api:1.19.1-R0.1-SNAPSHOT")
+    api("org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
     implementation("co.aikar:minecraft-timings:1.0.4")
     implementation("org.bstats:bstats-bukkit:3.0.0")
     implementation("me.cjcrafter:mechanicsautodownload:1.3.1")
 
-    implementation("net.kyori:adventure-api:4.11.0")
-    implementation("net.kyori:adventure-text-serializer-legacy:4.11.0")
+    implementation("net.kyori:adventure-api:4.12.0")
+    implementation("net.kyori:adventure-text-serializer-legacy:4.12.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.2")
-    implementation("net.kyori:adventure-text-minimessage:4.11.0")
+    implementation("net.kyori:adventure-text-minimessage:4.12.0")
 
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 

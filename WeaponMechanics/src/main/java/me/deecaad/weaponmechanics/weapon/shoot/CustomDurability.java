@@ -346,7 +346,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
         ConfigurationSection section = data.of("Repair_Items").assertType(ConfigurationSection.class).get(null);
         Map<ItemStack, Integer> repairItems = new HashMap<>();
         for (String key : section.getKeys(false)) {
-            ItemStack item = data.of("Repair_Items." + key + ".Item").serialize(new ItemSerializer());
+            ItemStack item = data.of("Repair_Items." + key + ".Item").assertExists().serialize(new ItemSerializer());
             int healAmount = data.of("Repair_Items." + key + ".Repair_Amount").assertExists().assertPositive().getInt();
 
             repairItems.put(item, healAmount);

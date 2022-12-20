@@ -50,7 +50,7 @@ tasks.register<Copy>("resourcePackForSpigotRelease") {
     dependsOn("buildForSpigotRelease")
 
     // !!! Has to be updated when resource pack is updated !!!
-    val resourcePackVersion = "1.2.2"
+    val resourcePackVersion = "1.3.0"
 
     from("${layout.projectDirectory}\\resourcepack\\WeaponMechanicsResourcePack-${resourcePackVersion}.zip")
     into(layout.buildDirectory)

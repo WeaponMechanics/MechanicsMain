@@ -320,8 +320,8 @@ public class TriggerPlayerListeners implements Listener {
         String toOffWeapon = weaponHandler.getInfoHandler().getWeaponTitle(toOff, false);
         if (toMainWeapon == null && toOffWeapon == null) return;
 
-        if (toMainWeapon != null && getConfigurations().getBool(toMainWeapon + ".Info.Cancel.Swap_Hands")
-                || toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands")) {
+        if ((toMainWeapon != null && getConfigurations().getBool(toMainWeapon + ".Info.Cancel.Swap_Hands"))
+                || (toOffWeapon != null && getConfigurations().getBool(toOffWeapon + ".Info.Cancel.Swap_Hands"))) {
 
             e.setCancelled(true);
 
@@ -345,9 +345,10 @@ public class TriggerPlayerListeners implements Listener {
 
             // Only check off hand going to main hand
             if (toMainWeapon != null) {
+                final ItemStack finalToMain = toMain;
                 Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> {
                     weaponHandler.tryUses(playerWrapper, toMainWeapon,
-                            playerEquipment.getItemInOffHand(), EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
+                            finalToMain, EquipmentSlot.OFF_HAND, TriggerType.SWAP_HANDS, dualWield, null);
                 });
             }
         }
@@ -358,8 +359,9 @@ public class TriggerPlayerListeners implements Listener {
 
             // Only check main hand going to off hand
             if (toOffWeapon != null) {
+                final ItemStack finalToOff = toOff;
                 Bukkit.getScheduler().runTask(WeaponMechanics.getPlugin(), () -> weaponHandler.tryUses(playerWrapper, toOffWeapon,
-                        playerEquipment.getItemInMainHand(), EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null));
+                        finalToOff, EquipmentSlot.HAND, TriggerType.SWAP_HANDS, dualWield, null));
             }
         }
     }
