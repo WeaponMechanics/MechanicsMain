@@ -4,10 +4,7 @@ import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.file.inline.types.InlineSerializerType;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArgumentMap {
@@ -16,6 +13,10 @@ public class ArgumentMap {
 
     public ArgumentMap(List<Argument> args) {
         this.args = args.stream().collect(Collectors.toMap(Argument::getName, arg -> arg));
+    }
+
+    public ArgumentMap(Argument... args) {
+        this.args = Arrays.stream(args).collect(Collectors.toMap(Argument::getName, arg -> arg));
     }
 
     public Map<String, Argument> getArgs() {

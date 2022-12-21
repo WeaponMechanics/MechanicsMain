@@ -49,30 +49,52 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
 
     @NotNull
     @Override
-    default T serialize(SerializeData data) throws SerializerException {
+    public T serialize(SerializeData data) throws SerializerException {
 
         // Expanded format
         if (data.config.isConfigurationSection(data.key)) {
             return expandedFormat(data);
-        } else if (data.config.is(data.key)) {
         }
 
         // Inline format
+        else if (data.config.isString(data.key)) {
 
+            String line = data.config.getString(data.key);
+
+            try {
+                return inlineFormat(line);
+            } catch (InlineException ex) {
+                int index = ex.getIndex();
+                boolean isIndexAccurate = true;
+                if (index == -1) {
+                    index = line.indexOf(ex.getLookAfter());
+                    index = line.indexOf(ex.getIssue(), index == -1 ? 0 : index);
+                    isIndexAccurate = false;
+                }
+
+                throw data.exception(null, ex.getException().getMessages())
+                        .addMessage(line)
+                        .addMessage(StringUtil.repeat(" ", index) + "^" + (isIndexAccurate ? "" : "          (Pointer location may be inaccurate)"));
+            }
+        }
+
+        else {
+            throw data.exception(null, "Could not find either a string or a configuration");
+        }
     }
 
-    protected T expandedFormat(SerializeData data) {
-
+    public T expandedFormat(SerializeData data) {
+        return null;
     }
 
-    protected T inlineFormat(String line) throws InlineException {
+    public T inlineFormat(String line) throws InlineException {
         String implied = getInlineKeyword();
 
         // Count trailing whitespace, so we can trim() the edges of the string
         // while keeping track of the index of errors in the string.
         int trailingWhitespace;
-        for (trailingWhitespace = -1; trailingWhitespace < line.length() - 1; trailingWhitespace++) {
-            if (line.charAt(trailingWhitespace + 1) != ' ')
+        for (trailingWhitespace = 0; trailingWhitespace < line.length(); trailingWhitespace++) {
+            if (line.charAt(trailingWhitespace) != ' ')
                 break;
         }
 
@@ -199,7 +221,7 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
 
             if (c == '(' || c == '[') {
                 Map<Argument, Object> newDepth = new HashMap<>();
-                currentDepth.put(args().getArgument(keyStack), newDepth);
+                currentDepth.put(args().getArgument(keyStack, key), newDepth);
                 stack.push(newDepth);
                 keyStack.push(key);
 
@@ -220,6 +242,8 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             else if (c == ',') {
                 Argument temp = args().getArgument(keyStack, key);
                 currentDepth.put(temp, temp.getType().serialize(value.toString().strip()));
+                value.setLength(0);
+                key = null;
             }
 
             else {
