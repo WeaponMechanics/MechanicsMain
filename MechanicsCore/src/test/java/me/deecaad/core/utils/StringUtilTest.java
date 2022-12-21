@@ -32,6 +32,12 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
+    @CsvSource({"abc\\\\def,3,true", "abc\\\\def,4,true", "abc\\\\def,2,false", "abc\\\\def,5,false", "abc\\def,3,true", "abc\\def,4,true"})
+    void test_isEscaped(String str, int index, boolean expected) {
+        assertEquals(expected, StringUtil.isEscaped(str, index));
+    }
+
+    @ParameterizedTest
     @CsvSource({
             "testing testing 123 )(bob) hello (second is ignored),(?=\\().+?(?<=\\)),(bob)",
             "we only want the number 12345 <--,\\d+,12345",

@@ -1,48 +1,25 @@
 package me.deecaad.core.file.inline;
 
-import java.util.List;
-
 public final class Argument {
 
     private final String name;
-    private final List<String> aliases;
     private final ArgumentType<?> type;
     private final Object defaultValue;
 
     public Argument(String name, ArgumentType<?> type, Object defaultValue) {
         this.name = name;
-        this.aliases = List.of();
         this.type = type;
         this.defaultValue = defaultValue;
     }
 
     public Argument(String name, ArgumentType<?> type) {
         this.name = name;
-        this.aliases = List.of();
-        this.type = type;
-        this.defaultValue = null;
-    }
-
-    public Argument(String name, ArgumentType<?> type, Object defaultValue, List<String> aliases) {
-        this.name = name;
-        this.aliases = aliases;
-        this.type = type;
-        this.defaultValue = defaultValue;
-    }
-
-    public Argument(String name, ArgumentType<?> type, List<String> aliases) {
-        this.name = name;
-        this.aliases = aliases;
         this.type = type;
         this.defaultValue = null;
     }
 
     public String getName() {
         return name;
-    }
-
-    public List<String> getAliases() {
-        return aliases;
     }
 
     public ArgumentType<?> getType() {
@@ -53,12 +30,17 @@ public final class Argument {
         return defaultValue;
     }
 
-    public boolean matches(String key) {
-        return name.equals(key) || aliases.contains(key);
-    }
-
     public boolean isRequired() {
         return defaultValue == null;
+    }
+
+    public Object serialize(String str) throws InlineException {
+        try {
+            return type.serialize(str);
+        } catch (InlineException ex) {
+            ex.setLookAfter(name);
+            throw ex;
+        }
     }
 
     @Override

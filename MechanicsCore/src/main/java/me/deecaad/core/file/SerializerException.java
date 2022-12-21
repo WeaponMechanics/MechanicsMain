@@ -32,20 +32,15 @@ public class SerializerException extends Exception {
     public SerializerException(@Nonnull Serializer<?> serializer, String[] messages, @Nonnull String location) {
         this.messages = messages;
         this.location = location;
-
-        // Sometimes a class will end with 'Serializer' in its name, like
-        // 'ColorSerializer'. This information may be confusing to some people,
-        // so we can strip it away here.
-        String simple = serializer.getClass().getSimpleName();
-        int index = simple.indexOf("Serializer");
-        if (index > 0)
-            simple = simple.substring(0, index);
-
-        serializerName = simple;
+        this.serializerName = serializer.getName();
     }
 
     public String getSerializerName() {
         return serializerName;
+    }
+
+    public void setSerializerName(String serializerName) {
+        this.serializerName = serializerName;
     }
 
     public String[] getMessages() {
