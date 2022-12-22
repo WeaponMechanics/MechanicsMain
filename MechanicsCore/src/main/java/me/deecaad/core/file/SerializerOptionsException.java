@@ -22,7 +22,7 @@ public class SerializerOptionsException extends SerializerException {
                 "Could not match config to any " + type,
                 forValue(actual),
                 didYouMean(actual, options),
-                possibleValues(options, actual, MechanicsCore.getPlugin().getConfig().getInt("Show_Serialize_Options", 32))
+                possibleValues(options, actual, MechanicsCore.getPlugin() == null ? 10 : MechanicsCore.getPlugin().getConfig().getInt("Show_Serialize_Options", 32))
         };
     }
 }

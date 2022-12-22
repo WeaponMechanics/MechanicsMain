@@ -1,5 +1,6 @@
 package me.deecaad.core.file.inline;
 
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.file.inline.types.InlineSerializerType;
@@ -44,6 +45,10 @@ public class ArgumentMap {
         return args.size() == 1 || args.values().stream().filter(Argument::isRequired).count() == 1L;
     }
 
+    public String getImplied() {
+        return args.size() == 1 ? args.keySet().stream().findFirst().get() : args.values().stream().filter(Argument::isRequired).findFirst().get().getName();
+    }
+
     public Argument getArgument(LinkedList<String> stack) throws InlineException {
 
         // Should never happen, but will cause errors, so lets make sure.
@@ -77,8 +82,17 @@ public class ArgumentMap {
     }
 
     public Argument getArgument(LinkedList<String> stack, String key) throws InlineException {
+
+        // When the admin tries to use "implied" argument names
+        if (key == null) {
+            if (!canUseShorthand())
+                throw new InlineException("(", new SerializerException("", new String[] {"Cannot use shorthand"}, ""));
+
+            key = getImplied();
+        }
+
         LinkedList<String> temp = new LinkedList<>(stack);
-        temp.push(key);
+        temp.addLast(key);
         return getArgument(temp);
     }
 }

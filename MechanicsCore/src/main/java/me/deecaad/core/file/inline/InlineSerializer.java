@@ -189,7 +189,7 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             Map<Argument, Object> nested = (Map<Argument, Object>) entry.getValue();
             expand(type.getSerializer(), nested);
 
-            InlineSerializer<?> serialized = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(type.getSerializer().getClass(), Map.class),  args);
+            InlineSerializer<?> serialized = ReflectionUtil.newInstance(ReflectionUtil.getConstructor(type.getSerializer().getClass(), Map.class),  nested);
             args.put(key, serialized);
         }
     }
@@ -230,6 +230,11 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             }
 
             else if (c == ')' || c == ']') {
+
+                if (key != null) {
+                    serializeArgument(keyStack, key, currentDepth, value);
+                }
+
                 currentDepth = stack.pop();
                 key = null;
             }
@@ -240,9 +245,7 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             }
 
             else if (c == ',') {
-                Argument temp = args().getArgument(keyStack, key);
-                currentDepth.put(temp, temp.getType().serialize(value.toString().strip()));
-                value.setLength(0);
+                serializeArgument(keyStack, key, currentDepth, value);
                 key = null;
             }
 
@@ -251,10 +254,12 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             }
         }
 
-        Argument temp = args().getArgument(keyStack, key);
-        currentDepth.put(temp, temp.getType().serialize(value.toString().strip()));
         return serializedData;
     }
 
-
+    private void serializeArgument(LinkedList<String> keyStack, String key, Map<Argument, Object> currentDepth, StringBuilder value) throws InlineException {
+        Argument temp = args().getArgument(keyStack, key);
+        currentDepth.put(temp, temp.serialize(value.toString().strip()));
+        value.setLength(0);
+    }
 }
