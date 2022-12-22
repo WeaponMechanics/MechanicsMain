@@ -13,11 +13,11 @@ public class ArgumentMap {
     private final Map<String, Argument> args;
 
     public ArgumentMap(List<Argument> args) {
-        this.args = args.stream().collect(Collectors.toMap(Argument::getName, arg -> arg));
+        this.args = args.stream().collect(Collectors.toMap(arg -> arg.getName().toLowerCase(Locale.ROOT), arg -> arg));
     }
 
     public ArgumentMap(Argument... args) {
-        this.args = Arrays.stream(args).collect(Collectors.toMap(Argument::getName, arg -> arg));
+        this.args = Arrays.stream(args).collect(Collectors.toMap(arg -> arg.getName().toLowerCase(Locale.ROOT), arg -> arg));
     }
 
     public Map<String, Argument> getArgs() {
@@ -33,22 +33,6 @@ public class ArgumentMap {
         return args.isEmpty();
     }
 
-    /**
-     * When an inline serializer only has 1 required argument, there is no need
-     * to specify the name of the argument. For example, the sound mechanic
-     * only requires the 'sound' argument. So, 'sound(ENTITY_GENERIC_EXPLOSION)'
-     * is the same as 'sound(sound=ENTITY_GENERIC_EXPLOSION)'
-     *
-     * @return true if there is only 1 required argument.
-     */
-    public boolean canUseShorthand() {
-        return args.size() == 1 || args.values().stream().filter(Argument::isRequired).count() == 1L;
-    }
-
-    public String getImplied() {
-        return args.size() == 1 ? args.keySet().stream().findFirst().get() : args.values().stream().filter(Argument::isRequired).findFirst().get().getName();
-    }
-
     public Argument getArgument(LinkedList<String> stack) throws InlineException {
 
         // Should never happen, but will cause errors, so lets make sure.
@@ -61,7 +45,10 @@ public class ArgumentMap {
         Iterator<String> iterator = stack.iterator();
         while (iterator.hasNext()) {
             key = iterator.next();
-            Argument arg = args.get(key);
+            if (key == null)
+                key = getImplied(args);
+
+            Argument arg = args.get(key.toLowerCase(Locale.ROOT));
 
             // User input a bad key, no matching argument.
             if (arg == null)
@@ -78,21 +65,27 @@ public class ArgumentMap {
             }
         }
 
-        return args.get(key);
+        if (key == null)
+            key = getImplied(args);
+
+        return args.get(key.toLowerCase(Locale.ROOT));
     }
 
     public Argument getArgument(LinkedList<String> stack, String key) throws InlineException {
-
-        // When the admin tries to use "implied" argument names
-        if (key == null) {
-            if (!canUseShorthand())
-                throw new InlineException("(", new SerializerException("", new String[] {"Cannot use shorthand"}, ""));
-
-            key = getImplied();
-        }
-
         LinkedList<String> temp = new LinkedList<>(stack);
         temp.addLast(key);
         return getArgument(temp);
+    }
+
+    private static String getImplied(Map<String, Argument> args) throws InlineException {
+        // When an inline serializer only has 1 required argument, there is
+        // no need to specify the name of the argument. For example, the
+        // sound mechanic only requires the 'sound' argument. So
+        // 'sound(sound=ENTITY_GENERIC_EXPLOSION)' is the same as
+        // 'sound(ENTITY_GENERIC_EXPLOSION)'
+        if (args.size() != 1 && args.values().stream().filter(Argument::isRequired).count() != 1L)
+            throw new InlineException("(", new SerializerException("", new String[]{"Cannot use shorthand"}, ""));
+
+        return args.size() == 1 ? args.keySet().stream().findFirst().get() : args.values().stream().filter(Argument::isRequired).findFirst().get().getName();
     }
 }

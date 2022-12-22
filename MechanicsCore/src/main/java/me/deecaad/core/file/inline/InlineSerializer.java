@@ -102,7 +102,7 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
         // don't need to keyword. For example, when serializing a sound (so,
         // 'sound(type=...)'), we only need the `(...)` part.
         line = line.trim();
-        if (line.startsWith(implied)) {
+        if (line.toLowerCase(Locale.ROOT).startsWith(implied.toLowerCase(Locale.ROOT))) {
             line = line.substring(implied.length());
             trailingWhitespace += implied.length();
         }
@@ -125,18 +125,18 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
 
         // Every opening '(' needs a closing ')'
         if (parenthesis != 0) {
-            int index = parenthesis > 0
-                    ? index(line, ')', line.length() - 1, line.indexOf('('), -1)
-                    : index(line, '(', 0, line.lastIndexOf(')'), 1);
+            int index = trailingWhitespace + (parenthesis > 0
+                    ? index(line, '(', 0, line.lastIndexOf(')'), 1)
+                    : index(line, ')', line.length() - 1, line.indexOf('('), -1));
             String[] messages = {"Missing " + (parenthesis > 0 ? " closing ')'" : " opening '('")};
             throw new InlineException(index, new SerializerException(this, messages, ""));
         }
 
         // Every opening '[' needs a closing ']'
         if (squareBrackets != 0) {
-            int index = squareBrackets > 0
-                    ? index(line, ']', line.length() - 1, line.indexOf('['), -1)
-                    : index(line, '[', 0, line.lastIndexOf(']'), 1);
+            int index = trailingWhitespace + (squareBrackets > 0
+                    ? index(line, '[', 0, line.lastIndexOf(']'), 1)
+                    : index(line, ']', line.length() - 1, line.indexOf('['), -1));
             String[] messages = {"Missing " + (squareBrackets > 0 ? " closing ']'" : " opening '['")};
             throw new InlineException(index, new SerializerException(this, messages, ""));
         }
@@ -227,12 +227,15 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
 
                 currentDepth = newDepth;
                 key = null;
+                value.setLength(0);
             }
 
             else if (c == ')' || c == ']') {
 
-                if (key != null) {
+                if (value.length() != 0) {
                     serializeArgument(keyStack, key, currentDepth, value);
+                } else if (key != null) {
+                    throw new InlineException(i, new SerializerException("", new String[] {"Formatting error... Found a key '" + key + "' without a value before a close character ('" + c + "')"}, ""));
                 }
 
                 currentDepth = stack.pop();
@@ -245,6 +248,12 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             }
 
             else if (c == ',') {
+
+                if (key == null)
+                    throw new InlineException(i, new SerializerException("", new String[] {"Formatting error... Found comma character (',') without a 'key=value'"}, ""));
+                if (value.length() == 0)
+                    throw new InlineException(i, new SerializerException("", new String[] {"Formatting error... Found comma character (',') with a key '" + key + "' without a value"}, ""));
+
                 serializeArgument(keyStack, key, currentDepth, value);
                 key = null;
             }

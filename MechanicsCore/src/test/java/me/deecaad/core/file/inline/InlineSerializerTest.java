@@ -16,6 +16,8 @@ public class InlineSerializerTest {
     private static Stream<Arguments> provide_allEqual() {
         Map<Argument, Object> expected = Map.of(FooSerializer.NUM, 1, FooSerializer.NESTED, new FooSerializer.NestedSerializer(Map.of(FooSerializer.NestedSerializer.HEY, 0)));
         return Stream.of(
+                Arguments.of("FOO(NUM=1, NESTED=NESTED(HEY=0))", expected),
+                Arguments.of("foo(num=1, nested=nested(hey=0))", expected),
                 Arguments.of("foo(num=1, nested=(hey=0))", expected),
                 Arguments.of("foo(nested=(hey=0))", expected),
                 Arguments.of("foo(nested=())", expected),
@@ -45,6 +47,10 @@ public class InlineSerializerTest {
 
     private static Stream<Arguments> provide_allError() {
         return Stream.of(
+                Arguments.of("fool(num=1, nested=(0))"),
+                Arguments.of("foo(num=hello, nested=(hey=0))"),
+                Arguments.of("foo(number=1, nested=(hey=0))"),
+                Arguments.of("foo(num=1,, nested=(hey=0))"),
                 Arguments.of("foo(num, nested=(0))"),
                 Arguments.of("foo(num=0, nested=(0))"),  // error since num=0 out of bounds
                 Arguments.of("foo(num=1, nested=(-1))"),  // error since hey=-1 out of bounds
