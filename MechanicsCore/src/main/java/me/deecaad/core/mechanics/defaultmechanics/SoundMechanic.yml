@@ -1,7 +1,0 @@
-# me.deecaad.core.mechanics.defaultmechanics.SoundMechanic
-Sounds:
-  - <sound>-<volume>-<pitch>,<etc.>
-  - <sound>-<volume>-<pitch>-<delay>-<pitchNoise>,<etc.>
-  - custom:<sound>-<volume>-<pitch>,<etc.>
-  - custom:<sound>-<volume>-<pitch>-<delay>-<pitchNoise>,<etc.>
-  - <etc.>

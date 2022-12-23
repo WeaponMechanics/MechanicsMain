@@ -4,7 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.StringUtil;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class CommandMechanic implements IMechanic<CommandMechanic> {
+public class CommandMechanic implements Mechanic<CommandMechanic> {
 
     private List<CommandData> commandList;
 

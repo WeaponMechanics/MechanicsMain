@@ -1,5 +1,7 @@
 package me.deecaad.core.file.inline;
 
+import me.deecaad.core.utils.StringUtil;
+
 public final class Argument {
 
     private final String name;
@@ -20,6 +22,10 @@ public final class Argument {
 
     public String getName() {
         return name;
+    }
+
+    public String getAsYamlKey() {
+        return StringUtil.upperSnakeCase(StringUtil.camelToSnake(name));
     }
 
     public ArgumentType<?> getType() {

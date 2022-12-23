@@ -3,8 +3,7 @@ package me.deecaad.weaponmechanics.mechanics;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.DataTag;
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.trigger.Circumstance;
@@ -14,7 +13,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class MovementMechanic implements IMechanic<MovementMechanic> {
+public class MovementMechanic implements Mechanic<MovementMechanic> {
 
     private double movementSpeed;
     private boolean towardsTarget;

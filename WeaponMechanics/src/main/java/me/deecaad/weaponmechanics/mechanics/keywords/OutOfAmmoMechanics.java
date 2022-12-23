@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.keywords;
 
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class OutOfAmmoMechanics extends Mechanics {
 
     public OutOfAmmoMechanics() { }
 
-    public OutOfAmmoMechanics(List<IMechanic<?>> mechanicList) {
+    public OutOfAmmoMechanics(List<Mechanic<?>> mechanicList) {
         super(mechanicList);
     }
 

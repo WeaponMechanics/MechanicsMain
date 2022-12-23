@@ -4,13 +4,12 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerMissingKeyException;
-import me.deecaad.core.file.inline.types.InlineSerializerType;
+import me.deecaad.core.file.inline.types.NestedType;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class InlineSerializer<T> implements Serializer<T> {
 
@@ -26,8 +25,14 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
      * @param args The non-null arguments to build the object from.
      */
     public InlineSerializer(Map<Argument, Object> args) {
+        // this is intentionally empty, and serves only to remind developers to
+        // implement this constructor.
     }
 
+    @Override
+    public boolean shouldSerialize(SerializeData data) {
+        return false;
+    }
 
     public abstract ArgumentMap args();
 
@@ -181,7 +186,7 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
         for (Map.Entry<Argument, Object> entry : args.entrySet()) {
             Argument key = entry.getKey();
 
-            if (!(key.getType() instanceof InlineSerializerType type))
+            if (!(key.getType() instanceof NestedType type))
                 continue;
 
             // Recursively handle the nested expansion. The nested

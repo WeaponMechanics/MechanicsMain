@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.keywords;
 
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class WeaponGetMechanics extends Mechanics {
     public WeaponGetMechanics() {
     }
 
-    public WeaponGetMechanics(List<IMechanic<?>> mechanicList) {
+    public WeaponGetMechanics(List<Mechanic<?>> mechanicList) {
         super(mechanicList);
     }
 

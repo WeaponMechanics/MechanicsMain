@@ -1,14 +1,14 @@
 package me.deecaad.core.file.inline;
 
-import me.deecaad.core.file.inline.types.InlineIntegerType;
-import me.deecaad.core.file.inline.types.InlineSerializerType;
+import me.deecaad.core.file.inline.types.IntegerType;
+import me.deecaad.core.file.inline.types.NestedType;
 
 import java.util.Map;
 
 public class FooSerializer extends InlineSerializer<FooSerializer> {
 
-    public static final Argument NUM = new Argument("num", new InlineIntegerType(1), 1);
-    public static final Argument NESTED = new Argument("nested", new InlineSerializerType<>(NestedSerializer.class));
+    public static final Argument NUM = new Argument("num", new IntegerType(1), 1);
+    public static final Argument NESTED = new Argument("nested", new NestedType<>(NestedSerializer.class));
 
     private int num;
     private NestedSerializer nested;
@@ -42,7 +42,7 @@ public class FooSerializer extends InlineSerializer<FooSerializer> {
 
     public static class NestedSerializer extends InlineSerializer<NestedSerializer> {
 
-        public static final Argument HEY = new Argument("hey", new InlineIntegerType(0), 0);
+        public static final Argument HEY = new Argument("hey", new IntegerType(0), 0);
 
         private int hey;
 

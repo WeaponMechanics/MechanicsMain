@@ -8,7 +8,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.file.serializers.LocationAdjuster;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.DistanceUtil;
 import org.bukkit.EntityEffect;
@@ -22,7 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class FireworkMechanic implements IMechanic<FireworkMechanic> {
+public class FireworkMechanic implements Mechanic<FireworkMechanic> {
 
     private LocationAdjuster locationAdjuster;
     private ItemStack fireworkItem;

@@ -6,7 +6,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PotionMechanic implements IMechanic<PotionMechanic> {
+public class PotionMechanic implements Mechanic<PotionMechanic> {
 
     private List<PotionEffect> potionEffectList;
 

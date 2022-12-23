@@ -5,7 +5,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.EnumUtil;
@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 
 import static me.deecaad.core.MechanicsCore.getPlugin;
 
-public class SoundMechanic implements IMechanic<SoundMechanic> {
+public class SoundMechanic implements Mechanic<SoundMechanic> {
 
     // While [0, 0.5] is technically a valid range, all of those values are
     // treated the same as 0.5.

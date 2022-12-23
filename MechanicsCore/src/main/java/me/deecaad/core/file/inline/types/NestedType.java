@@ -5,15 +5,17 @@ import me.deecaad.core.file.inline.InlineException;
 import me.deecaad.core.file.inline.InlineSerializer;
 import me.deecaad.core.utils.ReflectionUtil;
 
-public class InlineSerializerType<T extends InlineSerializer<T>> implements ArgumentType<T> {
+import java.util.stream.Collectors;
+
+public class NestedType<T extends InlineSerializer<T>> implements ArgumentType<T> {
 
     private final T serializer;
 
-    public InlineSerializerType(T serializer) {
+    public NestedType(T serializer) {
         this.serializer = serializer;
     }
 
-    public InlineSerializerType(Class<T> clazz) {
+    public NestedType(Class<T> clazz) {
         this.serializer = ReflectionUtil.newInstance(clazz);
     }
 
@@ -24,5 +26,11 @@ public class InlineSerializerType<T extends InlineSerializer<T>> implements Argu
     @Override
     public T serialize(String str) throws InlineException {
         throw new UnsupportedOperationException("Cannot call serialize(String) on InlineSerializerType");
+    }
+
+    @Override
+    public String example() {
+        return serializer.getKeyword() + "(" + serializer.args().getArgs().values().stream()
+                .map(arg -> arg.getName() + "=" + arg.getType().example()).collect(Collectors.joining(", ")) + ")";
     }
 }

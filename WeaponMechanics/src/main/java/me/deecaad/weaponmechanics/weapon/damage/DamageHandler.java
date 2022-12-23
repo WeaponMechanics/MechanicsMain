@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.DataTag;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;

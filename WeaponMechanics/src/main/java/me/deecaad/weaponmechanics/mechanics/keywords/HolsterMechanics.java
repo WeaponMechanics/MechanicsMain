@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.mechanics.keywords;
 
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class HolsterMechanics extends Mechanics {
     public HolsterMechanics() {
     }
 
-    public HolsterMechanics(List<IMechanic<?>> mechanicList) {
+    public HolsterMechanics(List<Mechanic<?>> mechanicList) {
         super(mechanicList);
     }
 

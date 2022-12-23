@@ -4,7 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.IMechanic;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import net.kyori.adventure.audience.Audience;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.Duration;
 import java.util.Map;
 
-public class MessageMechanic implements IMechanic<MessageMechanic> {
+public class MessageMechanic implements Mechanic<MessageMechanic> {
 
     private boolean sendServer;
     private boolean sendWorld;

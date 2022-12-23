@@ -12,43 +12,48 @@ import me.deecaad.core.file.inline.InlineException;
  *
  * TODO custom IntegerProvider allowing math, random, etc.
  */
-public class InlineIntegerType implements ArgumentType<Integer> {
+public class DoubleType implements ArgumentType<Double> {
 
-    private final int min;
-    private final int max;
+    private final double min;
+    private final double max;
 
-    public InlineIntegerType() {
-        this(Integer.MIN_VALUE);
+    public DoubleType() {
+        this(Double.MIN_VALUE);
     }
 
-    public InlineIntegerType(int min) {
-        this(min, Integer.MAX_VALUE);
+    public DoubleType(double min) {
+        this(min, Double.MAX_VALUE);
     }
 
-    public InlineIntegerType(int min, int max) {
+    public DoubleType(double min, double max) {
         this.min = min;
         this.max = max;
     }
 
-    public int getMin() {
+    public double getMin() {
         return min;
     }
 
-    public int getMax() {
+    public double getMax() {
         return max;
     }
 
     @Override
-    public Integer serialize(String str) throws InlineException {
+    public Double serialize(String str) throws InlineException {
         try {
-            int temp = Integer.parseInt(str);
+            double temp = Double.parseDouble(str);
             if (temp < min || temp > max)
                 throw new InlineException(str, new SerializerRangeException("", min, temp, max, ""));
 
             return temp;
 
         } catch (NumberFormatException ex) {
-            throw new InlineException(str, new SerializerTypeException("", Integer.class, String.class, str, ""));
+            throw new InlineException(str, new SerializerTypeException("", Double.class, String.class, str, ""));
         }
+    }
+
+    @Override
+    public String example() {
+        return "0.5";
     }
 }

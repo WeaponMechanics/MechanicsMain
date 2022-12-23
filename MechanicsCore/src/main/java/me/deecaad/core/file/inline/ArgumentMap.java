@@ -3,7 +3,7 @@ package me.deecaad.core.file.inline;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.file.SerializerTypeException;
-import me.deecaad.core.file.inline.types.InlineSerializerType;
+import me.deecaad.core.file.inline.types.NestedType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,7 +58,7 @@ public class ArgumentMap {
             // nested inline serializers. In this case, the 'key' *MUST* point
             // to an InlineSerializerType (since it has to be nested).
             if (iterator.hasNext()) {
-                if (arg.getType() instanceof InlineSerializerType cast)
+                if (arg.getType() instanceof NestedType cast)
                     args = cast.getSerializer().args().args;
                 else
                     throw new InlineException(key, key.length() + 1, new SerializerTypeException("", arg.getType().getClass(), Map.class, "{UNKNOWN}", ""));

@@ -12,85 +12,77 @@ import java.util.function.Consumer;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class CastData {
+public class CastData implements Cloneable {
 
-    private final LivingEntity caster;
+    // Sourcing information. "Where did this come from?"
+    private final LivingEntity source;
     private String itemTitle;
     private ItemStack itemStack;
-    private Location casterLocation;
+    private Location sourceLocation;
+
+    // Targeting information. This is filled in during casting.
+    private LivingEntity targetEntity;
+    private Location targetLocation;
+
+    // Extra data used by some mechanics
     private Consumer<Integer> taskIdConsumer;
     private Map<String, String> tempPlaceholders;
-    private Map<String, Object> data;
 
-    public CastData(LivingEntity caster, String itemTitle, ItemStack itemStack) {
-        this.caster = caster;
+    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack) {
+        this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
     }
 
-    public CastData(LivingEntity caster, Location casterLocation, String itemTitle, ItemStack itemStack) {
-        this.caster = caster;
+    public CastData(LivingEntity source, Location sourceLocation, String itemTitle, ItemStack itemStack) {
+        this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
-        this.casterLocation = casterLocation;
+        this.sourceLocation = sourceLocation;
     }
 
-    public CastData(LivingEntity caster, String itemTitle, ItemStack itemStack, Map<String, String> tempPlaceholders) {
-        this.caster = caster;
+    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Map<String, String> tempPlaceholders) {
+        this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.tempPlaceholders = tempPlaceholders;
     }
 
-    public CastData(LivingEntity caster, String itemTitle, ItemStack itemStack, Consumer<Integer> taskIdConsumer) {
-        this.caster = caster;
+    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Consumer<Integer> taskIdConsumer) {
+        this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.taskIdConsumer = taskIdConsumer;
     }
 
-    /**
-     * Set new data for this cast.
-     *
-     * @param key the key used
-     * @param value the value for key
-     * @return this cast data
-     */
-    public CastData setData(String key, Object value) {
-        if (data == null) data = new HashMap<>();
-        data.put(key, value);
-        return this;
-    }
-
-    /**
-     * @param key the key to fetch
-     * @param clazz the class cast this key's object is
-     * @return the value of key or null if not used or invalid data type
-     */
-    @Nullable
-    public <T> T getData(String key, Class<T> clazz) {
-        if (data == null) return null;
-        // clazz.cast -> returns the object after casting, or null if obj is null
-        Object keyData = data.get(key);
-        if (keyData == null) return null;
-        if (!clazz.isInstance(keyData)) {
-            debug.error("Found invalid data type while using CastData!",
-                    "Tried to fetch data using key " + key + " with class cast " + clazz + ", but found " + keyData.getClass());
-            return null;
-        } else {
-            return clazz.cast(keyData);
-        }
+    @Nonnull
+    public LivingEntity getSource() {
+        return source;
     }
 
     @Nonnull
-    public LivingEntity getCaster() {
-        return caster;
+    public Location getSourceLocation() {
+        return sourceLocation != null ? sourceLocation : source.getLocation();
+    }
+
+
+    public LivingEntity getTarget() {
+        return targetEntity;
+    }
+
+    public void setTargetEntity(LivingEntity targetEntity) {
+        this.targetEntity = targetEntity;
     }
 
     @Nonnull
-    public Location getCastLocation() {
-        return casterLocation != null ? casterLocation : caster.getLocation();
+    public Location getTargetLocation() {
+        return targetLocation != null ? targetLocation : targetEntity.getLocation();
     }
+
+    public void setTargetLocation(Location targetLocation) {
+        this.targetLocation = targetLocation;
+    }
+
 
     @Nullable
     public Consumer<Integer> getTaskIdConsumer() {
@@ -112,12 +104,12 @@ public class CastData {
         return itemStack;
     }
 
-    @Nullable
-    public Location getTargetLocation() {
-        return getData(DataTag.TARGET_LOCATION.name(), Location.class);
-    }
-
-    public void setTargetLocation(Location location) {
-        setData(DataTag.TARGET_LOCATION.name(), location);
+    @Override
+    public CastData clone() {
+        try {
+            return (CastData) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
