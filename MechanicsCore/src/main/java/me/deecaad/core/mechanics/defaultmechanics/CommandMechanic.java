@@ -1,103 +1,55 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
-import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.inline.Argument;
+import me.deecaad.core.file.inline.ArgumentMap;
+import me.deecaad.core.file.inline.types.BooleanType;
+import me.deecaad.core.file.inline.types.StringType;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
-import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class CommandMechanic implements Mechanic<CommandMechanic> {
+public class CommandMechanic extends Mechanic {
 
-    private List<CommandData> commandList;
+    public static final Argument CONSOLE = new Argument("console", new BooleanType(), false);
+    public static final Argument COMMAND = new Argument("command", new StringType());
 
-    /**
-     * Empty constructor to be used as serializer
-     */
-    public CommandMechanic() {
-        if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
-    }
+    private final boolean console;
+    private final String command;
 
-    public CommandMechanic(List<CommandData> commandList) {
-        this.commandList = commandList;
+    public CommandMechanic(Map<Argument, Object> args) {
+        super(args);
+
+        console = (boolean) args.get(CONSOLE);
+        command = (String) args.get(COMMAND);
     }
 
     @Override
-    public void use(CastData castData) {
-        Player player = castData.getCaster().getType() == EntityType.PLAYER ? (Player) castData.getCaster() : null;
-        String itemTitle = castData.getItemTitle();
-        ItemStack itemStack = castData.getItemStack();
-        Map<String, String> tempPlaceholders = castData.getTempPlaceholders();
+    public ArgumentMap args() {
+        return super.args().addAll(CONSOLE, COMMAND);
+    }
 
-        for (CommandData commandData : commandList) {
-            String command = PlaceholderAPI.applyPlaceholders(commandData.getCommand(), player, itemStack, itemTitle, null, tempPlaceholders);
-            if (commandData.isConsole()) {
-                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-            } else if (player != null) {
-                player.performCommand(command);
-            }
-        }
+    @Override
+    public void use0(CastData cast) {
+        Player player = cast.getTarget().getType() == EntityType.PLAYER ? (Player) cast.getTarget() : null;
+        String itemTitle = cast.getItemTitle();
+        ItemStack itemStack = cast.getItemStack();
+        Map<String, String> tempPlaceholders = cast.getTempPlaceholders();
+
+        String command = PlaceholderAPI.applyPlaceholders(this.command, player, itemStack, itemTitle, null, tempPlaceholders);
+        if (console)
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+        else if (player != null)
+            player.performCommand(command);
     }
 
     @Override
     public String getKeyword() {
-        return "Commands";
-    }
-
-    @Override
-    public boolean shouldSerialize(SerializeData data) {
-
-        // Let Mechanics handle all automatic serializer stuff
-        return false;
-    }
-
-    @Override
-    @Nonnull
-    public CommandMechanic serialize(SerializeData data) throws SerializerException {
-        List<String> stringCommandList = data.config.getStringList(data.key);
-
-        List<CommandData> commandList = new ArrayList<>();
-        for (String commandInList : stringCommandList) {
-            String command = StringUtil.color(commandInList);
-            if (command.toLowerCase().startsWith("console:")) {
-                command = command.substring("console:".length());
-                commandList.add(new CommandData(true, command));
-            } else {
-                commandList.add(new CommandData(false, command));
-            }
-        }
-
-        return new CommandMechanic(commandList);
-    }
-
-    private static class CommandData {
-
-        private final boolean console;
-        private final String command;
-
-        public CommandData(boolean console, String command) {
-            this.console = console;
-            this.command = command;
-        }
-
-        public boolean isConsole() {
-            return console;
-        }
-
-        public String getCommand() {
-            return command;
-        }
+        return "Command";
     }
 }

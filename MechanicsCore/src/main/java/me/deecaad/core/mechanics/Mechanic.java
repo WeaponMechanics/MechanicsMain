@@ -42,6 +42,8 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
      * Default constructor for serializer.
      */
     public Mechanic() {
+        // DO NOT USE THIS CONSTRUCTOR IN YOUR MECHANICS!!!
+        // call super(args) instead
     }
 
     /**
@@ -124,8 +126,8 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
 
         // This pattern groups everything and stops whenever it hits a '?', '@',
         // or the end of the string. This perfectly separates each section.
-        // TODO support escaped characters
-        Pattern pattern = Pattern.compile(".+?(?=[?@]|$)");
+        // All the backslash stuff is for handling escaped \? and \@
+        Pattern pattern = Pattern.compile(".+?(?=(?<!\\\\)(?:\\\\\\\\)*[?@]|$)");
         Matcher matcher = pattern.matcher(line);
 
         // This patterns groups the start of the string until the first '(' or

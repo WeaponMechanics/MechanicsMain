@@ -2,6 +2,7 @@ package me.deecaad.core.mechanics.targeters;
 
 import me.deecaad.core.file.inline.Argument;
 import me.deecaad.core.file.inline.ArgumentMap;
+import me.deecaad.core.file.inline.InlineException;
 import me.deecaad.core.mechanics.CastData;
 
 import java.util.List;
@@ -9,12 +10,13 @@ import java.util.Map;
 
 public class SourceTargeter extends Targeter {
 
-    public SourceTargeter(Map<Argument, Object> args) {
+    public SourceTargeter(Map<Argument, Object> args) throws InlineException {
+        super(args);
     }
 
     @Override
     public ArgumentMap args() {
-        return new ArgumentMap();
+        return super.args();
     }
 
     @Override
@@ -23,9 +25,13 @@ public class SourceTargeter extends Targeter {
     }
 
     @Override
-    public List<CastData> getTargets(CastData cast) {
+    public boolean isEntity() {
+        return true;
+    }
+
+    @Override
+    public List<CastData> getTargets0(CastData cast) {
         CastData copy = cast.clone();
-        copy.setTargetLocation(copy.getSourceLocation());
         copy.setTargetEntity(copy.getSource());
         return List.of(copy);
     }

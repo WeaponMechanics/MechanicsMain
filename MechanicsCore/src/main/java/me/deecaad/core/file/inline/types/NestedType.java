@@ -25,7 +25,7 @@ public class NestedType<T extends InlineSerializer<T>> implements ArgumentType<T
 
     @Override
     public T serialize(String str) throws InlineException {
-        throw new UnsupportedOperationException("Cannot call serialize(String) on InlineSerializerType");
+        throw new UnsupportedOperationException("Cannot call serialize(String) on NestedType");
     }
 
     @Override

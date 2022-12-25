@@ -31,6 +31,7 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
 
     @Override
     public boolean shouldSerialize(SerializeData data) {
+        // We don't want FileReader activating on these by default
         return false;
     }
 

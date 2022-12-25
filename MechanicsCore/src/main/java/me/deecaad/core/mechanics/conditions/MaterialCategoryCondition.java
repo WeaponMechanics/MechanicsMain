@@ -1,0 +1,96 @@
+package me.deecaad.core.mechanics.conditions;
+
+import me.deecaad.core.file.inline.Argument;
+import me.deecaad.core.file.inline.ArgumentMap;
+import me.deecaad.core.file.inline.types.EnumType;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.Waterlogged;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+
+import java.util.Map;
+
+public class MaterialCategoryCondition extends Condition {
+
+    public static final Argument CATEGORY = new Argument("category", new EnumType<>(MaterialCategory.class));
+
+    private final MaterialCategory category;
+
+    public MaterialCategoryCondition(Map<Argument, Object> args) {
+        this.category = (MaterialCategory) args.get(CATEGORY);
+    }
+
+    @Override
+    public ArgumentMap args() {
+        return new ArgumentMap(CATEGORY);
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Material_Category";
+    }
+
+    @Override
+    public boolean isAllowed(CastData cast) {
+        return category.test(cast.getTargetLocation().getBlock());
+    }
+
+    /**
+     * This is used to determine what "kind" of block you are in. Sometimes,
+     * we want sounds to have an echo, but only when the player is in an
+     * enclosed space. Instead of running calculations every time we play the
+     * sound, we simply check if we are in cave_air (Vanilla generates caves
+     * using cave_air). This is also good for adventure maps, who can replace
+     * normal air with cave_air.
+     */
+    public enum MaterialCategory {
+
+        ALL {
+            @Override
+            public boolean test(Block block) {
+                return true;
+            }
+        },
+        AIR {
+            @Override
+            public boolean test(Block block) {
+                return !FLUID.test(block) && !CAVE_AIR.test(block) && !VOID_AIR.test(block);
+            }
+        },
+        FLUID {
+            @Override
+            public boolean test(Block block) {
+                if (ReflectionUtil.getMCVersion() < 13)
+                    return block.isLiquid();
+
+                if (block.isLiquid())
+                    return true;
+                else if (block.getBlockData() instanceof Waterlogged)
+                    return ((Waterlogged) block.getBlockData()).isWaterlogged();
+                else
+                    return false;
+            }
+        },
+        CAVE_AIR {
+            @Override
+            public boolean test(Block block) {
+                return ReflectionUtil.getMCVersion() >= 13 && block.getType() == Material.CAVE_AIR;
+            }
+        },
+        VOID_AIR {
+            @Override
+            public boolean test(Block block) {
+                return ReflectionUtil.getMCVersion() >= 13 && block.getType() == Material.VOID_AIR;
+            }
+        };
+
+        public abstract boolean test(Block block);
+
+        public boolean test(Player player) {
+            return test(player.getEyeLocation().getBlock());
+        }
+    }
+}

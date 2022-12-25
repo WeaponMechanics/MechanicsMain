@@ -60,6 +60,10 @@ public class CastData implements Cloneable {
         return source;
     }
 
+    public boolean hasSourceLocation() {
+        return sourceLocation != null;
+    }
+
     @Nonnull
     public Location getSourceLocation() {
         return sourceLocation != null ? sourceLocation : source.getLocation();
@@ -72,6 +76,10 @@ public class CastData implements Cloneable {
 
     public void setTargetEntity(LivingEntity targetEntity) {
         this.targetEntity = targetEntity;
+    }
+
+    public boolean hasTargetLocation() {
+        return targetLocation != null;
     }
 
     @Nonnull

@@ -20,6 +20,11 @@ public class ArgumentMap {
         this.args = Arrays.stream(args).collect(Collectors.toMap(arg -> arg.getName().toLowerCase(Locale.ROOT), arg -> arg));
     }
 
+    public ArgumentMap addAll(Argument... args) {
+        this.args.putAll(Arrays.stream(args).collect(Collectors.toMap(arg -> arg.getName().toLowerCase(Locale.ROOT), arg -> arg)));
+        return this;
+    }
+
     public Map<String, Argument> getArgs() {
         return args;
     }

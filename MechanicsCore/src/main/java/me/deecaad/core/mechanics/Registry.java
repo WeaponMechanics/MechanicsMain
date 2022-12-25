@@ -24,7 +24,7 @@ public final class Registry<T extends InlineSerializer<T>> {
      * @throws IllegalArgumentException If a duplicate key is found.
      */
     public Registry<T> add(T item) {
-        String key = item.getInlineKeyword().toLowerCase(Locale.ROOT);
+        String key = toKey(item.getInlineKeyword());
         T existing = registry.get(key);
 
         if (existing != null)
@@ -42,7 +42,7 @@ public final class Registry<T extends InlineSerializer<T>> {
      * @return The nullable serializer associated with the key.
      */
     public T get(String key) {
-        return registry.get(key.toLowerCase(Locale.ROOT));
+        return registry.get(toKey(key));
     }
 
     /**
@@ -54,5 +54,17 @@ public final class Registry<T extends InlineSerializer<T>> {
      */
     public Set<String> getOptions() {
         return registry.keySet();
+    }
+
+    /**
+     * Keys are use lowercase english letters, and do not include spaces or
+     * underscores. This method converts a normal string into a key for a
+     * registry.
+     *
+     * @param key The non-null string to convert.
+     * @return The non-null converted key.
+     */
+    public static String toKey(String key) {
+        return key.toLowerCase(Locale.ROOT).replace(" ", "").replace("_", "");
     }
 }

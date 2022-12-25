@@ -7,17 +7,20 @@ public final class Argument {
     private final String name;
     private final ArgumentType<?> type;
     private final Object defaultValue;
+    private final boolean required;
 
     public Argument(String name, ArgumentType<?> type, Object defaultValue) {
         this.name = name;
         this.type = type;
         this.defaultValue = defaultValue;
+        this.required = false;
     }
 
     public Argument(String name, ArgumentType<?> type) {
         this.name = name;
         this.type = type;
         this.defaultValue = null;
+        this.required = true;
     }
 
     public String getName() {
@@ -37,7 +40,7 @@ public final class Argument {
     }
 
     public boolean isRequired() {
-        return defaultValue == null;
+        return required;
     }
 
     public Object serialize(String str) throws InlineException {
