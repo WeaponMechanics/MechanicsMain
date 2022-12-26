@@ -2,18 +2,25 @@ package me.deecaad.core.file.inline;
 
 import me.deecaad.core.utils.StringUtil;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+
 public final class Argument {
 
     private final String name;
     private final ArgumentType<?> type;
     private final Object defaultValue;
     private final boolean required;
+    private final List<ArgumentValidator> validators;
 
     public Argument(String name, ArgumentType<?> type, Object defaultValue) {
         this.name = name;
         this.type = type;
         this.defaultValue = defaultValue;
         this.required = false;
+        this.validators = new LinkedList<>();
     }
 
     public Argument(String name, ArgumentType<?> type) {
@@ -21,6 +28,7 @@ public final class Argument {
         this.type = type;
         this.defaultValue = null;
         this.required = true;
+        this.validators = new LinkedList<>();
     }
 
     public String getName() {
@@ -43,9 +51,18 @@ public final class Argument {
         return required;
     }
 
+    public Argument addValidator(ArgumentValidator validator) {
+        validators.add(validator);
+        return this;
+    }
+
     public Object serialize(String str) throws InlineException {
         try {
-            return type.serialize(str);
+            Object object = type.serialize(str);
+            for (ArgumentValidator validator : validators)
+                validator.validate(object);
+            return object;
+
         } catch (InlineException ex) {
             ex.setLookAfter(name);
             throw ex;
@@ -62,6 +79,8 @@ public final class Argument {
 
     @Override
     public int hashCode() {
+        // Since only the argument name is hashed, duplicate names are
+        // not allowed.
         return name.hashCode();
     }
 }

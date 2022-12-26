@@ -13,29 +13,30 @@ import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Map;
 
-public class SoundMechanic extends Mechanic {
+public class CustomSoundMechanic extends Mechanic {
 
-    public static final Argument SOUND = new Argument("sound", new EnumType<>(Sound.class));
+    public static final Argument SOUND = new Argument("sound", new StringType());
     public static final Argument VOLUME = new Argument("volume", new DoubleType(0.0), 1.0);
     public static final Argument PITCH = new Argument("pitch", new DoubleType(0.5, 2.0), 1.0);
     public static final Argument NOISE = new Argument("noise", new DoubleType(0.0, 1.0), 0.0);
     public static final Argument CATEGORY = new Argument("category", new StringType(), null); // only use Enum in 1.11+
     public static final Argument LISTENERS = new Argument("listeners", new NestedType<>(Targeter.class), null);
 
-    private final Sound sound;
+    private final String sound;
     private final float volume;
     private final float pitch;
     private final float noise;
     private final Object category; // store as an Object to avoid version mismatch errors in <1.11
     private Targeter listeners;
 
-    public SoundMechanic(Map<Argument, Object> args) {
-        sound = (Sound) args.get(SOUND);
+    public CustomSoundMechanic(Map<Argument, Object> args) {
+        sound = (String) args.get(SOUND);
         volume = ((Number) args.get(VOLUME)).floatValue();
         pitch = ((Number) args.get(PITCH)).floatValue();
         noise = ((Number) args.get(NOISE)).floatValue();
@@ -57,7 +58,7 @@ public class SoundMechanic extends Mechanic {
         // argument at all. In newer versions, the argument uses the enum.
         if (ReflectionUtil.getMCVersion() < 11)
             temp.addAll(new Argument("category", new StringType(), null).addValidator(arg -> {
-                throw new InlineException("", new SerializerException("", new String[] {"The sound 'category' argument is only for MC 1.11+",
+                throw new InlineException("", new SerializerException("", new String[]{"The sound 'category' argument is only for MC 1.11+",
                         "Detected MC version: 1." + ReflectionUtil.getMCVersion() + ".x"}, ""));
             }));
         else
@@ -93,6 +94,6 @@ public class SoundMechanic extends Mechanic {
 
     @Override
     public String getKeyword() {
-        return "Sound";
+        return "Custom_Sound";
     }
 }

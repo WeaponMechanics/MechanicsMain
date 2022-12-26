@@ -9,10 +9,13 @@ import me.deecaad.core.file.inline.ArgumentMap;
 import me.deecaad.core.file.inline.InlineException;
 import me.deecaad.core.file.inline.InlineSerializer;
 import me.deecaad.core.file.inline.types.IntegerType;
+import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.conditions.Condition;
+import me.deecaad.core.mechanics.targeters.TargetTargeter;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +74,7 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
      *
      * @param cast The non-null cast data.
      */
-    public void use(CastData cast) {
+    public final void use(CastData cast) {
 
         // If there is no need to schedule event, skip the event process.
         if (repeatAmount == 1 && repeatInterval == 0 && delayBeforePlay == 0) {
@@ -80,7 +83,7 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
         }
 
         // Schedule a repeating event to trigger the mechanic multiple times.
-        new BukkitRunnable() {
+        int task = new BukkitRunnable() {
             int runs = 0;
 
             @Override
@@ -98,7 +101,12 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
                     use0(cast);
                 }
             }
-        }.runTaskTimer(MechanicsCore.getPlugin(), delayBeforePlay, repeatInterval);
+        }.runTaskTimer(MechanicsCore.getPlugin(), delayBeforePlay, repeatInterval).getTaskId();
+
+        // This allows developers to consume task ids from playing a Mechanic.
+        // Good for canceling tasks early.
+        if (cast.getTaskIdConsumer() != null)
+            cast.getTaskIdConsumer().accept(task);
     }
 
     /**
@@ -218,8 +226,11 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
 
         if (mechanic == null)
             throw new InlineException(0, new SerializerException("", new String[] {"Could not find any Mechanic in the line"}, ""));
-        if (targeter == null)
-            targeter = mechanic.getDefaultTargeter();
+        if (targeter == null) {
+            Map<Argument, Object> args = new HashMap<>();
+            args.put(Targeter.OFFSET, null);
+            targeter = new TargetTargeter(args);
+        }
 
         mechanic.targeter = targeter;
         mechanic.conditions = conditions;
