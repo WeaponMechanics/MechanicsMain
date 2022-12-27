@@ -350,6 +350,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
         } else {
             recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), result);
 
+            // Bukkit.getRecipe was added in 1.16. We have a try-catch block
+            // below in this method to handle 1.12 through 1.15
             if (ReflectionUtil.getMCVersion() >= 16 && Bukkit.getRecipe(recipe.getKey()) != null) {
                 return itemStack;
             }
@@ -409,7 +411,13 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         // Finalize and register the new recipe.
         ReflectionUtil.setField(ingredientsField, recipe, ingredients);
-        Bukkit.addRecipe(recipe);
+        try {
+            Bukkit.addRecipe(recipe);
+        } catch (IllegalStateException ex) {
+            // rethrow if we don't know where this error came from
+            if (!ex.getMessage().startsWith("Duplicate recipe ignored with ID mechanicscore:"))
+                throw ex;
+        }
         return itemStack;
     }
 
