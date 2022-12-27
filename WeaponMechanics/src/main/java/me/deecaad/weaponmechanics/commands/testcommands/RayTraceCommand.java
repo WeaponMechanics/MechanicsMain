@@ -16,12 +16,10 @@ public class RayTraceCommand extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "This command is only available for players.");
             return;
         }
-
-        Player player = (Player) sender;
 
         boolean onlyHitPosition = args.length > 0 && Boolean.parseBoolean(args[0]);
         double size = args.length > 1 ? Double.parseDouble(args[1]) : 0.1;

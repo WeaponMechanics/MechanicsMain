@@ -13,7 +13,7 @@ public class BooleanArgumentType extends CommandArgumentType<Boolean> {
     }
 
     @Override
-    public Boolean parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
+    public Boolean parse(CommandContext<Object> context, String key) {
         return BoolArgumentType.getBool(context, key);
     }
 

@@ -84,7 +84,7 @@ public abstract class ListArgumentType<T> extends CommandArgumentType<List<T>> {
 
 
     public static ListArgumentType<Integer> integers(Integer... examples) {
-        return new ListArgumentType<Integer>(Arrays.asList(examples), false) {
+        return new ListArgumentType<>(Arrays.asList(examples), false) {
             @Override
             public Integer parse(String str) throws CommandSyntaxException {
                 try {
@@ -97,7 +97,7 @@ public abstract class ListArgumentType<T> extends CommandArgumentType<List<T>> {
     }
 
     public static ListArgumentType<Double> doubles(Double... examples) {
-        return new ListArgumentType<Double>(Arrays.asList(examples), false) {
+        return new ListArgumentType<>(Arrays.asList(examples), false) {
             @Override
             public Double parse(String str) throws CommandSyntaxException {
                 try {
@@ -110,7 +110,7 @@ public abstract class ListArgumentType<T> extends CommandArgumentType<List<T>> {
     }
 
     public static <T extends Enum<T>> ListArgumentType<T> enums(Class<T> clazz) {
-        return new ListArgumentType<T>(EnumUtil.getValues(clazz), true) {
+        return new ListArgumentType<>(EnumUtil.getValues(clazz), true) {
             @Override
             public T parse(String str) throws CommandSyntaxException {
                 try {

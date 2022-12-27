@@ -247,13 +247,7 @@ public class CrackShotPlusConverter {
         }
     }
 
-    private static class CommandConvert implements Converter {
-
-        private final boolean onlyShooter;
-
-        public CommandConvert(boolean onlyShooter) {
-            this.onlyShooter = onlyShooter;
-        }
+    private record CommandConvert(boolean onlyShooter) implements Converter {
 
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -282,13 +276,7 @@ public class CrackShotPlusConverter {
         }
     }
 
-    private static class GeneralObjectModifier implements Converter {
-
-        private final Function<Object, Object> function;
-
-        public GeneralObjectModifier(Function<Object, Object> function) {
-            this.function = function;
-        }
+    private record GeneralObjectModifier(Function<Object, Object> function) implements Converter {
 
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -456,7 +444,8 @@ public class CrackShotPlusConverter {
             toConfig.set(to + "Particle_Chooser", "LOOP");
 
             toConfig.set(to + "Particles.Particle_1.Type", CSPapi.getString(defaultTrail + ".Trail"));
-            if (CSPapi.getString(defaultTrail + ".Trail_Color") != null) toConfig.set(to + "Particles.Particle_1.Color", CSPapi.getString(defaultTrail + ".Trail_Color"));
+            if (CSPapi.getString(defaultTrail + ".Trail_Color") != null)
+                toConfig.set(to + "Particles.Particle_1.Color", CSPapi.getString(defaultTrail + ".Trail_Color"));
             Integer i = CSPapi.getInteger(defaultTrail + ".Trail_Settings.Particle_Count");
             if (i != null) toConfig.set(to + ".Particles.Particle_1.Count", i);
         }
@@ -539,7 +528,8 @@ public class CrackShotPlusConverter {
             // If CrackShot is outdated... or other exception
             try {
                 return Material.valueOf(type.toUpperCase()).name();
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+            }
         }
 
         String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));

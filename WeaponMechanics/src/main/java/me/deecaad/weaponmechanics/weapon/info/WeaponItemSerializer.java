@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.info;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;

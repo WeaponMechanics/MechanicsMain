@@ -22,12 +22,10 @@ public class FakeEntityCommand extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Player only command!");
             return;
         }
-
-        Player player = (Player) sender;
 
         // Parse arguments of the command
         EntityType type = args.length > 0 ? EntityType.valueOf(args[0]) : EntityType.ZOMBIE;
@@ -41,17 +39,12 @@ public class FakeEntityCommand extends SubCommand {
 
     @Override
     protected List<String> handleCustomTag(String[] args, String tag) {
-        switch (tag) {
-            case "<type>":
-                return new ArrayList<>(EnumUtil.getOptions(EntityType.class));
-            case "<move>":
-                return Arrays.asList(tag, "none", "spin", "flash", "sky", "x");
-            case "<time>":
-                return Arrays.asList(tag, "100", "200", "400", "1600");
-            case "<gravity>":
-                return Arrays.asList(tag, "true", "false");
-            default:
-                return Collections.singletonList(tag);
-        }
+        return switch (tag) {
+            case "<type>" -> new ArrayList<>(EnumUtil.getOptions(EntityType.class));
+            case "<move>" -> Arrays.asList(tag, "none", "spin", "flash", "sky", "x");
+            case "<time>" -> Arrays.asList(tag, "100", "200", "400", "1600");
+            case "<gravity>" -> Arrays.asList(tag, "true", "false");
+            default -> Collections.singletonList(tag);
+        };
     }
 }

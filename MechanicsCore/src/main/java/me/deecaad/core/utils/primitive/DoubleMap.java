@@ -326,17 +326,15 @@ public class DoubleMap<K> {
         public Iterator<DoubleEntry<K>> iterator() { return new EntryIterator(); }
 
         public boolean contains(Object other) {
-            if (!(other instanceof DoubleEntry))
+            if (!(other instanceof DoubleEntry<?> entry))
                 return false;
-            DoubleEntry<?> entry = (DoubleEntry<?>) other;
             Node<K> candidate = getNode(entry.getKey());
             return candidate != null && candidate.equals(entry);
         }
 
         public boolean remove(Object other) {
-            if (!(other instanceof DoubleEntry))
+            if (!(other instanceof DoubleEntry<?> entry))
                 return false;
-            DoubleEntry<?> entry = (DoubleEntry<?>) other;
             return remove(entry.getKey());
         }
 
@@ -386,25 +384,37 @@ public class DoubleMap<K> {
 
     final class KeyIterator extends HashIterator
             implements Iterator<K> {
-        public final K next() { return nextNode().getKey(); }
+        public K next() { return nextNode().getKey(); }
     }
 
     final class ValueIterator extends HashIterator
             implements PrimitiveIterator.OfDouble {
 
         public double nextDouble() { return nextNode().getValue(); }
-        public final Double next() { return nextNode().getValue(); }
+        public Double next() { return nextNode().getValue(); }
     }
 
     final class EntryIterator extends HashIterator
             implements Iterator<DoubleEntry<K>> {
 
-        public final DoubleEntry<K> next() {
-            return new DoubleEntry<K>() {
+        public DoubleEntry<K> next() {
+            return new DoubleEntry<>() {
                 private final Node<K> node = nextNode();
-                @Override public K getKey() { return node.getKey(); }
-                @Override public double getValue() { return node.getValue(); }
-                @Override public double setValue(double value) { return node.setValue(value); }
+
+                @Override
+                public K getKey() {
+                    return node.getKey();
+                }
+
+                @Override
+                public double getValue() {
+                    return node.getValue();
+                }
+
+                @Override
+                public double setValue(double value) {
+                    return node.setValue(value);
+                }
             };
         }
     }
@@ -415,9 +425,8 @@ public class DoubleMap<K> {
     public boolean equals(Object other) {
         if (this == other)
             return true;
-        if (!(other instanceof DoubleMap))
+        if (!(other instanceof DoubleMap<?> map))
             return false;
-        DoubleMap<?> map = (DoubleMap<?>) other;
         if (size() != map.size())
             return false;
 
