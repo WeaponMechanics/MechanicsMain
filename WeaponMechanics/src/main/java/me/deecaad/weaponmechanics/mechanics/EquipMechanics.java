@@ -1,4 +1,4 @@
-package me.deecaad.weaponmechanics.mechanics.keywords;
+package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
@@ -6,22 +6,22 @@ import me.deecaad.core.mechanics.Mechanics;
 import java.util.List;
 
 /**
- * For reload
+ * For equipping
  */
-public class StartMechanics extends Mechanics {
+public class EquipMechanics extends Mechanics {
 
     /**
      * Default constructor for serializer
      */
-    public StartMechanics() {
+    public EquipMechanics() {
     }
 
-    public StartMechanics(List<Mechanic<?>> mechanicList) {
+    public EquipMechanics(List<Mechanic<?>> mechanicList) {
         super(mechanicList);
     }
 
     @Override
     public String getKeyword() {
-        return "Start_Mechanics";
+        return "Weapon_Equip_Mechanics";
     }
 }

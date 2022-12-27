@@ -1,24 +1,27 @@
-package me.deecaad.weaponmechanics.mechanics.keywords;
+package me.deecaad.weaponmechanics.mechanics;
 
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 
 import java.util.List;
 
-public class HolsterMechanics extends Mechanics {
+/**
+ * For equipping
+ */
+public class WeaponGetMechanics extends Mechanics {
 
     /**
      * Default constructor for serializer
      */
-    public HolsterMechanics() {
+    public WeaponGetMechanics() {
     }
 
-    public HolsterMechanics(List<Mechanic<?>> mechanicList) {
+    public WeaponGetMechanics(List<Mechanic<?>> mechanicList) {
         super(mechanicList);
     }
 
     @Override
     public String getKeyword() {
-        return "Weapon_Holster_Mechanics";
+        return "Weapon_Get_Mechanics";
     }
 }
