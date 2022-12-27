@@ -232,15 +232,7 @@ public class AirStrike implements Serializer<AirStrike> {
         return new AirStrike(projectile, min, max, yOffset, yNoise, separation, range, layers, interval, detonation, mechanics);
     }
 
-    static class Vector2d {
-
-        private final double x;
-        private final double z;
-
-        Vector2d(double x, double z) {
-            this.x = x;
-            this.z = z;
-        }
+    record Vector2d(double x, double z) {
 
         double distanceSquared(Vector2d vector) {
             return NumberConversions.square(this.x - vector.x) + NumberConversions.square(this.z - vector.z);

@@ -289,7 +289,6 @@ public class FakeEntity_1_9_R2 extends FakeEntity {
             case CHEST -> EnumItemSlot.CHEST;
             case LEGS -> EnumItemSlot.LEGS;
             case HEAD -> EnumItemSlot.HEAD;
-            default -> throw new IllegalArgumentException();
         };
 
         EntityLiving livingEntity = (EntityLiving) entity;

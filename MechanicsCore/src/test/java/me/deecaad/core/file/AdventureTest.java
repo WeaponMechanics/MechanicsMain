@@ -19,7 +19,7 @@ public class AdventureTest {
     public static final Serializer<?> DUMMY = new Serializer<>() {
         @Nonnull
         @Override
-        public Object serialize(SerializeData data) throws SerializerException {
+        public Object serialize(SerializeData data) {
             throw new RuntimeException();
         }
     };

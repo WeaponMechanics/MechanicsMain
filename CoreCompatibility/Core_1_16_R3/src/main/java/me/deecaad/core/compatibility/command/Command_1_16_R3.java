@@ -324,15 +324,9 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
         for (EnumDirection.EnumAxis axis : nmsAxis) {
             switch (axis) {
-                case X:
-                    bukkitAxis.add(Axis.X);
-                    break;
-                case Y:
-                    bukkitAxis.add(Axis.Y);
-                    break;
-                case Z:
-                    bukkitAxis.add(Axis.Z);
-                    break;
+                case X -> bukkitAxis.add(Axis.X);
+                case Y -> bukkitAxis.add(Axis.Y);
+                case Z -> bukkitAxis.add(Axis.Z);
             }
         }
 

@@ -625,8 +625,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance"))
             livingEntity.setFallDistance(0.0f);
 
-        if (entityWrapper instanceof PlayerWrapper) {
-            PlayerWrapper playerWrapper = (PlayerWrapper) entityWrapper;
+        if (entityWrapper instanceof PlayerWrapper playerWrapper) {
             // Counts melees as shots also
             if (playerWrapper.getStatsData() != null)
                 playerWrapper.getStatsData().add(weaponTitle, WeaponStat.SHOTS, 1);

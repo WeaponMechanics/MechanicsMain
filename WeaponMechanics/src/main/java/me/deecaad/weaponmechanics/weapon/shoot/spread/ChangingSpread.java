@@ -33,9 +33,9 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
      * After changes are applied, also entity wrapper's {@link HandData#getSpreadChange()} is modified
      * based on circumstances. This basically means that changes are always made for NEXT shot, not current.
      *
-     * @param entityWrapper the entity wrapper used to check circumstances
-     * @param tempSpread the spread
-     * @param mainHand whether main hand was used
+     * @param entityWrapper      the entity wrapper used to check circumstances
+     * @param tempSpread         the spread
+     * @param mainHand           whether main hand was used
      * @param updateSpreadChange whether to allow updating current spread change
      * @return the modifier holder with updated horizontal and vertical values
      */
@@ -91,22 +91,12 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
         return new Bounds(resetAfterReachingBound, min * 0.01, max * 0.01);
     }
 
-    public static class Bounds {
-
-        private final boolean resetAfterReachingBound;
-        private final double min;
-        private final double max;
-
-        public Bounds(boolean resetAfterReachingBound, double min, double max) {
-            this.resetAfterReachingBound = resetAfterReachingBound;
-            this.min = min;
-            this.max = max;
-        }
+    public record Bounds(boolean resetAfterReachingBound, double min, double max) {
 
         /**
          * Checks bounds of spread
          *
-         * @return whether or not the spread change was reset
+         * @return whether the spread change was reset
          */
         public boolean checkBounds(HandData handData, double startingAmount) {
             double currentSpreadChange = handData.getSpreadChange();

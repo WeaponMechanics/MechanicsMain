@@ -281,29 +281,15 @@ public class FakeEntity_1_10_R1 extends FakeEntity {
         if (!type.isAlive())
             throw new IllegalStateException("Cannot set equipment of " + type);
 
-        EnumItemSlot slot;
-        switch (equipmentSlot) {
-            case HAND:
-                slot = EnumItemSlot.MAINHAND;
-                break;
-            case OFF_HAND:
-                slot = EnumItemSlot.OFFHAND;
-                break;
-            case FEET:
-                slot = EnumItemSlot.FEET;
-                break;
-            case CHEST:
-                slot = EnumItemSlot.CHEST;
-                break;
-            case LEGS:
-                slot = EnumItemSlot.LEGS;
-                break;
-            case HEAD:
-                slot = EnumItemSlot.HEAD;
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
+        EnumItemSlot slot = switch (equipmentSlot) {
+            case HAND -> EnumItemSlot.MAINHAND;
+            case OFF_HAND -> EnumItemSlot.OFFHAND;
+            case FEET -> EnumItemSlot.FEET;
+            case CHEST -> EnumItemSlot.CHEST;
+            case LEGS -> EnumItemSlot.LEGS;
+            case HEAD -> EnumItemSlot.HEAD;
+            default -> throw new IllegalArgumentException();
+        };
 
         EntityLiving livingEntity = (EntityLiving) entity;
         livingEntity.setSlot(slot, CraftItemStack.asNMSCopy(itemStack));

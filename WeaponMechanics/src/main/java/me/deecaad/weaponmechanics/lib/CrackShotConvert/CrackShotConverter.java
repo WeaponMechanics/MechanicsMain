@@ -285,13 +285,7 @@ public class CrackShotConverter {
         }
     }
 
-    private static class ValueDoubleConvert implements Converter {
-
-        private final Function<Double, Double> function;
-
-        public ValueDoubleConvert(Function<Double, Double> function) {
-            this.function = function;
-        }
+    private record ValueDoubleConvert(Function<Double, Double> function) implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -353,7 +347,8 @@ public class CrackShotConverter {
                     // If CrackShot is outdated... or other exception
                     try {
                         soundName = Sound.valueOf(splitted[0].toUpperCase()).name();
-                    } catch (IllegalArgumentException ignored) {}
+                    } catch (IllegalArgumentException ignored) {
+                    }
                 }
                 if (soundName == null) {
                     soundName = StringUtil.didYouMean(splitted[0], EnumUtil.getOptions(Sound.class));
@@ -752,13 +747,7 @@ public class CrackShotConverter {
         }
     }
 
-    private static class CommandConvert implements Converter {
-
-        private final boolean onlyConsole;
-
-        public CommandConvert(boolean onlyConsole) {
-            this.onlyConsole = onlyConsole;
-        }
+    private record CommandConvert(boolean onlyConsole) implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -906,7 +895,8 @@ public class CrackShotConverter {
             // If CrackShot is outdated... or other exception
             try {
                 return Material.valueOf(type.toUpperCase()).name();
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+            }
         }
 
         String materialName = StringUtil.didYouMean(type, EnumUtil.getOptions(Material.class));

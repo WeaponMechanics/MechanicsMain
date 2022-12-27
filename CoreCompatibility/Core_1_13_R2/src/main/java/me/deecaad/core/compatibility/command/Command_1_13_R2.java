@@ -324,15 +324,9 @@ public class Command_1_13_R2 implements CommandCompatibility {
 
         for (EnumDirection.EnumAxis axis : nmsAxis) {
             switch (axis) {
-                case X:
-                    bukkitAxis.add(Axis.X);
-                    break;
-                case Y:
-                    bukkitAxis.add(Axis.Y);
-                    break;
-                case Z:
-                    bukkitAxis.add(Axis.Z);
-                    break;
+                case X -> bukkitAxis.add(Axis.X);
+                case Y -> bukkitAxis.add(Axis.Y);
+                case Z -> bukkitAxis.add(Axis.Z);
             }
         }
 
@@ -571,20 +565,14 @@ public class Command_1_13_R2 implements CommandCompatibility {
 
     @SuppressWarnings("unchecked")
     private Object convert(NBTBase tag) {
-        switch (tag.getTypeId()) {
-            case 1: case 2: case 3: case 4:
-                return ((NBTNumber) tag).asInt();
-            case 5: case 6:
-                return ((NBTNumber) tag).asDouble();
-            case 8:
-                return ((NBTTagString) tag).toString();
-            case 7: case 11: case 12: case 9:
-                return convertList((NBTList<NBTBase>) tag);
-            case 10:
-                return convertMap((NBTTagCompound) tag);
-            default:
-                throw new IllegalStateException("Unexpected value: " + tag);
-        }
+        return switch (tag.getTypeId()) {
+            case 1, 2, 3, 4 -> ((NBTNumber) tag).asInt();
+            case 5, 6 -> ((NBTNumber) tag).asDouble();
+            case 8 -> ((NBTTagString) tag).toString();
+            case 7, 11, 12, 9 -> convertList((NBTList<NBTBase>) tag);
+            case 10 -> convertMap((NBTTagCompound) tag);
+            default -> throw new IllegalStateException("Unexpected value: " + tag);
+        };
     }
 
     private Map<String, Object> convertMap(NBTTagCompound nbt) {

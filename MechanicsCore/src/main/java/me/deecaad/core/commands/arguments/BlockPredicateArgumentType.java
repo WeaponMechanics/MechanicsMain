@@ -21,7 +21,7 @@ public class BlockPredicateArgumentType extends CommandArgumentType<Predicate<Bl
     }
 
     public static Predicate<Block> TRUE(String name) {
-        return new Predicate<Block>() {
+        return new Predicate<>() {
             @Override
             public boolean test(Block o) {
                 return true;
@@ -35,7 +35,7 @@ public class BlockPredicateArgumentType extends CommandArgumentType<Predicate<Bl
     }
 
     public static Predicate<Block> FALSE(String name) {
-        return new Predicate<Block>() {
+        return new Predicate<>() {
             @Override
             public boolean test(Block o) {
                 return false;
