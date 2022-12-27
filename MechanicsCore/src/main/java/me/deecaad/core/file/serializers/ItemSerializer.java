@@ -343,8 +343,9 @@ public class ItemSerializer implements Serializer<ItemStack> {
         ItemStack result = itemStack.clone();
         result.setAmount(resultAmount);
 
+        // Namespaced keys for recipes were added in MC 1.12
         ShapedRecipe recipe;
-        if (ReflectionUtil.getMCVersion() < 13) {
+        if (ReflectionUtil.getMCVersion() < 12) {
             recipe = new ShapedRecipe(result);
         } else {
             recipe = new ShapedRecipe(new NamespacedKey(MechanicsCore.getPlugin(), data.key), result);
