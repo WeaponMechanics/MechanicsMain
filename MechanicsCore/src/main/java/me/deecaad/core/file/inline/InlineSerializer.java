@@ -212,22 +212,42 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
         return stop;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected Map<Argument, Object> serialize(String line) throws InlineException {
 
         Map<Argument, Object> serializedData = new HashMap<>();
-        Map<Argument, Object> currentDepth = serializedData;
-        LinkedList<Map<Argument, Object>> stack = new LinkedList<>();
+        Object currentDepth = serializedData;
+        LinkedList<Object> stack = new LinkedList<>();
         LinkedList<String> keyStack = new LinkedList<>();
 
         String key = null;
         StringBuilder value = new StringBuilder();
 
         for (int i = 0; i < line.length(); i++) {
+
+            // Let people use escaped parenthesis, brackets, etc. by using the
+            // backslash ('\') character. This also allows people to use
+            // escaped backslash characters by using 2 backslashes.
+            if (StringUtil.isEscaped(line, i))
+                continue;
+
             char c = line.charAt(i);
 
+            // When we encounter an opening object ('(') or an opening list
+            // ('['), we have to "step deeper" into the stack. Since lists
+            // don't really have keys, we use the index as the key instead
+            // (This only applies when you have an object nested in a list).
             if (c == '(' || c == '[') {
-                Map<Argument, Object> newDepth = new HashMap<>();
-                currentDepth.put(args().getArgument(keyStack, key), newDepth);
+                Object newDepth = c == '(' ? new HashMap<>() : new ArrayList<>();
+                if (currentDepth instanceof Map map)
+                    map.put(args().getArgument(keyStack, key), newDepth);
+                else {
+                    if (key != null)
+                        throw new InlineException(i, "Found a key inside of a list", "If you wanted to put a 'key=value' inside of a list, it has to use parenthesis");
+                    List list = (List) currentDepth;
+                    key = String.valueOf(list.size());
+                    list.add(newDepth);
+                }
                 stack.push(newDepth);
                 keyStack.push(key);
 
@@ -236,8 +256,8 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
                 value.setLength(0);
             }
 
+            // Closing parenthesis means we have to "step out" of the stack.
             else if (c == ')' || c == ']') {
-
                 if (value.length() != 0) {
                     serializeArgument(keyStack, key, currentDepth, value);
                 } else if (key != null) {
@@ -272,9 +292,20 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
         return serializedData;
     }
 
-    private void serializeArgument(LinkedList<String> keyStack, String key, Map<Argument, Object> currentDepth, StringBuilder value) throws InlineException {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void serializeArgument(LinkedList<String> keyStack, String key, Object currentDepth, StringBuilder value) throws InlineException {
         Argument temp = args().getArgument(keyStack, key);
-        currentDepth.put(temp, temp.serialize(value.toString().strip()));
+
+        if (currentDepth instanceof Map map) {
+            map.put(temp, temp.serialize(value.toString()));
+        } else {
+            if (key != null)
+                throw new InlineException(key, new SerializerException("", new String[] {"Found a key inside of a list",
+                        "If you wanted to put a 'key=value' inside of a list, it has to use parenthesis"}, ""));
+
+            List list = (List) currentDepth;
+            list.add(temp.serialize(value.toString()));
+        }
         value.setLength(0);
     }
 }

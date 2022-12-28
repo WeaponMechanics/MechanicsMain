@@ -22,6 +22,10 @@ public class InlineException extends Exception {
         this.exception = exception;
     }
 
+    public InlineException(int index, String... messages) {
+        this(index, new SerializerException("", messages, ""));
+    }
+
     public InlineException(String issue, SerializerException exception) {
         this.index = -1;
         this.issue = issue;

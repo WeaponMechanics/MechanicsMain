@@ -125,7 +125,7 @@ public final class NumberUtil {
      */
     public static float random(float min, float max) {
         if (min == max) return min;
-        return ThreadLocalRandom.current().nextFloat(min, max);
+        return ThreadLocalRandom.current().nextFloat() * (max - min) + min;
     }
 
     /**

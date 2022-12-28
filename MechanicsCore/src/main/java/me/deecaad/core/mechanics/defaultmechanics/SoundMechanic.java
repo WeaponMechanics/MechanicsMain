@@ -4,12 +4,10 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.inline.Argument;
 import me.deecaad.core.file.inline.ArgumentMap;
 import me.deecaad.core.file.inline.InlineException;
-import me.deecaad.core.file.inline.types.DoubleType;
-import me.deecaad.core.file.inline.types.EnumType;
-import me.deecaad.core.file.inline.types.NestedType;
-import me.deecaad.core.file.inline.types.StringType;
+import me.deecaad.core.file.inline.types.*;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
@@ -25,14 +23,14 @@ public class SoundMechanic extends Mechanic {
     public static final Argument PITCH = new Argument("pitch", new DoubleType(0.5, 2.0), 1.0);
     public static final Argument NOISE = new Argument("noise", new DoubleType(0.0, 1.0), 0.0);
     public static final Argument CATEGORY = new Argument("category", new StringType(), null); // only use Enum in 1.11+
-    public static final Argument LISTENERS = new Argument("listeners", new NestedType<>(Targeter.class), null);
+    public static final Argument LISTENERS = new Argument("listeners", new RegistryType<>(Mechanics.TARGETERS), null);
 
     private final Sound sound;
     private final float volume;
     private final float pitch;
     private final float noise;
     private final Object category; // store as an Object to avoid version mismatch errors in <1.11
-    private Targeter listeners;
+    private final Targeter listeners;
 
     public SoundMechanic(Map<Argument, Object> args) {
         sound = (Sound) args.get(SOUND);
@@ -41,11 +39,11 @@ public class SoundMechanic extends Mechanic {
         noise = ((Number) args.get(NOISE)).floatValue();
         listeners = (Targeter) args.get(LISTENERS);
 
+        // This if-else is technically redundant, but I put it here for clarity
         if (ReflectionUtil.getMCVersion() < 11)
             category = null;
         else
-            category = (SoundCategory) args.get(CATEGORY);
-
+            category = args.get(CATEGORY); // no need to cast... store as object to avoid error
     }
 
     @Override
