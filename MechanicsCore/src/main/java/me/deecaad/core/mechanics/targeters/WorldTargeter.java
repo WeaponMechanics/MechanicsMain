@@ -18,8 +18,14 @@ public class WorldTargeter extends Targeter {
 
     public static final Argument WORLD = new Argument("world", new StringType(), null);
 
-    private final String worldName;
+    private String worldName;
     private World worldCache;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public WorldTargeter() {
+    }
 
     public WorldTargeter(Map<Argument, Object> args) throws InlineException {
         super(args);

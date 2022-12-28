@@ -19,8 +19,14 @@ public class CommandMechanic extends Mechanic {
     public static final Argument CONSOLE = new Argument("console", new BooleanType(), false);
     public static final Argument COMMAND = new Argument("command", new StringType());
 
-    private final boolean console;
-    private final String command;
+    private boolean console;
+    private String command;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public CommandMechanic() {
+    }
 
     public CommandMechanic(Map<Argument, Object> args) {
         super(args);

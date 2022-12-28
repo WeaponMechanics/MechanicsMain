@@ -16,7 +16,7 @@ public class ShooterMechanics extends Mechanics {
     public ShooterMechanics() {
     }
 
-    public ShooterMechanics(List<Mechanic<?>> mechanicList) {
+    public ShooterMechanics(List<Mechanic> mechanicList) {
         super(mechanicList);
     }
 

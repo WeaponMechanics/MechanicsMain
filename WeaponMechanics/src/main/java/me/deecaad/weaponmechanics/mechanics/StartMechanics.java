@@ -16,7 +16,7 @@ public class StartMechanics extends Mechanics {
     public StartMechanics() {
     }
 
-    public StartMechanics(List<Mechanic<?>> mechanicList) {
+    public StartMechanics(List<Mechanic> mechanicList) {
         super(mechanicList);
     }
 

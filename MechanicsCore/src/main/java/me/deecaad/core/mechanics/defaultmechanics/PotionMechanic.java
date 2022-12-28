@@ -20,7 +20,13 @@ public class PotionMechanic extends Mechanic {
     public static final Argument HIDE_PARTICLES = new Argument("hideParticles", new BooleanType(), false);
     public static final Argument HIDE_ICON = new Argument("hideIcon", new BooleanType(), false);
 
-    private final PotionEffect potion;
+    private PotionEffect potion;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public PotionMechanic() {
+    }
 
     public PotionMechanic(Map<Argument, Object> args) {
         super(args);

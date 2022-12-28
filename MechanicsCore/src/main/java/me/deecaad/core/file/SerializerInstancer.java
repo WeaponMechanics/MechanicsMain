@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.file.inline.InlineSerializer;
 import me.deecaad.core.utils.LogLevel;
 
 import javax.annotation.Nonnull;
@@ -44,7 +45,7 @@ public class SerializerInstancer extends JarSearcher {
 
             try {
                 Serializer instance = emptyConstructor.newInstance();
-                if (instance.getKeyword() == null)
+                if (instance.getKeyword() == null || instance instanceof InlineSerializer<?>)
                     continue;
 
                 instances.add(instance);

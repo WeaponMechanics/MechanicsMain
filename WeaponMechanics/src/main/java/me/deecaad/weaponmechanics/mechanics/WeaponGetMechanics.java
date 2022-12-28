@@ -16,7 +16,7 @@ public class WeaponGetMechanics extends Mechanics {
     public WeaponGetMechanics() {
     }
 
-    public WeaponGetMechanics(List<Mechanic<?>> mechanicList) {
+    public WeaponGetMechanics(List<Mechanic> mechanicList) {
         super(mechanicList);
     }
 

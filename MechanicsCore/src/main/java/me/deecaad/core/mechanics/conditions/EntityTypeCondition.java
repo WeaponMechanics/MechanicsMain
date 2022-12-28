@@ -12,7 +12,13 @@ public class EntityTypeCondition extends Condition {
 
     public static final Argument TYPE = new Argument("type", new EnumType<>(EntityType.class));
 
-    private final EntityType type;
+    private EntityType type;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public EntityTypeCondition() {
+    }
 
     public EntityTypeCondition(Map<Argument, Object> args) {
         this.type = (EntityType) args.get(TYPE);

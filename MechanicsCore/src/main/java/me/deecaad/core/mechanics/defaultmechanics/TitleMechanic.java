@@ -28,9 +28,15 @@ public class TitleMechanic extends Mechanic {
     public static final Argument STAY = new Argument("stay", new IntegerType(0), 80);
     public static final Argument FADE_OUT = new Argument("fadeOut", new IntegerType(0), 5);
 
-    private final String title;
-    private final String subtitle;
-    private final Title.Times times;
+    private String title;
+    private String subtitle;
+    private Title.Times times;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public TitleMechanic() {
+    }
 
     public TitleMechanic(Map<Argument, Object> args) throws SerializerException {
         super(args);

@@ -15,8 +15,14 @@ public class LeapMechanic extends Mechanic {
     public static final Argument SPEED = new Argument("speed", new DoubleType());
     public static final Argument VERTICAL_MULTIPLIER = new Argument("verticalMultiplier", new DoubleType(), 1.0);
 
-    private final double speed;
-    private final double verticalMultiplier;
+    private double speed;
+    private double verticalMultiplier;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public LeapMechanic() {
+    }
 
     public LeapMechanic(Map<Argument, Object> args) {
         super(args);

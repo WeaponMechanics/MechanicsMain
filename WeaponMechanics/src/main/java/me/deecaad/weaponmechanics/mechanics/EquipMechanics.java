@@ -16,7 +16,7 @@ public class EquipMechanics extends Mechanics {
     public EquipMechanics() {
     }
 
-    public EquipMechanics(List<Mechanic<?>> mechanicList) {
+    public EquipMechanics(List<Mechanic> mechanicList) {
         super(mechanicList);
     }
 

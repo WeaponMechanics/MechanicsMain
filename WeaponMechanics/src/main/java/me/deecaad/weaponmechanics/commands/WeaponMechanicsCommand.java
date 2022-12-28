@@ -78,7 +78,7 @@ public class WeaponMechanicsCommand {
     };
 
     public static Function<CommandData, Tooltip[]> AMMO_SUGGESTIONS = (data) -> {
-        String weaponTitle = (String) data.previousArguments[data.previousArguments.length - 1];
+        String weaponTitle = (String) data.previousArguments()[data.previousArguments().length - 1];
         Configuration config = WeaponMechanics.getConfigurations();
 
         AmmoTypes types = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);

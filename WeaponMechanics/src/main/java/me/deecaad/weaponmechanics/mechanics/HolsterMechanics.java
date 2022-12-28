@@ -13,7 +13,7 @@ public class HolsterMechanics extends Mechanics {
     public HolsterMechanics() {
     }
 
-    public HolsterMechanics(List<Mechanic<?>> mechanicList) {
+    public HolsterMechanics(List<Mechanic> mechanicList) {
         super(mechanicList);
     }
 

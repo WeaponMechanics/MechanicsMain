@@ -16,9 +16,9 @@ public class CastData implements Cloneable {
 
     // Sourcing information. "Where did this come from?"
     private final LivingEntity source;
-    private String itemTitle;
-    private ItemStack itemStack;
-    private Location sourceLocation;
+    private final String itemTitle;
+    private final ItemStack itemStack;
+    private final Location sourceLocation;
 
     // Targeting information. This is filled in during casting.
     private LivingEntity targetEntity;
@@ -30,19 +30,21 @@ public class CastData implements Cloneable {
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack) {
         this.source = source;
+        this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
     }
 
     public CastData(LivingEntity source, Location sourceLocation, String itemTitle, ItemStack itemStack) {
         this.source = source;
+        this.sourceLocation = sourceLocation;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
-        this.sourceLocation = sourceLocation;
     }
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Map<String, String> tempPlaceholders) {
         this.source = source;
+        this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.tempPlaceholders = tempPlaceholders;
@@ -50,6 +52,7 @@ public class CastData implements Cloneable {
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Consumer<Integer> taskIdConsumer) {
         this.source = source;
+        this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.taskIdConsumer = taskIdConsumer;

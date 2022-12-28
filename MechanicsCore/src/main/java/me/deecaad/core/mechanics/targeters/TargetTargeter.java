@@ -9,6 +9,12 @@ import java.util.Map;
 
 public class TargetTargeter extends Targeter {
 
+    /**
+     * Default constructor for serializer.
+     */
+    public TargetTargeter() {
+    }
+
     public TargetTargeter(Map<Argument, Object> args) throws InlineException {
         super(args);
     }

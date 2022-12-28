@@ -16,7 +16,7 @@ public class FinishMechanics extends Mechanics {
     public FinishMechanics() {
     }
 
-    public FinishMechanics(List<Mechanic<?>> mechanicList) {
+    public FinishMechanics(List<Mechanic> mechanicList) {
         super(mechanicList);
     }
 

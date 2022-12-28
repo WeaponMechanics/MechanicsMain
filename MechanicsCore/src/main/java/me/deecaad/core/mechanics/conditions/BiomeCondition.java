@@ -12,7 +12,13 @@ public class BiomeCondition extends Condition {
 
     public static final Argument BIOME = new Argument("biome", new EnumType<>(Biome.class));
 
-    private final Biome biome;
+    private Biome biome;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public BiomeCondition() {
+    }
 
     public BiomeCondition(Map<Argument, Object> args) {
         biome = (Biome) args.get(BIOME);

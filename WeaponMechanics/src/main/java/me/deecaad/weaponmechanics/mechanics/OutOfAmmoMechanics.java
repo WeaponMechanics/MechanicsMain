@@ -10,9 +10,10 @@ import java.util.List;
  */
 public class OutOfAmmoMechanics extends Mechanics {
 
-    public OutOfAmmoMechanics() { }
+    public OutOfAmmoMechanics() {
+    }
 
-    public OutOfAmmoMechanics(List<Mechanic<?>> mechanicList) {
+    public OutOfAmmoMechanics(List<Mechanic> mechanicList) {
         super(mechanicList);
     }
 

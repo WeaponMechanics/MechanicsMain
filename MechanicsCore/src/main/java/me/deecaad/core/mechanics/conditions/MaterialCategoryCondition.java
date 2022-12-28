@@ -17,7 +17,13 @@ public class MaterialCategoryCondition extends Condition {
 
     public static final Argument CATEGORY = new Argument("category", new EnumType<>(MaterialCategory.class));
 
-    private final MaterialCategory category;
+    private MaterialCategory category;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public MaterialCategoryCondition() {
+    }
 
     public MaterialCategoryCondition(Map<Argument, Object> args) {
         this.category = (MaterialCategory) args.get(CATEGORY);

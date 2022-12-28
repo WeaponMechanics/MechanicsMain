@@ -19,7 +19,13 @@ public class MessageMechanic extends Mechanic {
 
     public static final Argument MESSAGE = new Argument("message", new StringType(true));
 
-    private final String message;
+    private String message;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public MessageMechanic() {
+    }
 
     public MessageMechanic(Map<Argument, Object> args) {
         super(args);

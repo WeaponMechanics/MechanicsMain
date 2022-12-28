@@ -78,11 +78,17 @@ public class FireworkMechanic extends Mechanic {
 
     public static final Argument EFFECTS = new Argument("effects", new ListType<>(new NestedType<>(FireworkData.class)));
     public static final Argument FLIGHT_TIME = new Argument("flightTime", new IntegerType(0), 1);
-    public static final Argument VIEWERS = new Argument("viewers", new NestedType<>(Targeter.class), null);
+    public static final Argument VIEWERS = new Argument("viewers", new RegistryType<>(Mechanics.TARGETERS), null);
 
-    private final ItemStack fireworkItem;
-    private final int flightTime; // THIS IS A COPY OF THE VALUE IN 'fireworkItem'
-    private final Targeter viewers;
+    private ItemStack fireworkItem;
+    private int flightTime; // THIS IS A COPY OF THE VALUE IN 'fireworkItem'
+    private Targeter viewers;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public FireworkMechanic() {
+    }
 
     @SuppressWarnings("unchecked")
     public FireworkMechanic(Map<Argument, Object> args) {

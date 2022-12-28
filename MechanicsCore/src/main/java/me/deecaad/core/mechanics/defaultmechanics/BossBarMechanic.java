@@ -28,11 +28,14 @@ public class BossBarMechanic extends Mechanic {
     public static final Argument PROGRESS = new Argument("progress", new DoubleType(0.0, 1.0), 1.0);
     public static final Argument TIME = new Argument("time", new IntegerType(0), 100);
 
-    private final String title;
-    private final BossBar.Color color;
-    private final BossBar.Overlay style;
-    private final float progress;
-    private final int time;
+    private String title;
+    private BossBar.Color color;
+    private BossBar.Overlay style;
+    private float progress;
+    private int time;
+
+    public BossBarMechanic() {
+    }
 
     public BossBarMechanic(Map<Argument, Object> args) {
         super(args);
@@ -76,6 +79,6 @@ public class BossBarMechanic extends Mechanic {
 
     @Override
     public String getKeyword() {
-        return "Message";
+        return "Boss_Bar";
     }
 }

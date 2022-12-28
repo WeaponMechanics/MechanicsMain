@@ -26,14 +26,22 @@ public class CustomSoundMechanic extends Mechanic {
     public static final Argument CATEGORY = new Argument("category", new StringType(), null); // only use Enum in 1.11+
     public static final Argument LISTENERS = new Argument("listeners", new RegistryType<>(Mechanics.TARGETERS), null);
 
-    private final String sound;
-    private final float volume;
-    private final float pitch;
-    private final float noise;
-    private final Object category; // store as an Object to avoid version mismatch errors in <1.11
-    private final Targeter listeners;
+    private String sound;
+    private float volume;
+    private float pitch;
+    private float noise;
+    private Object category; // store as an Object to avoid version mismatch errors in <1.11
+    private Targeter listeners;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public CustomSoundMechanic() {
+    }
 
     public CustomSoundMechanic(Map<Argument, Object> args) {
+        super(args);
+
         sound = (String) args.get(SOUND);
         volume = ((Number) args.get(VOLUME)).floatValue();
         pitch = ((Number) args.get(PITCH)).floatValue();

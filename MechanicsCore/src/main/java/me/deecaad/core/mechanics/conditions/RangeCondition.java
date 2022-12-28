@@ -14,8 +14,14 @@ public class RangeCondition extends Condition {
     public static final Argument MIN = new Argument("min", new DoubleType(0.0), 0.0);
     public static final Argument MAX = new Argument("max", new DoubleType(0.0), -1.0);
 
-    private final double minSquared;
-    private final double maxSquared;
+    private double minSquared;
+    private double maxSquared;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public RangeCondition() {
+    }
 
     public RangeCondition(Map<Argument, Object> args) throws InlineException {
         double min = (double) args.get(MIN);

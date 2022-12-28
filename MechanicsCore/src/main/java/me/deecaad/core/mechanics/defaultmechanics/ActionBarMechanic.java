@@ -22,8 +22,14 @@ public class ActionBarMechanic extends Mechanic {
     public static final Argument MESSAGE = new Argument("message", new StringType(true));
     public static final Argument TIME = new Argument("time", new IntegerType(40));
 
-    private final String message;
-    private final int time;
+    private String message;
+    private int time;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public ActionBarMechanic() {
+    }
 
     public ActionBarMechanic(Map<Argument, Object> args) {
         super(args);

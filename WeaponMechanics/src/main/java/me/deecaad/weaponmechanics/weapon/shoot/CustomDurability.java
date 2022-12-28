@@ -8,12 +8,13 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -224,7 +225,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
      * @param item   The non-null weapon to lose durability.
      * @return true if the item was broken.
      */
-    public boolean use(EntityWrapper entity, ItemStack item) {
+    public boolean use(LivingEntity entity, ItemStack item, String weaponTitle) {
         ItemMeta meta = item.getItemMeta();
 
         // Check chance and unbreaking.
@@ -242,14 +243,14 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         int durability = CustomTag.DURABILITY.getInteger(item) - durabilityPerShot;
         if (durability > 0) {
-            if (durabilityMechanics != null) durabilityMechanics.use(new CastData(entity));
+            if (durabilityMechanics != null) durabilityMechanics.use(new CastData(entity, weaponTitle, item));
             CustomTag.DURABILITY.setInteger(item, durability);
             return false;
         }
 
         // When the item has broken, we have to either destroy it or replace
         // the broken item with the 'replaceItem'
-        if (breakMechanics != null) breakMechanics.use(new CastData(entity));
+        if (breakMechanics != null) breakMechanics.use(new CastData(entity, weaponTitle, item));
         if (replaceItem == null) {
             item.setAmount(0);
             return true;
