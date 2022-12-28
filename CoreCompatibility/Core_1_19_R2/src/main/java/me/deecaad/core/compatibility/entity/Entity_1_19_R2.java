@@ -19,6 +19,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -39,6 +40,13 @@ public class Entity_1_19_R2 implements EntityCompatibility {
     }
 
     public static final Field itemsById = ReflectionUtil.getField(SynchedEntityData.class, Int2ObjectMap.class);
+
+
+    @Override
+    public Vector getLastLocation(Entity entity) {
+        net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
+        return new Vector(nms.xOld, nms.yOld, nms.zOld);
+    }
 
     @Override
     public List generateNonNullList(int size, TriIntConsumer<org.bukkit.inventory.ItemStack, org.bukkit.inventory.ItemStack> consumer) {

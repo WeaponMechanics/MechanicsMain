@@ -2,12 +2,13 @@ package me.deecaad.core;
 
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.events.triggers.EquipListener;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerInstancer;
+import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
+import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.conditions.Condition;
+import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
@@ -43,6 +44,21 @@ public class MechanicsCore extends JavaPlugin {
         int level = getConfig().getInt("Debug_Level");
         boolean printTraces = getConfig().getBoolean("Print_Traces");
         debug = new Debugger(getLogger(), level, printTraces);
+
+        // Search the jar file for Mechanics, Targeters, and Conditions. We
+        // need to register them to the Mechanics.class registries.
+        try {
+            JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
+            searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+            searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+            searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+
+        } catch (IOException ex) {
+            debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
+        }
     }
 
     public void onEnable() {

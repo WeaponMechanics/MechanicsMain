@@ -40,10 +40,11 @@ public class CustomSoundMechanic extends Mechanic {
         noise = ((Number) args.get(NOISE)).floatValue();
         listeners = (Targeter) args.get(LISTENERS);
 
+        // This if-else is technically redundant, but I put it here for clarity
         if (ReflectionUtil.getMCVersion() < 11)
             category = null;
         else
-            category = (SoundCategory) args.get(CATEGORY);
+            category = args.get(CATEGORY); // no need to cast... store as object to avoid error
 
     }
 
