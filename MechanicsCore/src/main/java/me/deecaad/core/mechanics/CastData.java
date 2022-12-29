@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -87,13 +88,15 @@ public class CastData implements Cloneable {
 
     @Nonnull
     public Location getTargetLocation() {
+        if (targetLocation == null && targetEntity == null) {
+            debug.warn("Not targeting either entity nor location\n" + Arrays.toString(new Throwable().getStackTrace()));
+        }
         return targetLocation != null ? targetLocation : targetEntity.getLocation();
     }
 
     public void setTargetLocation(Location targetLocation) {
         this.targetLocation = targetLocation;
     }
-
 
     @Nullable
     public Consumer<Integer> getTaskIdConsumer() {
