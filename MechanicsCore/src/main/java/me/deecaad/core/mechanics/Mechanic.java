@@ -32,7 +32,7 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
 
     // Inline arguments
     public static final Argument REPEAT_AMOUNT = new Argument("repeatAmount", new IntegerType(1), 1);
-    public static final Argument REPEAT_INTERVAL = new Argument("repeatInterval", new IntegerType(0), 0);
+    public static final Argument REPEAT_INTERVAL = new Argument("repeatInterval", new IntegerType(1), 1);
     public static final Argument DELAY_BEFORE_PLAY = new Argument("delayBeforePlay", new IntegerType(0), 0);
 
     // package-private for serialization phase
@@ -77,14 +77,14 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
     public final void use(CastData cast) {
 
         // If there is no need to schedule event, skip the event process.
-        if (repeatAmount == 1 && repeatInterval == 0 && delayBeforePlay == 0) {
+        if (repeatAmount == 1 && repeatInterval == 1 && delayBeforePlay == 0) {
             OUTER:
             for (CastData target : targeter.getTargets(cast)) {
                 for (Condition condition : conditions)
                     if (!condition.isAllowed(target))
                         continue OUTER;
 
-                use0(cast);
+                use0(target);
             }
             return;
         }
@@ -107,7 +107,7 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
                     use0(cast);
                 }
             }
-        }.runTaskTimer(MechanicsCore.getPlugin(), delayBeforePlay, repeatInterval).getTaskId();
+        }.runTaskTimer(MechanicsCore.getPlugin(), delayBeforePlay, repeatInterval - 1).getTaskId();
 
         // This allows developers to consume task ids from playing a Mechanic.
         // Good for canceling tasks early.

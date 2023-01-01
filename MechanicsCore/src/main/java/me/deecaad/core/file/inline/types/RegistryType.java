@@ -30,4 +30,9 @@ public class RegistryType<T extends InlineSerializer<T>> implements ArgumentType
         return example + "(" + registry.get(example).args().getArgs().values().stream()
                 .map(arg -> arg.getName() + "=" + arg.getType().example()).collect(Collectors.joining(", ")) + ")";
     }
+
+    @Override
+    public boolean isComplex() {
+        return true;
+    }
 }

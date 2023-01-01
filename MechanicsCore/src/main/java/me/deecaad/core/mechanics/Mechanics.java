@@ -129,7 +129,7 @@ public class Mechanics implements Serializer<Mechanics> {
                     try {
                         // We need to call the 'inlineFormat' method since the
                         // current targeter object is just an empty serializer.
-                        targeter = targeter.inlineFormat(group);
+                        targeter = targeter.inlineFormat(group.substring(1));
                     } catch (InlineException ex) {
                         if (ex.getIndex() != -1)
                             ex.setIndex(ex.getIndex() + index);
@@ -150,7 +150,7 @@ public class Mechanics implements Serializer<Mechanics> {
                     try {
                         // We need to call the 'inlineFormat' method since the
                         // current condition object is just an empty serializer.
-                        conditions.add(condition.inlineFormat(group));
+                        conditions.add(condition.inlineFormat(group.substring(1)));
                     } catch (InlineException ex) {
                         if (ex.getIndex() != -1)
                             ex.setIndex(ex.getIndex() + index);

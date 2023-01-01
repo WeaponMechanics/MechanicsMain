@@ -57,6 +57,13 @@ public final class Registry<T extends InlineSerializer<T>> {
     }
 
     /**
+     * Clears the registry using {@link HashMap#clear()}.
+     */
+    public void clear() {
+        registry.clear();
+    }
+
+    /**
      * Keys are use lowercase english letters, and do not include spaces or
      * underscores. This method converts a normal string into a key for a
      * registry.

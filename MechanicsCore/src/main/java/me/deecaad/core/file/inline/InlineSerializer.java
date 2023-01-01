@@ -1,9 +1,7 @@
 package me.deecaad.core.file.inline;
 
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerMissingKeyException;
+import me.deecaad.core.file.*;
+import me.deecaad.core.file.inline.types.ListType;
 import me.deecaad.core.file.inline.types.NestedType;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -223,7 +221,8 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
         String key = null;
         StringBuilder value = new StringBuilder();
 
-        for (int i = 0; i < line.length(); i++) {
+        int i;
+        for (i = 0; i < line.length(); i++) {
 
             // Let people use escaped parenthesis, brackets, etc. by using the
             // backslash ('\') character. This also allows people to use
@@ -245,7 +244,6 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
                     if (key != null)
                         throw new InlineException(i, "Found a key inside of a list", "If you wanted to put a 'key=value' inside of a list, it has to use parenthesis");
                     List list = (List) currentDepth;
-                    key = String.valueOf(list.size());
                     list.add(newDepth);
                 }
                 stack.push(newDepth);
@@ -261,7 +259,7 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
                 if (value.length() != 0) {
                     serializeArgument(keyStack, key, currentDepth, value);
                 } else if (key != null) {
-                    throw new InlineException(i, new SerializerException("", new String[] {"Formatting error... Found a key '" + key + "' without a value before a close character ('" + c + "')"}, ""));
+                    throw new InlineException(i, "Formatting error... Found an argument '" + key + "' without a value before a close character ('" + c + "')");
                 }
 
                 currentDepth = stack.pop();
@@ -276,9 +274,9 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             else if (c == ',') {
 
                 if (key == null)
-                    throw new InlineException(i, new SerializerException("", new String[] {"Formatting error... Found comma character (',') without a 'key=value'"}, ""));
+                    throw new InlineException(i, "Formatting error... Found comma character (',') without a 'argument=value'");
                 if (value.length() == 0)
-                    throw new InlineException(i, new SerializerException("", new String[] {"Formatting error... Found comma character (',') with a key '" + key + "' without a value"}, ""));
+                    throw new InlineException(i, "Formatting error... Found comma character (',') with an argument '" + key + "' without a value");
 
                 serializeArgument(keyStack, key, currentDepth, value);
                 key = null;
@@ -289,11 +287,66 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             }
         }
 
+        // Consider 'key=value, greeting=hello'
+        // Since 'greeting=hello' does not end with a comma ',' nor a closing
+        // parenthesis ')', the last argument is never added
+        if (key != null || value.length() != 0) {
+            if (key != null && value.length() == 0)
+                throw new InlineException(i, "Formatting error... Found an argument '" + key + "' without a value");
+
+            serializeArgument(keyStack, key, currentDepth, value);
+        }
+
         return serializedData;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void serializeArgument(LinkedList<String> keyStack, String key, Object currentDepth, StringBuilder value) throws InlineException {
+
+        // Copy the stack, so we don't modify the main stack
+        LinkedList<String> stack = new LinkedList<>(keyStack);
+        stack.push(key);
+
+        Map<String, Argument> args = args().getArgs();
+
+        String current = null;
+        Iterator<String> iterator = stack.iterator();
+        while (iterator.hasNext()) {
+            current = iterator.next();
+            if (current == null)
+                current = getImplied(args);
+
+            Argument arg = args.get(current.toLowerCase(Locale.ROOT));
+
+            // User input a bad key, no matching argument.
+            if (arg == null)
+                throw new InlineException(current, new SerializerOptionsException("", "Argument", args.keySet(), current, ""));
+
+            // If there is another element in the stack, that means we have
+            // nested inline serializers. In this case, the 'key' *MUST* point
+            // to an InlineSerializerType (since it has to be nested).
+            if (iterator.hasNext()) {
+                if (arg.getType() instanceof NestedType cast)
+                    args = cast.getSerializer().args().getArgs();
+                if (arg.getType() instanceof ListType<?,?> cast) {
+
+                    // Simple types, like the boolean and integer DO NOT have
+                    // this extra key. So this is an error.
+                    if (!cast.getType().isComplex())
+                        throw new InlineException(index, "Found a nested value inside of a list");
+
+                    if ()
+                }
+                else
+                    throw new InlineException(current, current.length() + 1, new SerializerTypeException("", arg.getType().getClass(), Map.class, "{UNKNOWN}", ""));
+            }
+        }
+
+        if (current == null)
+            current = getImplied(args);
+
+        return args.get(current.toLowerCase(Locale.ROOT));
+
         Argument temp = args().getArgument(keyStack, key);
 
         if (currentDepth instanceof Map map) {
@@ -307,5 +360,17 @@ public abstract class InlineSerializer<T> implements Serializer<T> {
             list.add(temp.serialize(value.toString()));
         }
         value.setLength(0);
+    }
+
+    private static String getImplied(Map<String, Argument> args) throws InlineException {
+        // When an inline serializer only has 1 required argument, there is
+        // no need to specify the name of the argument. For example, the
+        // sound mechanic only requires the 'sound' argument. So
+        // 'sound(sound=ENTITY_GENERIC_EXPLOSION)' is the same as
+        // 'sound(ENTITY_GENERIC_EXPLOSION)'
+        if (args.size() != 1 && args.values().stream().filter(Argument::isRequired).count() != 1L)
+            throw new InlineException("(", new SerializerException("", new String[]{"Cannot use shorthand"}, ""));
+
+        return args.size() == 1 ? args.keySet().stream().findFirst().get() : args.values().stream().filter(Argument::isRequired).findFirst().get().getName();
     }
 }

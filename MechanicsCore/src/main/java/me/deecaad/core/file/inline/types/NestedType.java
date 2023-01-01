@@ -51,4 +51,9 @@ public class NestedType<T extends InlineSerializer<T>> implements ArgumentType<T
         return serializer.getKeyword() + "(" + serializer.args().getArgs().values().stream()
                 .map(arg -> arg.getName() + "=" + arg.getType().example()).collect(Collectors.joining(", ")) + ")";
     }
+
+    @Override
+    public boolean isComplex() {
+        return true;
+    }
 }

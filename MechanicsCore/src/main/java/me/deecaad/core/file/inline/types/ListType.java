@@ -47,4 +47,9 @@ public class ListType<E, T extends ArgumentType<E>> implements ArgumentType<List
     public String example() {
         return "[" + type.example() + ", " + type.example() + "]";
     }
+
+    @Override
+    public boolean isComplex() {
+        return true;
+    }
 }

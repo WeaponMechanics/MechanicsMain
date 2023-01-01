@@ -49,10 +49,14 @@ public class MechanicsCore extends JavaPlugin {
         // need to register them to the Mechanics.class registries.
         try {
             JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
+
+            Mechanics.MECHANICS.clear();
             searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
                     .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+            Mechanics.TARGETERS.clear();
             searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
                     .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+            Mechanics.CONDITIONS.clear();
             searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
                     .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
