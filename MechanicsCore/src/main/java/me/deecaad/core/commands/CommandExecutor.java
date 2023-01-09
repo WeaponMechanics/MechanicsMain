@@ -27,7 +27,7 @@ public abstract class CommandExecutor<T extends CommandSender> {
      * @return The non-null constructed CommandExecutor.
      */
     public static CommandExecutor<CommandSender> any(BiConsumer<CommandSender, Object[]> command) {
-        return new CommandExecutor<CommandSender>(CommandSender.class) {
+        return new CommandExecutor<>(CommandSender.class) {
             @Override
             public void execute(CommandSender sender, Object[] arguments) {
                 command.accept(sender, arguments);
@@ -43,7 +43,7 @@ public abstract class CommandExecutor<T extends CommandSender> {
      * @return The non-null constructed CommandExecutor.
      */
     public static CommandExecutor<Entity> entity(BiConsumer<Entity, Object[]> command) {
-        return new CommandExecutor<Entity>(Entity.class) {
+        return new CommandExecutor<>(Entity.class) {
             @Override
             public void execute(Entity sender, Object[] arguments) {
                 command.accept(sender, arguments);
@@ -59,7 +59,7 @@ public abstract class CommandExecutor<T extends CommandSender> {
      * @return The non-null constructed CommandExecutor.
      */
     public static CommandExecutor<Player> player(BiConsumer<Player, Object[]> command) {
-        return new CommandExecutor<Player>(Player.class) {
+        return new CommandExecutor<>(Player.class) {
             @Override
             public void execute(Player sender, Object[] arguments) {
                 command.accept(sender, arguments);

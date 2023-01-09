@@ -19,6 +19,13 @@ public class AmmoConverter extends WeaponConverter {
     }
 
     @Override
+    public String getKeyword() {
+        // We have to set this to null, that way FileReader doesn't try to use/add it
+        // to the list of serializers (overriding the WeaponConverter).
+        return null;
+    }
+
+    @Override
     public @NotNull AmmoConverter serialize(SerializeData data) throws SerializerException {
         boolean type = data.of("Type").getBool(false);
         boolean name = data.of("Name").getBool(false);
@@ -28,7 +35,7 @@ public class AmmoConverter extends WeaponConverter {
         if (!type && !name && !lore && !enchantments) {
             throw data.exception(null, "'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
                     "One of them should be 'true' to allow ammo conversion",
-                    "If you want to remove the ammo conversion feature, remove the '" + getKeyword() + "' option from config");
+                    "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter' option from config");
         }
 
         return new AmmoConverter(type, name, lore, enchantments);

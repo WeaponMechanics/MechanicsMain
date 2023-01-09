@@ -135,8 +135,7 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
             if (version >= 1.14 && itemMeta.hasCustomModelData()) this.customModelData = itemMeta.getCustomModelData();
             if (version < 1.13) {
                 this.durability = itemStack.getDurability();
-            } else if (itemMeta instanceof Damageable) {
-                Damageable damageableItemMeta = (Damageable) itemMeta;
+            } else if (itemMeta instanceof Damageable damageableItemMeta) {
                 if (damageableItemMeta.hasDamage()) this.durability = ((Damageable) itemMeta).getDamage();
             }
         }

@@ -22,12 +22,10 @@ public class FireworkCommand extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Player only command!");
             return;
         }
-
-        Player player = (Player) sender;
 
         // Parse arguments of the command
         int flightTime = args.length > 0 ? Integer.parseInt(args[0]) : 40;
@@ -42,19 +40,12 @@ public class FireworkCommand extends SubCommand {
 
     @Override
     protected List<String> handleCustomTag(String[] args, String tag) {
-        switch (tag) {
-            case "<flight-time>":
-                return Arrays.asList(tag, "10", "40");
-            case "<type>":
-                return new ArrayList<>(EnumUtil.getOptions(FireworkEffect.Type.class));
-            case "<color>":
-            case "<fade>":
-                return Arrays.asList(tag, "FFFFFF", "FF0000", "00FF00", "0000FF");
-            case "<flicker>":
-            case "<trail>":
-                return Arrays.asList(tag, "true", "false");
-            default:
-                return Collections.singletonList(tag);
-        }
+        return switch (tag) {
+            case "<flight-time>" -> Arrays.asList(tag, "10", "40");
+            case "<type>" -> new ArrayList<>(EnumUtil.getOptions(FireworkEffect.Type.class));
+            case "<color>", "<fade>" -> Arrays.asList(tag, "FFFFFF", "FF0000", "00FF00", "0000FF");
+            case "<flicker>", "<trail>" -> Arrays.asList(tag, "true", "false");
+            default -> Collections.singletonList(tag);
+        };
     }
 }

@@ -169,8 +169,7 @@ public class WeaponListeners implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void click(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player)) return;
-        Player player = (Player) e.getWhoClicked();
+        if (!(e.getWhoClicked() instanceof Player player)) return;
         PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
 
         // Keep track of when last inventory click drop happens

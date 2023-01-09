@@ -107,9 +107,8 @@ public class FakeEntity_1_15_R1 extends FakeEntity {
     @Override
     public void setData(@Nullable Object data) {
         switch (type) {
-            case DROPPED_ITEM:
-                ((EntityItem) entity).setItemStack(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
-                break;
+            case DROPPED_ITEM ->
+                    ((EntityItem) entity).setItemStack(item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
         }
     }
 

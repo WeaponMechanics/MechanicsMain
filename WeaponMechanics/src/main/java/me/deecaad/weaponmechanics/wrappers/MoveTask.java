@@ -96,10 +96,9 @@ public class MoveTask extends BukkitRunnable {
             entityWrapper.setInMidair(inMidairCheck);
         }
 
-        if (!(entity instanceof Player)) {
+        if (!(entity instanceof Player player)) {
             return;
         }
-        Player player = (Player) entity;
 
         if (this.jumps != -1) {
             if (!WeaponMechanics.getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump")) {

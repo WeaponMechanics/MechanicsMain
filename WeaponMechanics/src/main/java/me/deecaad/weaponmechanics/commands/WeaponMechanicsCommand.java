@@ -78,7 +78,7 @@ public class WeaponMechanicsCommand {
     };
 
     public static Function<CommandData, Tooltip[]> AMMO_SUGGESTIONS = (data) -> {
-        String weaponTitle = (String) data.previousArguments[data.previousArguments.length - 1];
+        String weaponTitle = (String) data.previousArguments()[data.previousArguments().length - 1];
         Configuration config = WeaponMechanics.getConfigurations();
 
         AmmoTypes types = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
@@ -86,6 +86,30 @@ public class WeaponMechanicsCommand {
     };
 
     public static void build() {
+
+        // THIS IS A TEMPORARY COMMAND THAT SHOULD BE REMOVED IMMEDIATELY AFTER
+        // ADDING PLACEHOLDER SUPPORT IN LORE TODO
+        new CommandBuilder("gundurability")
+                .withAliases("weapondurability")
+                .withPermission("weaponmechanics.commands.gundurability")
+                .withDescription("Check the durability of your held weapon")
+                .executes(CommandExecutor.player((sender, args) -> {
+                    ItemStack item = sender.getInventory().getItemInMainHand();
+                    String weaponTitle = item == null || !item.hasItemMeta() ? null : CustomTag.WEAPON_TITLE.getString(item);
+
+                    if (weaponTitle == null) {
+                        sender.sendMessage(RED + "Held item is not a weapon!");
+                        return;
+                    }
+
+                    CustomDurability durability = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
+                    if (durability == null) {
+                        sender.sendMessage(RED + weaponTitle + " does not use durability");
+                        return;
+                    }
+
+                    sender.sendMessage(GREEN + weaponTitle + " has " + CustomTag.DURABILITY.getInteger(item) + "/" + durability.getMaxDurability(item) + " durability remaining.");
+                })).register();
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
 

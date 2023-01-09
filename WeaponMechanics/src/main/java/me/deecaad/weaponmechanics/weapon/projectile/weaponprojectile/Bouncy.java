@@ -74,17 +74,11 @@ public class Bouncy implements Serializer<Bouncy> {
         if (speedModifier != 1.0) motion.multiply(speedModifier);
 
         switch (hit.getHitFace()) {
-            case UP: case DOWN:
-                motion.setY(-motion.getY());
-                break;
-            case EAST: case WEST:
-                motion.setX(-motion.getX());
-                break;
-            case NORTH: case SOUTH:
-                motion.setZ(-motion.getZ());
-                break;
-            default:
-                break;
+            case UP, DOWN -> motion.setY(-motion.getY());
+            case EAST, WEST -> motion.setX(-motion.getX());
+            case NORTH, SOUTH -> motion.setZ(-motion.getZ());
+            default -> {
+            }
         }
 
         projectile.setMotion(motion);

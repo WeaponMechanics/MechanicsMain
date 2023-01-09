@@ -41,12 +41,10 @@ public class ShootCommand extends SubCommand {
 
     @Override
     public List<String> handleCustomTag(String[] args, String current) {
-        switch (current) {
-            case "<entity-type>":
-                return entityTypesToList();
-            default:
-                return super.handleCustomTag(args, current);
-        }
+        return switch (current) {
+            case "<entity-type>" -> entityTypesToList();
+            default -> super.handleCustomTag(args, current);
+        };
     }
 
     private List<String> entityTypesToList() {

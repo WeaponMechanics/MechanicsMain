@@ -73,11 +73,9 @@ public class LegacyGiveCommand extends SubCommand {
 
     @Override
     public List<String> handleCustomTag(String[] args, String current) {
-        switch (current) {
-            case "<weapon>":
-                return getWeaponHandler().getInfoHandler().getSortedWeaponList();
-            default:
-                return super.handleCustomTag(args, current);
-        }
+        return switch (current) {
+            case "<weapon>" -> getWeaponHandler().getInfoHandler().getSortedWeaponList();
+            default -> super.handleCustomTag(args, current);
+        };
     }
 }

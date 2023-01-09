@@ -23,7 +23,7 @@ public class TableBuilder {
     private String header;
     private TextComponent left;
     private TextComponent right;
-    
+
     // The fill char is used in the header and footer. The header is centered
     // between the fillChars.
     // The elementChar is used before each element.
@@ -255,38 +255,16 @@ public class TableBuilder {
      * number of rows that can fit in chat, the requested number of columns,
      * and the maximum number of pixels that can fit in 1 row).
      */
-    public static class TableConstraints {
-
-        private final int rows;
-        private final int columns;
-        private final int pixels;
-
-        public TableConstraints(int rows, int columns, int pixels) {
-            this.rows = rows;
-            this.columns = columns;
-            this.pixels = pixels;
-        }
-
-        public int getRows() {
-            return rows;
-        }
+    public record TableConstraints(int rows, int columns, int pixels) {
 
         @Contract(pure = true)
         public TableConstraints setRows(int rows) {
             return new TableConstraints(rows, columns, pixels);
         }
 
-        public int getColumns() {
-            return columns;
-        }
-
         @Contract(pure = true)
         public TableConstraints setColumns(int columns) {
             return new TableConstraints(rows, columns, pixels);
-        }
-
-        public int getPixels() {
-            return pixels;
         }
 
         @Contract(pure = true)
@@ -296,19 +274,11 @@ public class TableBuilder {
     }
 
 
-    public static class Line {
-
-        private final char c;
-        private final Style style;
-
-        public Line(char c, Style style) {
-            this.c = c;
-            this.style = style;
-        }
+    public record Line(char c, Style style) {
 
         public Component build() {
             StringBuilder builder = new StringBuilder();
-            while (getWidth(builder.toString()) < DEFAULT_CONSTRAINTS.getPixels())
+            while (getWidth(builder.toString()) < DEFAULT_CONSTRAINTS.pixels())
                 builder.append(c);
 
             builder.setLength(builder.length() - 1);

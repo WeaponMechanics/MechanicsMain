@@ -93,7 +93,7 @@ public final class FileUtil {
     /**
      * Returns the jar file from the given arguments. The file should point to
      * a <code>.jar</code> file. You can get the {@link File} from your plugin
-     * using the protected {@link JavaPlugin#getFile()} method.
+     * using the protected JavaPlugin#getFile() method.
      *
      * @param plugin The non-null plugin who owns the jar file.
      * @param jar    The non-null file pointing to the jar
@@ -193,7 +193,7 @@ public final class FileUtil {
         if (!file.exists()) {
             try (
                     InputStream in = new BufferedInputStream(resource.openStream());
-                    FileOutputStream out = new FileOutputStream(file);
+                    FileOutputStream out = new FileOutputStream(file)
             ) {
                 int data;
                 while ((data = in.read()) != -1) {

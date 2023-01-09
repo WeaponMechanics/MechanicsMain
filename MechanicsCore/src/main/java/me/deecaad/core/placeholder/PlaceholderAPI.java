@@ -16,7 +16,7 @@ import static me.deecaad.core.MechanicsCore.debug;
 public class PlaceholderAPI {
 
     private static final Map<String, PlaceholderHandler> placeholderHandlers = new HashMap<>();
-    private static final Pattern PLACEHOLDERS = Pattern.compile("[%]([^%,^\\s]+)[%]");
+    private static final Pattern PLACEHOLDERS = Pattern.compile("%([^%,^\\s]+)%");
 
     /**
      * Same placeholder name can't be added twice
