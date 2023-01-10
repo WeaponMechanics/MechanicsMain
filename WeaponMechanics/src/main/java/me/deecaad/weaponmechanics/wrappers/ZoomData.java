@@ -6,14 +6,10 @@ import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.MetadataValue;
 import org.vivecraft.VSE;
-
-import java.util.List;
+import org.vivecraft.VivePlayer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -39,29 +35,18 @@ public class ZoomData {
      */
     public boolean isZooming() {
         EntityWrapper entityWrapper = handData.getEntityWrapper();
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
-                && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
+        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null && entityWrapper.isPlayer()) {
 
-            Player player = (Player) entityWrapper.getEntity();
-            String getHandDataFrom = handData.isMainhand() ? "righthand.pos" : "lefthand.pos";
-            String getHeadDataFrom = "head.pos";
-            if (player.hasMetadata(getHandDataFrom) && player.hasMetadata(getHeadDataFrom)) {
-                return getVSEMeta(player, getHandDataFrom).getDirection()
-                        .dot(getVSEMeta(player, getHeadDataFrom).getDirection()) > 0.94;
+            VivePlayer vive = VSE.vivePlayers.get(entityWrapper.getEntity().getUniqueId());
+            if (vive != null && vive.isVR()) {
+                // Now we know it's actually VR player
+
+                // Get the position and direction from player metadata
+                return vive.getControllerPos(handData.isMainhand() ? 0 : 1).getDirection()
+                        .dot(vive.getHMDPos().getDirection()) > 0.94;
             }
-
         }
         return zoomAmount != 0;
-    }
-
-    private Location getVSEMeta(Player player, String metakey) {
-        List<MetadataValue> metadataValueList = player.getMetadata(metakey);
-        for (MetadataValue meta : metadataValueList) {
-            if (meta.getOwningPlugin() == VSE.me) {
-                return (Location) meta.value();
-            }
-        }
-        throw new IllegalArgumentException("VR metadata " + metakey + " from Vivecraft not found when player was VR player...?");
     }
 
     /**
