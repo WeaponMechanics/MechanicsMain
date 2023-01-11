@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.commands.wrappers.*;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandSourceStack;
@@ -357,8 +358,11 @@ public class Command_1_17_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Biome getBiome(CommandContext<Object> context, String key) {
-        return Biome.valueOf(cast(context).getArgument(key, ResourceLocation.class).getPath().toUpperCase(Locale.ROOT));
+    public BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
+        ResourceLocation location = cast(context).getArgument(key, ResourceLocation.class);
+        NamespacedKey namespaced = new NamespacedKey(location.getNamespace(), location.getPath());
+        Biome biome = EnumUtil.getIfPresent(Biome.class, namespaced.getKey()).orElse(Biome.CUSTOM);
+        return new BiomeHolder(biome, namespaced);
     }
 
     @Override

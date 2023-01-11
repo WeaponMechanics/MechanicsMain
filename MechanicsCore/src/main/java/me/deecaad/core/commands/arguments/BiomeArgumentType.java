@@ -5,11 +5,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import me.deecaad.core.commands.wrappers.BiomeHolder;
 import org.bukkit.block.Biome;
 
 import java.util.concurrent.CompletableFuture;
 
-public class BiomeArgumentType extends CommandArgumentType<Biome> {
+public class BiomeArgumentType extends CommandArgumentType<BiomeHolder> {
 
     @Override
     public ArgumentType<?> getBrigadierType() {
@@ -17,7 +18,7 @@ public class BiomeArgumentType extends CommandArgumentType<Biome> {
     }
 
     @Override
-    public Biome parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
+    public BiomeHolder parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
         return compatibility().getBiome(context, key);
     }
 

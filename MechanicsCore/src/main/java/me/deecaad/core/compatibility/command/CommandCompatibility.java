@@ -9,7 +9,6 @@ import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.commands.wrappers.*;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
@@ -140,7 +139,7 @@ public interface CommandCompatibility {
 
     EnumSet<Axis> getAxis(CommandContext<Object> context, String key);
 
-    Biome getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException;
+    BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
     Predicate<Block> getBlockPredicate(CommandContext<Object> context, String key)
             throws CommandSyntaxException;
