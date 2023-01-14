@@ -63,7 +63,7 @@ public class BrigadierCommand implements Command<Object> {
             return 0;
         } catch (CommandSyntaxException ex) {
             throw ex;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             sender.sendMessage(ChatColor.RED + "Some error occurred whilst executing command. Check console for error. ");
             ex.printStackTrace();
             return -1;
