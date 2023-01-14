@@ -47,8 +47,9 @@ bukkit {
     name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"
     apiVersion = "1.13"
 
+    load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
     authors = listOf("DeeCaaD", "CJCrafter")
-    softDepend = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
+    loadBefore = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI")
 }
 
 tasks.named<ShadowJar>("shadowJar") {

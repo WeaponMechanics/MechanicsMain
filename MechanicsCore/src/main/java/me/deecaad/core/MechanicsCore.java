@@ -28,12 +28,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 
 public class MechanicsCore extends JavaPlugin {
 
     private static MechanicsCore instance;
-    public static Debugger debug = new Debugger(Logger.getLogger("MechanicsCoreShaded"), 2); // public for import
+    public static Debugger debug; // public for import
 
     public BukkitAudiences adventure;
     public MiniMessage message;
