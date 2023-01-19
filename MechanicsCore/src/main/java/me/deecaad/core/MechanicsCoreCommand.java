@@ -118,8 +118,7 @@ public final class MechanicsCoreCommand {
                 .filter(plugin -> {
                     PluginDescriptionFile desc = plugin.getDescription();
                     return desc.getDepend().contains("MechanicsCore") || desc.getSoftDepend().contains("MechanicsCore");
-                })
-                .collect(Collectors.toList());
+                }).toList();
 
         Style gold = Style.style(NamedTextColor.GOLD);
         Style gray = Style.style(NamedTextColor.GRAY);
@@ -214,16 +213,15 @@ public final class MechanicsCoreCommand {
                 .withHeaderStyle(Style.style(NamedTextColor.GOLD))
                 .withConstraints(TableBuilder.DEFAULT_CONSTRAINTS.setRows(3).setColumns(1))
                 .withSupplier(i -> {
-                    switch (i) {
-                        case 0:
-                            return new ColorData("&#7D5A2D", "<#7D5A2D>", TextColor.color(125, 90, 45)).alt("The five boxing wizards jump quickly").build();
-                        case 1:
-                            return text("<rainbow> = ").append(MechanicsCore.getPlugin().message.deserialize("<rainbow>The quick brown fox jumps over the lazy dog"));
-                        case 2:
-                            return text("<gradient:green:#ff0000> = ").append(MechanicsCore.getPlugin().message.deserialize("<gradient:green:#ff0000>A wizard's job is to vex chumps"));
-                        default:
-                            throw new RuntimeException("unreachable code");
-                    }
+                    return switch (i) {
+                        case 0 ->
+                                new ColorData("&#7D5A2D", "<#7D5A2D>", TextColor.color(125, 90, 45)).alt("The five boxing wizards jump quickly").build();
+                        case 1 ->
+                                text("<rainbow> = ").append(MechanicsCore.getPlugin().message.deserialize("<rainbow>The quick brown fox jumps over the lazy dog"));
+                        case 2 ->
+                                text("<gradient:green:#ff0000> = ").append(MechanicsCore.getPlugin().message.deserialize("<gradient:green:#ff0000>A wizard's job is to vex chumps"));
+                        default -> throw new RuntimeException("unreachable code");
+                    };
                 })
                 .build();
 

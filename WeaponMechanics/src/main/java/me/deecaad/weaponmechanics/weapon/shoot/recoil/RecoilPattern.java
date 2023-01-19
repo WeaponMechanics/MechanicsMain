@@ -74,37 +74,13 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
         return new RecoilPattern(repeatPattern, recoilPatternList);
     }
 
-    public static class ExtraRecoilPatternData {
-
-        private final float horizontalRecoil;
-        private final float verticalRecoil;
-        private final double chanceToSkip;
-
-        public ExtraRecoilPatternData(float horizontalRecoil, float verticalRecoil, double chanceToSkip) {
-            this.horizontalRecoil = horizontalRecoil;
-            this.verticalRecoil = verticalRecoil;
-            this.chanceToSkip = chanceToSkip;
-        }
+    public record ExtraRecoilPatternData(float horizontalRecoil, float verticalRecoil, double chanceToSkip) {
 
         /**
          * @return whether to skip this recoil pattern
          */
         public boolean shouldSkip() {
             return NumberUtil.chance(this.chanceToSkip);
-        }
-
-        /**
-         * @return the horizontal recoil this should add
-         */
-        public float getHorizontalRecoil() {
-            return horizontalRecoil;
-        }
-
-        /**
-         * @return the vertical recoil this should add
-         */
-        public float getVerticalRecoil() {
-            return verticalRecoil;
         }
     }
 }

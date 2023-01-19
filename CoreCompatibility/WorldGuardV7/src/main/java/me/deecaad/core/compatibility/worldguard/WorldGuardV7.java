@@ -68,26 +68,16 @@ public class WorldGuardV7 implements WorldGuardCompatibility {
 
     @Override
     public void registerFlag(String flagString, FlagType type) {
-        Flag<?> flag;
+        Flag<?> flag = switch (type) {
+            case INT_FLAG -> new IntegerFlag(flagString);
+            case STATE_FLAG -> new StateFlag(flagString, true);
+            case DOUBLE_FLAG -> new DoubleFlag(flagString);
+            case STRING_FLAG -> new StringFlag(flagString);
+            default -> throw new IllegalArgumentException("Unknown FlagType " + type);
+        };
 
         // An illegal argument exception will occur here if the flag
         // name is invalid. A valid flag matches: "^[:A-Za-z0-9\\-]{1,40}$"
-        switch (type) {
-            case INT_FLAG:
-                flag = new IntegerFlag(flagString);
-                break;
-            case STATE_FLAG:
-                flag = new StateFlag(flagString, true);
-                break;
-            case DOUBLE_FLAG:
-                flag = new DoubleFlag(flagString);
-                break;
-            case STRING_FLAG:
-                flag = new StringFlag(flagString);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown FlagType " + type);
-        }
 
         try {
             registry.register(flag);

@@ -19,11 +19,10 @@ public class HitboxCommand extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "This command is only available for players.");
             return;
         }
-        Player player = (Player) sender;
         Location location = player.getLocation();
         int ticks = (args.length > 0) ? Integer.parseInt(args[0]) : 200;
 

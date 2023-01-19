@@ -200,18 +200,16 @@ public class DamageUtil {
         boolean killed = victim.isDead() || victim.getHealth() <= 0.0;
 
         // Statistics
-        if (victim instanceof Player) {
-            Player player = (Player) victim;
+        if (victim instanceof Player player) {
             if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_TAKEN, Math.round((float) damage * 10));
-            if (killed && !isBlacklisted(cause.getType())) player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
+            if (killed && isWhitelisted(cause.getType())) player.incrementStatistic(Statistic.ENTITY_KILLED_BY, cause.getType());
         }
-        if (cause instanceof Player) {
-            Player player = (Player) cause;
+        if (cause instanceof Player player) {
             if (ReflectionUtil.getMCVersion() >= 13 && absorbed >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT_ABSORBED, Math.round((float) absorbed * 10));
             if (damage >= 0.1) player.incrementStatistic(Statistic.DAMAGE_DEALT, Math.round((float) damage * 10));
             if (killed) {
-                if (!isBlacklisted(victim.getType())) player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
+                if (isWhitelisted(victim.getType())) player.incrementStatistic(Statistic.KILL_ENTITY, victim.getType());
                 if (victim.getType() == EntityType.PLAYER) player.incrementStatistic(Statistic.PLAYER_KILLS);
                 else player.incrementStatistic(Statistic.MOB_KILLS);
             }
@@ -225,23 +223,17 @@ public class DamageUtil {
      * before 1.13. See https://bugs.mojang.com/browse/MC-33710.
      *
      * @param type The entity type.
-     * @return true if there is no statistic.
+     * @return false if there is no statistic.
      */
-    public static boolean isBlacklisted(EntityType type) {
+    public static boolean isWhitelisted(EntityType type) {
         if (ReflectionUtil.getMCVersion() >= 13)
-            return false;
+            return true;
 
-        switch (type) {
-            case IRON_GOLEM:
-            case SNOWMAN:
-            case ENDER_DRAGON:
-            case WITHER:
-            case GIANT:
-            case PLAYER:
-                return true;
-        }
+        return switch (type) {
+            case IRON_GOLEM, SNOWMAN, ENDER_DRAGON, WITHER, GIANT, PLAYER -> false;
+            default -> ReflectionUtil.getMCVersion() != 12 || type != EntityType.ILLUSIONER;
+        };
 
-        return ReflectionUtil.getMCVersion() == 12 && type == EntityType.ILLUSIONER;
     }
     
     public static void damageArmor(LivingEntity victim, int amount) {
@@ -270,24 +262,23 @@ public class DamageUtil {
             equipment.setBoots(boots);
         } else {
             switch (point) {
-                case HEAD:
+                case HEAD -> {
                     ItemStack helmet = damage(equipment.getHelmet(), amount);
                     equipment.setHelmet(helmet);
-                    break;
-                case BODY: case ARMS:
+                }
+                case BODY, ARMS -> {
                     ItemStack chestplate = damage(equipment.getChestplate(), amount);
                     equipment.setChestplate(chestplate);
-                    break;
-                case LEGS:
+                }
+                case LEGS -> {
                     ItemStack leggings = damage(equipment.getLeggings(), amount);
                     equipment.setLeggings(leggings);
-                    break;
-                case FEET:
+                }
+                case FEET -> {
                     ItemStack boots = damage(equipment.getBoots(), amount);
                     equipment.setBoots(boots);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown point: " + point);
+                }
+                default -> throw new IllegalArgumentException("Unknown point: " + point);
             }
         }
     }
@@ -305,8 +296,7 @@ public class DamageUtil {
         }
 
         if (ReflectionUtil.getMCVersion() >= 13) {
-            if (armor.getItemMeta() instanceof Damageable) {
-                Damageable meta = (Damageable) armor.getItemMeta();
+            if (armor.getItemMeta() instanceof Damageable meta) {
                 meta.setDamage(Math.min(meta.getDamage() + amount, armor.getType().getMaxDurability()));
                 armor.setItemMeta(meta);
             }

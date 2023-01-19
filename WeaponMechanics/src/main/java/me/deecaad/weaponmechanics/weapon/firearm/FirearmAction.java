@@ -44,14 +44,11 @@ public class FirearmAction implements Serializer<FirearmAction> {
 
     public FirearmState getState(ItemStack weaponStack) {
         int state = CustomTag.FIREARM_ACTION_STATE.getInteger(weaponStack);
-        switch (state) {
-            case 1:
-                return FirearmState.OPEN;
-            case 2:
-                return FirearmState.CLOSE;
-            default:
-                return FirearmState.READY;
-        }
+        return switch (state) {
+            case 1 -> FirearmState.OPEN;
+            case 2 -> FirearmState.CLOSE;
+            default -> FirearmState.READY;
+        };
     }
 
     public void changeState(ItemStack weaponStack, FirearmState state) {

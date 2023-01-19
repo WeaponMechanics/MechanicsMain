@@ -130,7 +130,7 @@ public class SoundMechanic implements IMechanic<SoundMechanic> {
 
         if (ReflectionUtil.getMCVersion() >= 11) {
             Optional<SoundCategory> optional = EnumUtil.getIfPresent(SoundCategory.class, category);
-            if (!optional.isPresent())
+            if (optional.isEmpty())
                 throw new SerializerEnumException(this, SoundCategory.class, category, false, data.of().getLocation());
         }
 

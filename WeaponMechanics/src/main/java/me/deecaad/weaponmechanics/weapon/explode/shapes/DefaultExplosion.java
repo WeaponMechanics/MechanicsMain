@@ -51,12 +51,10 @@ public class DefaultExplosion implements ExplosionShape {
             throw new IllegalArgumentException("origin is null");
 
         // If the explosion is too small, then no blocks are destroyed
-        if (yield < 0.1F) {
+        if (yield < 0.1F)
             return List.of();
-        }
 
         World world = origin.getWorld();
-
         Set<Block> set = new HashSet<>();
 
         // Separates the explosion into a 16 by 16 by 16

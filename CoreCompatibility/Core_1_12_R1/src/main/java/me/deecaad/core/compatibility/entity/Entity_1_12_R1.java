@@ -119,7 +119,6 @@ public class Entity_1_12_R1 implements EntityCompatibility {
             }
             default -> throw new RuntimeException("unreachable");
         }
-        ;
 
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(id, nmsSlot, CraftItemStack.asNMSCopy(item));
         ((CraftPlayer) bukkit).getHandle().playerConnection.sendPacket(packet);

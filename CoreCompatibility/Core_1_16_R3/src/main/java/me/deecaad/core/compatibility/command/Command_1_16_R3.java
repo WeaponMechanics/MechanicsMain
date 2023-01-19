@@ -10,6 +10,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.IntRange;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.commands.wrappers.*;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Particle;
@@ -324,15 +325,9 @@ public class Command_1_16_R3 implements CommandCompatibility {
 
         for (EnumDirection.EnumAxis axis : nmsAxis) {
             switch (axis) {
-                case X:
-                    bukkitAxis.add(Axis.X);
-                    break;
-                case Y:
-                    bukkitAxis.add(Axis.Y);
-                    break;
-                case Z:
-                    bukkitAxis.add(Axis.Z);
-                    break;
+                case X -> bukkitAxis.add(Axis.X);
+                case Y -> bukkitAxis.add(Axis.Y);
+                case Z -> bukkitAxis.add(Axis.Z);
             }
         }
 
@@ -340,8 +335,11 @@ public class Command_1_16_R3 implements CommandCompatibility {
     }
 
     @Override
-    public Biome getBiome(CommandContext<Object> context, String key) {
-        return Biome.valueOf(context.getArgument(key, MinecraftKey.class).getKey().toUpperCase(Locale.ROOT));
+    public BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
+        MinecraftKey location = cast(context).getArgument(key, MinecraftKey.class);
+        NamespacedKey namespaced = new NamespacedKey(location.getNamespace(), location.getKey());
+        Biome biome = EnumUtil.getIfPresent(Biome.class, namespaced.getKey()).orElse(Biome.CUSTOM);
+        return new BiomeHolder(biome, namespaced);
     }
 
     @Override

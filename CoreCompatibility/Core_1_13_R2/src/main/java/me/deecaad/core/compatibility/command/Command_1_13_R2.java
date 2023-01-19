@@ -10,6 +10,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import me.deecaad.core.commands.wrappers.Rotation;
 import me.deecaad.core.commands.wrappers.*;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Particle;
@@ -324,15 +325,9 @@ public class Command_1_13_R2 implements CommandCompatibility {
 
         for (EnumDirection.EnumAxis axis : nmsAxis) {
             switch (axis) {
-                case X:
-                    bukkitAxis.add(Axis.X);
-                    break;
-                case Y:
-                    bukkitAxis.add(Axis.Y);
-                    break;
-                case Z:
-                    bukkitAxis.add(Axis.Z);
-                    break;
+                case X -> bukkitAxis.add(Axis.X);
+                case Y -> bukkitAxis.add(Axis.Y);
+                case Z -> bukkitAxis.add(Axis.Z);
             }
         }
 
@@ -340,8 +335,11 @@ public class Command_1_13_R2 implements CommandCompatibility {
     }
 
     @Override
-    public Biome getBiome(CommandContext<Object> context, String key) {
-        return Biome.valueOf(context.getArgument(key, MinecraftKey.class).getKey().toUpperCase(Locale.ROOT));
+    public BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
+        MinecraftKey location = cast(context).getArgument(key, MinecraftKey.class);
+        NamespacedKey namespaced = new NamespacedKey(location.b(), location.getKey());
+        Biome biome = EnumUtil.getIfPresent(Biome.class, namespaced.getKey()).orElseThrow();
+        return new BiomeHolder(biome, namespaced);
     }
 
     @Override
@@ -571,20 +569,14 @@ public class Command_1_13_R2 implements CommandCompatibility {
 
     @SuppressWarnings("unchecked")
     private Object convert(NBTBase tag) {
-        switch (tag.getTypeId()) {
-            case 1: case 2: case 3: case 4:
-                return ((NBTNumber) tag).asInt();
-            case 5: case 6:
-                return ((NBTNumber) tag).asDouble();
-            case 8:
-                return ((NBTTagString) tag).toString();
-            case 7: case 11: case 12: case 9:
-                return convertList((NBTList<NBTBase>) tag);
-            case 10:
-                return convertMap((NBTTagCompound) tag);
-            default:
-                throw new IllegalStateException("Unexpected value: " + tag);
-        }
+        return switch (tag.getTypeId()) {
+            case 1, 2, 3, 4 -> ((NBTNumber) tag).asInt();
+            case 5, 6 -> ((NBTNumber) tag).asDouble();
+            case 8 -> ((NBTTagString) tag).toString();
+            case 7, 11, 12, 9 -> convertList((NBTList<NBTBase>) tag);
+            case 10 -> convertMap((NBTTagCompound) tag);
+            default -> throw new IllegalStateException("Unexpected value: " + tag);
+        };
     }
 
     private Map<String, Object> convertMap(NBTTagCompound nbt) {

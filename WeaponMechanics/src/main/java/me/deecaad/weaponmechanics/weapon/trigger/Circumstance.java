@@ -71,35 +71,26 @@ public class Circumstance implements Serializer<Circumstance> {
         return new Circumstance(circumstances);
     }
 
-    private static class CircumstanceData {
-
-        private final Type type;
-        private final boolean required;
-
-        public CircumstanceData(Type type, boolean required) {
-            this.type = type;
-            this.required = required;
-        }
+    private record CircumstanceData(Type type, boolean required) {
 
         public boolean deny(EntityWrapper entityWrapper) {
-            return required != switch (type) {
-                case RELOADING -> entityWrapper.isReloading();
-                case ZOOMING -> entityWrapper.isZooming();
-                case SNEAKING -> entityWrapper.isSneaking();
-                case STANDING -> entityWrapper.isStanding();
-                case WALKING -> entityWrapper.isWalking();
-                case RIDING -> entityWrapper.isRiding();
-                case SPRINTING -> entityWrapper.isSprinting();
-                case DUAL_WIELDING -> entityWrapper.isDualWielding();
-                case SWIMMING -> entityWrapper.isSwimming();
-                case IN_MIDAIR -> entityWrapper.isInMidair();
-                case GLIDING -> entityWrapper.isGliding();
-            };
+                return required != switch (type) {
+                    case RELOADING -> entityWrapper.isReloading();
+                    case ZOOMING -> entityWrapper.isZooming();
+                    case SNEAKING -> entityWrapper.isSneaking();
+                    case STANDING -> entityWrapper.isStanding();
+                    case WALKING -> entityWrapper.isWalking();
+                    case RIDING -> entityWrapper.isRiding();
+                    case SPRINTING -> entityWrapper.isSprinting();
+                    case DUAL_WIELDING -> entityWrapper.isDualWielding();
+                    case SWIMMING -> entityWrapper.isSwimming();
+                    case IN_MIDAIR -> entityWrapper.isInMidair();
+                    case GLIDING -> entityWrapper.isGliding();
+                };
+            }
         }
-    }
 
     private enum Type {
-
         RELOADING,
         ZOOMING,
         SNEAKING,

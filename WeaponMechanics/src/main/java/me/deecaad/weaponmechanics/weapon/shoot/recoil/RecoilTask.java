@@ -119,8 +119,8 @@ public class RecoilTask extends TimerTask {
         if (pattern != null) {
             RecoilPattern.ExtraRecoilPatternData nextData = getNext(pattern);
             if (nextData != null) {
-                rotateYaw = nextData.getHorizontalRecoil();
-                rotatePitch = nextData.getVerticalRecoil();
+                rotateYaw = nextData.horizontalRecoil();
+                rotatePitch = nextData.verticalRecoil();
             } else {
                 nonRepeatingPatternReachedEnd = true;
             }

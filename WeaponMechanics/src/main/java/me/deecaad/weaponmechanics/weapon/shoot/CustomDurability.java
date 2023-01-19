@@ -343,13 +343,15 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         // Items, in a repair station or anvil, are able to repair weapons
         // for a certain amount of durability.
-        ConfigurationSection section = data.of("Repair_Items").assertType(ConfigurationSection.class).get(null);
         Map<ItemStack, Integer> repairItems = new HashMap<>();
-        for (String key : section.getKeys(false)) {
-            ItemStack item = data.of("Repair_Items." + key + ".Item").assertExists().serialize(new ItemSerializer());
-            int healAmount = data.of("Repair_Items." + key + ".Repair_Amount").assertExists().assertPositive().getInt();
+        if (data.has("Repair_Items")) {
+            ConfigurationSection section = data.of("Repair_Items").assertType(ConfigurationSection.class).get(null);
+            for (String key : section.getKeys(false)) {
+                ItemStack item = data.of("Repair_Items." + key + ".Item").assertExists().serialize(new ItemSerializer());
+                int healAmount = data.of("Repair_Items." + key + ".Repair_Amount").assertExists().assertPositive().getInt();
 
-            repairItems.put(item, healAmount);
+                repairItems.put(item, healAmount);
+            }
         }
 
         int repairPerExp = data.of("Repair_Per_Exp").assertPositive().getInt(0);

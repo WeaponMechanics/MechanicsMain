@@ -198,7 +198,7 @@ public final class StringUtil {
         // Regex matcher to find hex color strings
         Pattern regex = Pattern.compile("&#([a-f]|[A-F]|\\d){6}");
         Matcher matcher = regex.matcher(value);
-        StringBuffer builder = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         while (matcher.find()) {
             String match = matcher.group(0);
@@ -260,7 +260,7 @@ public final class StringUtil {
      * @return The non-null split strings.
      */
     public static String[] splitAfterWord(String from) {
-        return from.split("(?![\\S]+) |(?![\\S]+)");
+        return from.split("(?!\\S+) |(?!\\S+)");
     }
 
     /**

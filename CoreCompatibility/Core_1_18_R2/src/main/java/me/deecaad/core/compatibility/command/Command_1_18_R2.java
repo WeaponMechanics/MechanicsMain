@@ -32,6 +32,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
@@ -75,6 +76,7 @@ import java.util.stream.Collectors;
 public class Command_1_18_R2 implements CommandCompatibility {
 
     public static final MinecraftServer SERVER = ((CraftServer) Bukkit.getServer()).getServer();
+    private static final DynamicCommandExceptionType ERROR_BIOME_INVALID = new DynamicCommandExceptionType(arg -> new TranslatableComponent("commands.locate.biome.invalid", arg));;
 
     @Override
     public SimpleCommandMap getCommandMap() {
@@ -360,14 +362,18 @@ public class Command_1_18_R2 implements CommandCompatibility {
     }
 
     @Override
-    public Biome getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
+    public BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
         ResourceOrTagLocationArgument.Result<net.minecraft.world.level.biome.Biome> biomeResult = ResourceOrTagLocationArgument.getBiome(cast(context), key);
 
-        String biome = biomeResult.asPrintable();
+        String name = biomeResult.asPrintable();
+
         if (biomeResult.unwrap().left().isPresent()) {
-            return EnumUtil.getIfPresent(Biome.class, biomeResult.unwrap().left().get().location().getPath().toUpperCase()).orElseThrow(() -> new DynamicCommandExceptionType((id) -> new TranslatableComponent("commands.locatebiome.invalid", id)).create(biome));
+            ResourceKey<net.minecraft.world.level.biome.Biome> resource = biomeResult.unwrap().left().get();
+            Biome biome = EnumUtil.getIfPresent(Biome.class, resource.location().getPath()).orElse(Biome.CUSTOM);
+            NamespacedKey namespaced = new NamespacedKey(resource.location().getNamespace(), resource.location().getPath());
+            return new BiomeHolder(biome, namespaced);
         } else {
-            throw new DynamicCommandExceptionType((id) -> new TranslatableComponent("commands.locatebiome.invalid", id)).create(biome);
+            throw ERROR_BIOME_INVALID.create(name);
         }
     }
 

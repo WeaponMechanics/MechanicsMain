@@ -118,6 +118,8 @@ Origin_12:
       Maximum_Distance: 4.0
       Sounds:
         - custom:fx.whiz 1 1 0 0.02
+    Crossbow:
+      Only_When_Scoping: false
 
   Trail:
     Distance_Between_Particles: 0.1
@@ -133,8 +135,6 @@ Origin_12:
       Radius: 0.3
       Points: 128
       Loops: 2
-    Crossbow:
-      Only_When_Scoping: false
 
   Show_Time:
     Reload:

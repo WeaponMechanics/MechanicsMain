@@ -183,26 +183,26 @@ public class DamageHandler {
 
             if (shooterData != null) {
                 switch (point) {
-                    case HEAD:
+                    case HEAD -> {
                         shooterData.add(weaponTitle, WeaponStat.HEAD_HITS, 1);
                         if (killed) shooterData.add(weaponTitle, WeaponStat.HEAD_KILLS, 1);
-                        break;
-                    case BODY:
+                    }
+                    case BODY -> {
                         shooterData.add(weaponTitle, WeaponStat.BODY_HITS, 1);
                         if (killed) shooterData.add(weaponTitle, WeaponStat.BODY_KILLS, 1);
-                        break;
-                    case ARMS:
+                    }
+                    case ARMS -> {
                         shooterData.add(weaponTitle, WeaponStat.ARM_HITS, 1);
                         if (killed) shooterData.add(weaponTitle, WeaponStat.ARM_KILLS, 1);
-                        break;
-                    case LEGS:
+                    }
+                    case LEGS -> {
                         shooterData.add(weaponTitle, WeaponStat.LEG_HITS, 1);
                         if (killed) shooterData.add(weaponTitle, WeaponStat.LEG_KILLS, 1);
-                        break;
-                    case FEET:
+                    }
+                    case FEET -> {
                         shooterData.add(weaponTitle, WeaponStat.FOOT_HITS, 1);
                         if (killed) shooterData.add(weaponTitle, WeaponStat.FOOT_KILLS, 1);
-                        break;
+                    }
                 }
             }
         }

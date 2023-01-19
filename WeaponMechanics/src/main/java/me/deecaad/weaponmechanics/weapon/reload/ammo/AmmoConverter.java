@@ -35,7 +35,7 @@ public class AmmoConverter extends WeaponConverter {
         if (!type && !name && !lore && !enchantments) {
             throw data.exception(null, "'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
                     "One of them should be 'true' to allow ammo conversion",
-                    "If you want to remove the ammo conversion feature, remove the '" + getKeyword() + "' option from config");
+                    "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter' option from config");
         }
 
         return new AmmoConverter(type, name, lore, enchantments);

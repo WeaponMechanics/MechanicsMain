@@ -29,12 +29,11 @@ public class MaskCommand extends SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Player only command!");
             return;
         }
 
-        Player player = (Player) sender;
         Block location = player.getLocation().getBlock();
 
         Material material = args.length > 0 ? Material.valueOf(args[0]) : Material.STONE;
@@ -88,15 +87,11 @@ public class MaskCommand extends SubCommand {
 
     @Override
     protected List<String> handleCustomTag(String[] args, String tag) {
-        switch (tag) {
-            case "<material>":
-                return new ArrayList<>(EnumUtil.getOptions(Material.class));
-            case "<range>":
-                return Arrays.asList(tag, "5", "10");
-            case "<time>":
-                return Arrays.asList(tag, "10", "20");
-            default:
-                return super.handleCustomTag(args, tag);
-        }
+        return switch (tag) {
+            case "<material>" -> new ArrayList<>(EnumUtil.getOptions(Material.class));
+            case "<range>" -> Arrays.asList(tag, "5", "10");
+            case "<time>" -> Arrays.asList(tag, "10", "20");
+            default -> super.handleCustomTag(args, tag);
+        };
     }
 }

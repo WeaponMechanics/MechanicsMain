@@ -34,6 +34,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
@@ -370,15 +371,18 @@ public class Command_1_19_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Biome getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
+    public BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
         ResourceOrTagLocationArgument.Result<net.minecraft.world.level.biome.Biome> biomeResult = ResourceOrTagLocationArgument.getRegistryType(cast(context), key, Registry.BIOME_REGISTRY, ERROR_BIOME_INVALID);
 
-        String biome = biomeResult.asPrintable();
+        String name = biomeResult.asPrintable();
 
         if (biomeResult.unwrap().left().isPresent()) {
-            return EnumUtil.getIfPresent(Biome.class, biomeResult.unwrap().left().get().location().getPath().toUpperCase()).orElseThrow(() -> ERROR_BIOME_INVALID.create(biome)); // default to plains because SOMEONE *cough* mojang *cough* doesnt check this
+            ResourceKey<net.minecraft.world.level.biome.Biome> resource = biomeResult.unwrap().left().get();
+            Biome biome = EnumUtil.getIfPresent(Biome.class, resource.location().getPath()).orElse(Biome.CUSTOM);
+            NamespacedKey namespaced = new NamespacedKey(resource.location().getNamespace(), resource.location().getPath());
+            return new BiomeHolder(biome, namespaced);
         } else {
-            throw ERROR_BIOME_INVALID.create(biome);
+            throw ERROR_BIOME_INVALID.create(name);
         }
     }
 

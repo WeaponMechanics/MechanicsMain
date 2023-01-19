@@ -40,10 +40,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.vivecraft.VSE;
+import org.vivecraft.VivePlayer;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -625,8 +625,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance"))
             livingEntity.setFallDistance(0.0f);
 
-        if (entityWrapper instanceof PlayerWrapper) {
-            PlayerWrapper playerWrapper = (PlayerWrapper) entityWrapper;
+        if (entityWrapper instanceof PlayerWrapper playerWrapper) {
             // Counts melees as shots also
             if (playerWrapper.getStatsData() != null)
                 playerWrapper.getStatsData().add(weaponTitle, WeaponStat.SHOTS, 1);
@@ -767,21 +766,18 @@ public class ShootHandler implements IValidator, TriggerListener {
                 && livingEntity.getType() == EntityType.PLAYER) {
             // Vivecraft support for VR players
 
-            Player player = (Player) livingEntity;
-            String getDataFrom = mainhand ? "righthand.pos" : "lefthand.pos";
+            debug.warn("VIVECRAFT IS INSTALLED FOR: " + livingEntity);
 
-            if (VSE.isVive(player) && player.hasMetadata(getDataFrom)) {
+            VivePlayer vive = VSE.vivePlayers.get(livingEntity.getUniqueId());
+            if (vive != null && vive.isVR()) {
                 // Now we know it's actually VR player
 
-                // Get the position and direction from player metadata
-                List<MetadataValue> metadataValueList = player.getMetadata(getDataFrom);
-                for (MetadataValue meta : metadataValueList) {
-                    if (meta.getOwningPlugin() == VSE.me) {
-                        return (Location) meta.value();
-                    }
-                }
+                debug.warn("ENTITY WAS VR: " + livingEntity);
+                debug.warn("VRPlayer: " + vive);
+                debug.warn("HERE IS THE LOCATION: " + vive.getControllerPos(mainhand ? 0 : 1));
 
-                throw new IllegalArgumentException("VR metadata " + getDataFrom + " from Vivecraft not found when player was VR player...?");
+                // Get the position and direction from player metadata
+                return vive.getControllerPos(mainhand ? 0 : 1);
             }
 
             // Not VR player, let pass to these normal location finders

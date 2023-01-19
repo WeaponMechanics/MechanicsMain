@@ -13,7 +13,7 @@ public class IntegerArgumentType extends CommandArgumentType<Integer> {
 
     public static Function<CommandData, Tooltip[]> ITEM_COUNT = data -> {
         int stackSize = 64;
-        for (Object obj : data.previousArguments)
+        for (Object obj : data.previousArguments())
             if (obj instanceof ItemStack)
                 stackSize = ((ItemStack) obj).getMaxStackSize();
 
