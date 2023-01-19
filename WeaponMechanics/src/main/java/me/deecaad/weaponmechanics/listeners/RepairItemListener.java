@@ -9,12 +9,13 @@ import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -133,7 +134,7 @@ public class RepairItemListener implements Listener {
             if (weaponTitle == null || event.getCursor() == null)
                 return;
 
-            CastData cast = new CastData(WeaponMechanics.getEntityWrapper(event.getWhoClicked()));
+            CastData cast = new CastData(event.getWhoClicked(), weaponTitle, weapon);
             repair(weapon, weaponTitle, event.getCursor(), cast);
         }
     }
@@ -148,7 +149,7 @@ public class RepairItemListener implements Listener {
     public void repairBrokenItem(InventoryClickEvent event) {
         ItemStack weapon = event.getClickedInventory().getItem(event.getSlot());
         String weaponTitle = CustomTag.BROKEN_WEAPON.getString(weapon);
-        CastData cast = new CastData(WeaponMechanics.getEntityWrapper(event.getWhoClicked()));
+        CastData cast = new CastData(event.getWhoClicked(), weaponTitle, weapon);
         boolean isConsumedItem = repair(weapon, weaponTitle, event.getCursor(), cast);
 
         // Only change back to working weapon if durability changed

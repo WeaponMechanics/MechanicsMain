@@ -1,179 +1,62 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.inline.Argument;
+import me.deecaad.core.file.inline.ArgumentMap;
+import me.deecaad.core.file.inline.types.StringType;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.IMechanic;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
 import java.util.Map;
 
-public class MessageMechanic implements IMechanic<MessageMechanic> {
+public class MessageMechanic extends Mechanic {
 
-    private boolean sendServer;
-    private boolean sendWorld;
+    public static final Argument MESSAGE = new Argument("message", new StringType(true));
 
-    private String chatStr;
-
-    private String actionBarStr;
-    private int actionBarTime;
-
-    private String titleStr;
-    private String subtitleStr;
-    private Title.Times times;
-
-    private String bossBarStr;
-    private BossBar.Color color;
-    private BossBar.Overlay overlay;
-    private float progress;
-    private int bossBarTime;
+    private String message;
 
     /**
-     * Default constructor for serializer
+     * Default constructor for serializer.
      */
     public MessageMechanic() {
-        if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
     }
 
-    public MessageMechanic(boolean sendServer, boolean sendWorld, String chatStr, String actionBarStr, int actionBarTime,
-                           String titleStr, String subtitleStr, Title.Times times, String bossBarStr, BossBar.Color color,
-                           BossBar.Overlay overlay, float progress, int bossBarTime) {
-        this.sendServer = sendServer;
-        this.sendWorld = sendWorld;
-        this.chatStr = chatStr;
-        this.actionBarStr = actionBarStr;
-        this.actionBarTime = actionBarTime;
-        this.titleStr = titleStr;
-        this.subtitleStr = subtitleStr;
-        this.times = times;
-        this.bossBarStr = bossBarStr;
-        this.color = color;
-        this.overlay = overlay;
-        this.progress = progress;
-        this.bossBarTime = bossBarTime;
+    public MessageMechanic(Map<Argument, Object> args) {
+        super(args);
+
+        message = (String) args.get(MESSAGE);
     }
 
     @Override
-    public String getKeyword() {
-        return "Message";
+    public ArgumentMap args() {
+        return super.args().addAll(MESSAGE);
     }
 
     @Override
-    public boolean shouldSerialize(SerializeData data) {
-        // Let Mechanics handle auto serializer stuff
-        return false;
-    }
-
-    @Override
-    public boolean requirePlayer() {
-        return !sendWorld && !sendServer;
-    }
-
-    @Override
-    public void use(CastData cast) {
-        if (sendServer) {
-            for (Player player : Bukkit.getOnlinePlayers())
-                send(player, cast);
-        } else if (sendWorld) {
-            for (Player player : cast.getCastLocation().getWorld().getPlayers())
-                send(player, cast);
-        } else if (cast.getCaster() != null && cast.getCaster().getType() == EntityType.PLAYER) {
-            send((Player) cast.getCaster(), cast);
-        }
-    }
-
-    private void send(Player player, CastData cast) {
-        MiniMessage PARSER = MechanicsCore.getPlugin().message;
-        Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+    public void use0(CastData cast) {
+        if (!(cast.getTarget() instanceof Player player))
+            return;
 
         String itemTitle = cast.getItemTitle();
         ItemStack itemStack = cast.getItemStack();
         Map<String, String> tempPlaceholders = cast.getTempPlaceholders();
 
-        Component chat = chatStr == null ? null : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(chatStr, player, itemStack, itemTitle, null, tempPlaceholders));
-        Component actionBar = actionBarStr == null ? null : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(actionBarStr, player, itemStack, itemTitle, null, tempPlaceholders));
-
-        Component titleComponent = titleStr == null ? Component.empty() : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(titleStr, player, itemStack, itemTitle, null, tempPlaceholders));
-        Component subtitleComponent = subtitleStr == null ? Component.empty() : PARSER.deserialize(PlaceholderAPI.applyPlaceholders(subtitleStr, player, itemStack, itemTitle, null, tempPlaceholders));
-        Title title = titleStr == null && subtitleStr == null ? null : Title.title(titleComponent, subtitleComponent, times);
-
-        BossBar bossBar = bossBarStr == null ? null : BossBar.bossBar(PARSER.deserialize(PlaceholderAPI.applyPlaceholders(bossBarStr, player, itemStack, itemTitle, null, tempPlaceholders)), progress, color, overlay);
-
-        if (chat != null) audience.sendMessage(chat);
-        if (title != null) audience.showTitle(title);
-
-        // Action Bars are *NOT* timed in vanilla Minecraft. To get around this,
-        // we resend the action bar on a timer. This timer system can be improved
-        // to support smaller timer amounts, but I am lazy and increments of 40 is
-        // good enough for now.
-        if (actionBar != null) {
-            audience.sendActionBar(actionBar);
-            new BukkitRunnable() {
-                int ticker = 0;
-
-                @Override
-                public void run() {
-                    ticker += 40;
-                    if (ticker >= actionBarTime) {
-                        cancel();
-                        return;
-                    }
-
-                    audience.sendActionBar(actionBar);
-                }
-            }.runTaskTimer(MechanicsCore.getPlugin(), 40, 40);
-        }
-
-        if (bossBar != null) {
-            audience.showBossBar(bossBar);
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    audience.hideBossBar(bossBar);
-                }
-            }.runTaskLater(MechanicsCore.getPlugin(), bossBarTime);
-        }
+        // Parse and send the message to the 1 player
+        // TODO this method would benefit from having access to the target list
+        MiniMessage PARSER = MechanicsCore.getPlugin().message;
+        Component chat = PARSER.deserialize(PlaceholderAPI.applyPlaceholders(message, player, itemStack, itemTitle, null, tempPlaceholders));
+        Audience audience = MechanicsCore.getPlugin().adventure.player(player);
+        audience.sendMessage(chat);
     }
 
-    @NotNull
     @Override
-    public MessageMechanic serialize(SerializeData data) throws SerializerException {
-
-        boolean sendServer = data.of("Send_All_Server").getBool(false);
-        boolean sendWorld = data.of("Send_All_World").getBool(false);
-        String chatStr = data.of("Chat_Message").get(null);
-
-        String actionBarStr = data.of("Action_Bar.Message").getAdventure(null);
-        int actionBarTime = data.of("Action_Bar.Time").assertPositive().getInt(40);
-
-        String titleStr = data.of("Title.Title").getAdventure(null);
-        String subtitleStr = data.of("Title.Subtitle").getAdventure(null);
-        Duration fadeIn = Duration.ofMillis(data.of("Title.Fade_In").assertPositive().getInt(0) * 50L);
-        Duration stay = Duration.ofMillis(data.of("Title.Stay").assertPositive().getInt(20) * 50L);
-        Duration fadeOut = Duration.ofMillis(data.of("Title.Fade_Out").assertPositive().getInt(0) * 50L);
-        Title.Times times = Title.Times.times(fadeIn, stay, fadeOut);
-
-        String bossBarStr = data.of("Boss_Bar.Title").getAdventure(null);
-        BossBar.Color color = data.of("Boss_Bar.Color").getEnum(BossBar.Color.class, BossBar.Color.WHITE);
-        BossBar.Overlay style = data.of("Boss_Bar.Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.PROGRESS);
-        float progress = (float) data.of("Boss_Bar.Progress").assertRange(0.0, 1.0).getDouble(1.0);
-        int bossBarTime = data.of("Boss_Bar.Time").assertPositive().getInt(100);
-
-        return new MessageMechanic(sendServer, sendWorld, chatStr, actionBarStr, actionBarTime, titleStr, subtitleStr, times, bossBarStr, color, style, progress, bossBarTime);
+    public String getKeyword() {
+        return "Message";
     }
 }

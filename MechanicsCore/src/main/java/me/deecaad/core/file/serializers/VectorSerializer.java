@@ -45,6 +45,10 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
         this.raw = raw;
     }
 
+    public boolean isRelative() {
+        return relative;
+    }
+
     /**
      * Returns the vector using the given entity to determine relative
      * directions. If the given entity is null, relativity is ignored.
@@ -121,14 +125,14 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
             }
 
             // When input starts with a '~', then the input is relative.
-            // This means that instead of x-y-z, it is left-up-out.
+            // This means that instead of x-y-z, it is left-up-forward.
             relative = input.startsWith("~");
             if (relative)
                 input = input.substring(1);
 
             String[] split = StringUtil.split(input);
             if (split.length != 3) {
-                throw data.exception(null, "Expected 3 numbers in x~x~x format, instead got '" + split.length + "'",
+                throw data.exception(null, "Expected 3 numbers in left~up~forward format, instead got '" + split.length + "'",
                         SerializerException.forValue(input));
             }
 

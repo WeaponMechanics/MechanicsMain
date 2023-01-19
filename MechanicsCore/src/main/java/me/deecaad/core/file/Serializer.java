@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Locale;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -130,6 +131,17 @@ public interface Serializer<T> {
      */
     default boolean letPassThrough(String key) {
         return false;
+    }
+
+    default String getName() {
+        // Sometimes a class will end with 'Serializer' in its name, like
+        // 'ColorSerializer'. This information may be confusing to some people,
+        // so we can strip it away here.
+        String simple = getClass().getSimpleName();
+        int index = simple.indexOf("Serializer");
+        if (index > 0)
+            simple = simple.substring(0, index);
+        return simple;
     }
 
     /**

@@ -2,7 +2,6 @@ package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.DataTag;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
@@ -108,12 +107,10 @@ public class DamageHandler {
         tempPlaceholders.put("%shooter%", shooter.getName());
         tempPlaceholders.put("%victim%", victim.getName());
 
-        CastData shooterCast = new CastData(shooter, weaponTitle, weaponStack, tempPlaceholders)
-                .setData(DataTag.TARGET_LOCATION.name(), victim.getLocation());
+        CastData shooterCast = new CastData(shooter, weaponTitle, weaponStack, tempPlaceholders);
 
         EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim, true);
-        CastData victimCast = new CastData(victim, weaponTitle, weaponStack, tempPlaceholders)
-                .setData(DataTag.TARGET_LOCATION.name(), shooter.getLocation());
+        CastData victimCast = new CastData(victim, weaponTitle, weaponStack, tempPlaceholders);
 
         StatsData shooterData = shooter.getType() == EntityType.PLAYER ? ((PlayerWrapper) shooterWrapper).getStatsData() : null;
         StatsData victimData = victim.getType() == EntityType.PLAYER ? ((PlayerWrapper) victimWrapper).getStatsData() : null;

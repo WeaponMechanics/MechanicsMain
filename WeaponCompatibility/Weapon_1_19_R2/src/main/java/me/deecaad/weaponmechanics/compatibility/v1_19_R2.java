@@ -57,12 +57,6 @@ public class v1_19_R2 implements IWeaponCompatibility {
     }
 
     @Override
-    public Vector getLastLocation(Entity entity) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
-        return new Vector(nms.xOld, nms.yOld, nms.zOld);
-    }
-
-    @Override
     public void modifyCameraRotation(Player player, float yaw, float pitch, boolean absolute) {
         pitch *= -1;
         ((CraftPlayer) player).getHandle().connection.send(new ClientboundPlayerPositionPacket(0, 0, 0, yaw, pitch, absolute ? ABSOLUTE_FLAGS : RELATIVE_FLAGS, 0, false));

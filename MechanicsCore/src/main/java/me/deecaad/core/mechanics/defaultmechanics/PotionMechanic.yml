@@ -1,5 +1,0 @@
-# me.deecaad.core.mechanics.defaultmechanics.PotionMechanic
-Potion_Effects:
-  - <PotionEffectType>-<duration in ticks>-<amplifier>,<etc.>
-  - <PotionEffectType>-<duration in ticks>-<amplifier>-<[B] allow particles>-<[B]produce more particles>,<[B] icon>,<etc.>
-  - <etc.>

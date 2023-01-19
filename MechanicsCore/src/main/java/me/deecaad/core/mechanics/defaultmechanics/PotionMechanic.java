@@ -1,95 +1,65 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
-import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
+import me.deecaad.core.file.inline.Argument;
+import me.deecaad.core.file.inline.ArgumentMap;
+import me.deecaad.core.file.inline.types.*;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.IMechanic;
-import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-public class PotionMechanic implements IMechanic<PotionMechanic> {
+public class PotionMechanic extends Mechanic {
 
-    private List<PotionEffect> potionEffectList;
+    public static final Argument TYPE = new Argument("type", new PotionType());
+    public static final Argument TIME = new Argument("time", new IntegerType(0), 100);
+    public static final Argument AMPLIFIER = new Argument("level", new IntegerType(1), 1);
+    public static final Argument EXTRA_PARTICLES = new Argument("extraParticles", new BooleanType(), false);
+    public static final Argument HIDE_PARTICLES = new Argument("hideParticles", new BooleanType(), false);
+    public static final Argument HIDE_ICON = new Argument("hideIcon", new BooleanType(), false);
+
+    private PotionEffect potion;
 
     /**
-     * Empty constructor to be used as serializer
+     * Default constructor for serializer.
      */
     public PotionMechanic() {
-        if (Mechanics.hasMechanic(getKeyword())) return;
-        Mechanics.registerMechanic(MechanicsCore.getPlugin(), this);
     }
 
-    public PotionMechanic(List<PotionEffect> potionEffectList) {
-        this.potionEffectList = potionEffectList;
+    public PotionMechanic(Map<Argument, Object> args) {
+        super(args);
+
+        PotionEffectType type = (PotionEffectType) args.get(TYPE);
+        int time = (int) args.get(TIME);
+        int amplifier = (int) args.get(AMPLIFIER) - 1; // subtract 1, since 0 is actually level 1
+        boolean extraParticles = (boolean) args.get(EXTRA_PARTICLES);
+        boolean hideParticles = (boolean) args.get(HIDE_PARTICLES);
+        boolean hideIcon = (boolean) args.get(HIDE_ICON);
+
+        // Icon option was added in Minecraft 1.14
+        if (ReflectionUtil.getMCVersion() > 13)
+            potion = new PotionEffect(type, time, amplifier, extraParticles, hideParticles, hideIcon);
+        else
+            potion = new PotionEffect(type, time, amplifier, extraParticles, hideParticles);
     }
 
     @Override
-    public void use(CastData castData) {
-        castData.getCaster().addPotionEffects(this.potionEffectList);
+    public ArgumentMap args() {
+        return super.args().addAll(TYPE, TIME, AMPLIFIER, EXTRA_PARTICLES, HIDE_PARTICLES, HIDE_ICON);
     }
 
     @Override
-    public boolean requireEntity() {
-        return true;
+    public void use0(CastData cast) {
+        if (cast.getTarget() == null)
+            return;
+
+        cast.getTarget().addPotionEffect(potion);
     }
 
     @Override
     public String getKeyword() {
-        return "Potion_Effects";
-    }
-
-    @Override
-    public boolean shouldSerialize(SerializeData data) {
-        // Let Mechanics handle auto serializer stuff
-        return false;
-    }
-
-    @Override
-    @Nonnull
-    public PotionMechanic serialize(SerializeData data) throws SerializerException {
-
-        // Uses the format: <PotionEffectType>-<Duration>-<Amplifier>-<Ambient>-<Hide>-<Icon>
-        List<String[]> stringPotionList = data.ofList()
-                .addArgument(PotionEffectType.class, true, true)
-                .addArgument(int.class, true).assertArgumentPositive()
-                .addArgument(int.class, true).assertArgumentPositive()
-                .addArgument(boolean.class, false)
-                .addArgument(boolean.class, false)
-                .addArgument(boolean.class, false)
-                .assertList().assertExists().get();
-
-        List<PotionEffect> potionEffectList = new ArrayList<>();
-
-        for (String[] split : stringPotionList) {
-
-            PotionEffectType potionEffectType = PotionEffectType.getByName(split[0]);
-            if (potionEffectType == null) {
-                throw new SerializerOptionsException(this, "Potion Effect", Arrays.stream(PotionEffectType.values()).map(Object::toString).collect(Collectors.toList()), split[0], data.of().getLocation());
-            }
-
-            int duration = Integer.parseInt(split[1]);
-            int amplifier = Integer.parseInt(split[2]) - 1; // subtract one since 0 is potion level 1
-
-            boolean allowParticles = split.length <= 3 || Boolean.parseBoolean(split[3]);
-            boolean produceMoreParticles = split.length > 4 && Boolean.parseBoolean(split[4]);
-            boolean icon = split.length > 5 && Boolean.parseBoolean(split[5]);
-
-            if (CompatibilityAPI.getVersion() < 1.14)
-                potionEffectList.add(new PotionEffect(potionEffectType, duration, amplifier, produceMoreParticles, allowParticles));
-            else
-                potionEffectList.add(new PotionEffect(potionEffectType, duration, amplifier, produceMoreParticles, allowParticles, icon));
-        }
-
-        return new PotionMechanic(potionEffectList);
+        return "Potion";
     }
 }

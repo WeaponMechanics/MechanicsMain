@@ -1,48 +1,42 @@
 package me.deecaad.core.file.inline;
 
+import me.deecaad.core.utils.StringUtil;
+
+import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public final class Argument {
 
     private final String name;
-    private final List<String> aliases;
     private final ArgumentType<?> type;
     private final Object defaultValue;
+    private final boolean required;
+    private final List<ArgumentValidator> validators;
 
     public Argument(String name, ArgumentType<?> type, Object defaultValue) {
         this.name = name;
-        this.aliases = List.of();
         this.type = type;
         this.defaultValue = defaultValue;
+        this.required = false;
+        this.validators = new LinkedList<>();
     }
 
     public Argument(String name, ArgumentType<?> type) {
         this.name = name;
-        this.aliases = List.of();
         this.type = type;
         this.defaultValue = null;
-    }
-
-    public Argument(String name, ArgumentType<?> type, Object defaultValue, List<String> aliases) {
-        this.name = name;
-        this.aliases = aliases;
-        this.type = type;
-        this.defaultValue = defaultValue;
-    }
-
-    public Argument(String name, ArgumentType<?> type, List<String> aliases) {
-        this.name = name;
-        this.aliases = aliases;
-        this.type = type;
-        this.defaultValue = null;
+        this.required = true;
+        this.validators = new LinkedList<>();
     }
 
     public String getName() {
         return name;
     }
 
-    public List<String> getAliases() {
-        return aliases;
+    public String getAsYamlKey() {
+        return StringUtil.upperSnakeCase(StringUtil.camelToSnake(name));
     }
 
     public ArgumentType<?> getType() {
@@ -53,12 +47,26 @@ public final class Argument {
         return defaultValue;
     }
 
-    public boolean matches(String key) {
-        return name.equals(key) || aliases.contains(key);
+    public boolean isRequired() {
+        return required;
     }
 
-    public boolean isRequired() {
-        return defaultValue == null;
+    public Argument addValidator(ArgumentValidator validator) {
+        validators.add(validator);
+        return this;
+    }
+
+    public Object serialize(String str) throws InlineException {
+        try {
+            Object object = type.serialize(str);
+            for (ArgumentValidator validator : validators)
+                validator.validate(object);
+            return object;
+
+        } catch (InlineException ex) {
+            ex.setLookAfter(name);
+            throw ex;
+        }
     }
 
     @Override
@@ -71,6 +79,8 @@ public final class Argument {
 
     @Override
     public int hashCode() {
+        // Since only the argument name is hashed, duplicate names are
+        // not allowed.
         return name.hashCode();
     }
 }
