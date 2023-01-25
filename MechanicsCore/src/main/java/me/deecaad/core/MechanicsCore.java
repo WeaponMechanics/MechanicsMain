@@ -5,7 +5,7 @@ import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
-import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;

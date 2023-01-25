@@ -3,7 +3,6 @@ package me.deecaad.core.mechanics.defaultmechanics;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
@@ -14,8 +13,8 @@ import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SoundMechanic extends Mechanic {
@@ -78,6 +77,11 @@ public class SoundMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Custom_Sound";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SoundMechanic";
     }
 
     @NotNull

@@ -8,7 +8,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
@@ -21,11 +20,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class FireworkMechanic extends Mechanic {
 
@@ -134,6 +132,11 @@ public class FireworkMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Firework";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/FireworkMechanic";
     }
 
     @NotNull

@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MaterialCategoryCondition extends Condition {
 
@@ -34,6 +35,10 @@ public class MaterialCategoryCondition extends Condition {
         return "Material_Category";
     }
 
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/MaterialCategoryCondition";
+    }
 
     @NotNull
     @Override

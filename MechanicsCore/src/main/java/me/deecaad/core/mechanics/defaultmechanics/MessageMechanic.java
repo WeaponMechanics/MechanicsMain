@@ -4,7 +4,6 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -12,6 +11,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -49,6 +49,11 @@ public class MessageMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Message";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/MessageMechanic";
     }
 
     @NotNull

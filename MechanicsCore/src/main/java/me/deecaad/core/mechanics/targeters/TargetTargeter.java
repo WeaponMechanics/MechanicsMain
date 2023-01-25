@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -16,11 +17,6 @@ public class TargetTargeter extends Targeter {
     }
 
     @Override
-    public String getKeyword() {
-        return "Target";
-    }
-
-    @Override
     public boolean isEntity() {
         return true;
     }
@@ -28,6 +24,17 @@ public class TargetTargeter extends Targeter {
     @Override
     protected List<CastData> getTargets0(CastData cast) {
         return List.of(cast.clone());
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Target";
+    }
+
+    @Nullable
+    @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/TargetTargeter";
     }
 
     @NotNull

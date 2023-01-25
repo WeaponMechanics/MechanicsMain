@@ -6,6 +6,7 @@ import me.deecaad.core.mechanics.CastData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,11 +17,6 @@ public class ServerPlayersTargeter extends Targeter {
      * Default constructor for serializer.
      */
     public ServerPlayersTargeter() {
-    }
-
-    @Override
-    public String getKeyword() {
-        return "Server";
     }
 
     @Override
@@ -40,6 +36,17 @@ public class ServerPlayersTargeter extends Targeter {
         }
 
         return targets;
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Server_Players";
+    }
+
+    @Nullable
+    @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/ServerPlayersTargeter";
     }
 
     @NotNull

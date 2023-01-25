@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.OptionalDouble;
 
@@ -24,11 +25,6 @@ public class RangeCondition extends Condition {
     }
 
     @Override
-    public String getKeyword() {
-        return "Range";
-    }
-
-    @Override
     public boolean isAllowed0(CastData cast) {
         double distanceSquared = cast.getTargetLocation().distanceSquared(cast.getSourceLocation());
 
@@ -38,6 +34,16 @@ public class RangeCondition extends Condition {
             return false;
 
         return true;
+    }
+
+    @Override
+    public String getKeyword() {
+        return "Range";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/RangeCondition";
     }
 
     @NotNull

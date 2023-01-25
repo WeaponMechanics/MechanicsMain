@@ -2,12 +2,13 @@ package me.deecaad.core.mechanics;
 
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.conditions.Condition;
+import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.SourceTargeter;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,12 @@ public class Mechanics implements Serializer<Mechanics> {
     @Override
     public String getKeyword() {
         return "Mechanics";
+    }
+
+    @Nullable
+    @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics";
     }
 
     public void use(CastData cast) {

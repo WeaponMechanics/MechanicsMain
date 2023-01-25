@@ -1,12 +1,14 @@
-package me.deecaad.core.mechanics;
+package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -18,9 +20,9 @@ import java.util.List;
  */
 public abstract class Mechanic implements InlineSerializer<Mechanic> {
 
-    // package-private for serialization phase
-    Targeter targeter;
-    List<Condition> conditions;
+    // package-private so the serializer can set them phase
+    public Targeter targeter;
+    public List<Condition> conditions;
     private int repeatAmount;
     private int repeatInterval;
     private int delayBeforePlay;
@@ -29,6 +31,12 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
      * Default constructor for serializer.
      */
     public Mechanic() {
+    }
+
+    @Nullable
+    @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics#mechanics";
     }
 
     /**

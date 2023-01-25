@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,11 +26,6 @@ public class WorldTargeter extends Targeter {
 
     public WorldTargeter(String worldName) {
         this.worldName = worldName;
-    }
-
-    @Override
-    public String getKeyword() {
-        return "World";
     }
 
     @Override
@@ -57,6 +53,17 @@ public class WorldTargeter extends Targeter {
         }
 
         return targets;
+    }
+
+    @Override
+    public String getKeyword() {
+        return "World";
+    }
+
+    @Nullable
+    @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/WorldTargeter";
     }
 
     @NotNull

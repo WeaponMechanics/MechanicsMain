@@ -4,7 +4,8 @@ import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.Mechanic;
+import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A condition is a simple true/false statement that decides whether a
@@ -14,6 +15,12 @@ import me.deecaad.core.mechanics.Mechanic;
 public abstract class Condition implements InlineSerializer<Condition> {
 
     private boolean isInverted;
+
+    @Nullable
+    @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics#conditions";
+    }
 
     /**
      * Returns <code>true</code> if {@link Mechanic} that holds this condition

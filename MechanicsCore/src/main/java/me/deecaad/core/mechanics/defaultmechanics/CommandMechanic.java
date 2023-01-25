@@ -3,13 +3,13 @@ package me.deecaad.core.mechanics.defaultmechanics;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -46,6 +46,11 @@ public class CommandMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Command";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/CommandMechanic";
     }
 
     @NotNull

@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.block.Biome;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BiomeCondition extends Condition {
 
@@ -28,6 +29,11 @@ public class BiomeCondition extends Condition {
     @Override
     public String getKeyword() {
         return "Biome";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/BiomeCondition";
     }
 
     @NotNull

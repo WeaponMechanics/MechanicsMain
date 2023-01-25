@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class EntityTypeCondition extends Condition {
 
@@ -28,6 +29,11 @@ public class EntityTypeCondition extends Condition {
     @Override
     public String getKeyword() {
         return "EntityType";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/EntityTypeCondition";
     }
 
     @NotNull

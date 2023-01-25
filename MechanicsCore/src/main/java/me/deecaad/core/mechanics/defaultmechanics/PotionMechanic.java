@@ -3,11 +3,11 @@ package me.deecaad.core.mechanics.defaultmechanics;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PotionMechanic extends Mechanic {
 
@@ -34,6 +34,11 @@ public class PotionMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Potion";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/PotionMechanic";
     }
 
     @NotNull

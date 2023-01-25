@@ -24,6 +24,12 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
     }
 
     @Nullable
+    @Override
+    public String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics#targeters";
+    }
+
+    @Nullable
     public VectorSerializer getOffset() {
         return offset;
     }
