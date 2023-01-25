@@ -1,10 +1,6 @@
 package me.deecaad.core.mechanics;
 
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.file.inline.Argument;
+import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.SourceTargeter;
 import me.deecaad.core.mechanics.targeters.Targeter;
@@ -50,42 +46,10 @@ public class Mechanics implements Serializer<Mechanics> {
     @NotNull
     @Override
     public Mechanics serialize(SerializeData data) throws SerializerException {
-        List<Mechanic> mechanics = new LinkedList<>();
 
-        if (data.config.isConfigurationSection(data.key)) {
-
-        } else if (data.config.isList(data.key)) {
-            for (String line : data.config.getStringList(data.key)) {
-                try {
-                    mechanics.add(serializeOne(line));
-                } catch (InlineException ex) {
-                    boolean isIndexAccurate = true;
-                    int index = ex.getIndex();
-                    if (index == -1) {
-                        if (ex.getLookAfter() != null) index = line.indexOf(ex.getLookAfter());
-                        index = line.indexOf(ex.getIssue(), index == -1 ? 0 : index);
-                        isIndexAccurate = false;
-                    }
-
-                    String prefix = isIndexAccurate ? "Error happened here: " : "Error might be here: ";
-                    ex.getException().addMessage(prefix + line);
-                    if (index != -1) ex.getException().addMessage(StringUtil.repeat(" ", index + prefix.length()) + "^");
-
-                    throw ex.getException();
-                }
-            }
-        }
-
-        // Extra check to see if the user has extra mechanics in config, when
-        // it is better to leave it empty (So the config doesn't store anything).
-        if (mechanics.isEmpty())
-            throw data.exception(null, "Found an empty list of Mechanics, was this intentional?",
-                    "Instead of using an empty list, please delete the option from config");
-
-        return new Mechanics(mechanics);
     }
 
-    public Mechanic serializeOne(String line) throws InlineException {
+    public Mechanic serializeOne(SerializeData data, String line) throws SerializerException {
 
         // So here is the problem:
         // instead of just 'foo(arg1=hello)', we have 'foo(...) @... ?...',
@@ -110,86 +74,85 @@ public class Mechanics implements Serializer<Mechanics> {
             int index = matcher.start();
             String group = matcher.group();
 
-            switch (group.charAt(0)) {
-                case '@' -> {
-                    // Already have a targeter, user shouldn't have multiple
-                    if (targeter != null)
-                        throw new InlineException(index, new SerializerException("", new String[]{"Found multiple targeters with '@'", "Instead of using multiple targeters on the same line, try putting your mechanics on separate lines"}, ""));
+            try {
+                switch (group.charAt(0)) {
+                    case '@' -> {
+                        // Already have a targeter, user shouldn't have multiple
+                        if (targeter != null)
+                            throw data.exception(null, "Found multiple targeters with '@'", "Instead of using multiple targeters on the same line, try putting your mechanics on separate lines");
 
-                    // Try to figure out the name of the target. For example:
-                    // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
-                    Matcher nameMatcher = nameFinder.matcher(group);
-                    if (!nameMatcher.find())
-                        throw new InlineException(index + 1, new SerializerOptionsException("", "@Targeter", Mechanics.TARGETERS.getOptions(), group, ""));
+                        // Try to figure out the name of the target. For example:
+                        // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
+                        Matcher nameMatcher = nameFinder.matcher(group);
+                        if (!nameMatcher.find())
+                            throw data.exception(null, "Could not determine the name of the targeter", SerializerException.forValue(group));
 
-                    String temp = nameMatcher.group().substring(1);
-                    targeter = Mechanics.TARGETERS.get(temp);
-                    try {
+                        String temp = nameMatcher.group().substring(1);
+                        targeter = TARGETERS.get(temp);
+                        if (targeter == null)
+                            throw new SerializerOptionsException("", "@Targeter", TARGETERS.getOptions(), temp, "");
+
                         // We need to call the 'inlineFormat' method since the
                         // current targeter object is just an empty serializer.
-                        targeter = targeter.inlineFormat(group.substring(1));
-                    } catch (InlineException ex) {
-                        if (ex.getIndex() != -1)
-                            ex.setIndex(ex.getIndex() + index);
-                        ex.setOffset(ex.getOffset() + index);
-                        throw ex;
+                        Map<String, Object> args = InlineSerializer.inlineFormat(group.substring(1));
+                        SerializeData nested = new SerializeData(targeter, data.file, null, new MapConfigLike(args));
+                        targeter = nested.of().getRegistry(TARGETERS);
                     }
-                }
 
-                case '?' -> {
-                    // Try to figure out the name of the condition. For example:
-                    // '?entity(PLAYER)' => '?entity'
-                    Matcher nameMatcher = nameFinder.matcher(group);
-                    if (!nameMatcher.find())
-                        throw new InlineException(index + 1, new SerializerOptionsException("", "?Condition", Mechanics.CONDITIONS.getOptions(), group, ""));
+                    case '?' -> {
+                        // Try to figure out the name of the condition. For example:
+                        // '?entity(PLAYER)' => '?entity'
+                        Matcher nameMatcher = nameFinder.matcher(group);
+                        if (!nameMatcher.find())
+                            throw new InlineSerializer.FormatException(0, "Could not determine the name of the condition");
 
-                    String temp = nameMatcher.group().substring(1);
-                    Condition condition = Mechanics.CONDITIONS.get(temp);
-                    try {
+                        String temp = nameMatcher.group().substring(1);
+                        Condition condition = Mechanics.CONDITIONS.get(temp);
+
                         // We need to call the 'inlineFormat' method since the
                         // current condition object is just an empty serializer.
-                        conditions.add(condition.inlineFormat(group.substring(1)));
-                    } catch (InlineException ex) {
-                        if (ex.getIndex() != -1)
-                            ex.setIndex(ex.getIndex() + index);
-                        ex.setOffset(ex.getOffset() + index);
-                        throw ex;
+                        Map<String, Object> args = InlineSerializer.inlineFormat(group.substring(1));
+                        SerializeData nested = new SerializeData(condition, data.file, null, new MapConfigLike(args));
+                        conditions.add(nested.of().getRegistry(CONDITIONS));
                     }
-                }
 
-                default -> {
-                    if (mechanic != null)
-                        throw new InlineException(index, new SerializerException("", new String[]{"Found multiple mechanics... If this is a condition or target, make sure it starts with '?' or '@' respectively"}, ""));
+                    default -> {
+                        // Already have a mechanic, so the user probably mis-labeled something
+                        if (mechanic != null)
+                            throw data.exception(null, "Found multiple targeters with '@'", "Instead of using multiple targeters on the same line, try putting your mechanics on separate lines");
 
-                    // Try to figure out the name of the mechanic. For example:
-                    // 'potion(POISON)' => 'potion'
-                    Matcher nameMatcher = nameFinder.matcher(group);
-                    if (!nameMatcher.find())
-                        throw new InlineException(index, new SerializerOptionsException("", "Mechanic", Mechanics.CONDITIONS.getOptions(), group, ""));
+                        // Try to figure out the name of the target. For example:
+                        // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
+                        Matcher nameMatcher = nameFinder.matcher(group);
+                        if (!nameMatcher.find())
+                            throw data.exception(null, "Could not determine the name of the targeter", SerializerException.forValue(group));
 
-                    String temp = nameMatcher.group();
-                    mechanic = Mechanics.MECHANICS.get(temp);
-                    try {
+                        String temp = nameMatcher.group().substring(1);
+                        mechanic = MECHANICS.get(temp);
+                        if (mechanic == null)
+                            throw new SerializerOptionsException("", "@Targeter", MECHANICS.getOptions(), temp, "");
+
                         // We need to call the 'inlineFormat' method since the
-                        // current condition object is just an empty serializer.
-                        mechanic = mechanic.inlineFormat(group);
-                    } catch (InlineException ex) {
-                        if (ex.getIndex() != -1)
-                            ex.setIndex(ex.getIndex() + index);
-                        ex.setOffset(ex.getOffset() + index);
-                        throw ex;
+                        // current mechanic object is just an empty serializer.
+                        Map<String, Object> args = InlineSerializer.inlineFormat(group.substring(1));
+                        SerializeData nested = new SerializeData(mechanic, data.file, null, new MapConfigLike(args));
+                        mechanic = nested.of().getRegistry(MECHANICS);
                     }
                 }
+
+                if (mechanic == null)
+                    throw new InlineSerializer.FormatException(0, "Could not determine mechanic");
+
+            } catch (InlineSerializer.FormatException ex) {
+                String indent = "    ";
+                throw data.exception("Found a formatting error:", indent + line,
+                        StringUtil.repeat(" ", index + ex.getIndex() + indent.length() - 1) + "^");
             }
         }
 
-        if (mechanic == null)
-            throw new InlineException(0, new SerializerException("", new String[] {"Could not find any Mechanic in the line"}, ""));
-        if (targeter == null) {
-            Map<Argument, Object> args = new HashMap<>();
-            args.put(Targeter.OFFSET, null);
-            targeter = new SourceTargeter(args);
-        }
+        // Always default to the source targeter
+        if (targeter == null)
+            targeter = new SourceTargeter();
 
         mechanic.targeter = targeter;
         mechanic.conditions = conditions;

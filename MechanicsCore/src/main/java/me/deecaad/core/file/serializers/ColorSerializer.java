@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class ColorSerializer implements Serializer<Color> {
+public class ColorSerializer implements InlineSerializer<Color> {
 
     /**
      * Default constructor for serializer

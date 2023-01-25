@@ -238,6 +238,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
      * string. This is basically a Syntax Error.
      */
     class FormatException extends Exception {
+
         private int index;
 
         public FormatException(int index) {
@@ -247,6 +248,10 @@ public interface InlineSerializer<T> extends Serializer<T> {
         public FormatException(int index, String message) {
             super(message);
             this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
         }
     }
 }

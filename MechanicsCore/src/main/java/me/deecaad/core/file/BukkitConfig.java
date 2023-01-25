@@ -28,7 +28,7 @@ public class BukkitConfig implements ConfigLike {
     }
 
     @Override
-    public List<String> getStringList(String key) {
-        return config.getStringList(key);
+    public List<?> getList(String key) {
+        return config.getList(key);
     }
 }

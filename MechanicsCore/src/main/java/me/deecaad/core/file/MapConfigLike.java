@@ -23,11 +23,16 @@ public class MapConfigLike implements ConfigLike {
 
     @Override
     public boolean isString(String key) {
-        return config.get(key) instanceof String;
+        return get(key, null) instanceof String;
     }
 
     @Override
-    public List<Object> getStringList(String key) {
-        return ;
+    public List<?> getList(String key) {
+        Object temp = get(key, null);
+
+        if (temp instanceof List<?> list)
+            return list;
+
+        return List.of();
     }
 }

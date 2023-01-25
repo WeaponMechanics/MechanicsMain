@@ -22,5 +22,5 @@ public interface ConfigLike {
         return temp.toString();
     }
 
-    List<Object> getList(String key);
+    List<?> getList(String key);
 }
