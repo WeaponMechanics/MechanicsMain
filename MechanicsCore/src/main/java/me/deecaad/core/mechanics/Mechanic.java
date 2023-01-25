@@ -1,26 +1,14 @@
 package me.deecaad.core.mechanics;
 
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerOptionsException;
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.InlineException;
-import me.deecaad.core.file.inline.InlineSerializer;
-import me.deecaad.core.file.inline.types.IntegerType;
-import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.conditions.Condition;
-import me.deecaad.core.mechanics.targeters.TargetTargeter;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A Mechanic is the most powerful tool available to server-admins through
@@ -28,12 +16,7 @@ import java.util.regex.Pattern;
  * writes in YAML format. These actions can be executed conditionally using
  * {@link Condition} and can get specifically targeted using {@link me.deecaad.core.mechanics.targeters.Targeter}.
  */
-public abstract class Mechanic extends InlineSerializer<Mechanic> {
-
-    // Inline arguments
-    public static final Argument REPEAT_AMOUNT = new Argument("repeatAmount", new IntegerType(1), 1);
-    public static final Argument REPEAT_INTERVAL = new Argument("repeatInterval", new IntegerType(1), 1);
-    public static final Argument DELAY_BEFORE_PLAY = new Argument("delayBeforePlay", new IntegerType(0), 0);
+public abstract class Mechanic implements InlineSerializer<Mechanic> {
 
     // package-private for serialization phase
     Targeter targeter;
@@ -46,22 +29,6 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
      * Default constructor for serializer.
      */
     public Mechanic() {
-        // DO NOT USE THIS CONSTRUCTOR IN YOUR MECHANICS!!!
-        // call super(args) instead
-    }
-
-    /**
-     * Map constructor for inline-serializer.
-     */
-    public Mechanic(Map<Argument, Object> args) {
-        repeatAmount = (int) args.get(REPEAT_AMOUNT);
-        repeatInterval = (int) args.get(REPEAT_INTERVAL);
-        delayBeforePlay = (int) args.get(DELAY_BEFORE_PLAY);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return new ArgumentMap(REPEAT_AMOUNT, REPEAT_INTERVAL, DELAY_BEFORE_PLAY);
     }
 
     /**
@@ -123,4 +90,11 @@ public abstract class Mechanic extends InlineSerializer<Mechanic> {
      * @param cast The non-null data including source/target information.
      */
     protected abstract void use0(CastData cast);
+
+    public Mechanic applyParentArgs(SerializeData data, Mechanic mechanic) throws SerializerException {
+        mechanic.repeatAmount = data.of("Repeat_Amount").getInt(1);
+        mechanic.repeatInterval = data.of("Repeat_Interval").getInt(1);
+        mechanic.delayBeforePlay = data.of("Delay_Before_Play").getInt(0);
+        return mechanic;
+    }
 }

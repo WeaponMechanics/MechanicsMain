@@ -1,5 +1,6 @@
 package me.deecaad.core.file.inline;
 
+import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.inline.types.IntegerType;
 import me.deecaad.core.file.inline.types.NestedType;
 

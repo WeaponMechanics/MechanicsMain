@@ -1,9 +1,7 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.BooleanType;
-import me.deecaad.core.file.inline.types.StringType;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
@@ -11,13 +9,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public class CommandMechanic extends Mechanic {
-
-    public static final Argument CONSOLE = new Argument("console", new BooleanType(), false);
-    public static final Argument COMMAND = new Argument("command", new StringType());
 
     private boolean console;
     private String command;
@@ -28,16 +24,9 @@ public class CommandMechanic extends Mechanic {
     public CommandMechanic() {
     }
 
-    public CommandMechanic(Map<Argument, Object> args) {
-        super(args);
-
-        console = (boolean) args.get(CONSOLE);
-        command = (String) args.get(COMMAND);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args().addAll(CONSOLE, COMMAND);
+    public CommandMechanic(boolean console, String command) {
+        this.console = console;
+        this.command = command;
     }
 
     @Override
@@ -57,5 +46,13 @@ public class CommandMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Command";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        boolean console = data.of("Console").getBool(false);
+        String command = data.of("Command").assertType(String.class).get();
+        return applyParentArgs(data, new CommandMechanic(console, command));
     }
 }

@@ -1,21 +1,16 @@
 package me.deecaad.core.mechanics.conditions;
 
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.EnumType;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public class MaterialCategoryCondition extends Condition {
-
-    public static final Argument CATEGORY = new Argument("category", new EnumType<>(MaterialCategory.class));
 
     private MaterialCategory category;
 
@@ -25,13 +20,13 @@ public class MaterialCategoryCondition extends Condition {
     public MaterialCategoryCondition() {
     }
 
-    public MaterialCategoryCondition(Map<Argument, Object> args) {
-        this.category = (MaterialCategory) args.get(CATEGORY);
+    public MaterialCategoryCondition(MaterialCategory category) {
+        this.category = category;
     }
 
     @Override
-    public ArgumentMap args() {
-        return new ArgumentMap(CATEGORY);
+    public boolean isAllowed0(CastData cast) {
+        return category.test(cast.getTargetLocation().getBlock());
     }
 
     @Override
@@ -39,9 +34,12 @@ public class MaterialCategoryCondition extends Condition {
         return "Material_Category";
     }
 
+
+    @NotNull
     @Override
-    public boolean isAllowed(CastData cast) {
-        return category.test(cast.getTargetLocation().getBlock());
+    public Condition serialize(SerializeData data) throws SerializerException {
+        MaterialCategory category = data.of("Category").assertExists().getEnum(MaterialCategory.class);
+        return applyParentArgs(data, new MaterialCategoryCondition(category));
     }
 
     /**

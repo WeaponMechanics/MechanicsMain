@@ -7,15 +7,14 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.inline.Argument;
 import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.InlineSerializer;
+import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.inline.types.*;
-import me.deecaad.core.file.serializers.ItemSerializer;
-import me.deecaad.core.file.serializers.LocationAdjuster;
+import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
-import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.*;
@@ -24,9 +23,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.A;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,13 +32,7 @@ import java.util.stream.Collectors;
 
 public class FireworkMechanic extends Mechanic {
 
-    public static class FireworkData extends InlineSerializer<FireworkData> {
-
-        public static final Argument EFFECT = new Argument("type", new EnumType<>(FireworkEffect.Type.class), FireworkEffect.Type.BURST);
-        public static final Argument COLOR = new Argument("color", new ListType<>(new ColorType()));
-        public static final Argument TRAIL = new Argument("trail", new BooleanType(), false);
-        public static final Argument FLICKER = new Argument("flicker", new BooleanType(), false);
-        public static final Argument FADE_COLOR = new Argument("fadeColor", new ListType<>(new ColorType()), null);
+    public static class FireworkData implements InlineSerializer<FireworkData> {
 
         private FireworkEffect effect;
 
@@ -50,15 +42,8 @@ public class FireworkMechanic extends Mechanic {
         public FireworkData() {
         }
 
-        @SuppressWarnings("unchecked")
-        public FireworkData(Map<Argument, Object> args) {
-            FireworkEffect.Builder builder = FireworkEffect.builder();
-            builder.with(((List<FireworkEffect.Type>) args.get(EFFECT)).get(0));
-            builder.withColor((List<Color>) args.get(COLOR));
-            builder.trail((boolean) args.get(TRAIL));
-            builder.flicker((boolean) args.get(FLICKER));
-            builder.withFade((List<Color>) args.get(FADE_COLOR));
-            effect = builder.build();
+        public FireworkData(FireworkEffect effect) {
+            this.effect = effect;
         }
 
         public FireworkEffect getEffect() {
@@ -66,23 +51,28 @@ public class FireworkMechanic extends Mechanic {
         }
 
         @Override
-        public ArgumentMap args() {
-            return new ArgumentMap(EFFECT, COLOR, TRAIL, FLICKER, FADE_COLOR);
-        }
-
-        @Override
         public String getKeyword() {
             return "Firework";
         }
-    }
 
-    public static final Argument EFFECTS = new Argument("effects", new ListType<>(new NestedType<>(FireworkData.class)));
-    public static final Argument FLIGHT_TIME = new Argument("flightTime", new IntegerType(0), 1);
-    public static final Argument VIEWERS = new Argument("viewers", new RegistryType<>(Mechanics.TARGETERS), null);
+        @NotNull
+        @Override
+        public FireworkData serialize(SerializeData data) throws SerializerException {
+            FireworkEffect.Type type = data.of("Type").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BURST);
+            Color[] colors = data.of("Colors").getImpliedList(new ColorSerializer()).toArray(new Color[0]);
+            boolean trail = data.of("Trail").getBool(false);
+            boolean flicker = data.of("Flicker").getBool(false);
+            Color[] fadeColors =  data.of("Fade_Colors").getImpliedList(new ColorSerializer()).toArray(new Color[0]);
+
+            FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
+            return new FireworkData(effect);
+        }
+    }
 
     private ItemStack fireworkItem;
     private int flightTime; // THIS IS A COPY OF THE VALUE IN 'fireworkItem'
     private Targeter viewers;
+    private List<Condition> viewerConditions;
 
     /**
      * Default constructor for serializer.
@@ -90,21 +80,11 @@ public class FireworkMechanic extends Mechanic {
     public FireworkMechanic() {
     }
 
-    @SuppressWarnings("unchecked")
-    public FireworkMechanic(Map<Argument, Object> args) {
-        super(args);
-
-        this.fireworkItem = new ItemStack(ReflectionUtil.getMCVersion() >= 13 ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
-        FireworkMeta meta = (FireworkMeta) fireworkItem.getItemMeta();
-        meta.setPower(flightTime = (int) args.get(FLIGHT_TIME));
-        meta.addEffects(((List<FireworkData>) args.get(EFFECTS)).stream().map(FireworkData::getEffect).collect(Collectors.toList()));
-        fireworkItem.setItemMeta(meta);
-        viewers = (Targeter) args.get(VIEWERS);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args().addAll(EFFECTS, FLIGHT_TIME, VIEWERS);
+    public FireworkMechanic(ItemStack fireworkItem, int flightTime, Targeter viewers, List<Condition> viewerConditions) {
+        this.fireworkItem = fireworkItem;
+        this.flightTime = flightTime;
+        this.viewers = viewers;
+        this.viewerConditions = viewerConditions;
     }
 
     @Override
@@ -116,9 +96,16 @@ public class FireworkMechanic extends Mechanic {
             players = DistanceUtil.getPlayersInRange(cast.getTargetLocation());
         else {
             players = new LinkedList<>();
+            OUTER:
             for (CastData target : viewers.getTargets(cast)) {
-                if (target.getTarget() instanceof Player player)
-                    players.add(player);
+                if (!(target.getTarget() instanceof Player player))
+                    continue;
+
+                for (Condition condition : viewerConditions)
+                    if (!condition.isAllowed(target))
+                        continue OUTER;
+
+                players.add(player);
             }
         }
 
@@ -150,5 +137,22 @@ public class FireworkMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Firework";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        ItemStack fireworkItem = new ItemStack(ReflectionUtil.getMCVersion() >= 13 ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
+        FireworkMeta meta = (FireworkMeta) fireworkItem.getItemMeta();
+        List<FireworkEffect> effects = data.of("Effects").getImpliedList(new FireworkData()).stream().map(FireworkData::getEffect).toList();
+        int flightTime = data.of("Flight_Time").getInt(0);
+        meta.addEffects(effects);
+        meta.setPower(flightTime);
+        fireworkItem.setItemMeta(meta);
+
+        Targeter viewers = data.of("Viewers").getRegistry(Mechanics.TARGETERS, null);
+        List<Condition> viewerConditions = data.of("Viewer_Conditions").getRegistryList(Mechanics.CONDITIONS);
+
+        return applyParentArgs(data, new FireworkMechanic(fireworkItem, flightTime, viewers, viewerConditions));
     }
 }

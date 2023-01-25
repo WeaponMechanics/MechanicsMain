@@ -1,35 +1,26 @@
 package me.deecaad.core.mechanics.targeters;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class WorldTargeter extends Targeter {
-
-    private String worldName;
-    private World worldCache;
+public class ServerPlayersTargeter extends Targeter {
 
     /**
      * Default constructor for serializer.
      */
-    public WorldTargeter() {
-    }
-
-    public WorldTargeter(String worldName) {
-        this.worldName = worldName;
+    public ServerPlayersTargeter() {
     }
 
     @Override
     public String getKeyword() {
-        return "World";
+        return "Server";
     }
 
     @Override
@@ -39,18 +30,10 @@ public class WorldTargeter extends Targeter {
 
     @Override
     public List<CastData> getTargets0(CastData cast) {
-        if (worldCache == null || worldName == null)
-            worldCache = worldName == null ? cast.getSource().getWorld() : Bukkit.getWorld(worldName);
 
-        // User may have typed the name of the world wrong... It is case-sensitive
-        if (worldCache == null) {
-            MechanicsCore.debug.warn("There was an error getting the world for '" + worldName  + "'");
-            return List.of();
-        }
-
-        // Loop through every living entity in the world
+        // Loop through every player in the server
         List<CastData> targets = new LinkedList<>();
-        for (LivingEntity target : worldCache.getLivingEntities()) {
+        for (LivingEntity target : Bukkit.getServer().getOnlinePlayers()) {
             CastData copy = cast.clone();
             copy.setTargetEntity(target);
             targets.add(copy);

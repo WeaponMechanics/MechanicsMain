@@ -1,6 +1,6 @@
 package me.deecaad.core.mechanics;
 
-import me.deecaad.core.file.inline.InlineSerializer;
+import me.deecaad.core.file.InlineSerializer;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -9,10 +9,24 @@ import java.util.Set;
 
 public final class Registry<T extends InlineSerializer<T>> {
 
+    private final String registryName;
     private final Map<String, T> registry;
 
-    public Registry() {
+    public Registry(String registryName) {
+        this.registryName = registryName;
         this.registry = new HashMap<>();
+    }
+
+    /**
+     * Returns the name of this registry. Serves no functionality outside a
+     * user-friendly identifier. The name should be based off of the type this
+     * registry holds. For example, <code>"Mechanic"</code> for a registry of
+     * mechanics.
+     *
+     * @return The non-null name of this registry.
+     */
+    public String getName() {
+        return registryName;
     }
 
     /**
@@ -73,5 +87,9 @@ public final class Registry<T extends InlineSerializer<T>> {
      */
     public static String toKey(String key) {
         return key.toLowerCase(Locale.ROOT).replace(" ", "").replace("_", "");
+    }
+
+    public static boolean matches(String key1, String key2) {
+        return toKey(key1).equals(toKey(key2));
     }
 }

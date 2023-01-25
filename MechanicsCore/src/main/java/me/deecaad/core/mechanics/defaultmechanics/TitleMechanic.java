@@ -1,32 +1,23 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.IntegerType;
-import me.deecaad.core.file.inline.types.StringType;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import net.kyori.adventure.Adventure;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
+import net.kyori.adventure.util.Ticks;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
 import java.util.Map;
 
 public class TitleMechanic extends Mechanic {
-
-    public static final Argument TITLE = new Argument("title", new StringType(true), null);
-    public static final Argument SUBTITLE = new Argument("subtitle", new StringType(true), null);
-    public static final Argument FADE_IN = new Argument("fadeIn", new IntegerType(0), 5);
-    public static final Argument STAY = new Argument("stay", new IntegerType(0), 80);
-    public static final Argument FADE_OUT = new Argument("fadeOut", new IntegerType(0), 5);
 
     private String title;
     private String subtitle;
@@ -38,26 +29,10 @@ public class TitleMechanic extends Mechanic {
     public TitleMechanic() {
     }
 
-    public TitleMechanic(Map<Argument, Object> args) throws SerializerException {
-        super(args);
-
-        title = (String) args.get(TITLE);
-        subtitle = (String) args.get(SUBTITLE);
-
-        // Construct times object
-        Duration fadeIn = Duration.ofMillis((int) args.get(FADE_IN) * 50);
-        Duration stay = Duration.ofMillis((int) args.get(STAY) * 50);
-        Duration fadeOut = Duration.ofMillis((int) args.get(FADE_OUT) * 50);
-        times = Title.Times.times(fadeIn, stay, fadeOut);
-
-        // Should use at least one
-        if (title == null && subtitle == null)
-            throw new SerializerException("", new String[] {"You must use one of 'title' or 'subtitle', they can't both be blank!"}, "");
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args().addAll(TITLE, SUBTITLE, FADE_IN, STAY, FADE_OUT);
+    public TitleMechanic(String title, String subtitle, Title.Times times) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.times = times;
     }
 
     @Override
@@ -82,5 +57,22 @@ public class TitleMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Title";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        String title = data.of("Title").getAdventure(null);
+        String subtitle = data.of("Subtitle").getAdventure(null);
+        int fadeIn = data.of("Fade_In").assertPositive().getInt(10);
+        int stay = data.of("Stay").assertPositive().getInt(70);
+        int fadeOut = data.of("Fade_Out").assertPositive().getInt(20);
+
+        // User should define at least one of these...
+        if (title == null && subtitle == null)
+            throw data.exception(null, "Missing both 'title' and 'subtitle' options");
+
+        Title.Times times = Title.Times.times(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut));
+        return applyParentArgs(data, new TitleMechanic(title, subtitle, times));
     }
 }

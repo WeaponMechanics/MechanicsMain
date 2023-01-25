@@ -1,9 +1,8 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.StringType;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
@@ -12,12 +11,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public class MessageMechanic extends Mechanic {
-
-    public static final Argument MESSAGE = new Argument("message", new StringType(true));
 
     private String message;
 
@@ -27,15 +25,8 @@ public class MessageMechanic extends Mechanic {
     public MessageMechanic() {
     }
 
-    public MessageMechanic(Map<Argument, Object> args) {
-        super(args);
-
-        message = (String) args.get(MESSAGE);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args().addAll(MESSAGE);
+    public MessageMechanic(String message) {
+        this.message = message;
     }
 
     @Override
@@ -58,5 +49,12 @@ public class MessageMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Message";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        String message = data.of("Message").assertExists().getAdventure();
+        return applyParentArgs(data, new MessageMechanic(message));
     }
 }

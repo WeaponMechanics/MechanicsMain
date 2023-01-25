@@ -1,16 +1,12 @@
 package me.deecaad.core.mechanics.conditions;
 
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.EnumType;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.block.Biome;
-
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public class BiomeCondition extends Condition {
-
-    public static final Argument BIOME = new Argument("biome", new EnumType<>(Biome.class));
 
     private Biome biome;
 
@@ -20,13 +16,13 @@ public class BiomeCondition extends Condition {
     public BiomeCondition() {
     }
 
-    public BiomeCondition(Map<Argument, Object> args) {
-        biome = (Biome) args.get(BIOME);
+    public BiomeCondition(Biome biome) {
+        this.biome = biome;
     }
 
     @Override
-    public ArgumentMap args() {
-        return new ArgumentMap(BIOME);
+    public boolean isAllowed0(CastData cast) {
+        return cast.getTargetLocation().getBlock().getBiome() == biome;
     }
 
     @Override
@@ -34,8 +30,10 @@ public class BiomeCondition extends Condition {
         return "Biome";
     }
 
+    @NotNull
     @Override
-    public boolean isAllowed(CastData cast) {
-        return cast.getTargetLocation().getBlock().getBiome() == biome;
+    public Condition serialize(SerializeData data) throws SerializerException {
+        Biome biome = data.of("Biome").assertExists().getEnum(Biome.class);
+        return applyParentArgs(data, new BiomeCondition(biome));
     }
 }

@@ -1,29 +1,24 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.InlineException;
-import me.deecaad.core.file.inline.types.*;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SoundMechanic extends Mechanic {
-
-    public static final Argument SOUND = new Argument("sound", new EnumType<>(Sound.class));
-    public static final Argument VOLUME = new Argument("volume", new DoubleType(0.0), 1.0);
-    public static final Argument PITCH = new Argument("pitch", new DoubleType(0.5, 2.0), 1.0);
-    public static final Argument NOISE = new Argument("noise", new DoubleType(0.0, 1.0), 0.0);
-    public static final Argument CATEGORY = new Argument("category", new StringType(), null); // only use Enum in 1.11+
-    public static final Argument LISTENERS = new Argument("listeners", new RegistryType<>(Mechanics.TARGETERS), null);
 
     private Sound sound;
     private float volume;
@@ -31,6 +26,7 @@ public class SoundMechanic extends Mechanic {
     private float noise;
     private Object category; // store as an Object to avoid version mismatch errors in <1.11
     private Targeter listeners;
+    private List<Condition> listenerConditions;
 
     /**
      * Default constructor for serializer.
@@ -38,38 +34,14 @@ public class SoundMechanic extends Mechanic {
     public SoundMechanic() {
     }
 
-    public SoundMechanic(Map<Argument, Object> args) {
-        super(args);
-
-        sound = (Sound) args.get(SOUND);
-        volume = ((Number) args.get(VOLUME)).floatValue();
-        pitch = ((Number) args.get(PITCH)).floatValue();
-        noise = ((Number) args.get(NOISE)).floatValue();
-        listeners = (Targeter) args.get(LISTENERS);
-
-        // This if-else is technically redundant, but I put it here for clarity
-        if (ReflectionUtil.getMCVersion() < 11)
-            category = null;
-        else
-            category = args.get(CATEGORY); // no need to cast... store as object to avoid error
-    }
-
-    @Override
-    public ArgumentMap args() {
-        ArgumentMap temp = super.args().addAll(SOUND, VOLUME, PITCH, NOISE);
-
-        // SoundCategory enum was added to spigot in 1.11. In older versions,
-        // we have a check to make sure that NOBODY tries to use the category
-        // argument at all. In newer versions, the argument uses the enum.
-        if (ReflectionUtil.getMCVersion() < 11)
-            temp.addAll(new Argument("category", new StringType(), null).addValidator(arg -> {
-                throw new InlineException("", new SerializerException("", new String[] {"The sound 'category' argument is only for MC 1.11+",
-                        "Detected MC version: 1." + ReflectionUtil.getMCVersion() + ".x"}, ""));
-            }));
-        else
-            temp.addAll(new Argument("category", new EnumType<>(SoundCategory.class), SoundCategory.PLAYERS));
-
-        return temp;
+    public SoundMechanic(Sound sound, float volume, float pitch, float noise, Object category, Targeter listeners, List<Condition> listenerConditions) {
+        this.sound = sound;
+        this.volume = volume;
+        this.pitch = pitch;
+        this.noise = noise;
+        this.category = category;
+        this.listeners = listeners;
+        this.listenerConditions = listenerConditions;
     }
 
     @Override
@@ -87,18 +59,39 @@ public class SoundMechanic extends Mechanic {
         // When listeners != null, only targeted Players will be able to hear
         // this sound. In this case, we have to loop through every player and
         // manually play the sound packet for them.
+        OUTER:
         for (CastData target : listeners.getTargets(cast)) {
-            if (target.getTarget() instanceof Player player) {
-                if (ReflectionUtil.getMCVersion() < 11)
-                    player.playSound(cast.getTargetLocation(), sound, volume, pitch + NumberUtil.random(-noise, noise));
-                else
-                    player.playSound(cast.getTargetLocation(), sound, (SoundCategory) category, volume, pitch + NumberUtil.random(-noise, noise));
-            }
+            if (!(target.getTarget() instanceof Player player))
+                continue;
+
+            for (Condition condition : listenerConditions)
+                if (!condition.isAllowed(target))
+                    continue OUTER;
+
+            if (ReflectionUtil.getMCVersion() < 11)
+                player.playSound(cast.getTargetLocation(), sound, volume, pitch + NumberUtil.random(-noise, noise));
+            else
+                player.playSound(cast.getTargetLocation(), sound, (SoundCategory) category, volume, pitch + NumberUtil.random(-noise, noise));
         }
     }
 
     @Override
     public String getKeyword() {
-        return "Sound";
+        return "Custom_Sound";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        Sound sound = data.of("Sound").assertExists().getEnum(Sound.class);
+        float volume = (float) data.of("Volume").assertPositive().getDouble(1.0);
+        float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble(1.0);
+        float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble(0.0);
+        Object category = ReflectionUtil.getMCVersion() < 11 ? null : data.of("Category").getEnum(SoundCategory.class, SoundCategory.PLAYERS);
+
+        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS);
+        List<Condition> listenerConditions = data.of("Listener_Conditions").getRegistryList(Mechanics.CONDITIONS);
+
+        return applyParentArgs(data, new SoundMechanic(sound, volume, pitch, noise, category, listeners, listenerConditions));
     }
 }

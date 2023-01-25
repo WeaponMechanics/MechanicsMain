@@ -5,10 +5,8 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.InlineException;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.SourceTargeter;
-import me.deecaad.core.mechanics.targeters.TargetTargeter;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
@@ -22,9 +20,9 @@ import java.util.regex.Pattern;
 
 public class Mechanics implements Serializer<Mechanics> {
 
-    public static final Registry<Mechanic> MECHANICS = new Registry<>();
-    public static final Registry<Targeter> TARGETERS = new Registry<>();
-    public static final Registry<Condition> CONDITIONS = new Registry<>();
+    public static final Registry<Mechanic> MECHANICS = new Registry<>("Mechanic");
+    public static final Registry<Targeter> TARGETERS = new Registry<>("Targeter");
+    public static final Registry<Condition> CONDITIONS = new Registry<>("Condition");
 
     private List<Mechanic> mechanics;
 

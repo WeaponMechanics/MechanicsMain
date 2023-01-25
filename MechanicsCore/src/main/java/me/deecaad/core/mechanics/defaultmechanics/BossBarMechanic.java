@@ -1,12 +1,9 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.DoubleType;
-import me.deecaad.core.file.inline.types.EnumType;
-import me.deecaad.core.file.inline.types.IntegerType;
-import me.deecaad.core.file.inline.types.StringType;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
@@ -17,16 +14,11 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public class BossBarMechanic extends Mechanic {
-
-    public static final Argument TITLE = new Argument("title", new StringType(true));
-    public static final Argument COLOR = new Argument("color", new EnumType<>(BossBar.Color.class), BossBar.Color.WHITE);
-    public static final Argument STYLE = new Argument("style", new EnumType<>(BossBar.Overlay.class), BossBar.Overlay.PROGRESS);
-    public static final Argument PROGRESS = new Argument("progress", new DoubleType(0.0, 1.0), 1.0);
-    public static final Argument TIME = new Argument("time", new IntegerType(0), 100);
 
     private String title;
     private BossBar.Color color;
@@ -37,19 +29,12 @@ public class BossBarMechanic extends Mechanic {
     public BossBarMechanic() {
     }
 
-    public BossBarMechanic(Map<Argument, Object> args) {
-        super(args);
-
-        title = (String) args.get(TITLE);
-        color = (BossBar.Color) args.get(COLOR);
-        style = (BossBar.Overlay) args.get(STYLE);
-        progress = ((Number) args.get(PROGRESS)).floatValue();
-        time = (int) args.get(TIME);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args().addAll(TITLE, COLOR, STYLE, PROGRESS, TIME);
+    public BossBarMechanic(String title, BossBar.Color color, BossBar.Overlay style, float progress, int time) {
+        this.title = title;
+        this.color = color;
+        this.style = style;
+        this.progress = progress;
+        this.time = time;
     }
 
     @Override
@@ -80,5 +65,18 @@ public class BossBarMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Boss_Bar";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        String title = data.of("Title").assertExists().getAdventure();
+        BossBar.Color color = data.of("Color").getEnum(BossBar.Color.class, BossBar.Color.RED);
+        BossBar.Overlay style = data.of("Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.PROGRESS);
+        Double progressTemp = data.of("Progress").serialize(new ChanceSerializer());
+        float progress = progressTemp == null ? 1.0f : progressTemp.floatValue();
+        int time = data.of("Time").assertPositive().getInt(100);
+
+        return applyParentArgs(data, new BossBarMechanic(title, color, style, progress, time));
     }
 }

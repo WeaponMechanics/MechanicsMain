@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -27,7 +28,7 @@ public class SerializeData {
     public final String serializer;
     public final File file;
     public final String key;
-    public final ConfigurationSection config;
+    public final ConfigLike config;
 
     /**
      * Wiki link to be used in exception messages in order to better assist
@@ -53,7 +54,7 @@ public class SerializeData {
     private boolean usingStep;
 
 
-    public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
+    public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigLike config) {
         this.serializer = serializer;
         this.file = file;
         this.key = key;
@@ -69,7 +70,7 @@ public class SerializeData {
         copyMutables(other);
     }
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigLike config) {
         this.serializer = getSimpleName(serializer);
         this.file = file;
         this.key = key;
@@ -90,7 +91,6 @@ public class SerializeData {
 
     private SerializeData copyMutables(SerializeData from) {
         this.wikiLink = from.wikiLink;
-        this.pathToConfig = from.pathToConfig;
         this.usingStep = from.usingStep;
         return this;
     }
@@ -167,7 +167,7 @@ public class SerializeData {
 
         // Check that the user is trying to use path-to.
         String relative = serializer.getKeyword();
-        if (config.isString(getPath(relative))) {
+        if (config instanceof BukkitConfig && config.isString(getPath(relative))) {
 
             // This exception should be caught by FileReader so this serializer
             // is saved for late serialization (for path-to support).
@@ -471,32 +471,20 @@ public class SerializeData {
                             argument.clazz = Integer.class; // Set class to be more human-readable in error
                             int parseInt = Integer.parseInt(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseInt < argument.min || parseInt > argument.max))
-                                throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
+                                throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i));
 
                             if (argument.positive && parseInt < 0)
-                                throw new SerializerNegativeException(serializer, parseInt, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
+                                throw new SerializerNegativeException(serializer, parseInt, getLocation(i));
                         }
 
                         else if (argument.clazz == double.class) {
                             argument.clazz = Double.class;
                             double parseDouble = Double.parseDouble(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseDouble < argument.min || parseDouble > argument.max))
-                                throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
+                                throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i));
 
                             if (argument.positive && parseDouble < 0.0)
-                                throw new SerializerNegativeException(serializer, parseDouble, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
+                                throw new SerializerNegativeException(serializer, parseDouble, getLocation(i));
 
                         } else if (argument.clazz == boolean.class) {
                             argument.clazz = Boolean.class;
@@ -504,13 +492,12 @@ public class SerializeData {
                                 throw new Exception();
 
                         } else if (argument.clazz.isEnum() && EnumUtil.parseEnums((Class<Enum>) argument.clazz, component).isEmpty()) {
-                            throw new SerializerEnumException(serializer, (Class<Enum>) argument.clazz, component, true, getLocation(i))
-                                    .addMessage("Full List Element: " + string)
-                                    .addMessage("Valid List Format: " + format)
-                                    .addMessage(wikiLink != null, getWikiMessage());
+                            throw new SerializerEnumException(serializer, (Class<Enum>) argument.clazz, component, true, getLocation(i));
                         }
                     } catch (SerializerException ex) {
-                        throw ex; // Rethrow exception so it isn't caught and ignored
+                        throw ex.addMessage("Full List Element: " + string)
+                                .addMessage("Valid List Format: " + format)
+                                .addMessage(wikiLink != null, getWikiMessage()); // Rethrow exception so it isn't caught and ignored
                     } catch (Exception ex) {
                         throw new SerializerTypeException(serializer, argument.clazz, null, component, getLocation(i))
                                 .addMessage("Full List Element: " + string)
@@ -532,7 +519,7 @@ public class SerializeData {
                 return Collections.emptyList();
 
             List<String[]> list = new ArrayList<>();
-            List<?> configList = usingStep ? pathToConfig.getList(getPath(relative)) : config.getList(getPath(relative), Collections.emptyList());
+            List<?> configList = usingStep ? pathToConfig.getList(getPath(relative)) : config.getStringList(getPath(relative));
             for (Object obj : configList) {
                 list.add(StringUtil.split(obj.toString()));
             }
@@ -1023,6 +1010,39 @@ public class SerializeData {
             assert value != null;
 
             return StringUtil.colorAdventure(value);
+        }
+
+        public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry) throws SerializerException {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
+            return getRegistry(registry, null);
+        }
+
+        public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry, T defaultValue) throws SerializerException {
+            String key = of(InlineSerializer.UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
+            T base = registry.get(key);
+
+            if (base == null)
+                throw new SerializerOptionsException(serializer, registry.getName(), registry.getOptions(), key, getLocation());
+
+            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
+            data.copyMutables(SerializeData.this);
+            return base.serialize(data);
+        }
+
+        public <T extends InlineSerializer<T>> T getImplied(T impliedType) throws SerializerException {
+
+            // It's ok if a user defines this, but it MUST match the impliedType
+            if (has(InlineSerializer.UNIQUE_IDENTIFIER)) {
+                String key = of(InlineSerializer.UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
+                if (!Registry.matches(key, impliedType.getKeyword()))
+                    throw exception(null, "Found keyword '" + key + "', but expected '" + impliedType.getInlineKeyword() + "'");
+            }
+
+            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
+            data.copyMutables(SerializeData.this);
+            return impliedType.serialize(data);
         }
 
         /**

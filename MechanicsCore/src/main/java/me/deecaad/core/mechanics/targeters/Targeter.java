@@ -1,46 +1,26 @@
 package me.deecaad.core.mechanics.targeters;
 
+import me.deecaad.core.file.InlineSerializer;
+import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.InlineException;
-import me.deecaad.core.file.inline.InlineSerializer;
-import me.deecaad.core.file.inline.types.VectorType;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * A targeter returns a list of targets. A target can be a {@link org.bukkit.Location},
  * an {@link org.bukkit.entity.Entity}, or a {@link org.bukkit.entity.Player}.
  */
-public abstract class Targeter extends InlineSerializer<Targeter> {
+public abstract class Targeter implements InlineSerializer<Targeter> {
 
-    public static final Argument OFFSET = new Argument("offset", new VectorType(), null);
-
-    private final VectorSerializer offset;
+    private VectorSerializer offset;
 
     /**
      * Default constructor for serializers.
      */
     public Targeter() {
-        offset = null;
-    }
-
-    public Targeter(Map<Argument, Object> args) throws InlineException {
-        offset = (VectorSerializer) args.get(OFFSET);
-
-        if (!isEntity() && offset != null && offset.isRelative())
-            throw new InlineException(getInlineKeyword(), new SerializerException("", new String[] {"Did you try to use relative locations ('~') with '" + getInlineKeyword() + "'?",
-                    getInlineKeyword() + " is a LOCATION targeter, so it cannot use relative locations."}, ""));
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return new ArgumentMap(OFFSET);
     }
 
     @Nullable
@@ -79,4 +59,14 @@ public abstract class Targeter extends InlineSerializer<Targeter> {
     }
 
     protected abstract List<CastData> getTargets0(CastData cast);
+
+    protected Targeter applyParentArgs(SerializeData data, Targeter targeter) throws SerializerException {
+        VectorSerializer offset = data.of("Offset").serialize(VectorSerializer.class);
+        if (!isEntity() && offset != null && offset.isRelative())
+            throw data.exception("offset", "Did you try to use relative locations ('~') with '" + getInlineKeyword() + "'?",
+                    getInlineKeyword() + " is a LOCATION targeter, so it cannot use relative locations.");
+
+        targeter.offset = offset;
+        return targeter;
+    }
 }

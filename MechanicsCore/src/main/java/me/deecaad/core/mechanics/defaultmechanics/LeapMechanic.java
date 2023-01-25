@@ -1,19 +1,13 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.DoubleType;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import org.bukkit.util.Vector;
-
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public class LeapMechanic extends Mechanic {
-
-    // negative numbers are allowed for backwards
-    public static final Argument SPEED = new Argument("speed", new DoubleType());
-    public static final Argument VERTICAL_MULTIPLIER = new Argument("verticalMultiplier", new DoubleType(), 1.0);
 
     private double speed;
     private double verticalMultiplier;
@@ -24,16 +18,9 @@ public class LeapMechanic extends Mechanic {
     public LeapMechanic() {
     }
 
-    public LeapMechanic(Map<Argument, Object> args) {
-        super(args);
-
-        speed = (double) args.get(SPEED);
-        verticalMultiplier = (double) args.get(VERTICAL_MULTIPLIER);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args().addAll(SPEED, VERTICAL_MULTIPLIER);
+    public LeapMechanic(double speed, double verticalMultiplier) {
+        this.speed = speed;
+        this.verticalMultiplier = verticalMultiplier;
     }
 
     @Override
@@ -47,5 +34,14 @@ public class LeapMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Leap";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        double speed = data.of("Speed").assertExists().getDouble();
+        double verticalMultiplier = data.of("Vertical_Multiplier").getDouble(1.0);
+
+        return applyParentArgs(data, new LeapMechanic(speed, verticalMultiplier));
     }
 }

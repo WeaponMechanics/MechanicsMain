@@ -1,12 +1,11 @@
 package me.deecaad.core.mechanics.targeters;
 
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.InlineException;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 public class SourceTargeter extends Targeter {
 
@@ -14,15 +13,6 @@ public class SourceTargeter extends Targeter {
      * Default constructor for serializer.
      */
     public SourceTargeter() {
-    }
-
-    public SourceTargeter(Map<Argument, Object> args) throws InlineException {
-        super(args);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args();
     }
 
     @Override
@@ -42,5 +32,11 @@ public class SourceTargeter extends Targeter {
         if (copy.hasSourceLocation())
             copy.setTargetLocation(copy.getSourceLocation());
         return List.of(copy);
+    }
+
+    @NotNull
+    @Override
+    public Targeter serialize(SerializeData data) throws SerializerException {
+        return applyParentArgs(data, new SourceTargeter());
     }
 }

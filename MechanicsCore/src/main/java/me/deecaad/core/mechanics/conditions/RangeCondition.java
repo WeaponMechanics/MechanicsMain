@@ -3,7 +3,6 @@ package me.deecaad.core.mechanics.conditions;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.inline.Argument;
 import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.InlineException;
 import me.deecaad.core.file.inline.types.DoubleType;
 import me.deecaad.core.mechanics.CastData;
 

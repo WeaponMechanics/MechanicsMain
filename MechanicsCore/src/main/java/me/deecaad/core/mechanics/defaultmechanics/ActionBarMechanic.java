@@ -1,10 +1,8 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.inline.Argument;
-import me.deecaad.core.file.inline.ArgumentMap;
-import me.deecaad.core.file.inline.types.IntegerType;
-import me.deecaad.core.file.inline.types.StringType;
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanic;
 import me.deecaad.core.placeholder.PlaceholderAPI;
@@ -14,13 +12,11 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public class ActionBarMechanic extends Mechanic {
-
-    public static final Argument MESSAGE = new Argument("message", new StringType(true));
-    public static final Argument TIME = new Argument("time", new IntegerType(40));
 
     private String message;
     private int time;
@@ -31,16 +27,9 @@ public class ActionBarMechanic extends Mechanic {
     public ActionBarMechanic() {
     }
 
-    public ActionBarMechanic(Map<Argument, Object> args) {
-        super(args);
-
-        message = (String) args.get(MESSAGE);
-        time = (int) args.get(TIME);
-    }
-
-    @Override
-    public ArgumentMap args() {
-        return super.args().addAll(MESSAGE, TIME);
+    public ActionBarMechanic(String message, int time) {
+        this.message = message;
+        this.time = time;
     }
 
     @Override
@@ -84,5 +73,13 @@ public class ActionBarMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Action_Bar";
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        String message = data.of("Message").assertExists().getAdventure();
+        int time = data.of("Time").assertRange(40, Integer.MAX_VALUE).getInt(40);
+        return applyParentArgs(data, new ActionBarMechanic(message, time));
     }
 }
