@@ -369,7 +369,7 @@ public class Command_1_18_R2 implements CommandCompatibility {
 
         if (biomeResult.unwrap().left().isPresent()) {
             ResourceKey<net.minecraft.world.level.biome.Biome> resource = biomeResult.unwrap().left().get();
-            Biome biome = EnumUtil.getIfPresent(Biome.class, resource.location().getPath()).orElseThrow(() -> ERROR_BIOME_INVALID.create(name));
+            Biome biome = EnumUtil.getIfPresent(Biome.class, resource.location().getPath()).orElse(Biome.CUSTOM);
             NamespacedKey namespaced = new NamespacedKey(resource.location().getNamespace(), resource.location().getPath());
             return new BiomeHolder(biome, namespaced);
         } else {
