@@ -139,7 +139,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
             // have a key-value pair. So we have to save it.
             else if (c == ',' || i + 1 == line.length()) {
                 if (key == null)
-                    throw new FormatException(i, "Expected key=value, but was missing key");
+                    throw new FormatException(i, "Expected key=value, but was missing key... value=" + value);
                 if (value.isEmpty())
                     throw new FormatException(i,  "Found an empty value");
 

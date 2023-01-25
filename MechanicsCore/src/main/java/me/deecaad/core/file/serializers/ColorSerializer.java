@@ -12,7 +12,9 @@ import java.util.Optional;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class ColorSerializer implements InlineSerializer<Color> {
+public class ColorSerializer implements InlineSerializer<ColorSerializer> {
+
+    private Color color;
 
     /**
      * Default constructor for serializer
@@ -20,15 +22,24 @@ public class ColorSerializer implements InlineSerializer<Color> {
     public ColorSerializer() {
     }
 
+    public ColorSerializer(Color color) {
+        this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
     @Override
     @Nonnull
-    public Color serialize(SerializeData data) throws SerializerException {
+    public ColorSerializer serialize(SerializeData data) throws SerializerException {
 
         String input = data.config.getString(data.key);
         if (input == null || input.isEmpty())
             throw new SerializerMissingKeyException(this, "Color", StringUtil.foundAt(data.file, data.key));
 
-        return fromString(data, input.trim());
+        Color color = fromString(data, input.trim());
+        return new ColorSerializer(color);
     }
 
     public Color fromString(SerializeData data, String input) throws SerializerException {

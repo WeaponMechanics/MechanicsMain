@@ -154,7 +154,7 @@ public class MechanicsCore extends JavaPlugin {
                 if (excludes.contains(key))
                     continue;
 
-                SerializeData data = new SerializeData(new ItemSerializer(), file, key, config);
+                SerializeData data = new SerializeData(new ItemSerializer(), file, key, new BukkitConfig(config));
 
                 try {
                     ItemStack registry = data.of().serialize(new ItemSerializer());

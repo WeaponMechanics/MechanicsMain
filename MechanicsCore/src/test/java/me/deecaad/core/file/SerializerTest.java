@@ -38,14 +38,14 @@ public class SerializerTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3, 4, 5})
     public void test_parseInvalid(int i) {
-        SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, config);
+        SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, new BukkitConfig(config));
         assertThrows(SerializerException.class, () ->  data.of().serialize(Square.class));
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     public void test_parseValid(int i) {
-        SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, config);
+        SerializeData data = new SerializeData(new Square(), file, "Squares.Invalid." + i, new BukkitConfig(config));
         assertThrows(SerializerException.class, () ->  data.of().serialize(Square.class));
     }
 }

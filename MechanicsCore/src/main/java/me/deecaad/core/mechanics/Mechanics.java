@@ -9,6 +9,7 @@ import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,15 @@ public class Mechanics implements Serializer<Mechanics> {
     @NotNull
     @Override
     public Mechanics serialize(SerializeData data) throws SerializerException {
+        List<?> list = data.config.getList(data.key);
+        List<Mechanic> mechanics = new ArrayList<>();
 
+        for (Object obj : list) {
+            Mechanic mechanic = serializeOne(data, obj.toString());
+            mechanics.add(mechanic);
+        }
+
+        return new Mechanics(mechanics);
     }
 
     public Mechanic serializeOne(SerializeData data, String line) throws SerializerException {

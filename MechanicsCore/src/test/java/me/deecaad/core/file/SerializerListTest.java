@@ -49,7 +49,7 @@ public class SerializerListTest {
     @ParameterizedTest
     @ValueSource(strings = {"Valid"})
     public void test_valid(String key) throws Exception {
-        SerializeData data = new SerializeData(DUMMY, file, "a", config);
+        SerializeData data = new SerializeData(DUMMY, file, "a", new BukkitConfig(config));
 
         List<String[]> list = data.ofList(key)
                 .addArgument(String.class, true)
@@ -71,7 +71,7 @@ public class SerializerListTest {
     @ParameterizedTest
     @ValueSource(strings = {"Invalid_0", "Invalid_1", "Invalid_2", "Invalid_3", "Invalid_4", "Invalid_5", "Invalid_6", "Invalid_7"})
     public void test_invalid(String key) {
-        SerializeData data = new SerializeData(DUMMY, file, "a", config);
+        SerializeData data = new SerializeData(DUMMY, file, "a", new BukkitConfig(config));
 
         assertThrows(SerializerException.class, () -> data.ofList(key)
                 .addArgument(String.class, true)

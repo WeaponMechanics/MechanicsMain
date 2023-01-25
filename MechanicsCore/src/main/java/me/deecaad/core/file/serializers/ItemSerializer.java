@@ -263,7 +263,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         if (CompatibilityAPI.getVersion() >= 1.11 && data.has("Potion_Color")) {
             try {
-                Color color = data.of("Potion_Color").serialize(new ColorSerializer());
+                Color color = data.of("Potion_Color").assertExists().serialize(new ColorSerializer()).getColor();
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
                 potionMeta.setColor(color);
                 itemStack.setItemMeta(potionMeta);
@@ -274,7 +274,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
         if (data.has("Leather_Color")) {
             try {
-                Color color = data.of("Leather_Color").serialize(new ColorSerializer());
+                Color color = data.of("Leather_Color").assertExists().serialize(new ColorSerializer()).getColor();
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);

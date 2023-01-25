@@ -54,10 +54,10 @@ public class FireworkMechanic extends Mechanic {
         @Override
         public FireworkData serialize(SerializeData data) throws SerializerException {
             FireworkEffect.Type type = data.of("Type").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BURST);
-            Color[] colors = data.of("Colors").getImpliedList(new ColorSerializer()).toArray(new Color[0]);
+            List<Color> colors = data.of("Colors").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
             boolean trail = data.of("Trail").getBool(false);
             boolean flicker = data.of("Flicker").getBool(false);
-            Color[] fadeColors =  data.of("Fade_Colors").getImpliedList(new ColorSerializer()).toArray(new Color[0]);
+            List<Color> fadeColors =  data.of("Fade_Colors").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
 
             FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
             return new FireworkData(effect);

@@ -240,7 +240,7 @@ public class FileReader {
                         continue;
                     }
 
-                    if (!serializer.shouldSerialize(new SerializeData(serializer, file, key, configuration))) {
+                    if (!serializer.shouldSerialize(new SerializeData(serializer, file, key, new BukkitConfig(configuration)))) {
                         debug.debug("Skipping " + key + " due to skip");
                         continue;
                     }
@@ -254,7 +254,7 @@ public class FileReader {
                             // SerializerException can be thrown whenever the
                             // user input an invalid value. We should log the
                             // exception.
-                            Object valid = serializer.serialize(new SerializeData(serializer, file, key, configuration));
+                            Object valid = serializer.serialize(new SerializeData(serializer, file, key, new BukkitConfig(configuration)));
                             filledMap.set(key, valid);
 
                             // Only update the startsWithDeny if this is the "main serializer"
@@ -333,7 +333,7 @@ public class FileReader {
         // Handle validators
         for (ValidatorData validatorData : validatorDatas) {
 
-            SerializeData data = new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, validatorData.configurationSection);
+            SerializeData data = new SerializeData(validatorData.validator.getKeyword(), validatorData.file, validatorData.path, new BukkitConfig(validatorData.configurationSection));
             data.pathToConfig = filledMap;
 
             if (!validatorData.validator.shouldValidate(data)) {
