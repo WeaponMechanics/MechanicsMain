@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static me.deecaad.core.file.InlineSerializer.NAME_FINDER;
+
 public class Mechanics implements Serializer<Mechanics> {
 
     public static final Registry<Mechanic> MECHANICS = new Registry<>("Mechanic");
@@ -77,11 +79,6 @@ public class Mechanics implements Serializer<Mechanics> {
         Pattern pattern = Pattern.compile(".+?(?=(?<!\\\\)(?:\\\\\\\\)*[?@]|$)");
         Matcher matcher = pattern.matcher(line);
 
-        // This patterns groups the start of the string until the first '(' or
-        // the end of the string. This is used to determine WHICH mechanic/
-        // targeter/condition the user is trying to use.
-        Pattern nameFinder = Pattern.compile(".+?(?=\\()");
-
         Mechanic mechanic = null;
         Targeter targeter = null;
         List<Condition> conditions = new LinkedList<>();
@@ -99,7 +96,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
                         // Try to figure out the name of the target. For example:
                         // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
-                        Matcher nameMatcher = nameFinder.matcher(group);
+                        Matcher nameMatcher = NAME_FINDER.matcher(group);
                         if (!nameMatcher.find())
                             throw data.exception(null, "Could not determine the name of the targeter", SerializerException.forValue(group));
 
@@ -118,7 +115,7 @@ public class Mechanics implements Serializer<Mechanics> {
                     case '?' -> {
                         // Try to figure out the name of the condition. For example:
                         // '?entity(PLAYER)' => '?entity'
-                        Matcher nameMatcher = nameFinder.matcher(group);
+                        Matcher nameMatcher = NAME_FINDER.matcher(group);
                         if (!nameMatcher.find())
                             throw new InlineSerializer.FormatException(0, "Could not determine the name of the condition");
 
@@ -139,7 +136,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
                         // Try to figure out the name of the target. For example:
                         // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
-                        Matcher nameMatcher = nameFinder.matcher(group);
+                        Matcher nameMatcher = NAME_FINDER.matcher(group);
                         if (!nameMatcher.find())
                             throw data.exception(null, "Could not determine the name of the targeter", SerializerException.forValue(group));
 

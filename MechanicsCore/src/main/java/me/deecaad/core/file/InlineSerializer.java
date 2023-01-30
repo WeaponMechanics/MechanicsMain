@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 public interface InlineSerializer<T> extends Serializer<T> {
 
+    Pattern NAME_FINDER = Pattern.compile(".+?(?=\\{)");
     String UNIQUE_IDENTIFIER = "uniqueIdentifier";
 
     @Override
@@ -44,37 +45,36 @@ public interface InlineSerializer<T> extends Serializer<T> {
         }
         line = line.trim();
 
-        // This patterns groups the start of the string until the first '(' or
+        // This patterns groups the start of the string until the first '{' or
         // the end of the string. This is used to determine WHICH mechanic/
         // targeter/condition the user is trying to use.
-        Pattern nameFinder = Pattern.compile(".+?(?=\\()");
-        Matcher matcher = nameFinder.matcher(line);
+        Matcher matcher = NAME_FINDER.matcher(line);
         if (!matcher.find())
             throw new FormatException(trailingWhitespace, "Could not determine name... Before the first '(' you should have a name like 'Sound'");
         String uniqueIdentifier = matcher.group();
 
-        // Quick count of open and close parenthesis, to make sure the user has the
+        // Quick count of open and close curlyBrackets, to make sure the user has the
         // correct number and nothing is "malformed"
         int squareBrackets = 0;
-        int parenthesis = 0;
+        int curlyBrackets = 0;
         for (int i = 0; i < line.length(); i++) {
             if (StringUtil.isEscaped(line, i))
                 continue;
 
             switch (line.charAt(i)) {
-                case '(' -> parenthesis++;
-                case ')' -> parenthesis--;
+                case '{' -> curlyBrackets++;
+                case '}' -> curlyBrackets--;
                 case '[' -> squareBrackets++;
                 case ']' -> squareBrackets--;
             }
         }
 
         // Every opening '(' needs a closing ')'
-        if (parenthesis != 0) {
-            int index = trailingWhitespace + (parenthesis > 0
-                    ? index(line, '(', 0, line.lastIndexOf(')'), 1)
-                    : index(line, ')', line.length() - 1, line.indexOf('('), -1));
-            throw new FormatException(index, "Missing" + (parenthesis > 0 ? " closing ')'" : " opening '('"));
+        if (curlyBrackets != 0) {
+            int index = trailingWhitespace + (curlyBrackets > 0
+                    ? index(line, '{', 0, line.lastIndexOf('}'), 1)
+                    : index(line, '}', line.length() - 1, line.indexOf('{'), -1));
+            throw new FormatException(index, "Missing" + (curlyBrackets > 0 ? " closing '}'" : " opening '{'"));
         }
 
         // Every opening '[' needs a closing ']'
@@ -88,7 +88,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
         // Take away the unique identifier and the outside parens
         line = line.substring(uniqueIdentifier.length());
         trailingWhitespace += uniqueIdentifier.length();
-        if (line.startsWith("(") && line.endsWith(")")) {
+        if (line.startsWith("{") && line.endsWith("}")) {
             line = line.substring(1, line.length() - 1);
             trailingWhitespace++;
         }
@@ -125,11 +125,11 @@ public interface InlineSerializer<T> extends Serializer<T> {
             }
 
             // Handle nested objects and lists
-            if (c == '[' || c == '(') {
+            if (c == '[' || c == '{') {
                 int start = i + 1;
-                int stop = start + findMatch(c, c == '[' ? ']' : ')', line.substring(start));
+                int stop = start + findMatch(c, c == '[' ? ']' : '}', line.substring(start));
 
-                if (c == '(') {
+                if (c == '{') {
                     Map<String, Object> tempMap = mapify(line.substring(start, stop), start + offset);
                     map.put(key, tempMap);
                     if (!value.toString().isBlank())
@@ -216,9 +216,9 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 throw new FormatException(i + offset, "Illegal character '" + c + "'");
 
             // Handle nested objects
-            if (c == '(') {
+            if (c == '{') {
                 int start = i + 1;
-                int stop = start + findMatch(c, ')', line.substring(start));
+                int stop = start + findMatch(c, '}', line.substring(start));
 
                 Map<String, Object> map = mapify(line.substring(start, stop), offset + stop);
                 if (!value.toString().isBlank())

@@ -27,10 +27,10 @@ public class InlineSerializerTest {
                 "num", "1",
                 "nested", new HashMap<>(Map.of(UNIQUE_IDENTIFIER, "nested", "hey", "0"))));
         return Stream.of(
-                Arguments.of("foo(num=1, nested=nested(hey=0))", expected),
-                Arguments.of("foo(num=1,nested=nested(hey=0))", expected),
-                Arguments.of("foo (num=1, nested=nested(hey=0))", expected),
-                Arguments.of("foo(nested=nested(hey=0), num=1)", expected)
+                Arguments.of("foo{num=1, nested=nested{hey=0}}", expected),
+                Arguments.of("foo{num=1,nested=nested{hey=0}}", expected),
+                Arguments.of("foo {num=1, nested=nested{hey=0}}", expected),
+                Arguments.of("foo{nested=nested{hey=0}, num=1}", expected)
         );
     }
 
@@ -44,18 +44,18 @@ public class InlineSerializerTest {
     private static Stream<Arguments> provide_allError() {
         return Stream.of(
                 // Just some easy syntax errors
-                Arguments.of("foo((num=1, nested=nested(hey=0))"),
-                Arguments.of("foo(num=1, nested=nested(hey=0)"),
-                Arguments.of("foo(num, nested=nested(hey=0))"),
-                Arguments.of("foo(num=1, nested)"),
-                Arguments.of("foo(num==1, nested=nested(hey=0))"),
+                Arguments.of("foo{{num=1, nested=nested{hey=0}}"),
+                Arguments.of("foo{num=1, nested=nested{hey=0}"),
+                Arguments.of("foo{num, nested=nested{hey=0}}"),
+                Arguments.of("foo{num=1, nested}"),
+                Arguments.of("foo{num==1, nested=nested{hey=0}}"),
 
                 // List related syntax errors
-                Arguments.of("foo(num[0, 1, 2])"),
-                Arguments.of("foo(num=[0, 1,, 2])"),
-                Arguments.of("foo(num=[[0, 1])"),
-                Arguments.of("foo(num=list[0, 1])"),
-                Arguments.of("foo(num=list[0=hi, 1=mom])")
+                Arguments.of("foo{num[0, 1, 2]}"),
+                Arguments.of("foo{num=[0, 1,, 2]}"),
+                Arguments.of("foo{num=[[0, 1]}"),
+                Arguments.of("foo{num=list[0, 1]}"),
+                Arguments.of("foo{num=list[0=hi, 1=mom]}")
         );
     }
 
@@ -74,7 +74,7 @@ public class InlineSerializerTest {
 
     @Test
     void test_list() throws InlineSerializer.FormatException {
-        String line = "item(name=<yellow>AK-47, lore=[russians drink vodka, and shoot ak-47s])";
+        String line = "item{name=<yellow>AK-47, lore=[russians drink vodka, and shoot ak-47s]}";
         Map<?, ?> expected = Map.of(
                 UNIQUE_IDENTIFIER, "item",
                 "name", "<yellow>AK-47",
@@ -87,7 +87,7 @@ public class InlineSerializerTest {
 
     @Test
     void test_nestedList() throws InlineSerializer.FormatException {
-        String line = "firework(effects=[(color=red), (shape=burst, color=green), (color=blue, flicker=true)])";
+        String line = "firework{effects=[{color=red}, {shape=burst, color=green}, {color=blue, flicker=true}]}";
         Map<?, ?> expected = Map.of(
                 UNIQUE_IDENTIFIER, "firework",
                 "effects", List.of(
