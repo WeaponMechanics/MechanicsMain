@@ -91,8 +91,11 @@ public interface InlineSerializer<T> extends Serializer<T> {
 
         // Take away the unique identifier and the outside parens
         line = line.substring(uniqueIdentifier.length());
-        if (line.startsWith("(") && line.endsWith(")"))
+        trailingWhitespace += uniqueIdentifier.length();
+        if (line.startsWith("(") && line.endsWith(")")) {
             line = line.substring(1, line.length() - 1);
+            trailingWhitespace++;
+        }
 
         // This will return a map of strings, lists, and maps.
         Map<String, Object> map = mapify(line, trailingWhitespace);
@@ -141,9 +144,9 @@ public interface InlineSerializer<T> extends Serializer<T> {
             // We found the key! Now what is the value...?
             else if (c == '=') {
                 if (key != null)
-                    throw new FormatException(i, "Found a duplicate '=' after '" + key + "'... Use '\\\\=' for escaped characters.");
+                    throw new FormatException(offset + i, "Found a duplicate '=' after '" + key + "'... Use '\\\\=' for escaped characters.");
                 if (value.toString().isBlank())
-                    throw new FormatException(i, "Found an empty key");
+                    throw new FormatException(offset + i, "Found an empty key");
 
                 key = value.toString().trim();
                 value.setLength(0);
@@ -159,9 +162,9 @@ public interface InlineSerializer<T> extends Serializer<T> {
                     value.append(c);
 
                 if (key == null)
-                    throw new FormatException(i, "Expected key=value, but was missing key... value=" + value);
+                    throw new FormatException(offset + i, "Expected key=value, but was missing key... value=" + value);
                 if (value.isEmpty())
-                    throw new FormatException(i,  "Found an empty value");
+                    throw new FormatException(offset + i, "Found an empty value");
 
                 map.put(key, value.toString());
                 key = null;

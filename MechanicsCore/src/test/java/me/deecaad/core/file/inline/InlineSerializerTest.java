@@ -53,7 +53,12 @@ public class InlineSerializerTest {
     @MethodSource("provide_allError")
     void test_allError(String line) {
         assertThrows(InlineSerializer.FormatException.class, () -> {
-            InlineSerializer.inlineFormat(line);
+            try {
+                InlineSerializer.inlineFormat(line);
+            } catch (InlineSerializer.FormatException ex) {
+                System.err.println("Index is: " + ex.getIndex());
+                throw ex;
+            }
         });
     }
 
