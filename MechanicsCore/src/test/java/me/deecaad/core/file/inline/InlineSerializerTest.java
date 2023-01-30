@@ -1,19 +1,23 @@
 package me.deecaad.core.file.inline;
 
 import me.deecaad.core.file.InlineSerializer;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static me.deecaad.core.file.InlineSerializer.UNIQUE_IDENTIFIER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class InlineSerializerTest {
 
@@ -93,6 +97,25 @@ public class InlineSerializerTest {
                 )
         );
 
+        Map<?, ?> actual = InlineSerializer.inlineFormat(line);
+        assertEquals(expected, actual);
+    }
+
+    private static Stream<Arguments> provide_escapedCharacters() {
+        return Stream.of(
+                Arguments.of("Key_1", Map.of(UNIQUE_IDENTIFIER, "foo", "msg", "<green>Hello, there", "response", "<red>GENERAL KENOBI")),
+                Arguments.of("Key_2", Map.of(UNIQUE_IDENTIFIER, "foo", "messages", List.of("Escaped]",  "escaped,", "you like jazz?"))),
+                Arguments.of("Key_3", Map.of(UNIQUE_IDENTIFIER, "foo", "escaped", "\\ Slash /"))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provide_escapedCharacters")
+    void test_escapedCharacters(String key, Map<?, ?> expected) throws InlineSerializer.FormatException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/escaped-characters.yml")));
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
+
+        String line = config.getString(key);
         Map<?, ?> actual = InlineSerializer.inlineFormat(line);
         assertEquals(expected, actual);
     }

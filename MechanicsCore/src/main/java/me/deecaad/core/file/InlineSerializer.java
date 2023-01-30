@@ -74,7 +74,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
             int index = trailingWhitespace + (parenthesis > 0
                     ? index(line, '(', 0, line.lastIndexOf(')'), 1)
                     : index(line, ')', line.length() - 1, line.indexOf('('), -1));
-            throw new FormatException(index, "Missing " + (parenthesis > 0 ? " closing ')'" : " opening '('"));
+            throw new FormatException(index, "Missing" + (parenthesis > 0 ? " closing ')'" : " opening '('"));
         }
 
         // Every opening '[' needs a closing ']'
@@ -82,7 +82,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
             int index = trailingWhitespace + (squareBrackets > 0
                     ? index(line, '[', 0, line.lastIndexOf(']'), 1)
                     : index(line, ']', line.length() - 1, line.indexOf('['), -1));
-            throw new FormatException(index, "Missing " + (squareBrackets > 0 ? " closing ']'" : " opening '['"));
+            throw new FormatException(index, "Missing" + (squareBrackets > 0 ? " closing ']'" : " opening '['"));
         }
 
         // Take away the unique identifier and the outside parens
@@ -109,7 +109,18 @@ public interface InlineSerializer<T> extends Serializer<T> {
             // When a character is escaped, we should skip the special parsing.
             char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
-                value.append(c);
+                if (StringUtil.isEscapedAndInclude(line, i))
+                    value.append(c);
+
+                // If the escaped character was the last character, we need an
+                // extra check to make sure we add that value to the list.
+                if (i + 1 >= line.length()) {
+                    if (key == null)
+                        throw new FormatException(offset + i, "Expected key=value, but was missing key... value=" + value);
+
+                    map.put(key, value.substring(value.indexOf(" ") == 0 ? 1 : 0));
+                }
+
                 continue;
             }
 
@@ -189,7 +200,14 @@ public interface InlineSerializer<T> extends Serializer<T> {
             // When a character is escaped, we should skip the special parsing.
             char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
-                value.append(c);
+                if (StringUtil.isEscapedAndInclude(line, i))
+                    value.append(c);
+
+                // If the escaped character was the last character, we need an
+                // extra check to make sure we add that value to the list.
+                if (i + 1 >= line.length())
+                    list.add(value.substring(value.indexOf(" ") == 0 ? 1 : 0));
+
                 continue;
             }
 
