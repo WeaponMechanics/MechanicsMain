@@ -158,7 +158,6 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
     }
 
     /**
-     *
      * @return the projectile size, 0.1 if not used
      */
     public double getSize() {
@@ -201,6 +200,14 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
                     disguiseData = projectileItem.getType();
                 } else {
                     disguiseData = projectileItem;
+                }
+
+                if (projectileType != EntityType.DROPPED_ITEM
+                        && projectileType != EntityType.FALLING_BLOCK
+                        && projectileType != EntityType.FIREWORK
+                        && projectileType != EntityType.ARMOR_STAND) {
+                    throw data.exception(null, "When using " + projectileType + ", you CAN'T use Projectile_Item_Or_Block",
+                            SerializerException.forValue(projectileItem));
                 }
             }
         }

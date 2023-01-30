@@ -766,15 +766,9 @@ public class ShootHandler implements IValidator, TriggerListener {
                 && livingEntity.getType() == EntityType.PLAYER) {
             // Vivecraft support for VR players
 
-            debug.warn("VIVECRAFT IS INSTALLED FOR: " + livingEntity);
-
             VivePlayer vive = VSE.vivePlayers.get(livingEntity.getUniqueId());
             if (vive != null && vive.isVR()) {
                 // Now we know it's actually VR player
-
-                debug.warn("ENTITY WAS VR: " + livingEntity);
-                debug.warn("VRPlayer: " + vive);
-                debug.warn("HERE IS THE LOCATION: " + vive.getControllerPos(mainhand ? 0 : 1));
 
                 // Get the position and direction from player metadata
                 return vive.getControllerPos(mainhand ? 0 : 1);
