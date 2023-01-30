@@ -42,10 +42,6 @@ public interface InlineSerializer<T> extends Serializer<T> {
             if (line.charAt(trailingWhitespace) != ' ')
                 break;
         }
-
-        // Since we already know which type the string will be parsed as, we
-        // don't need to keyword. For example, when serializing a sound (so,
-        // 'sound(type=...)'), we only need the `(...)` part.
         line = line.trim();
 
         // This patterns groups the start of the string until the first '(' or
@@ -129,6 +125,8 @@ public interface InlineSerializer<T> extends Serializer<T> {
                         tempMap.put(UNIQUE_IDENTIFIER, value.toString().trim());
                 } else {
                     map.put(key, listify(line.substring(start, stop), start + offset));
+                    if (!value.toString().isBlank())
+                        throw new FormatException(offset + i, "Found '" + value + "' before a list... It should not be there!");
                 }
 
                 // Skip ahead
@@ -157,8 +155,9 @@ public interface InlineSerializer<T> extends Serializer<T> {
             else if (c == ',' || i + 1 == line.length()) {
 
                 // If this is the last character, make sure it is added to the
-                // value
-                if (i + 1 == line.length())
+                // value. Don't add if the character is a comma since users can
+                // end their list with an extra comma, and we will ignore it.
+                if (i + 1 == line.length() && c != ',')
                     value.append(c);
 
                 if (key == null)
@@ -188,7 +187,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
         for (int i = 0; i < line.length(); i++) {
 
             // When a character is escaped, we should skip the special parsing.
-            char c = line.charAt(offset);
+            char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
                 value.append(c);
                 continue;
@@ -196,26 +195,41 @@ public interface InlineSerializer<T> extends Serializer<T> {
 
             // Illegal characters
             if (c == '[' || c == '=')
-                throw new IllegalArgumentException("Illegal character '" + c + "'");
+                throw new FormatException(i + offset, "Illegal character '" + c + "'");
 
             // Handle nested objects
-            else if (c == '(') {
+            if (c == '(') {
                 int start = i + 1;
-                int stop = findMatch(c, ')', line.substring(start));
+                int stop = start + findMatch(c, ')', line.substring(start));
 
                 Map<String, Object> map = mapify(line.substring(start, stop), offset + stop);
-                if (!value.isEmpty())
-                    map.put(UNIQUE_IDENTIFIER, value.toString());
+                if (!value.toString().isBlank())
+                    map.put(UNIQUE_IDENTIFIER, value.toString().trim());
                 list.add(map);
 
                 i = stop;
                 value.setLength(0);
+
+                // If there is a comma, we should skip it
+                if (i + 1 < line.length() && line.charAt(i + 1) == ',')
+                    i++;
             }
 
             // When we reach the end of the line or find a comma, then we
             // should add the value to the list.
             else if (c == ',' || i + 1 == line.length()) {
-                list.add(value.toString());
+
+                // If this is the last character, make sure it is added to the
+                // value. Don't add if the character is a comma since users can
+                // end their list with an extra comma, and we will ignore it.
+                if (i + 1 == line.length() && c != ',')
+                    value.append(c);
+
+                if (value.isEmpty())
+                    throw new FormatException(i + offset, "Found duplicate commas... Use '\\\\,' for an escaped comma");
+
+                list.add(value.substring(value.indexOf(" ") == 0 ? 1 : 0));
+                value.setLength(0);
             }
 
             else {
