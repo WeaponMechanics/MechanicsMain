@@ -89,9 +89,14 @@ public interface InlineSerializer<T> extends Serializer<T> {
             throw new FormatException(index, "Missing " + (squareBrackets > 0 ? " closing ']'" : " opening '['"));
         }
 
+        // Take away the unique identifier and the outside parens
+        line = line.substring(uniqueIdentifier.length());
+        if (line.startsWith("(") && line.endsWith(")"))
+            line = line.substring(1, line.length() - 1);
+
         // This will return a map of strings, lists, and maps.
         Map<String, Object> map = mapify(line, trailingWhitespace);
-        map.put(UNIQUE_IDENTIFIER, uniqueIdentifier);
+        map.put(UNIQUE_IDENTIFIER, uniqueIdentifier.trim());
         return map;
     }
 
@@ -103,7 +108,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
         for (int i = 0; i < line.length(); i++) {
 
             // When a character is escaped, we should skip the special parsing.
-            char c = line.charAt(offset);
+            char c = line.charAt(i);
             if (StringUtil.isEscaped(line, i)) {
                 value.append(c);
                 continue;
@@ -112,32 +117,47 @@ public interface InlineSerializer<T> extends Serializer<T> {
             // Handle nested objects and lists
             if (c == '[' || c == '(') {
                 int start = i + 1;
-                int stop = findMatch(c, c == '[' ? ']' : ')', line.substring(start));
+                int stop = start + findMatch(c, c == '[' ? ']' : ')', line.substring(start));
 
-                if (c == '[')
-                    map.put(key, mapify(line.substring(start, stop), start + offset));
-                else
+                if (c == '(') {
+                    Map<String, Object> tempMap = mapify(line.substring(start, stop), start + offset);
+                    map.put(key, tempMap);
+                    if (!value.toString().isBlank())
+                        tempMap.put(UNIQUE_IDENTIFIER, value.toString().trim());
+                } else {
                     map.put(key, listify(line.substring(start, stop), start + offset));
+                }
 
                 // Skip ahead
                 i = stop;
                 key = null;
                 value.setLength(0);
+
+                // If there is a comma, we should skip it
+                if (i + 1 < line.length() && line.charAt(i + 1) == ',')
+                    i++;
             }
 
             // We found the key! Now what is the value...?
             else if (c == '=') {
                 if (key != null)
                     throw new FormatException(i, "Found a duplicate '=' after '" + key + "'... Use '\\\\=' for escaped characters.");
-                if (value.toString().trim().isEmpty())
+                if (value.toString().isBlank())
                     throw new FormatException(i, "Found an empty key");
 
                 key = value.toString().trim();
+                value.setLength(0);
             }
 
             // When we reach the end of the line or find a comma, then we *should*
             // have a key-value pair. So we have to save it.
             else if (c == ',' || i + 1 == line.length()) {
+
+                // If this is the last character, make sure it is added to the
+                // value
+                if (i + 1 == line.length())
+                    value.append(c);
+
                 if (key == null)
                     throw new FormatException(i, "Expected key=value, but was missing key... value=" + value);
                 if (value.isEmpty())
