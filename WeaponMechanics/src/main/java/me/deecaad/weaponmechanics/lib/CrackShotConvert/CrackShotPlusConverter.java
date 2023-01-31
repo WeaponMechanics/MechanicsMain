@@ -67,9 +67,8 @@ public class CrackShotPlusConverter {
 
         // KILL
         COMMAND_SHOOTER_KILL("Kill.Command.Run_Command", "Damage.Kill.Mechanics", Type.STR, new CommandConvert()),
-        TITLE_SHOOTER_KILL("Kill.Title_And_Subtitle.Title", "Damage.Kill.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_KILL("Kill.Title_And_Subtitle.Subtitle", "Damage.Kill.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        KILLFEED("Kill.Killfeed.", "Damage.Kill.Shooter_Mechanics.Message.", Type.STR, new KillfeedConvert()),
+        TITLE_SHOOTER_KILL("Kill.Title_And_Subtitle", "Damage.Kill.Mechanics", Type.STR, new TitleConvert(false)),
+        KILLFEED("Kill.Killfeed.", "Damage.Kill.Mechanics", Type.STR, new KillfeedConvert()),
 
         // RELOAD
         SOUNDS_PRE_RELOAD_START("Reload.Custom_Pre_Reload_Sound", "Reload.Start_Mechanics", Type.STR, new CustomSoundConvert()),
@@ -368,12 +367,11 @@ public class CrackShotPlusConverter {
                 WeaponMechanics.debug.error("Invalid boss bar style: " + temp + " swapped to: " + barStyle);
             }
 
+            List<String> mechanics = toConfig.getStringList(to);
 
-            toConfig.set(to + ".Send_All_Server", true);
-            toConfig.set(to + ".Boss_Bar.Title", title);
-            toConfig.set(to + ".Boss_Bar.Color", barColor);
-            toConfig.set(to + ".Boss_Bar.Style", barStyle);
-            toConfig.set(to + ".Boss_Bar.Time", time);
+            mechanics.add("BossBar{title=%s, color=%s, style=%s, time=%s} @ServerPlayers{}".formatted(title, barColor, barStyle, time));
+
+            toConfig.set(to, mechanics);
         }
     }
 
