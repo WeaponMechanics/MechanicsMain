@@ -62,7 +62,7 @@ public class Explosion implements Serializer<Explosion> {
     private RegenerationData regeneration;
     private Detonation detonation;
     private double blockChance;
-    private boolean isKnockback;
+    private double knockbackRate;
     private ClusterBomb cluster;
     private AirStrike airStrike;
     private Flashbang flashbang;
@@ -77,36 +77,28 @@ public class Explosion implements Serializer<Explosion> {
     /**
      * The main constructor for explosions. See parameters.
      *
-     * @param shape        The non-null shape that determines the pattern in
-     *                     which all blocks are destroyed.
-     * @param exposure     The non-null method to determine how exposed each
-     *                     entity is to the origin of this explosion.
-     * @param blockDamage  The nullable data to determine how each block is
-     *                     damaged. If null is used, blocks will not be damaged.
-     * @param regeneration The nullable data to determine how blocks are
-     *                     regenerated after being broken by {@link BlockDamage}.
-     * @param detonation   The object containing information about when
-     *                     explosion should detonate.
-     * @param blockChance  The chance [0, 1] for block from {@link BlockDamage}
-     *                     to spawn a packet based falling block.
-     * @param isKnockback  Use true to enable vanilla MC explosion knockback.
-     * @param clusterBomb  The nullable cluster bomb (Children explosions).
-     * @param airStrike    The nullable airstrike (Explosions from the air).
-     * @param flashbang    The nullable flashbang (To blind players).
-     * @param mechanics    The nullable mechanics, spawned at the origin of the
-     *                     explosion.
+     * @param shape         The non-null shape that determines the pattern in
+     *                      which all blocks are destroyed.
+     * @param exposure      The non-null method to determine how exposed each
+     *                      entity is to the origin of this explosion.
+     * @param blockDamage   The nullable data to determine how each block is
+     *                      damaged. If null is used, blocks will not be damaged.
+     * @param regeneration  The nullable data to determine how blocks are
+     *                      regenerated after being broken by {@link BlockDamage}.
+     * @param detonation    The object containing information about when
+     *                      explosion should detonate.
+     * @param blockChance   The chance [0, 1] for block from {@link BlockDamage}
+     *                      to spawn a packet based falling block.
+     * @param knockbackRate Use true to enable vanilla MC explosion knockback.
+     * @param clusterBomb   The nullable cluster bomb (Children explosions).
+     * @param airStrike     The nullable airstrike (Explosions from the air).
+     * @param flashbang     The nullable flashbang (To blind players).
+     * @param mechanics     The nullable mechanics, spawned at the origin of the
+     *                      explosion.
      */
-    public Explosion(@Nonnull ExplosionShape shape,
-                     @Nonnull ExplosionExposure exposure,
-                     @Nullable BlockDamage blockDamage,
-                     @Nullable RegenerationData regeneration,
-                     @Nonnull Detonation detonation,
-                     double blockChance,
-                     boolean isKnockback,
-                     @Nullable ClusterBomb clusterBomb,
-                     @Nullable AirStrike airStrike,
-                     @Nullable Flashbang flashbang,
-                     @Nullable Mechanics mechanics) {
+    public Explosion(ExplosionShape shape, ExplosionExposure exposure, BlockDamage blockDamage,
+                     RegenerationData regeneration, Detonation detonation, double blockChance, double knockbackRate,
+                     ClusterBomb clusterBomb, AirStrike airStrike, Flashbang flashbang, Mechanics mechanics) {
 
         this.shape = shape;
         this.exposure = exposure;
@@ -114,7 +106,7 @@ public class Explosion implements Serializer<Explosion> {
         this.regeneration = regeneration;
         this.detonation = detonation;
         this.blockChance = blockChance;
-        this.isKnockback = isKnockback;
+        this.knockbackRate = knockbackRate;
         this.cluster = clusterBomb;
         this.airStrike = airStrike;
         this.flashbang = flashbang;
@@ -146,7 +138,11 @@ public class Explosion implements Serializer<Explosion> {
     }
 
     public boolean isKnockback() {
-        return isKnockback;
+        return knockbackRate == 0.0;
+    }
+
+    public double getKnockbackRate() {
+        return knockbackRate;
     }
 
     public ClusterBomb getCluster() {
@@ -298,12 +294,14 @@ public class Explosion implements Serializer<Explosion> {
 
             // isKnockback will cause vanilla-like explosion knockback. The
             // higher your exposure, the greater the knockback.
-            if (isKnockback) {
+            if (isKnockback()) {
                 Vector originVector = origin.toVector();
                 for (DoubleEntry<LivingEntity> entry : entities.entrySet()) {
 
                     LivingEntity entity = entry.getKey();
                     double exposure = entry.getValue();
+
+                    exposure *= knockbackRate;
 
                     // Normalized vector between the explosion and entity involved
                     Vector between = VectorUtil.setLength(entity.getLocation().toVector().subtract(originVector), exposure);
@@ -425,7 +423,8 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (blocksBroken != 0 && playerWrapper != null && playerWrapper.getStatsData() != null
-                && projectile != null && projectile.getWeaponTitle() != null) playerWrapper.getStatsData().add(projectile.getWeaponTitle(), WeaponStat.BLOCKS_DESTROYED, blocksBroken);
+                && projectile != null && projectile.getWeaponTitle() != null)
+            playerWrapper.getStatsData().add(projectile.getWeaponTitle(), WeaponStat.BLOCKS_DESTROYED, blocksBroken);
     }
 
     protected void spawnFallingBlock(Location location, BlockState state, Vector velocity) {
@@ -506,7 +505,7 @@ public class Explosion implements Serializer<Explosion> {
         if (blockChance == null)
             blockChance = 0.0;
 
-        boolean isKnockback = !data.of("Disable_Vanilla_Knockback").getBool(false);
+        double knockbackRate = data.of("Knockback_Multiplier").getDouble(1.0);
 
         // These 4 options are all nullable and not required for an explosion
         // to occur. It is very interesting when they are all used together :p
@@ -516,6 +515,6 @@ public class Explosion implements Serializer<Explosion> {
         Mechanics mechanics = data.of("Mechanics").serialize(Mechanics.class);
 
         return new Explosion(shape, exposure, blockDamage, regeneration, detonation, blockChance,
-                isKnockback, clusterBomb, airStrike, flashbang, mechanics);
+                knockbackRate, clusterBomb, airStrike, flashbang, mechanics);
     }
 }
