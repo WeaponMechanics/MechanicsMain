@@ -182,8 +182,8 @@ public class CrackShotConverter {
         // EXTRAS
         ONE_TIME_USE("Extras.One_Time_Use", "Shoot.Consume_Item_On_Shoot"),
         DISABLE_UNDERWATER("Extras.Disable_Underwater", "Shoot.Trigger.Circumstance.Swimming", new ValueBooleanConvert("DENY", null)),
-        MAKE_VICTIM_RUN_COMMAND("Extras.Make_Victim_Run_Commmand", "Damage.Victim_Mechanics.Commands", new CommandConvert(false)),
-        RUN_CONSOLE_COMMAND("Extras.Run_Console_Command", "Damage.Shooter_Mechanics.Commands", new CommandConvert(true)),
+        MAKE_VICTIM_RUN_COMMAND("Extras.Make_Victim_Run_Commmand", "Damage.Mechanics", new CommandConvert(false, true)),
+        RUN_CONSOLE_COMMAND("Extras.Run_Console_Command", "Damage.Mechanics", new CommandConvert(true, false)),
 
         DUMMY(null, null);
 
@@ -421,7 +421,7 @@ public class CrackShotConverter {
             if (value == null) return;
 
             List<String> mechanics = toConfig.getStringList(to);
-            
+
             Arrays.stream(value.replaceAll(" ", "").split(",")).forEach(potion -> {
                 String[] potArray = potion.split("-");
                 // POTIONTYPE-DURATION-LEVEL
@@ -784,7 +784,7 @@ public class CrackShotConverter {
         }
     }
 
-    private record CommandConvert(boolean onlyConsole) implements Converter {
+    private record CommandConvert(boolean onlyConsole, boolean isTarget) implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -792,16 +792,17 @@ public class CrackShotConverter {
             String value = fromConfig.getString(from);
             if (value == null) return;
 
+            List<String> mechanics = toConfig.getStringList(to);
+
             if (onlyConsole) {
-
-                List<String> commands = new ArrayList<>();
-                Arrays.stream(value.split("\\|")).forEach(command -> commands.add("console:" + command));
-                toConfig.set(to, commands);
-
-                return;
+                Arrays.stream(value.split("\\|")).forEach(command -> mechanics.add("Command{command=%s, console=true}".formatted(command)));
+            } else if (isTarget) {
+                Arrays.stream(value.split("\\|")).forEach(command -> mechanics.add("Command{command=%s} @Target{}".formatted(command)));
+            } else {
+                Arrays.stream(value.split("\\|")).forEach(command -> mechanics.add("Command{command=%s}".formatted(command)));
             }
 
-            toConfig.set(to, Arrays.asList(value.split("\\|")));
+            toConfig.set(to, mechanics);
         }
     }
 

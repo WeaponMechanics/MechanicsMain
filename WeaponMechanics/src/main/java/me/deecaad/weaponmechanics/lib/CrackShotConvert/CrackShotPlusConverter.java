@@ -55,14 +55,10 @@ public class CrackShotPlusConverter {
         SOUNDS_SHOOTER_HIT("Damage.Custom_Sounds.Shooter_Location.Hit", "Damage.Mechanics", Type.STR, new CustomSoundConvert()),
         SOUNDS_VICTIM_HIT("Damage.Custom_Sounds.Victim_Location.Hit", "Damage.Mechanics", Type.STR, new CustomSoundConvert(true)),
 
-        COMMAND_SHOOTER_HEAD("Damage.Run_Command.Headshot.Command", "Damage.Head.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_HEAD("Damage.Run_Command.Headshot.Command", "Damage.Head.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
-        COMMAND_SHOOTER_BACK("Damage.Run_Command.Backstab.Command", "Damage.Backstab.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_BACK("Damage.Run_Command.Backstab.Command", "Damage.Backstab.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
-        COMMAND_SHOOTER_CRIT("Damage.Run_Command.Critical_Hit.Command", "Damage.Critical_Hit.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_CRIT("Damage.Run_Command.Critical_Hit.Command", "Damage.Critical_Hit.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
-        COMMAND_SHOOTER_HIT("Damage.Run_Command.Hit.Command", "Damage.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_HIT("Damage.Run_Command.Hit.Command", "Damage.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
+        COMMAND_SHOOTER_HEAD("Damage.Run_Command.Headshot.Command", "Damage.Head.Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_SHOOTER_BACK("Damage.Run_Command.Backstab.Command", "Damage.Backstab.Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_SHOOTER_CRIT("Damage.Run_Command.Critical_Hit.Command", "Damage.Critical_Hit.Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_SHOOTER_HIT("Damage.Run_Command.Hit.Command", "Damage.Mechanics", Type.STR, new CommandConvert()),
 
         // EXPLODE
         SOUNDS_AIRSTRIKE("Explode.Custom_Sounds.Explode_Location.Airstrike", "Explosion.Airstrike.Mechanics", Type.STR, new CustomSoundConvert()),
@@ -78,8 +74,7 @@ public class CrackShotPlusConverter {
         UPDATE_LORE("Held.Update_Lore.Lore", "Info.Weapon_Item.Lore", Type.LIST),
 
         // KILL
-        COMMAND_SHOOTER_KILL("Kill.Command.Run_Command", "Damage.Kill.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_KILL("Kill.Command.Run_Command", "Damage.Kill.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
+        COMMAND_SHOOTER_KILL("Kill.Command.Run_Command", "Damage.Kill.Mechanics", Type.STR, new CommandConvert()),
         TITLE_SHOOTER_KILL("Kill.Title_And_Subtitle.Title", "Damage.Kill.Shooter_Mechanics.Message.Title.Title", Type.STR),
         SUBTITLE_SHOOTER_KILL("Kill.Title_And_Subtitle.Subtitle", "Damage.Kill.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
         KILLFEED("Kill.Killfeed.", "Damage.Kill.Shooter_Mechanics.Message.", Type.STR, new KillfeedConvert()),
@@ -88,8 +83,8 @@ public class CrackShotPlusConverter {
         SOUNDS_PRE_RELOAD_START("Reload.Custom_Pre_Reload_Sound", "Reload.Start_Mechanics", Type.STR, new CustomSoundConvert()),
         SOUNDS_RELOAD_START("Reload.Custom_Reload_Sound", "Reload.Start_Mechanics", Type.STR, new CustomSoundConvert()),
         SOUNDS_RELOAD_COMPLETE("Reload.Custom_Reload_Complete_Sound", "Reload.Finish_Mechanics", Type.STR, new CustomSoundConvert()),
-        COMMAND_RELOAD_START("Reload.Reload_Run_Command", "Reload.Start_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_RELOAD_COMPLETE("Reload.Reload_Complete_Run_Command", "Reload.Finish_Mechanics.Commands", Type.STR, new CommandConvert(true)),
+        COMMAND_RELOAD_START("Reload.Reload_Run_Command", "Reload.Start_Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_RELOAD_COMPLETE("Reload.Reload_Complete_Run_Command", "Reload.Finish_Mechanics", Type.STR, new CommandConvert()),
 
         // SCOPE
         SOUNDS_SCOPE("Scope.Custom_Scope_Sound", "Scope.Mechanics", Type.STR, new CustomSoundConvert()),
@@ -102,7 +97,7 @@ public class CrackShotPlusConverter {
         SOUNDS_PREPARE_SHOOT("Shoot.Custom_Prepare_Shoot_Sound", "Shoot.Mechanics", Type.STR, new CustomSoundConvert()),
         SOUNDS_PRE_SHOOT("Shoot.Custom_Pre_Shoot_Sound", "Shoot.Mechanics", Type.STR, new CustomSoundConvert()),
         SOUNDS_SHOOT("Shoot.Custom_Shoot_Sound", "Shoot.Mechanics", Type.STR, new CustomSoundConvert()),
-        COMMAND_SHOOT("Shoot.Shoot_Run_Command", "Shoot.Mechanics.Commands", Type.STR, new CommandConvert(true)),
+        COMMAND_SHOOT("Shoot.Shoot_Run_Command", "Shoot.Mechanics", Type.STR, new CommandConvert()),
         BOUNCING_PROJECTILES("Shoot.Bouncing_Projectiles.", "Projectile.Bouncy.", Type.STR, new BouncingProjectilesConvert()),
         CAMERA_RECOIL("Shoot.Camera_Recoil.", "Shoot.Recoil.", Type.DOUBLE, new CameraRecoilConvert()),
 
@@ -272,7 +267,7 @@ public class CrackShotPlusConverter {
         }
     }
 
-    private record CommandConvert(boolean onlyShooter) implements Converter {
+    private record CommandConvert() implements Converter {
 
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -283,21 +278,26 @@ public class CrackShotPlusConverter {
                     .replaceAll("#PLAYER#", "%shooter%")
                     .replaceAll("#WEAPON#", "%weapon-title%")
                     .replaceAll("#KILLER#", "%shooter%")
-                    .replaceAll("#KILLED#", "%victim%")
-                    .replaceAll("#C#", "console:");
+                    .replaceAll("#KILLED#", "%victim%");
 
-            List<String> commands = new ArrayList<>();
+            List<String> mechanics = toConfig.getStringList(to);
+
             for (String command : value.split(",")) {
+                // Start command with #P# (shooter) or #C# (console)
 
-                if (command.startsWith("#V#") && onlyShooter) continue;
-
-                command = command.replaceFirst("#V#", "").replaceFirst("#P#", "");
-                commands.add(command);
+                if (command.startsWith("#C#")) {
+                    // console
+                    mechanics.add("Command{command=%s, console=true}".formatted(command.replaceFirst("#C#", "")));
+                } else if (command.startsWith("#P#")) {
+                    // source
+                    mechanics.add("Command{command=%s}".formatted(command.replaceFirst("#P#", "")));
+                } else if (command.startsWith("#V#")) {
+                    // target
+                    mechanics.add("Command{command=%s} @Target{}".formatted(command.replaceFirst("#V#", "")));
+                }
             }
 
-            if (!commands.isEmpty()) {
-                toConfig.set(to, commands);
-            }
+            if (!mechanics.isEmpty()) toConfig.set(to, mechanics);
         }
     }
 
