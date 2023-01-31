@@ -27,22 +27,14 @@ public class CrackShotPlusConverter {
     private enum Paths {
 
         // DAMAGE
-        TITLE_SHOOTER_HEAD("Damage.Title_And_Subtitle.Shooter.Headshot.Title", "Damage.Head.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_HEAD("Damage.Title_And_Subtitle.Shooter.Headshot.Subtitle", "Damage.Head.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_HEAD("Damage.Title_And_Subtitle.Victim.Headshot.Title", "Damage.Head.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_HEAD("Damage.Title_And_Subtitle.Victim.Headshot.Subtitle", "Damage.Head.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_SHOOTER_BACK("Damage.Title_And_Subtitle.Shooter.Backstab.Title", "Damage.Backstab.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_BACK("Damage.Title_And_Subtitle.Shooter.Backstab.Subtitle", "Damage.Backstab.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_BACK("Damage.Title_And_Subtitle.Victim.Backstab.Title", "Damage.Backstab.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_BACK("Damage.Title_And_Subtitle.Victim.Backstab.Subtitle", "Damage.Backstab.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_SHOOTER_CRIT("Damage.Title_And_Subtitle.Shooter.Critical_Hit.Title", "Damage.Critical_Hit.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_CRIT("Damage.Title_And_Subtitle.Shooter.Critical_Hit.Subtitle", "Damage.Critical_Hit.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_CRIT("Damage.Title_And_Subtitle.Victim.Critical_Hit.Title", "Damage.Critical_Hit.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_CRIT("Damage.Title_And_Subtitle.Victim.Critical_Hit.Subtitle", "Damage.Critical_Hit.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_SHOOTER_HIT("Damage.Title_And_Subtitle.Shooter.Hit.Title", "Damage.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_HIT("Damage.Title_And_Subtitle.Shooter.Hit.Subtitle", "Damage.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit.Title", "Damage.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit.Subtitle", "Damage.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
+        TITLE_SHOOTER_HEAD("Damage.Title_And_Subtitle.Shooter.Headshot", "Damage.Head.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_HEAD("Damage.Title_And_Subtitle.Victim.Headshot", "Damage.Head.Mechanics", Type.STR, new TitleConvert(true)),
+        TITLE_SHOOTER_BACK("Damage.Title_And_Subtitle.Shooter.Backstab", "Damage.Backstab.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_BACK("Damage.Title_And_Subtitle.Victim.Backstab", "Damage.Backstab.Mechanics", Type.STR, new TitleConvert(true)),
+        TITLE_SHOOTER_CRIT("Damage.Title_And_Subtitle.Shooter.Critical_Hit", "Damage.Critical_Hit.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_CRIT("Damage.Title_And_Subtitle.Victim.Critical_Hit", "Damage.Critical_Hit.Mechanics", Type.STR, new TitleConvert(true)),
+        TITLE_SHOOTER_HIT("Damage.Title_And_Subtitle.Shooter.Hit", "Damage.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit", "Damage.Mechanics", Type.STR, new TitleConvert(true)),
 
         SPAWN_FIREWORK("Damage.Spawn_Firework.", "Damage.Mechanics", Type.STR, new FireworkConvert(true)),
 
@@ -309,6 +301,44 @@ public class CrackShotPlusConverter {
             if (type == Type.BOOL && !(Boolean) value) return;
 
             toConfig.set(to, function.apply(value));
+        }
+    }
+
+    private record TitleConvert(boolean isTarget) implements Converter {
+
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            Object title = type.get(from + ".Title");
+            Object subtitle = type.get(from + ".Subtitle");
+
+            if (title == null && subtitle == null) return;
+
+            title = StringUtil.colorAdventure((String) title);
+            subtitle = StringUtil.colorAdventure((String) subtitle);
+
+            List<String> mechanics = toConfig.getStringList(to);
+
+            StringBuilder builder = new StringBuilder("Title{");
+
+            if (title != null) {
+                builder.append("title=%s".formatted(title));
+            }
+
+            if (subtitle != null) {
+                if (title != null) builder.append(", ");
+                builder.append("subtitle=%s".formatted(subtitle));
+            }
+
+            builder.append("}");
+
+            if (isTarget) {
+                builder.append(" @Target{}");
+            }
+
+            mechanics.add(builder.toString());
+
+            toConfig.set(to, mechanics);
+
         }
     }
 
