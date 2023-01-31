@@ -41,7 +41,7 @@ public class CrackShotConverter {
         WEAPON_TYPE("Item_Information.Item_Type", "Info.Weapon_Item.Type", new MaterialConvert()),
         WEAPON_LORE("Item_Information.Item_Lore", "Info.Weapon_Item.Lore", new LoreConvert()),
         SKIP_NAME_CHECK("Item_Information.Skip_Name_Check", "Info.Weapon_Converter_Check.Type"),
-        SOUNDS_ACQUIRED("Item_Information.Sounds_Acquired", "Info.Weapon_Get_Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_ACQUIRED("Item_Information.Sounds_Acquired", "Info.Weapon_Get_Mechanics", new SoundConvert()),
         MELEE_MODE("Item_Information.Melee_Mode", "Melee.Enable_Melee"),
         MELEE_ATTACHMENT("Item_Information.Melee_Attachment", "Melee.Melee_Attachment"),
         MELEE_HIT_DELAY("", "Melee.Melee_Hit_Delay", new MeleeHitDelayConvert()),
@@ -59,8 +59,8 @@ public class CrackShotConverter {
         PROJECTILE_DAMAGE_ARMOR("Shooting.Projectile_Damage", "Damage.Armor_Damage", new ValueDoubleConvert(x -> 3.0)),
         PROJECTILE_INCENDIARY("Shooting.Projectile_Incendiary.Duration", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         BULLET_SPREAD("Shooting.Bullet_Spread", "Shoot.Spread.Base_Spread", new ValueDoubleConvert(x -> x * 10)),
-        SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics.Sounds", new SoundConvert()),
-        SOUNDS_SHOOT("Shooting.Sounds_Shoot", "Shoot.Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics", new SoundConvert()),
+        SOUNDS_SHOOT("Shooting.Sounds_Shoot", "Shoot.Mechanics", new SoundConvert()),
         REMOVAL_OR_DRAG_DELAY("Shooting.Removal_Or_Drag_Delay", "Projectile.Projectile_Settings.Maximum_Alive_Ticks", new RemovalOrDragDelayConvert()),
 
         // SNEAK
@@ -87,28 +87,28 @@ public class CrackShotConverter {
         RELOAD_AMOUNT("Reload.Reload_Amount", "Reload.Magazine_Size", new ValueNonZeroConvert()),
         RELOAD_BULLET_INDIVIDUALLY("Reload.Reload_Bullets_Individually", "Reload.Ammo_Per_Reload", new ValueBooleanConvert(1, null)),
         RELOAD_DURATION("Reload.Reload_Duration", "Reload.Reload_Duration", new ValueNonZeroConvert()),
-        SOUNDS_RELOADING("Reload.Sounds_Reloading", "Reload.Start_Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_RELOADING("Reload.Sounds_Reloading", "Reload.Start_Mechanics", new SoundConvert()),
 
         // FIREARM_ACTION
         FIREARM_ACTION_TYPE("Firearm_Action.Type", "Firearm_Action.Type", new FirearmActionConvert()),
         OPEN_DURATION("Firearm_Action.Open_Duration", "Firearm_Action.Open.Time", new ValueNonZeroConvert()),
         CLOSE_DURATION("Firearm_Action.Close_Duration", "Firearm_Action.Close.Time", new ValueNonZeroConvert()),
-        SOUND_OPEN("Firearm_Action.Sound_Open", "Firearm_Action.Open.Mechanics.Sounds", new SoundConvert()),
-        SOUND_CLOSE("Firearm_Action.Sound_Close", "Firearm_Action.Close.Mechanics.Sounds", new SoundConvert()),
+        SOUND_OPEN("Firearm_Action.Sound_Open", "Firearm_Action.Open.Mechanics", new SoundConvert()),
+        SOUND_CLOSE("Firearm_Action.Sound_Close", "Firearm_Action.Close.Mechanics", new SoundConvert()),
 
         // HEADSHOT
         HEAD_BONUS_DAMAGE("Headshot.Bonus_Damage", "Damage.Head.Bonus_Damage"),
         HEAD_MESSAGE_SHOOTER("Headshot.Message_Shooter", "Damage.Head.Shooter_Mechanics.Message.Chat_Message"),
         HEAD_MESSAGE_VICTIM("Headshot.Message_Victim", "Damage.Head.Victim_Mechanics.Message.Chat_Message"),
-        HEAD_SOUNDS_SHOOTER("Headshot.Sounds_Shooter", "Damage.Head.Shooter_Mechanics.Sounds", new SoundConvert()),
-        HEAD_SOUNDS_VICTIM("Headshot.Sounds_Victim", "Damage.Head.Victim_Mechanics.Sounds", new SoundConvert()),
+        HEAD_SOUNDS_SHOOTER("Headshot.Sounds_Shooter", "Damage.Head.Mechanics", new SoundConvert()),
+        HEAD_SOUNDS_VICTIM("Headshot.Sounds_Victim", "Damage.Head.Mechanics", new SoundConvert(true)),
 
         // BACKSTAB
         BACK_BONUS_DAMAGE("Backstab.Bonus_Damage", "Damage.Backstab.Bonus_Damage"),
         BACK_MESSAGE_SHOOTER("Backstab.Message_Shooter", "Damage.Backstab.Shooter_Mechanics.Message.Chat_Message"),
         BACK_MESSAGE_VICTIM("Backstab.Message_Victim", "Damage.Backstab.Victim_Mechanics.Message.Chat_Message"),
-        BACK_SOUNDS_SHOOTER("Backstab.Sounds_Shooter", "Damage.Backstab.Shooter_Mechanics.Sounds", new SoundConvert()),
-        BACK_SOUNDS_VICTIM("Backstab.Sounds_Victim", "Damage.Backstab.Victim_Mechanics.Sounds", new SoundConvert()),
+        BACK_SOUNDS_SHOOTER("Backstab.Sounds_Shooter", "Damage.Backstab.Mechanics", new SoundConvert()),
+        BACK_SOUNDS_VICTIM("Backstab.Sounds_Victim", "Damage.Backstab.Mechanics", new SoundConvert(true)),
 
         // ABILITIES
         KNOCKBACK("Abilities.Knockback", "Damage.Victim_Mechanics.Movement.", new KnockbackConvert()),
@@ -132,21 +132,21 @@ public class CrackShotConverter {
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SCOPE_BULLET_SPREAD("Scope.Zoom_Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Zooming", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         ZOOM_BEFORE_SHOOTING("Scope.Zoom_Before_Shooting", "Shoot.Trigger.Circumstance.Zooming", new ValueBooleanConvert("REQUIRED", null)),
-        SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics", new SoundConvert()),
 
         // HIT_EVENTS
         HIT_MESSAGE_SHOOTER("Hit_Events.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
         HIT_MESSAGE_VICTIM("Hit_Events.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
-        HIT_SOUNDS_SHOOTER("Hit_Events.Sounds_Shooter", "Damage.Shooter_Mechanics.Sounds", new SoundConvert()),
-        HIT_SOUNDS_VICTIM("Hit_Events.Sounds_Victim", "Damage.Victim_Mechanics.Sounds", new SoundConvert()),
+        HIT_SOUNDS_SHOOTER("Hit_Events.Sounds_Shooter", "Damage.Mechanics", new SoundConvert()),
+        HIT_SOUNDS_VICTIM("Hit_Events.Sounds_Victim", "Damage.Mechanics", new SoundConvert(true)),
 
         // CRITICAL_HITS
         CRIT_BONUS_DAMAGE("Critical_Hits.Bonus_Damage", "Damage.Critical_Hit.Bonus_Damage"),
         CHANCE("Critical_Hits.Chance", "Damage.Critical_Hit.Chance", new ValueNonZeroConvert()),
         CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Message.Chat_Message"),
         CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Victim_Mechanics.Message.Chat_Message"),
-        CRIT_SOUNDS_SHOOTER("Critical_Hits.Sounds_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Sounds", new SoundConvert()),
-        CRIT_SOUNDS_VICTIM("Critical_Hits.Sounds_Victim", "Damage.Critical_Hit.Victim_Mechanics.Sounds", new SoundConvert()),
+        CRIT_SOUNDS_SHOOTER("Critical_Hits.Sounds_Shooter", "Damage.Critical_Hit.Mechanics", new SoundConvert()),
+        CRIT_SOUNDS_VICTIM("Critical_Hits.Sounds_Victim", "Damage.Critical_Hit.Mechanics", new SoundConvert(true)),
 
         // AIRSTRIKES
         AIRSTRIKE("Airstrikes.", "Explosion.", new AirstrikeConvert()),
@@ -175,9 +175,9 @@ public class CrackShotConverter {
         EXPLOSION_DELAY("Explosions.Explosion_Delay", "Explosion.Detonation.Delay_After_Impact", new ValueNonZeroConvert()),
         EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
         EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
-        EXP_SOUNDS_SHOOTER("Explosions.Sounds_Shooter", "Damage.Shooter_Mechanics.Sounds", new SoundConvert()),
-        EXP_SOUNDS_VICTIM("Explosions.Sounds_Victim", "Damage.Victim_Mechanics.Sounds", new SoundConvert()),
-        EXP_SOUNDS("Explosions.Sounds_Explode", "Explosion.Mechanics.Sounds", new SoundConvert()),
+        EXP_SOUNDS_SHOOTER("Explosions.Sounds_Shooter", "Damage.Mechanics", new SoundConvert()),
+        EXP_SOUNDS_VICTIM("Explosions.Sounds_Victim", "Damage.Mechanics", new SoundConvert(true)),
+        EXP_SOUNDS("Explosions.Sounds_Explode", "Explosion.Mechanics", new SoundConvert()),
 
         // EXTRAS
         ONE_TIME_USE("Extras.One_Time_Use", "Shoot.Consume_Item_On_Shoot"),
@@ -325,6 +325,16 @@ public class CrackShotConverter {
 
     private static class SoundConvert implements Converter {
 
+        private boolean isTarget;
+
+        public SoundConvert() {
+            this.isTarget = false;
+        }
+
+        public SoundConvert(boolean isTarget) {
+            this.isTarget = isTarget;
+        }
+
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
@@ -332,7 +342,8 @@ public class CrackShotConverter {
 
             // SOUND-VOLUME-PITCH-DELAY
 
-            List<String> sounds = new ArrayList<>();
+            List<String> mechanics = toConfig.getStringList(to);
+
             for (String sound : value.replaceAll(" ", "").split(",")) {
                 String[] splitted = sound.split("-");
 
@@ -391,10 +402,14 @@ public class CrackShotConverter {
                     }
                 }
 
-                sounds.add(soundName + "-" + volume + "-" + pitch + delay);
+                if (this.isTarget) {
+                    mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s} @Target{}".formatted(soundName, volume, pitch, delay));
+                } else {
+                    mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s}".formatted(soundName, volume, pitch, delay));
+                }
             }
 
-            toConfig.set(to, sounds);
+            toConfig.set(to, mechanics);
         }
     }
 
