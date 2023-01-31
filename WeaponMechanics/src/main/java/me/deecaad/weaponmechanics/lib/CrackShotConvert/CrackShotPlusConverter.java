@@ -44,7 +44,7 @@ public class CrackShotPlusConverter {
         TITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit.Title", "Damage.Victim_Mechanics.Message.Title.Title", Type.STR),
         SUBTITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit.Subtitle", "Damage.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
 
-        SPAWN_FIREWORK("Damage.Spawn_Firework.", "Damage.Victim_Mechanics.Firework.Item.", Type.STR, new FireworkConvert()),
+        SPAWN_FIREWORK("Damage.Spawn_Firework.", "Damage.Mechanics", Type.STR, new FireworkConvert(true)),
 
         SOUNDS_SHOOTER_HEAD("Damage.Custom_Sounds.Shooter_Location.Headshot", "Damage.Head.Mechanics", Type.STR, new CustomSoundConvert()),
         SOUNDS_VICTIM_HEAD("Damage.Custom_Sounds.Victim_Location.Headshot", "Damage.Head.Mechanics", Type.STR, new CustomSoundConvert(true)),
@@ -196,6 +196,16 @@ public class CrackShotPlusConverter {
 
     private static class FireworkConvert implements Converter {
 
+        private boolean isTarget;
+
+        public FireworkConvert() {
+            this.isTarget = false;
+        }
+
+        public FireworkConvert(boolean isTarget) {
+            this.isTarget = isTarget;
+        }
+
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String shape = CSPapi.getString(from + "Shape");
@@ -204,10 +214,15 @@ public class CrackShotPlusConverter {
             Boolean flicker = CSPapi.getBoolean(from + "Flicker");
             if (flicker == null) flicker = false;
 
-            toConfig.set(to + "Type", "firework_rocket");
-            toConfig.set(to + "Firework.Power", 1);
+            List<String> mechanics = toConfig.getStringList(to);
 
-            toConfig.set(to + "Firework.Effects", Collections.singletonList(shape + "-RED-" + flicker));
+            if (this.isTarget) {
+                mechanics.add("Firework{effects=[{shape=%s, color=RED, flicker=%s}]} @Target{}".formatted(shape, flicker));
+            } else {
+                mechanics.add("Firework{effects=[{shape=%s, color=RED, flicker=%s}]}".formatted(shape, flicker));
+            }
+
+            toConfig.set(to, mechanics);
         }
     }
 

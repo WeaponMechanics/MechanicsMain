@@ -118,12 +118,12 @@ public class CrackShotConverter {
         POTION_EFFECTS("Potion_Effects.", "", new PotionEffectsConvert()),
 
         // FIREWORKS
-        FIREWORK_PLAYER_SHOOT("Fireworks.Firework_Player_Shoot", "Shoot.Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_EXPLODE("Fireworks.Firework_Explode", "Explosion.Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_HIT("Fireworks.Firework_Hit", "Damage.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_HEADSHOT("Fireworks.Firework_Headshot", "Damage.Head.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_CRITICAL("Fireworks.Firework_Critical", "Damage.Critical_Hit.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_BACKSTAB("Fireworks.Firework_Backstab", "Damage.Backstab.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
+        FIREWORK_PLAYER_SHOOT("Fireworks.Firework_Player_Shoot", "Shoot.Mechanics", new FireworkConvert()),
+        FIREWORK_EXPLODE("Fireworks.Firework_Explode", "Explosion.Mechanics", new FireworkConvert()),
+        FIREWORK_HIT("Fireworks.Firework_Hit", "Damage.Mechanics", new FireworkConvert(true)),
+        FIREWORK_HEADSHOT("Fireworks.Firework_Headshot", "Damage.Head.Mechanics", new FireworkConvert(true)),
+        FIREWORK_CRITICAL("Fireworks.Firework_Critical", "Damage.Critical_Hit.Mechanics", new FireworkConvert(true)),
+        FIREWORK_BACKSTAB("Fireworks.Firework_Backstab", "Damage.Backstab.Mechanics", new FireworkConvert(true)),
 
         // SCOPE
         SCOPE_TRIGGER("", "Scope.Trigger.Main_Hand", new ScopeConvert()),
@@ -628,24 +628,37 @@ public class CrackShotConverter {
 
     private static class FireworkConvert implements Converter {
 
+        private boolean isTarget;
+
+        public FireworkConvert() {
+            this.isTarget = false;
+        }
+
+        public FireworkConvert(boolean isTarget) {
+            this.isTarget = isTarget;
+        }
+
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String fireworks = fromConfig.getString(from);
             if (fireworks == null) return;
 
-            toConfig.set(to + "Type", "firework_rocket");
-            toConfig.set(to + "Firework.Power", 1);
-
-            List<String> values = new ArrayList<>();
+            List<String> mechanics = toConfig.getStringList(to);
 
             for (String firework : fireworks.replaceAll(" ", "").split(",")) {
                 // CS: TYPE-TRAIL-FLICKER-R-G-B
                 // WM: <Firework.Type>-<ColorSerializer>-<Trail>-<Flicker>
                 String[] splitFirework = firework.split("-");
-                values.add(splitFirework[0] + "-RED-" + splitFirework[1] + "-" + splitFirework[2]);
+
+                if (this.isTarget) {
+                    mechanics.add("Firework{effects=[{shape=%s, color=RED, trail=%s, flicker=%s}]} @Target{}".formatted(splitFirework[0], splitFirework[1], splitFirework[2]));
+                } else {
+                    mechanics.add("Firework{effects=[{shape=%s, color=RED, trail=%s, flicker=%s}]}".formatted(splitFirework[0], splitFirework[1], splitFirework[2]));
+                }
+
             }
 
-            toConfig.set(to + "Firework.Effects", values);
+            toConfig.set(to, mechanics);
         }
     }
 
