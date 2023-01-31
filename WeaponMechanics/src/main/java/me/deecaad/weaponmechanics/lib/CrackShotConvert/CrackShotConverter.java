@@ -98,15 +98,15 @@ public class CrackShotConverter {
 
         // HEADSHOT
         HEAD_BONUS_DAMAGE("Headshot.Bonus_Damage", "Damage.Head.Bonus_Damage"),
-        HEAD_MESSAGE_SHOOTER("Headshot.Message_Shooter", "Damage.Head.Shooter_Mechanics.Message.Chat_Message"),
-        HEAD_MESSAGE_VICTIM("Headshot.Message_Victim", "Damage.Head.Victim_Mechanics.Message.Chat_Message"),
+        HEAD_MESSAGE_SHOOTER("Headshot.Message_Shooter", "Damage.Head.Mechanics", new MessageConvert(false)),
+        HEAD_MESSAGE_VICTIM("Headshot.Message_Victim", "Damage.Head.Mechanics", new MessageConvert(true)),
         HEAD_SOUNDS_SHOOTER("Headshot.Sounds_Shooter", "Damage.Head.Mechanics", new SoundConvert()),
         HEAD_SOUNDS_VICTIM("Headshot.Sounds_Victim", "Damage.Head.Mechanics", new SoundConvert(true)),
 
         // BACKSTAB
         BACK_BONUS_DAMAGE("Backstab.Bonus_Damage", "Damage.Backstab.Bonus_Damage"),
-        BACK_MESSAGE_SHOOTER("Backstab.Message_Shooter", "Damage.Backstab.Shooter_Mechanics.Message.Chat_Message"),
-        BACK_MESSAGE_VICTIM("Backstab.Message_Victim", "Damage.Backstab.Victim_Mechanics.Message.Chat_Message"),
+        BACK_MESSAGE_SHOOTER("Backstab.Message_Shooter", "Damage.Backstab.Mechanics", new MessageConvert(false)),
+        BACK_MESSAGE_VICTIM("Backstab.Message_Victim", "Damage.Backstab.Mechanics", new MessageConvert(true)),
         BACK_SOUNDS_SHOOTER("Backstab.Sounds_Shooter", "Damage.Backstab.Mechanics", new SoundConvert()),
         BACK_SOUNDS_VICTIM("Backstab.Sounds_Victim", "Damage.Backstab.Mechanics", new SoundConvert(true)),
 
@@ -135,16 +135,16 @@ public class CrackShotConverter {
         SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics", new SoundConvert()),
 
         // HIT_EVENTS
-        HIT_MESSAGE_SHOOTER("Hit_Events.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
-        HIT_MESSAGE_VICTIM("Hit_Events.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
+        HIT_MESSAGE_SHOOTER("Hit_Events.Message_Shooter", "Damage.Mechanics", new MessageConvert(false)),
+        HIT_MESSAGE_VICTIM("Hit_Events.Message_Victim", "Damage.Mechanics", new MessageConvert(true)),
         HIT_SOUNDS_SHOOTER("Hit_Events.Sounds_Shooter", "Damage.Mechanics", new SoundConvert()),
         HIT_SOUNDS_VICTIM("Hit_Events.Sounds_Victim", "Damage.Mechanics", new SoundConvert(true)),
 
         // CRITICAL_HITS
         CRIT_BONUS_DAMAGE("Critical_Hits.Bonus_Damage", "Damage.Critical_Hit.Bonus_Damage"),
         CHANCE("Critical_Hits.Chance", "Damage.Critical_Hit.Chance", new ValueNonZeroConvert()),
-        CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Message.Chat_Message"),
-        CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Victim_Mechanics.Message.Chat_Message"),
+        CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Mechanics", new MessageConvert(false)),
+        CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Mechanics", new MessageConvert(true)),
         CRIT_SOUNDS_SHOOTER("Critical_Hits.Sounds_Shooter", "Damage.Critical_Hit.Mechanics", new SoundConvert()),
         CRIT_SOUNDS_VICTIM("Critical_Hits.Sounds_Victim", "Damage.Critical_Hit.Mechanics", new SoundConvert(true)),
 
@@ -173,8 +173,8 @@ public class CrackShotConverter {
         EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Mechanics", new ExplosionPotionEffectConvert()),
         EXPLOSION_RADIUS("Explosions.Explosion_Radius", "Explosion.Explosion_Type_Data.Yield", new ValueNonZeroConvert()),
         EXPLOSION_DELAY("Explosions.Explosion_Delay", "Explosion.Detonation.Delay_After_Impact", new ValueNonZeroConvert()),
-        EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
-        EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
+        EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Mechanics", new MessageConvert(false)),
+        EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Mechanics", new MessageConvert(true)),
         EXP_SOUNDS_SHOOTER("Explosions.Sounds_Shooter", "Damage.Mechanics", new SoundConvert()),
         EXP_SOUNDS_VICTIM("Explosions.Sounds_Victim", "Damage.Mechanics", new SoundConvert(true)),
         EXP_SOUNDS("Explosions.Sounds_Explode", "Explosion.Mechanics", new SoundConvert()),
@@ -457,6 +457,26 @@ public class CrackShotConverter {
 
             toConfig.set(to + "Shoot.Trigger.Dual_Wield.Main_Hand", "right_click");
             toConfig.set(to + "Shoot.Trigger.Dual_Wield.Off_Hand", "left_click");
+        }
+    }
+
+    private record MessageConvert(boolean isTarget) implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String value = fromConfig.getString(from);
+            if (value == null) return;
+            value = StringUtil.colorAdventure(value);
+
+            List<String> mechanics = toConfig.getStringList(to);
+
+            if (isTarget) {
+                mechanics.add("Message{message=%s} @Target{}".formatted(value));
+            } else {
+                mechanics.add("Message{message=%s}".formatted(value));
+            }
+
+            toConfig.set(to, mechanics);
         }
     }
 

@@ -143,8 +143,6 @@ public class CrackShotPlusConverter {
         LIST;
 
         Object get(String key) {
-            // This is not always null... This only happens because the shaded
-            // version of CSP is incomplete and returns null.
             return switch (this) {
                 case BOOL -> CSPapi.getBoolean(key);
                 case STR -> CSPapi.getString(key);
