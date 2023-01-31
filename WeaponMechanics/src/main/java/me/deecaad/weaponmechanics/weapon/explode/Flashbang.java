@@ -21,7 +21,8 @@ public class Flashbang implements Serializer<Flashbang> {
     private double distanceSquared;
     private Mechanics mechanics;
 
-    public Flashbang() { }
+    public Flashbang() {
+    }
 
     public Flashbang(double distance, Mechanics mechanics) {
         this.distance = distance;
@@ -62,7 +63,7 @@ public class Flashbang implements Serializer<Flashbang> {
             }
             LivingEntity livingEntity = (LivingEntity) entity;
             if (canEffect(exposure, origin, livingEntity)) {
-                effect(projectile, livingEntity);
+                effect(projectile, livingEntity, origin);
             }
         }
     }
@@ -87,9 +88,11 @@ public class Flashbang implements Serializer<Flashbang> {
         return exposure.canSee(origin.add(0, 0.5, 0), entity);
     }
 
-    public void effect(WeaponProjectile projectile, LivingEntity entity) {
+    public void effect(WeaponProjectile projectile, LivingEntity entity, Location origin) {
         if (mechanics != null) {
-            mechanics.use(new CastData(entity, projectile.getWeaponTitle(), projectile.getWeaponStack()));
+            CastData cast = new CastData(entity, projectile.getWeaponTitle(), projectile.getWeaponStack());
+            cast.setTargetLocation(origin);
+            mechanics.use(cast);
         }
     }
 

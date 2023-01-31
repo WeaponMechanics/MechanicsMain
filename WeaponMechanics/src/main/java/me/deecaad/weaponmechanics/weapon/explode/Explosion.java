@@ -329,8 +329,11 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (flashbang != null) flashbang.trigger(exposure, projectile, origin);
-        if (mechanics != null) mechanics.use(new CastData(cause, origin,
-                projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack()));
+        if (mechanics != null) {
+            CastData cast = new CastData(cause, projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack());
+            cast.setTargetLocation(origin);
+            mechanics.use(cast);
+        }
     }
 
     protected void damageBlocks(List<Block> blocks, boolean isAtOnce, Location origin, int timeOffset, PlayerWrapper playerWrapper, WeaponProjectile projectile) {

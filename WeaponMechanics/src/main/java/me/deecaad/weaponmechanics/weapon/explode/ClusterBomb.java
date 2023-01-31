@@ -14,7 +14,6 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ClusterBomb implements Serializer<ClusterBomb> {
@@ -66,12 +65,14 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         int currentDepth = projectile.getIntTag("cluster-split-level");
 
         // Checking to see if we have split the proper number of times
-        if (currentDepth >= splits) {
+        if (currentDepth >= splits)
             return;
-        }
 
-        debug.debug("Splitting cluster bomb");
-        if (mechanics != null) mechanics.use(new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack()));
+        if (mechanics != null) {
+            CastData cast = new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack());
+            cast.setTargetLocation(projectile.getLocation().toLocation(projectile.getWorld()));
+            mechanics.use(cast);
+        }
 
         for (int i = 0; i < bombs; i++) {
             Vector vector = VectorUtil.random(speed);

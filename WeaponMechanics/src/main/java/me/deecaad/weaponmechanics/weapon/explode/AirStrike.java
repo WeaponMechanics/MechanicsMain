@@ -155,10 +155,13 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
+        if (mechanics != null) {
+            CastData cast = new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack());
+            cast.setTargetLocation(flareLocation);
+            mechanics.use(cast);
+        }
 
-        if (mechanics != null) mechanics.use(new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack()));
         new BukkitRunnable() {
-
             int count = 0;
 
             @Override
@@ -233,7 +236,6 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     record Vector2d(double x, double z) {
-
         double distanceSquared(Vector2d vector) {
             return NumberConversions.square(this.x - vector.x) + NumberConversions.square(this.z - vector.z);
         }

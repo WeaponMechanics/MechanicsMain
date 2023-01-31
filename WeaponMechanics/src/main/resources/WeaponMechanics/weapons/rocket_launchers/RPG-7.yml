@@ -16,14 +16,13 @@ RPG-7:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED--0.02855"
+        - "GENERIC_MOVEMENT_SPEED -0.02855"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>RPG-7 <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
-      Sounds:
-        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 40
     Cancel:
       Drop_Item: true
@@ -64,8 +63,7 @@ RPG-7:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "custom:shoot.rpg7-6-1-0-0.1"
+      - "CustomSound{sound=shoot.rpg7, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -73,21 +71,19 @@ RPG-7:
     Magazine_Size: 1
     Reload_Duration: 71
     Start_Mechanics:
-      Sounds:
-        - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
-        - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
-        - "ITEM_FLINTANDSTEEL_USE-0.5-1.5-33"
-        - "ITEM_FLINTANDSTEEL_USE-0.5-1.7-35"
-        - "ITEM_FLINTANDSTEEL_USE-0.5-1.9-37"
-        - "BLOCK_PISTON_EXTEND-0.5-1-69-0.1"
+      - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1}"
+      - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, delayBeforePlay=2}"
+      - "Sound{sound=ITEM_FLINTANDSTEEL_USE, volume=0.5, pitch=1.5, delayBeforePlay=33}"
+      - "Sound{sound=ITEM_FLINTANDSTEEL_USE, volume=0.5, pitch=1.7, delayBeforePlay=35}"
+      - "Sound{sound=ITEM_FLINTANDSTEEL_USE, volume=0.5, pitch=1.9, delayBeforePlay=37}"
+      - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, delayBeforePlay=69}"
   Damage:
     Base_Damage: 12.2
     Base_Explosion_Damage: 12.2
     Fire_Ticks: 40
     Armor_Damage: 4
-    Victim_Mechanics:
-      Potion_Effects:
-        - "CONFUSION-200-3-false"
+    Mechanics:
+      - "Potion{potion=CONFUSION, time=200, level=3, particles=HIDE} @Target{}"
   Explosion:
     Explosion_Exposure: "DISTANCE"
     Explosion_Shape: "SPHERE"
@@ -116,12 +112,10 @@ RPG-7:
     Zoom_Amount: 1.4
     Shoot_Delay_After_Scope: 18
     Mechanics:
-      Sounds:
-        - "custom:scope.in-0.5-1-0-0.1"
+      - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
-        Sounds:
-          - "custom:scope.out-0.5-1-0-0.1"
+        - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -129,17 +123,12 @@ RPG-7:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      Sounds:
-        - entity_generic_splash 1 1.85 0 0.15
-      Particles:
-        Particle_1:
-          Type: WATER_SPLASH
-          Count: 20
-          Noise: 0.2-0.2-0.2
+      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - custom:fx.whiz 1 1 0 0.02
+        - "CustomSound{sound=fx.whiz, noise=0.02} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
@@ -147,10 +136,7 @@ RPG-7:
     Distance_Between_Particles: 0.1
     Particle_Chooser: LOOP
     Particles:
-      Particle_1:
-        Type: SMOKE_NORMAL
-        Count: 3
-        Noise: 0.01-0.01-0.01
+      - "Particle{particle=SMOKE_NORMAL, count=3, noise=0.01 0.01 0.01}"
 
   Show_Time:
     Reload:

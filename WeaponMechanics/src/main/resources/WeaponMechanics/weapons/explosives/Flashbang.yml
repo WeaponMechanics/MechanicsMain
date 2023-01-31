@@ -12,8 +12,7 @@ Flashbang:
       Hide_Flags: true
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
-      Sounds:
-        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
     Cancel:
       Block_Interactions: true
       Item_Interactions: true
@@ -44,8 +43,7 @@ Flashbang:
     Delay_Between_Shots: 20
     Consume_Item_On_Shoot: true
     Mechanics:
-      Sounds:
-        - "ENTITY_EGG_THROW-0.5-1-0-0.1"
+      - "Sound{sound=ENTITY_EGG_THROW, volume=0.5, noise=0.1}"
   Explosion:
     Disable_Vanilla_Knockback: true
     Explosion_Exposure: "DEFAULT"
@@ -60,32 +58,23 @@ Flashbang:
     Flashbang:
       Effect_Distance: 8
       Mechanics:
-        Sounds:
-          - "ENTITY_GENERIC_EXTINGUISH_FIRE-0.5-1-0-0.1"
-        Potion_Effects:
-          - "BLINDNESS-100-1-false"
-          - "SLOW-200-2-false"
+        - "Sound{sound=ENTITY_GENERIC_EXTINGUISH_FIRE, volume=0.5, noise=0.1} @Target{}"
+        - "Potion{potion=BLINDNESS, time=100, level=1, particles=HIDE} @Target{}"
+        - "Potion{potion=SLOW, time=200, level=2, particles=HIDE} @Target{}"
     Mechanics:
-      Sounds:
-        - "ENTITY_GENERIC_DRINK-6-2-0-0.1"
-        - "ENTITY_GENERIC_BURN-6-2-0-0.1"
+      - "Sound{sound=ENTITY_GENERIC_DRINK, volume=6, pitch=2, noise=0.1} @Target{}"
+      - "Sound{sound=Entity_GENERIC_BURN, volume=6, pitch=2, noise=0.1} @Target{}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
 
   Cosmetics:
     Splash_Mechanics:
-      Sounds:
-        - entity_generic_splash 1 1.85 0 0.15
-      Particles:
-        Particle_1:
-          Type: WATER_SPLASH
-          Count: 25
-          Noise: 0.2-0.2-0.2
+      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
 
   Trail:
     Distance_Between_Particles: 0.7
     Particle_Chooser: LOOP
     Particles:
-      Particle_1:
-        Type: ELECTRIC_SPARK
+      - "Particle{particle=ELECTRIC_SPARK}"

@@ -1,21 +1,17 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Configuration;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -79,7 +75,7 @@ public class RepairItemListener implements Listener {
                     // For each key in the file, treat it as a new repair kit.
                     for (String key : config.getKeys(false)) {
                         try {
-                            SerializeData data = new SerializeData(new RepairKit(), file.toFile(), key, config);
+                            SerializeData data = new SerializeData(new RepairKit(), file.toFile(), key, new BukkitConfig(config));
                             RepairKit repairKit = data.of().serialize(RepairKit.class);
 
                             if (repairKits.containsKey(key))

@@ -7,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -32,13 +31,6 @@ public class CastData implements Cloneable {
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack) {
         this.source = source;
         this.sourceLocation = null;
-        this.itemTitle = itemTitle;
-        this.itemStack = itemStack;
-    }
-
-    public CastData(LivingEntity source, Location sourceLocation, String itemTitle, ItemStack itemStack) {
-        this.source = source;
-        this.sourceLocation = sourceLocation;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
     }
