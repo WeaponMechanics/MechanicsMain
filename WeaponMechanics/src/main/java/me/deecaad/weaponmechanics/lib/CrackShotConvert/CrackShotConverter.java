@@ -50,7 +50,6 @@ public class CrackShotConverter {
         RIGHT_CLICK_TO_SHOOT("", "Shoot.Trigger.Main_Hand", new ShootButtonsConvert()),
         DUAL_WIELD("Shooting.Dual_Wield", "", new DualWieldConvert()), // After shoot buttons so this can override triggers
         DELAY_BETWEEN_SHOTS("Shooting.Delay_Between_Shots", "Shoot.Delay_Between_Shots", new ValueNonZeroConvert()),
-        RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
         PROJECTILE_AMOUNT("Shooting.Projectile_Amount", "Shoot.Projectiles_Per_Shot", new ValueNonZeroConvert()),
         PROJECTILE_TYPE("Shooting.", "", new ProjectileTypeConvert()),
         REMOVE_BULLET_DROP("Shooting.Remove_Bullet_Drop", "Projectile.Projectile_Settings.Gravity", new ValueBooleanConvert(0.0, null)),
@@ -67,7 +66,6 @@ public class CrackShotConverter {
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SNEAK_BULLET_SPREAD("Sneak.Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Sneaking", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         SNEAK_BEFORE_SHOOTING("Shooting.Sneak_Before_Shooting", "Shoot.Trigger.Circumstance.Sneaking", new ValueBooleanConvert("REQUIRED", null)),
-        SNEAK_NO_RECOIL("", "Shoot.Mechanics.Movement.Circumstance.Sneaking", new NoSneakRecoilConvert()),
 
         // FULLY_AUTOMATIC
         FIRE_RATE("Fully_Automatic.Fire_Rate", "Shoot.Fully_Automatic_Shots_Per_Second", new ValueDoubleConvert(x -> (x * 60 + 240) / 60)),
@@ -110,9 +108,8 @@ public class CrackShotConverter {
         BACK_SOUNDS_SHOOTER("Backstab.Sounds_Shooter", "Damage.Backstab.Mechanics", new SoundConvert()),
         BACK_SOUNDS_VICTIM("Backstab.Sounds_Victim", "Damage.Backstab.Mechanics", new SoundConvert(true)),
 
-        // ABILITIES
-        KNOCKBACK("Abilities.Knockback", "Damage.Victim_Mechanics.Movement.", new KnockbackConvert()),
-        NO_VERTICAL_RECOIL("", "Shoot.Mechanics.Movement.Vertical_Speed", new NoVerticalRecoilConvert()),
+        // ABILITIES AND RECOIL
+        ABILITIES_AND_RECOIL("", "", new AbilitiesAndRecoilConvert()),
 
         // POTION_EFFECTS
         POTION_EFFECTS("Potion_Effects.", "", new PotionEffectsConvert()),
@@ -587,18 +584,6 @@ public class CrackShotConverter {
         }
     }
 
-    private static class KnockbackConvert implements Converter {
-
-        @Override
-        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            double value = fromConfig.getDouble(from, -500);
-            if (value == -500) return;
-
-            toConfig.set(to + "Movement_Speed", value * 2);
-            toConfig.set(to + "Towards_Target", true);
-        }
-    }
-
     private static class PotionEffectsConvert implements Converter {
 
         @Override
@@ -651,6 +636,53 @@ public class CrackShotConverter {
 
                     toConfig.set(mechanicsTo, mechanics);
                 }
+            }
+        }
+    }
+
+    private static class AbilitiesAndRecoilConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            double abilitiesKnockback = fromConfig.getDouble(from + "Abilities.Knockback", -500);
+            if (abilitiesKnockback != -500) {
+
+                List<String> mechanics = toConfig.getStringList(to + "Damage.Mechanics");
+
+                // From CS to WM speed conversion
+                abilitiesKnockback *= 2;
+
+                mechanics.add("Leap{speed=%s} @Target{}".formatted((abilitiesKnockback * 2)));
+
+                toConfig.set(to + "Damage.Mechanics", mechanics);
+            }
+
+            double recoilAmount = fromConfig.getDouble(from + "Shooting.Recoil_Amount", -500);
+            if (recoilAmount != -500) {
+
+                List<String> mechanics = toConfig.getStringList(to + "Shoot.Mechanics");
+
+                // From CS to WM conversion, negative because we want to leap backwards
+                recoilAmount *= -2;
+
+                boolean noVerticalRecoil = fromConfig.getBoolean(from + "Abilities.No_Vertical_Recoil");
+                boolean sneakNoRecoil = fromConfig.getBoolean(from + "Sneak.No_Recoil");
+
+                StringBuilder builder = new StringBuilder("Leap{speed=%s".formatted(recoilAmount));
+
+                if (noVerticalRecoil) {
+                    builder.append(", verticalMultiplier=0.0");
+                }
+
+                builder.append("}");
+
+                if (sneakNoRecoil) {
+                    builder.append(" ?Sneaking{inverted=true}");
+                }
+
+                mechanics.add(builder.toString());
+
+                toConfig.set(to + "Shoot.Mechanics", mechanics);
             }
         }
     }
@@ -920,26 +952,6 @@ public class CrackShotConverter {
             }
 
             toConfig.set(to, Integer.parseInt(split[0]));
-        }
-    }
-
-    private static class NoVerticalRecoilConvert implements Converter {
-
-        @Override
-        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean(from + "Abilities.No_Vertical_Recoil")) {
-                toConfig.set(to, 0);
-            }
-        }
-    }
-
-    private static class NoSneakRecoilConvert implements Converter {
-
-        @Override
-        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean(from + "Sneak.No_Recoil")) {
-                toConfig.set(to, "DENY");
-            }
         }
     }
 
