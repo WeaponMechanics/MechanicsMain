@@ -170,7 +170,7 @@ public class CrackShotConverter {
         IGNITE_VICTIMS("Explosions.Ignite_Victims", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         ENABLE_OWNER_IMMUNITY("Explosions.Enable_Owner_Immunity", "Damage.Enable_Owner_Immunity"),
         EXPLOSION_NO_DAMAGE("Explosions.Explosion_No_Damage", "Damage.Base_Explosion_Damage", new ValueBooleanConvert(0, null)),
-        EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Victim_Mechanics.Potion_Effects", new PotionEffectConvert()),
+        EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Mechanics", new ExplosionPotionEffectConvert()),
         EXPLOSION_RADIUS("Explosions.Explosion_Radius", "Explosion.Explosion_Type_Data.Yield", new ValueNonZeroConvert()),
         EXPLOSION_DELAY("Explosions.Explosion_Delay", "Explosion.Detonation.Delay_After_Impact", new ValueNonZeroConvert()),
         EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
@@ -413,14 +413,22 @@ public class CrackShotConverter {
         }
     }
 
-    private static class PotionEffectConvert implements Converter {
+    private static class ExplosionPotionEffectConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
             if (value == null) return;
 
-            toConfig.set(to, Arrays.asList(value.replaceAll(" ", "").split(",")));
+            List<String> mechanics = toConfig.getStringList(to);
+            
+            Arrays.stream(value.replaceAll(" ", "").split(",")).forEach(potion -> {
+                String[] potArray = potion.split("-");
+                // POTIONTYPE-DURATION-LEVEL
+                mechanics.add("Potion{potion=%s, time=%s, level=%s} @Target{}".formatted(potArray[0], potArray[1], potArray[2]));
+            });
+
+            toConfig.set(to, mechanics);
         }
     }
 
@@ -579,48 +587,49 @@ public class CrackShotConverter {
             if (activations == null) return;
 
             String shooter = fromConfig.getString(from + "Potion_Effect_Shooter");
-            List<String> shooterEffects = shooter != null ? Arrays.asList(shooter.replaceAll(" ", "").split(",")) : null;
+            List<String> shooterEffects = new ArrayList<>();
+            if (shooter != null) {
+                Arrays.stream(shooter.replaceAll(" ", "").split(",")).forEach(potion -> {
+                    String[] potArray = potion.split("-");
+                    // POTIONTYPE-DURATION-LEVEL
+                    shooterEffects.add("Potion{potion=%s, time=%s, level=%s}".formatted(potArray[0], potArray[1], potArray[2]));
+                });
+            }
 
             String victim = fromConfig.getString(from + "Potion_Effect_Victim");
-            List<String> victimEffects = victim != null ? Arrays.asList(victim.replaceAll(" ", "").split(",")) : null;
+            List<String> victimEffects = new ArrayList<>();
+            if (victim != null) {
+                Arrays.stream(victim.replaceAll(" ", "").split(",")).forEach(potion -> {
+                    String[] potArray = potion.split("-");
+                    // POTIONTYPE-DURATION-LEVEL
+                    victimEffects.add("Potion{potion=%s, time=%s, level=%s} @Target{}".formatted(potArray[0], potArray[1], potArray[2]));
+                });
+            }
 
             for (String activation : activations.replaceAll(" ", "").split(",")) {
+                String mechanicsTo = null;
+
                 if (activation.equalsIgnoreCase("head")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Head.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Head.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Head.Mechanics";
                 } else if (activation.equalsIgnoreCase("back")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Backstab.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Backstab.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Backstab.Mechanics";
                 } else if (activation.equalsIgnoreCase("crit")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Critical_Hit.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Critical_Hit.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Critical_Hit.Mechanics";
                 } else if (activation.equalsIgnoreCase("hit")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Mechanics";
                 } else if (activation.equalsIgnoreCase("shoot")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Shoot.Mechanics.Potion_Effects", shooterEffects);
-                    }
+                    mechanicsTo = to + "Shoot.Mechanics";
                 } else if (activation.equalsIgnoreCase("reload")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Reload.Start_Mechanics.Potion_Effects", shooterEffects);
-                    }
+                    mechanicsTo = to + "Reload.Start_Mechanics";
+                }
+
+                if (mechanicsTo != null) {
+                    List<String> mechanics = toConfig.getStringList(mechanicsTo);
+
+                    if (shooter != null) mechanics.addAll(shooterEffects);
+                    if (victim != null) mechanics.addAll(victimEffects);
+
+                    toConfig.set(mechanicsTo, mechanics);
                 }
             }
         }
