@@ -27,50 +27,38 @@ public class CrackShotPlusConverter {
     private enum Paths {
 
         // DAMAGE
-        TITLE_SHOOTER_HEAD("Damage.Title_And_Subtitle.Shooter.Headshot.Title", "Damage.Head.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_HEAD("Damage.Title_And_Subtitle.Shooter.Headshot.Subtitle", "Damage.Head.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_HEAD("Damage.Title_And_Subtitle.Victim.Headshot.Title", "Damage.Head.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_HEAD("Damage.Title_And_Subtitle.Victim.Headshot.Subtitle", "Damage.Head.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_SHOOTER_BACK("Damage.Title_And_Subtitle.Shooter.Backstab.Title", "Damage.Backstab.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_BACK("Damage.Title_And_Subtitle.Shooter.Backstab.Subtitle", "Damage.Backstab.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_BACK("Damage.Title_And_Subtitle.Victim.Backstab.Title", "Damage.Backstab.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_BACK("Damage.Title_And_Subtitle.Victim.Backstab.Subtitle", "Damage.Backstab.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_SHOOTER_CRIT("Damage.Title_And_Subtitle.Shooter.Critical_Hit.Title", "Damage.Critical_Hit.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_CRIT("Damage.Title_And_Subtitle.Shooter.Critical_Hit.Subtitle", "Damage.Critical_Hit.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_CRIT("Damage.Title_And_Subtitle.Victim.Critical_Hit.Title", "Damage.Critical_Hit.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_CRIT("Damage.Title_And_Subtitle.Victim.Critical_Hit.Subtitle", "Damage.Critical_Hit.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_SHOOTER_HIT("Damage.Title_And_Subtitle.Shooter.Hit.Title", "Damage.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_HIT("Damage.Title_And_Subtitle.Shooter.Hit.Subtitle", "Damage.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        TITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit.Title", "Damage.Victim_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit.Subtitle", "Damage.Victim_Mechanics.Message.Title.Subtitle", Type.STR),
+        TITLE_SHOOTER_HEAD("Damage.Title_And_Subtitle.Shooter.Headshot", "Damage.Head.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_HEAD("Damage.Title_And_Subtitle.Victim.Headshot", "Damage.Head.Mechanics", Type.STR, new TitleConvert(true)),
+        TITLE_SHOOTER_BACK("Damage.Title_And_Subtitle.Shooter.Backstab", "Damage.Backstab.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_BACK("Damage.Title_And_Subtitle.Victim.Backstab", "Damage.Backstab.Mechanics", Type.STR, new TitleConvert(true)),
+        TITLE_SHOOTER_CRIT("Damage.Title_And_Subtitle.Shooter.Critical_Hit", "Damage.Critical_Hit.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_CRIT("Damage.Title_And_Subtitle.Victim.Critical_Hit", "Damage.Critical_Hit.Mechanics", Type.STR, new TitleConvert(true)),
+        TITLE_SHOOTER_HIT("Damage.Title_And_Subtitle.Shooter.Hit", "Damage.Mechanics", Type.STR, new TitleConvert(false)),
+        TITLE_VICTIM_HIT("Damage.Title_And_Subtitle.Victim.Hit", "Damage.Mechanics", Type.STR, new TitleConvert(true)),
 
-        SPAWN_FIREWORK("Damage.Spawn_Firework.", "Damage.Victim_Mechanics.Firework.Item.", Type.STR, new FireworkConvert()),
+        SPAWN_FIREWORK("Damage.Spawn_Firework.", "Damage.Mechanics", Type.STR, new FireworkConvert(true)),
 
-        SOUNDS_SHOOTER_HEAD("Damage.Custom_Sounds.Shooter_Location.Headshot", "Damage.Head.Shooter_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_VICTIM_HEAD("Damage.Custom_Sounds.Victim_Location.Headshot", "Damage.Head.Victim_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_SHOOTER_BACK("Damage.Custom_Sounds.Shooter_Location.Backstab", "Damage.Backstab.Shooter_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_VICTIM_BACK("Damage.Custom_Sounds.Victim_Location.Backstab", "Damage.Backstab.Victim_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_SHOOTER_CRIT("Damage.Custom_Sounds.Shooter_Location.Critical_Hit", "Damage.Critical_Hit.Shooter_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_VICTIM_CRIT("Damage.Custom_Sounds.Victim_Location.Critical_Hit", "Damage.Critical_Hit.Victim_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_SHOOTER_HIT("Damage.Custom_Sounds.Shooter_Location.Hit", "Damage.Shooter_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_VICTIM_HIT("Damage.Custom_Sounds.Victim_Location.Hit", "Damage.Victim_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
+        SOUNDS_SHOOTER_HEAD("Damage.Custom_Sounds.Shooter_Location.Headshot", "Damage.Head.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_VICTIM_HEAD("Damage.Custom_Sounds.Victim_Location.Headshot", "Damage.Head.Mechanics", Type.STR, new CustomSoundConvert(true)),
+        SOUNDS_SHOOTER_BACK("Damage.Custom_Sounds.Shooter_Location.Backstab", "Damage.Backstab.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_VICTIM_BACK("Damage.Custom_Sounds.Victim_Location.Backstab", "Damage.Backstab.Mechanics", Type.STR, new CustomSoundConvert(true)),
+        SOUNDS_SHOOTER_CRIT("Damage.Custom_Sounds.Shooter_Location.Critical_Hit", "Damage.Critical_Hit.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_VICTIM_CRIT("Damage.Custom_Sounds.Victim_Location.Critical_Hit", "Damage.Critical_Hit.Mechanics", Type.STR, new CustomSoundConvert(true)),
+        SOUNDS_SHOOTER_HIT("Damage.Custom_Sounds.Shooter_Location.Hit", "Damage.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_VICTIM_HIT("Damage.Custom_Sounds.Victim_Location.Hit", "Damage.Mechanics", Type.STR, new CustomSoundConvert(true)),
 
-        COMMAND_SHOOTER_HEAD("Damage.Run_Command.Headshot.Command", "Damage.Head.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_HEAD("Damage.Run_Command.Headshot.Command", "Damage.Head.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
-        COMMAND_SHOOTER_BACK("Damage.Run_Command.Backstab.Command", "Damage.Backstab.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_BACK("Damage.Run_Command.Backstab.Command", "Damage.Backstab.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
-        COMMAND_SHOOTER_CRIT("Damage.Run_Command.Critical_Hit.Command", "Damage.Critical_Hit.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_CRIT("Damage.Run_Command.Critical_Hit.Command", "Damage.Critical_Hit.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
-        COMMAND_SHOOTER_HIT("Damage.Run_Command.Hit.Command", "Damage.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_HIT("Damage.Run_Command.Hit.Command", "Damage.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
+        COMMAND_SHOOTER_HEAD("Damage.Run_Command.Headshot.Command", "Damage.Head.Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_SHOOTER_BACK("Damage.Run_Command.Backstab.Command", "Damage.Backstab.Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_SHOOTER_CRIT("Damage.Run_Command.Critical_Hit.Command", "Damage.Critical_Hit.Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_SHOOTER_HIT("Damage.Run_Command.Hit.Command", "Damage.Mechanics", Type.STR, new CommandConvert()),
 
         // EXPLODE
-        SOUNDS_AIRSTRIKE("Explode.Custom_Sounds.Explode_Location.Airstrike", "Explosion.Airstrike.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_SPLIT("Explode.Custom_Sounds.Explode_Location.Split", "Explosion.Cluster_Bomb.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_EXPLODE("Explode.Custom_Sounds.Explode_Location.Explode", "Explosion.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
+        SOUNDS_AIRSTRIKE("Explode.Custom_Sounds.Explode_Location.Airstrike", "Explosion.Airstrike.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_SPLIT("Explode.Custom_Sounds.Explode_Location.Split", "Explosion.Cluster_Bomb.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_EXPLODE("Explode.Custom_Sounds.Explode_Location.Explode", "Explosion.Mechanics", Type.STR, new CustomSoundConvert()),
 
         // HELD
-        SOUNDS_HELD("Held.Custom_Held_Sound", "Info.Weapon_Equip_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
+        SOUNDS_HELD("Held.Custom_Held_Sound", "Info.Weapon_Equip_Mechanics", Type.STR, new CustomSoundConvert()),
         WEAPON_WEIGHT("Held.Weapon_Weight", "Info.Weapon_Item.Attributes", Type.DOUBLE, new GeneralObjectModifier(x -> Collections.singletonList("GENERIC_MOVEMENT_SPEED-" + x))),
         HIDE_ATTRIBUTES("Held.Hide_Attributes", "Info.Weapon_Item.Hide_Flags", Type.BOOL),
         DURABILITY("Held.Durability", "Info.Weapon_Item.Durability", Type.INT),
@@ -78,31 +66,29 @@ public class CrackShotPlusConverter {
         UPDATE_LORE("Held.Update_Lore.Lore", "Info.Weapon_Item.Lore", Type.LIST),
 
         // KILL
-        COMMAND_SHOOTER_KILL("Kill.Command.Run_Command", "Damage.Kill.Shooter_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_VICTIM_KILL("Kill.Command.Run_Command", "Damage.Kill.Victim_Mechanics.Commands", Type.STR, new CommandConvert(false)),
-        TITLE_SHOOTER_KILL("Kill.Title_And_Subtitle.Title", "Damage.Kill.Shooter_Mechanics.Message.Title.Title", Type.STR),
-        SUBTITLE_SHOOTER_KILL("Kill.Title_And_Subtitle.Subtitle", "Damage.Kill.Shooter_Mechanics.Message.Title.Subtitle", Type.STR),
-        KILLFEED("Kill.Killfeed.", "Damage.Kill.Shooter_Mechanics.Message.", Type.STR, new KillfeedConvert()),
+        COMMAND_SHOOTER_KILL("Kill.Command.Run_Command", "Damage.Kill.Mechanics", Type.STR, new CommandConvert()),
+        TITLE_SHOOTER_KILL("Kill.Title_And_Subtitle", "Damage.Kill.Mechanics", Type.STR, new TitleConvert(false)),
+        KILLFEED("Kill.Killfeed.", "Damage.Kill.Mechanics", Type.STR, new KillfeedConvert()),
 
         // RELOAD
-        SOUNDS_PRE_RELOAD_START("Reload.Custom_Pre_Reload_Sound", "Reload.Start_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_RELOAD_START("Reload.Custom_Reload_Sound", "Reload.Start_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_RELOAD_COMPLETE("Reload.Custom_Reload_Complete_Sound", "Reload.Finish_Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        COMMAND_RELOAD_START("Reload.Reload_Run_Command", "Reload.Start_Mechanics.Commands", Type.STR, new CommandConvert(true)),
-        COMMAND_RELOAD_COMPLETE("Reload.Reload_Complete_Run_Command", "Reload.Finish_Mechanics.Commands", Type.STR, new CommandConvert(true)),
+        SOUNDS_PRE_RELOAD_START("Reload.Custom_Pre_Reload_Sound", "Reload.Start_Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_RELOAD_START("Reload.Custom_Reload_Sound", "Reload.Start_Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_RELOAD_COMPLETE("Reload.Custom_Reload_Complete_Sound", "Reload.Finish_Mechanics", Type.STR, new CustomSoundConvert()),
+        COMMAND_RELOAD_START("Reload.Reload_Run_Command", "Reload.Start_Mechanics", Type.STR, new CommandConvert()),
+        COMMAND_RELOAD_COMPLETE("Reload.Reload_Complete_Run_Command", "Reload.Finish_Mechanics", Type.STR, new CommandConvert()),
 
         // SCOPE
-        SOUNDS_SCOPE("Scope.Custom_Scope_Sound", "Scope.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_SCOPE_END("Scope.Custom_Scope_End_Sound", "Scope.Zoom_Off.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
+        SOUNDS_SCOPE("Scope.Custom_Scope_Sound", "Scope.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_SCOPE_END("Scope.Custom_Scope_End_Sound", "Scope.Zoom_Off.Mechanics", Type.STR, new CustomSoundConvert()),
         SECOND_ZOOM_STACKS("Scope.Second_Zoom.Amount", "Scope.Zoom_Stacking.Stacks", Type.INT, new GeneralObjectModifier(x ->
                 Collections.singletonList(NumberUtil.lerp(1, 5, (int) x > 6 ? 6 : ((double) ((int) x)) / 6)))),
 
         // SHOOT
         INVISIBLE_PROJECTILES("Shoot.Invisible_Projectiles", "Projectile.Projectile_Settings.Type", Type.BOOL, new GeneralObjectModifier(x -> "INVISIBLE")),
-        SOUNDS_PREPARE_SHOOT("Shoot.Custom_Prepare_Shoot_Sound", "Shoot.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_PRE_SHOOT("Shoot.Custom_Pre_Shoot_Sound", "Shoot.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        SOUNDS_SHOOT("Shoot.Custom_Shoot_Sound", "Shoot.Mechanics.Sounds", Type.STR, new CustomSoundConvert()),
-        COMMAND_SHOOT("Shoot.Shoot_Run_Command", "Shoot.Mechanics.Commands", Type.STR, new CommandConvert(true)),
+        SOUNDS_PREPARE_SHOOT("Shoot.Custom_Prepare_Shoot_Sound", "Shoot.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_PRE_SHOOT("Shoot.Custom_Pre_Shoot_Sound", "Shoot.Mechanics", Type.STR, new CustomSoundConvert()),
+        SOUNDS_SHOOT("Shoot.Custom_Shoot_Sound", "Shoot.Mechanics", Type.STR, new CustomSoundConvert()),
+        COMMAND_SHOOT("Shoot.Shoot_Run_Command", "Shoot.Mechanics", Type.STR, new CommandConvert()),
         BOUNCING_PROJECTILES("Shoot.Bouncing_Projectiles.", "Projectile.Bouncy.", Type.STR, new BouncingProjectilesConvert()),
         CAMERA_RECOIL("Shoot.Camera_Recoil.", "Shoot.Recoil.", Type.DOUBLE, new CameraRecoilConvert()),
 
@@ -148,8 +134,6 @@ public class CrackShotPlusConverter {
         LIST;
 
         Object get(String key) {
-            // This is not always null... This only happens because the shaded
-            // version of CSP is incomplete and returns null.
             return switch (this) {
                 case BOOL -> CSPapi.getBoolean(key);
                 case STR -> CSPapi.getString(key);
@@ -196,6 +180,16 @@ public class CrackShotPlusConverter {
 
     private static class FireworkConvert implements Converter {
 
+        private boolean isTarget;
+
+        public FireworkConvert() {
+            this.isTarget = false;
+        }
+
+        public FireworkConvert(boolean isTarget) {
+            this.isTarget = isTarget;
+        }
+
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String shape = CSPapi.getString(from + "Shape");
@@ -204,30 +198,41 @@ public class CrackShotPlusConverter {
             Boolean flicker = CSPapi.getBoolean(from + "Flicker");
             if (flicker == null) flicker = false;
 
-            toConfig.set(to + "Type", "firework_rocket");
-            toConfig.set(to + "Firework.Power", 1);
+            List<String> mechanics = toConfig.getStringList(to);
 
-            toConfig.set(to + "Firework.Effects", Collections.singletonList(shape + "-RED-" + flicker));
+            if (this.isTarget) {
+                mechanics.add("Firework{effects=[{shape=%s, color=RED, flicker=%s}]} @Target{}".formatted(shape, flicker));
+            } else {
+                mechanics.add("Firework{effects=[{shape=%s, color=RED, flicker=%s}]}".formatted(shape, flicker));
+            }
+
+            toConfig.set(to, mechanics);
         }
     }
 
     private static class CustomSoundConvert implements Converter {
+
+        private boolean isTarget;
+
+        public CustomSoundConvert() {
+            this.isTarget = false;
+        }
+
+        public CustomSoundConvert(boolean isTarget) {
+            this.isTarget = isTarget;
+        }
 
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String customSounds = CSPapi.getString(from);
             if (customSounds == null) return;
 
-            // Check if CS has already added bukkit sounds
-            List<String> sounds = toConfig.getStringList(to);
-            if (sounds == null) {
-                sounds = new ArrayList<>();
-            }
+            List<String> mechanics = toConfig.getStringList(to);
 
             for (String sound : customSounds.replaceAll(" ", "").split(",")) {
                 String[] splitted = sound.split("-");
 
-                String soundName = "custom:" + splitted[0];
+                String soundName = splitted[0];
                 String volume = splitted[1];
                 if (Double.parseDouble(volume) <= 0.05) {
                     volume = "1";
@@ -240,14 +245,18 @@ public class CrackShotPlusConverter {
                     pitch = "2.0";
                 }
 
-                sounds.add(soundName + "-" + volume + "-" + pitch);
+                if (this.isTarget) {
+                    mechanics.add("CustomSound{sound=%s, volume=%s, pitch=%s} @Target{}".formatted(soundName, volume, pitch));
+                } else {
+                    mechanics.add("CustomSound{sound=%s, volume=%s, pitch=%s}".formatted(soundName, volume, pitch));
+                }
             }
 
-            toConfig.set(to, sounds);
+            toConfig.set(to, mechanics);
         }
     }
 
-    private record CommandConvert(boolean onlyShooter) implements Converter {
+    private record CommandConvert() implements Converter {
 
         @Override
         public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -258,21 +267,26 @@ public class CrackShotPlusConverter {
                     .replaceAll("#PLAYER#", "%shooter%")
                     .replaceAll("#WEAPON#", "%weapon-title%")
                     .replaceAll("#KILLER#", "%shooter%")
-                    .replaceAll("#KILLED#", "%victim%")
-                    .replaceAll("#C#", "console:");
+                    .replaceAll("#KILLED#", "%victim%");
 
-            List<String> commands = new ArrayList<>();
+            List<String> mechanics = toConfig.getStringList(to);
+
             for (String command : value.split(",")) {
+                // Start command with #P# (shooter) or #C# (console)
 
-                if (command.startsWith("#V#") && onlyShooter) continue;
-
-                command = command.replaceFirst("#V#", "").replaceFirst("#P#", "");
-                commands.add(command);
+                if (command.startsWith("#C#")) {
+                    // console
+                    mechanics.add("Command{command=%s, console=true}".formatted(command.replaceFirst("#C#", "")));
+                } else if (command.startsWith("#P#")) {
+                    // source
+                    mechanics.add("Command{command=%s}".formatted(command.replaceFirst("#P#", "")));
+                } else if (command.startsWith("#V#")) {
+                    // target
+                    mechanics.add("Command{command=%s} @Target{}".formatted(command.replaceFirst("#V#", "")));
+                }
             }
 
-            if (!commands.isEmpty()) {
-                toConfig.set(to, commands);
-            }
+            if (!mechanics.isEmpty()) toConfig.set(to, mechanics);
         }
     }
 
@@ -286,6 +300,44 @@ public class CrackShotPlusConverter {
             if (type == Type.BOOL && !(Boolean) value) return;
 
             toConfig.set(to, function.apply(value));
+        }
+    }
+
+    private record TitleConvert(boolean isTarget) implements Converter {
+
+        @Override
+        public void convert(String from, String to, Type type, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            Object title = type.get(from + ".Title");
+            Object subtitle = type.get(from + ".Subtitle");
+
+            if (title == null && subtitle == null) return;
+
+            title = StringUtil.colorAdventure((String) title);
+            subtitle = StringUtil.colorAdventure((String) subtitle);
+
+            List<String> mechanics = toConfig.getStringList(to);
+
+            StringBuilder builder = new StringBuilder("Title{");
+
+            if (title != null) {
+                builder.append("title=%s".formatted(title));
+            }
+
+            if (subtitle != null) {
+                if (title != null) builder.append(", ");
+                builder.append("subtitle=%s".formatted(subtitle));
+            }
+
+            builder.append("}");
+
+            if (isTarget) {
+                builder.append(" @Target{}");
+            }
+
+            mechanics.add(builder.toString());
+
+            toConfig.set(to, mechanics);
+
         }
     }
 
@@ -315,12 +367,11 @@ public class CrackShotPlusConverter {
                 WeaponMechanics.debug.error("Invalid boss bar style: " + temp + " swapped to: " + barStyle);
             }
 
+            List<String> mechanics = toConfig.getStringList(to);
 
-            toConfig.set(to + ".Send_All_Server", true);
-            toConfig.set(to + ".Boss_Bar.Title", title);
-            toConfig.set(to + ".Boss_Bar.Color", barColor);
-            toConfig.set(to + ".Boss_Bar.Style", barStyle);
-            toConfig.set(to + ".Boss_Bar.Time", time);
+            mechanics.add("BossBar{title=%s, color=%s, style=%s, time=%s} @ServerPlayers{}".formatted(title, barColor, barStyle, time));
+
+            toConfig.set(to, mechanics);
         }
     }
 

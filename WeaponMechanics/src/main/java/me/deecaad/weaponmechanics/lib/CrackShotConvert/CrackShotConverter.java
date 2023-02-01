@@ -41,7 +41,7 @@ public class CrackShotConverter {
         WEAPON_TYPE("Item_Information.Item_Type", "Info.Weapon_Item.Type", new MaterialConvert()),
         WEAPON_LORE("Item_Information.Item_Lore", "Info.Weapon_Item.Lore", new LoreConvert()),
         SKIP_NAME_CHECK("Item_Information.Skip_Name_Check", "Info.Weapon_Converter_Check.Type"),
-        SOUNDS_ACQUIRED("Item_Information.Sounds_Acquired", "Info.Weapon_Get_Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_ACQUIRED("Item_Information.Sounds_Acquired", "Info.Weapon_Get_Mechanics", new SoundConvert()),
         MELEE_MODE("Item_Information.Melee_Mode", "Melee.Enable_Melee"),
         MELEE_ATTACHMENT("Item_Information.Melee_Attachment", "Melee.Melee_Attachment"),
         MELEE_HIT_DELAY("", "Melee.Melee_Hit_Delay", new MeleeHitDelayConvert()),
@@ -50,7 +50,6 @@ public class CrackShotConverter {
         RIGHT_CLICK_TO_SHOOT("", "Shoot.Trigger.Main_Hand", new ShootButtonsConvert()),
         DUAL_WIELD("Shooting.Dual_Wield", "", new DualWieldConvert()), // After shoot buttons so this can override triggers
         DELAY_BETWEEN_SHOTS("Shooting.Delay_Between_Shots", "Shoot.Delay_Between_Shots", new ValueNonZeroConvert()),
-        RECOIL_AMOUNT("Shooting.Recoil_Amount", "Shoot.Mechanics.Movement.Movement_Speed", new ValueDoubleConvert(x -> x * -2)),
         PROJECTILE_AMOUNT("Shooting.Projectile_Amount", "Shoot.Projectiles_Per_Shot", new ValueNonZeroConvert()),
         PROJECTILE_TYPE("Shooting.", "", new ProjectileTypeConvert()),
         REMOVE_BULLET_DROP("Shooting.Remove_Bullet_Drop", "Projectile.Projectile_Settings.Gravity", new ValueBooleanConvert(0.0, null)),
@@ -59,15 +58,14 @@ public class CrackShotConverter {
         PROJECTILE_DAMAGE_ARMOR("Shooting.Projectile_Damage", "Damage.Armor_Damage", new ValueDoubleConvert(x -> 3.0)),
         PROJECTILE_INCENDIARY("Shooting.Projectile_Incendiary.Duration", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         BULLET_SPREAD("Shooting.Bullet_Spread", "Shoot.Spread.Base_Spread", new ValueDoubleConvert(x -> x * 10)),
-        SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics.Sounds", new SoundConvert()),
-        SOUNDS_SHOOT("Shooting.Sounds_Shoot", "Shoot.Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_PROJECTILE("Shooting.Sounds_Projectile", "Projectile.Mechanics", new SoundConvert()),
+        SOUNDS_SHOOT("Shooting.Sounds_Shoot", "Shoot.Mechanics", new SoundConvert()),
         REMOVAL_OR_DRAG_DELAY("Shooting.Removal_Or_Drag_Delay", "Projectile.Projectile_Settings.Maximum_Alive_Ticks", new RemovalOrDragDelayConvert()),
 
         // SNEAK
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SNEAK_BULLET_SPREAD("Sneak.Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Sneaking", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         SNEAK_BEFORE_SHOOTING("Shooting.Sneak_Before_Shooting", "Shoot.Trigger.Circumstance.Sneaking", new ValueBooleanConvert("REQUIRED", null)),
-        SNEAK_NO_RECOIL("", "Shoot.Mechanics.Movement.Circumstance.Sneaking", new NoSneakRecoilConvert()),
 
         // FULLY_AUTOMATIC
         FIRE_RATE("Fully_Automatic.Fire_Rate", "Shoot.Fully_Automatic_Shots_Per_Second", new ValueDoubleConvert(x -> (x * 60 + 240) / 60)),
@@ -87,43 +85,42 @@ public class CrackShotConverter {
         RELOAD_AMOUNT("Reload.Reload_Amount", "Reload.Magazine_Size", new ValueNonZeroConvert()),
         RELOAD_BULLET_INDIVIDUALLY("Reload.Reload_Bullets_Individually", "Reload.Ammo_Per_Reload", new ValueBooleanConvert(1, null)),
         RELOAD_DURATION("Reload.Reload_Duration", "Reload.Reload_Duration", new ValueNonZeroConvert()),
-        SOUNDS_RELOADING("Reload.Sounds_Reloading", "Reload.Start_Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_RELOADING("Reload.Sounds_Reloading", "Reload.Start_Mechanics", new SoundConvert()),
 
         // FIREARM_ACTION
         FIREARM_ACTION_TYPE("Firearm_Action.Type", "Firearm_Action.Type", new FirearmActionConvert()),
         OPEN_DURATION("Firearm_Action.Open_Duration", "Firearm_Action.Open.Time", new ValueNonZeroConvert()),
         CLOSE_DURATION("Firearm_Action.Close_Duration", "Firearm_Action.Close.Time", new ValueNonZeroConvert()),
-        SOUND_OPEN("Firearm_Action.Sound_Open", "Firearm_Action.Open.Mechanics.Sounds", new SoundConvert()),
-        SOUND_CLOSE("Firearm_Action.Sound_Close", "Firearm_Action.Close.Mechanics.Sounds", new SoundConvert()),
+        SOUND_OPEN("Firearm_Action.Sound_Open", "Firearm_Action.Open.Mechanics", new SoundConvert()),
+        SOUND_CLOSE("Firearm_Action.Sound_Close", "Firearm_Action.Close.Mechanics", new SoundConvert()),
 
         // HEADSHOT
         HEAD_BONUS_DAMAGE("Headshot.Bonus_Damage", "Damage.Head.Bonus_Damage"),
-        HEAD_MESSAGE_SHOOTER("Headshot.Message_Shooter", "Damage.Head.Shooter_Mechanics.Message.Chat_Message"),
-        HEAD_MESSAGE_VICTIM("Headshot.Message_Victim", "Damage.Head.Victim_Mechanics.Message.Chat_Message"),
-        HEAD_SOUNDS_SHOOTER("Headshot.Sounds_Shooter", "Damage.Head.Shooter_Mechanics.Sounds", new SoundConvert()),
-        HEAD_SOUNDS_VICTIM("Headshot.Sounds_Victim", "Damage.Head.Victim_Mechanics.Sounds", new SoundConvert()),
+        HEAD_MESSAGE_SHOOTER("Headshot.Message_Shooter", "Damage.Head.Mechanics", new MessageConvert(false)),
+        HEAD_MESSAGE_VICTIM("Headshot.Message_Victim", "Damage.Head.Mechanics", new MessageConvert(true)),
+        HEAD_SOUNDS_SHOOTER("Headshot.Sounds_Shooter", "Damage.Head.Mechanics", new SoundConvert()),
+        HEAD_SOUNDS_VICTIM("Headshot.Sounds_Victim", "Damage.Head.Mechanics", new SoundConvert(true)),
 
         // BACKSTAB
         BACK_BONUS_DAMAGE("Backstab.Bonus_Damage", "Damage.Backstab.Bonus_Damage"),
-        BACK_MESSAGE_SHOOTER("Backstab.Message_Shooter", "Damage.Backstab.Shooter_Mechanics.Message.Chat_Message"),
-        BACK_MESSAGE_VICTIM("Backstab.Message_Victim", "Damage.Backstab.Victim_Mechanics.Message.Chat_Message"),
-        BACK_SOUNDS_SHOOTER("Backstab.Sounds_Shooter", "Damage.Backstab.Shooter_Mechanics.Sounds", new SoundConvert()),
-        BACK_SOUNDS_VICTIM("Backstab.Sounds_Victim", "Damage.Backstab.Victim_Mechanics.Sounds", new SoundConvert()),
+        BACK_MESSAGE_SHOOTER("Backstab.Message_Shooter", "Damage.Backstab.Mechanics", new MessageConvert(false)),
+        BACK_MESSAGE_VICTIM("Backstab.Message_Victim", "Damage.Backstab.Mechanics", new MessageConvert(true)),
+        BACK_SOUNDS_SHOOTER("Backstab.Sounds_Shooter", "Damage.Backstab.Mechanics", new SoundConvert()),
+        BACK_SOUNDS_VICTIM("Backstab.Sounds_Victim", "Damage.Backstab.Mechanics", new SoundConvert(true)),
 
-        // ABILITIES
-        KNOCKBACK("Abilities.Knockback", "Damage.Victim_Mechanics.Movement.", new KnockbackConvert()),
-        NO_VERTICAL_RECOIL("", "Shoot.Mechanics.Movement.Vertical_Speed", new NoVerticalRecoilConvert()),
+        // ABILITIES AND RECOIL
+        ABILITIES_AND_RECOIL("", "", new AbilitiesAndRecoilConvert()),
 
         // POTION_EFFECTS
         POTION_EFFECTS("Potion_Effects.", "", new PotionEffectsConvert()),
 
         // FIREWORKS
-        FIREWORK_PLAYER_SHOOT("Fireworks.Firework_Player_Shoot", "Shoot.Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_EXPLODE("Fireworks.Firework_Explode", "Explosion.Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_HIT("Fireworks.Firework_Hit", "Damage.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_HEADSHOT("Fireworks.Firework_Headshot", "Damage.Head.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_CRITICAL("Fireworks.Firework_Critical", "Damage.Critical_Hit.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
-        FIREWORK_BACKSTAB("Fireworks.Firework_Backstab", "Damage.Backstab.Victim_Mechanics.Firework.Item.", new FireworkConvert()),
+        FIREWORK_PLAYER_SHOOT("Fireworks.Firework_Player_Shoot", "Shoot.Mechanics", new FireworkConvert()),
+        FIREWORK_EXPLODE("Fireworks.Firework_Explode", "Explosion.Mechanics", new FireworkConvert()),
+        FIREWORK_HIT("Fireworks.Firework_Hit", "Damage.Mechanics", new FireworkConvert(true)),
+        FIREWORK_HEADSHOT("Fireworks.Firework_Headshot", "Damage.Head.Mechanics", new FireworkConvert(true)),
+        FIREWORK_CRITICAL("Fireworks.Firework_Critical", "Damage.Critical_Hit.Mechanics", new FireworkConvert(true)),
+        FIREWORK_BACKSTAB("Fireworks.Firework_Backstab", "Damage.Backstab.Mechanics", new FireworkConvert(true)),
 
         // SCOPE
         SCOPE_TRIGGER("", "Scope.Trigger.Main_Hand", new ScopeConvert()),
@@ -132,21 +129,21 @@ public class CrackShotConverter {
         // Divide with 2, since this decreases spread in WM, it doesn't set new value for it
         SCOPE_BULLET_SPREAD("Scope.Zoom_Bullet_Spread", "Shoot.Spread.Modify_Spread_When.Zooming", new ValueDoubleConvert(x -> x == 0 ? -25 : -(x / 2 * 10))),
         ZOOM_BEFORE_SHOOTING("Scope.Zoom_Before_Shooting", "Shoot.Trigger.Circumstance.Zooming", new ValueBooleanConvert("REQUIRED", null)),
-        SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics.Sounds", new SoundConvert()),
+        SOUNDS_TOGGLE_ZOOM("Scope.Sounds_Toggle_Zoom", "Scope.Mechanics", new SoundConvert()),
 
         // HIT_EVENTS
-        HIT_MESSAGE_SHOOTER("Hit_Events.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
-        HIT_MESSAGE_VICTIM("Hit_Events.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
-        HIT_SOUNDS_SHOOTER("Hit_Events.Sounds_Shooter", "Damage.Shooter_Mechanics.Sounds", new SoundConvert()),
-        HIT_SOUNDS_VICTIM("Hit_Events.Sounds_Victim", "Damage.Victim_Mechanics.Sounds", new SoundConvert()),
+        HIT_MESSAGE_SHOOTER("Hit_Events.Message_Shooter", "Damage.Mechanics", new MessageConvert(false)),
+        HIT_MESSAGE_VICTIM("Hit_Events.Message_Victim", "Damage.Mechanics", new MessageConvert(true)),
+        HIT_SOUNDS_SHOOTER("Hit_Events.Sounds_Shooter", "Damage.Mechanics", new SoundConvert()),
+        HIT_SOUNDS_VICTIM("Hit_Events.Sounds_Victim", "Damage.Mechanics", new SoundConvert(true)),
 
         // CRITICAL_HITS
         CRIT_BONUS_DAMAGE("Critical_Hits.Bonus_Damage", "Damage.Critical_Hit.Bonus_Damage"),
         CHANCE("Critical_Hits.Chance", "Damage.Critical_Hit.Chance", new ValueNonZeroConvert()),
-        CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Message.Chat_Message"),
-        CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Victim_Mechanics.Message.Chat_Message"),
-        CRIT_SOUNDS_SHOOTER("Critical_Hits.Sounds_Shooter", "Damage.Critical_Hit.Shooter_Mechanics.Sounds", new SoundConvert()),
-        CRIT_SOUNDS_VICTIM("Critical_Hits.Sounds_Victim", "Damage.Critical_Hit.Victim_Mechanics.Sounds", new SoundConvert()),
+        CRIT_MESSAGE_SHOOTER("Critical_Hits.Message_Shooter", "Damage.Critical_Hit.Mechanics", new MessageConvert(false)),
+        CRIT_MESSAGE_VICTIM("Critical_Hits.Message_Victim", "Damage.Critical_Hit.Mechanics", new MessageConvert(true)),
+        CRIT_SOUNDS_SHOOTER("Critical_Hits.Sounds_Shooter", "Damage.Critical_Hit.Mechanics", new SoundConvert()),
+        CRIT_SOUNDS_VICTIM("Critical_Hits.Sounds_Victim", "Damage.Critical_Hit.Mechanics", new SoundConvert(true)),
 
         // AIRSTRIKES
         AIRSTRIKE("Airstrikes.", "Explosion.", new AirstrikeConvert()),
@@ -170,20 +167,20 @@ public class CrackShotConverter {
         IGNITE_VICTIMS("Explosions.Ignite_Victims", "Damage.Fire_Ticks", new ValueNonZeroConvert()),
         ENABLE_OWNER_IMMUNITY("Explosions.Enable_Owner_Immunity", "Damage.Enable_Owner_Immunity"),
         EXPLOSION_NO_DAMAGE("Explosions.Explosion_No_Damage", "Damage.Base_Explosion_Damage", new ValueBooleanConvert(0, null)),
-        EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Victim_Mechanics.Potion_Effects", new PotionEffectConvert()),
+        EXPLOSION_POTION_EFFECT("Explosions.Explosion_Potion_Effect", "Damage.Mechanics", new ExplosionPotionEffectConvert()),
         EXPLOSION_RADIUS("Explosions.Explosion_Radius", "Explosion.Explosion_Type_Data.Yield", new ValueNonZeroConvert()),
         EXPLOSION_DELAY("Explosions.Explosion_Delay", "Explosion.Detonation.Delay_After_Impact", new ValueNonZeroConvert()),
-        EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Shooter_Mechanics.Message.Chat_Message"),
-        EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Victim_Mechanics.Message.Chat_Message"),
-        EXP_SOUNDS_SHOOTER("Explosions.Sounds_Shooter", "Damage.Shooter_Mechanics.Sounds", new SoundConvert()),
-        EXP_SOUNDS_VICTIM("Explosions.Sounds_Victim", "Damage.Victim_Mechanics.Sounds", new SoundConvert()),
-        EXP_SOUNDS("Explosions.Sounds_Explode", "Explosion.Mechanics.Sounds", new SoundConvert()),
+        EXP_MESSAGE_SHOOTER("Explosions.Message_Shooter", "Damage.Mechanics", new MessageConvert(false)),
+        EXP_MESSAGE_VICTIM("Explosions.Message_Victim", "Damage.Mechanics", new MessageConvert(true)),
+        EXP_SOUNDS_SHOOTER("Explosions.Sounds_Shooter", "Damage.Mechanics", new SoundConvert()),
+        EXP_SOUNDS_VICTIM("Explosions.Sounds_Victim", "Damage.Mechanics", new SoundConvert(true)),
+        EXP_SOUNDS("Explosions.Sounds_Explode", "Explosion.Mechanics", new SoundConvert()),
 
         // EXTRAS
         ONE_TIME_USE("Extras.One_Time_Use", "Shoot.Consume_Item_On_Shoot"),
         DISABLE_UNDERWATER("Extras.Disable_Underwater", "Shoot.Trigger.Circumstance.Swimming", new ValueBooleanConvert("DENY", null)),
-        MAKE_VICTIM_RUN_COMMAND("Extras.Make_Victim_Run_Commmand", "Damage.Victim_Mechanics.Commands", new CommandConvert(false)),
-        RUN_CONSOLE_COMMAND("Extras.Run_Console_Command", "Damage.Shooter_Mechanics.Commands", new CommandConvert(true)),
+        MAKE_VICTIM_RUN_COMMAND("Extras.Make_Victim_Run_Commmand", "Damage.Mechanics", new CommandConvert(false, true)),
+        RUN_CONSOLE_COMMAND("Extras.Run_Console_Command", "Damage.Mechanics", new CommandConvert(true, false)),
 
         DUMMY(null, null);
 
@@ -325,6 +322,16 @@ public class CrackShotConverter {
 
     private static class SoundConvert implements Converter {
 
+        private boolean isTarget;
+
+        public SoundConvert() {
+            this.isTarget = false;
+        }
+
+        public SoundConvert(boolean isTarget) {
+            this.isTarget = isTarget;
+        }
+
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
@@ -332,7 +339,8 @@ public class CrackShotConverter {
 
             // SOUND-VOLUME-PITCH-DELAY
 
-            List<String> sounds = new ArrayList<>();
+            List<String> mechanics = toConfig.getStringList(to);
+
             for (String sound : value.replaceAll(" ", "").split(",")) {
                 String[] splitted = sound.split("-");
 
@@ -391,21 +399,33 @@ public class CrackShotConverter {
                     }
                 }
 
-                sounds.add(soundName + "-" + volume + "-" + pitch + delay);
+                if (this.isTarget) {
+                    mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s} @Target{}".formatted(soundName, volume, pitch, delay));
+                } else {
+                    mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s}".formatted(soundName, volume, pitch, delay));
+                }
             }
 
-            toConfig.set(to, sounds);
+            toConfig.set(to, mechanics);
         }
     }
 
-    private static class PotionEffectConvert implements Converter {
+    private static class ExplosionPotionEffectConvert implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
             if (value == null) return;
 
-            toConfig.set(to, Arrays.asList(value.replaceAll(" ", "").split(",")));
+            List<String> mechanics = toConfig.getStringList(to);
+
+            Arrays.stream(value.replaceAll(" ", "").split(",")).forEach(potion -> {
+                String[] potArray = potion.split("-");
+                // POTIONTYPE-DURATION-LEVEL
+                mechanics.add("Potion{potion=%s, time=%s, level=%s} @Target{}".formatted(potArray[0], potArray[1], potArray[2]));
+            });
+
+            toConfig.set(to, mechanics);
         }
     }
 
@@ -434,6 +454,26 @@ public class CrackShotConverter {
 
             toConfig.set(to + "Shoot.Trigger.Dual_Wield.Main_Hand", "right_click");
             toConfig.set(to + "Shoot.Trigger.Dual_Wield.Off_Hand", "left_click");
+        }
+    }
+
+    private record MessageConvert(boolean isTarget) implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            String value = fromConfig.getString(from);
+            if (value == null) return;
+            value = StringUtil.colorAdventure(value);
+
+            List<String> mechanics = toConfig.getStringList(to);
+
+            if (isTarget) {
+                mechanics.add("Message{message=%s} @Target{}".formatted(value));
+            } else {
+                mechanics.add("Message{message=%s}".formatted(value));
+            }
+
+            toConfig.set(to, mechanics);
         }
     }
 
@@ -544,18 +584,6 @@ public class CrackShotConverter {
         }
     }
 
-    private static class KnockbackConvert implements Converter {
-
-        @Override
-        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            double value = fromConfig.getDouble(from, -500);
-            if (value == -500) return;
-
-            toConfig.set(to + "Movement_Speed", value * 2);
-            toConfig.set(to + "Towards_Target", true);
-        }
-    }
-
     private static class PotionEffectsConvert implements Converter {
 
         @Override
@@ -564,73 +592,134 @@ public class CrackShotConverter {
             if (activations == null) return;
 
             String shooter = fromConfig.getString(from + "Potion_Effect_Shooter");
-            List<String> shooterEffects = shooter != null ? Arrays.asList(shooter.replaceAll(" ", "").split(",")) : null;
+            List<String> shooterEffects = new ArrayList<>();
+            if (shooter != null) {
+                Arrays.stream(shooter.replaceAll(" ", "").split(",")).forEach(potion -> {
+                    String[] potArray = potion.split("-");
+                    // POTIONTYPE-DURATION-LEVEL
+                    shooterEffects.add("Potion{potion=%s, time=%s, level=%s}".formatted(potArray[0], potArray[1], potArray[2]));
+                });
+            }
 
             String victim = fromConfig.getString(from + "Potion_Effect_Victim");
-            List<String> victimEffects = victim != null ? Arrays.asList(victim.replaceAll(" ", "").split(",")) : null;
+            List<String> victimEffects = new ArrayList<>();
+            if (victim != null) {
+                Arrays.stream(victim.replaceAll(" ", "").split(",")).forEach(potion -> {
+                    String[] potArray = potion.split("-");
+                    // POTIONTYPE-DURATION-LEVEL
+                    victimEffects.add("Potion{potion=%s, time=%s, level=%s} @Target{}".formatted(potArray[0], potArray[1], potArray[2]));
+                });
+            }
 
             for (String activation : activations.replaceAll(" ", "").split(",")) {
+                String mechanicsTo = null;
+
                 if (activation.equalsIgnoreCase("head")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Head.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Head.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Head.Mechanics";
                 } else if (activation.equalsIgnoreCase("back")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Backstab.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Backstab.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Backstab.Mechanics";
                 } else if (activation.equalsIgnoreCase("crit")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Critical_Hit.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Critical_Hit.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Critical_Hit.Mechanics";
                 } else if (activation.equalsIgnoreCase("hit")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Damage.Shooter_Mechanics.Potion_Effects", shooterEffects);
-                    }
-                    if (victim != null) {
-                        toConfig.set(to + "Damage.Victim_Mechanics.Potion_Effects", victimEffects);
-                    }
+                    mechanicsTo = to + "Damage.Mechanics";
                 } else if (activation.equalsIgnoreCase("shoot")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Shoot.Mechanics.Potion_Effects", shooterEffects);
-                    }
+                    mechanicsTo = to + "Shoot.Mechanics";
                 } else if (activation.equalsIgnoreCase("reload")) {
-                    if (shooter != null) {
-                        toConfig.set(to + "Reload.Start_Mechanics.Potion_Effects", shooterEffects);
-                    }
+                    mechanicsTo = to + "Reload.Start_Mechanics";
                 }
+
+                if (mechanicsTo != null) {
+                    List<String> mechanics = toConfig.getStringList(mechanicsTo);
+
+                    if (shooter != null) mechanics.addAll(shooterEffects);
+                    if (victim != null) mechanics.addAll(victimEffects);
+
+                    toConfig.set(mechanicsTo, mechanics);
+                }
+            }
+        }
+    }
+
+    private static class AbilitiesAndRecoilConvert implements Converter {
+
+        @Override
+        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
+            double abilitiesKnockback = fromConfig.getDouble(from + "Abilities.Knockback", -500);
+            if (abilitiesKnockback != -500) {
+
+                List<String> mechanics = toConfig.getStringList(to + "Damage.Mechanics");
+
+                // From CS to WM speed conversion
+                abilitiesKnockback *= 2;
+
+                mechanics.add("Leap{speed=%s} @Target{}".formatted((abilitiesKnockback * 2)));
+
+                toConfig.set(to + "Damage.Mechanics", mechanics);
+            }
+
+            double recoilAmount = fromConfig.getDouble(from + "Shooting.Recoil_Amount", -500);
+            if (recoilAmount != -500) {
+
+                List<String> mechanics = toConfig.getStringList(to + "Shoot.Mechanics");
+
+                // From CS to WM conversion, negative because we want to leap backwards
+                recoilAmount *= -2;
+
+                boolean noVerticalRecoil = fromConfig.getBoolean(from + "Abilities.No_Vertical_Recoil");
+                boolean sneakNoRecoil = fromConfig.getBoolean(from + "Sneak.No_Recoil");
+
+                StringBuilder builder = new StringBuilder("Leap{speed=%s".formatted(recoilAmount));
+
+                if (noVerticalRecoil) {
+                    builder.append(", verticalMultiplier=0.0");
+                }
+
+                builder.append("}");
+
+                if (sneakNoRecoil) {
+                    builder.append(" ?Sneaking{inverted=true}");
+                }
+
+                mechanics.add(builder.toString());
+
+                toConfig.set(to + "Shoot.Mechanics", mechanics);
             }
         }
     }
 
     private static class FireworkConvert implements Converter {
 
+        private boolean isTarget;
+
+        public FireworkConvert() {
+            this.isTarget = false;
+        }
+
+        public FireworkConvert(boolean isTarget) {
+            this.isTarget = isTarget;
+        }
+
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String fireworks = fromConfig.getString(from);
             if (fireworks == null) return;
 
-            toConfig.set(to + "Type", "firework_rocket");
-            toConfig.set(to + "Firework.Power", 1);
-
-            List<String> values = new ArrayList<>();
+            List<String> mechanics = toConfig.getStringList(to);
 
             for (String firework : fireworks.replaceAll(" ", "").split(",")) {
                 // CS: TYPE-TRAIL-FLICKER-R-G-B
                 // WM: <Firework.Type>-<ColorSerializer>-<Trail>-<Flicker>
                 String[] splitFirework = firework.split("-");
-                values.add(splitFirework[0] + "-RED-" + splitFirework[1] + "-" + splitFirework[2]);
+
+                if (this.isTarget) {
+                    mechanics.add("Firework{effects=[{shape=%s, color=RED, trail=%s, flicker=%s}]} @Target{}".formatted(splitFirework[0], splitFirework[1], splitFirework[2]));
+                } else {
+                    mechanics.add("Firework{effects=[{shape=%s, color=RED, trail=%s, flicker=%s}]}".formatted(splitFirework[0], splitFirework[1], splitFirework[2]));
+                }
+
             }
 
-            toConfig.set(to + "Firework.Effects", values);
+            toConfig.set(to, mechanics);
         }
     }
 
@@ -747,7 +836,7 @@ public class CrackShotConverter {
         }
     }
 
-    private record CommandConvert(boolean onlyConsole) implements Converter {
+    private record CommandConvert(boolean onlyConsole, boolean isTarget) implements Converter {
 
         @Override
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
@@ -755,16 +844,17 @@ public class CrackShotConverter {
             String value = fromConfig.getString(from);
             if (value == null) return;
 
+            List<String> mechanics = toConfig.getStringList(to);
+
             if (onlyConsole) {
-
-                List<String> commands = new ArrayList<>();
-                Arrays.stream(value.split("\\|")).forEach(command -> commands.add("console:" + command));
-                toConfig.set(to, commands);
-
-                return;
+                Arrays.stream(value.split("\\|")).forEach(command -> mechanics.add("Command{command=%s, console=true}".formatted(command)));
+            } else if (isTarget) {
+                Arrays.stream(value.split("\\|")).forEach(command -> mechanics.add("Command{command=%s} @Target{}".formatted(command)));
+            } else {
+                Arrays.stream(value.split("\\|")).forEach(command -> mechanics.add("Command{command=%s}".formatted(command)));
             }
 
-            toConfig.set(to, Arrays.asList(value.split("\\|")));
+            toConfig.set(to, mechanics);
         }
     }
 
@@ -862,26 +952,6 @@ public class CrackShotConverter {
             }
 
             toConfig.set(to, Integer.parseInt(split[0]));
-        }
-    }
-
-    private static class NoVerticalRecoilConvert implements Converter {
-
-        @Override
-        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean(from + "Abilities.No_Vertical_Recoil")) {
-                toConfig.set(to, 0);
-            }
-        }
-    }
-
-    private static class NoSneakRecoilConvert implements Converter {
-
-        @Override
-        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            if (fromConfig.getDouble(from + "Shooting.Recoil_Amount") > 0 && fromConfig.getBoolean(from + "Sneak.No_Recoil")) {
-                toConfig.set(to, "DENY");
-            }
         }
     }
 
