@@ -79,8 +79,7 @@ FR_5_56:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "CustomSound{sound=shoot.fr556, volume=6, noise=0.1}"
+      - "CustomSound{sound=shoot.fr556, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -90,11 +89,9 @@ FR_5_56:
     Magazine_Size: 30
     Reload_Duration: 59
     Start_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 10
     Armor_Damage: 3

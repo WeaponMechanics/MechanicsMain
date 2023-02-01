@@ -60,7 +60,7 @@ public class ExplosionCommand extends SubCommand {
             public void run() {
                 RegenerationData regeneration = new RegenerationData(160, 2, 1);
                 BlockDamage blockDamage = new BlockDamage(0.0, 1, 1, Material.AIR, BlockDamage.BreakMode.BREAK, Map.of());
-                Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0.9, true,
+                Explosion explosion = new Explosion(shape, new OptimizedExposure(), blockDamage, regeneration, null, 0.9, 1.0,
                         null, null, new Flashbang(10.0, null), null);
                 explosion.explode(player, loc, null);
             }

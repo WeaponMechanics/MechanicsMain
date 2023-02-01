@@ -84,8 +84,7 @@ FN_FAL:
     Start_Mechanics:
       - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 10.8
     Armor_Damage: 4
@@ -102,12 +101,10 @@ FN_FAL:
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 14
     Mechanics:
-      Sounds:
-        - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
+      - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
-        Sounds:
-          - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
   Firearm_Action:
     Type: "SLIDE"
     Open:

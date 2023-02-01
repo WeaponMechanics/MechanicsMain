@@ -64,8 +64,7 @@ AUG:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "CustomSound{sound=shoot.aug, volume=6, noise=0.1}"
+      - "CustomSound{sound=shoot.aug, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"

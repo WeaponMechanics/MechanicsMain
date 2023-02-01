@@ -534,16 +534,16 @@ public class SerializeData {
 
         public String getLocation() {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
-            if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key) + stepAddon;
+            if (relative == null || relative.isEmpty()) {
+                return config.getLocation(file, key) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative)) + stepAddon;
+                return config.getLocation(file, getPath(relative)) + stepAddon;
             }
         }
 
         public String getLocation(int index) {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
-            if (relative == null || "".equals(relative)) {
+            if (relative == null || relative.isEmpty()) {
                 return StringUtil.foundAt(file, key, index + 1) + stepAddon;
             } else {
                 return StringUtil.foundAt(file, getPath(relative), index + 1) + stepAddon;
@@ -1053,18 +1053,22 @@ public class SerializeData {
          * @throws SerializerException If there are any errors in config.
          */
         public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry, T defaultValue) throws SerializerException {
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
             if (!has(relative))
                 return defaultValue;
 
-            String key = of(InlineSerializer.UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
+            Map<String, MapConfigLike.Holder> map = assertType(Map.class).assertExists().get();
+            ConfigLike temp = new MapConfigLike(map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
+            SerializeData nested = new SerializeData(serializer, file, null, temp);
+
+            String key = nested.of(UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
             T base = registry.get(key);
 
             if (base == null)
                 throw new SerializerOptionsException(serializer, registry.getName(), registry.getOptions(), key, getLocation());
 
-            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
-            data.copyMutables(SerializeData.this);
-            return base.serialize(data);
+            return base.serialize(nested);
         }
 
         /**
@@ -1078,7 +1082,10 @@ public class SerializeData {
          * @throws SerializerException If there are any errors in config.
          */
         public <T extends InlineSerializer<T>> T getImplied(T impliedType) throws SerializerException {
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
 
+            // todo fixme
             // It's ok if a user defines this, but it MUST match the impliedType
             if (has(UNIQUE_IDENTIFIER)) {
                 String key = of(UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
@@ -1086,21 +1093,24 @@ public class SerializeData {
                     throw exception(relative, "Found keyword '" + key + "', but expected '" + impliedType.getInlineKeyword() + "'");
             }
 
-            SerializeData data = new SerializeData(serializer, SerializeData.this, relative);
-            data.copyMutables(SerializeData.this);
-            return impliedType.serialize(data);
+            return impliedType.serialize(SerializeData.this);
         }
 
         public <T extends InlineSerializer<T>> List<T> getRegistryList(Registry<T> registry) throws SerializerException {
-            List<?> list = config.getList(getPath(relative));
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
+            if (!has(relative))
+                return List.of();
+
+            List<MapConfigLike.Holder> list = (List<MapConfigLike.Holder>) config.getList(getPath(relative));
             List<T> returnValue = new ArrayList<>();
 
             for (int i = 0; i < list.size(); i++) {
-                Object obj = list.get(i);
+                MapConfigLike.Holder holder = list.get(i);
 
                 // We have to make sure that the user used the "JSON Format" in the string.
-                if (!(obj instanceof Map map))
-                    throw listException(relative, i, "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '" + obj + "'");
+                if (!(holder.value() instanceof Map<?, ?> map))
+                    throw listException(relative, i, "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '" + holder.value() + "'");
                 if (!map.containsKey(UNIQUE_IDENTIFIER))
                     throw listException(relative, i, "Missing name for a(n) '" + serializer + "'");
 
@@ -1109,7 +1119,7 @@ public class SerializeData {
                 if (serializer == null)
                     throw new SerializerOptionsException(SerializeData.this.serializer, registry.getName(), registry.getOptions(), id, getLocation());
 
-                ConfigLike temp = new MapConfigLike(map);
+                ConfigLike temp = new MapConfigLike((Map<String, MapConfigLike.Holder>) map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
                 SerializeData nested = new SerializeData(serializer, file, null, temp);
 
                 returnValue.add(serializer.serialize(nested));
@@ -1119,19 +1129,22 @@ public class SerializeData {
         }
 
         public <T extends InlineSerializer<T>> List<T> getImpliedList(T impliedType) throws SerializerException {
-            List<?> list = config.getList(getPath(relative));
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
+
+            List<MapConfigLike.Holder> list = (List<MapConfigLike.Holder>) config.getList(getPath(relative));
             List<T> returnValue = new ArrayList<>();
 
             for (int i = 0; i < list.size(); i++) {
-                Object obj = list.get(i);
+                MapConfigLike.Holder holder = list.get(i);
 
                 // We have to make sure that the user used the "JSON Format" in the string.
-                if (!(obj instanceof Map map))
-                    throw listException(relative, i, "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '" + obj + "'");
+                if (!(holder.value() instanceof Map<?, ?> map))
+                    throw listException(relative, i, "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '" + holder.value() + "'");
                 if (map.containsKey(UNIQUE_IDENTIFIER) && !Registry.matches(map.get(UNIQUE_IDENTIFIER).toString(), impliedType.getKeyword()))
                     throw listException(relative, i, "Expected a '" + impliedType.getInlineKeyword() + "' but got a '" + map.get(UNIQUE_IDENTIFIER) + "'");
 
-                ConfigLike temp = new MapConfigLike(map);
+                ConfigLike temp = new MapConfigLike((Map<String, MapConfigLike.Holder>) map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
                 SerializeData nested = new SerializeData(impliedType, file, null, temp);
 
                 returnValue.add(impliedType.serialize(nested));

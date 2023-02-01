@@ -34,7 +34,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
     }
 
 
-    static Map<String, Object> inlineFormat(String line) throws FormatException {
+    static Map<String, MapConfigLike.Holder> inlineFormat(String line) throws FormatException {
 
         // Count trailing whitespace, so we can trim() the edges of the string
         // while keeping track of the index of errors in the string.
@@ -69,7 +69,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
             }
         }
 
-        // Every opening '(' needs a closing ')'
+        // Every opening '{' needs a closing '}'
         if (curlyBrackets != 0) {
             int index = trailingWhitespace + (curlyBrackets > 0
                     ? index(line, '{', 0, line.lastIndexOf('}'), 1)
@@ -94,13 +94,13 @@ public interface InlineSerializer<T> extends Serializer<T> {
         }
 
         // This will return a map of strings, lists, and maps.
-        Map<String, Object> map = mapify(line, trailingWhitespace);
-        map.put(UNIQUE_IDENTIFIER, uniqueIdentifier.trim());
+        Map<String, MapConfigLike.Holder> map = mapify(line, trailingWhitespace);
+        map.put(UNIQUE_IDENTIFIER, new MapConfigLike.Holder(uniqueIdentifier.trim(), 0));
         return map;
     }
 
-    static Map<String, Object> mapify(String line, int offset) throws FormatException {
-        Map<String, Object> map = new HashMap<>();
+    static Map<String, MapConfigLike.Holder> mapify(String line, int offset) throws FormatException {
+        Map<String, MapConfigLike.Holder> map = new HashMap<>();
         String key = null;
         StringBuilder value = new StringBuilder();
 
@@ -118,7 +118,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                     if (key == null)
                         throw new FormatException(offset + i, "Expected key=value, but was missing key... value=" + value);
 
-                    map.put(key, value.substring(value.indexOf(" ") == 0 ? 1 : 0));
+                    map.put(key, new MapConfigLike.Holder(value.substring(value.indexOf(" ") == 0 ? 1 : 0), i - value.length()));
                 }
 
                 continue;
@@ -130,12 +130,13 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 int stop = start + findMatch(c, c == '[' ? ']' : '}', line.substring(start));
 
                 if (c == '{') {
-                    Map<String, Object> tempMap = mapify(line.substring(start, stop), start + offset);
-                    map.put(key, tempMap);
+                    Map<String, MapConfigLike.Holder> tempMap = mapify(line.substring(start, stop), start + offset);
+                    map.put(key, new MapConfigLike.Holder(tempMap, i));
                     if (!value.toString().isBlank())
-                        tempMap.put(UNIQUE_IDENTIFIER, value.toString().trim());
+                        tempMap.put(UNIQUE_IDENTIFIER, new MapConfigLike.Holder(value.toString().trim(), i - value.length()));
                 } else {
-                    map.put(key, listify(line.substring(start, stop), start + offset));
+                    List<MapConfigLike.Holder> tempList = listify(line.substring(start, stop), start + offset);
+                    map.put(key, new MapConfigLike.Holder(tempList, i));
                     if (!value.toString().isBlank())
                         throw new FormatException(offset + i, "Found '" + value + "' before a list... It should not be there!");
                 }
@@ -176,7 +177,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 if (value.isEmpty())
                     throw new FormatException(offset + i, "Found an empty value");
 
-                map.put(key, value.toString());
+                map.put(key, new MapConfigLike.Holder(value.toString(), i - value.length()));
                 key = null;
                 value.setLength(0);
             }
@@ -191,8 +192,8 @@ public interface InlineSerializer<T> extends Serializer<T> {
         return map;
     }
 
-    static List<Object> listify(String line, int offset) throws FormatException {
-        List<Object> list = new ArrayList<>();
+    static List<MapConfigLike.Holder> listify(String line, int offset) throws FormatException {
+        List<MapConfigLike.Holder> list = new ArrayList<>();
         StringBuilder value = new StringBuilder();
 
         for (int i = 0; i < line.length(); i++) {
@@ -206,7 +207,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 // If the escaped character was the last character, we need an
                 // extra check to make sure we add that value to the list.
                 if (i + 1 >= line.length())
-                    list.add(value.substring(value.indexOf(" ") == 0 ? 1 : 0));
+                    list.add(new MapConfigLike.Holder(value.substring(value.indexOf(" ") == 0 ? 1 : 0), i - value.length()));
 
                 continue;
             }
@@ -220,10 +221,10 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 int start = i + 1;
                 int stop = start + findMatch(c, '}', line.substring(start));
 
-                Map<String, Object> map = mapify(line.substring(start, stop), offset + stop);
+                Map<String, MapConfigLike.Holder> map = mapify(line.substring(start, stop), offset + stop);
                 if (!value.toString().isBlank())
-                    map.put(UNIQUE_IDENTIFIER, value.toString().trim());
-                list.add(map);
+                    map.put(UNIQUE_IDENTIFIER, new MapConfigLike.Holder(value.toString().trim(), i - value.length()));
+                list.add(new MapConfigLike.Holder(map, i));
 
                 i = stop;
                 value.setLength(0);
@@ -246,7 +247,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 if (value.isEmpty())
                     throw new FormatException(i + offset, "Found duplicate commas... Use '\\\\,' for an escaped comma");
 
-                list.add(value.substring(value.indexOf(" ") == 0 ? 1 : 0));
+                list.add(new MapConfigLike.Holder(value.substring(value.indexOf(" ") == 0 ? 1 : 0), i - value.length()));
                 value.setLength(0);
             }
 

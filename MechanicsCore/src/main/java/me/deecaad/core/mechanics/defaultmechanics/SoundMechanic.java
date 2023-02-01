@@ -76,7 +76,7 @@ public class SoundMechanic extends Mechanic {
 
     @Override
     public String getKeyword() {
-        return "Custom_Sound";
+        return "Sound";
     }
 
     @Override
@@ -93,7 +93,7 @@ public class SoundMechanic extends Mechanic {
         float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble(0.0);
         Object category = ReflectionUtil.getMCVersion() < 11 ? null : data.of("Category").getEnum(SoundCategory.class, SoundCategory.PLAYERS);
 
-        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS);
+        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS, null);
         List<Condition> listenerConditions = data.of("Listener_Conditions").getRegistryList(Mechanics.CONDITIONS);
 
         return applyParentArgs(data, new SoundMechanic(sound, volume, pitch, noise, category, listeners, listenerConditions));

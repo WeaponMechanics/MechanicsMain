@@ -63,8 +63,7 @@ Uzi:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "CustomSound{sound=shoot.uzi, volume=6, noise=0.1}"
+      - "CustomSound{sound=shoot.uzi, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -72,11 +71,9 @@ Uzi:
     Magazine_Size: 32
     Reload_Duration: 31
     Start_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.start.light, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.start.light, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.end.light, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.end.light, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 9
     Armor_Damage: 3

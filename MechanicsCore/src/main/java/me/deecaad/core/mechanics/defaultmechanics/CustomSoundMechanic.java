@@ -92,7 +92,7 @@ public class CustomSoundMechanic extends Mechanic {
         float noise = (float) data.of("Noise").assertRange(0.0, 1.5).getDouble(0.0);
         Object category = ReflectionUtil.getMCVersion() < 11 ? null : data.of("Category").getEnum(SoundCategory.class, SoundCategory.PLAYERS);
 
-        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS);
+        Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS, null);
         List<Condition> listenerConditions = data.of("Listener_Conditions").getRegistryList(Mechanics.CONDITIONS);
 
         return applyParentArgs(data, new CustomSoundMechanic(sound, volume, pitch, noise, category, listeners, listenerConditions));

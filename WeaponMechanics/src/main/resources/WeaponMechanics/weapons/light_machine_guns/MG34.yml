@@ -64,8 +64,7 @@ MG34:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "CustomSound{sound=shoot.mg34, volume=6, noise=0.1}"
+      - "CustomSound{sound=shoot.mg34, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -73,11 +72,9 @@ MG34:
     Magazine_Size: 75
     Reload_Duration: 73
     Start_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.start.heavy, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.start.heavy, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.end.heavy, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.end.heavy, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 10.4
     Armor_Damage: 3

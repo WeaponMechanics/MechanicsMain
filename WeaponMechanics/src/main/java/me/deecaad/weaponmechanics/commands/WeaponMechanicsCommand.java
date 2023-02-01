@@ -10,9 +10,9 @@ import me.deecaad.core.compatibility.entity.FakeEntity;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.TaskChain;
 import me.deecaad.core.utils.*;
+import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
@@ -24,7 +24,6 @@ import me.deecaad.weaponmechanics.weapon.explode.exposures.ExposureFactory;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.RegenerationData;
 import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
-import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
@@ -765,7 +764,7 @@ public class WeaponMechanicsCommand {
                 };
 
                 ExplosionExposure exposure = ReflectionUtil.newInstance(ExposureFactory.getInstance().getMap().get(exposureString));
-                Explosion explosion = new Explosion(shape, exposure, blockDamage, regeneration, null, 0.0, true,
+                Explosion explosion = new Explosion(shape, exposure, blockDamage, regeneration, null, 0.0, 1.0,
                         null, null, new Flashbang(10.0, null), null);
                 explosion.explode(cause, origin, null);
             }

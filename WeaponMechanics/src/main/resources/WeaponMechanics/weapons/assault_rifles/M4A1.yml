@@ -90,12 +90,10 @@ M4A1:
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 14
     Mechanics:
-      Sounds:
-        - "CustomSound{sound=scope.in, volume=0.5, pitch=0.1, listeners=Source{}}"
+      - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
-        Sounds:
-          - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
   Firearm_Action:
     Type: "SLIDE"
     Open:

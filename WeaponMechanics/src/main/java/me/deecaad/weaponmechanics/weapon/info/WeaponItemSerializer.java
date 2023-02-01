@@ -44,7 +44,7 @@ public class WeaponItemSerializer extends ItemSerializer {
         String weaponTitle = data.key.split("\\.")[0];
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
 
-        int magazineSize = data.config.getInt(weaponTitle + ".Reload.Magazine_Size", -1);
+        int magazineSize = (Integer) data.config.get(weaponTitle + ".Reload.Magazine_Size", -1);
         if (magazineSize != -1) {
             CustomTag.AMMO_LEFT.setInteger(weaponStack, magazineSize);
         }

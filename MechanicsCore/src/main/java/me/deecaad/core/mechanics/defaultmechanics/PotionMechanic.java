@@ -47,7 +47,7 @@ public class PotionMechanic extends Mechanic {
         String potionStr = data.of("Potion").assertExists().assertType(String.class).get();
         PotionEffectType potion = PotionEffectType.getByName(potionStr.trim());
         int time = data.of("Time").assertPositive().getInt(100);
-        int amplifier = data.of("Level").assertPositive().getInt() - 1;
+        int amplifier = data.of("Level").assertPositive().getInt(1) - 1;
         boolean ambient = data.of("Particles").getEnum(ParticleMode.class, ParticleMode.NORMAL) == ParticleMode.AMBIENT;
         boolean showParticles = data.of("Particles").getEnum(ParticleMode.class, ParticleMode.NORMAL) != ParticleMode.HIDE;
         boolean showIcon = data.of("Icon").getBool(true);

@@ -59,6 +59,10 @@ public class Mechanics implements Serializer<Mechanics> {
         List<?> list = data.config.getList(data.key);
         List<Mechanic> mechanics = new ArrayList<>();
 
+        if (list == null) {
+            throw data.exception(null, "Could not find any list... Are you still using the outdated Mechanics format?");
+        }
+
         for (Object obj : list) {
             Mechanic mechanic = serializeOne(data, obj.toString());
             mechanics.add(mechanic);
@@ -107,9 +111,9 @@ public class Mechanics implements Serializer<Mechanics> {
 
                         // We need to call the 'inlineFormat' method since the
                         // current targeter object is just an empty serializer.
-                        Map<String, Object> args = InlineSerializer.inlineFormat(group.substring(1));
-                        SerializeData nested = new SerializeData(targeter, data.file, null, new MapConfigLike(args));
-                        targeter = nested.of().getRegistry(TARGETERS);
+                        Map<String, MapConfigLike.Holder> args = InlineSerializer.inlineFormat(group.substring(1));
+                        SerializeData nested = new SerializeData(targeter, data.file, null, new MapConfigLike(args).setDebugInfo(data.file, data.key, line));
+                        targeter = targeter.serialize(nested);
                     }
 
                     case '?' -> {
@@ -124,9 +128,9 @@ public class Mechanics implements Serializer<Mechanics> {
 
                         // We need to call the 'inlineFormat' method since the
                         // current condition object is just an empty serializer.
-                        Map<String, Object> args = InlineSerializer.inlineFormat(group.substring(1));
-                        SerializeData nested = new SerializeData(condition, data.file, null, new MapConfigLike(args));
-                        conditions.add(nested.of().getRegistry(CONDITIONS));
+                        Map<String, MapConfigLike.Holder> args = InlineSerializer.inlineFormat(group.substring(1));
+                        SerializeData nested = new SerializeData(condition, data.file, null, new MapConfigLike(args).setDebugInfo(data.file, data.key, line));
+                        conditions.add(condition.serialize(nested));
                     }
 
                     default -> {
@@ -140,16 +144,16 @@ public class Mechanics implements Serializer<Mechanics> {
                         if (!nameMatcher.find())
                             throw data.exception(null, "Could not determine the name of the targeter", SerializerException.forValue(group));
 
-                        String temp = nameMatcher.group().substring(1);
+                        String temp = nameMatcher.group();
                         mechanic = MECHANICS.get(temp);
                         if (mechanic == null)
                             throw new SerializerOptionsException("", "@Targeter", MECHANICS.getOptions(), temp, "");
 
                         // We need to call the 'inlineFormat' method since the
                         // current mechanic object is just an empty serializer.
-                        Map<String, Object> args = InlineSerializer.inlineFormat(group.substring(1));
-                        SerializeData nested = new SerializeData(mechanic, data.file, null, new MapConfigLike(args));
-                        mechanic = nested.of().getRegistry(MECHANICS);
+                        Map<String, MapConfigLike.Holder> args = InlineSerializer.inlineFormat(group.substring(1));
+                        SerializeData nested = new SerializeData(mechanic, data.file, null, new MapConfigLike(args).setDebugInfo(data.file, data.key, line));
+                        mechanic = mechanic.serialize(nested);
                     }
                 }
 
@@ -158,7 +162,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
             } catch (InlineSerializer.FormatException ex) {
                 String indent = "    ";
-                throw data.exception("Found a formatting error:", indent + line,
+                throw data.exception(null, indent + line,
                         StringUtil.repeat(" ", index + ex.getIndex() + indent.length() - 1) + "^");
             }
         }

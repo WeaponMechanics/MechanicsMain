@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import java.io.File;
 import java.util.List;
 
 public interface ConfigLike {
@@ -23,4 +24,6 @@ public interface ConfigLike {
     }
 
     List<?> getList(String key);
+
+    String getLocation(File localFile, String localPath);
 }

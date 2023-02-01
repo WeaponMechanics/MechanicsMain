@@ -25,13 +25,12 @@ Semtex:
       Entities:
         Allow_Any: true
     Mechanics:
-      Sounds:
-        - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=20} @Target{}"
-        - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=40} @Target{}"
-        - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=55} @Target{}"
-        - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=65} @Target{}"
-        - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=70} @Target{}"
-        - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=75} @Target{}"
+      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=20} @Target{}"
+      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=40} @Target{}"
+      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=55} @Target{}"
+      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=65} @Target{}"
+      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=70} @Target{}"
+      - "Sound{sound=BLOCK_NOTE_BLOCK_PLING, volume=1.5, pitch=2, delayBeforePlay=75} @Target{}"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -73,8 +72,7 @@ Semtex:
       Max_Blocks_Per_Update: 5
       Ticks_Between_Updates: 5
     Mechanics:
-      Sounds:
-        - "custom:explosion.frag-6-1-0-0.1"
+      - "CustomSound{sound=explosion.frag, volume=6, noise=0.1}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.

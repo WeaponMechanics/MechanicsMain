@@ -46,11 +46,7 @@ public class Circumstance implements Serializer<Circumstance> {
     @NotNull
     @Override
     public Circumstance serialize(SerializeData data) throws SerializerException {
-        ConfigurationSection circumstanceSection = data.config.getConfigurationSection(data.key);
-        if (circumstanceSection == null) {
-            throw data.exception(null, "Could not find the configuration section of Circumstance");
-        }
-
+        ConfigurationSection circumstanceSection = data.of().assertExists().assertType(ConfigurationSection.class).get();
         List<CircumstanceData> circumstances = new ArrayList<>(1);
 
         for (String type : circumstanceSection.getKeys(false)) {
@@ -62,19 +58,18 @@ public class Circumstance implements Serializer<Circumstance> {
             }
 
             try {
-                circumstances.add(new CircumstanceData(Type.valueOf(typeToUpper), value.equalsIgnoreCase("REQUIRED")));
+                circumstances.add(new CircumstanceData(CircumstanceType.valueOf(typeToUpper), value.equalsIgnoreCase("REQUIRED")));
             } catch (IllegalArgumentException e) {
-                throw new SerializerEnumException(this, Type.class, type, false, data.of().getLocation());
+                throw new SerializerEnumException(this, CircumstanceType.class, type, false, data.of().getLocation());
             }
         }
 
         return new Circumstance(circumstances);
     }
 
-    private record CircumstanceData(Type type, boolean required) {
-
+    private record CircumstanceData(CircumstanceType circumstanceType, boolean required) {
         public boolean deny(EntityWrapper entityWrapper) {
-                return required != switch (type) {
+                return required != switch (circumstanceType) {
                     case RELOADING -> entityWrapper.isReloading();
                     case ZOOMING -> entityWrapper.isZooming();
                     case SNEAKING -> entityWrapper.isSneaking();
@@ -90,7 +85,7 @@ public class Circumstance implements Serializer<Circumstance> {
             }
         }
 
-    private enum Type {
+    private enum CircumstanceType {
         RELOADING,
         ZOOMING,
         SNEAKING,

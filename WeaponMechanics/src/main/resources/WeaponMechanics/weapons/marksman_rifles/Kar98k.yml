@@ -72,9 +72,8 @@ Kar98k:
     Magazine_Size: 5
     Reload_Duration: 66
     Start_Mechanics:
-      Sounds:
-        - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
-        - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1, delayBeforePlay=64}"
+      - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
+      - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1, delayBeforePlay=64}"
   Damage:
     Base_Damage: 11.4
     Armor_Damage: 4
@@ -88,13 +87,12 @@ Kar98k:
       - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
-        Sounds:
-          - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Stacking:
       Stacks:
         - 3.0
       Mechanics:
-        - "custom:scope.in-0.5-1-0-0.1"
+        - "CustomSound{sound=scope.in, volume=0.5, noise=0.1}"
   Firearm_Action:
     Type: "LEVER"
     Open:

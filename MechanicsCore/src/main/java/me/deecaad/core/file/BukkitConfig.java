@@ -1,7 +1,9 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.io.File;
 import java.util.List;
 
 public class BukkitConfig implements ConfigLike {
@@ -30,5 +32,10 @@ public class BukkitConfig implements ConfigLike {
     @Override
     public List<?> getList(String key) {
         return config.getList(key);
+    }
+
+    @Override
+    public String getLocation(File localFile, String localPath) {
+        return StringUtil.foundAt(localFile, localPath);
     }
 }

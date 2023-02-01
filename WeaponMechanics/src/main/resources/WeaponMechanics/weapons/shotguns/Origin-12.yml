@@ -23,8 +23,7 @@ Origin_12:
       Action_Bar:
         Message: "<gold>Origin 12 <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
-      Sounds:
-        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
     Weapon_Equip_Delay: 20
     Cancel:
       Drop_Item: true
@@ -66,8 +65,7 @@ Origin_12:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "custom:shoot.origin12-6-1-0-0.1"
+      - "CustomSound{sound=shoot.origin12, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -75,11 +73,9 @@ Origin_12:
     Magazine_Size: 8
     Reload_Duration: 34
     Start_Mechanics:
-      Sounds:
-        - "custom:reload.start.light-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.start.light, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "custom:reload.end.light-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.end.light, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 10.2
     Armor_Damage: 3
