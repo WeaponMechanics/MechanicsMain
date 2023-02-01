@@ -79,7 +79,7 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
                         if (!condition.isAllowed(target))
                             continue OUTER;
 
-                    use0(cast);
+                    use0(target);
                 }
             }
         }.runTaskTimer(MechanicsCore.getPlugin(), delayBeforePlay, repeatInterval - 1).getTaskId();

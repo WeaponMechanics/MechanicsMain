@@ -1,12 +1,12 @@
 package me.deecaad.core.mechanics;
 
+import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -65,7 +65,6 @@ public class CastData implements Cloneable {
         return sourceLocation != null ? sourceLocation : source.getLocation();
     }
 
-
     public LivingEntity getTarget() {
         return targetEntity;
     }
@@ -81,7 +80,7 @@ public class CastData implements Cloneable {
     @Nonnull
     public Location getTargetLocation() {
         if (targetLocation == null && targetEntity == null) {
-            debug.warn("Not targeting either entity nor location\n" + Arrays.toString(new Throwable().getStackTrace()));
+            debug.log(LogLevel.WARN, "Not targeting either entity nor location", new Throwable());
         }
         return targetLocation != null ? targetLocation : targetEntity.getLocation();
     }
@@ -115,7 +114,7 @@ public class CastData implements Cloneable {
         try {
             return (CastData) super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+            throw new AssertionError(e);
         }
     }
 }
