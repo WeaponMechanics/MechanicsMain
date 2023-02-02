@@ -3,9 +3,9 @@ package me.deecaad.core.mechanics.defaultmechanics;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
+import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
@@ -13,7 +13,10 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.EntityEffect;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -53,11 +56,11 @@ public class FireworkMechanic extends Mechanic {
         @NotNull
         @Override
         public FireworkData serialize(SerializeData data) throws SerializerException {
-            FireworkEffect.Type type = data.of("Type").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BURST);
-            List<Color> colors = data.of("Colors").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
+            FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BURST);
+            List<Color> colors = data.of("Color").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
             boolean trail = data.of("Trail").getBool(false);
             boolean flicker = data.of("Flicker").getBool(false);
-            List<Color> fadeColors =  data.of("Fade_Colors").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
+            List<Color> fadeColors = data.of("Fade_Color").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
 
             FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
             return new FireworkData(effect);
