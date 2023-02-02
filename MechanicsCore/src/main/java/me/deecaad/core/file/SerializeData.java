@@ -885,10 +885,10 @@ public class SerializeData {
 
         public String getLocation() {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
-            if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key) + stepAddon;
+            if (relative == null || relative.isEmpty()) {
+                return config.getLocation(file, key) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative)) + stepAddon;
+                return config.getLocation(file, getPath(relative)) + stepAddon;
             }
         }
 

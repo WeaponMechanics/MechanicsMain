@@ -1,6 +1,7 @@
 package me.deecaad.core.file.inline;
 
 import me.deecaad.core.file.InlineSerializer;
+import me.deecaad.core.file.MapConfigLike;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class InlineSerializerTest {
     @ParameterizedTest
     @MethodSource("provide_allEqual")
     void test_allEqual(String line, Map<String, Object> expectedData) throws InlineSerializer.FormatException {
-        Map<String, Object> actual = InlineSerializer.inlineFormat(line);
+        Map<String, Object> actual = remap(InlineSerializer.inlineFormat(line));
         Assertions.assertEquals(expectedData, actual);
     }
 
@@ -81,7 +82,7 @@ public class InlineSerializerTest {
                 "lore", List.of("russians drink vodka", "and shoot ak-47s")
                 );
 
-        Map<?, ?> actual = InlineSerializer.inlineFormat(line);
+        Map<?, ?> actual = remap(InlineSerializer.inlineFormat(line));
         assertEquals(expected, actual);
     }
 
@@ -97,7 +98,7 @@ public class InlineSerializerTest {
                 )
         );
 
-        Map<?, ?> actual = InlineSerializer.inlineFormat(line);
+        Map<?, ?> actual = remap(InlineSerializer.inlineFormat(line));
         assertEquals(expected, actual);
     }
 
@@ -116,7 +117,29 @@ public class InlineSerializerTest {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(reader);
 
         String line = config.getString(key);
-        Map<?, ?> actual = InlineSerializer.inlineFormat(line);
+        Map<?, ?> actual = remap(InlineSerializer.inlineFormat(line));
         assertEquals(expected, actual);
+    }
+
+    private static Map<String, Object> remap(Map<String, MapConfigLike.Holder> map) {
+        Map<String, Object> temp = new HashMap<>();
+        map.forEach((key, holder) -> {
+            if (holder.value() instanceof Map<?, ?> nested)
+                temp.put(key, remap((Map<String, MapConfigLike.Holder>) nested));
+            else if (holder.value() instanceof List<?> nested)
+                temp.put(key, remap((List<MapConfigLike.Holder>) nested));
+            else
+                temp.put(key, holder.value());
+        });
+        return temp;
+    }
+
+    private static List<Object> remap(List<MapConfigLike.Holder> list) {
+        return list.stream().map(holder -> {
+            if (holder.value() instanceof Map<?, ?> nested)
+                return remap((Map<String, MapConfigLike.Holder>) nested);
+            else
+                return holder.value();
+        }).toList();
     }
 }

@@ -147,7 +147,7 @@ public class Mechanics implements Serializer<Mechanics> {
                         String temp = nameMatcher.group();
                         mechanic = MECHANICS.get(temp);
                         if (mechanic == null)
-                            throw new SerializerOptionsException("", "@Targeter", MECHANICS.getOptions(), temp, "");
+                            throw new SerializerOptionsException("", "Mechanic", MECHANICS.getOptions(), temp, "");
 
                         // We need to call the 'inlineFormat' method since the
                         // current mechanic object is just an empty serializer.
