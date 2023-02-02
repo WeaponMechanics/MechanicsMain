@@ -76,8 +76,8 @@ public class CrackShotConverter {
 
         // AMMO
         AMMO("Ammo.", "Reload.Ammo.Ammo_Types.", new AmmoConverter()),
-        SOUNDS_OUT_OF_AMMO("Ammo.Sounds_Out_Of_Ammo", "Reload.Ammo.Out_Of_Ammo.Sounds", new SoundConvert()),
-        SOUNDS_SHOOT_WITH_NO_AMMO("Ammo.Sounds_Shoot_With_No_Ammo", "Reload.Ammo.Out_Of_Ammo.Sounds", new SoundConvert()),
+        SOUNDS_OUT_OF_AMMO("Ammo.Sounds_Out_Of_Ammo", "Reload.Ammo.Out_Of_Ammo", new SoundConvert()),
+        SOUNDS_SHOOT_WITH_NO_AMMO("Ammo.Sounds_Shoot_With_No_Ammo", "Reload.Ammo.Out_Of_Ammo", new SoundConvert()),
 
         // RELOAD
         RELOAD_TRIGGER("Reload.Enable", "Reload.Trigger.Main_Hand", new ValueBooleanConvert("drop_item", null)),
@@ -378,8 +378,11 @@ public class CrackShotConverter {
                 if (splitted.length > 2) {
                     pitch = splitted[2];
                     try {
-                        if (Double.parseDouble(pitch) <= 0.5) {
+                        double parsedPitch = Double.parseDouble(pitch);
+                        if (parsedPitch <= 0.5) {
                             pitch = "0.5";
+                        } else if (parsedPitch > 2) {
+                            pitch = "2.0";
                         }
                     } catch (NumberFormatException e) {
                         pitch = "1";
@@ -387,7 +390,6 @@ public class CrackShotConverter {
                 }
                 String delay = null;
                 if (splitted.length > 3) {
-                    delay = splitted[3];
                     try {
                         if (Integer.parseInt(delay) > 0) {
                             delay = splitted[3];
