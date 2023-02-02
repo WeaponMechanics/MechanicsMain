@@ -2,12 +2,18 @@ package me.deecaad.core.mechanics.defaultmechanics;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.utils.ReflectionUtil;
+import org.bukkit.NamespacedKey;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class PotionMechanic extends Mechanic {
 
@@ -45,12 +51,23 @@ public class PotionMechanic extends Mechanic {
     @Override
     public Mechanic serialize(SerializeData data) throws SerializerException {
         String potionStr = data.of("Potion").assertExists().assertType(String.class).get();
-        PotionEffectType potion = PotionEffectType.getByName(potionStr.trim());
+        PotionEffectType potion = ReflectionUtil.getMCVersion() >= 13
+            ? PotionEffectType.getByKey(NamespacedKey.minecraft(potionStr.trim().toLowerCase(Locale.ROOT)))
+            : PotionEffectType.getByName(potionStr.trim().toUpperCase());
         int time = data.of("Time").assertPositive().getInt(100);
         int amplifier = data.of("Level").assertPositive().getInt(1) - 1;
         boolean ambient = data.of("Particles").getEnum(ParticleMode.class, ParticleMode.NORMAL) == ParticleMode.AMBIENT;
         boolean showParticles = data.of("Particles").getEnum(ParticleMode.class, ParticleMode.NORMAL) != ParticleMode.HIDE;
-        boolean showIcon = data.of("Icon").getBool(true);
+        boolean showIcon = !data.of("Hide_Icon").getBool(false);
+
+        // Make sure that the potion type exists
+        if (potion == null) {
+            List<String> options = Arrays.stream(PotionEffectType.values())
+                    .map(type -> ReflectionUtil.getMCVersion() >= 13 ? type.getKey().getKey() : type.getName())
+                    .toList();
+
+            throw new SerializerOptionsException(this, "Potion", options, potionStr, data.of("Potion").getLocation());
+        }
 
         PotionEffect effect = new PotionEffect(potion, time, amplifier, ambient, showParticles);
         if (ReflectionUtil.getMCVersion() > 13)
