@@ -391,7 +391,7 @@ public class CrackShotConverter {
                 String delay = null;
                 if (splitted.length > 3) {
                     try {
-                        if (Integer.parseInt(delay) > 0) {
+                        if (Integer.parseInt(splitted[3]) > 0) {
                             delay = splitted[3];
                         }
                     } catch (NumberFormatException e) {

@@ -62,15 +62,6 @@ public class FireworkMechanic extends Mechanic {
             boolean flicker = data.of("Flicker").getBool(false);
             List<Color> fadeColors = data.of("Fade_Color").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
 
-            System.out.println(data.key);
-            System.out.println(data.file);
-            System.out.println(data.pathToConfig);
-            System.out.println(type);
-            System.out.println(colors);
-            System.out.println(trail);
-            System.out.println(flicker);
-            System.out.println(fadeColors);
-
             FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
             return new FireworkData(effect);
         }
