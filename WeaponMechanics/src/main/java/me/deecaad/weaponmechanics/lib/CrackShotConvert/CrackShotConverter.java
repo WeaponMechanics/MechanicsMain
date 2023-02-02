@@ -385,17 +385,17 @@ public class CrackShotConverter {
                         pitch = "1";
                     }
                 }
-                String delay = "";
+                String delay = "0";
                 if (splitted.length > 3) {
                     delay = splitted[3];
                     try {
                         if (Integer.parseInt(delay) < 1) {
-                            delay = "";
+                            delay = "0";
                         } else {
                             delay = "-" + splitted[3];
                         }
                     } catch (NumberFormatException e) {
-                        delay = "";
+                        delay = "0";
                     }
                 }
 
