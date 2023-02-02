@@ -70,8 +70,10 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
 
             @Override
             public void run() {
-                if (runs++ >= repeatAmount)
+                if (runs++ >= repeatAmount) {
                     cancel();
+                    return;
+                }
 
                 OUTER:
                 for (CastData target : targeter.getTargets(cast)) {

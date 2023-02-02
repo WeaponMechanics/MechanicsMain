@@ -133,10 +133,10 @@ public interface InlineSerializer<T> extends Serializer<T> {
                     Map<String, MapConfigLike.Holder> tempMap = mapify(line.substring(start, stop), start + offset);
                     map.put(key, new MapConfigLike.Holder(tempMap, i));
                     if (!value.toString().isBlank())
-                        tempMap.put(UNIQUE_IDENTIFIER, new MapConfigLike.Holder(value.toString().trim(), i - value.length()));
+                        tempMap.put(UNIQUE_IDENTIFIER, new MapConfigLike.Holder(value.toString().trim(), offset + i - value.length()));
                 } else {
                     List<MapConfigLike.Holder> tempList = listify(line.substring(start, stop), start + offset);
-                    map.put(key, new MapConfigLike.Holder(tempList, i));
+                    map.put(key, new MapConfigLike.Holder(tempList, offset + i));
                     if (!value.toString().isBlank())
                         throw new FormatException(offset + i, "Found '" + value + "' before a list... It should not be there!");
                 }
@@ -177,7 +177,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 if (value.isEmpty())
                     throw new FormatException(offset + i, "Found an empty value");
 
-                map.put(key, new MapConfigLike.Holder(value.toString(), i - value.length()));
+                map.put(key, new MapConfigLike.Holder(value.toString(), offset + i - value.length() + 1));
                 key = null;
                 value.setLength(0);
             }
@@ -207,7 +207,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 // If the escaped character was the last character, we need an
                 // extra check to make sure we add that value to the list.
                 if (i + 1 >= line.length())
-                    list.add(new MapConfigLike.Holder(value.substring(value.indexOf(" ") == 0 ? 1 : 0), i - value.length()));
+                    list.add(new MapConfigLike.Holder(value.substring(value.indexOf(" ") == 0 ? 1 : 0), offset + i - value.length() + 1));
 
                 continue;
             }
@@ -223,8 +223,8 @@ public interface InlineSerializer<T> extends Serializer<T> {
 
                 Map<String, MapConfigLike.Holder> map = mapify(line.substring(start, stop), offset + stop);
                 if (!value.toString().isBlank())
-                    map.put(UNIQUE_IDENTIFIER, new MapConfigLike.Holder(value.toString().trim(), i - value.length()));
-                list.add(new MapConfigLike.Holder(map, i));
+                    map.put(UNIQUE_IDENTIFIER, new MapConfigLike.Holder(value.toString().trim(), offset + i - value.length() + 1));
+                list.add(new MapConfigLike.Holder(map, offset + i + 1));
 
                 i = stop;
                 value.setLength(0);
@@ -247,7 +247,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                 if (value.isEmpty())
                     throw new FormatException(i + offset, "Found duplicate commas... Use '\\\\,' for an escaped comma");
 
-                list.add(new MapConfigLike.Holder(value.substring(value.indexOf(" ") == 0 ? 1 : 0), i - value.length()));
+                list.add(new MapConfigLike.Holder(value.substring(value.indexOf(" ") == 0 ? 1 : 0), offset + i - value.length() + 1));
                 value.setLength(0);
             }
 
@@ -294,8 +294,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
      * string. This is basically a Syntax Error.
      */
     class FormatException extends Exception {
-
-        private int index;
+        private final int index;
 
         public FormatException(int index) {
             this.index = index;
