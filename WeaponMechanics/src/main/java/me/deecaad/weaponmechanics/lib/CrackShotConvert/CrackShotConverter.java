@@ -385,24 +385,30 @@ public class CrackShotConverter {
                         pitch = "1";
                     }
                 }
-                String delay = "0";
+                String delay = null;
                 if (splitted.length > 3) {
                     delay = splitted[3];
                     try {
-                        if (Integer.parseInt(delay) < 1) {
-                            delay = "0";
-                        } else {
-                            delay = "-" + splitted[3];
+                        if (Integer.parseInt(delay) > 0) {
+                            delay = splitted[3];
                         }
                     } catch (NumberFormatException e) {
-                        delay = "0";
+                        delay = null;
                     }
                 }
 
-                if (this.isTarget) {
-                    mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s} @Target{}".formatted(soundName, volume, pitch, delay));
+                if (delay == null) {
+                    if (this.isTarget) {
+                        mechanics.add("Sound{sound=%s, volume=%s, pitch=%s} @Target{}".formatted(soundName, volume, pitch));
+                    } else {
+                        mechanics.add("Sound{sound=%s, volume=%s, pitch=%s}".formatted(soundName, volume, pitch));
+                    }
                 } else {
-                    mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s}".formatted(soundName, volume, pitch, delay));
+                    if (this.isTarget) {
+                        mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s} @Target{}".formatted(soundName, volume, pitch, delay));
+                    } else {
+                        mechanics.add("Sound{sound=%s, volume=%s, pitch=%s, delayBeforePlay=%s}".formatted(soundName, volume, pitch, delay));
+                    }
                 }
             }
 
