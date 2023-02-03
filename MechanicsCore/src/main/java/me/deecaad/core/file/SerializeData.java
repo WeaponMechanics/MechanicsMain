@@ -1131,6 +1131,8 @@ public class SerializeData {
         public <T extends InlineSerializer<T>> List<T> getImpliedList(T impliedType) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
+            if (!has(relative))
+                return List.of();
 
             List<MapConfigLike.Holder> list = (List<MapConfigLike.Holder>) config.getList(getPath(relative));
             List<T> returnValue = new ArrayList<>();

@@ -57,10 +57,29 @@ public class FireworkMechanic extends Mechanic {
         @Override
         public FireworkData serialize(SerializeData data) throws SerializerException {
             FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BURST);
-            List<Color> colors = data.of("Color").assertExists().getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
             boolean trail = data.of("Trail").getBool(false);
             boolean flicker = data.of("Flicker").getBool(false);
+
+            List<Color> colors = data.of("Color").assertExists().getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
             List<Color> fadeColors = data.of("Fade_Color").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
+
+            // Allow singular color, or list of colors
+            if (colors.isEmpty()) {
+                ColorSerializer color = data.of("Color").serialize(new ColorSerializer());
+                if (color == null)
+                    throw data.exception("Color", "Could not determine 'color'", "Try using 'color=RED' or 'color=[RED, GREEN]'");
+
+                colors = List.of(color.getColor());
+            }
+
+            // Allow singular color, or list of colors
+            if (fadeColors.isEmpty() && data.has("Fade_Color")) {
+                ColorSerializer color = data.of("Fade_Color").serialize(new ColorSerializer());
+                if (color == null)
+                    throw data.exception("Fade_Color", "Could not determine 'fadeColor'", "Try using 'color=RED' or 'color=[RED, GREEN]'");
+
+                fadeColors = List.of(color.getColor());
+            }
 
             FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
             return new FireworkData(effect);
