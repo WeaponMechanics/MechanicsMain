@@ -166,7 +166,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
             } catch (InlineSerializer.FormatException ex) {
                 String indent = "    ";
-                throw data.exception(null, indent + line,
+                throw data.exception(null, ex.getMessage(), indent + line,
                         StringUtil.repeat(" ", index + ex.getIndex() + indent.length() - 1) + "^");
             }
         }

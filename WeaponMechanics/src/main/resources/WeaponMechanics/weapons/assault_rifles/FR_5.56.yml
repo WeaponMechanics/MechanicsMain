@@ -135,7 +135,7 @@ FR_5_56:
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - "CustomSound{sound=fx.whiz, noise=0.02} @Target{}"
+        - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
@@ -143,7 +143,7 @@ FR_5_56:
     Distance_Between_Particles: 0.3
     Particle_Chooser: LOOP
     Particles:
-      - "Particle{particle=REDSTONE, color255-0-0,    size=0.5}"
+      - "Particle{particle=REDSTONE, color=255-0-0,   size=0.5}"
       - "Particle{particle=REDSTONE, color=255-122-0, size=0.5}"
       - "Particle{particle=REDSTONE, color=255-255-0, size=0.5}"
       - "Particle{particle=REDSTONE, color=0-255-0,   size=0.5}"

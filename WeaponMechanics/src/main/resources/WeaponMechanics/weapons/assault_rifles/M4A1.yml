@@ -118,7 +118,7 @@ M4A1:
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - "CustomSound{sound=fx.whiz, noise=0.02} @Target{}"
+        - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
@@ -126,11 +126,7 @@ M4A1:
     Distance_Between_Particles: 0.1
     Particle_Chooser: LOOP
     Particles:
-      Particle_1:
-        Type: DUST_COLOR_TRANSITION
-        Color: RED
-        Fade_Color: YELLOW
-        Size: 0.4
+      - "Particle{particle=DUST_COLOR_TRANSITION, color=RED, fadeColor=YELLOW, size=0.4}"
 
   Show_Time:
     Reload:

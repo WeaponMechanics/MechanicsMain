@@ -173,7 +173,7 @@ public interface InlineSerializer<T> extends Serializer<T> {
                     value.append(c);
 
                 if (key == null)
-                    throw new FormatException(offset + i, "Expected key=value, but was missing key... value=" + value);
+                    throw new FormatException(offset + i - value.length(), "Expected key=value, but was missing key... fond '" + value + "'");
                 if (value.isEmpty())
                     throw new FormatException(offset + i, "Found an empty value");
 

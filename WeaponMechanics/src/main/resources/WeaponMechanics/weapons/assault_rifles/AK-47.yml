@@ -138,7 +138,7 @@ AK-47:
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - "CustomSound{sound=fx.whiz, noise=0.02} @Target{}"
+        - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
