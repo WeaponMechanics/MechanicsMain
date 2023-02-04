@@ -29,6 +29,14 @@ public class CommandMechanic extends Mechanic {
         this.command = command;
     }
 
+    public boolean isConsole() {
+        return console;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
     @Override
     public void use0(CastData cast) {
         Player player = cast.getTarget().getType() == EntityType.PLAYER ? (Player) cast.getTarget() : null;

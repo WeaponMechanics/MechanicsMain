@@ -37,6 +37,26 @@ public class BossBarMechanic extends Mechanic {
         this.time = time;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public BossBar.Color getColor() {
+        return color;
+    }
+
+    public BossBar.Overlay getStyle() {
+        return style;
+    }
+
+    public float getProgress() {
+        return progress;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
     @Override
     public void use0(CastData cast) {
         if (!(cast.getTarget() instanceof Player player))

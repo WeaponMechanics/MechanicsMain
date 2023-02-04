@@ -42,6 +42,34 @@ public class CustomSoundMechanic extends Mechanic {
         this.listenerConditions = listenerConditions;
     }
 
+    public String getSound() {
+        return sound;
+    }
+
+    public float getVolume() {
+        return volume;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public float getNoise() {
+        return noise;
+    }
+
+    public Object getCategory() {
+        return category;
+    }
+
+    public Targeter getListeners() {
+        return listeners;
+    }
+
+    public List<Condition> getListenerConditions() {
+        return listenerConditions;
+    }
+
     @Override
     protected void use0(CastData cast) {
         if (listeners == null) {

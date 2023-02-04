@@ -30,6 +30,10 @@ public class PotionMechanic extends Mechanic {
         this.potion = potion;
     }
 
+    public PotionEffect getPotion() {
+        return potion;
+    }
+
     @Override
     public void use0(CastData cast) {
         if (cast.getTarget() == null)

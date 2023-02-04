@@ -36,6 +36,10 @@ public class Mechanics implements Serializer<Mechanics> {
         this.mechanics = mechanics;
     }
 
+    public List<Mechanic> getMechanics() {
+        return mechanics;
+    }
+
     @Override
     public String getKeyword() {
         return "Mechanics";

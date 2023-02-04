@@ -104,6 +104,22 @@ public class FireworkMechanic extends Mechanic {
         this.viewerConditions = viewerConditions;
     }
 
+    public ItemStack getFireworkItem() {
+        return fireworkItem;
+    }
+
+    public int getFlightTime() {
+        return flightTime;
+    }
+
+    public Targeter getViewers() {
+        return viewers;
+    }
+
+    public List<Condition> getViewerConditions() {
+        return viewerConditions;
+    }
+
     @Override
     public void use0(CastData cast) {
 

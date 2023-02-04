@@ -29,6 +29,10 @@ public class MessageMechanic extends Mechanic {
         this.message = message;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
     @Override
     public void use0(CastData cast) {
         if (!(cast.getTarget() instanceof Player player))

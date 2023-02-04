@@ -32,6 +32,14 @@ public class ActionBarMechanic extends Mechanic {
         this.time = time;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
     @Override
     public void use0(CastData cast) {
         if (!(cast.getTarget() instanceof Player player))

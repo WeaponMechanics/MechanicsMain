@@ -23,6 +23,14 @@ public class LeapMechanic extends Mechanic {
         this.verticalMultiplier = verticalMultiplier;
     }
 
+    public double getSpeed() {
+        return speed;
+    }
+
+    public double getVerticalMultiplier() {
+        return verticalMultiplier;
+    }
+
     @Override
     protected void use0(CastData cast) {
         Vector velocity = cast.getTargetLocation().subtract(cast.getSourceLocation()).toVector();

@@ -35,6 +35,18 @@ public class TitleMechanic extends Mechanic {
         this.times = times;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public Title.Times getTimes() {
+        return times;
+    }
+
     @Override
     public void use0(CastData cast) {
         if (!(cast.getTarget() instanceof Player player))

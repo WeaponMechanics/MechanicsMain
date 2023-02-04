@@ -33,6 +33,26 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
     public Mechanic() {
     }
 
+    public Targeter getTargeter() {
+        return targeter;
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
+    public int getRepeatAmount() {
+        return repeatAmount;
+    }
+
+    public int getRepeatInterval() {
+        return repeatInterval;
+    }
+
+    public int getDelayBeforePlay() {
+        return delayBeforePlay;
+    }
+
     @Nullable
     @Override
     public String getWikiLink() {
