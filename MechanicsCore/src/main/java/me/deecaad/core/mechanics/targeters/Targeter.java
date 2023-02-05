@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.VectorSerializer;
 import me.deecaad.core.mechanics.CastData;
+import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 public abstract class Targeter implements InlineSerializer<Targeter> {
 
+    private boolean eye;
     private VectorSerializer offset;
 
     /**
@@ -56,9 +58,14 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
      */
     public final List<CastData> getTargets(CastData cast) {
         List<CastData> targets = getTargets0(cast);
-        if (offset != null) {
-            for (CastData target : targets)
-                target.setTargetLocation(target.getTargetLocation().add(offset.getVector(target.getTarget())));
+        if (offset != null || eye) {
+            for (CastData target : targets) {
+                Location origin = eye && target.getTarget() != null ? target.getTarget().getEyeLocation() : target.getTargetLocation();
+                if (offset != null)
+                    origin.add(offset.getVector(target.getTarget()));
+
+                target.setTargetLocation(origin);
+            }
         }
 
         return targets;
@@ -73,6 +80,7 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
                     getInlineKeyword() + " is a LOCATION targeter, so it cannot use relative locations.");
 
         targeter.offset = offset;
+        targeter.eye = data.of("Eye").getBool(false);
         return targeter;
     }
 }
