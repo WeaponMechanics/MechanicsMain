@@ -65,6 +65,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
 
+        // When the key is null, that probably means we are currently in an
+        // inline serializer. Skip the fancy shit.
+        if (data.key == null) {
+            ItemStack itemStack = serializeWithoutRecipe(data);
+            itemStack = serializeRecipe(data, itemStack);
+            return itemStack;
+        }
+
         try {
 
             // Check the ITEM_REGISTRY to see if they are trying to inline
