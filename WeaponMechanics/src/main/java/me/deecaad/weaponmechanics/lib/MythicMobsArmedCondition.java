@@ -44,7 +44,7 @@ public class MythicMobsArmedCondition implements IEntityCondition {
         ItemStack off = equipment.getItemInOffHand();
 
         String mainTitle = main.hasItemMeta() ? CustomTag.WEAPON_TITLE.getString(main) : null;
-        String offTitle = main.hasItemMeta() ? CustomTag.WEAPON_TITLE.getString(off) : null;
+        String offTitle = off.hasItemMeta() ? CustomTag.WEAPON_TITLE.getString(off) : null;
 
         if (wildcard)
             return mainTitle != null || offTitle != null;
