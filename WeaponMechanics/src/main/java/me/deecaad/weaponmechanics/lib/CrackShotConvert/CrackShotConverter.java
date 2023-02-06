@@ -832,10 +832,9 @@ public class CrackShotConverter {
             }
 
             if (!fromConfig.getBoolean(from + "Explosion_No_Grief", false)) {
-                toConfig.set(to + "Block_Damage.Break_Blocks", true);
+                toConfig.set(to + "Block_Damage.Default_Mode", "BREAK");
                 toConfig.set(to + "Block_Damage.Spawn_Falling_Block_Chance", 0.5);
-                toConfig.set(to + "Block_Damage.Blacklist", true);
-                toConfig.set(to + "Block_Damage.Block_List", Arrays.asList("BEDROCK", "$LAVA", "$WATER"));
+                toConfig.set(to + "Block_Damage.Blocks", Arrays.asList("BEDROCK CANCEL", "$LAVA CANCEL", "$WATER CANCEL"));
             }
 
             toConfig.set(to + "Explosion_Exposure", "DEFAULT");
