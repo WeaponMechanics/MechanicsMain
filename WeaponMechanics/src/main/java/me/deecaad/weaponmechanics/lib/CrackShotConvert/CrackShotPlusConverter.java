@@ -320,12 +320,12 @@ public class CrackShotPlusConverter {
             StringBuilder builder = new StringBuilder("Title{");
 
             if (title != null) {
-                builder.append("title=%s".formatted(title));
+                builder.append("title=%s".formatted(((String) title).replaceAll(",", "\\\\,")));
             }
 
             if (subtitle != null) {
                 if (title != null) builder.append(", ");
-                builder.append("subtitle=%s".formatted(subtitle));
+                builder.append("subtitle=%s".formatted(((String) subtitle).replaceAll(",", "\\\\,")));
             }
 
             builder.append("}");
@@ -348,7 +348,10 @@ public class CrackShotPlusConverter {
             String title = CSPapi.getString(from + "Title");
             if (title == null) return;
 
-            title = title.replaceAll("#KILLED#", "%victim%").replaceAll("#KILLER#", "%shooter%");
+            title = title
+                    .replaceAll("#KILLED#", "%victim%")
+                    .replaceAll("#KILLER#", "%shooter%")
+                    .replaceAll(",", "\\\\,");
 
             Integer time = CSPapi.getInteger(from + "Time");
             if (time == null) time = 60;

@@ -471,7 +471,7 @@ public class CrackShotConverter {
         public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
             String value = fromConfig.getString(from);
             if (value == null) return;
-            value = StringUtil.colorAdventure(value);
+            value = StringUtil.colorAdventure(value).replaceAll(",", "\\\\,");
 
             List<String> mechanics = toConfig.getStringList(to);
 
