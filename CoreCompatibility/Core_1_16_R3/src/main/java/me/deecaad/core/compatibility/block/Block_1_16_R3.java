@@ -1,5 +1,6 @@
 package me.deecaad.core.compatibility.block;
 
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.*;
@@ -9,6 +10,7 @@ import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
+import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -36,6 +38,42 @@ public class Block_1_16_R3 implements BlockCompatibility {
                     new InternalError()
             );
         }
+    }
+
+    @Override
+    public HitBox getHitBox(Block block, boolean allowLiquid) {
+        if (block.isEmpty()) return null;
+
+        boolean isLiquid = block.isLiquid();
+        if (!allowLiquid) {
+            if (block.isPassable() || block.isLiquid()) return null;
+        } else if (!isLiquid && block.isPassable()) {
+            // Check like this because liquid is also passable...
+            return null;
+        }
+
+        HitBox hitBox;
+        if (isLiquid) {
+            hitBox = new HitBox(block.getX(), block.getY(), block.getZ(), block.getX() + 1, block.getY() + 1, block.getZ() + 1);
+        } else {
+            BoundingBox boundingBox = block.getBoundingBox();
+            hitBox = new HitBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        }
+        hitBox.setBlockHitBox(block);
+
+        CraftBlock craftBlock = (CraftBlock) block;
+        List<AxisAlignedBB> voxelShape = craftBlock.getNMS().getCollisionShape(craftBlock.getCraftWorld().getHandle(), craftBlock.getPosition()).d();
+        if (voxelShape.size() > 1) {
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
+            for (AxisAlignedBB boxPart : voxelShape) {
+                hitBox.addVoxelShapePart(new HitBox(x + boxPart.minX, y + boxPart.minY, z + boxPart.minZ,
+                        x + boxPart.maxX, y + boxPart.maxY, z + boxPart.maxZ));
+            }
+        }
+
+        return hitBox;
     }
 
     @Override

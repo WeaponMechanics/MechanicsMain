@@ -16,14 +16,13 @@ MG34:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED--0.0296"
+        - "GENERIC_MOVEMENT_SPEED -0.0296"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>MG34%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
-      Sounds:
-        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 40
     Cancel:
       Drop_Item: true
@@ -65,8 +64,7 @@ MG34:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "custom:shoot.mg34-6-1-0-0.1"
+      - "CustomSound{sound=shoot.mg34, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -74,18 +72,16 @@ MG34:
     Magazine_Size: 75
     Reload_Duration: 73
     Start_Mechanics:
-      Sounds:
-        - "custom:reload.start.heavy-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.start.heavy, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "custom:reload.end.heavy-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.end.heavy, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 10.4
     Armor_Damage: 3
     Dropoff:
-      - "10~-1.44"
-      - "25~-2.88"
-      - "50~-4.32"
+      - "10 -1.44"
+      - "25 -2.88"
+      - "50 -4.32"
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
@@ -93,25 +89,21 @@ MG34:
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 22
     Mechanics:
-      Sounds:
-        - "custom:scope.in-0.5-1-0-0.1"
+      - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
-        Sounds:
-          - "custom:scope.out-0.5-1-0-0.1"
+        - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
   Firearm_Action:
     Type: "SLIDE"
     Open:
-      Time: 10
+      Time: 8
       Mechanics:
-        Sounds:
-          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
-          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
     Close:
-      Time: 10
+      Time: 8
       Mechanics:
-        Sounds:
-          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"
+        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -119,26 +111,20 @@ MG34:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      Sounds:
-        - entity_generic_splash 1 1.85 0 0.15
-      Particles:
-        Particle_1:
-          Type: WATER_SPLASH
-          Count: 20
-          Noise: 0.2-0.2-0.2
+      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - custom:fx.whiz 1 1 0 0.02
+        - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
   Trail:
-    Distance_Between_Particles: 0.1
+    Distance_Between_Particles: 0.3
     Particle_Chooser: LOOP
     Particles:
-      Particle_1:
-        Type: CRIT
+      - "Particle{particle=CRIT}"
 
   Show_Time:
     Reload:

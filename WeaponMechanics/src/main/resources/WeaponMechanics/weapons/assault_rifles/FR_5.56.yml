@@ -17,14 +17,13 @@ FR_5_56:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED--0.0191"
+        - "GENERIC_MOVEMENT_SPEED -0.0191"
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
         Message: "<gold>FR 5.56%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload% <gray>[<gold>%selective_fire_state%<gray>]"
     Weapon_Get_Mechanics:
-      Sounds:
-        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75}"
     Weapon_Equip_Delay: 30
     Cancel:
       Drop_Item: true
@@ -55,8 +54,7 @@ FR_5_56:
         Off_Hand: "DOUBLE_SNEAK"
       Default: "BURST"
       Mechanics:
-        Sounds:
-          - "BLOCK_NOTE_BLOCK_HAT-1-2"
+        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, pitch=2.0}"
     Delay_Between_Shots: 2
     Fully_Automatic_Shots_Per_Second: 13
     Burst:
@@ -81,8 +79,7 @@ FR_5_56:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "custom:shoot.fr556-6-1-0-0.1"
+      - "CustomSound{sound=shoot.fr556, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -92,18 +89,16 @@ FR_5_56:
     Magazine_Size: 30
     Reload_Duration: 59
     Start_Mechanics:
-      Sounds:
-        - "custom:reload.start.normal-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "custom:reload.end.normal-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 10
     Armor_Damage: 3
     Dropoff:
-      - "10~-1.76"
-      - "25~-3.52"
-      - "50~-5.28"
+      - "10 -1.76"
+      - "25 -3.52"
+      - "50 -5.28"
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
@@ -113,25 +108,21 @@ FR_5_56:
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 14
     Mechanics:
-      Sounds:
-        - "custom:scope.in-0.5-1-0-0.1"
+      - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
-        Sounds:
-          - "custom:scope.out-0.5-1-0-0.1"
+        - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
   Firearm_Action:
     Type: "SLIDE"
     Open:
       Time: 8
       Mechanics:
-        Sounds:
-          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
-          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
     Close:
       Time: 8
       Mechanics:
-        Sounds:
-          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"
+        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -139,48 +130,25 @@ FR_5_56:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      Sounds:
-        - entity_generic_splash 1 1.85 0 0.15
-      Particles:
-        Particle_1:
-          Type: WATER_SPLASH
-          Count: 20
-          Noise: 0.2-0.2-0.2
+      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - custom:fx.whiz 1 1 0 0.02
+        - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
   Trail:
-    Distance_Between_Particles: 0.1
+    Distance_Between_Particles: 0.3
     Particle_Chooser: LOOP
     Particles:
-      Particle_1:
-        Type: REDSTONE
-        Color: RED
-        Size: 0.5
-      Particle_2:
-        Type: REDSTONE
-        Color: 255-122-0
-        Size: 0.5
-      Particle_3:
-        Type: REDSTONE
-        Color: 255-255-0
-        Size: 0.5
-      Particle_4:
-        Type: REDSTONE
-        Color: 0-255-0
-        Size: 0.5
-      Particle_5:
-        Type: REDSTONE
-        Color: 0-0-255
-        Size: 0.5
-      Particle_6:
-        Type: REDSTONE
-        Color: 255-0-255
-        Size: 0.5
+      - "Particle{particle=REDSTONE, color=255-0-0,   size=0.5}"
+      - "Particle{particle=REDSTONE, color=255-122-0, size=0.5}"
+      - "Particle{particle=REDSTONE, color=255-255-0, size=0.5}"
+      - "Particle{particle=REDSTONE, color=0-255-0,   size=0.5}"
+      - "Particle{particle=REDSTONE, color=0-0-255,   size=0.5}"
+      - "Particle{particle=REDSTONE, color=255-0-255, size=0.5}"
 
   Show_Time:
     Reload:

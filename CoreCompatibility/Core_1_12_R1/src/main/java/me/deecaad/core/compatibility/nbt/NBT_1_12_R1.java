@@ -98,7 +98,6 @@ public class NBT_1_12_R1 implements NBTCompatibility {
         return nbt.getDouble(tag);
     }
 
-    @Nonnull
     @Override
     public void setDouble(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, double value) {
         net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
@@ -107,7 +106,35 @@ public class NBT_1_12_R1 implements NBTCompatibility {
         bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
     }
 
-    @Nonnull
+    @Override
+    public boolean hasArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
+        return getBukkitCompound(getNMSStack(bukkitItem)).hasKey(getTagName(plugin, key));
+    }
+
+    @Override
+    public int[] getArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int[] def) {
+        NBTTagCompound nbt = getBukkitCompound(getNMSStack(bukkitItem));
+        String tag = getTagName(plugin, key);
+        if (!nbt.hasKey(tag)) return def;
+        return nbt.getIntArray(tag);
+    }
+
+    @Override
+    public void setArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int[] value) {
+        net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(nmsStack).setIntArray(getTagName(plugin, key), value);
+
+        bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
+    }
+
+    @Override
+    public void remove(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
+        net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+        getBukkitCompound(nmsStack).remove(getTagName(plugin, key));
+
+        bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
+    }
+
     @Override
     public void setAttribute(@Nonnull ItemStack bukkitItem, @Nonnull AttributeType attribute, @Nullable AttributeSlot slot, double value) {
         net.minecraft.server.v1_12_R1.ItemStack nmsItem = getNMSStack(bukkitItem);

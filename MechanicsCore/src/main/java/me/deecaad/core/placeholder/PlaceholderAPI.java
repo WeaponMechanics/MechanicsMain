@@ -49,12 +49,12 @@ public class PlaceholderAPI {
      * @param to the string where to apply placeholders
      * @param player the player involved in event or null
      * @param itemStack the item stack involved in event or null
-     * @param weaponTitle the weapon title involved in this request, can be null
+     * @param itemTitle the item title involved in this request, can be null
      * @param slot the weapon slot involved in this request, can be null
      * @return the string with applied placeholders
      */
-    public static String applyPlaceholders(String to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot) {
-        return applyPlaceholders(to, player, itemStack, weaponTitle, slot, null);
+    public static String applyPlaceholders(String to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String itemTitle, @Nullable EquipmentSlot slot) {
+        return applyPlaceholders(to, player, itemStack, itemTitle, slot, null);
     }
 
     /**
@@ -64,12 +64,12 @@ public class PlaceholderAPI {
      * @param to the string where to apply placeholders
      * @param player the player involved in event or null
      * @param itemStack the item stack involved in event or null
-     * @param weaponTitle the weapon title involved in this request, can be null
+     * @param itemTitle the item title involved in this request, can be null
      * @param slot the weapon slot involved in this request, can be null
      * @param temp the temporary placeholders to be used
      * @return the string with applied placeholders
      */
-    public static String applyPlaceholders(String to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot, @Nullable Map<String, String> temp) {
+    public static String applyPlaceholders(String to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String itemTitle, @Nullable EquipmentSlot slot, @Nullable Map<String, String> temp) {
         if (to == null) {
             return null;
         }
@@ -93,7 +93,7 @@ public class PlaceholderAPI {
                 }
                 String request = null;
                 try {
-                    request = placeholderHandler.onRequest(player, itemStack, weaponTitle, slot);
+                    request = placeholderHandler.onRequest(player, itemStack, itemTitle, slot);
                 } catch (Exception e) {
                     debug.log(LogLevel.WARN, "Placeholder using keyword " + placeholderHandler.getPlaceholderName() + " caused this exception!", e);
                 }
@@ -115,7 +115,7 @@ public class PlaceholderAPI {
      *
      * @see PlaceholderAPI#applyPlaceholders(String, Player, ItemStack, String, EquipmentSlot)
      */
-    public static List<String> applyPlaceholders(Collection<String> to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot) {
+    public static List<String> applyPlaceholders(Collection<String> to, @Nullable Player player, @Nullable ItemStack itemStack, @Nullable String itemTitle, @Nullable EquipmentSlot slot) {
         if (to == null)
             return null;
         else if (to.isEmpty())
@@ -125,7 +125,7 @@ public class PlaceholderAPI {
 
         List<String> tempList = new ArrayList<>();
         while (iterator.hasNext()) {
-            tempList.add(applyPlaceholders(iterator.next(), player, itemStack, weaponTitle, slot));
+            tempList.add(applyPlaceholders(iterator.next(), player, itemStack, itemTitle, slot));
         }
         return tempList;
     }

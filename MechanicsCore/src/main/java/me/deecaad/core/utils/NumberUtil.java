@@ -106,13 +106,26 @@ public final class NumberUtil {
      * Returns a random decimal <code>[min, max)</code>. This method is
      * threadsafe.
      *
-     * @param min minimum size of the number
-     * @param max maximum size of the number
-     * @return random double between min and max
+     * @param min minimum size of the number.
+     * @param max maximum size of the number.
+     * @return random double between min and max.
      */
     public static double random(double min, double max) {
         if (min == max) return min;
         return ThreadLocalRandom.current().nextDouble(min, max);
+    }
+
+    /**
+     * Returns a random decimal <code>[min, max)</code>. This method is
+     * threadsafe.
+     *
+     * @param min minimum size of the number.
+     * @param max maximum size of the number.
+     * @return random float between min and max.
+     */
+    public static float random(float min, float max) {
+        if (min == max) return min;
+        return ThreadLocalRandom.current().nextFloat() * (max - min) + min;
     }
 
     /**

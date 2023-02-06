@@ -1,22 +1,81 @@
 package me.deecaad.core.compatibility.entity;
 
+import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
 public interface EntityCompatibility {
+
+    /**
+     * Null in cases where entity is invulnerable or dead.
+     *
+     * @param entity the entity
+     * @return the living entity's hit box or null
+     */
+    default HitBox getHitBox(Entity entity) {
+        if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
+
+        // This default should only be used after 1.13 R2
+
+        HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
+                .grow(getWidth(entity), getHeight(entity));
+        hitBox.setLivingEntity((LivingEntity) entity);
+
+        if (entity instanceof ComplexLivingEntity) {
+            for (ComplexEntityPart entityPart : ((ComplexLivingEntity) entity).getParts()) {
+                BoundingBox boxPart = entityPart.getBoundingBox();
+                hitBox.addVoxelShapePart(new HitBox(boxPart.getMinX(), boxPart.getMinY(), boxPart.getMinZ(), boxPart.getMaxX(), boxPart.getMaxY(), boxPart.getMaxZ()));
+            }
+        }
+
+        return hitBox;
+    }
+
+    /**
+     * @param entity the entity whose last location to get
+     * @return the vector of entity's last location
+     */
+    Vector getLastLocation(Entity entity);
+
+    /**
+     * Used to get width of entity
+     *
+     * @param entity the entity whose width to get
+     * @return the width of entity
+     */
+    default double getWidth(Entity entity) {
+        // 1.12 ->
+        // -> entity.getWidth
+        // <- 1.11
+        // -> nmsEntity.width
+        return entity.getWidth();
+    }
+
+    /**
+     * Used to get height of entity
+     *
+     * @param entity the entity whose height to get
+     * @return the height of entity
+     */
+    default double getHeight(Entity entity) {
+        // 1.12 ->
+        // -> entity.getHeight
+        // <- 1.11
+        // -> nmsEntity.height
+        return entity.getHeight();
+    }
 
     /**
      * Returns <code>true</code> if the player has that material on ender

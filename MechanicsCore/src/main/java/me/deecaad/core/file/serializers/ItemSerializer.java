@@ -65,6 +65,14 @@ public class ItemSerializer implements Serializer<ItemStack> {
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
 
+        // When the key is null, that probably means we are currently in an
+        // inline serializer. Skip the fancy shit.
+        if (data.key == null) {
+            ItemStack itemStack = serializeWithoutRecipe(data);
+            itemStack = serializeRecipe(data, itemStack);
+            return itemStack;
+        }
+
         try {
 
             // Check the ITEM_REGISTRY to see if they are trying to inline
@@ -263,7 +271,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
 
         if (CompatibilityAPI.getVersion() >= 1.11 && data.has("Potion_Color")) {
             try {
-                Color color = data.of("Potion_Color").serialize(new ColorSerializer());
+                Color color = data.of("Potion_Color").assertExists().serialize(new ColorSerializer()).getColor();
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
                 potionMeta.setColor(color);
                 itemStack.setItemMeta(potionMeta);
@@ -274,7 +282,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
         if (data.has("Leather_Color")) {
             try {
-                Color color = data.of("Leather_Color").serialize(new ColorSerializer());
+                Color color = data.of("Leather_Color").assertExists().serialize(new ColorSerializer()).getColor();
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);

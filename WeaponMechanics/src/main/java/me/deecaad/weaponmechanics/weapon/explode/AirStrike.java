@@ -3,10 +3,10 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
@@ -155,10 +155,13 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     public void trigger(Location flareLocation, LivingEntity shooter, WeaponProjectile projectile) {
+        if (mechanics != null) {
+            CastData cast = new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack());
+            cast.setTargetLocation(flareLocation);
+            mechanics.use(cast);
+        }
 
-        if (mechanics != null) mechanics.use(new CastData(shooter, projectile.getWeaponTitle(), projectile.getWeaponStack()));
         new BukkitRunnable() {
-
             int count = 0;
 
             @Override
@@ -233,7 +236,6 @@ public class AirStrike implements Serializer<AirStrike> {
     }
 
     record Vector2d(double x, double z) {
-
         double distanceSquared(Vector2d vector) {
             return NumberConversions.square(this.x - vector.x) + NumberConversions.square(this.z - vector.z);
         }

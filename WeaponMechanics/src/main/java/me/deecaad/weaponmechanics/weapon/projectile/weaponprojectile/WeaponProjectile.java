@@ -1,8 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
-import me.deecaad.weaponmechanics.weapon.projectile.RayTrace;
+import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -293,7 +295,7 @@ public class WeaponProjectile extends AProjectile {
             }
 
             // Returned true and that most likely means that block hit was cancelled, skipping...
-            if (hit.handleHit(this)) continue;
+            if (WeaponMechanics.getWeaponHandler().getHitHandler().handleHit(hit, this)) continue;
 
             // Sticky
             if (sticky != null && sticky.handleSticking(this, hit)) {

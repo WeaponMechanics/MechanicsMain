@@ -46,6 +46,7 @@ public class WeaponHandler {
     private final SkinHandler skinHandler;
     private final MeleeHandler meleeHandler;
     private final StatsHandler statsHandler;
+    private final HitHandler hitHandler;
     private final List<TriggerListener> triggerListeners;
 
     public WeaponHandler() {
@@ -57,6 +58,7 @@ public class WeaponHandler {
         skinHandler = new SkinHandler(this);
         meleeHandler = new MeleeHandler(this);
         statsHandler = new StatsHandler(this);
+        hitHandler = new HitHandler(this);
         triggerListeners = new ArrayList<>(5);
         fillTriggerListeners();
     }
@@ -218,5 +220,12 @@ public class WeaponHandler {
      */
     public StatsHandler getStatsHandler() {
         return statsHandler;
+    }
+
+    /**
+     * @return the hit handler
+     */
+    public HitHandler getHitHandler() {
+        return hitHandler;
     }
 }

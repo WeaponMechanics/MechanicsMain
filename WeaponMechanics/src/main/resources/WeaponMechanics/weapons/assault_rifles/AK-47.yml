@@ -17,7 +17,7 @@ AK-47:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED--0.0181"
+        - "GENERIC_MOVEMENT_SPEED -0.0181"
       Deny_Use_In_Crafting: true
       Recipe:
         Shape:
@@ -25,10 +25,10 @@ AK-47:
           - "sib"
           - " h "
         Ingredients:
-          a: Adhesive # found in MechanicsCore > Items > CraftingMaterials.yml
+          a: Adhesive  # found in MechanicsCore > Items > CraftingMaterials.yml
           i: iron_block
-          b: Barrel # found in MechanicsCore > Items > CraftingMaterials.yml
-          h: Handle # found in MechanicsCore > Items > CraftingMaterials.yml
+          b: Barrel  # found in MechanicsCore > Items > CraftingMaterials.yml
+          h: Handle  # found in MechanicsCore > Items > CraftingMaterials.yml
           s:
             Type: wooden_shovel
             Name: "<yellow>Stock"
@@ -44,8 +44,7 @@ AK-47:
       Action_Bar:
         Message: "<gold>AK-47%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
-      Sounds:
-        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 30
     Cancel:
       Drop_Item: true
@@ -87,8 +86,7 @@ AK-47:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      Sounds:
-        - "custom:shoot.ak47-6-1-0-0.1"
+      - "CustomSound{sound=shoot.ak47, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
@@ -96,18 +94,16 @@ AK-47:
     Magazine_Size: 30
     Reload_Duration: 57
     Start_Mechanics:
-      Sounds:
-        - "custom:reload.start.normal-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
     Finish_Mechanics:
-      Sounds:
-        - "custom:reload.end.normal-0.5-1-0-0.1"
+      - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1}"
   Damage:
     Base_Damage: 10.2
     Armor_Damage: 3
     Dropoff:
-      - "10~-1.66"
-      - "25~-3.32"
-      - "50~-4.98"
+      - "10 -1.66"
+      - "25 -3.32"
+      - "50 -4.98"
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
@@ -115,25 +111,21 @@ AK-47:
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 15
     Mechanics:
-      Sounds:
-        - "custom:scope.in-0.5-1-0-0.1"
+      - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
-        Sounds:
-          - "custom:scope.out-0.5-1-0-0.1"
+        - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
   Firearm_Action:
     Type: "SLIDE"
     Open:
       Time: 8
       Mechanics:
-        Sounds:
-          - "BLOCK_NOTE_BLOCK_HAT-0.5-1-0-0.1"
-          - "BLOCK_PISTON_CONTRACT-0.5-1-2-0.1"
+        - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
+        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
     Close:
       Time: 8
       Mechanics:
-        Sounds:
-          - "BLOCK_PISTON_EXTEND-0.5-1-0-0.1"
+        - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -141,29 +133,20 @@ AK-47:
   Cosmetics:
     Muzzle_Flash: true
     Splash_Mechanics:
-      Sounds:
-        - entity_generic_splash 1 1.85 0 0.15
-      Particles:
-        Particle_1:
-          Type: WATER_SPLASH
-          Count: 20
-          Noise: 0.2-0.2-0.2
+      - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
+      - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - custom:fx.whiz 1 1 0 0.02
+        - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
   Trail:
-    Distance_Between_Particles: 0.1
+    Distance_Between_Particles: 0.3
     Particle_Chooser: LOOP
     Particles:
-      Particle_1:
-        Type: DUST_COLOR_TRANSITION
-        Color: RED
-        Fade_Color: YELLOW
-        Size: 0.4
+      - "Particle{particle=DUST_COLOR_TRANSITION, color=RED, fadeColor=YELLOW, size=0.4}"
 
   Show_Time:
     Reload:

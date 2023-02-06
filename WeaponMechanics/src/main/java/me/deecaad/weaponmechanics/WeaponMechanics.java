@@ -37,7 +37,7 @@ import me.deecaad.weaponmechanics.weapon.damage.AssistData;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
-import me.deecaad.weaponmechanics.weapon.projectile.HitBox;
+import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
@@ -224,7 +224,7 @@ public class WeaponMechanics {
         File configyml = new File(getDataFolder(), "config.yml");
         if (configyml.exists()) {
             List<IValidator> validators = new ArrayList<>();
-            validators.add(new HitBox());
+            validators.add(new HitBoxValidator());
             validators.add(new PlaceholderValidator());
             validators.add(new AssistData());
 

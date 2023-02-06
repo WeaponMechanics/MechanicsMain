@@ -128,7 +128,7 @@ public class Trigger implements Serializer<Trigger> {
         if (dualMain == TriggerType.SWAP_HANDS || dualOff == TriggerType.SWAP_HANDS) {
             String weaponTitle = data.key.split("\\.")[0];
 
-            if (!data.config.getBoolean(weaponTitle + ".Info.Cancel.Swap_Hands", false)) {
+            if (data.config.get(weaponTitle + ".Info.Cancel.Swap_Hands", false) instanceof Boolean bool && !bool) {
                 throw data.exception(null, "When using 'SWAP_HANDS', make sure that '" + weaponTitle + ".Info.Cancel.Swap_Hands: true'",
                         SerializerException.forValue(dualMain) + " & " + SerializerException.forValue(dualOff));
             }

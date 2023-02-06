@@ -3,12 +3,10 @@ package me.deecaad.weaponmechanics.weapon.explode;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.explode.exposures.ExplosionExposure;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -23,7 +21,8 @@ public class Flashbang implements Serializer<Flashbang> {
     private double distanceSquared;
     private Mechanics mechanics;
 
-    public Flashbang() { }
+    public Flashbang() {
+    }
 
     public Flashbang(double distance, Mechanics mechanics) {
         this.distance = distance;
@@ -64,7 +63,7 @@ public class Flashbang implements Serializer<Flashbang> {
             }
             LivingEntity livingEntity = (LivingEntity) entity;
             if (canEffect(exposure, origin, livingEntity)) {
-                effect(projectile, livingEntity);
+                effect(projectile, livingEntity, origin);
             }
         }
     }
@@ -89,10 +88,11 @@ public class Flashbang implements Serializer<Flashbang> {
         return exposure.canSee(origin.add(0, 0.5, 0), entity);
     }
 
-    public void effect(WeaponProjectile projectile, LivingEntity entity) {
+    public void effect(WeaponProjectile projectile, LivingEntity entity, Location origin) {
         if (mechanics != null) {
-            EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(entity);
-            mechanics.use(new CastData(wrapper, projectile.getWeaponTitle(), projectile.getWeaponStack()));
+            CastData cast = new CastData(entity, projectile.getWeaponTitle(), projectile.getWeaponStack());
+            cast.setTargetLocation(origin);
+            mechanics.use(cast);
         }
     }
 

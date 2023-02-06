@@ -1,9 +1,9 @@
 package me.deecaad.weaponmechanics.listeners;
 
 import me.deecaad.core.events.EntityEquipmentEvent;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.mechanics.CastData;
-import me.deecaad.weaponmechanics.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.AssistData;
@@ -81,7 +81,7 @@ public class WeaponListeners implements Listener {
 
             Mechanics equipMechanics = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Equip_Mechanics", Mechanics.class);
             if (equipMechanics != null) {
-                equipMechanics.use(new CastData(entityWrapper, weaponTitle, weaponStack));
+                equipMechanics.use(new CastData(entity, weaponTitle, weaponStack));
                 alreadyUsedEquipMechanics = true;
             }
 
@@ -101,7 +101,7 @@ public class WeaponListeners implements Listener {
             if (!alreadyUsedEquipMechanics) {
                 Mechanics holsterMechanics = getConfigurations().getObject(dequippedWeapon + ".Info.Weapon_Holster_Mechanics", Mechanics.class);
                 if (holsterMechanics != null)
-                    holsterMechanics.use(new CastData(entityWrapper, dequippedWeapon, dequipped));
+                    holsterMechanics.use(new CastData(entity, dequippedWeapon, dequipped));
             }
 
             weaponHandler.getSkinHandler().tryUse(entityWrapper, dequippedWeapon, dequipped, e.getSlot(), true);

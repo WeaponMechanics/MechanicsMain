@@ -13,12 +13,11 @@ Combat_Knife:
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED-0.004"
-        - "GENERIC_ATTACK_SPEED--3"
+        - "GENERIC_MOVEMENT_SPEED 0.004"
+        - "GENERIC_ATTACK_SPEED -3"
       Deny_Use_In_Crafting: true
     Weapon_Get_Mechanics:
-      Sounds:
-        - "ITEM_ARMOR_EQUIP_CHAIN-1-0.75"
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
   Skin:
     Default:
       Custom_Model_Data: 351
@@ -27,38 +26,23 @@ Combat_Knife:
     Armor_Damage: 4
     Victim_Mechanics:
       Sounds:
-        - "ENTITY_ARROW_SHOOT-1-1"
-        - "ENTITY_SLIME_JUMP-1-1"
+        - "Sound{sound=ENTITY_ARROW_SHOOT} @Target{}"
+        - "Sound{sound=ENTITY_SLIME_JUMP} @Target{}"
     Head:
       Bonus_Damage: 7
       Victim_Mechanics:
-        Firework:
-          Location_Adjuster: "0~2~0"
-          Item:
-            Type: "FIREWORK_ROCKET"
-            Firework:
-              Power: 0
-              Effects:
-                - "BALL-RED-false-true"
+        - "Firework{effects=[(shape=BALL, color=RED, flicker=true, trail=true)]} @Source{offset=0 2 0}"
     Backstab:
       Bonus_Damage: 10
       Victim_Mechanics:
-        Firework:
-          Location_Adjuster: "0~2~0"
-          Item:
-            Type: "FIREWORK_ROCKET"
-            Firework:
-              Power: 0
-              Effects:
-                - "BURST-BLACK-false-true"
+        - "Firework{effects=[(shape=BURST, color=BLACK, flicker=true, trail=true)]} @Source{offset=0 2 0}"
   Melee:
     Enable_Melee: true
     Melee_Range: 4
     Melee_Hit_Delay: 20
     Melee_Miss:
       Mechanics:
-        Sounds:
-          - "BLOCK_ANVIL_HIT-1-1-0-0.1"
+        - "Sound{sound=BLOCK_ANVIL_HIT, noise=0.1}"
       Melee_Miss_Delay: 20
 
   # The following options are added by WeaponMechanicsCosmetics, and you will

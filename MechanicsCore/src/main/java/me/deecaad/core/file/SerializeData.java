@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
@@ -10,6 +11,8 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static me.deecaad.core.file.InlineSerializer.UNIQUE_IDENTIFIER;
 
 /**
  * {@link SerializeData} wraps a {@link ConfigurationSection} and a key along
@@ -27,13 +30,14 @@ public class SerializeData {
     public final String serializer;
     public final File file;
     public final String key;
-    public final ConfigurationSection config;
+    public final ConfigLike config;
 
     /**
      * Wiki link to be used in exception messages in order to better assist
      * users in solving their issues.
      */
-    public @Nullable String wikiLink;
+    public @Nullable
+    String wikiLink;
 
     /**
      * The fully serialized configuration to be used in case a
@@ -53,7 +57,7 @@ public class SerializeData {
     private boolean usingStep;
 
 
-    public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
+    public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigLike config) {
         this.serializer = serializer;
         this.file = file;
         this.key = key;
@@ -69,7 +73,7 @@ public class SerializeData {
         copyMutables(other);
     }
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigurationSection config) {
+    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigLike config) {
         this.serializer = getSimpleName(serializer);
         this.file = file;
         this.key = key;
@@ -90,7 +94,6 @@ public class SerializeData {
 
     private SerializeData copyMutables(SerializeData from) {
         this.wikiLink = from.wikiLink;
-        this.pathToConfig = from.pathToConfig;
         this.usingStep = from.usingStep;
         return this;
     }
@@ -145,7 +148,7 @@ public class SerializeData {
      * @param serializer The non-null serializer that supports path-to.
      * @return The non-null serialize data.
      * @throws SerializerException If no path-to config is defined.
-     * @throws InternalError If the serializer has no default constructor.
+     * @throws InternalError       If the serializer has no default constructor.
      */
     public <T extends Serializer<T>> SerializeData step(Class<T> serializer) throws SerializerException {
         return step(ReflectionUtil.newInstance(serializer));
@@ -167,7 +170,7 @@ public class SerializeData {
 
         // Check that the user is trying to use path-to.
         String relative = serializer.getKeyword();
-        if (config.isString(getPath(relative))) {
+        if (config instanceof BukkitConfig && config.isString(getPath(relative))) {
 
             // This exception should be caught by FileReader so this serializer
             // is saved for late serialization (for path-to support).
@@ -277,7 +280,7 @@ public class SerializeData {
      * method to throw a "general" exception.
      *
      * @param relative The nullable relative key.
-     * @param index The index (NOT index + 1) of the element that had the error.
+     * @param index    The index (NOT index + 1) of the element that had the error.
      * @param messages The non-empty list of messages to include
      * @return The non-null constructed exception.
      */
@@ -389,7 +392,7 @@ public class SerializeData {
         public ConfigListAccessor assertExists(boolean exists) throws SerializerException {
             if (exists)
                 return assertExists();
-             return this;
+            return this;
         }
 
         @Nonnull
@@ -471,32 +474,18 @@ public class SerializeData {
                             argument.clazz = Integer.class; // Set class to be more human-readable in error
                             int parseInt = Integer.parseInt(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseInt < argument.min || parseInt > argument.max))
-                                throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
+                                throw new SerializerRangeException(serializer, (int) argument.min, parseInt, (int) argument.max, getLocation(i));
 
                             if (argument.positive && parseInt < 0)
-                                throw new SerializerNegativeException(serializer, parseInt, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
-                        }
-
-                        else if (argument.clazz == double.class) {
+                                throw new SerializerNegativeException(serializer, parseInt, getLocation(i));
+                        } else if (argument.clazz == double.class) {
                             argument.clazz = Double.class;
                             double parseDouble = Double.parseDouble(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseDouble < argument.min || parseDouble > argument.max))
-                                throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
+                                throw new SerializerRangeException(serializer, argument.min, parseDouble, argument.max, getLocation(i));
 
                             if (argument.positive && parseDouble < 0.0)
-                                throw new SerializerNegativeException(serializer, parseDouble, getLocation(i))
-                                        .addMessage("Full List Element: " + string)
-                                        .addMessage("Valid List Format: " + format)
-                                        .addMessage(wikiLink != null, getWikiMessage());
+                                throw new SerializerNegativeException(serializer, parseDouble, getLocation(i));
 
                         } else if (argument.clazz == boolean.class) {
                             argument.clazz = Boolean.class;
@@ -504,13 +493,12 @@ public class SerializeData {
                                 throw new Exception();
 
                         } else if (argument.clazz.isEnum() && EnumUtil.parseEnums((Class<Enum>) argument.clazz, component).isEmpty()) {
-                            throw new SerializerEnumException(serializer, (Class<Enum>) argument.clazz, component, true, getLocation(i))
-                                    .addMessage("Full List Element: " + string)
-                                    .addMessage("Valid List Format: " + format)
-                                    .addMessage(wikiLink != null, getWikiMessage());
+                            throw new SerializerEnumException(serializer, (Class<Enum>) argument.clazz, component, true, getLocation(i));
                         }
                     } catch (SerializerException ex) {
-                        throw ex; // Rethrow exception so it isn't caught and ignored
+                        throw ex.addMessage("Full List Element: " + string)
+                                .addMessage("Valid List Format: " + format)
+                                .addMessage(wikiLink != null, getWikiMessage()); // Rethrow exception so it isn't caught and ignored
                     } catch (Exception ex) {
                         throw new SerializerTypeException(serializer, argument.clazz, null, component, getLocation(i))
                                 .addMessage("Full List Element: " + string)
@@ -532,7 +520,7 @@ public class SerializeData {
                 return Collections.emptyList();
 
             List<String[]> list = new ArrayList<>();
-            List<?> configList = usingStep ? pathToConfig.getList(getPath(relative)) : config.getList(getPath(relative), Collections.emptyList());
+            List<?> configList = usingStep ? pathToConfig.getList(getPath(relative)) : config.getList(getPath(relative));
             for (Object obj : configList) {
                 list.add(StringUtil.split(obj.toString()));
             }
@@ -546,16 +534,16 @@ public class SerializeData {
 
         public String getLocation() {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
-            if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key) + stepAddon;
+            if (relative == null || relative.isEmpty()) {
+                return config.getLocation(file, key) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative)) + stepAddon;
+                return config.getLocation(file, getPath(relative)) + stepAddon;
             }
         }
 
         public String getLocation(int index) {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
-            if (relative == null || "".equals(relative)) {
+            if (relative == null || relative.isEmpty()) {
                 return StringUtil.foundAt(file, key, index + 1) + stepAddon;
             } else {
                 return StringUtil.foundAt(file, getPath(relative), index + 1) + stepAddon;
@@ -688,8 +676,8 @@ public class SerializeData {
          * <code>1.0</code> is a valid integer which will be parsed as
          * <code>1</code>, but <code>1.1</code> will throw an exception.
          *
-         * @return The integer from config.
          * @param def The default value to return when the config is undefined.
+         * @return The integer from config.
          * @throws SerializerException If the config value is not an integer.
          */
         public int getInt(int def) throws SerializerException {
@@ -723,8 +711,8 @@ public class SerializeData {
          * Returns the double value of the config, or throws an exception if
          * the value is not a number.
          *
-         * @return The double from config.
          * @param def The default value to return when the config is undefined.
+         * @return The double from config.
          * @throws SerializerException If the config value is not a double.
          */
         public double getDouble(double def) throws SerializerException {
@@ -753,8 +741,8 @@ public class SerializeData {
          * Returns the boolean value of the config, or throws an exception if
          * the value is not a boolean.
          *
-         * @return The boolean from config.
          * @param def The default value to return when the config is undefined.
+         * @return The boolean from config.
          * @throws SerializerException If the config value is not a boolean.
          */
         public boolean getBool(boolean def) throws SerializerException {
@@ -790,6 +778,16 @@ public class SerializeData {
             // Use assertExists for required keys
             if (value == null)
                 return def;
+
+            // If the value is a string, attempt to parse it as a number
+            if (value instanceof String str) {
+                try {
+                    value = Double.valueOf(str);
+                } catch (NumberFormatException ex) {
+                    throw new SerializerTypeException(serializer, Number.class, value.getClass(), value, getLocation())
+                            .addMessage(wikiLink != null, getWikiMessage());
+                }
+            }
 
             try {
                 return (Number) value;
@@ -831,7 +829,7 @@ public class SerializeData {
          * @param min Inclusive minimum bound.
          * @param max Inclusive maximum bound.
          * @return A non-null reference to this accessor (builder pattern).
-         * @throws SerializerException If the value is not in range.
+         * @throws SerializerException      If the value is not in range.
          * @throws IllegalArgumentException If min larger than max.
          */
         @Nonnull
@@ -863,7 +861,7 @@ public class SerializeData {
          * @param min Inclusive minimum bound.
          * @param max Inclusive maximum bound.
          * @return A non-null reference to this accessor (builder pattern).
-         * @throws SerializerException If the value is not in range.
+         * @throws SerializerException      If the value is not in range.
          * @throws IllegalArgumentException If min larger than max.
          */
         @Nonnull
@@ -887,10 +885,10 @@ public class SerializeData {
 
         public String getLocation() {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
-            if (relative == null || "".equals(relative)) {
-                return StringUtil.foundAt(file, key) + stepAddon;
+            if (relative == null || relative.isEmpty()) {
+                return config.getLocation(file, key) + stepAddon;
             } else {
-                return StringUtil.foundAt(file, getPath(relative)) + stepAddon;
+                return config.getLocation(file, getPath(relative)) + stepAddon;
             }
         }
 
@@ -918,7 +916,7 @@ public class SerializeData {
          * previous call to {@link #assertExists()}.
          *
          * @param defaultValue The default value to return when one has not been defined.
-         * @param <T> The expected data-type of the data.
+         * @param <T>          The expected data-type of the data.
          * @return The data stored at this relative key, or default.
          */
         @SuppressWarnings("unchecked")
@@ -931,7 +929,7 @@ public class SerializeData {
          * <code>null</code> by default.
          *
          * @param clazz The non-null enum class that is expected.
-         * @param <T> The enum type.
+         * @param <T>   The enum type.
          * @return The user input enum value, or null.
          * @throws SerializerException If the user defined an invalid type.
          */
@@ -948,9 +946,9 @@ public class SerializeData {
          * string that doesn't match any enum, a {@link SerializerEnumException}
          * is thrown.
          *
-         * @param clazz The non-null enum class.
+         * @param clazz        The non-null enum class.
          * @param defaultValue The default value to use when a key is undefined.
-         * @param <T> The enum type.
+         * @param <T>          The enum type.
          * @return The serialized enum type, or defaultValue.
          * @throws SerializerException If there is a misconfiguration in config.
          */
@@ -1026,12 +1024,144 @@ public class SerializeData {
         }
 
         /**
+         * Returns one type from a registry. The exact type is unknown, and is
+         * determined by the {@link InlineSerializer#UNIQUE_IDENTIFIER} present
+         * in configuration. Requires a previous call to {@link #assertExists()}.
+         *
+         * @param registry The non-null registry of possible types to use.
+         * @param <T>      The superclass type.
+         * @return A serialized instance.
+         * @throws SerializerException If there are any errors in config.
+         */
+        public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry) throws SerializerException {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
+            return getRegistry(registry, null);
+        }
+
+        /**
+         * Returns one type from a registry. The exact type is unknown, and is
+         * determined by the {@link InlineSerializer#UNIQUE_IDENTIFIER} present
+         * in configuration. If no value has been defined in config, then the
+         * default value is returned.
+         *
+         * @param registry     The non-null registry of possible types to use.
+         * @param defaultValue What to return if no value exists in config.
+         * @param <T>          The superclass type.
+         * @return A serialized instance.
+         * @throws SerializerException If there are any errors in config.
+         */
+        public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry, T defaultValue) throws SerializerException {
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
+            if (!has(relative))
+                return defaultValue;
+
+            Map<String, MapConfigLike.Holder> map = assertType(Map.class).assertExists().get();
+            ConfigLike temp = new MapConfigLike(map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
+            SerializeData nested = new SerializeData(serializer, file, null, temp);
+
+            String key = nested.of(UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
+            T base = registry.get(key);
+
+            if (base == null)
+                throw new SerializerOptionsException(serializer, registry.getName(), registry.getOptions(), key, getLocation());
+
+            return base.serialize(nested);
+        }
+
+        /**
+         * This method is similar to {@link #getRegistry(Registry)}, but
+         * instead of allowing every type from a registry, 1 specific type is
+         * allowed.
+         *
+         * @param impliedType Which type we expect.
+         * @param <T>         Which type we expect.
+         * @return The serialized instance.
+         * @throws SerializerException If there are any errors in config.
+         */
+        public <T extends InlineSerializer<T>> T getImplied(T impliedType) throws SerializerException {
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
+
+            // todo fixme
+            // It's ok if a user defines this, but it MUST match the impliedType
+            if (has(UNIQUE_IDENTIFIER)) {
+                String key = of(UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
+                if (!Registry.matches(key, impliedType.getKeyword()))
+                    throw exception(relative, "Found keyword '" + key + "', but expected '" + impliedType.getInlineKeyword() + "'");
+            }
+
+            return impliedType.serialize(SerializeData.this);
+        }
+
+        public <T extends InlineSerializer<T>> List<T> getRegistryList(Registry<T> registry) throws SerializerException {
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
+            if (!has(relative))
+                return List.of();
+
+            List<MapConfigLike.Holder> list = (List<MapConfigLike.Holder>) config.getList(getPath(relative));
+            List<T> returnValue = new ArrayList<>();
+
+            for (int i = 0; i < list.size(); i++) {
+                MapConfigLike.Holder holder = list.get(i);
+
+                // We have to make sure that the user used the "JSON Format" in the string.
+                if (!(holder.value() instanceof Map<?, ?> map))
+                    throw listException(relative, i, "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '" + holder.value() + "'");
+                if (!map.containsKey(UNIQUE_IDENTIFIER))
+                    throw listException(relative, i, "Missing name for a(n) '" + serializer + "'");
+
+                String id = map.get(UNIQUE_IDENTIFIER).toString();
+                InlineSerializer<T> serializer = registry.get(id);
+                if (serializer == null)
+                    throw new SerializerOptionsException(SerializeData.this.serializer, registry.getName(), registry.getOptions(), id, getLocation());
+
+                ConfigLike temp = new MapConfigLike((Map<String, MapConfigLike.Holder>) map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
+                SerializeData nested = new SerializeData(serializer, file, null, temp);
+
+                returnValue.add(serializer.serialize(nested));
+            }
+
+            return returnValue;
+        }
+
+        public <T extends InlineSerializer<T>> List<T> getImpliedList(T impliedType) throws SerializerException {
+            if (!(config instanceof MapConfigLike mapLike))
+                throw new UnsupportedOperationException("Cannot use registries with " + config);
+            if (!has(relative))
+                return List.of();
+
+            List<MapConfigLike.Holder> list = (List<MapConfigLike.Holder>) config.getList(getPath(relative));
+            List<T> returnValue = new ArrayList<>();
+
+            for (int i = 0; i < list.size(); i++) {
+                MapConfigLike.Holder holder = list.get(i);
+
+                // We have to make sure that the user used the "JSON Format" in the string.
+                if (!(holder.value() instanceof Map<?, ?> map))
+                    throw listException(relative, i, "Expected an inline serializer like 'sound(sound=ENTITY_GENERIC_EXPLOSION)', but instead got '" + holder.value() + "'");
+                if (map.containsKey(UNIQUE_IDENTIFIER) && !Registry.matches(map.get(UNIQUE_IDENTIFIER).toString(), impliedType.getKeyword()))
+                    throw listException(relative, i, "Expected a '" + impliedType.getInlineKeyword() + "' but got a '" + map.get(UNIQUE_IDENTIFIER) + "'");
+
+                ConfigLike temp = new MapConfigLike((Map<String, MapConfigLike.Holder>) map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
+                SerializeData nested = new SerializeData(impliedType, file, null, temp);
+
+                returnValue.add(impliedType.serialize(nested));
+            }
+
+            return returnValue;
+        }
+
+        /**
          * Handles nested serializers. Uses the given class as a serializer and
          * attempts to serialize an object from this relative key. Returns null
          * when the key hasn't been explicitly defined.
          *
          * @param serializerClass The non-null serializer class.
-         * @param <T> The serializer type.
+         * @param <T>             The serializer type.
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
@@ -1045,7 +1175,7 @@ public class SerializeData {
          * been explicitly defined.
          *
          * @param serializer The non-null serializer instance.
-         * @param <T> The serializer type.
+         * @param <T>        The serializer type.
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */

@@ -8,12 +8,9 @@ import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_19_R1;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -54,12 +51,6 @@ public class v1_19_R1 implements IWeaponCompatibility {
     @Override
     public IScopeCompatibility getScopeCompatibility() {
         return scopeCompatibility;
-    }
-
-    @Override
-    public Vector getLastLocation(Entity entity) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
-        return new Vector(nms.xOld, nms.yOld, nms.zOld);
     }
 
     @Override

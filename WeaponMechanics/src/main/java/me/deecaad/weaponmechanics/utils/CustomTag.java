@@ -70,7 +70,12 @@ public enum CustomTag {
     /**
      * string
      */
-    REPAIR_KIT_TITLE("repair-kit-title");
+    REPAIR_KIT_TITLE("repair-kit-title"),
+
+    /**
+     * array
+     */
+    ATTACHMENTS("attachments");
 
 
     private final String id;
@@ -120,6 +125,18 @@ public enum CustomTag {
 
     public void setDouble(ItemStack item, double value) {
         CompatibilityAPI.getNBTCompatibility().setDouble(item, "WeaponMechanics", id, value);
+    }
+
+    public boolean hasArray(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().hasArray(item, "WeaponMechanics", id);
+    }
+
+    public int[] getArray(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().getArray(item, "WeaponMechanics", id);
+    }
+
+    public void setArray(ItemStack item, int[] value) {
+        CompatibilityAPI.getNBTCompatibility().setArray(item, "WeaponMechanics", id, value);
     }
 
     public void remove(ItemStack item) {

@@ -4,7 +4,7 @@ sub_machine_gun:
       Type: "SNOWBALL"
       Maximum:
         Speed: 80
-      Gravity: 0.05
+      Gravity: 9.8
       Drag:
         Base: 0.99
         In_Water: 0.96
@@ -26,7 +26,7 @@ sniper_rifle:
       Type: "INVISIBLE"
       Minimum:
         Speed: 160
-      Gravity: 0.05
+      Gravity: 9.8
       Drag:
         Base: 0.99
         In_Water: 0.96
@@ -46,7 +46,7 @@ shotgun:
   Projectile:
     Projectile_Settings:
       Type: "EGG"
-      Gravity: 0.08
+      Gravity: 9.8
       Minimum:
         Speed: 4
       Drag:
@@ -73,7 +73,7 @@ rocket_launcher:
         Custom_Model_Data: 341
       Minimum:
         Speed: 40
-      Gravity: 0.02
+      Gravity: 4.0
       Drag:
         Base: 0.99
         In_Water: 0.96
@@ -86,7 +86,7 @@ assault_rifle:
       Type: "SNOWBALL"
       Minimum:
         Speed: 60
-      Gravity: 0.05
+      Gravity: 9.8
       Drag:
         Base: 0.99
         In_Water: 0.96
@@ -106,7 +106,7 @@ pistol:
   Projectile:
     Projectile_Settings:
       Type: "SNOWBALL"
-      Gravity: 0.05
+      Gravity: 9.8
       Drag:
         Base: 0.99
         In_Water: 0.96
@@ -118,7 +118,7 @@ marksman_rifle:
       Type: "INVISIBLE"
       Minimum:
         Speed: 140
-      Gravity: 0.05
+      Gravity: 9.8
       Drag:
         Base: 0.99
         In_Water: 0.96
@@ -140,7 +140,7 @@ light_machine_gun:
       Type: "SNOWBALL"
       Minimum:
         Speed: 70
-      Gravity: 0.04
+      Gravity: 9.8
       Drag:
         Base: 0.99
         In_Water: 0.96

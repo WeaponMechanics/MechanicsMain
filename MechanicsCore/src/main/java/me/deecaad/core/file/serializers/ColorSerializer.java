@@ -8,11 +8,17 @@ import org.bukkit.Color;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class ColorSerializer implements Serializer<Color> {
+public class ColorSerializer implements InlineSerializer<ColorSerializer> {
+
+    private static final Pattern HEX_PATTERN = Pattern.compile("[0-9a-fA-F]{6}");
+    private Color color;
 
     /**
      * Default constructor for serializer
@@ -20,30 +26,39 @@ public class ColorSerializer implements Serializer<Color> {
     public ColorSerializer() {
     }
 
+    public ColorSerializer(Color color) {
+        this.color = color;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
     @Override
     @Nonnull
-    public Color serialize(SerializeData data) throws SerializerException {
+    public ColorSerializer serialize(SerializeData data) throws SerializerException {
 
         String input = data.config.getString(data.key);
         if (input == null || input.isEmpty())
             throw new SerializerMissingKeyException(this, "Color", StringUtil.foundAt(data.file, data.key));
 
-        return fromString(data, input.trim());
+        Color color = fromString(data, input.trim());
+        return new ColorSerializer(color);
     }
 
-    public Color fromString(SerializeData data, String input) throws SerializerException {
+    public static Color fromString(SerializeData data, String input) throws SerializerException {
 
         // Follows the format, '0xRRGGBB' and translates each character as a
         // hex character. While '0xRR' is technically a valid hex code for red,
         // this is actually treated as an error (To help avoid confusion).
         if (input.startsWith("0x")) {
-            String subString = input.substring(2);
-            if (subString.length() != 6) {
+            String substring = input.substring(2);
+            if (substring.length() != 6) {
                 throw data.exception(null, "Hex strings should have 6 digits",
                         SerializerException.forValue(input),
                         SerializerException.examples("0xFF00BB", "0x123456", "0x111111"));
             }
-            int rgb = Integer.parseInt(subString, 16);
+            int rgb = Integer.parseInt(substring, 16);
             return Color.fromRGB(rgb);
         }
 
@@ -51,36 +66,48 @@ public class ColorSerializer implements Serializer<Color> {
         // hex character. While '#RR' is technically a valid hex code for red,
         // this is actually treated as an error (To help avoid confusion).
         else if (input.startsWith("#")) {
-            String subString = input.substring(1);
-            if (subString.length() != 6) {
+            String substring = input.substring(1);
+            if (substring.length() != 6) {
                 throw data.exception(null, "Hex strings should have 6 digits",
                         SerializerException.forValue(input),
                         SerializerException.examples("#FF00BB", "#123456", "#111111"));
             }
-            int rgb = Integer.parseInt(subString, 16);
+            int rgb = Integer.parseInt(substring, 16);
+            return Color.fromRGB(rgb);
+        }
+
+        // The above 2 options cover MOST hex scenarios, but we use this regex
+        // here to be a bit more adaptable. While it isn't so good at catching
+        // errors like the above examples, it should help eliminate the need
+        // for people to ask questions.
+        else if (HEX_PATTERN.matcher(input).find()) {
+            Matcher matcher = HEX_PATTERN.matcher(input);
+            matcher.find();
+            String substring = matcher.group();
+            int rgb = Integer.parseInt(substring, 16);
             return Color.fromRGB(rgb);
         }
 
         // Follows the format, 'R-G-B' and translates each character as a byte.
-        else if (StringUtil.countChars('-', input) == 2) {
+        else if (StringUtil.split(input).length == 3) {
             String[] split = input.split("-");
             int r = Integer.parseInt(split[0]);
             int g = Integer.parseInt(split[1]);
             int b = Integer.parseInt(split[2]);
 
             if (r < 0 || r > 255)
-                throw new SerializerRangeException(this, 0, r, 255, StringUtil.foundAt(data.file, data.key));
+                throw new SerializerRangeException("Color", 0, r, 255, StringUtil.foundAt(data.file, data.key));
             else if (g < 0 || g > 255)
-                throw new SerializerRangeException(this, 0, g, 255, StringUtil.foundAt(data.file, data.key));
+                throw new SerializerRangeException("Color", 0, g, 255, StringUtil.foundAt(data.file, data.key));
             else if (b < 0 || b > 255)
-                throw new SerializerRangeException(this, 0, b, 255, StringUtil.foundAt(data.file, data.key));
+                throw new SerializerRangeException("Color", 0, b, 255, StringUtil.foundAt(data.file, data.key));
 
             return Color.fromRGB(r, g, b);
         }
 
         // Allows for primitive color usage, like 'RED', 'BLUE', or 'GREEN'.
         else {
-            Optional<ColorType> optional = EnumUtil.getIfPresent(ColorType.class, input.toUpperCase());
+            Optional<ColorType> optional = EnumUtil.getIfPresent(ColorType.class, input.toUpperCase(Locale.ROOT));
 
             if (optional.isPresent()) {
                 return optional.get().color;
@@ -91,8 +118,8 @@ public class ColorSerializer implements Serializer<Color> {
             else {
                 throw data.exception(null, SerializerException.forValue(input),
                         SerializerException.didYouMean(input, ColorType.class),
-                        "Valid Formats: '#RRGGBB', 'r-g-b', 'RED'",
-                        SerializerException.examples("#AA0022", "255-100-0", "RED", "#444411", "BLUE", "0-0-255")
+                        "Choose one of these formats: #RRGGBB, r g b, RED, RRGGBB, 0xRRGGBB, r~g~b",
+                        SerializerException.examples("#AA0022", "255 100 0", "RED", "444411", "BLUE", "0 0 255")
                         );
             }
         }

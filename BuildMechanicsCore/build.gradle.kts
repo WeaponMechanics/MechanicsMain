@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "1.8.8"
+version = "2.0.0"
 
 plugins {
     `maven-publish`
@@ -20,9 +20,6 @@ dependencies {
     implementation(project(":WorldGuardV6"))
     implementation(project(":WorldGuardV7"))
 
-    implementation(project(":Core_1_9_R2" ))
-    implementation(project(":Core_1_10_R1"))
-    implementation(project(":Core_1_11_R1"))
     implementation(project(":Core_1_12_R1"))
     implementation(project(":Core_1_13_R2"))
     implementation(project(":Core_1_14_R1"))
@@ -64,9 +61,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":WorldGuardV6"))
         include(project(":WorldGuardV7"))
 
-        include(project(":Core_1_9_R2" ))
-        include(project(":Core_1_10_R1"))
-        include(project(":Core_1_11_R1"))
         include(project(":Core_1_12_R1"))
         include(project(":Core_1_13_R2"))
         include(project(":Core_1_14_R1"))

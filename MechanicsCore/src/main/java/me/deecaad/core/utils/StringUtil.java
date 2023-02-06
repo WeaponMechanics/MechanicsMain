@@ -51,8 +51,12 @@ public final class StringUtil {
      * @param str   The non-null string to repeat.
      * @param count The non-negative number of times to repeat.
      * @return The non-null repeated string.
+     * @throws IllegalArgumentException If count is negative.
      */
     public static String repeat(String str, int count) {
+        if (count < 0)
+            throw new IllegalArgumentException("count cannot be negative");
+
         if (count == 0 || str.isEmpty()) {
             return "";
         } else if (count == 1) {
@@ -63,6 +67,56 @@ public final class StringUtil {
                 builder.append(str);
             return builder.toString();
         }
+    }
+
+    /**
+     * Returns <code>true</code> if the character at the given index is an
+     * "escaped" character. A character is considered escaped when a
+     * NON-ESCAPED backslash ('\') precedes it.
+     *
+     * @param str   The non-null string to check.
+     * @param index The index of the character to check.
+     * @return true if the character is escaped.
+     * @throws IndexOutOfBoundsException If index is out of bounds.
+     */
+    public static boolean isEscaped(String str, int index) {
+        if (index == 0)
+            return false;
+
+        // We have to count the number of preceding backslashes. An odd number
+        // suggests that this character is escaped.
+        int backslashes = 0;
+        for (int i = index - 1; i >= 0; i--) {
+            if (str.charAt(i) != '\\')
+                break;
+            backslashes++;
+        }
+
+        return backslashes % 2 == 1 || (str.charAt(index) == '\\' && backslashes % 2 == 0);
+    }
+
+    /**
+     * Same as {@link #isEscaped(String, int)}, but the preceding backslash is
+     * not considered an escaped character.
+     *
+     * @param str   The non-null string to test.
+     * @param index The index of the character to test.
+     * @return true if the character is escaped and should be included.
+     */
+    public static boolean isEscapedAndInclude(String str, int index) {
+        if (index == 0)
+            return false;
+
+        // We have to count the number of preceding backslashes. An odd number
+        // suggests that this character is escaped.
+        int backslashes = 0;
+        for (int i = index - 1; i >= 0; i--) {
+            if (str.charAt(i) != '\\')
+                break;
+            backslashes++;
+        }
+
+        return backslashes % 2 == 1;
     }
 
     /**
