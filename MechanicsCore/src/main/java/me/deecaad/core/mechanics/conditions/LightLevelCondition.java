@@ -46,12 +46,12 @@ public class LightLevelCondition extends Condition {
 
     @Override
     public String getKeyword() {
-        return "Range";
+        return "LightLevel";
     }
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/RangeCondition";
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/LightLevelCondition";
     }
 
     @NotNull
