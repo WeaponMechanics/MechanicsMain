@@ -16,6 +16,7 @@ import me.deecaad.core.database.MySQL;
 import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.*;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
@@ -28,6 +29,7 @@ import me.deecaad.weaponmechanics.listeners.ResourcePackListener;
 import me.deecaad.weaponmechanics.listeners.WeaponListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerEntityListeners;
 import me.deecaad.weaponmechanics.listeners.trigger.TriggerPlayerListeners;
+import me.deecaad.weaponmechanics.mechanics.ReloadingCondition;
 import me.deecaad.weaponmechanics.packetlisteners.OutAbilitiesListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutEntityEffectListener;
 import me.deecaad.weaponmechanics.packetlisteners.OutRemoveEntityEffectListener;
@@ -566,6 +568,10 @@ public class WeaponMechanics {
         return new TaskChain(getPlugin())
                 .thenRunAsync(this::writeFiles)
                 .thenRunSync(() -> {
+
+                    // Register mechanics/conditions/targeters
+                    Mechanics.CONDITIONS.add(new ReloadingCondition());
+
                     loadConfig();
                     registerPlaceholders();
                     registerPacketListeners();
