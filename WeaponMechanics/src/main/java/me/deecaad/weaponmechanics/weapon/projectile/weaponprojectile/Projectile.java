@@ -63,8 +63,11 @@ public class Projectile implements Serializer<Projectile> {
      * @param location the location containing pitch and yaw
      */
     public WeaponProjectile shoot(WeaponProjectile projectile, Location location) {
-        if (mechanics != null)
-            mechanics.use(new CastData(projectile.getShooter(), projectile.getWeaponTitle(), projectile.getWeaponStack()));
+        if (mechanics != null) {
+            CastData cast = new CastData(projectile.getShooter(), projectile.getWeaponTitle(), projectile.getWeaponStack());
+            cast.setTargetLocation(() -> projectile.getLocation().toLocation(projectile.getWorld()));
+            mechanics.use(cast);
+        }
 
         EntityType type = projectileSettings.getProjectileDisguise();
         if (type != null) {

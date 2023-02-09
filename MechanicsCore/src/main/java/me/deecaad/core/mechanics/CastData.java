@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -22,7 +23,7 @@ public class CastData implements Cloneable {
 
     // Targeting information. This is filled in during casting.
     private LivingEntity targetEntity;
-    private Location targetLocation;
+    private Supplier<Location> targetLocation;
 
     // Extra data used by some mechanics
     private Consumer<Integer> taskIdConsumer;
@@ -33,6 +34,7 @@ public class CastData implements Cloneable {
         this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
+
     }
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Map<String, String> tempPlaceholders) {
@@ -82,10 +84,14 @@ public class CastData implements Cloneable {
         if (targetLocation == null && targetEntity == null) {
             debug.log(LogLevel.WARN, "Not targeting either entity nor location", new Throwable());
         }
-        return targetLocation != null ? targetLocation : targetEntity.getLocation();
+        return targetLocation != null ? targetLocation.get() : targetEntity.getLocation();
     }
 
     public void setTargetLocation(Location targetLocation) {
+        this.targetLocation = () -> targetLocation;
+    }
+
+    public void setTargetLocation(Supplier<Location> targetLocation) {
         this.targetLocation = targetLocation;
     }
 
