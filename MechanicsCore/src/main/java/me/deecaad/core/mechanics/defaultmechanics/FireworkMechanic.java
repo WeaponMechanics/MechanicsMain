@@ -3,9 +3,7 @@ package me.deecaad.core.mechanics.defaultmechanics;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.file.InlineSerializer;
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
@@ -25,6 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,25 +59,34 @@ public class FireworkMechanic extends Mechanic {
             boolean trail = data.of("Trail").getBool(false);
             boolean flicker = data.of("Flicker").getBool(false);
 
-            List<Color> colors = data.of("Color").assertExists().getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
-            List<Color> fadeColors = data.of("Fade_Color").getImpliedList(new ColorSerializer()).stream().map(ColorSerializer::getColor).toList();
+            // We allow either one color format '#ffffff' or multi color
+            // format '[#ffffff, #ffffff]'
+            List<Color> colors = new ArrayList<>();
+            List<Color> fadeColors = new ArrayList<>();
 
-            // Allow singular color, or list of colors
-            if (colors.isEmpty()) {
+            try {
+                List<MapConfigLike.Holder> temp = data.of("Color").assertExists().assertType(List.class).get();
+                for (MapConfigLike.Holder holder : temp)
+                    colors.add(ColorSerializer.fromString(data.move("Color"), holder.value().toString()));
+
+            } catch (SerializerTypeException ex) {
                 ColorSerializer color = data.of("Color").serialize(new ColorSerializer());
                 if (color == null)
                     throw data.exception("Color", "Could not determine 'color'", "Try using 'color=RED' or 'color=[RED, GREEN]'");
 
+                // Using List.of() saves space vs. ArrayList
                 colors = List.of(color.getColor());
             }
 
-            // Allow singular color, or list of colors
-            if (fadeColors.isEmpty() && data.has("Fade_Color")) {
-                ColorSerializer color = data.of("Fade_Color").serialize(new ColorSerializer());
-                if (color == null)
-                    throw data.exception("Fade_Color", "Could not determine 'fadeColor'", "Try using 'color=RED' or 'color=[RED, GREEN]'");
+            try {
+                List<MapConfigLike.Holder> temp = data.of("Fade_Color").assertType(List.class).get(List.of());
+                for (MapConfigLike.Holder holder : temp)
+                    fadeColors.add(ColorSerializer.fromString(data.move("Fade_Color"), holder.value().toString()));
 
-                fadeColors = List.of(color.getColor());
+            } catch (SerializerTypeException ex) {
+                ColorSerializer color = data.of("Fade_Color").serialize(new ColorSerializer());
+                if (color != null)
+                    fadeColors = List.of(color.getColor());
             }
 
             FireworkEffect effect = FireworkEffect.builder().with(type).withColor(colors).trail(trail).flicker(flicker).withFade(fadeColors).build();
