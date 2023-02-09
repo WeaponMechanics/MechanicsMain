@@ -4,7 +4,6 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
 
 import java.lang.reflect.Field;
@@ -21,27 +20,27 @@ public class Tools {
         //System.out.println(StringUtils.color("&#FFFFFF/&6test&#efefef&r"));
         //
 
-        blockDamageData();
-        if (true)
-            return;
+        //blockDamageData();
+        //if (true)
+        //    return;
 
-        int MAXIMUM_CAPACITY = 1 << 30;
-        int n = -1 >>> Integer.numberOfLeadingZeros(700 - 1);
-        int cap = (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
-        System.out.println(cap);
+        //int MAXIMUM_CAPACITY = 1 << 30;
+        //int n = -1 >>> Integer.numberOfLeadingZeros(700 - 1);
+        //int cap = (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+        //System.out.println(cap);
 
-        if (true)
-            return;
+        //if (true)
+        //    return;
 
-        String str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~\u007fÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƑáíóúñÑªº¿®¬½¼¡«»";
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
+        //String str = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~\u007fÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƑáíóúñÑªº¿®¬½¼¡«»";
+        //for (int i = 0; i < str.length(); i++) {
+        //    char c = str.charAt(i);
 
-            MapFont.CharacterSprite sprite = MinecraftFont.Font.getChar(c);
-            System.out.println(c + ": " + sprite.getWidth());
-        }
+        //    MapFont.CharacterSprite sprite = MinecraftFont.Font.getChar(c);
+        //    System.out.println(c + ": " + sprite.getWidth());
+        //}
 
-        //calculateStats(0, 0.9, 0.05, 0.0, 0.8, 0);
+        calculateStats(0.55, 0.79, 0.42, 0.51, 0.71, 0.75);
     }
 
     private static void calculateStats(double accuracy, double damage, double range,
@@ -56,8 +55,8 @@ public class Tools {
         System.out.println("-> armor: " + Math.round(NumberUtil.lerp(-2, 5, damage)));
         System.out.println("Range (damage drop off): ");
         double damageDropOff = NumberUtil.lerp(-3, -1, range);
-        System.out.println("-> Default: " + "10: " + damageDropOff + " 25: " + (damageDropOff*2) + " 50: " + (damageDropOff*3));
-        System.out.println("-> Shotgun: " + "5: " + damageDropOff + " 10: " + (damageDropOff*2.5) + " 20: " + (damageDropOff*4));
+        System.out.println("-> Default: " + "10: " + damageDropOff + " 25: " + (damageDropOff * 2) + " 50: " + (damageDropOff * 3));
+        System.out.println("-> Shotgun: " + "5: " + damageDropOff + " 10: " + (damageDropOff * 2.5) + " 20: " + (damageDropOff * 4));
         System.out.println("-> Sniper rifle, rocket launcher, marksman rifle: 0");
         System.out.println("Fire rate: ");
         System.out.println("-> full/semi auto: " + NumberUtil.lerp(-5, 20, firerate));
@@ -82,10 +81,10 @@ public class Tools {
         ReflectionUtil.setField(bField, null, "After a");
         System.out.println(ReflectionUtil.invokeField(aField, null));
     }
-    
+
     private static void entityHitBox() {
         EntityType[] types = EntityType.values();
-        
+
         System.out.println("Entity_Hitboxes:");
         for (EntityType type : types) {
             if (!type.isAlive()) continue; // If it can be a livingEntity, I think

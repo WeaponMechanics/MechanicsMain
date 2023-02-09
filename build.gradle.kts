@@ -50,7 +50,7 @@ tasks.register<Copy>("resourcePackForSpigotRelease") {
     dependsOn("buildForSpigotRelease")
 
     // !!! Has to be updated when resource pack is updated !!!
-    val resourcePackVersion = "1.3.0"
+    val resourcePackVersion = "2.0.0"
 
     from("${layout.projectDirectory}\\resourcepack\\WeaponMechanicsResourcePack-${resourcePackVersion}.zip")
     into(layout.buildDirectory)
@@ -65,11 +65,11 @@ tasks.register<Zip>("zipForSpigotRelease") {
     archiveFileName.set("WeaponMechanics.zip")
     destinationDirectory.set(layout.buildDirectory)
 
-    from (layout.buildDirectory) {
+    from(layout.buildDirectory) {
         include("*.jar")
     }
 
-    from ("install-instructions.txt")
+    from("install-instructions.txt")
 
     doFirst {
         println("Generate zip file")
