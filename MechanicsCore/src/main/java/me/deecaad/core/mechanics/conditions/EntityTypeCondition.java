@@ -39,7 +39,7 @@ public class EntityTypeCondition extends Condition {
     @NotNull
     @Override
     public Condition serialize(SerializeData data) throws SerializerException {
-        EntityType type = data.of("Type").assertExists().getEnum(EntityType.class);
+        EntityType type = data.of("Entity").assertExists().getEnum(EntityType.class);
         return applyParentArgs(data, new EntityTypeCondition(type));
     }
 }
