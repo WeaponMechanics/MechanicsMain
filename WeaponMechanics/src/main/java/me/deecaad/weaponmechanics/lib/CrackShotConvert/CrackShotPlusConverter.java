@@ -511,7 +511,7 @@ public class CrackShotPlusConverter {
 
                 String cspColor = CSPapi.getString(trail + ".Trail_Color");
                 Integer cspCount = CSPapi.getInteger(trail + ".Trail_Settings.Particle_Count");
-                
+
                 StringBuilder builder = new StringBuilder("Particle{particle=%s".formatted(cspTrail));
 
                 if (cspColor != null) {
@@ -527,7 +527,7 @@ public class CrackShotPlusConverter {
                 mechanics.add(builder.toString());
             }
 
-            toConfig.set(to, mechanics);
+            toConfig.set(to + "Particles", mechanics);
         }
     }
 
