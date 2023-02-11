@@ -2,6 +2,14 @@ plugins {
     id("me.deecaad.java-conventions")
 }
 
+repositories {
+    maven {
+        name = "lumine-repo"
+        url = uri("http://mvn.lumine.io/repository/maven-public/")
+        isAllowInsecureProtocol = true
+    }
+}
+
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.10.10")
@@ -19,6 +27,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.12.0")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.slf4j:slf4j-nop:1.7.30")
+    implementation("io.lumine:Mythic-Dist:5.0.1-SNAPSHOT")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     testImplementation("org.spigotmc:spigot-api:1.19.1-R0.1-SNAPSHOT")
