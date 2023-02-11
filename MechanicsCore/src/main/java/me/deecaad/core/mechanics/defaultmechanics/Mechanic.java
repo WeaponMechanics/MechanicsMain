@@ -4,9 +4,11 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.InlineSerializer;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
+import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +28,7 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
     private int repeatAmount;
     private int repeatInterval;
     private int delayBeforePlay;
+    private double chance;
 
     /**
      * Default constructor for serializer.
@@ -53,6 +56,10 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
         return delayBeforePlay;
     }
 
+    public double getChance() {
+        return chance;
+    }
+
     @Nullable
     @Override
     public String getWikiLink() {
@@ -70,6 +77,10 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
      * @param cast The non-null cast data.
      */
     public final void use(CastData cast) {
+
+        // Chance to execute mechanic
+        if (!NumberUtil.chance(chance))
+            return;
 
         // If there is no need to schedule event, skip the event process.
         if (repeatAmount == 1 && repeatInterval == 1 && delayBeforePlay == 0) {
@@ -125,6 +136,8 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
         mechanic.repeatAmount = data.of("Repeat_Amount").getInt(1);
         mechanic.repeatInterval = data.of("Repeat_Interval").getInt(1);
         mechanic.delayBeforePlay = data.of("Delay_Before_Play").getInt(0);
+        Double chance = data.of("Chance").serialize(new ChanceSerializer());
+        mechanic.chance = chance == null ? 1.0 : chance;
         return mechanic;
     }
 }
