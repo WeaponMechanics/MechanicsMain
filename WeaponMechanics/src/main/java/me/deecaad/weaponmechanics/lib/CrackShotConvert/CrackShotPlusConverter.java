@@ -491,17 +491,43 @@ public class CrackShotPlusConverter {
             String defaultTrail = CSPapi.getString(from);
             if (defaultTrail == null) return;
 
+            String[] defaultTrails = defaultTrail.split(",");
 
-            Double d = CSPapi.getDouble(defaultTrail + ".Trail_Catch.Space_Between_Trails");
+            Double d = CSPapi.getDouble(defaultTrails[0] + ".Trail_Catch.Space_Between_Trails");
             toConfig.set(to + "Distance_Between_Particles", d == null ? 0.33 : d);
             toConfig.set(to + "Shape", "LINE");
             toConfig.set(to + "Particle_Chooser", "LOOP");
 
-            toConfig.set(to + "Particles.Particle_1.Type", CSPapi.getString(defaultTrail + ".Trail"));
-            if (CSPapi.getString(defaultTrail + ".Trail_Color") != null)
-                toConfig.set(to + "Particles.Particle_1.Color", CSPapi.getString(defaultTrail + ".Trail_Color"));
-            Integer i = CSPapi.getInteger(defaultTrail + ".Trail_Settings.Particle_Count");
-            if (i != null) toConfig.set(to + ".Particles.Particle_1.Count", i);
+            List<String> mechanics = toConfig.getStringList(to + "Particles");
+
+            for (String trail : defaultTrails) {
+
+                String cspTrail = CSPapi.getString(trail + ".Trail");
+
+                if (cspTrail == null) {
+                    WeaponMechanics.debug.error("Trail not found: " + from + " : " + to + " : trail(s)=" + defaultTrail);
+                    continue;
+                }
+
+                String cspColor = CSPapi.getString(trail + ".Trail_Color");
+                Integer cspCount = CSPapi.getInteger(trail + ".Trail_Settings.Particle_Count");
+
+                StringBuilder builder = new StringBuilder("Particle{particle=%s".formatted(cspTrail));
+
+                if (cspColor != null) {
+                    builder.append(", color=%s".formatted(cspColor));
+                }
+
+                if (cspCount != null) {
+                    builder.append(", count=%s".formatted(cspCount));
+                }
+
+                builder.append("}");
+
+                mechanics.add(builder.toString());
+            }
+
+            toConfig.set(to + "Particles", mechanics);
         }
     }
 
