@@ -5,7 +5,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.conditions.Condition;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class HasPermissionCondition extends Condition {
@@ -22,7 +21,6 @@ public class HasPermissionCondition extends Condition {
     protected boolean isAllowed0(CastData cast) {
         LivingEntity target = cast.getTarget();
         if (target == null) return false;
-        if (!(target instanceof Player)) return false;
 
         return target.hasPermission(permission);
     }

@@ -29,8 +29,8 @@ public class MythicMobsFactionCondition extends Condition {
         LivingEntity target = cast.getTarget();
         if (target == null) return false;
 
-        if (target instanceof Player) {
-            AbstractEntity abstractPlayer = BukkitAdapter.adapt(((Player) target).getPlayer());
+        if (target instanceof Player player) {
+            AbstractEntity abstractPlayer = BukkitAdapter.adapt(player);
             Optional<String> maybeFaction = MythicBukkit.inst().getPlayerManager().getFactionProvider().getFaction(abstractPlayer.asPlayer());
 
             if (!maybeFaction.isPresent()) return false;
