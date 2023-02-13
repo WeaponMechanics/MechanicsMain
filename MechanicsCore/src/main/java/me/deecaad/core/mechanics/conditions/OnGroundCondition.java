@@ -1,6 +1,5 @@
-package me.vierdant.bridgedmechanics.tmep;
+package me.deecaad.core.mechanics.conditions;
 
-import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.MapConfigLike;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
@@ -53,7 +52,7 @@ public class OnGroundCondition extends Condition {
                 Material materialValue = Material.valueOf(block.toUpperCase());
                 blocks.add(materialValue);
             } catch (IllegalArgumentException ex) {
-                MechanicsCore.debug.warn("Ignoring '" + block + "' as it is not a valid Material.");
+                throw data.exception("Blocks", "'" + block + "' is not a valid Material.");
             }
         }
 
