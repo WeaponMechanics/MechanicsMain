@@ -106,12 +106,13 @@ public class Mechanics implements Serializer<Mechanics> {
                         // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
                         Matcher nameMatcher = NAME_FINDER.matcher(group);
                         if (!nameMatcher.find())
-                            throw data.exception(null, "Could not determine the name of the targeter", SerializerException.forValue(group));
+                            throw data.exception(null, "Could not determine the name of the targeter",
+                                    "Make sure you included the {} after your targeter", SerializerException.forValue(group));
 
                         String temp = nameMatcher.group().substring(1);
                         targeter = TARGETERS.get(temp);
                         if (targeter == null)
-                            throw new SerializerOptionsException("", "@Targeter", TARGETERS.getOptions(), temp, "");
+                            throw new SerializerOptionsException("Mechanics", "@Targeter", TARGETERS.getOptions(), temp, data.of().getLocation());
 
                         // We need to call the 'inlineFormat' method since the
                         // current targeter object is just an empty serializer.
@@ -129,6 +130,8 @@ public class Mechanics implements Serializer<Mechanics> {
 
                         String temp = nameMatcher.group().substring(1);
                         Condition condition = Mechanics.CONDITIONS.get(temp);
+                        if (condition == null)
+                            throw new SerializerOptionsException("Mechanics", "?Condition", CONDITIONS.getOptions(), temp, data.of().getLocation());
 
                         // We need to call the 'inlineFormat' method since the
                         // current condition object is just an empty serializer.
@@ -140,18 +143,21 @@ public class Mechanics implements Serializer<Mechanics> {
                     default -> {
                         // Already have a mechanic, so the user probably mis-labeled something
                         if (mechanic != null)
-                            throw data.exception(null, "Found multiple targeters with '@'", "Instead of using multiple targeters on the same line, try putting your mechanics on separate lines");
+                            throw data.exception(null, "Found multiple mechanics on the same line",
+                                    "Mechanic 1: " + mechanic.getInlineKeyword(), "Mechanic 2: " + group,
+                                    "If you are trying to use @targeters and ?conditions, make sure to use @ and ?");
 
                         // Try to figure out the name of the target. For example:
                         // '@EntitiesInRadius(radius=10)' => '@EntitiesInRadius'
                         Matcher nameMatcher = NAME_FINDER.matcher(group);
                         if (!nameMatcher.find())
-                            throw data.exception(null, "Could not determine the name of the targeter", SerializerException.forValue(group));
+                            throw data.exception(null, "Could not determine the name of the mechanic",
+                                    "Make sure you included the {} after your mechanic!", SerializerException.forValue(group));
 
                         String temp = nameMatcher.group();
                         mechanic = MECHANICS.get(temp);
                         if (mechanic == null)
-                            throw new SerializerOptionsException("", "Mechanic", MECHANICS.getOptions(), temp, "");
+                            throw new SerializerOptionsException("Mechanics", "Mechanic", MECHANICS.getOptions(), temp, data.of().getLocation());
 
                         // We need to call the 'inlineFormat' method since the
                         // current mechanic object is just an empty serializer.
