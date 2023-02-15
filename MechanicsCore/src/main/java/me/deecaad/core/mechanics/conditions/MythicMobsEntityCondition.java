@@ -7,17 +7,17 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.jetbrains.annotations.NotNull;
 
-public class MythicMobsCondition extends Condition {
+public class MythicMobsEntityCondition extends Condition {
 
     private String name;
 
     /**
      * Default constructor for serializer.
      */
-    public MythicMobsCondition() {
+    public MythicMobsEntityCondition() {
     }
 
-    public MythicMobsCondition(String name) {
+    public MythicMobsEntityCondition(String name) {
         this.name = name;
     }
 
@@ -39,6 +39,6 @@ public class MythicMobsCondition extends Condition {
     public Condition serialize(SerializeData data) throws SerializerException {
         String type = data.of("Entity").assertExists().get();
 
-        return applyParentArgs(data, new MythicMobsCondition(type));
+        return applyParentArgs(data, new MythicMobsEntityCondition(type));
     }
 }
