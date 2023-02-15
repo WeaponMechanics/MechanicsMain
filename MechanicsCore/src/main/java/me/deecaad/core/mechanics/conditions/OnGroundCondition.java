@@ -2,9 +2,10 @@ package me.deecaad.core.mechanics.conditions;
 
 import me.deecaad.core.file.MapConfigLike;
 import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.conditions.Condition;
+import me.deecaad.core.utils.EnumUtil;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.jetbrains.annotations.NotNull;
@@ -15,9 +16,13 @@ import java.util.Set;
 
 public class OnGroundCondition extends Condition {
 
-    private Set<Material> blocks = new HashSet<>();
+    private Set<Material> blocks;
 
-    public OnGroundCondition() {}
+    /**
+     * Default constructor for serializer.
+     */
+    public OnGroundCondition() {
+    }
 
     public OnGroundCondition(Set<Material> blocks) {
         this.blocks = blocks;
@@ -25,19 +30,16 @@ public class OnGroundCondition extends Condition {
 
     @Override
     protected boolean isAllowed0(CastData cast) {
-        if (cast.getTarget() == null) return false;
-
-        if (blocks.isEmpty()) {
-            return cast.getTarget().isOnGround();
-        }
+        if (cast.getTarget() == null)
+            return false;
 
         Material material = cast.getTargetLocation().getBlock().getRelative(BlockFace.DOWN).getType();
-        return this.blocks.contains(material);
+        return cast.getTarget().isOnGround() && blocks.contains(material);
     }
 
     @Override
     public String getKeyword() {
-        return "OnGround";
+        return "On_Ground";
     }
 
     @NotNull
@@ -48,12 +50,12 @@ public class OnGroundCondition extends Condition {
 
         for (MapConfigLike.Holder holder : materials) {
             String block = holder.value().toString();
-            try {
-                Material materialValue = Material.valueOf(block.toUpperCase());
-                blocks.add(materialValue);
-            } catch (IllegalArgumentException ex) {
-                throw data.exception("Blocks", "'" + block + "' is not a valid Material.");
-            }
+            List<Material> temp = EnumUtil.parseEnums(Material.class, block);
+
+            if (temp.isEmpty())
+                throw new SerializerEnumException(this, Material.class, block, true, data.of("Blocks").getLocation());
+
+            blocks.addAll(temp);
         }
 
         return applyParentArgs(data, new OnGroundCondition(blocks));

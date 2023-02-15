@@ -3,7 +3,6 @@ package me.deecaad.core.mechanics.conditions;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.conditions.Condition;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,7 +10,11 @@ public class HasPermissionCondition extends Condition {
 
     private String permission;
 
-    public HasPermissionCondition() {}
+    /**
+     * Default constructor for serializer.
+     */
+    public HasPermissionCondition() {
+    }
 
     public HasPermissionCondition(String permission) {
         this.permission = permission;
@@ -20,7 +23,8 @@ public class HasPermissionCondition extends Condition {
     @Override
     protected boolean isAllowed0(CastData cast) {
         LivingEntity target = cast.getTarget();
-        if (target == null) return false;
+        if (target == null)
+            return false;
 
         return target.hasPermission(permission);
     }

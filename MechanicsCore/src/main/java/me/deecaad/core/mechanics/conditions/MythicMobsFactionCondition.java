@@ -7,18 +7,22 @@ import io.lumine.mythic.core.mobs.ActiveMob;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.mechanics.conditions.Condition;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class MythicMobsFactionCondition extends Condition {
 
     private String faction;
 
-    public MythicMobsFactionCondition() {}
+    /**
+     * Default constructor for serializer.
+     */
+    public MythicMobsFactionCondition() {
+    }
 
     public MythicMobsFactionCondition(String faction) {
         this.faction = faction;
@@ -33,15 +37,15 @@ public class MythicMobsFactionCondition extends Condition {
             AbstractEntity abstractPlayer = BukkitAdapter.adapt(player);
             Optional<String> maybeFaction = MythicBukkit.inst().getPlayerManager().getFactionProvider().getFaction(abstractPlayer.asPlayer());
 
-            if (!maybeFaction.isPresent()) return false;
-            return (maybeFaction.get()).equals(faction);
+            // Supports null faction
+            return Objects.equals(maybeFaction.orElse(null), faction);
         }
 
         ActiveMob activeMob = MythicBukkit.inst().getMobManager().getMythicMobInstance(target);
         if (activeMob == null || !activeMob.hasFaction()) return false;
 
 
-        return activeMob.getFaction().equals(faction);
+        return Objects.equals(activeMob.getFaction(), faction);
     }
 
     @Override
@@ -52,7 +56,7 @@ public class MythicMobsFactionCondition extends Condition {
     @NotNull
     @Override
     public Condition serialize(SerializeData data) throws SerializerException {
-        String faction = data.of("Faction").assertExists().get();
+        String faction = data.of("Faction").assertType(String.class).get(null);
 
         return applyParentArgs(data, new MythicMobsFactionCondition(faction));
     }
