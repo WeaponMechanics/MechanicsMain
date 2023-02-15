@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class HasPermissionCondition extends Condition {
 
@@ -32,6 +33,11 @@ public class HasPermissionCondition extends Condition {
     @Override
     public String getKeyword() {
         return "HasPermission";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/HasPermissionCondition";
     }
 
     @NotNull

@@ -10,6 +10,7 @@ import me.deecaad.core.mechanics.CastData;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -51,6 +52,11 @@ public class MythicMobsFactionCondition extends Condition {
     @Override
     public String getKeyword() {
         return "MythicMobsFaction";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/MythicMobsFactionCondition";
     }
 
     @NotNull

@@ -9,6 +9,7 @@ import me.deecaad.core.utils.EnumUtil;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,11 @@ public class OnGroundCondition extends Condition {
     @Override
     public String getKeyword() {
         return "On_Ground";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/OnGroundCondition";
     }
 
     @NotNull
