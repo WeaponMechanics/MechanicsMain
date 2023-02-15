@@ -1114,7 +1114,7 @@ public class SerializeData {
                 if (!map.containsKey(UNIQUE_IDENTIFIER))
                     throw listException(relative, i, "Missing name for a(n) '" + serializer + "'");
 
-                String id = map.get(UNIQUE_IDENTIFIER).toString();
+                String id = ((MapConfigLike.Holder) map.get(UNIQUE_IDENTIFIER)).value().toString();
                 InlineSerializer<T> serializer = registry.get(id);
                 if (serializer == null)
                     throw new SerializerOptionsException(SerializeData.this.serializer, registry.getName(), registry.getOptions(), id, getLocation());
