@@ -7,7 +7,6 @@ import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.plugin.Plugin;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Modifier;
@@ -31,7 +30,7 @@ public class JarSearcher {
      *
      * @param jar The <code>.jar</code> file to search.
      */
-    public JarSearcher(@Nonnull JarFile jar) {
+    public JarSearcher(JarFile jar) {
         if (jar == null) {
             throw new IllegalArgumentException("Cannot search a null jar!");
         }
@@ -61,7 +60,7 @@ public class JarSearcher {
      * @return A {@link List} of every subclass.
      */
     @SuppressWarnings("unchecked")
-    public <T> List<Class<T>> findAllSubclasses(@Nonnull Class<T> clazz, ClassLoader clazzLoader, boolean isIgnoreAbstract, Class<?>... classes) {
+    public <T> List<Class<T>> findAllSubclasses(Class<T> clazz, ClassLoader clazzLoader, boolean isIgnoreAbstract, Class<?>... classes) {
         if (clazz == null) throw new IllegalArgumentException("clazz cannot be null");
 
         // Create the class blacklist. The class "clazz" and any classes listed
@@ -74,7 +73,6 @@ public class JarSearcher {
                 .map(Class::getName)
                 .map(str -> str.replaceAll("\\.", "/") + ".class")
                 .collect(Collectors.toSet());
-
 
         Enumeration<JarEntry> entries = jar.entries();
         List<Class<T>> subclasses = new ArrayList<>();

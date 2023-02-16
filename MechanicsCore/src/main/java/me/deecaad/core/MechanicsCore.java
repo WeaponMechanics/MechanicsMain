@@ -5,6 +5,8 @@ import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
+import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
+import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
@@ -57,8 +59,15 @@ public class MechanicsCore extends JavaPlugin {
             searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
                     .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
             Mechanics.CONDITIONS.clear();
-            searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
+            searcher.findAllSubclasses(Condition.class, getClassLoader(), true, MythicMobsEntityCondition.class, MythicMobsFactionCondition.class)
                     .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+
+            // Add the MythicMobs conditions ONLY IF mythicmobs is present to
+            // avoid error.
+            if (getServer().getPluginManager().getPlugin("MythicMobs") != null) {
+                Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
+                Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
+            }
 
         } catch (IOException ex) {
             debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
