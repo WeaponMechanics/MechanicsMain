@@ -20,6 +20,7 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
 
     private final SkinList skinList;
     private final TriggerType cause;
+    private final boolean forceDefault;
     private String skin;
 
     private boolean cancel;
@@ -28,13 +29,15 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
         super(weaponTitle, weaponStack, shooter, hand);
         this.skinList = skinList;
         this.cause = null;
+        this.forceDefault = false;
         this.skin = "default";
     }
 
-    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinList skinList, TriggerType cause) {
+    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinList skinList, TriggerType cause, boolean forceDefault) {
         super(weaponTitle, weaponStack, shooter, hand);
         this.skinList = skinList;
         this.cause = cause;
+        this.forceDefault = forceDefault;
         this.skin = "default";
     }
 
@@ -56,6 +59,16 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
      */
     public TriggerType getCause() {
         return cause;
+    }
+
+    /**
+     * Returns <code>true</code> if the {@link me.deecaad.weaponmechanics.weapon.skin.SkinHandler}
+     * requests a DEFAULT weapon. This tends to happen when the weapon is dequipped.
+     *
+     * @return true if the weapon should be default skin.
+     */
+    public boolean isForceDefault() {
+        return forceDefault;
     }
 
     /**

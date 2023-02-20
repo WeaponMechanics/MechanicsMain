@@ -330,10 +330,6 @@ public class TriggerPlayerListeners implements Listener {
         } else {
             playerWrapper.getMainHandData().cancelTasks();
             playerWrapper.getOffHandData().cancelTasks();
-            if (toMainWeapon != null)
-                weaponHandler.getSkinHandler().tryUse(playerWrapper, toMainWeapon, toMain, EquipmentSlot.OFF_HAND);
-            if (toOffWeapon != null)
-                weaponHandler.getSkinHandler().tryUse(playerWrapper, toOffWeapon, toOff, EquipmentSlot.HAND);
         }
 
         boolean dualWield = toMainWeapon != null && toOffWeapon != null;
