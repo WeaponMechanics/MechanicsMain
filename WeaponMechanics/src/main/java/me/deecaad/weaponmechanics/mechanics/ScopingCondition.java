@@ -18,7 +18,7 @@ public class ScopingCondition extends Condition {
 
     @Override
     protected boolean isAllowed0(CastData cast) {
-        return cast.getTarget() != null && WeaponMechanicsAPI.isReloading(cast.getTarget());
+        return cast.getTarget() != null && WeaponMechanicsAPI.isScoping(cast.getTarget());
     }
 
     @Override

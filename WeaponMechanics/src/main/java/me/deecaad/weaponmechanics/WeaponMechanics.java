@@ -17,6 +17,9 @@ import me.deecaad.core.database.SQLite;
 import me.deecaad.core.events.QueueSerializerEvent;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.conditions.Condition;
+import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
+import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
@@ -137,6 +140,18 @@ public class WeaponMechanics {
             guard.registerFlag("weapon-damage-message", WorldGuardCompatibility.FlagType.STRING_FLAG);
         } else {
             debug.debug("No WorldGuard detected!");
+        }
+
+        try {
+            JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
+            searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+            searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+            searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
+                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
     }
 

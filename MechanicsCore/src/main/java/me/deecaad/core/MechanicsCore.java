@@ -39,6 +39,7 @@ public class MechanicsCore extends JavaPlugin {
 
     public BukkitAudiences adventure;
     public MiniMessage message;
+    private boolean registeredMechanics;
 
     public void onLoad() {
         instance = this;
@@ -49,28 +50,28 @@ public class MechanicsCore extends JavaPlugin {
 
         // Search the jar file for Mechanics, Targeters, and Conditions. We
         // need to register them to the Mechanics.class registries.
-        try {
-            JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
+        if (!registeredMechanics) {
+            registeredMechanics = true;
+            try {
+                JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
 
-            Mechanics.MECHANICS.clear();
-            searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
-            Mechanics.TARGETERS.clear();
-            searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
-            Mechanics.CONDITIONS.clear();
-            searcher.findAllSubclasses(Condition.class, getClassLoader(), true, MythicMobsEntityCondition.class, MythicMobsFactionCondition.class)
-                    .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
+                searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
+                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
+                searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
+                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
+                searcher.findAllSubclasses(Condition.class, getClassLoader(), true, MythicMobsEntityCondition.class, MythicMobsFactionCondition.class)
+                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
-            // Add the MythicMobs conditions ONLY IF mythicmobs is present to
-            // avoid error.
-            if (getServer().getPluginManager().getPlugin("MythicMobs") != null) {
-                Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
-                Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
+                // Add the MythicMobs conditions ONLY IF mythicmobs is present to
+                // avoid error.
+                if (getServer().getPluginManager().getPlugin("MythicMobs") != null) {
+                    Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
+                    Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
+                }
+
+            } catch (IOException ex) {
+                debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
             }
-
-        } catch (IOException ex) {
-            debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
         }
     }
 
