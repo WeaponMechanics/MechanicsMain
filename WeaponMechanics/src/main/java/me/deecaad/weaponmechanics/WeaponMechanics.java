@@ -584,9 +584,6 @@ public class WeaponMechanics {
                 .thenRunAsync(this::writeFiles)
                 .thenRunSync(() -> {
 
-                    // Register mechanics/conditions/targeters
-                    Mechanics.CONDITIONS.add(new ReloadingCondition());
-
                     loadConfig();
                     registerPlaceholders();
                     registerPacketListeners();
