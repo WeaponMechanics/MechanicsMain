@@ -223,12 +223,7 @@ public final class VectorUtil {
     }
 
     /**
-     * Effectively gets a vector perpendicular to the
-     * given vector.
-     *
-     * Examples:
-     * (0, 10, 0) -> (0, -0, 10)
-     * (10, 0, 10) -> (0, -10, 0)
+     * Returns a {@link Vector} perpendicular to the given
      *
      * @param vector The vector to use to get a perpendicular
      * @return The perpendicular method
@@ -239,17 +234,15 @@ public final class VectorUtil {
         double y = vector.getY();
         double z = vector.getZ();
 
-        if (NumberUtil.equals(x + y + z, 0.0)) {
+        if (isEmpty(vector))
             throw new IllegalArgumentException("Vector length cannot be 0");
-        }
 
-        if (z != 0.0) {
-            return new Vector(y, -x, 0);
-        } else if (x != 0.0) {
-            return new Vector(0, -z, y);
-        } else {
+        if (!NumberUtil.equals(y, 0.0))
             return new Vector(z, 0, -x);
-        }
+        else if (!NumberUtil.equals(x, 0.0))
+            return new Vector(0, -z, y);
+        else
+            return new Vector(y, -x, 0);
     }
 
     /**
