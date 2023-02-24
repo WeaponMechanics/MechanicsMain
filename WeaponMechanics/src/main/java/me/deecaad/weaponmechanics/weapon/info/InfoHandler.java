@@ -176,7 +176,7 @@ public class InfoHandler implements IValidator {
 
         ItemMeta weaponMeta = weaponStack.getItemMeta();
         weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), null, weaponStack, weaponTitle, null));
-        weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), null, weaponStack, weaponTitle, null));
+        //weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), null, weaponStack, weaponTitle, null));
         weaponStack.setItemMeta(weaponMeta);
 
         // Apply default skin
@@ -230,7 +230,7 @@ public class InfoHandler implements IValidator {
         if (isPlayer) {
             ItemMeta weaponMeta = weaponStack.getItemMeta();
             weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle, null));
-            weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle, null));
+            //weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle, null));
             weaponStack.setItemMeta(weaponMeta);
         }
 
