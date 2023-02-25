@@ -39,8 +39,8 @@ public class Trigger implements Serializer<Trigger> {
     /**
      * Checks if trigger is valid
      *
-     * @param triggerType the trigger type
-     * @param slot the slot used
+     * @param triggerType   the trigger type
+     * @param slot          the slot used
      * @param entityWrapper the entity's wrapper from whom to check
      * @return true if trigger is valid
      */
@@ -52,7 +52,7 @@ public class Trigger implements Serializer<Trigger> {
         if (slot == EquipmentSlot.HAND) {
             if (isDual && dualWieldMainHand != null) {
                 typeCheck = dualWieldMainHand;
-                if (typeCheck.isRightOrLeft() && livingEntity.getType() == EntityType.PLAYER &&((Player) livingEntity).getMainHand() == MainHand.LEFT) {
+                if (typeCheck.isRightOrLeft() && livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getMainHand() == MainHand.LEFT) {
                     // Invert if player has inverted main hand...
                     typeCheck = typeCheck == TriggerType.RIGHT_CLICK ? TriggerType.LEFT_CLICK : TriggerType.RIGHT_CLICK;
                 }
@@ -62,7 +62,7 @@ public class Trigger implements Serializer<Trigger> {
         } else {
             if (isDual && dualWieldOffHand != null) {
                 typeCheck = dualWieldOffHand;
-                if (typeCheck.isRightOrLeft() && livingEntity.getType() == EntityType.PLAYER &&((Player) livingEntity).getMainHand() == MainHand.LEFT) {
+                if (typeCheck.isRightOrLeft() && livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getMainHand() == MainHand.LEFT) {
                     // Invert if player has inverted main hand...
                     typeCheck = typeCheck == TriggerType.RIGHT_CLICK ? TriggerType.LEFT_CLICK : TriggerType.RIGHT_CLICK;
                 }
@@ -98,6 +98,14 @@ public class Trigger implements Serializer<Trigger> {
         return this.offhand;
     }
 
+    public TriggerType getDualWieldMainHand() {
+        return dualWieldMainHand;
+    }
+
+    public TriggerType getDualWieldOffHand() {
+        return dualWieldOffHand;
+    }
+
     @Override
     public String getKeyword() {
         return "Trigger";
@@ -118,8 +126,10 @@ public class Trigger implements Serializer<Trigger> {
 
         if (isDisabled(main)) throw data.exception("Main_Hand", "Tried to use trigger which is disabled in config.yml");
         if (isDisabled(off)) throw data.exception("Off_Hand", "Tried to use trigger which is disabled in config.yml");
-        if (isDisabled(dualMain)) throw data.exception("Dual_Wield.Main_Hand", "Tried to use trigger which is disabled in config.yml");
-        if (isDisabled(dualOff)) throw data.exception("Dual_Wield.Off_Hand", "Tried to use trigger which is disabled in config.yml");
+        if (isDisabled(dualMain))
+            throw data.exception("Dual_Wield.Main_Hand", "Tried to use trigger which is disabled in config.yml");
+        if (isDisabled(dualOff))
+            throw data.exception("Dual_Wield.Off_Hand", "Tried to use trigger which is disabled in config.yml");
 
         Circumstance circumstance = data.of("Circumstance").serialize(Circumstance.class);
 
@@ -140,17 +150,21 @@ public class Trigger implements Serializer<Trigger> {
     private boolean isDisabled(TriggerType trigger) {
         if (trigger == null) return false;
         return switch (trigger) {
-            case START_SNEAK, END_SNEAK, DOUBLE_SNEAK -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak");
+            case START_SNEAK, END_SNEAK, DOUBLE_SNEAK ->
+                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sneak");
             case START_SPRINT, END_SPRINT -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Sprint");
-            case RIGHT_CLICK, LEFT_CLICK, MELEE -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click");
+            case RIGHT_CLICK, LEFT_CLICK, MELEE ->
+                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.Right_And_Left_Click");
             case DROP_ITEM -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Drop_Item");
             case JUMP -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Jump");
             case DOUBLE_JUMP -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Double_Jump");
             case START_SWIM, END_SWIM -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swim");
             case START_GLIDE, END_GLIDE -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Glide");
             case SWAP_HANDS -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Swap_Hand_Items");
-            case START_WALK, END_WALK, START_STAND, END_STAND -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
-            case START_IN_MIDAIR, END_IN_MIDAIR -> getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair");
+            case START_WALK, END_WALK, START_STAND, END_STAND ->
+                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.Standing_And_Walking");
+            case START_IN_MIDAIR, END_IN_MIDAIR ->
+                    getBasicConfigurations().getBool("Disabled_Trigger_Checks.In_Midair");
         };
     }
 }
