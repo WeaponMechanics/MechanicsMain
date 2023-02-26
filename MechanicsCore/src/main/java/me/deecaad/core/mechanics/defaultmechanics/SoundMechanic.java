@@ -6,6 +6,7 @@ import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
+import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Location;
@@ -123,6 +124,11 @@ public class SoundMechanic extends Mechanic {
 
         Targeter listeners = data.of("Listeners").getRegistry(Mechanics.TARGETERS, null);
         List<Condition> listenerConditions = data.of("Listener_Conditions").getRegistryList(Mechanics.CONDITIONS);
+
+        // If the user wants to use listener conditions, be sure to use a
+        // targeter for listeners (Otherwise these conditions are ignored).
+        if (!listenerConditions.isEmpty() && listeners == null)
+            listeners = new WorldTargeter();
 
         return applyParentArgs(data, new SoundMechanic(sound, volume, pitch, noise, category, listeners, listenerConditions));
     }
