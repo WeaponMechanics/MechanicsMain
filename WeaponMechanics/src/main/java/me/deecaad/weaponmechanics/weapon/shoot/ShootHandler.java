@@ -725,15 +725,17 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
 
+            Location perProjectileShootLocation = shootLocation.clone();
+
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, normalizedDirection.clone().multiply(projectileSpeed), null, weaponTitle, null);
+            WeaponProjectile bullet = projectile.create(livingEntity, perProjectileShootLocation, normalizedDirection.clone().multiply(projectileSpeed), null, weaponTitle, null);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
             bullet = shootEvent.getProjectile();
 
             // Shoot the given bullet
-            projectile.shoot(bullet, shootLocation);
+            projectile.shoot(bullet, perProjectileShootLocation);
         }
 
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity, null);
