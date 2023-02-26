@@ -846,6 +846,15 @@ public class ShootHandler implements IValidator, TriggerListener {
             throw data.exception("Selective_Fire", "When using selective fire, make sure to set up 2 of: 'Burst' and/or 'Fully_Automatic_Shots_Per_Second' and/or 'Delay_Between_Shots'");
         }
 
+        if (hasAuto && (isInvalidFullAuto(trigger.getMainhand())
+                || isInvalidFullAuto(trigger.getOffhand())
+                || isInvalidFullAuto(trigger.getDualWieldMainHand())
+                || isInvalidFullAuto(trigger.getDualWieldOffHand()))) {
+            throw data.exception("Trigger", "Tried to use full auto with invalid trigger.",
+                    "When using full auto trigger supports following trigger types:",
+                    "START_SNEAK, START_SPRINT, RIGHT_CLICK, START_SWIM, START_GLIDE, START_WALK, START_IN_MIDAIR and START_STAND.");
+        }
+
         String defaultSelectiveFire = configuration.getString(data.key + ".Selective_Fire.Default");
         if (defaultSelectiveFire != null) {
             if (!defaultSelectiveFire.equalsIgnoreCase("SINGLE")
@@ -860,5 +869,16 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (durability != null) configuration.set(data.key + ".Custom_Durability", durability);
 
         configuration.set(data.key + ".Reset_Fall_Distance", data.of("Reset_Fall_Distance").getBool(false));
+    }
+
+    private boolean isInvalidFullAuto(TriggerType triggerType) {
+        if (triggerType == null) return false;
+
+        return switch (triggerType) {
+            case START_SNEAK, START_SPRINT, RIGHT_CLICK,
+                    START_SWIM, START_GLIDE, START_WALK,
+                    START_IN_MIDAIR, START_STAND -> false;
+            default -> true;
+        };
     }
 }
