@@ -2,15 +2,6 @@ name: Bug Report
 description: Report any errors or bugs or other behavior related issues here.
 labels: [ bug, new ]
 body:
-  - type: checkboxes
-    attributes:
-      label: Has this issue already been reported? Did you ask for help before making this report?
-      description: Please ask in the `#weaponmechanics-support` channel in our [discord](https://discord.gg/ERVgpfg)
-      options:
-        - label: I have searched the existing issues
-          required: true
-        - label: I have asked for help
-          required: true
 
   - type: textarea
     attributes:
@@ -35,15 +26,13 @@ body:
         2. Spawn this weapon
         3. Shoot it at a player
         4. etc...
-    validations:
-      required: true
-
-  - type: textarea
-    attributes:
-      label: Frequency
-      description: How often does this bug occur.
-      placeholder: |
-        It happens 100% of the time/It only happens sometimes during x/It rarely ever happens and is hard to reproduce/etc
+        
+        ```yaml
+        Config:
+          Should: "Go in here"  # If you need to copy-paste config
+        ```
+        
+        Recording a video is the best way for us to find the bug!
     validations:
       required: true
 
@@ -51,8 +40,7 @@ body:
     attributes:
       label: Version and Log
       description: |
-        Please include a screenshot of your `/wm info` command, as well as your `latest.log` file.
-        You **MUST** include **BOTH** your screenshot, and the log.
+        Please drag and drop your latest.log file into this section.
       placeholder: |
         To insert files:
         1. Try dragging and dropping files
