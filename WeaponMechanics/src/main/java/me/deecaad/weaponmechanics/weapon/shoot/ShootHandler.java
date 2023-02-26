@@ -664,25 +664,27 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         for (int i = 0; i < projectileAmount; ++i) {
 
+            Location perProjectileShootLocation = shootLocation.clone();
+
             // i == 0
             // -> Only allow spread changing on first shot
             Vector motion = spread != null
-                    ? spread.getNormalizedSpreadDirection(entityWrapper, shootLocation, mainHand, i == 0 && updateSpreadChange).multiply(projectileSpeed)
-                    : shootLocation.getDirection().multiply(projectileSpeed);
+                    ? spread.getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, i == 0 && updateSpreadChange).multiply(projectileSpeed)
+                    : perProjectileShootLocation.getDirection().multiply(projectileSpeed);
 
             if (recoil != null && i == 0 && livingEntity instanceof Player) {
                 recoil.start((Player) livingEntity, mainHand);
             }
 
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = projectile.create(livingEntity, shootLocation, motion, weaponStack, weaponTitle, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            WeaponProjectile bullet = projectile.create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
             bullet = shootEvent.getProjectile();
 
             // Shoot the given bullet
-            projectile.shoot(bullet, shootLocation);
+            projectile.shoot(bullet, perProjectileShootLocation);
         }
 
         // Apply custom durability
