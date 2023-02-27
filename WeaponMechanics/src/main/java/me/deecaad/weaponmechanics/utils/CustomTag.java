@@ -73,6 +73,11 @@ public enum CustomTag {
     REPAIR_KIT_TITLE("repair-kit-title"),
 
     /**
+     * string
+     */
+    ATTACHMENT_TITLE("attachment-title"),
+
+    /**
      * array
      */
     ATTACHMENTS("attachments");
