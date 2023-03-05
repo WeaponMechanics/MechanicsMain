@@ -3,88 +3,120 @@ package me.deecaad.weaponmechanics.utils;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Locale;
+
 /**
- * NBT tags used by WeaponMechanics
+ * This enum is used to keep a list of all NBT tags used by WeaponMechanics.
+ * This enum also wraps the {@link me.deecaad.core.compatibility.nbt.NBTCompatibility}
+ * api, making it easier to access data from items.
  */
 public enum CustomTag {
 
     /**
-     * string
+     * The weapon title is stored as a String, and is used by WeaponMechanics
+     * to determine if an item is a weapon, and which weapon it is. The title
+     * can be used to retrieve values from config.
      */
-    WEAPON_TITLE("weapon-title"),
+    WEAPON_TITLE,
 
     /**
-     * integer
+     * Selective fire is stored as an int, and is used by WeaponMechanics to
+     * determine the current selective fire rate of the weapon. 0 = single,
+     * 1 = burst, and 2 = auto.
+     */
+    SELECTIVE_FIRE,
+
+    /**
+     * Ammo left is stored as an int, and is used by WeaponMechanics to store
+     * the amount of ammo left in the gun.
+     */
+    AMMO_LEFT,
+
+    /**
+     * Ammo type index is stored as an int, and is used by WeaponMechanics to
+     * determine which ammo type that is currently loaded in the weapon. This
+     * is done since config allows for multiple ammo types to be loaded into
+     * the weapons. This is used by WeaponMechanicsPlus to add modifiers to
+     * different ammo types.
+     */
+    AMMO_TYPE_INDEX,
+
+    /**
+     * The ammo name is stored as a String, and is used by WeaponMechanics
+     * to determine if an item can be used as ammunition.
+     */
+    AMMO_TITLE("ammo-name"),
+
+    /**
+     * Ammo magazine is stored as an int, and is used by WeaponMechanics to
+     * determine if the ammo was loaded as a magazine, or as individual
+     * bullets. 0 = bullets, 1 = magazine.
+     */
+    AMMO_MAGAZINE,
+
+    /**
+     * Firearm action state is stored as an int, and is used by WeaponMechanics
+     * to check if the weapon is open/closed. 0 = Ready, 1 = Open, 2 = Closed.
      *
-     * Current selective fire state where 0 = single, 1 = burst and 2 = auto
+     * @see me.deecaad.weaponmechanics.weapon.firearm.FirearmAction#getState(ItemStack)
      */
-    SELECTIVE_FIRE("selective-fire"),
+    FIREARM_ACTION_STATE,
 
     /**
-     * integer
+     * Durability is stored as an int, and is used by WeaponMechanics for
+     * {@link me.deecaad.weaponmechanics.weapon.shoot.CustomDurability}.
      */
-    AMMO_LEFT("ammo-left"),
+    DURABILITY,
 
     /**
-     * integer
-     *
-     * Current ammo type's index in the ammo types list
+     * Max durability is stored as an int, and is used by WeaponMechanics to
+     * prevent abusing repairs over and over.
      */
-    AMMO_TYPE_INDEX("ammo-type-index"),
+    MAX_DURABILITY,
 
     /**
-     * string
-     *
-     * Bullet items and magazines items have this.
+     * Broken weapon is stored as a String, and is used by WeaponMechanics to
+     * determine which weapon this item was before breaking. The stored value
+     * is a weapon title.
      */
-    AMMO_NAME("ammo-name"),
+    BROKEN_WEAPON,
 
     /**
-     * integer
-     *
-     * Simple NBT tag to tell whether item is supposed to be magazine.
-     * 0 = false, 1 = true
+     * Repair kit title is stored as a String, and is used by WeaponMechanics
+     * to determine if an item is a repair kit. This title can be used to
+     * get repair kit information from config.
      */
-    AMMO_MAGAZINE("ammo-magazine"),
+    REPAIR_KIT_TITLE,
 
     /**
-     * integer
+     * Attachment title is stored as a string, and is used by
+     * WeaponMechanicsPlus to determine if an item is an attachment. This title
+     * can be used to get attachment information from config (or the attachment
+     * registry, stored in WeaponMechanicsPlus).
      */
-    FIREARM_ACTION_STATE("firearm-action-state"),
+    ATTACHMENT_TITLE,
 
     /**
-     * integer
+     * Attachments are stored as a list of strings, and is used by
+     * WeaponMechanicsPlus to determine which attachments are attached to a
+     * weapon. Each string in the list is an {@link #ATTACHMENT_TITLE}, and can
+     * be used to pull information from config.
      */
-    DURABILITY("durability"),
-
-    /**
-     * integer
-     */
-    MAX_DURABILITY("max-durability"),
-
-    /**
-     * string
-     */
-    BROKEN_WEAPON("broken-weapon"),
-
-    /**
-     * string
-     */
-    REPAIR_KIT_TITLE("repair-kit-title"),
-
-    /**
-     * string
-     */
-    ATTACHMENT_TITLE("attachment-title"),
-
-    /**
-     * array
-     */
-    ATTACHMENTS("attachments");
+    ATTACHMENTS;
 
 
     private final String id;
 
+    CustomTag() {
+        this.id = name().toLowerCase(Locale.ROOT).replace('_', '-');
+    }
+
+    /**
+     * This is only used for backwards support. For example, AMMO_NAME ->
+     * {@link #AMMO_TITLE}. Use the default constructor.
+     *
+     * @param id The non-null id to be used as the NBT tag.
+     */
     CustomTag(String id) {
         this.id = id;
     }
@@ -142,6 +174,18 @@ public enum CustomTag {
 
     public void setArray(ItemStack item, int[] value) {
         CompatibilityAPI.getNBTCompatibility().setArray(item, "WeaponMechanics", id, value);
+    }
+
+    public boolean hasStringArray(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().hasStringArray(item, "WeaponMechanics", id);
+    }
+
+    public String[] getStringArray(ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().getStringArray(item, "WeaponMechanics", id);
+    }
+
+    public void setStringArray(ItemStack item, String[] value) {
+        CompatibilityAPI.getNBTCompatibility().setStringArray(item, "WeaponMechanics", id, value);
     }
 
     public void remove(ItemStack item) {

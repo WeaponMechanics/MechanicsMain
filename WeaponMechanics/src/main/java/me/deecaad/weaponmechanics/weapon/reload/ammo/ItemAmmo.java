@@ -71,7 +71,7 @@ public class ItemAmmo implements IAmmoType {
             // inventory every time you reload (With a 10-second cool down).
             // When we are on cool down (convert = false), then we just want
             // to return true ASAP for performance.
-            String potentialAmmoName = CustomTag.AMMO_NAME.getString(potentialAmmo);
+            String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
             if (Objects.equals(ammoName, potentialAmmoName)) {
                 hasAmmo = true;
                 if (!convert)
@@ -131,7 +131,7 @@ public class ItemAmmo implements IAmmoType {
 
             // No conversion checks here (Conversions are handled by the
             // hasAmmo() method). If the ammo type doesn't match, SKIP.
-            String potentialAmmoName = CustomTag.AMMO_NAME.getString(potentialAmmo);
+            String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
             if (!Objects.equals(ammoName, potentialAmmoName))
                 continue;
 
@@ -227,7 +227,7 @@ public class ItemAmmo implements IAmmoType {
             ItemStack potentialAmmo = playerInventory.getItem(i);
             if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR) continue;
 
-            String potentialAmmoName = CustomTag.AMMO_NAME.getString(potentialAmmo);
+            String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
             if (potentialAmmoName == null || !potentialAmmoName.equals(ammoName)) continue;
 
             // Now we know it's actually an ammo item

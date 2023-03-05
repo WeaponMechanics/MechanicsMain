@@ -174,12 +174,12 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             }
 
             if (bulletItem != null) {
-                CustomTag.AMMO_NAME.setString(bulletItem, ammoName);
+                CustomTag.AMMO_TITLE.setString(bulletItem, ammoName);
             }
 
             // Not else if since both of these can be used at same time
             if (magazineItem != null) {
-                CustomTag.AMMO_NAME.setString(magazineItem, ammoName);
+                CustomTag.AMMO_TITLE.setString(magazineItem, ammoName);
 
                 // Set to indicate that this item is magazine
                 CustomTag.AMMO_MAGAZINE.setInteger(magazineItem, 1);
