@@ -7,12 +7,16 @@ import me.deecaad.core.utils.StringUtil;
 import net.minecraft.server.v1_12_R1.NBTBase;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class NBT_1_12_R1 implements NBTCompatibility {
@@ -126,6 +130,59 @@ public class NBT_1_12_R1 implements NBTCompatibility {
 
         bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
     }
+
+    @Override
+    public boolean hasStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
+        return getBukkitCompound(getNMSStack(bukkitItem)).hasKey(getTagName(plugin, key));
+    }
+
+    @Override
+    public String[] getStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String[] def) {
+        NBTTagCompound nbt = getBukkitCompound(getNMSStack(bukkitItem));
+        String tag = getTagName(plugin, key);
+        if (!nbt.hasKey(tag)) return def;
+
+        byte[] primitive = nbt.getByteArray(tag);
+        final ByteBuffer buffer = ByteBuffer.wrap(primitive);
+        final List<String> list = new ArrayList<>();
+
+        while (buffer.remaining() > 0) {
+            if (buffer.remaining() < 4) break;
+            final int stringLength = buffer.getInt();
+            if (buffer.remaining() < stringLength) break;
+
+            final byte[] stringBytes = new byte[stringLength];
+            buffer.get(stringBytes);
+
+            list.add(new String(stringBytes, StandardCharsets.UTF_8));
+        }
+
+        return list.toArray(new String[0]);
+    }
+
+    @Override
+    public void setStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String[] complex) {
+        net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
+
+        final byte[][] allBytes = new byte[complex.length][];
+        int total = 0;
+        for (int i = 0; i < allBytes.length; i++) {
+            final byte[] bytes = complex[i].getBytes(StandardCharsets.UTF_8);
+            allBytes[i] = bytes;
+            total += bytes.length;
+        }
+
+        final ByteBuffer buffer = ByteBuffer.allocate(total + allBytes.length * 4); //stores integers
+        for (final byte[] bytes : allBytes) {
+            buffer.putInt(bytes.length);
+            buffer.put(bytes);
+        }
+
+        getBukkitCompound(nmsStack).setByteArray(getTagName(plugin, key), buffer.array());
+
+        bukkitItem.setItemMeta(CraftItemStack.getItemMeta(nmsStack));
+    }
+
 
     @Override
     public void remove(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {

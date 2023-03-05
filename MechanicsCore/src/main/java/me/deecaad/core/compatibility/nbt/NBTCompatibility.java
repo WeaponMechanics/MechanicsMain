@@ -26,6 +26,7 @@ public interface NBTCompatibility {
 
     // Used in getArray, so we don't have to instantiate a new array every call
     int[] DO_NOT_MODIFY_ME = new int[0];
+    String[] DO_NOT_MODIFY_ME_STRING = new String[0];
 
     /**
      * Returns <code>true</code> if the given <code>bukkitItem</code>'s NBT
@@ -236,7 +237,7 @@ public interface NBTCompatibility {
 
     /**
      * Returns <code>true</code> if the given <code>bukkitItem</code>'s NBT
-     * compound has the given <code>key</code>, and it is a {@link Double}
+     * compound has the given <code>key</code>, and it is an int[]
      * value. Otherwise, this method will return <code>null</code>.
      *
      * @param bukkitItem The non-null item that has an NBT tag compound.
@@ -249,7 +250,7 @@ public interface NBTCompatibility {
     }
 
     /**
-     * Returns the {@link Double} value of a NBT tag with the given name
+     * Returns the int[] value of a NBT tag with the given name
      * <code>key</code>. The value is pulled from an NBT compound contained in
      * the given item <code>bukkitItem</code>. If the tag isn't used in the
      * item's compound, then this method will return <code>0.0</code>.
@@ -264,7 +265,7 @@ public interface NBTCompatibility {
     }
 
     /**
-     * Returns the {@link Double} value of a NBT tag with the given name
+     * Returns the int[] value of a NBT tag with the given name
      * <code>key</code>. The value is pulled from an NBT compound contained in
      * the given item <code>bukkitItem</code>. If the tag isn't used in the
      * item's compound, then this method will return <code>def</code>.
@@ -283,7 +284,7 @@ public interface NBTCompatibility {
     }
 
     /**
-     * Sets the {@link Double} value of a NBT tag with the given name
+     * Sets the int[] value of a NBT tag with the given name
      * <code>key</code>. The value is put in a compound according to the given
      * <code>plugin</code>, inside of the <code>bukkitItem</code> NBT compound.
      *
@@ -300,6 +301,75 @@ public interface NBTCompatibility {
         PersistentDataContainer nbt = getCompound(meta);
 
         nbt.set(getKey(plugin, key), PersistentDataType.INTEGER_ARRAY, value);
+        bukkitItem.setItemMeta(meta);
+    }
+
+    /**
+     * Returns <code>true</code> if the given <code>bukkitItem</code>'s NBT
+     * compound has the given <code>key</code>, and it is a {@link String}[]
+     * value. Otherwise, this method will return <code>null</code>.
+     *
+     * @param bukkitItem The non-null item that has an NBT tag compound.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
+     * @param key        The non-null name of the tag to check existence of.
+     * @return <code>true</code> if the NBT compound uses the tag.
+     */
+    default boolean hasStringArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+        return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), StringPersistentType.INSTANCE);
+    }
+
+    /**
+     * Returns the {@link String}[] value of a NBT tag with the given name
+     * <code>key</code>. The value is pulled from an NBT compound contained in
+     * the given item <code>bukkitItem</code>. If the tag isn't used in the
+     * item's compound, then this method will return <code>0.0</code>.
+     *
+     * @param bukkitItem The non-null item that has an NBT tag compound.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
+     * @param key        The non-null name of the tag to pull some value from.
+     * @return The value of the tag, or an empty array.
+     */
+    default String[] getStringArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+        return getStringArray(bukkitItem, plugin, key, DO_NOT_MODIFY_ME_STRING);
+    }
+
+    /**
+     * Returns the {@link String}[] value of a NBT tag with the given name
+     * <code>key</code>. The value is pulled from an NBT compound contained in
+     * the given item <code>bukkitItem</code>. If the tag isn't used in the
+     * item's compound, then this method will return <code>def</code>.
+     *
+     * @param bukkitItem The non-null item that has an NBT tag compound.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
+     * @param key        The non-null name of the tag to pull some value from.
+     * @param def        The default value to return if the key is not present.
+     * @return The value of the tag, or <code>def</code>.
+     */
+    default String[] getStringArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String[] def) {
+        ItemMeta meta = bukkitItem.getItemMeta();
+        PersistentDataContainer nbt = getCompound(meta);
+
+        return nbt.has(getKey(plugin, key), StringPersistentType.INSTANCE) ? nbt.get(getKey(plugin, key), StringPersistentType.INSTANCE) : def;
+    }
+
+    /**
+     * Sets the {@link Double} value of a NBT tag with the given name
+     * <code>key</code>. The value is put in a compound according to the given
+     * <code>plugin</code>, inside of the <code>bukkitItem</code> NBT compound.
+     *
+     * <p>The stored value can be seen using
+     * {@link #getStringArray(ItemStack, String, String)}.
+     *
+     * @param bukkitItem The non-null item that has an NBT tag compound.
+     * @param plugin     The non-null owner of the tag, should be your plugin.
+     * @param key        The non-null name of the tag to store the value at.
+     * @param value      The value that will be stored.
+     */
+    default void setStringArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String[] value) {
+        ItemMeta meta = bukkitItem.getItemMeta();
+        PersistentDataContainer nbt = getCompound(meta);
+
+        nbt.set(getKey(plugin, key), StringPersistentType.INSTANCE, value);
         bukkitItem.setItemMeta(meta);
     }
 

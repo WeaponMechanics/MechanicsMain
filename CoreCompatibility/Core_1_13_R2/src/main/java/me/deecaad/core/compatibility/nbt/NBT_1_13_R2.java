@@ -138,6 +138,28 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     @Override
+    public boolean hasStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
+        return getBukkitCompound(bukkitItem.getItemMeta()).hasCustomTag(getKey(plugin, key), StringTagType.INSTANCE);
+    }
+
+    @Override
+    public String[] getStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String[] def) {
+        CustomItemTagContainer nbt = getBukkitCompound(bukkitItem.getItemMeta());
+        NamespacedKey tag = getKey(plugin, key);
+
+        return nbt.hasCustomTag(tag, StringTagType.INSTANCE) ? nbt.getCustomTag(tag, StringTagType.INSTANCE) : def;
+    }
+
+    @Override
+    public void setStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String[] value) {
+        ItemMeta meta = bukkitItem.getItemMeta();
+        CustomItemTagContainer nbt = getBukkitCompound(meta);
+
+        nbt.setCustomTag(getKey(plugin, key), StringTagType.INSTANCE, value);
+        bukkitItem.setItemMeta(meta);
+    }
+
+    @Override
     public void remove(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         ItemMeta meta = bukkitItem.getItemMeta();
         CustomItemTagContainer nbt = getBukkitCompound(meta);
