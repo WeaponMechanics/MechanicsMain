@@ -520,16 +520,16 @@ public class WeaponMechanics {
         }));
 
         metrics.addCustomChart(new SimplePie("custom_weapons", () -> {
-            Set<String> defaultWeapons = new HashSet<>(Arrays.asList("AK-47", "FN_FAL", "FR_5_56", "M4A1",
+            Set<String> defaultWeapons = new HashSet<>(Arrays.asList("AK_47", "FN_FAL", "FR_5_56", "M4A1",
                     "Stim",
                     "Airstrike", "Cluster_Grenade", "Flashbang", "Grenade", "Semtex",
                     "MG34",
                     "Kar98k",
                     "Combat_Knife",
                     "50_GS", "357_Magnum",
-                    "RPG-7",
-                    "Origin_12", "R9-0",
-                    "AX-50",
+                    "RPG-7", "RPG_7",
+                    "Origin_12", "R9-0", "R9_0",
+                    "AX-50", "AX_50",
                     "AUG", "Uzi"));
 
             InfoHandler infoHandler = getWeaponHandler().getInfoHandler();

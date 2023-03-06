@@ -1,41 +1,63 @@
-AX-50:
+AK_47:
   Info:
     Weapon_Item:
       Type: "FEATHER"
-      Name: "<gold>AX-50"
+      Name: "<gold>AK-47"
       Lore:
-        - "<gray>Hard hitting, bolt action sniper rifle with .50 cal BMG ammunition."
+        - "<gray>Very reliable automatic assault rifle chambered in 7.62mm Soviet."
+        - "<gray>Large caliber ammunition requires skill to control recoil."
         - ""
-        - "<gray>Weapon Statistics <gold>-<gray> 66.3"
-        - "<gold>➣<gray> 82 <gold>⟸ <gray>Accuracy"
-        - "<gold>➣<gray> 85 <gold>⟸ <gray>Damage"
-        - "<gold>➣<gray> 79 <gold>⟸ <gray>Range"
-        - "<gold>➣<gray> 38 <gold>⟸ <gray>Fire Rate"
-        - "<gold>➣<gray> 44 <gold>⟸ <gray>Mobility"
-        - "<gold>➣<gray> 70 <gold>⟸ <gray>Control"
+        - "<gray>Weapon Statistics <gold>-<gray> 66.5"
+        - "<gold>➣<gray> 68 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 76 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 67 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 61 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 59 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 68 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
-        - "GENERIC_MOVEMENT_SPEED -0.033"
+        - "GENERIC_MOVEMENT_SPEED -0.0181"
       Deny_Use_In_Crafting: true
+      Recipe:
+        Shape:
+          - " a "
+          - "sib"
+          - " h "
+        Ingredients:
+          a: Adhesive  # found in MechanicsCore > Items > CraftingMaterials.yml
+          i: iron_block
+          b: Barrel  # found in MechanicsCore > Items > CraftingMaterials.yml
+          h: Handle  # found in MechanicsCore > Items > CraftingMaterials.yml
+          s:
+            Type: wooden_shovel
+            Name: "<yellow>Stock"
+            Lore:
+              - "<gray>Crafting material for weapons"
+            Recipe:
+              Shape:
+                - "www"
+                - "ww "
+              Ingredients:
+                w: oak_planks
     Weapon_Info_Display:
       Action_Bar:
-        Message: "<gold>AX-50%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
+        Message: "<gold>AK-47%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
     Weapon_Get_Mechanics:
-      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.5, listeners=Source{}}"
-    Weapon_Equip_Delay: 50
+      - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
+    Weapon_Equip_Delay: 30
     Cancel:
       Drop_Item: true
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
     Default:
-      Custom_Model_Data: 361
+      Custom_Model_Data: 121
     Scope:
-      Custom_Model_Data: 9999
+      Custom_Model_Data: 131
     Sprint:
-      Custom_Model_Data: 371
-  Projectile: "sniper_rifle.Projectile"
+      Custom_Model_Data: 136
+  Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"
@@ -44,68 +66,64 @@ AX-50:
         Swimming: "DENY"
         Sprinting: "DENY"
         Dual_Wielding: "DENY"
-    Projectile_Speed: 250
-    Delay_Between_Shots: 20
+    Projectile_Speed: 80
+    Fully_Automatic_Shots_Per_Second: 10
     Spread:
-      Base_Spread: 2.25
+      Base_Spread: 3.9
       Modify_Spread_When:
-        Zooming: 25%
+        Zooming: 50%
         Sneaking: 50%
         In_Midair: 150%
     Recoil:
       Push_Time: 200
-      Recover_Time: 200
       Horizontal:
-        - -8
+        - 3.2
         - 0
-        - 8
       Vertical:
-        - 13
+        - 3.2
       Modify_Recoil_When:
         Zooming: 50%
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      - "CustomSound{sound=shoot.ax50, volume=6, noise=0.1}"
+      - "CustomSound{sound=shoot.ak47, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
       Off_Hand: "DROP_ITEM"
-    Magazine_Size: 5
-    Reload_Duration: 78
+    Magazine_Size: 30
+    Reload_Duration: 57
     Start_Mechanics:
       - "CustomSound{sound=reload.start.normal, volume=0.5, noise=0.1}"
     Finish_Mechanics:
       - "CustomSound{sound=reload.end.normal, volume=0.5, noise=0.1}"
   Damage:
-    Base_Damage: 12
-    Armor_Damage: 4
+    Base_Damage: 10.2
+    Armor_Damage: 3
+    Dropoff:
+      - "10 -1.66"
+      - "25 -3.32"
+      - "50 -4.98"
   Scope:
     Trigger:
       Main_Hand: "LEFT_CLICK"
       Off_Hand: "LEFT_CLICK"
     Zoom_Amount: 1.5
-    Shoot_Delay_After_Scope: 16
+    Shoot_Delay_After_Scope: 15
     Mechanics:
       - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
       Mechanics:
         - "CustomSound{sound=scope.out, volume=0.5, noise=0.1, listeners=Source{}}"
-    Zoom_Stacking:
-      Stacks:
-        - 4
-        - 10
-      Mechanics:
-        - "CustomSound{sound=scope.in, volume=0.5, noise=0.1}"
   Firearm_Action:
-    Type: "LEVER"
+    Type: "SLIDE"
     Open:
-      Time: 10
+      Time: 8
       Mechanics:
         - "Sound{sound=BLOCK_NOTE_BLOCK_HAT, volume=0.5, noise=0.1, listeners=Source{}}"
-        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=4}"
+        - "Sound{sound=BLOCK_PISTON_CONTRACT, volume=0.5, noise=0.1, listeners=Source{}, delayBeforePlay=2}"
     Close:
-      Time: 10
+      Time: 8
       Mechanics:
         - "Sound{sound=BLOCK_PISTON_EXTEND, volume=0.5, noise=0.1, listeners=Source{}}"
 
@@ -120,7 +138,7 @@ AX-50:
     Bullet_Zip:
       Maximum_Distance: 4.0
       Sounds:
-        - "CustomSound{sound=fx.whiz, noise=0.02} @Target{}"
+        - "CustomSound{sound=fx.whiz, noise=0.02, listeners=Target{}} @Target{}"
     Crossbow:
       Only_When_Scoping: false
 
@@ -141,10 +159,8 @@ AX-50:
         Right_Color: "<red>"
         Left_Symbol: "|"
         Right_Symbol: "|"
-        Symbol_Amount: 5
+        Symbol_Amount: 30
     Weapon_Equip_Delay:
-      Item_Cooldown: true
-    Firearm_Actions:
       Item_Cooldown: true
     Shoot_Delay_After_Scope:
       Item_Cooldown: true
