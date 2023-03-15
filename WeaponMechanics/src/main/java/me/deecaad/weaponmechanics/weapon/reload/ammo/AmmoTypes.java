@@ -166,23 +166,28 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             }
 
             // Item
-            ItemStack bulletItem = move.of("Item_Ammo.Bullet_Item").serialize(new ItemSerializer());
-            ItemStack magazineItem = move.of("Item_Ammo.Magazine_Item").serialize(new ItemSerializer());
+            ItemStack bulletItem = null;
+            ItemStack magazineItem = null;
+
+            // Items with NBT tags added have to be serialized in a special order,
+            // otherwise the crafted item will be missing the NBT tag.
+            if (move.has("Item_Ammo.Bullet_Item")) {
+                bulletItem = new ItemSerializer().serializeWithoutRecipe(move.move("Item_Ammo.Bullet_Item"));
+                CustomTag.AMMO_TITLE.setString(bulletItem, ammoName);
+                bulletItem = new ItemSerializer().serializeRecipe(move.move("Item_Ammo.Bullet_Item"), bulletItem);
+            }
+
+            // Items with NBT tags added have to be serialized in a special order,
+            // otherwise the crafted item will be missing the NBT tag.
+            if (move.has("Item_Ammo.Magazine_Item")) {
+                magazineItem = new ItemSerializer().serializeWithoutRecipe(move.move("Item_Ammo.Magazine_Item"));
+                CustomTag.AMMO_TITLE.setString(bulletItem, ammoName);
+                CustomTag.AMMO_MAGAZINE.setInteger(bulletItem, 1);
+                magazineItem = new ItemSerializer().serializeRecipe(move.move("Item_Ammo.Magazine_Item"), magazineItem);
+            }
 
             if (magazineItem == null && bulletItem == null) {
                 throw move.exception(null, "Tried to use ammo without any options? You should use at least one of the ammo types!");
-            }
-
-            if (bulletItem != null) {
-                CustomTag.AMMO_TITLE.setString(bulletItem, ammoName);
-            }
-
-            // Not else if since both of these can be used at same time
-            if (magazineItem != null) {
-                CustomTag.AMMO_TITLE.setString(magazineItem, ammoName);
-
-                // Set to indicate that this item is magazine
-                CustomTag.AMMO_MAGAZINE.setInteger(magazineItem, 1);
             }
 
             AmmoConverter ammoConverter = (AmmoConverter) move.of("Item_Ammo.Ammo_Converter_Check").serialize(new AmmoConverter());
