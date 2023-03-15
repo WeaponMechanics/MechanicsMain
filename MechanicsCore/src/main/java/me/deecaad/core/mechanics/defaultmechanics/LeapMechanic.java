@@ -3,6 +3,7 @@ package me.deecaad.core.mechanics.defaultmechanics;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.utils.VectorUtil;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +35,14 @@ public class LeapMechanic extends Mechanic {
     @Override
     protected void use0(CastData cast) {
         Vector velocity = cast.getTargetLocation().subtract(cast.getSourceLocation()).toVector();
+
+        // When the target location is the same as the source location, we get
+        // an empty vector.
+        if (VectorUtil.isEmpty(velocity))
+            return;
+        //if (!Double.isFinite(velocity.getX()) || !Double.isFinite(velocity.getY()) || !Double.isFinite(velocity.getZ()))
+        //    return;
+
         velocity.setY(velocity.getY() * verticalMultiplier);
         velocity.normalize().multiply(speed);
         cast.getSource().setVelocity(velocity);
