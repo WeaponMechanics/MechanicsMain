@@ -56,14 +56,6 @@ public class ScopeHandler implements IValidator, TriggerListener {
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Configuration config = getConfigurations();
 
-        // Don't try to scope if either one of the hands is reloading or running firearm actions
-        HandData main = entityWrapper.getMainHandData();
-        HandData off = entityWrapper.getOffHandData();
-        if (main.isReloading() || main.hasRunningFirearmAction()
-                || off.isReloading() || off.hasRunningFirearmAction()) {
-            return false;
-        }
-
         if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
                 && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
             // Don't try to use scope this way when player is in VR
@@ -186,7 +178,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
                 Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
-                if (zoomStackingMechanics != null) zoomStackingMechanics.use(new CastData(entity, weaponTitle, weaponStack));
+                if (zoomStackingMechanics != null)
+                    zoomStackingMechanics.use(new CastData(entity, weaponTitle, weaponStack));
 
                 return true;
             } else {
