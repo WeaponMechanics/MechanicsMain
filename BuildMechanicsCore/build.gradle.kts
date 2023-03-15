@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "2.2.0"
+version = "2.2.2"
 
 plugins {
     `maven-publish`
@@ -73,9 +73,10 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_19_R1"))
         include(project(":Core_1_19_R2"))
 
-        relocate ("kotlin.", "me.deecaad.core.lib.kotlin.") {
-            include(dependency("org.jetbrains.kotlin:"))
-        }
+        include(dependency("org.jetbrains.kotlin:"))
+        //relocate ("kotlin.", "me.deecaad.core.lib.kotlin.") {
+        //    include(dependency("org.jetbrains.kotlin:"))
+        //}
 
         relocate ("net.kyori", "me.deecaad.core.lib") {
             include(dependency("net.kyori::"))
