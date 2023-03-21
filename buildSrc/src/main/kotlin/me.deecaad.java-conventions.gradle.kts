@@ -43,9 +43,9 @@ repositories {
         url = uri("https://mvn.lumine.io/repository/maven-public/")
     }
 
-    maven {
-        url = uri("https://repo.dmulloy2.net/repository/public/")
-    }
+    //maven {
+    //    url = uri("https://repo.dmulloy2.net/repository/public/")
+    //}
 
     maven {
         name = "GitHubPackages"

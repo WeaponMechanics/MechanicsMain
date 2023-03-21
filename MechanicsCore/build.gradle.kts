@@ -18,12 +18,12 @@ dependencies {
     compileOnly("io.netty:netty-all:4.1.86.Final")
     compileOnly("com.mojang:brigadier:1.0.18")
 
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly("com.github.dmulloy2:ProtocolLib:4.8.0")
 
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 
     implementation(kotlin("stdlib-jdk8"))
-    implementation("net.kyori:adventure-api:4.12.0")
+    implementation("net.kyori:adventure-api:4.13.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.12.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.2")
     implementation("net.kyori:adventure-text-minimessage:4.12.0")
@@ -41,6 +41,3 @@ tasks.test {
 }
 
 description = "MechanicsCore"
-repositories {
-    mavenCentral()
-}
