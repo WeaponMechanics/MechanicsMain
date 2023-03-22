@@ -782,7 +782,13 @@ Entity_Hitboxes:
   CAMEL:
     Horizontal_Entity: true
     HEAD: 0.0
-    BODY: 0.9
+    BODY: 0.5
     ARMS: true
-    LEGS: 0.05
+    LEGS: 0.45
+    FEET: 0.05
+  SNIFFER:
+    Horizontal_Entity: true
+    HEAD: 0.0
+    BODY: 0.95
+    LEGS: 0.0
     FEET: 0.05
