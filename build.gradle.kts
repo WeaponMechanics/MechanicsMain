@@ -4,6 +4,17 @@ plugins {
     id("com.github.breadmoirai.github-release") version "2.4.1"
 }
 
+tasks.register("updateGithub").configure {
+
+    dependsOn("createGithubRelease")
+    dependsOn(":BuildMechanicsCore:publish")
+    dependsOn(":BuildWeaponMechanics:publish")
+
+    doFirst {
+        println("Updating GitHub...")
+    }
+}
+
 tasks.register<GithubReleaseTask>("createGithubRelease").configure {
     // https://github.com/BreadMoirai/github-release-gradle-plugin
     val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
@@ -13,8 +24,8 @@ tasks.register<GithubReleaseTask>("createGithubRelease").configure {
     authorization.set("Token ${findProperty("pass").toString()}")
     tagName.set("v${weaponMechanicsVersion}")
     targetCommitish.set("master")
-    releaseName.set("v${weaponMechanicsVersion} BETA")
-    draft.set(true)
+    releaseName.set("v${weaponMechanicsVersion}")
+    draft.set(false)
     prerelease.set(false)
     generateReleaseNotes.set(true)
     body.set("")
