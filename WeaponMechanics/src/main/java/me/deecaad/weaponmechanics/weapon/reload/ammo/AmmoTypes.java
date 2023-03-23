@@ -93,7 +93,8 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             setCurrentAmmoIndex(weaponStack, i);
 
             Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
-            if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(playerWrapper.getPlayer(), weaponTitle, weaponStack));
+            if (ammoTypeSwitchMechanics != null)
+                ammoTypeSwitchMechanics.use(new CastData(playerWrapper.getPlayer(), weaponTitle, weaponStack));
             return true;
         }
         return false;
@@ -181,8 +182,8 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             // otherwise the crafted item will be missing the NBT tag.
             if (move.has("Item_Ammo.Magazine_Item")) {
                 magazineItem = new ItemSerializer().serializeWithoutRecipe(move.move("Item_Ammo.Magazine_Item"));
-                CustomTag.AMMO_TITLE.setString(bulletItem, ammoName);
-                CustomTag.AMMO_MAGAZINE.setInteger(bulletItem, 1);
+                CustomTag.AMMO_TITLE.setString(magazineItem, ammoName);
+                CustomTag.AMMO_MAGAZINE.setInteger(magazineItem, 1);
                 magazineItem = new ItemSerializer().serializeRecipe(move.move("Item_Ammo.Magazine_Item"), magazineItem);
             }
 
