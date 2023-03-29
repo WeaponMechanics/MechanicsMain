@@ -79,6 +79,10 @@ public class SkinList implements Serializer<SkinList> {
                     continue;
                 }
 
+                // Hand skin requires 'Item'. Skip this
+                if ("Item".equals(key))
+                    continue;
+
                 // Skip anything that isn't a configuration section. This is
                 // used for the HAND feature in WMC.
                 if (!data.of(key).is(ConfigurationSection.class)) {
