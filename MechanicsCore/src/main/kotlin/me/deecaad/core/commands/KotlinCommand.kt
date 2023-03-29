@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.permissions.Permission
+import java.util.Optional
 import java.util.function.BiConsumer
 import java.util.function.Function
 import java.util.function.Predicate
@@ -64,21 +65,21 @@ class KotlinCommand(val label: String) {
         subcommands.add(command(label, init))
     }
 
-    fun executePlayer(init: BiConsumer<Player, Array<Any>>) {
+    fun executePlayer(init: BiConsumer<Player, Array<Any?>>) {
         executor = CommandExecutor.player(init)
     }
 
-    fun executeEntity(init: BiConsumer<Entity, Array<Any>>) {
+    fun executeEntity(init: BiConsumer<Entity, Array<Any?>>) {
         executor = CommandExecutor.entity(init)
     }
 
-    fun executeAny(init: BiConsumer<CommandSender, Array<Any>>) {
+    fun executeAny(init: BiConsumer<CommandSender, Array<Any?>>) {
         executor = CommandExecutor.any(init)
     }
 
-    fun <T : CommandSender> execute(type: Class<T>, init: BiConsumer<T, Array<Any>>) {
+    fun <T : CommandSender> execute(type: Class<T>, init: BiConsumer<T, Array<Any?>>) {
         executor = object: CommandExecutor<T>(type) {
-            override fun execute(sender: T, args: Array<Any>) {
+            override fun execute(sender: T, args: Array<Any?>) {
                 init.accept(sender, args)
             }
         }
