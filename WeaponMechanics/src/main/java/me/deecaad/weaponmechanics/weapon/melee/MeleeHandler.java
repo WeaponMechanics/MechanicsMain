@@ -1,9 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.melee;
 
-import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.file.IValidator;
 import me.deecaad.core.file.SerializeData;
@@ -12,11 +10,11 @@ import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.core.utils.ray.RayTrace;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
-import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponMeleeMissEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
@@ -78,9 +76,7 @@ public class MeleeHandler implements IValidator {
             if (weaponTitle == null) return false;
         }
 
-        MCTiming meleeHandlerTiming = WeaponMechanics.timing("Melee Handler").startTiming();
         boolean result = meleeWithoutTimings(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, knownVictim);
-        meleeHandlerTiming.stopTiming();
 
         return result;
     }

@@ -1,12 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
-import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -143,9 +141,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
      * @return true if successfully zoomed in or stacked
      */
     private boolean zoomIn(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
-        MCTiming scopeHandlerTiming = WeaponMechanics.timing("Scope Handler").startTiming();
         boolean result = zoomInWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
-        scopeHandlerTiming.stopTiming();
 
         return result;
     }
@@ -222,9 +218,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
      * @return true if successfully zoomed out
      */
     private boolean zoomOut(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
-        MCTiming scopeHandlerTiming = WeaponMechanics.timing("Scope Handler").startTiming();
         boolean result = zoomOutWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
-        scopeHandlerTiming.stopTiming();
 
         return result;
     }

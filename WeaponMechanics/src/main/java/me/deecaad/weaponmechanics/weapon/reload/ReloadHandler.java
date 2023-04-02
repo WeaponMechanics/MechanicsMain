@@ -1,11 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
-import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderAPI;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
@@ -85,9 +83,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
         // This method is called from many places in reload handler and shoot handler as well
         // so that's why even startReloadWithoutTriggerAndWithoutTiming() is a separated method
 
-        MCTiming reloadHandlerTiming = WeaponMechanics.timing("Reload Handler").startTiming();
         boolean result = startReloadWithoutTriggerAndWithoutTiming(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
-        reloadHandlerTiming.stopTiming();
 
         return result;
     }

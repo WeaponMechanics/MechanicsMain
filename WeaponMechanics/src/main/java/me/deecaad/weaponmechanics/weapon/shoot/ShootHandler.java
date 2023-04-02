@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
-import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
@@ -130,9 +129,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         Trigger trigger = getConfigurations().getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
         if (trigger == null || !trigger.check(triggerType, slot, entityWrapper)) return false;
 
-        MCTiming shootHandlerTiming = WeaponMechanics.timing("Shoot Handler").startTiming();
         boolean result = shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
-        shootHandlerTiming.stopTiming();
 
         return result;
     }

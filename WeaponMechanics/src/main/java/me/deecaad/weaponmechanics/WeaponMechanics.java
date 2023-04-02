@@ -1,7 +1,5 @@
 package me.deecaad.weaponmechanics;
 
-import co.aikar.timings.lib.MCTiming;
-import co.aikar.timings.lib.TimingManager;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import me.cjcrafter.auto.AutoMechanicsDownload;
@@ -92,7 +90,6 @@ public class WeaponMechanics {
     UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
     ProtocolManager protocolManager;
-    TimingManager timingManager;
     Metrics metrics;
     Database database;
 
@@ -159,7 +156,6 @@ public class WeaponMechanics {
 
         plugin = this;
         entityWrappers = new HashMap<>();
-        timingManager = TimingManager.of(getPlugin());
 
         writeFiles();
         registerPacketListeners();
@@ -759,10 +755,6 @@ public class WeaponMechanics {
      */
     public static WeaponHandler getWeaponHandler() {
         return plugin.weaponHandler;
-    }
-
-    public static MCTiming timing(String name) {
-        return plugin.timingManager.of(name);
     }
 
     /**
