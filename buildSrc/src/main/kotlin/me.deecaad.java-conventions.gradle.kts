@@ -36,10 +36,6 @@ repositories {
     }
 
     maven {
-        url = uri("https://repo.aikar.co/content/groups/aikar/")
-    }
-
-    maven {
         url = uri("https://mvn.lumine.io/repository/maven-public/")
     }
 
