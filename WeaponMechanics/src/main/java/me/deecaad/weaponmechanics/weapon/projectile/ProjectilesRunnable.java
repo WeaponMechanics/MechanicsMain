@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.projectile;
 
-import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Bukkit;
@@ -141,9 +140,6 @@ public class ProjectilesRunnable extends BukkitRunnable {
 
         Iterator<AProjectile> projectilesIterator = projectiles.iterator();
 
-        // Start timings for general projectile ticking.
-        MCTiming projectilesRunnableTiming = WeaponMechanics.timing("Projectiles Runnable").startTiming();
-
         while (projectilesIterator.hasNext()) {
             AProjectile projectile = projectilesIterator.next();
             try {
@@ -161,8 +157,5 @@ public class ProjectilesRunnable extends BukkitRunnable {
                 debug.log(LogLevel.WARN, "Removed Projectile: " + projectile, e);
             }
         }
-
-        // End timings for projectile ticking
-        projectilesRunnableTiming.stopTiming();
     }
 }

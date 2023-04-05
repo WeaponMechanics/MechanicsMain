@@ -79,10 +79,6 @@ tasks.named<ShadowJar>("shadowJar") {
             include(dependency("me.cjcrafter:mechanicsautodownload"))
         }
 
-        relocate("co.aikar.timings.lib", "me.deecaad.weaponmechanics.lib.timings") {
-            include(dependency("co.aikar:minecraft-timings"))
-        }
-
         relocate("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
             include(dependency("org.bstats:"))
         }

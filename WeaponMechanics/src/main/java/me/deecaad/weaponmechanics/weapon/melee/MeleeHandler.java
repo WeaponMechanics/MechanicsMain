@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.melee;
 
-import co.aikar.timings.lib.MCTiming;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.ray.RayTraceResult;
@@ -78,9 +77,7 @@ public class MeleeHandler implements IValidator {
             if (weaponTitle == null) return false;
         }
 
-        MCTiming meleeHandlerTiming = WeaponMechanics.timing("Melee Handler").startTiming();
         boolean result = meleeWithoutTimings(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, knownVictim);
-        meleeHandlerTiming.stopTiming();
 
         return result;
     }
