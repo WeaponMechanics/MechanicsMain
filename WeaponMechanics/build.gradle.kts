@@ -17,7 +17,6 @@ repositories {
 dependencies {
     api("org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
-    implementation("co.aikar:minecraft-timings:1.0.4")
     implementation("org.bstats:bstats-bukkit:3.0.0")
     implementation("me.cjcrafter:mechanicsautodownload:1.3.1")
 
