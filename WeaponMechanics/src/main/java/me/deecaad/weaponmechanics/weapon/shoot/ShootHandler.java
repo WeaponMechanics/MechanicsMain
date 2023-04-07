@@ -281,11 +281,12 @@ public class ShootHandler implements IValidator, TriggerListener {
     private boolean singleShot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, HandData handData, EquipmentSlot slot, boolean dualWield, boolean isMelee) {
         boolean mainhand = slot == EquipmentSlot.HAND;
         boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
+        int ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
 
         // START RELOAD STUFF
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
-        reloadHandler.consumeAmmo(weaponStack, weaponTitle, 1);
+        reloadHandler.consumeAmmo(weaponStack, weaponTitle, ammoPerShot);
 
         // END RELOAD STUFF
 
@@ -315,6 +316,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         boolean mainhand = slot == EquipmentSlot.HAND;
         boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
+        int ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
 
         handData.setBurstTask(new BukkitRunnable() {
             int shots = 0;
@@ -338,7 +340,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                     return;
                 }
 
-                if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, 1)) {
+                if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, ammoPerShot)) {
                     handData.setBurstTask(0);
                     cancel();
 
