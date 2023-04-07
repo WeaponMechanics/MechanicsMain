@@ -118,7 +118,8 @@ public class WeaponMechanicsCommand {
                 .with("skipMainhand", MapArgumentType.INT(0, 1))
                 .with("slot", MapArgumentType.INT(IntStream.rangeClosed(0, 40).boxed().toArray(Integer[]::new)))
                 .with("durability", MapArgumentType.INT(500, 1000))
-                .with("maxDurability", MapArgumentType.INT(500, 1000));
+                .with("maxDurability", MapArgumentType.INT(500, 1000))
+                .with("attachments", MapArgumentType.LIST("[]"));
 
         CommandBuilder command = new CommandBuilder("wm")
                 .withAliases("weaponmechanics")

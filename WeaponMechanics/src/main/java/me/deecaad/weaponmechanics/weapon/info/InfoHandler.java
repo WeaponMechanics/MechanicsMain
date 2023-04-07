@@ -15,6 +15,8 @@ import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import me.deecaad.weaponmechanics.weapon.skin.Skin;
 import me.deecaad.weaponmechanics.weapon.skin.SkinList;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponGenerateEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -223,6 +225,9 @@ public class InfoHandler implements IValidator {
             CustomTag.DURABILITY.setInteger(weaponStack, durability == -1 ? customDurability.getMaxDurability() : durability);
             CustomTag.MAX_DURABILITY.setInteger(weaponStack, maxDurability == -1 ? customDurability.getMaxDurability() : maxDurability);
         }
+
+        // Let other plugins modify generated weapons (for example, to add attachments)
+        Bukkit.getPluginManager().callEvent(new WeaponGenerateEvent(weaponTitle, weaponStack, entity, data));
 
         boolean isPlayer = entity instanceof Player;
         Player player = isPlayer ? (Player) entity : null;
