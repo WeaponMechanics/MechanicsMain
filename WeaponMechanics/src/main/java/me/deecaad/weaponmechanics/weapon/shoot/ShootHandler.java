@@ -286,7 +286,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         // START RELOAD STUFF
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
-        reloadHandler.consumeAmmo(weaponStack, weaponTitle, ammoPerShot);
+        if (!reloadHandler.consumeAmmo(weaponStack, weaponTitle, ammoPerShot))
+            return false;
 
         // END RELOAD STUFF
 
@@ -387,6 +388,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         int extra = fullyAutomaticShotsPerSecond % 20;
         boolean mainhand = slot == EquipmentSlot.HAND;
         boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
+        int ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
         handData.setFullAutoTask(new BukkitRunnable() {
@@ -437,7 +439,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                         shootAmount = ammoLeft;
                     }
 
-                    if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, shootAmount)) {
+                    if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, shootAmount * ammoPerShot)) {
                         handData.setFullAutoTask(0);
                         cancel();
 
