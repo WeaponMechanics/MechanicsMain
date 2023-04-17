@@ -390,4 +390,18 @@ public class WeaponProjectile extends AProjectile {
         super.onEnd();
         Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(this));
     }
+
+    /**
+     * @return the projectile settings of this projectile
+     */
+    public ProjectileSettings getProjectileSettings() {
+        return projectileSettings;
+    }
+
+    /**
+     * @return the ray tracer for this projectile
+     */
+    public RayTrace getRayTrace() {
+        return rayTrace;
+    }
 }
