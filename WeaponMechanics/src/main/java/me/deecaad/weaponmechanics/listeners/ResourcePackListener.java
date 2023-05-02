@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.listeners;
 
 import me.cjcrafter.auto.AutoMechanicsDownload;
 import me.deecaad.core.file.TaskChain;
+import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.entity.Player;
@@ -32,11 +33,16 @@ public class ResourcePackListener implements Listener {
                 // to force the players to download the most recent pack.
                 new TaskChain(WeaponMechanics.getPlugin())
                         .thenRunAsync((data) -> {
-                            AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
-                            String version = auto.RESOURCE_PACK_VERSION;
-                            return "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
+                            try {
+                                AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
+                                String version = auto.RESOURCE_PACK_VERSION;
+                                return "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
+                            } catch (InternalError e) {
+                                WeaponMechanics.debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
+                                return null;
+                            }
                         }).thenRunSync((data) -> {
-                            if (!player.isOnline()) return null;
+                            if (!player.isOnline() || data == null) return null;
 
                             WeaponMechanics.debug.debug("Sending " + player.getName() + " resource pack: " + data);
                             player.setResourcePack((String) data);

@@ -260,9 +260,14 @@ public class WeaponMechanics {
                         int read = basicConfiguration.getInt("Resource_Pack_Download.Read_Timeout");
 
                         if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
-                            AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
-                            String version = auto.RESOURCE_PACK_VERSION;
-                            link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
+                            try {
+                                AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
+                                String version = auto.RESOURCE_PACK_VERSION;
+                                link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
+                            } catch (InternalError e) {
+                                debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
+                                return null;
+                            }
                         }
 
                         File pack = new File(getDataFolder(), "WeaponMechanicsResourcePack.zip");
@@ -442,14 +447,14 @@ public class WeaponMechanics {
 
         try {
             UpdateInfo consoleUpdate = updateChecker.hasUpdate();
-                if (consoleUpdate != null) {
-                    Audience audience = MechanicsCore.getPlugin().adventure.sender(Bukkit.getConsoleSender());
-                    Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(consoleUpdate.current, consoleUpdate.newest), NamedTextColor.RED)
-                            .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
-                            .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
+            if (consoleUpdate != null) {
+                Audience audience = MechanicsCore.getPlugin().adventure.sender(Bukkit.getConsoleSender());
+                Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(consoleUpdate.current, consoleUpdate.newest), NamedTextColor.RED)
+                        .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
+                        .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
 
-                    audience.sendMessage(component);
-                }
+                audience.sendMessage(component);
+            }
         } catch (Throwable ex) {
             debug.log(LogLevel.DEBUG, "UpdateChecker error", ex);
             debug.error("UpdateChecker failed to connect: " + ex.getMessage());
