@@ -140,6 +140,10 @@ public class BlockDamage implements Serializer<BlockDamage> {
         return config == null ? defaultMode : config.mode;
     }
 
+    public List<Block> filterBreakbleBlocks(List<Block> blocks) {
+        return blocks.stream().filter(block -> getBreakMode(block.getType()) == BreakMode.BREAK).toList();
+    }
+
     public int getDurability(Block block) {
         return getDurability(block.getType());
     }
