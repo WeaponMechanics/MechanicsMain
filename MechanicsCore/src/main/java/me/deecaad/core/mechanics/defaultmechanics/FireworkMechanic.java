@@ -12,10 +12,7 @@ import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.DistanceUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import org.bukkit.Color;
-import org.bukkit.EntityEffect;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class FireworkMechanic extends Mechanic {
 
@@ -138,8 +136,19 @@ public class FireworkMechanic extends Mechanic {
             players = DistanceUtil.getPlayersInRange(cast.getTargetLocation());
         else {
             players = new LinkedList<>();
+
+            // Imagine an explosion. It has a target location. So the distance between
+            // the source (the player who caused the explosion) and the target (the
+            // explosion) will be constant. In reality, for listenerConditions, we
+            // want the target to be the listener. So we must strip away the target location
+            CastData center = cast;
+            if (cast.hasTargetLocation()) {
+                center = center.clone();
+                center.setTargetLocation((Supplier<Location>) null);
+            }
+
             OUTER:
-            for (CastData target : viewers.getTargets(cast)) {
+            for (CastData target : viewers.getTargets(center)) {
                 if (!(target.getTarget() instanceof Player player))
                     continue;
 

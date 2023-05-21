@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SoundMechanic extends Mechanic {
 
@@ -77,18 +78,25 @@ public class SoundMechanic extends Mechanic {
         if (listeners == null) {
             Location loc = cast.getTargetLocation();
 
-            if (ReflectionUtil.getMCVersion() < 11)
-                loc.getWorld().playSound(loc, sound, volume, pitch + NumberUtil.random(-noise, noise));
-            else
-                loc.getWorld().playSound(loc, sound, (SoundCategory) category, volume, pitch + NumberUtil.random(-noise, noise));
+            loc.getWorld().playSound(loc, sound, (SoundCategory) category, volume, pitch + NumberUtil.random(-noise, noise));
             return;
+        }
+
+        // Imagine an explosion. It has a target location. So the distance between
+        // the source (the player who caused the explosion) and the target (the
+        // explosion) will be constant. In reality, for listenerConditions, we
+        // want the target to be the listener. So we must strip away the target location
+        CastData center = cast;
+        if (cast.hasTargetLocation()) {
+            center = center.clone();
+            center.setTargetLocation((Supplier<Location>) null);
         }
 
         // When listeners != null, only targeted Players will be able to hear
         // this sound. In this case, we have to loop through every player and
         // manually play the sound packet for them.
         OUTER:
-        for (CastData target : listeners.getTargets(cast)) {
+        for (CastData target : listeners.getTargets(center)) {
             if (!(target.getTarget() instanceof Player player))
                 continue;
 
@@ -96,10 +104,7 @@ public class SoundMechanic extends Mechanic {
                 if (!condition.isAllowed(target))
                     continue OUTER;
 
-            if (ReflectionUtil.getMCVersion() < 11)
-                player.playSound(cast.getTargetLocation(), sound, volume, pitch + NumberUtil.random(-noise, noise));
-            else
-                player.playSound(cast.getTargetLocation(), sound, (SoundCategory) category, volume, pitch + NumberUtil.random(-noise, noise));
+            player.playSound(cast.getTargetLocation(), sound, (SoundCategory) category, volume, pitch + NumberUtil.random(-noise, noise));
         }
     }
 
