@@ -7,6 +7,7 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -235,10 +236,15 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
             // Only use these if its BREAK, not CRACK
             if (blockBreakMode == BreakMode.BREAK) {
+
+                // #307, people don't want protection plugins to interfere sometimes
+                boolean disableBlockBreakEvent = WeaponMechanics.getBasicConfigurations().getBool("Disable_Block_Break_Event");
+
                 // When you provide the player to this method, other plugins can
                 // cancel the block damage. This is used for protection plugins
                 // (other than world-edit, which is checked separately).
-                if (player != null) {
+                if (!disableBlockBreakEvent && player != null) {
+
                     BlockBreakEvent breakEvent = new BlockBreakEvent(block, player) {
                         @Override
                         public @NotNull String getEventName() {

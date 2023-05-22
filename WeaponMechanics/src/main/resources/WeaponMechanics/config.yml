@@ -96,6 +96,7 @@ Smooth_Damage_Dropoff: false
 # EntityExplodeEvent in their code. You may want to do this if you handle
 # compatibility on your own.
 Disable_Entity_Explode_Event: false
+Disable_Block_Break_Event: false
 
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but
