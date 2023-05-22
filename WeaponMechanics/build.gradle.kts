@@ -12,18 +12,19 @@ repositories {
         url = uri("http://mvn.lumine.io/repository/maven-public/")
         isAllowInsecureProtocol = true
     }
+    mavenCentral()
 }
 
 dependencies {
-    api("org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT")
+    api("org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
-    implementation("org.bstats:bstats-bukkit:3.0.0")
+    implementation("org.bstats:bstats-bukkit:3.0.1")
     implementation("me.cjcrafter:mechanicsautodownload:1.3.1")
 
     implementation("net.kyori:adventure-api:4.13.0")
-    implementation("net.kyori:adventure-text-serializer-legacy:4.12.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.1.2")
-    implementation("net.kyori:adventure-text-minimessage:4.12.0")
+    implementation("net.kyori:adventure-text-serializer-legacy:4.13.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.0")
+    implementation("net.kyori:adventure-text-minimessage:4.13.0")
 
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 
