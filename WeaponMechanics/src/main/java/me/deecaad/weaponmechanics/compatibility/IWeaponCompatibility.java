@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.compatibility;
 
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
+import org.bukkit.EntityEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -48,4 +49,13 @@ public interface IWeaponCompatibility {
      * @param killer The killer
      */
     void setKiller(LivingEntity victim, Player killer);
+
+    /**
+     * Same as {@link org.bukkit.EntityEffect#HURT} but uses packet in 1.19.4+
+     *
+     * @param victim The entity to show the red flash.
+     */
+    default void playHurtAnimation(LivingEntity victim) {
+        victim.playEffect(EntityEffect.HURT);
+    }
 }

@@ -10,7 +10,6 @@ import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
-import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
@@ -190,7 +189,7 @@ public class DamageUtil {
         }
 
         // Visual red flash
-        victim.playEffect(EntityEffect.HURT);
+        WeaponCompatibilityAPI.getWeaponCompatibility().playHurtAnimation(victim);
 
         // Spigot api things
         victim.setLastDamage(damage);
