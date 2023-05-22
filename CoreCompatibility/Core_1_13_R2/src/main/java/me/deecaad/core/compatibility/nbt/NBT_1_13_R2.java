@@ -222,9 +222,4 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     private CustomItemTagContainer getBukkitCompound(ItemMeta meta) {
         return meta.getCustomTagContainer();
     }
-
-    @Override
-    public NamespacedKey getKey(String plugin, String key) {
-        return new NamespacedKey(plugin.toLowerCase(), key.toLowerCase());
-    }
 }

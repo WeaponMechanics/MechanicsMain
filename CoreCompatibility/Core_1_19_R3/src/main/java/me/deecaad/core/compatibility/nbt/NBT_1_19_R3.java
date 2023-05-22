@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 // https://nms.screamingsandals.org/1.19_R1
-public class NBT_1_19_R3 implements NBTCompatibility {
+public class NBT_1_19_R3 extends NBT_Persistent {
 
     static {
         if (ReflectionUtil.getMCVersion() != 19) {

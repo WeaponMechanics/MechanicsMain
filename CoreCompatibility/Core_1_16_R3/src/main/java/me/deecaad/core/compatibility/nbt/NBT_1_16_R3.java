@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class NBT_1_16_R3 implements NBTCompatibility {
+public class NBT_1_16_R3 extends NBT_Persistent {
 
     static {
         if (ReflectionUtil.getMCVersion() != 16) {
