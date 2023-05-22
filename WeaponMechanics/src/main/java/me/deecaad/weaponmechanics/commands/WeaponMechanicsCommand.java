@@ -14,6 +14,7 @@ import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.lib.CrackShotConvert.Converter;
+import me.deecaad.weaponmechanics.listeners.RepairItemListener;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.BlockDamage;
@@ -82,6 +83,10 @@ public class WeaponMechanicsCommand {
 
         AmmoTypes types = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
         return types == null ? null : types.getAmmoTypes().stream().map(IAmmoType::getAmmoName).map(Tooltip::of).toArray(Tooltip[]::new);
+    };
+
+    public static Function<CommandData, Tooltip[]> REPAIR_KIT_SUGGESTIONS = (data) -> {
+        return RepairItemListener.getInstance().repairKits.keySet().stream().map(Tooltip::of).toArray(Tooltip[]::new);
     };
 
     public static void build() {
@@ -212,6 +217,14 @@ public class WeaponMechanicsCommand {
                         .withArgument(new Argument<>("repair-max", new BooleanArgumentType(), false).withDesc("Repair max-durability as well"))
                         .executes(CommandExecutor.any((sender, args) -> {
                             repair(sender, (List<Entity>) args[0], (RepairMode) args[1], (Boolean) args[2]);
+                        })))
+
+                .withSubcommand(new CommandBuilder("repairkit")
+                        .withPermission("weaponmechanics.commands.repairkit")
+                        .withDescription("Gets the specified repair kit")
+                        .withArgument(new Argument<>("repair-kit", new StringArgumentType()).append(REPAIR_KIT_SUGGESTIONS).withDesc("Which repair kit to give"))
+                        .executes(CommandExecutor.player((sender, args) -> {
+                            giveRepairKit(sender, sender, (String) args[0]);
                         })));
 
 
@@ -608,6 +621,16 @@ public class WeaponMechanicsCommand {
         }
 
         sender.sendMessage(GREEN + "Repaired " + repairedWeapons + " weapons in " + repairedEntities + " different inventories.");
+    }
+
+    public static void giveRepairKit(CommandSender sender, Player receiver, String repairKit) {
+        Map<String, RepairItemListener.RepairKit> options = RepairItemListener.getInstance().repairKits;
+        repairKit = StringUtil.didYouMean(repairKit, options.keySet());
+
+        ItemStack item = options.get(repairKit).getItem().clone();
+        receiver.getInventory().addItem(item);
+
+        sender.sendMessage(GREEN + "Gave 1 " + repairKit);
     }
 
     public static void info(CommandSender sender) {

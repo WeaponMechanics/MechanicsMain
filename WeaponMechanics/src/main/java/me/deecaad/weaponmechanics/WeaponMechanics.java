@@ -361,7 +361,7 @@ public class WeaponMechanics {
 
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new RepairItemListener(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(RepairItemListener.getInstance(), getPlugin());
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
 
             // We need to make sure we are running MM v5

@@ -37,9 +37,20 @@ import java.util.stream.Collectors;
 
 public class RepairItemListener implements Listener {
 
-    private final Map<String, RepairKit> repairKits;
+    // Singleton pattern (kindof)
+    private static RepairItemListener INSTANCE = null;
 
-    public RepairItemListener() {
+    public static RepairItemListener getInstance() {
+        if (INSTANCE == null)
+            INSTANCE = new RepairItemListener();
+        return INSTANCE;
+    }
+    // end of singleton pattern
+
+
+    public final Map<String, RepairKit> repairKits;
+
+    private RepairItemListener() {
         File repairKitFolder = new File(WeaponMechanics.getPlugin().getDataFolder(), "repair_kits");
         repairKits = new HashMap<>();
 
