@@ -173,14 +173,14 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             // Items with NBT tags added have to be serialized in a special order,
             // otherwise the crafted item will be missing the NBT tag.
             if (move.has("Item_Ammo.Bullet_Item")) {
-                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getId(), ammoName);
+                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getKey(), ammoName);
                 bulletItem = new ItemSerializer().serializeWithTags(move.move("Item_Ammo.Bullet_Item"), tags);
             }
 
             // Items with NBT tags added have to be serialized in a special order,
             // otherwise the crafted item will be missing the NBT tag.
             if (move.has("Item_Ammo.Magazine_Item")) {
-                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getId(), ammoName, CustomTag.AMMO_MAGAZINE.getId(), 1);
+                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getKey(), ammoName, CustomTag.AMMO_MAGAZINE.getKey(), 1);
                 magazineItem = new ItemSerializer().serializeWithTags(move.move("Item_Ammo.Magazine_Item"), tags);
             }
 

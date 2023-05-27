@@ -128,6 +128,10 @@ public enum CustomTag {
         return this.id;
     }
 
+    public String getKey() {
+        return "WeaponMechanics:" + getId();
+    }
+
     public boolean hasString(ItemStack item) {
         return CompatibilityAPI.getNBTCompatibility().hasString(item, "WeaponMechanics", id);
     }
