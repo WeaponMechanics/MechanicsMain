@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.PlayerEffectMechanic;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class CustomSoundMechanic extends Mechanic {
+public class CustomSoundMechanic extends PlayerEffectMechanic {
 
     private String sound;
     private float volume;
@@ -90,6 +91,10 @@ public class CustomSoundMechanic extends Mechanic {
             center.setTargetLocation((Supplier<Location>) null);
         }
 
+        // Cache to avoid overhead
+        Location targetLocation = cast.getTargetLocation();
+        float pitch = this.pitch + NumberUtil.random(-noise, noise);
+
         // When listeners != null, only targeted Players will be able to hear
         // this sound. In this case, we have to loop through every player and
         // manually play the sound packet for them.
@@ -102,7 +107,7 @@ public class CustomSoundMechanic extends Mechanic {
                 if (!condition.isAllowed(target))
                     continue OUTER;
 
-            player.playSound(cast.getTargetLocation(), sound, category, volume, pitch + NumberUtil.random(-noise, noise));
+            player.playSound(targetLocation, sound, category, volume, pitch);
         }
     }
 
@@ -134,5 +139,27 @@ public class CustomSoundMechanic extends Mechanic {
             listeners = new WorldTargeter();
 
         return applyParentArgs(data, new CustomSoundMechanic(sound, volume, pitch, noise, category, listeners, listenerConditions));
+    }
+
+    @Override
+    public void playFor(CastData cast, List<Player> viewers) {
+
+        // Cache to avoid overhead
+        Location targetLocation = cast.getTargetLocation();
+        float pitch = this.pitch + NumberUtil.random(-noise, noise);
+
+        for (Player player : viewers) {
+            player.playSound(targetLocation, sound, category, volume, pitch);
+        }
+    }
+
+    @Override
+    public @Nullable Targeter getViewerTargeter() {
+        return listeners;
+    }
+
+    @Override
+    public List<Condition> getViewerConditions() {
+        return listenerConditions;
     }
 }

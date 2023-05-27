@@ -4,6 +4,7 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public abstract class PlayerEffectMechanic extends Mechanic {
      */
     public abstract void playFor(CastData castData, List<Player> viewers);
 
+    @Nullable
     public abstract Targeter getViewerTargeter();
 
     public abstract List<Condition> getViewerConditions();
