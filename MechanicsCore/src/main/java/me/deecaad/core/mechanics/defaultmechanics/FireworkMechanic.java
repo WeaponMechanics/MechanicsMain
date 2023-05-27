@@ -167,7 +167,9 @@ public class FireworkMechanic extends Mechanic {
 
         FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), EntityType.FIREWORK, fireworkItem);
         if (flightTime > 1) fakeEntity.setMotion(0.001, 0.3, -0.001);
-        fakeEntity.show();
+
+        for (Player player : players)
+            fakeEntity.show(player);
 
         // If we need to explode the firework instantly, make sure to return
         if (flightTime <= 0) {
