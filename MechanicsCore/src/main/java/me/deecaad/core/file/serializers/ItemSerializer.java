@@ -64,15 +64,59 @@ public class ItemSerializer implements Serializer<ItemStack> {
     @Override
     @Nonnull
     public ItemStack serialize(SerializeData data) throws SerializerException {
+        return serializeWithTags(data, Collections.emptyMap());
+    }
+
+    public ItemStack serializeWithTags(SerializeData data, Map<String, Object> tags) throws SerializerException {
 
         // When the key is null, that probably means we are currently in an
         // inline serializer. Skip the fancy shit.
         if (data.key == null) {
             ItemStack itemStack = serializeWithoutRecipe(data);
+            applyTags(itemStack, tags);
             itemStack = serializeRecipe(data, itemStack);
             return itemStack;
         }
 
+        // One liner items make life easier with less indentation
+        ItemStack inline = attemptInline(data);
+        if (inline != null) {
+            applyTags(inline, tags);
+            return inline;
+        }
+
+        data.of().assertType(ConfigurationSection.class);
+
+        ItemStack itemStack = serializeWithoutRecipe(data);
+        applyTags(itemStack, tags);
+        itemStack = serializeRecipe(data, itemStack);
+        return itemStack;
+    }
+
+    public void applyTags(ItemStack item, Map<String, Object> tags) {
+        NBTCompatibility nbt = CompatibilityAPI.getNBTCompatibility();
+
+        for (Map.Entry<String, Object> entry : tags.entrySet()) {
+            String[] split = entry.getKey().split(":");
+            String plugin = split[0];
+            String tag = split[1];
+
+            if (entry.getValue() instanceof String string)
+                nbt.setString(item, plugin, tag, string);
+            else if (entry.getValue() instanceof Double num)
+                nbt.setDouble(item, plugin, tag, num);
+            else if (entry.getValue() instanceof Integer num)
+                nbt.setInt(item, plugin, tag, num);
+            else if (entry.getValue() instanceof int[] arr)
+                nbt.setArray(item, plugin, tag, arr);
+            else if (entry.getValue() instanceof String[] arr)
+                nbt.setStringArray(item, plugin, tag, arr);
+            else
+                throw new IllegalArgumentException("Unrecognized type " + entry.getValue() + " when setting custom tags");
+        }
+    }
+
+    public ItemStack attemptInline(SerializeData data) throws SerializerException {
         try {
 
             // Check the ITEM_REGISTRY to see if they are trying to inline
@@ -99,11 +143,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     .addMessage("https://github.com/WeaponMechanics/MechanicsMain/wiki/References#materials");
         }
 
-        data.of().assertType(ConfigurationSection.class);
-
-        ItemStack itemStack = serializeWithoutRecipe(data);
-        itemStack = serializeRecipe(data, itemStack);
-        return itemStack;
+        return null;
     }
 
     public ItemStack serializeWithoutRecipe(SerializeData data) throws SerializerException {

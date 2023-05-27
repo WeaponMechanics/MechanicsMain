@@ -173,18 +173,15 @@ public class AmmoTypes implements Serializer<AmmoTypes> {
             // Items with NBT tags added have to be serialized in a special order,
             // otherwise the crafted item will be missing the NBT tag.
             if (move.has("Item_Ammo.Bullet_Item")) {
-                bulletItem = new ItemSerializer().serializeWithoutRecipe(move.move("Item_Ammo.Bullet_Item"));
-                CustomTag.AMMO_TITLE.setString(bulletItem, ammoName);
-                bulletItem = new ItemSerializer().serializeRecipe(move.move("Item_Ammo.Bullet_Item"), bulletItem);
+                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getId(), ammoName);
+                bulletItem = new ItemSerializer().serializeWithTags(move.move("Item_Ammo.Bullet_Item"), tags);
             }
 
             // Items with NBT tags added have to be serialized in a special order,
             // otherwise the crafted item will be missing the NBT tag.
             if (move.has("Item_Ammo.Magazine_Item")) {
-                magazineItem = new ItemSerializer().serializeWithoutRecipe(move.move("Item_Ammo.Magazine_Item"));
-                CustomTag.AMMO_TITLE.setString(magazineItem, ammoName);
-                CustomTag.AMMO_MAGAZINE.setInteger(magazineItem, 1);
-                magazineItem = new ItemSerializer().serializeRecipe(move.move("Item_Ammo.Magazine_Item"), magazineItem);
+                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getId(), ammoName, CustomTag.AMMO_MAGAZINE.getId(), 1);
+                magazineItem = new ItemSerializer().serializeWithTags(move.move("Item_Ammo.Magazine_Item"), tags);
             }
 
             if (magazineItem == null && bulletItem == null) {

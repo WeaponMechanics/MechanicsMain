@@ -395,13 +395,9 @@ public class RepairItemListener implements Listener {
             Set<String> weapons = data.ofList("Weapons").addArgument(String.class, true).assertList().stream().map(arr -> arr[0]).collect(Collectors.toSet());
             Set<String> armors = data.ofList("Armors").addArgument(String.class, true).assertList().stream().map(arr -> arr[0]).collect(Collectors.toSet());
 
-            // Make sure to set custom tags BEFORE adding the recipe so the
-            // tags are automatically added to crafted repair-kits.
             data.of("Item").assertExists();
-            ItemStack item = new ItemSerializer().serializeWithoutRecipe(data.move("Item"));
-            CustomTag.DURABILITY.setInteger(item, totalDurability);
-            CustomTag.REPAIR_KIT_TITLE.setString(item, repairKitTitle);
-            new ItemSerializer().serializeRecipe(data.move("Item"), item);
+            Map<String, Object> tags = Map.of(CustomTag.DURABILITY.getId(), totalDurability, CustomTag.REPAIR_KIT_TITLE.getId(), repairKitTitle);
+            ItemStack item = new ItemSerializer().serializeWithTags(data.move("Item"), tags);
 
             Mechanics breakMechanics = data.of("Break_Mechanics").serialize(Mechanics.class);
 
