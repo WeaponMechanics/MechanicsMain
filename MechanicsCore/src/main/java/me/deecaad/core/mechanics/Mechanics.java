@@ -64,8 +64,10 @@ public class Mechanics implements Serializer<Mechanics> {
         List<?> list = data.config.getList(data.key);
         List<Mechanic> mechanics = new ArrayList<>();
 
+        // The old mechanic format used nested memory sections, so the list will be null.
         if (list == null) {
-            throw data.exception(null, "Could not find any list... Are you still using the outdated Mechanics format?");
+            throw data.exception(null, "Could not find any list... Are you still using the outdated Mechanics format?",
+                    "Need help? https://youtu.be/q8Oh2qsiCH0");
         }
 
         // Store cacheable mechanics into this list to improve performance.
