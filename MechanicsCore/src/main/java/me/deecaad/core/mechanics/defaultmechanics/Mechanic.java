@@ -6,6 +6,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.PlayerEffectMechanicList;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.NumberUtil;
@@ -84,14 +85,7 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
 
         // If there is no need to schedule event, skip the event process.
         if (repeatAmount == 1 && repeatInterval == 1 && delayBeforePlay == 0) {
-            OUTER:
-            for (CastData target : targeter.getTargets(cast)) {
-                for (Condition condition : conditions)
-                    if (!condition.isAllowed(target))
-                        continue OUTER;
-
-                use0(target);
-            }
+            handleTargetersAndConditions(cast);
             return;
         }
 
@@ -106,14 +100,7 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
                     return;
                 }
 
-                OUTER:
-                for (CastData target : targeter.getTargets(cast)) {
-                    for (Condition condition : conditions)
-                        if (!condition.isAllowed(target))
-                            continue OUTER;
-
-                    use0(target);
-                }
+                handleTargetersAndConditions(cast);
             }
         }.runTaskTimer(MechanicsCore.getPlugin(), delayBeforePlay, repeatInterval - 1).getTaskId();
 
@@ -121,6 +108,26 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
         // Good for canceling tasks early.
         if (cast.getTaskIdConsumer() != null)
             cast.getTaskIdConsumer().accept(task);
+    }
+
+    private void handleTargetersAndConditions(CastData cast) {
+
+        // This Mechanic is a special Mechanic that stores a list of mechanics that
+        // can have their targeters cached. This improves performance. Of course, that
+        // means that this mechanic SHOULD NOT use targeters.
+        if (this instanceof PlayerEffectMechanicList) {
+            use0(cast);
+            return;
+        }
+
+        OUTER:
+        for (CastData target : targeter.getTargets(cast)) {
+            for (Condition condition : conditions)
+                if (!condition.isAllowed(target))
+                    continue OUTER;
+
+            use0(target);
+        }
     }
 
     /**

@@ -72,4 +72,16 @@ public class WorldTargeter extends Targeter {
         String worldName = data.of("World").assertType(String.class).get(null);
         return applyParentArgs(data, new WorldTargeter(worldName));
     }
+
+    /**
+     * Returns <code>true</code> if this targeter uses the default values. This
+     * is checked in the {@link me.deecaad.core.mechanics.PlayerEffectMechanicList}
+     * to determine if a mechanic is eligible to have its targeters cached for
+     * improved performance.
+     *
+     * @return true if this has default values.
+     */
+    public boolean isDefaultValues() {
+        return !isEye() && getOffset() == null && worldName == null;
+    }
 }
