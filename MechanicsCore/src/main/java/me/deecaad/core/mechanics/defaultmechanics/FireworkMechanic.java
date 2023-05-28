@@ -7,6 +7,7 @@ import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ColorSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.mechanics.PlayerEffectMechanic;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.mechanics.targeters.WorldTargeter;
@@ -26,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class FireworkMechanic extends Mechanic {
+public class FireworkMechanic extends PlayerEffectMechanic {
 
     public static class FireworkData implements InlineSerializer<FireworkData> {
 
@@ -161,28 +162,10 @@ public class FireworkMechanic extends Mechanic {
         }
 
         // No need to generate a fake entity if nobody is going to see it.
-        if (players.isEmpty()) {
+        if (players.isEmpty())
             return;
-        }
 
-        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), EntityType.FIREWORK, fireworkItem);
-        if (flightTime > 1) fakeEntity.setMotion(0.001, 0.3, -0.001);
-        fakeEntity.show();
-
-        // If we need to explode the firework instantly, make sure to return
-        if (flightTime <= 0) {
-            fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
-            fakeEntity.remove();
-            return;
-        }
-
-        // Schedule a task to explode the firework later.
-        new BukkitRunnable() {
-            public void run() {
-                fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
-                fakeEntity.remove();
-            }
-        }.runTaskLater(MechanicsCore.getPlugin(), flightTime);
+        playFor(cast, players);
     }
 
     @Override
@@ -215,5 +198,35 @@ public class FireworkMechanic extends Mechanic {
             viewers = new WorldTargeter();
 
         return applyParentArgs(data, new FireworkMechanic(fireworkItem, flightTime, viewers, viewerConditions));
+    }
+
+    @Override
+    public void playFor(CastData cast, List<Player> viewers) {
+
+        FakeEntity fakeEntity = CompatibilityAPI.getCompatibility().getEntityCompatibility().generateFakeEntity(cast.getTargetLocation(), EntityType.FIREWORK, fireworkItem);
+        if (flightTime > 1) fakeEntity.setMotion(0.001, 0.3, -0.001);
+
+        for (Player player : viewers)
+            fakeEntity.show(player);
+
+        // If we need to explode the firework instantly, make sure to return
+        if (flightTime <= 0) {
+            fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
+            fakeEntity.remove();
+            return;
+        }
+
+        // Schedule a task to explode the firework later.
+        new BukkitRunnable() {
+            public void run() {
+                fakeEntity.playEffect(EntityEffect.FIREWORK_EXPLODE);
+                fakeEntity.remove();
+            }
+        }.runTaskLater(MechanicsCore.getPlugin(), flightTime);
+    }
+
+    @Override
+    public @Nullable Targeter getViewerTargeter() {
+        return viewers;
     }
 }

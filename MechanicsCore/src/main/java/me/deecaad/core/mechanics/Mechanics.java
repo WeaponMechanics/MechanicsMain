@@ -5,6 +5,7 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.SourceTargeter;
 import me.deecaad.core.mechanics.targeters.Targeter;
+import me.deecaad.core.mechanics.targeters.WorldTargeter;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,13 +64,31 @@ public class Mechanics implements Serializer<Mechanics> {
         List<?> list = data.config.getList(data.key);
         List<Mechanic> mechanics = new ArrayList<>();
 
+        // The old mechanic format used nested memory sections, so the list will be null.
         if (list == null) {
-            throw data.exception(null, "Could not find any list... Are you still using the outdated Mechanics format?");
+            throw data.exception(null, "Could not find any list... Are you still using the outdated Mechanics format?",
+                    "Need help? https://youtu.be/q8Oh2qsiCH0");
         }
+
+        // Store cacheable mechanics into this list to improve performance.
+        PlayerEffectMechanicList cacheList = new PlayerEffectMechanicList();
 
         for (Object obj : list) {
             Mechanic mechanic = serializeOne(data, obj.toString());
-            mechanics.add(mechanic);
+
+            if (mechanic instanceof PlayerEffectMechanic playerMechanic
+                    && mechanic.getTargeter() instanceof WorldTargeter worldTargeter
+                    && worldTargeter.isDefaultValues()) {
+
+                cacheList.addMechanic(playerMechanic);
+            } else {
+                mechanics.add(mechanic);
+            }
+        }
+
+        // Only store the cache list if it contains mechanics
+        if (!cacheList.isEmpty()) {
+            mechanics.add(cacheList);
         }
 
         return new Mechanics(mechanics);

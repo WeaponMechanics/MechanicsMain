@@ -31,6 +31,10 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
         return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics#targeters";
     }
 
+    public boolean isEye() {
+        return eye;
+    }
+
     @Nullable
     public VectorSerializer getOffset() {
         return offset;
