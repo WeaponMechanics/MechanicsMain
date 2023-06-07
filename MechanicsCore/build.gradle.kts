@@ -1,6 +1,5 @@
 plugins {
     id("me.deecaad.java-conventions")
-    kotlin("jvm") version "1.7.20-RC"
 }
 
 repositories {
@@ -22,7 +21,6 @@ dependencies {
 
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 
-    implementation(kotlin("stdlib-jdk8"))
     implementation("net.kyori:adventure-api:4.13.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.12.0")
     implementation("net.kyori:adventure-platform-bukkit:4.1.2")
