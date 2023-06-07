@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 import java.util.*;
 
 public class BlockDamage implements Serializer<BlockDamage> {
@@ -142,7 +143,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     public List<Block> filterBreakbleBlocks(List<Block> blocks) {
-        return blocks.stream().filter(block -> getBreakMode(block.getType()) == BreakMode.BREAK).toList();
+        return blocks.stream().filter(block -> getBreakMode(block.getType()) == BreakMode.BREAK).collect(Collectors.toList());
     }
 
     public int getDurability(Block block) {
