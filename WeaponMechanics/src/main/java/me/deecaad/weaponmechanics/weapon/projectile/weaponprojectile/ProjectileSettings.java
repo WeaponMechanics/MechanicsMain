@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
 
-public class ProjectileSettings implements Serializer<ProjectileSettings> {
+public class ProjectileSettings implements Serializer<ProjectileSettings>, Cloneable {
 
     private EntityType projectileDisguise;
     private Object disguiseData;
@@ -67,6 +67,10 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return this.projectileDisguise;
     }
 
+    public void setProjectileDisguise(EntityType projectileDisguise) {
+        this.projectileDisguise = projectileDisguise;
+    }
+
     /**
      * Only certain entities need this. For example falling block, entity item and so on.
      * FALLING_BLOCK -> Material
@@ -80,11 +84,19 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return disguiseData;
     }
 
+    public void setDisguiseData(Object disguiseData) {
+        this.disguiseData = disguiseData;
+    }
+
     /**
      * @return gravity of projectile
      */
     public double getGravity() {
         return gravity;
+    }
+
+    public void setGravity(double gravity) {
+        this.gravity = gravity;
     }
 
     /**
@@ -94,11 +106,19 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return minimumSpeed;
     }
 
+    public void setMinimumSpeed(double minimumSpeed) {
+        this.minimumSpeed = minimumSpeed;
+    }
+
     /**
      * @return whether to remove projectile when minimum speed is reached
      */
     public boolean isRemoveAtMinimumSpeed() {
         return this.removeAtMinimumSpeed;
+    }
+
+    public void setRemoveAtMinimumSpeed(boolean removeAtMinimumSpeed) {
+        this.removeAtMinimumSpeed = removeAtMinimumSpeed;
     }
 
     /**
@@ -108,11 +128,19 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return maximumSpeed;
     }
 
+    public void setMaximumSpeed(double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+    }
+
     /**
      * @return whether to remove projectile when maximum speed is reached
      */
     public boolean isRemoveAtMaximumSpeed() {
         return this.removeAtMaximumSpeed;
+    }
+
+    public void setRemoveAtMaximumSpeed(boolean removeAtMaximumSpeed) {
+        this.removeAtMaximumSpeed = removeAtMaximumSpeed;
     }
 
     /**
@@ -122,11 +150,19 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return decrease;
     }
 
+    public void setDecrease(double decrease) {
+        this.decrease = decrease;
+    }
+
     /**
      * @return speed decreasing in water
      */
     public double getDecreaseInWater() {
         return decreaseInWater;
+    }
+
+    public void setDecreaseInWater(double decreaseInWater) {
+        this.decreaseInWater = decreaseInWater;
     }
 
     /**
@@ -136,11 +172,19 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return decreaseWhenRainingOrSnowing;
     }
 
+    public void setDecreaseWhenRainingOrSnowing(double decreaseWhenRainingOrSnowing) {
+        this.decreaseWhenRainingOrSnowing = decreaseWhenRainingOrSnowing;
+    }
+
     /**
      * @return whether to skip entity collision checks
      */
     public boolean isDisableEntityCollisions() {
         return disableEntityCollisions;
+    }
+
+    public void setDisableEntityCollisions(boolean disableEntityCollisions) {
+        this.disableEntityCollisions = disableEntityCollisions;
     }
 
     /**
@@ -150,6 +194,10 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return maximumAliveTicks;
     }
 
+    public void setMaximumAliveTicks(int maximumAliveTicks) {
+        this.maximumAliveTicks = maximumAliveTicks;
+    }
+
     /**
      * @return the maximum travel distance of projectile, -1 if not used
      */
@@ -157,11 +205,19 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return maximumTravelDistance;
     }
 
+    public void setMaximumTravelDistance(double maximumTravelDistance) {
+        this.maximumTravelDistance = maximumTravelDistance;
+    }
+
     /**
      * @return the projectile size, 0.1 if not used
      */
     public double getSize() {
         return size;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
     }
 
     @Override
@@ -232,5 +288,14 @@ public class ProjectileSettings implements Serializer<ProjectileSettings> {
         return new ProjectileSettings(projectileType, disguiseData, gravity, removeAtMinimumSpeed, minimumSpeed,
                 removeAtMaximumSpeed, maximumSpeed, decrease, decreaseInWater, decreaseWhenRainingOrSnowing,
                 disableEntityCollisions, maximumAliveTicks, maximumTravelDistance, size);
+    }
+
+    @Override
+    public ProjectileSettings clone() {
+        try {
+            return (ProjectileSettings) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

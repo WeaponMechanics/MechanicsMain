@@ -9,7 +9,7 @@ import org.bukkit.entity.EntityType;
 
 import javax.annotation.Nonnull;
 
-public class Through implements Serializer<Through> {
+public class Through implements Serializer<Through>, Cloneable {
 
     // -1 = infinite
     private int maximumThroughAmount;
@@ -31,6 +31,10 @@ public class Through implements Serializer<Through> {
 
     public int getMaximumThroughAmount() {
         return maximumThroughAmount;
+    }
+
+    public void setMaximumThroughAmount(int maximumThroughAmount) {
+        this.maximumThroughAmount = maximumThroughAmount;
     }
 
     /**
@@ -80,5 +84,14 @@ public class Through implements Serializer<Through> {
         int maximumThroughAmount = data.of("Maximum_Through_Amount").getInt(1);
 
         return new Through(maximumThroughAmount, blocks, entities);
+    }
+
+    @Override
+    public Through clone() {
+        try {
+            return (Through) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

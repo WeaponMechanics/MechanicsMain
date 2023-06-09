@@ -1,10 +1,10 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.ray.RayTrace;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
-import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,16 +20,20 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class WeaponProjectile extends AProjectile {
 
-    // Storing this reference to be able to use cloneSettingsAndShoot(Location, Motion) method
-    private final ProjectileSettings projectileSettings;
+    // These may be modified by WMP. We have booleans to check if a new copy
+    // was made of these variables.
+    private ProjectileSettings projectileSettings;
+    private boolean isProjectileSettingsChanged;
+    private Sticky sticky;
+    private boolean isStickyChanged;
+    private Through through;
+    private boolean isThroughChanged;
+    private Bouncy bouncy;
+    private boolean isBouncyChanged;
 
     private final ItemStack weaponStack;
     private final String weaponTitle;
     private final EquipmentSlot hand;
-
-    private final Sticky sticky;
-    private final Through through;
-    private final Bouncy bouncy;
 
     private StickedData stickedData;
     private int throughAmount;
@@ -51,12 +55,13 @@ public class WeaponProjectile extends AProjectile {
         super(shooter, location, motion);
 
         this.projectileSettings = projectileSettings;
-        this.weaponStack = weaponStack;
-        this.weaponTitle = weaponTitle;
-        this.hand = hand;
         this.sticky = sticky;
         this.through = through;
         this.bouncy = bouncy;
+
+        this.weaponStack = weaponStack;
+        this.weaponTitle = weaponTitle;
+        this.hand = hand;
 
         if (projectileSettings.isDisableEntityCollisions()) {
             this.rayTrace = new RayTrace()
@@ -84,6 +89,52 @@ public class WeaponProjectile extends AProjectile {
      */
     public WeaponProjectile clone(Location location, Vector motion) {
         return new WeaponProjectile(projectileSettings, getShooter(), location, motion, weaponStack, weaponTitle, hand, sticky, through, bouncy);
+    }
+
+    public ProjectileSettings getProjectileSettings() {
+        if (isProjectileSettingsChanged)
+            return projectileSettings;
+
+        projectileSettings = projectileSettings.clone();
+        isProjectileSettingsChanged = true;
+        return projectileSettings;
+    }
+
+    public void setProjectileSettings(ProjectileSettings projectileSettings) {
+        this.projectileSettings = projectileSettings;
+        isProjectileSettingsChanged = true;
+    }
+
+    public Sticky getSticky() {
+        if (isStickyChanged)
+            return sticky;
+
+        sticky = sticky.clone();
+        isStickyChanged = true;
+        return sticky;
+    }
+
+    public void setSticky(Sticky sticky) {
+        this.sticky = sticky;
+        isStickyChanged = true;
+    }
+
+    public Through getThrough() {
+        if (isThroughChanged)
+            return through;
+
+        through = through.clone();
+        isThroughChanged = true;
+        return through;
+    }
+
+    public Bouncy getBouncy() {
+        if (isBouncyChanged)
+            return bouncy;
+
+        bouncy = bouncy.clone();
+        isBouncyChanged = true;
+        return bouncy;
     }
 
     @Override
@@ -389,19 +440,5 @@ public class WeaponProjectile extends AProjectile {
     public void onEnd() {
         super.onEnd();
         Bukkit.getPluginManager().callEvent(new ProjectileEndEvent(this));
-    }
-
-    /**
-     * @return the projectile settings of this projectile
-     */
-    public ProjectileSettings getProjectileSettings() {
-        return projectileSettings;
-    }
-
-    /**
-     * @return the ray tracer for this projectile
-     */
-    public RayTrace getRayTrace() {
-        return rayTrace;
     }
 }

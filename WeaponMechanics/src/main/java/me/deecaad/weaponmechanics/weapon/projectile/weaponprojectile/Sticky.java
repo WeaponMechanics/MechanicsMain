@@ -9,7 +9,7 @@ import org.bukkit.entity.EntityType;
 
 import javax.annotation.Nonnull;
 
-public class Sticky implements Serializer<Sticky> {
+public class Sticky implements Serializer<Sticky>, Cloneable {
 
     private ListHolder<Material> blocks;
     private ListHolder<EntityType> entities;
@@ -59,5 +59,14 @@ public class Sticky implements Serializer<Sticky> {
         }
 
         return new Sticky(blocks, entities);
+    }
+
+    @Override
+    public Sticky clone() {
+        try {
+            return (Sticky) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

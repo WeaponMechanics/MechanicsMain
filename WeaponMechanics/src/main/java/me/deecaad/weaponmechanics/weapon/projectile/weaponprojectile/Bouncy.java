@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class Bouncy implements Serializer<Bouncy> {
+public class Bouncy implements Serializer<Bouncy>, Cloneable {
 
     // -1 = infinite
     private int maximumBounceAmount;
@@ -21,7 +21,7 @@ public class Bouncy implements Serializer<Bouncy> {
     private ListHolder<Material> blocks;
     private ListHolder<EntityType> entities;
 
-    private double requiredMotionToStartRolling;
+    private double requiredMotionToStartRollingOrDie;
     private ListHolder<Material> rollingBlocks;
 
     /**
@@ -31,12 +31,20 @@ public class Bouncy implements Serializer<Bouncy> {
     }
 
     public Bouncy(int maximumBounceAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities,
-                  double requiredMotionToStartRolling, ListHolder<Material> rollingBlocks) {
+                  double requiredMotionToStartRollingOrDie, ListHolder<Material> rollingBlocks) {
         this.maximumBounceAmount = maximumBounceAmount;
         this.blocks = blocks;
         this.entities = entities;
-        this.requiredMotionToStartRolling = requiredMotionToStartRolling;
+        this.requiredMotionToStartRollingOrDie = requiredMotionToStartRollingOrDie;
         this.rollingBlocks = rollingBlocks;
+    }
+
+    public int getMaximumBounceAmount() {
+        return maximumBounceAmount;
+    }
+
+    public void setMaximumBounceAmount(int maximumBounceAmount) {
+        this.maximumBounceAmount = maximumBounceAmount;
     }
 
     /**
@@ -46,7 +54,11 @@ public class Bouncy implements Serializer<Bouncy> {
      * @return the required motion to start rolling or die
      */
     public double getRequiredMotionToStartRollingOrDie() {
-        return requiredMotionToStartRolling;
+        return requiredMotionToStartRollingOrDie;
+    }
+
+    public void setRequiredMotionToStartRollingOrDie(double requiredMotionToStartRolling) {
+        this.requiredMotionToStartRollingOrDie = requiredMotionToStartRolling;
     }
 
     /**
@@ -159,5 +171,14 @@ public class Bouncy implements Serializer<Bouncy> {
         double requiredMotionToStartRolling = data.of("Rolling.Required_Motion_To_Start_Rolling").assertPositive().getDouble(6.0) / 20;
 
         return new Bouncy(maximumBounceAmount, blocks, entities, requiredMotionToStartRolling, rollingBlocks);
+    }
+
+    @Override
+    public Bouncy clone() {
+        try {
+            return (Bouncy) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
