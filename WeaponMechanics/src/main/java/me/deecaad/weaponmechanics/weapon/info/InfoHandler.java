@@ -35,7 +35,7 @@ public class InfoHandler implements IValidator {
     /**
      * List of all registered weapons
      */
-    private final Set<String> weaponList = new HashSet<>();
+    private final Set<String> weaponList = new LinkedHashSet<>();
 
     /**
      * List of all registered weapons in sorted order.
@@ -46,7 +46,7 @@ public class InfoHandler implements IValidator {
     /**
      * List of all weapons with convert option used
      */
-    private final Set<String> weaponsWithConvert = new HashSet<>();
+    private final Set<String> weaponsWithConvert = new LinkedHashSet<>();
 
     private WeaponHandler weaponHandler;
 
