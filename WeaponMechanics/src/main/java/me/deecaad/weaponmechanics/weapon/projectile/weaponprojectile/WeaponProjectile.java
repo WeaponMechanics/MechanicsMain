@@ -115,8 +115,21 @@ public class WeaponProjectile extends AProjectile {
     }
 
     public void setSticky(Sticky sticky) {
+        setSticky(sticky, true);
+    }
+
+    /**
+     * Sets the sticky properties of this projectile (whether it sticks to
+     * blocks/entities). If <code>isStickyChanged == true</code>, then no copy
+     * will be made. This means that the passed <code>sticky</code> instance
+     * must be mutable.
+     *
+     * @param sticky          The nullable sticky instance.
+     * @param isStickyChanged true if sticky is mutable.
+     */
+    public void setSticky(Sticky sticky, boolean isStickyChanged) {
         this.sticky = sticky;
-        isStickyChanged = true;
+        this.isStickyChanged = isStickyChanged;
     }
 
     public Through getThrough() {
@@ -128,6 +141,25 @@ public class WeaponProjectile extends AProjectile {
         return through;
     }
 
+
+    public void setThrough(Through through) {
+        setThrough(through, true);
+    }
+
+    /**
+     * Sets the through properties of this projectile (whether it passes through
+     * blocks/entities). If <code>isThroughChanged == true</code>, then no copy
+     * will be made. This means that the passed <code>through</code> instance
+     * must be mutable.
+     *
+     * @param through          The nullable through instance.
+     * @param isThroughChanged true if through is mutable.
+     */
+    public void setThrough(Through through, boolean isThroughChanged) {
+        this.through = through;
+        this.isThroughChanged = isThroughChanged;
+    }
+
     public Bouncy getBouncy() {
         if (isBouncyChanged)
             return bouncy;
@@ -135,6 +167,24 @@ public class WeaponProjectile extends AProjectile {
         bouncy = bouncy.clone();
         isBouncyChanged = true;
         return bouncy;
+    }
+
+    public void setBouncy(Bouncy bouncy) {
+        setBouncy(bouncy, true);
+    }
+
+    /**
+     * Sets the bouncy properties of this projectile (whether it bounces on
+     * blocks/entities). If <code>isBouncyChanged == true</code>, then no copy
+     * will be made. This means that the passed <code>through</code> instance
+     * must be mutable.
+     *
+     * @param bouncy          The nullable bouncy instance.
+     * @param isBouncyChanged true if bouncy is mutable.
+     */
+    public void setBouncy(Bouncy bouncy, boolean isBouncyChanged) {
+        this.bouncy = bouncy;
+        this.isBouncyChanged = isBouncyChanged;
     }
 
     @Override
