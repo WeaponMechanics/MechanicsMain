@@ -23,10 +23,7 @@ import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponFirearmEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPostShootEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponPreShootEvent;
-import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponShootEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.*;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
@@ -620,10 +617,23 @@ public class ShootHandler implements IValidator, TriggerListener {
         LivingEntity livingEntity = entityWrapper.getEntity();
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
-        if (shootMechanics != null) shootMechanics.use(new CastData(livingEntity, weaponTitle, weaponStack));
+        boolean resetFallDistance = config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance");
+        Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
+        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
+        int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
+
+        PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, shootMechanics, resetFallDistance, projectile, projectileSpeed, projectileAmount);
+        Bukkit.getPluginManager().callEvent(prepareEvent);
+        if (prepareEvent.isCancelled())
+            return;
+
+        if (prepareEvent.getShootMechanics() != null) {
+            prepareEvent.getShootMechanics().use(new CastData(livingEntity, weaponTitle, weaponStack));
+            prepareEvent.getShootMechanics().clearDirty();
+        }
 
         // Reset fall distance for #134
-        if (config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance"))
+        if (prepareEvent.isResetFallDistance())
             livingEntity.setFallDistance(0.0f);
 
         if (entityWrapper instanceof PlayerWrapper playerWrapper) {
@@ -635,8 +645,6 @@ public class ShootHandler implements IValidator, TriggerListener {
             if (weaponInfoDisplay != null)
                 weaponInfoDisplay.send(playerWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
-
-        Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
 
         if (projectile == null || isMelee) {
             debug.debug("Missing projectile/isMelee for " + weaponTitle);
@@ -656,36 +664,34 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
         Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
-        double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
 
-        int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
-        if (projectileAmount < 1) {
-            debug.error(weaponTitle + ".Shoot.Projectiles_Per_Shot was somehow reset to 0");
+        if (prepareEvent.getProjectileAmount() < 1) {
+            debug.error(weaponTitle + ".Shoot.Projectiles_Per_Shot should be at least 1, got " + prepareEvent.getProjectileAmount());
         }
 
-        for (int i = 0; i < projectileAmount; ++i) {
+        for (int i = 0; i < prepareEvent.getProjectileAmount(); i++) {
 
             Location perProjectileShootLocation = shootLocation.clone();
 
             // i == 0
             // -> Only allow spread changing on first shot
             Vector motion = spread != null
-                    ? spread.getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, i == 0 && updateSpreadChange).multiply(projectileSpeed)
-                    : perProjectileShootLocation.getDirection().multiply(projectileSpeed);
+                    ? spread.getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, i == 0 && updateSpreadChange).multiply(prepareEvent.getProjectileSpeed())
+                    : perProjectileShootLocation.getDirection().multiply(prepareEvent.getProjectileSpeed());
 
             if (recoil != null && i == 0 && livingEntity instanceof Player) {
                 recoil.start((Player) livingEntity, mainHand);
             }
 
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = projectile.create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            WeaponProjectile bullet = prepareEvent.getProjectile().create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
             bullet = shootEvent.getProjectile();
 
             // Shoot the given bullet
-            projectile.shoot(bullet, perProjectileShootLocation);
+            prepareEvent.getProjectile().shoot(bullet, perProjectileShootLocation);
         }
 
         // Apply custom durability
