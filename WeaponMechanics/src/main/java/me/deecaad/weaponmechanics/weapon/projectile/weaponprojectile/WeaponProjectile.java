@@ -13,8 +13,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -100,13 +101,14 @@ public class WeaponProjectile extends AProjectile {
         return projectileSettings;
     }
 
-    public void setProjectileSettings(ProjectileSettings projectileSettings) {
+    public void setProjectileSettings(@NotNull ProjectileSettings projectileSettings) {
         this.projectileSettings = projectileSettings;
         isProjectileSettingsChanged = true;
     }
 
-    public Sticky getSticky() {
-        if (isStickyChanged)
+
+    public @Nullable Sticky getSticky() {
+        if (isStickyChanged || sticky == null)
             return sticky;
 
         sticky = sticky.clone();
@@ -114,7 +116,7 @@ public class WeaponProjectile extends AProjectile {
         return sticky;
     }
 
-    public void setSticky(Sticky sticky) {
+    public void setSticky(@Nullable Sticky sticky) {
         setSticky(sticky, true);
     }
 
@@ -127,13 +129,13 @@ public class WeaponProjectile extends AProjectile {
      * @param sticky          The nullable sticky instance.
      * @param isStickyChanged true if sticky is mutable.
      */
-    public void setSticky(Sticky sticky, boolean isStickyChanged) {
+    public void setSticky(@Nullable Sticky sticky, boolean isStickyChanged) {
         this.sticky = sticky;
         this.isStickyChanged = isStickyChanged;
     }
 
-    public Through getThrough() {
-        if (isThroughChanged)
+    public @Nullable Through getThrough() {
+        if (isThroughChanged || through == null)
             return through;
 
         through = through.clone();
@@ -142,7 +144,7 @@ public class WeaponProjectile extends AProjectile {
     }
 
 
-    public void setThrough(Through through) {
+    public void setThrough(@Nullable Through through) {
         setThrough(through, true);
     }
 
@@ -155,13 +157,13 @@ public class WeaponProjectile extends AProjectile {
      * @param through          The nullable through instance.
      * @param isThroughChanged true if through is mutable.
      */
-    public void setThrough(Through through, boolean isThroughChanged) {
+    public void setThrough(@Nullable Through through, boolean isThroughChanged) {
         this.through = through;
         this.isThroughChanged = isThroughChanged;
     }
 
-    public Bouncy getBouncy() {
-        if (isBouncyChanged)
+    public @Nullable Bouncy getBouncy() {
+        if (isBouncyChanged || bouncy == null)
             return bouncy;
 
         bouncy = bouncy.clone();
@@ -169,7 +171,7 @@ public class WeaponProjectile extends AProjectile {
         return bouncy;
     }
 
-    public void setBouncy(Bouncy bouncy) {
+    public void setBouncy(@Nullable Bouncy bouncy) {
         setBouncy(bouncy, true);
     }
 
@@ -182,7 +184,7 @@ public class WeaponProjectile extends AProjectile {
      * @param bouncy          The nullable bouncy instance.
      * @param isBouncyChanged true if bouncy is mutable.
      */
-    public void setBouncy(Bouncy bouncy, boolean isBouncyChanged) {
+    public void setBouncy(@Nullable Bouncy bouncy, boolean isBouncyChanged) {
         this.bouncy = bouncy;
         this.isBouncyChanged = isBouncyChanged;
     }
