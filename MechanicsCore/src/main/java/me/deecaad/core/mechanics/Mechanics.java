@@ -27,6 +27,9 @@ public class Mechanics implements Serializer<Mechanics> {
 
     private List<Mechanic> mechanics;
 
+    // WMP modifiers
+    private List<Mechanic> dirty;
+
     /**
      * Default constructor for serializer.
      */
@@ -35,10 +38,39 @@ public class Mechanics implements Serializer<Mechanics> {
 
     public Mechanics(List<Mechanic> mechanics) {
         this.mechanics = mechanics;
+        this.dirty = new LinkedList<>();
     }
 
     public List<Mechanic> getMechanics() {
         return mechanics;
+    }
+
+    /**
+     * WeaponMechanicsPlus modifies this to temporarily append mechanics.
+     *
+     * @param mechanics The list of mechanics to temporarily add.
+     */
+    public void addDirty(List<Mechanic> mechanics) {
+        dirty.addAll(mechanics);
+    }
+
+    /**
+     * @return true if there are temporary mechanics.
+     */
+    public boolean isDirty() {
+        return !dirty.isEmpty();
+    }
+
+    /**
+     * When using {@link #addDirty(List)}, after casting the mechanics
+     * ({@link #use(CastData)}), you should clear the dirty mechanics.
+     *
+     * <p>We cannot automatically call this method in #use since there are
+     * some instances, like the PrepareWeaponShootEvent, that need to cast
+     * mechanics multiple times before clearing the dirt list.
+     */
+    public void clearDirty() {
+        dirty.clear();
     }
 
     @Override
@@ -53,9 +85,10 @@ public class Mechanics implements Serializer<Mechanics> {
     }
 
     public void use(CastData cast) {
-        for (Mechanic mechanic : mechanics) {
+        for (Mechanic mechanic : mechanics)
             mechanic.use(cast);
-        }
+        for (Mechanic mechanic : dirty)
+            mechanic.use(cast);
     }
 
     @NotNull
