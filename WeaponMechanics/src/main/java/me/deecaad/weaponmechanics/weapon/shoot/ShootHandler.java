@@ -673,10 +673,10 @@ public class ShootHandler implements IValidator, TriggerListener {
 
             Location perProjectileShootLocation = shootLocation.clone();
 
-            // i == 0
-            // -> Only allow spread changing on first shot
+            // i == prepareEvent.getProjectileAmount()
+            // Change the spread after all pellets are shot
             Vector motion = spread != null
-                    ? spread.getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, i == 0 && updateSpreadChange).multiply(prepareEvent.getProjectileSpeed())
+                    ? spread.getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, i == prepareEvent.getProjectileAmount() - 1 && updateSpreadChange).multiply(prepareEvent.getProjectileSpeed())
                     : perProjectileShootLocation.getDirection().multiply(prepareEvent.getProjectileSpeed());
 
             if (recoil != null && i == 0 && livingEntity instanceof Player) {
