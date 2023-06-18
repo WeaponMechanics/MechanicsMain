@@ -1,14 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import me.deecaad.core.file.SerializeData;
-import me.deecaad.core.file.Serializer;
-import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.file.SerializerTypeException;
+import me.deecaad.core.file.*;
+import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
@@ -20,7 +20,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.Serial;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class DamageModifier implements Serializer<DamageModifier> {
@@ -321,8 +323,6 @@ public class DamageModifier implements Serializer<DamageModifier> {
         return damage * getRate(wrapper, point, isBackStab);
     }
 
-
-
     @Override
     public String getKeyword() {
         return "Damage_Modifiers";
@@ -331,17 +331,100 @@ public class DamageModifier implements Serializer<DamageModifier> {
     @NotNull
     @Override
     public DamageModifier serialize(SerializeData data) throws SerializerException {
-        double min = serializePercentage(data.of("Min"));
+        double min = serializePercentage(data.of("Min"), "20%");
         double max = serializePercentage(data.of("Max"), "1000%");
 
         double perArmorPoint = serializePercentage(data.of("Per_Armor_Point"));
+
+        // Per material armor modifiers
         DoubleMap<Material> armorModifiers = new DoubleMap<>();
-        for (String[] split : data.ofList("Armor")
-                .addArgument(Material.class, true, true)
-                .addArgument(double.class, true).assertList().get()) {
+        List<String[]> armorSplitList = data.ofList("Armor")
+                .addArgument(Material.class, true)
+                .addArgument(String.class, true).assertList().get();
+        for (int i = 0; i < armorSplitList.size(); i++) {
+            String[] split = armorSplitList.get(i);
 
-
+            List<Material> armorMaterial = EnumUtil.parseEnums(Material.class, split[0]);
+            double percentage = stringToDouble(split[1], data.ofList("Armor").getLocation(i));
+            for (Material material : armorMaterial) {
+                armorModifiers.put(material, percentage);
+            }
         }
+
+        // Per enchantment armor modifiers
+        DoubleMap<Enchantment> enchantmentModifiers = new DoubleMap<>();
+        List<String[]> enchantmentSplitList = data.ofList("Enchantments")
+                .addArgument(Enchantment.class, true, true)
+                .addArgument(String.class, true).assertList().get();
+        for (int i = 0; i < enchantmentSplitList.size(); i++) {
+            String[] split = enchantmentSplitList.get(i);
+
+            // First try to get by key. If that fails, get by name. If that fails, send error
+            Enchantment enchantment = null;
+            if (ReflectionUtil.getMCVersion() >= 13)
+                enchantment = Enchantment.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
+            if (enchantment == null)
+                enchantment = Enchantment.getByName(split[0].toUpperCase());
+            if (enchantment == null) {
+                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).toList();
+                throw new SerializerOptionsException(this, "Enchantment", options, split[0], data.ofList("Enchantments").getLocation(i));
+            }
+
+            double percentage = stringToDouble(split[1], data.ofList("Enchantments").getLocation(i));
+            enchantmentModifiers.put(enchantment, percentage);
+        }
+
+        double headModifier = serializePercentage(data.of("Head"));
+        double bodyModifier = serializePercentage(data.of("Body"));
+        double armsModifier = serializePercentage(data.of("Arms"));
+        double legsModifier = serializePercentage(data.of("Legs"));
+        double feetModifier = serializePercentage(data.of("Feet"));
+        double backModifier = serializePercentage(data.of("Back"));
+
+        double sneakingModifier = serializePercentage(data.of("Sneaking"));
+        double walkingModifier = serializePercentage(data.of("Walking"));
+        double swimmingModifier = serializePercentage(data.of("Swimming"));
+        double sprintingModifier = serializePercentage(data.of("Sprinting"));
+        double inMidairModifier = serializePercentage(data.of("In_Midair"));
+
+        DoubleMap<EntityType> entityTypeModifiers = new DoubleMap<>();
+        List<String[]> entitySplitList = data.ofList("Entities")
+                .addArgument(EntityType.class, true)
+                .addArgument(String.class, true).assertList().get();
+        for (int i = 0; i < entitySplitList.size(); i++) {
+            String[] split = entitySplitList.get(i);
+
+            List<EntityType> entityTypes = EnumUtil.parseEnums(EntityType.class, split[0]);
+            double percentage = stringToDouble(split[1], data.ofList("Armor").getLocation(i));
+            for (EntityType entity : entityTypes) {
+                entityTypeModifiers.put(entity, percentage);
+            }
+        }
+
+        DoubleMap<PotionEffectType> potionEffectModifiers = new DoubleMap<>();
+        List<String[]> potionSplitList = data.ofList("Potions")
+                .addArgument(PotionEffectType.class, true, true)
+                .addArgument(String.class, true).assertList().get();
+        for (int i = 0; i < potionSplitList.size(); i++) {
+            String[] split = potionSplitList.get(i);
+
+            // First try to get by key. If that fails, get by name. If that fails, send error
+            PotionEffectType potion = null;
+            if (ReflectionUtil.getMCVersion() >= 13)
+                potion = PotionEffectType.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
+            if (potion == null)
+                potion = PotionEffectType.getByName(split[0].toUpperCase());
+            if (potion == null) {
+                Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).toList();
+                throw new SerializerOptionsException(this, "Potion", options, split[0], data.ofList("Potions").getLocation(i));
+            }
+
+            double percentage = stringToDouble(split[1], data.ofList("Potions").getLocation(i));
+            potionEffectModifiers.put(potion, percentage);
+        }
+
+        return new DamageModifier(min, max, perArmorPoint, armorModifiers, enchantmentModifiers, headModifier, bodyModifier, armsModifier, legsModifier, feetModifier, backModifier,
+                sneakingModifier, walkingModifier, swimmingModifier, sprintingModifier, inMidairModifier, entityTypeModifiers, potionEffectModifiers);
     }
 
     /**
