@@ -156,63 +156,42 @@ Damage:
   # 4) Weapon's Damage.Armor_Damage option is ignored
   Use_Vanilla_Damaging: false
 
-  Minimum_Rate: 0.5
-  Maximum_Rate: 2.0
-  Potions:
-    DAMAGE_RESISTANCE: -0.05
-    WEAKNESS: 0.05
-  Armor:
-    HELMET:
-      LEATHER: -0.01
-      GOLD: -0.02
-      GOLDEN: -0.02
-      CHAIN: -0.03
-      IRON: -0.04
-      DIAMOND: -0.05
-      NETHERITE: -0.05
-      TURTLE: -0.075
-    CHESTPLATE:
-      LEATHER: -0.01
-      GOLD: -0.02
-      GOLDEN: -0.02
-      CHAIN: -0.03
-      IRON: -0.04
-      DIAMOND: -0.05
-      NETHERITE: -0.05
-    LEGGINS:
-      LEATHER: -0.01
-      GOLD: -0.02
-      GOLDEN: -0.02
-      CHAIN: -0.03
-      IRON: -0.04
-      DIAMOND: -0.05
-      NETHERITE: -0.05
-    BOOTS:
-      LEATHER: -0.01
-      GOLD: -0.02
-      GOLDEN: -0.02
-      CHAIN: -0.03
-      IRON: -0.04
-      DIAMOND: -0.05
-      NETHERITE: -0.05
-    Enchantments: # in 1.13+, These must use MINECRAFT names... all lowercase
-      protection: -0.005
-      projectile_protection: -0.0175
-  Movement:
-    Sneaking: -0.01
-    Walking: 0.025
-    Swimming: -0.05
-    Sprinting: 0.05
-    In_Midair: 0.03
-  Critical_Points:
-    HEAD: 1.0 # double damage on head
-    BODY: 0.0
-    ARMS: -0.005
-    LEGS: -0.005
-    FEET: -0.005
-  Entities:
-    PLAYER: -0.01 # players take 1% less damage from guns compared to other mobs
-    ZOMBIE: 0.01 # zombies take 1% more damage from guns compared to other mobs
+  Damage_Modifiers:
+    Min: 20%   # Bullets will always do at least 20% of their base damage
+    Max: 300%  # Bullets will, at a max, do 300% of their base damage
+
+    # Armor modifiers... for simplicity, I recommend only changing 'Per_Armor_Point'.
+    # This will make sure you keep compatibility with changes to the item attributes.
+    Per_Armor_Point: -3%
+    Armor: []
+      #- IRON_HELMET -5%
+    Enchantments:
+      - projectile_projection -8%
+      - protection -4%
+
+    # Modifiers for where the bullet hits the body
+    Head: +50%
+    Body: +0%
+    Arms: -20%
+    Legs: -20%
+    Feet: -50%
+    Back: +20%
+
+    # Moving targets are not braced for impact
+    Sneaking: -5%
+    Walking: +0%
+    Swimming: +5%
+    Sprinting: +5%
+    In_Midair: +5%
+
+    # Change the damage per entity type. Good for PVE type servers that
+    # want "a little bit" of friendly fire.
+    Entities: []
+      #- ZOMBIE +50%
+      #- PLAYER -50%
+
+    Potions: []
+      #- weakness +10%
 
 # These values are used internally for figuring out headshots, bodyshots, etc.
 # Changing these values effectively allow you to decide how big a head hitbox
