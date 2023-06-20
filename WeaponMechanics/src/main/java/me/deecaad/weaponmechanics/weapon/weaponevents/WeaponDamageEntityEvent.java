@@ -5,6 +5,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
 import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
+import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -115,9 +116,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
             if (isBackstab)
                 damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
 
+            EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim);
+
             double rate = 1.0;
             for (DamageModifier modifier : damageModifiers) {
-                rate += modifier.getRate(getShooterWrapper(false), getPoint(), isBackstab()) - 1;
+                rate += modifier.getRate(victimWrapper, getPoint(), isBackstab()) - 1;
             }
 
             // Clamping to the base damage
