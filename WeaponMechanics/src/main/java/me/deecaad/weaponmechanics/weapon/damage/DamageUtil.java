@@ -1,19 +1,16 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -22,7 +19,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -36,124 +32,66 @@ public class DamageUtil {
     /**
      * Do not let anyone instantiate this class
      */
-    private DamageUtil() { }
-
-    public static double calculateFinalDamage(LivingEntity cause, LivingEntity victim, double damage, DamagePoint point, boolean isBackStab) {
-        Configuration config = WeaponMechanics.getBasicConfigurations();
-
-        // Simply don't use rates when using vanilla damaging
-        if (config.getBool("Damage.Use_Vanilla_Damaging", false)) {
-            return damage;
-        }
-
-        AtomicDouble rate = new AtomicDouble(1.0);
-        EntityWrapper wrapper = WeaponMechanics.getEntityWrapper(victim);
-
-        // Apply backstab damage
-        if (isBackStab) rate.addAndGet(config.getDouble("Damage.Back"));
-
-        // Apply damage per potion effect
-        for (PotionEffect potion : victim.getActivePotionEffects()) {
-            rate.addAndGet(config.getDouble("Damage.Potions." + potion.getType().getName()));
-        }
-
-        // Apply damage per armor and attachment
-        for (ItemStack armorSlot : victim.getEquipment().getArmorContents()) {
-            if (armorSlot == null)
-                continue;
-
-            // We parse Material and EquipmentSlot from the given item. Note
-            // that all armor names are formatted like: DIAMOND_CHESTPLATE,
-            // IRON_BOOTS, LEATHER_HELMET, hence Material_Equipment slot.
-            // Normally we would split at the '_', but using String#split is
-            // ~50x slower than String#subString.
-            String name = armorSlot.getType().name();
-            int splitIndex = name.indexOf('_');
-            if (splitIndex == -1)
-                continue;
-
-            // This method of parsing material and slot has issues with
-            // materials like ACACIA_BOAT. In this case, it will fail silently
-            // by adding 0.0 to the rate.
-            String material = name.substring(0, splitIndex);
-            String slot = name.substring(splitIndex + 1);
-
-            rate.addAndGet(config.getDouble("Damage.Armor." + slot + "." + material, 0.0));
-
-            // Reduce damage based on entity type, #110
-            rate.addAndGet(config.getDouble("Damage.Entities." + victim.getType(), 0.0));
-
-            if (ReflectionUtil.getMCVersion() < 13) {
-                armorSlot.getEnchantments().forEach((enchant, level) ->
-                        rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getName())));
-            } else {
-                armorSlot.getEnchantments().forEach((enchant, level) ->
-                        rate.addAndGet(level * config.getDouble("Damage.Armor.Enchantments." + enchant.getKey().getKey())));
-            }
-        }
-
-        // Apply damage based on victim movement
-        if (wrapper.isInMidair()) rate.addAndGet(config.getDouble("Damage.Movement.In_Midair"));
-        if (wrapper.isWalking()) rate.addAndGet(config.getDouble("Damage.Movement.Walking"));
-        if (wrapper.isSwimming())  rate.addAndGet(config.getDouble("Damage.Movement.Swimming"));
-        if (wrapper.isSprinting()) rate.addAndGet(config.getDouble("Damage.Movement.Sprinting"));
-        if (wrapper.isSneaking()) rate.addAndGet(config.getDouble("Damage.Movement.Sneaking"));
-
-        // Apply damage based on the point that hit the victim
-        if (point != null) {
-            rate.addAndGet(config.getDouble("Damage.Critical_Points." + point.name()));
-        }
-
-        // Make sure damage is within ranges
-        rate.set(Math.min(rate.get(), config.getDouble("Damage.Maximum_Rate")));
-        rate.set(Math.max(rate.get(), config.getDouble("Damage.Minimum_Rate")));
-
-        // Apply damage to victim
-        return damage * rate.get();
+    private DamageUtil() {
     }
 
     /**
-     * @param cause The cause of the entity's damage
-     * @param victim The entity being damaged
+     * @param cause The shooter that caused the damage.
+     * @param victim The victim being damaged.
+     * @param damage The amount of damage to apply
      * @return true if damage was cancelled
      */
     public static boolean apply(LivingEntity cause, LivingEntity victim, double damage) {
 
-        if (victim.isInvulnerable() || victim.isDead()) {
+        if (victim.isInvulnerable() || victim.isDead())
             return true;
-        } else if (victim.getType() == EntityType.PLAYER) {
+
+        // Make sure the player is not in creative or spectator, can only damage survival/adventure
+        if (victim.getType() == EntityType.PLAYER) {
             GameMode gamemode = ((Player) victim).getGameMode();
 
-            if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR) {
+            if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR)
                 return true;
-            }
         }
 
-        if (damage < 0) {
-            damage = 0;
+        // Use enderman teleport API added in 1.20.1
+        else if (victim.getType() == EntityType.ENDERMAN && ReflectionUtil.getMCVersion() >= 20) {
+            Enderman enderman = (Enderman) victim;
+
+            // Teleport randomly if the enderman is calm, otherwise assume their
+            // target is the shooter, and teleport towards the shooter.
+            if (enderman.getTarget() == null)
+                enderman.teleport();
+            else
+                enderman.teleportTowards(cause);
+
+            return true;
         }
+
+        // Skip damaging if possible
+        if (damage < 0)
+            damage = 0;
 
         if (getBasicConfigurations().getBool("Damage.Use_Vanilla_Damaging", false)) {
-
-            if (damage == 0) {
+            if (damage == 0)
                 return true;
-            }
 
+            // VANILLA_DAMAGE is used to make sure we don't do melee trigger checks
+            // on EntityDamageByEntityEvent. null doesn't matter, the metadata key
+            // is still applied to the entity.
             MetadataKey.VANILLA_DAMAGE.set(victim, null);
 
             victim.damage(damage, cause);
 
+            // If the EntityDamageByEntityEvent was cancelled, then we should skip
+            // everything else.
             if (MetadataKey.CANCELLED_DAMAGE.has(victim)) {
                 MetadataKey.CANCELLED_DAMAGE.remove(victim);
-
-                // Damage was cancelled
                 return true;
             }
 
             // Vanilla thing to allow constant hits from projectiles
             victim.setNoDamageTicks(0);
-
-            // Successfully damaged using vanilla damaging
             return false;
         }
 
@@ -162,9 +100,8 @@ public class DamageUtil {
 
         EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
         Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
-        if (entityDamageByEntityEvent.isCancelled()) {
+        if (entityDamageByEntityEvent.isCancelled())
             return true;
-        }
 
         // Doing getDamage() is enough since only BASE modifier is used in event call above ^^
         damage = entityDamageByEntityEvent.getDamage();

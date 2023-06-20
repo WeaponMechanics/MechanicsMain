@@ -113,4 +113,8 @@ public abstract class WeaponEvent extends EntityEvent {
 
         return isMainHand() ? wrapper.getMainHandData() : wrapper.getOffHandData();
     }
+
+    public EntityWrapper getShooterWrapper(boolean noAutoAdd) {
+        return WeaponMechanics.getEntityWrapper(getShooter(), noAutoAdd);
+    }
 }

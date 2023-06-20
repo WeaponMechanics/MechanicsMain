@@ -29,8 +29,7 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
-import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
+import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
 public class DamageHandler {
 
@@ -51,21 +50,24 @@ public class DamageHandler {
                 projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled());
     }
 
+    public boolean tryUse(LivingEntity victim, double damage, DamagePoint point, boolean isBackstab,
+                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled) {
+        return tryUse(victim, damage, point, isBackstab, shooter, weaponTitle, weaponStack, slot, distanceTravelled, false);
+    }
+
     /**
      * @return false if damaging was cancelled
      */
     public boolean tryUse(LivingEntity victim, double damage, DamagePoint point, boolean isBackstab,
-                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled) {
+                          LivingEntity shooter, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, double distanceTravelled, boolean isExplosion) {
         Configuration config = getConfigurations();
 
-        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim) && !config.getBool(weaponTitle + ".Damage.Ignore_Teams")) {
+        if (!DamageUtil.canHarmScoreboardTeams(shooter, victim) && !config.getBool(weaponTitle + ".Damage.Ignore_Teams"))
             return false;
-        }
 
         boolean isOwnerImmune = config.getBool(weaponTitle + ".Damage.Enable_Owner_Immunity");
-        if (isOwnerImmune && victim.equals(shooter)) {
+        if (isOwnerImmune && victim.equals(shooter))
             return false;
-        }
 
         // Critical Hit chance
         double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance", -1);
@@ -74,11 +76,24 @@ public class DamageHandler {
         int armorDamage = config.getInt(weaponTitle + ".Damage.Armor_Damage");
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
 
-        WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, slot, victim,
-                damage, isBackstab, isCritical, point, armorDamage, fireTicks, distanceTravelled);
-        Bukkit.getPluginManager().callEvent(damageEntityEvent);
+        // Check for per-weapon damage modifier. Otherwise, use default
+        DamageModifier damageModifier = config.getObject(weaponTitle + ".Damage.Damage_Modifiers", DamageModifier.class);
+        if (damageModifier == null)
+            damageModifier = WeaponMechanics.getBasicConfigurations().getObject("Damage.Damage_Modifiers", DamageModifier.class);
 
-        if (damageEntityEvent.isCancelled()) return false;
+        // Make sure legacy-users have updated their config.yml file
+        if (damageModifier == null) {
+            debug.error("Could not find the default DamageModifiers... Are you using the outdated system?",
+                    "In WeaponMechanics-2.5.0, we added a new damage system. Check the patch notes for an easy copy-paste solution",
+                    "Your damage will not work until this is addressed");
+            return false;
+        }
+
+        WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, slot, victim,
+                damage, isBackstab, isCritical, point, armorDamage, fireTicks, isExplosion, distanceTravelled, damageModifier);
+        Bukkit.getPluginManager().callEvent(damageEntityEvent);
+        if (damageEntityEvent.isCancelled())
+            return false;
 
         fireTicks = damageEntityEvent.getFireTicks();
         point = damageEntityEvent.getPoint();

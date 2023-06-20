@@ -3,14 +3,17 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
+import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
-import me.deecaad.weaponmechanics.weapon.damage.DamageUtil;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Called whenever an entity is damaged by a weapon. For deaths, use the
@@ -30,12 +33,16 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private DamagePoint point;
     private int armorDamage;
     private int fireTicks;
+    private boolean isExplosion;
     private double distanceTravelled;
+    private List<DamageModifier> damageModifiers;
+
     private boolean isCancelled;
 
     public WeaponDamageEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
                                    LivingEntity victim, double baseDamage, boolean isBackstab, boolean isCritical,
-                                   DamagePoint point, int armorDamage, int fireTicks, double distanceTravelled) {
+                                   DamagePoint point, int armorDamage, int fireTicks, boolean isExplosion,
+                                   double distanceTravelled, DamageModifier damageModifier) {
 
         super(weaponTitle, weaponItem, weaponUser, hand);
 
@@ -47,7 +54,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.point = point;
         this.armorDamage = armorDamage;
         this.fireTicks = fireTicks;
+        this.isExplosion = isExplosion;
         this.distanceTravelled = distanceTravelled;
+
+        this.damageModifiers = new LinkedList<>();
+        this.damageModifiers.add(damageModifier);
     }
 
     /**
@@ -94,31 +105,25 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
             double damage = this.baseDamage;
 
-            if (point != null) {
-                damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
-            }
-
-            // Damage changes based on how far the projectile travelled
             DamageDropoff dropoff = config.getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
-            if (dropoff != null) {
+            if (dropoff != null)
                 damage += dropoff.getDamage(distanceTravelled);
-            }
-
-            // Critical Hit chance
-            if (isCritical) {
+            if (point != null)
+                damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
+            if (isCritical)
                 damage += config.getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
-            }
-
-            // Backstab damage
-            if (isBackstab) {
+            if (isBackstab)
                 damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
+
+            double rate = 1.0;
+            for (DamageModifier modifier : damageModifiers) {
+                rate += modifier.getRate(getShooterWrapper(false), getPoint(), isBackstab()) - 1;
             }
 
-            if (damage < 0) {
-                damage = 0;
-            }
+            // Clamping to the base damage
+            rate = damageModifiers.get(0).clamp(rate);
 
-            return finalDamage = DamageUtil.calculateFinalDamage(getShooter(), victim, damage, point, isBackstab);
+            return finalDamage = damage * rate;
         }
 
         return finalDamage;
@@ -231,6 +236,26 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      */
     public void setFireTicks(int fireTicks) {
         this.fireTicks = fireTicks;
+    }
+
+    public boolean isExplosion() {
+        return isExplosion;
+    }
+
+    public void setExplosion(boolean explosion) {
+        isExplosion = explosion;
+    }
+
+    public double getDistanceTravelled() {
+        return distanceTravelled;
+    }
+
+    public void addDamageModifier(DamageModifier modifier) {
+        damageModifiers.add(modifier);
+    }
+
+    public List<DamageModifier> getDamageModifiers() {
+        return damageModifiers;
     }
 
     @Override
