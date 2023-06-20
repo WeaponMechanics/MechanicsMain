@@ -77,9 +77,16 @@ public class DamageHandler {
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
 
         // Check for per-weapon damage modifier. Otherwise, use default
-        DamageModifier damageModifier = config.getObject(weaponTitle + ".Damage.Damage_Modifiers", DamageModifier.class);
-        if (damageModifier == null)
-            damageModifier = WeaponMechanics.getBasicConfigurations().getObject("Damage.Damage_Modifiers", DamageModifier.class);
+        DamageModifier damageModifier;
+        if (isExplosion) {
+            damageModifier = config.getObject(weaponTitle + ".Damage.Explosion.Damage_Modifiers", DamageModifier.class);
+            if (damageModifier == null)
+                damageModifier = WeaponMechanics.getBasicConfigurations().getObject("Damage.Explosion.Damage_Modifiers", DamageModifier.class);
+        } else {
+            damageModifier = config.getObject(weaponTitle + ".Damage.Damage_Modifiers", DamageModifier.class);
+            if (damageModifier == null)
+                damageModifier = WeaponMechanics.getBasicConfigurations().getObject("Damage.Damage_Modifiers", DamageModifier.class);
+        }
 
         // Make sure legacy-users have updated their config.yml file
         if (damageModifier == null) {
@@ -246,6 +253,7 @@ public class DamageHandler {
             Vector explosionToVictimDirection = victimLocation.toVector().subtract(origin.toVector());
             boolean backstab = victimLocation.getDirection().dot(explosionToVictimDirection) > 0.0;
 
+            tryUse(victim, damage, null, backstab, projectile.getShooter(), weaponTitle, projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled(), true);
             tryUse(victim, projectile, damage * entry.getValue(), null, backstab);
         }
     }

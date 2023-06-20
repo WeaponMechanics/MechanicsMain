@@ -106,7 +106,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
             double damage = this.baseDamage;
 
             DamageDropoff dropoff = config.getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
-            if (dropoff != null)
+            if (dropoff != null && !isExplosion)
                 damage += dropoff.getDamage(distanceTravelled);
             if (point != null)
                 damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");

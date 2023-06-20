@@ -166,7 +166,7 @@ Damage:
     Armor: []
       #- IRON_HELMET -5%
     Enchantments:
-      - projectile_projection -8%
+      - projectile_protection -8%
       - protection -4%
 
     # Modifiers for where the bullet hits the body
@@ -192,6 +192,24 @@ Damage:
 
     Potions: []
       #- weakness +10%
+
+  Explosion:
+    Damage_Modifiers:
+      Min: 20%   # Explosions will always do at least 20% of their base damage
+      Max: 300%  # Explosions will, at a max, do 300% of their base damage
+
+      Per_Armor_Point: -3%
+      Enchantments:
+        - blast_protection -8%
+        - protection -4%
+
+      # Moving targets are not braced for impact
+      Sneaking: -10%
+      Walking: +0%
+      Swimming: +5%
+      Sprinting: +5%
+      In_Midair: +10%
+
 
 # These values are used internally for figuring out headshots, bodyshots, etc.
 # Changing these values effectively allow you to decide how big a head hitbox
