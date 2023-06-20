@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import org.bukkit.Bukkit;
@@ -58,14 +59,25 @@ public class DamageUtil {
         else if (victim.getType() == EntityType.ENDERMAN && ReflectionUtil.getMCVersion() >= 20) {
             Enderman enderman = (Enderman) victim;
 
-            // Teleport randomly if the enderman is calm, otherwise assume their
-            // target is the shooter, and teleport towards the shooter.
-            if (enderman.getTarget() == null)
-                enderman.teleport();
-            else
-                enderman.teleportTowards(cause);
+            // 64 is the value minecraft uses
+            int teleportAttempts = WeaponMechanics.getBasicConfigurations().getInt("Damage.Enderman_Teleport_Attempts", 64);
 
-            return true;
+            boolean isTeleported = false;
+            for (int i = 0; i < teleportAttempts && !isTeleported; i++) {
+
+                // Teleport randomly if the enderman is calm, otherwise assume their
+                // target is the shooter, and teleport towards the shooter.
+                if (enderman.getTarget() == null)
+                    isTeleported = enderman.teleport();
+                else
+                    isTeleported = enderman.teleportTowards(cause);
+            }
+
+            // When the enderman does not teleport away, this is probably because
+            // the user disabled the enderman teleportation in config.yml (set
+            // attempts to 0), so we should damage the enderman instead.
+            if (isTeleported)
+                return true;
         }
 
         // Skip damaging if possible

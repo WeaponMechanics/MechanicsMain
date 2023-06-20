@@ -144,6 +144,10 @@ Placeholder_Symbols:
 # with potion effects, armor, and other statuses.
 Damage:
 
+  # 64 is the value Minecraft uses, but you can use a smaller number if you
+  # are worried about performance. 0 will disable enderman teleporting.
+  Enderman_Teleport_Attempts: 64
+
   # Using ´Use_Vanilla_Damaging´ you can disable WeaponMechanics
   # custom damaging system, and use vanilla. You only want to set
   # this to true if you have compatibility issues with other plugins.
@@ -154,6 +158,7 @@ Damage:
   # 2) You can't customize the damaging using this section
   # 3) Vanilla knockback happens on hit
   # 4) Weapon's Damage.Armor_Damage option is ignored
+  # 5) Attachments from WeaponMechanicsPlus will not work
   Use_Vanilla_Damaging: false
 
   Damage_Modifiers:
@@ -196,7 +201,7 @@ Damage:
   Explosion:
     Damage_Modifiers:
       Min: 20%   # Explosions will always do at least 20% of their base damage
-      Max: 300%  # Explosions will, at a max, do 300% of their base damage
+      Max: 120%  # Explosions will, at a max, do 120% of their base damage
 
       Per_Armor_Point: -3%
       Enchantments:
