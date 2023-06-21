@@ -35,6 +35,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private int armorDamage;
     private int fireTicks;
     private boolean isExplosion;
+    private DamageDropoff dropoff;
     private double distanceTravelled;
     private List<DamageModifier> damageModifiers;
 
@@ -56,6 +57,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.armorDamage = armorDamage;
         this.fireTicks = fireTicks;
         this.isExplosion = isExplosion;
+        this.dropoff = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Damage.Damage_Dropoff", DamageDropoff.class);
         this.distanceTravelled = distanceTravelled;
 
         this.damageModifiers = new LinkedList<>();
@@ -101,12 +103,10 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
             Configuration config = WeaponMechanics.getConfigurations();
 
             // Calculate the final damage and save its value
-            // Final damage value is reset if set point, damage
-            // critical or backstab methods are used
+            // The cached value is reset if any mutators are used.
 
             double damage = this.baseDamage;
 
-            DamageDropoff dropoff = config.getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
             if (dropoff != null && !isExplosion)
                 damage += dropoff.getDamage(distanceTravelled);
             if (point != null)
@@ -247,10 +247,23 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
     public void setExplosion(boolean explosion) {
         isExplosion = explosion;
+        finalDamage = Double.NaN;
+    }
+
+    public DamageDropoff getDropoff() {
+        return dropoff;
+    }
+
+    public void setDropoff(DamageDropoff dropoff) {
+        this.dropoff = dropoff;
     }
 
     public double getDistanceTravelled() {
         return distanceTravelled;
+    }
+
+    public void setDistanceTravelled(double distanceTravelled) {
+        this.distanceTravelled = distanceTravelled;
     }
 
     public void addDamageModifier(DamageModifier modifier) {
