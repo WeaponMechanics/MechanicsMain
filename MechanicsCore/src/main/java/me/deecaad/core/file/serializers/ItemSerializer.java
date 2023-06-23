@@ -21,6 +21,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -187,6 +190,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 ReflectionUtil.setField(loreField, itemMeta, temp);
             //ReflectionUtil.invokeMethod(safelyAdd, null, ReflectionUtil.invokeField(loreField, itemMeta), temp, true);
         }
+
         short durability = (short) data.of("Durability").assertPositive().getInt(-99);
         if (durability != -99) {
             if (CompatibilityAPI.getVersion() >= 1.132) {
@@ -195,6 +199,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 itemStack.setDurability(durability);
             }
         }
+
         boolean unbreakable = data.of("Unbreakable").getBool(false);
         if (CompatibilityAPI.getVersion() >= 1.11) {
             itemMeta.setUnbreakable(unbreakable);
@@ -309,7 +314,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
             }
         }
 
-        if (CompatibilityAPI.getVersion() >= 1.11 && data.has("Potion_Color")) {
+        if (ReflectionUtil.getMCVersion() >= 11 && data.has("Potion_Color")) {
             try {
                 Color color = data.of("Potion_Color").assertExists().serialize(new ColorSerializer()).getColor();
                 PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
@@ -320,6 +325,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                         SerializerException.forValue(type));
             }
         }
+
         if (data.has("Leather_Color")) {
             try {
                 Color color = data.of("Leather_Color").assertExists().serialize(new ColorSerializer()).getColor();
@@ -329,6 +335,20 @@ public class ItemSerializer implements Serializer<ItemStack> {
             } catch (ClassCastException e) {
                 throw data.exception("Leather_Color", "Tried to use Leather Color when the item wasn't leather armor!",
                         SerializerException.forValue(type));
+            }
+        }
+
+        if (ReflectionUtil.getMCVersion() >= 20 && itemStack.getItemMeta() instanceof ArmorMeta armor) {
+
+            // If you have one, you NEED both
+            boolean hasOneOfPatternOrMaterial = data.has("Trim_Pattern") || data.has("Trim_Material");
+
+            TrimPattern pattern = data.of("Trim_Pattern").assertExists(hasOneOfPatternOrMaterial).getKeyed(Registry.TRIM_PATTERN, null);
+            TrimMaterial material = data.of("Trim_Material").assertExists(hasOneOfPatternOrMaterial).getKeyed(Registry.TRIM_MATERIAL, null);
+
+            if (pattern != null && material != null) {
+                armor.setTrim(new ArmorTrim(material, pattern));
+                itemStack.setItemMeta(armor);
             }
         }
 
