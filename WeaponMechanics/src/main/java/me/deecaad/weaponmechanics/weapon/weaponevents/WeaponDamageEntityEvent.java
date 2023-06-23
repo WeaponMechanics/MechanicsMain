@@ -57,7 +57,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.armorDamage = armorDamage;
         this.fireTicks = fireTicks;
         this.isExplosion = isExplosion;
-        this.dropoff = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Damage.Damage_Dropoff", DamageDropoff.class);
+        this.dropoff = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
         this.distanceTravelled = distanceTravelled;
 
         this.damageModifiers = new LinkedList<>();
