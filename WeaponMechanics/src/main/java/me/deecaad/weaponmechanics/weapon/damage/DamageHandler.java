@@ -253,8 +253,7 @@ public class DamageHandler {
             Vector explosionToVictimDirection = victimLocation.toVector().subtract(origin.toVector());
             boolean backstab = victimLocation.getDirection().dot(explosionToVictimDirection) > 0.0;
 
-            tryUse(victim, damage, null, backstab, projectile.getShooter(), weaponTitle, projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled(), true);
-            tryUse(victim, projectile, damage * entry.getValue(), null, backstab);
+            tryUse(victim, damage * entry.getValue(), null, backstab, projectile.getShooter(), weaponTitle, projectile.getWeaponStack(), projectile.getHand(), projectile.getDistanceTravelled(), true);
         }
     }
 }

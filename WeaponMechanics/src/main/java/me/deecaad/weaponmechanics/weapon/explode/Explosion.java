@@ -138,7 +138,7 @@ public class Explosion implements Serializer<Explosion> {
     }
 
     public boolean isKnockback() {
-        return knockbackRate == 0.0;
+        return knockbackRate != 0.0;
     }
 
     public double getKnockbackRate() {
