@@ -4,6 +4,8 @@ import me.deecaad.core.mechanics.Registry;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
+import org.bukkit.Keyed;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 
 import javax.annotation.Nonnull;
@@ -976,6 +978,58 @@ public class SerializeData {
 
             // At this point, the list is guaranteed to have exactly 1 element.
             return list.get(0);
+        }
+
+        public <T extends Keyed> T getKeyed(@Nonnull org.bukkit.Registry<T> registry) throws SerializerException {
+            if (!exists)
+                throw new IllegalStateException("Either provide a default value or use assertExists()!");
+
+            return getKeyed(registry, null);
+        }
+
+        public <T extends Keyed> T getKeyed(@Nonnull org.bukkit.Registry<T> registry, T defaultValue) throws SerializerException {
+            Object value = usingStep ? pathToConfig.getObject(getPath(relative), "") : config.get(getPath(relative), "");
+            String input = value.toString().trim().toLowerCase(Locale.ROOT);
+
+            // Use assertExists for required keys
+            if (input.isEmpty())
+                return defaultValue;
+
+            // Keys use namespace:key, where namespace is usually minecraft.
+            // We don't want to force people to use "minecraft:", but this
+            // code assumes that there will be custom namespaces. So the
+            // "minecraft:" namespace can be omitted since it is the default.
+            NamespacedKey key = null;
+            Set<String> options = new LinkedHashSet<>();
+            String registryName = "Registry";
+            for (T element : registry) {
+                key = element.getKey();
+                registryName = element.getClass().getSimpleName();
+
+                // 'options' is for when the user puts in a bad value, so we
+                // can give them options to choose from to replace the bad value
+                options.add(key.toString());
+                if (NamespacedKey.MINECRAFT.equals(key.getNamespace()))
+                    options.add(key.getKey());
+
+                if (input.equals(key.toString()))
+                    break;
+                if (NamespacedKey.MINECRAFT.equals(key.getNamespace()) && input.equals(key.getKey()))
+                    break;
+
+                // Reset to null since it was not a match
+                key = null;
+            }
+
+            // Make sure we have a match
+            if (key == null)
+                throw new SerializerOptionsException(serializer, registryName, options, value.toString(), getLocation());
+
+            T returnValue = registry.get(key);
+            if (returnValue == null)
+                throw new RuntimeException("This should never occur");
+
+            return returnValue;
         }
 
         /**
