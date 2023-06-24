@@ -92,6 +92,7 @@ public class Flashbang implements Serializer<Flashbang> {
         if (mechanics != null) {
             CastData cast = new CastData(entity, projectile.getWeaponTitle(), projectile.getWeaponStack());
             cast.setTargetLocation(origin);
+            cast.setTargetEntity(entity);
             mechanics.use(cast);
         }
     }
