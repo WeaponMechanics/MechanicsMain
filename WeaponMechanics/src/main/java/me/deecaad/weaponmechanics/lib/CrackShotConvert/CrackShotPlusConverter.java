@@ -607,7 +607,7 @@ public class CrackShotPlusConverter {
         } catch (NoClassDefFoundError | Exception e) {
             // If CrackShot is outdated... or other exception
             try {
-                return Material.valueOf(type.toUpperCase()).name();
+                return Material.valueOf(type.toUpperCase(Locale.ROOT)).name();
             } catch (IllegalArgumentException ignored) {
             }
         }

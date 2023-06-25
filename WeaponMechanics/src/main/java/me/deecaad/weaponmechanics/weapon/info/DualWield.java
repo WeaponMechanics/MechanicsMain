@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class DualWield implements Serializer<DualWield> {
@@ -45,11 +46,11 @@ public class DualWield implements Serializer<DualWield> {
         if (!whitelist) {
             // If blacklist and list contains weapon title
             // -> dual wield is not allowed
-            return weapons.contains(weaponTitle.toLowerCase());
+            return weapons.contains(weaponTitle.toLowerCase(Locale.ROOT));
         }
         // If whitelist and list DOES not contains weapon title
         // -> dual wield is not allowed
-        return !weapons.contains(weaponTitle.toLowerCase());
+        return !weapons.contains(weaponTitle.toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -90,7 +91,7 @@ public class DualWield implements Serializer<DualWield> {
         Set<String> weapons = new HashSet<>();
 
         // Saves weapons in lower case
-        weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle[0].toLowerCase()));
+        weaponsList.forEach(weaponTitle -> weapons.add(weaponTitle[0].toLowerCase(Locale.ROOT)));
         boolean whitelist = data.of("Whitelist").getBool(false);
         Mechanics mechanics = data.of("Mechanics_On_Deny").serialize(Mechanics.class);
         return new DualWield(whitelist, weapons, mechanics);

@@ -76,7 +76,7 @@ public class PlaceholderAPI {
         if (!placeholderHandlers.isEmpty()) {
             Matcher matcher = PLACEHOLDERS.matcher(to);
             while (matcher.find()) {
-                String currentPlaceholder = matcher.group(1).toLowerCase();
+                String currentPlaceholder = matcher.group(1).toLowerCase(Locale.ROOT);
 
                 // Check for temp placeholders
                 if (temp != null) {

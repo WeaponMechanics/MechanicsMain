@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Circumstance implements Serializer<Circumstance> {
 
@@ -50,7 +51,7 @@ public class Circumstance implements Serializer<Circumstance> {
         List<CircumstanceData> circumstances = new ArrayList<>(1);
 
         for (String type : circumstanceSection.getKeys(false)) {
-            String typeToUpper = type.toUpperCase();
+            String typeToUpper = type.toUpperCase(Locale.ROOT);
 
             String value = data.config.getString(data.key + "." + type);
             if (!value.equalsIgnoreCase("DENY") && !value.equalsIgnoreCase("REQUIRED")) {

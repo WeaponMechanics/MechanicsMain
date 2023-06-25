@@ -346,7 +346,7 @@ public interface NBTCompatibility {
     }
 
     default NamespacedKey getKey(String plugin, String key) {
-        return new NamespacedKey(plugin.toLowerCase(), key.toLowerCase());
+        return new NamespacedKey(plugin.toLowerCase(Locale.ROOT), key.toLowerCase(Locale.ROOT));
     }
 
     /**

@@ -335,7 +335,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
             String[] split = list.get(i);
 
             List<Material> materials = EnumUtil.parseEnums(Material.class, split[0]);
-            BreakMode mode = BreakMode.valueOf(split[1].toUpperCase());
+            BreakMode mode = BreakMode.valueOf(split[1].toUpperCase(Locale.ROOT));
             int blockDurability = split.length > 2 ? Integer.parseInt(split[2]) : -1;
             Material mask = split.length > 3 ? Material.valueOf(split[3]) : null;
 

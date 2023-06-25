@@ -66,7 +66,7 @@ public final class EnumUtil {
      * @see Collections#emptyList()
      */
     public static <T extends Enum<T>> List<T> parseEnums(Class<T> clazz, String input) {
-        input = input.trim().toUpperCase();
+        input = input.trim().toUpperCase(Locale.ROOT);
 
         if (input.startsWith("$")) {
             List<T> list = new ArrayList<>();

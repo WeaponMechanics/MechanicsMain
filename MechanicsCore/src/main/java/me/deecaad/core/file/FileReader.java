@@ -52,7 +52,7 @@ public class FileReader {
      * @param serializer the new serializer for this file reader
      */
     public void addSerializer(Serializer<?> serializer) {
-        String serializerLowerCase = serializer.getKeyword().toLowerCase();
+        String serializerLowerCase = serializer.getKeyword().toLowerCase(Locale.ROOT);
         if (this.serializers.containsKey(serializerLowerCase)) {
             Serializer<?> alreadyAdded = this.serializers.get(serializerLowerCase);
 
@@ -93,7 +93,7 @@ public class FileReader {
      * @param validator the new validator for this file reader
      */
     public void addValidator(IValidator validator) {
-        String validatorLowerCase = validator.getKeyword().toLowerCase();
+        String validatorLowerCase = validator.getKeyword().toLowerCase(Locale.ROOT);
         if (this.validators.containsKey(validatorLowerCase)) {
             IValidator alreadyAdded = this.validators.get(validatorLowerCase);
 
@@ -209,14 +209,14 @@ public class FileReader {
             if (keySplit.length > 0) {
 
                 // Get the last "key name" of the key
-                String lastKey = keySplit[keySplit.length - 1].toLowerCase();
+                String lastKey = keySplit[keySplit.length - 1].toLowerCase(Locale.ROOT);
 
                 // Only allow using validators when they aren't under already serialized object
                 if (startsWithDeny == null) {
                     IValidator validator = this.validators.get(lastKey);
                     if (validator != null) {
                         // Get the first "key name" of the key
-                        String firstKey = keySplit[0].toLowerCase();
+                        String firstKey = keySplit[0].toLowerCase(Locale.ROOT);
 
                         String keyWithoutFirstKey = keySplit.length == 1 ? null : key.substring(firstKey.length());
                         if (keyWithoutFirstKey == null || validator.getAllowedPaths() == null || validator.getAllowedPaths().stream().anyMatch(keyWithoutFirstKey::equalsIgnoreCase)) {

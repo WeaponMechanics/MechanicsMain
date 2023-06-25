@@ -328,6 +328,6 @@ public class NBT_1_12_R1 implements NBTCompatibility {
     }
 
     private String getTagName(String plugin, String key) {
-        return plugin.toLowerCase() + ":" + key.toLowerCase();
+        return plugin.toLowerCase(Locale.ROOT) + ":" + key.toLowerCase(Locale.ROOT);
     }
 }

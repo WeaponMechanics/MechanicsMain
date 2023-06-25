@@ -10,10 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 public class CrackShotConverter {
@@ -350,11 +347,11 @@ public class CrackShotConverter {
 
                 String soundName = null;
                 try {
-                    soundName = SoundManager.get(splitted[0].toUpperCase()).name();
+                    soundName = SoundManager.get(splitted[0].toUpperCase(Locale.ROOT)).name();
                 } catch (NoClassDefFoundError | Exception e) {
                     // If CrackShot is outdated... or other exception
                     try {
-                        soundName = Sound.valueOf(splitted[0].toUpperCase()).name();
+                        soundName = Sound.valueOf(splitted[0].toUpperCase(Locale.ROOT)).name();
                     } catch (IllegalArgumentException ignored) {
                     }
                 }
@@ -971,7 +968,7 @@ public class CrackShotConverter {
         } catch (NoClassDefFoundError | Exception e) {
             // If CrackShot is outdated... or other exception
             try {
-                return Material.valueOf(type.toUpperCase()).name();
+                return Material.valueOf(type.toUpperCase(Locale.ROOT)).name();
             } catch (IllegalArgumentException ignored) {
             }
         }

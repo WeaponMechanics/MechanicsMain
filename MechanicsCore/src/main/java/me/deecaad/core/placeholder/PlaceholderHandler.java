@@ -5,6 +5,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 
 public abstract class PlaceholderHandler {
 
@@ -22,7 +23,7 @@ public abstract class PlaceholderHandler {
         if (!placeholderName.endsWith("%")) {
             placeholderName = placeholderName + "%";
         }
-        this.placeholderName = placeholderName.toLowerCase();
+        this.placeholderName = placeholderName.toLowerCase(Locale.ROOT);
     }
 
     /**

@@ -364,7 +364,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
             if (ReflectionUtil.getMCVersion() >= 13)
                 enchantment = Enchantment.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
             if (enchantment == null)
-                enchantment = Enchantment.getByName(split[0].toUpperCase());
+                enchantment = Enchantment.getByName(split[0].toUpperCase(Locale.ROOT));
             if (enchantment == null) {
                 Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).toList();
                 throw new SerializerOptionsException(this, "Enchantment", options, split[0], data.ofList("Enchantments").getLocation(i));
@@ -413,7 +413,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
             if (ReflectionUtil.getMCVersion() >= 13)
                 potion = PotionEffectType.getByKey(NamespacedKey.minecraft(split[0].toLowerCase(Locale.ROOT)));
             if (potion == null)
-                potion = PotionEffectType.getByName(split[0].toUpperCase());
+                potion = PotionEffectType.getByName(split[0].toUpperCase(Locale.ROOT));
             if (potion == null) {
                 Iterable<String> options = Arrays.stream(Enchantment.values()).map(ench -> ReflectionUtil.getMCVersion() < 13 ? ench.getName() : ench.getKey().getKey()).toList();
                 throw new SerializerOptionsException(this, "Potion", options, split[0], data.ofList("Potions").getLocation(i));

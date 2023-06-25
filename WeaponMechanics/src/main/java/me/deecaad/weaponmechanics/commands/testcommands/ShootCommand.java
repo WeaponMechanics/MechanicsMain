@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @CommandPermission(permission = "weaponmechanics.commands.test.shoot")
 public class ShootCommand extends SubCommand {
@@ -26,7 +27,7 @@ public class ShootCommand extends SubCommand {
         double gravity = 0.05;
         EntityType entityType = null;
         if (args.length > 1) {
-            entityType = EntityType.valueOf(args[1].toUpperCase());
+            entityType = EntityType.valueOf(args[1].toUpperCase(Locale.ROOT));
         }
         if (args.length > 2) {
             gravity = Double.parseDouble(args[1]);

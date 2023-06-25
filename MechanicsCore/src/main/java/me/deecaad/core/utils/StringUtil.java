@@ -3,10 +3,7 @@ package me.deecaad.core.utils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -389,7 +386,7 @@ public final class StringUtil {
      * @return The name-spaced-key formatted {@link String}.
      */
     public static String camelToSnake(String camel) {
-        return String.join("_", camel.split("(?=[A-Z])")).toLowerCase();
+        return String.join("_", camel.split("(?=[A-Z])")).toLowerCase(Locale.ROOT);
     }
 
     public static String upperSnakeCase(String snake) {
@@ -418,11 +415,11 @@ public final class StringUtil {
      * @return The non-null user readable format
      */
     public static String keyToRead(String key) {
-        String[] split = key.toLowerCase().split("_");
+        String[] split = key.toLowerCase(Locale.ROOT).split("_");
 
         StringBuilder builder = new StringBuilder();
         for (String s : split) {
-            builder.append(s.substring(0, 1).toUpperCase());
+            builder.append(s.substring(0, 1).toUpperCase(Locale.ROOT));
             builder.append(s.substring(1));
             builder.append(" ");
         }
@@ -433,7 +430,7 @@ public final class StringUtil {
      * Returns the name of the most similar {@link Enum} to the
      * <code>input</code>.
      *
-     * @param input     The non-null mis-spelled input.
+     * @param input     The non-null misspelled input.
      * @param enumClazz The non-null expected {@link Enum} type.
      * @param <T>       The <code>enumClazz</code> generic type.
      * @return The non-null user-readable correction.
@@ -470,10 +467,10 @@ public final class StringUtil {
     public static String didYouMean(String input, Iterable<String> options) {
         String closest = null;
         int difference = Integer.MAX_VALUE;
-        int[] table = mapToCharTable(input.toLowerCase());
+        int[] table = mapToCharTable(input.toLowerCase(Locale.ROOT));
 
         for (String str : options) {
-            int[] localTable = mapToCharTable(str.toLowerCase());
+            int[] localTable = mapToCharTable(str.toLowerCase(Locale.ROOT));
             int localDifference = Math.abs(str.length() - input.length());
 
             for (int i = 0; i < table.length; i++) {
