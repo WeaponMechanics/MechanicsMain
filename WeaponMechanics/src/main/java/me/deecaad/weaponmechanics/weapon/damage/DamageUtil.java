@@ -266,6 +266,10 @@ public class DamageUtil {
      */
     public static boolean canHarmScoreboardTeams(LivingEntity cause, LivingEntity victim) {
 
+        // Owner invulnerability is handled separately.
+        if (cause.equals(victim))
+            return true;
+
         // Only check scoreboard teams for players
         if (cause.getType() != EntityType.PLAYER || victim.getType() != EntityType.PLAYER) return true;
 
