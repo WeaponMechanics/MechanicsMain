@@ -191,7 +191,7 @@ public class RepairItemListener implements Listener {
             return false;
 
         // Special repair-kit item
-        String repairKitTitle = repairItem.hasItemMeta() ? CustomTag.REPAIR_KIT_TITLE.getString(weapon) : null;
+        String repairKitTitle = repairItem.hasItemMeta() ? CustomTag.REPAIR_KIT_TITLE.getString(repairItem) : null;
         if (repairKitTitle != null) {
             RepairKit kit = repairKits.get(repairKitTitle);
 
