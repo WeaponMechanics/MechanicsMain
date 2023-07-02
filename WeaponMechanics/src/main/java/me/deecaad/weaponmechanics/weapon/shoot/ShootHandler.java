@@ -782,7 +782,9 @@ public class ShootHandler implements IValidator, TriggerListener {
                 // Now we know it's actually VR player
 
                 // Get the position and direction from player metadata
-                return vive.getControllerPos(mainhand ? 0 : 1);
+                Location location = vive.getControllerPos(mainhand ? 0 : 1);
+                location.setDirection(vive.getControllerDir(mainhand ? 0 : 1));
+                return location;
             }
 
             // Not VR player, let pass to these normal location finders
