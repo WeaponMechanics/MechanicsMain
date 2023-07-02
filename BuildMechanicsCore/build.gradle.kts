@@ -68,8 +68,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_16_R3"))
         include(project(":Core_1_17_R1"))
         include(project(":Core_1_18_R2"))
-        include(project(":Core_1_19_R1"))
-        include(project(":Core_1_19_R2"))
         include(project(":Core_1_19_R3"))
         include(project(":Core_1_20_R1"))
 

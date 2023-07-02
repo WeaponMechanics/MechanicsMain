@@ -42,7 +42,7 @@ public class ZoomData {
                 // Now we know it's actually VR player
 
                 // Get the position and direction from player metadata
-                return vive.getControllerDir(handData.isMainhand() ? 0 : 1).dot(vive.getHMDPos().getDirection()) > 0.94;
+                return vive.getControllerDir(handData.isMainhand() ? 0 : 1).dot(vive.getHMDDir()) > 0.94;
             }
         }
         return zoomAmount != 0;
