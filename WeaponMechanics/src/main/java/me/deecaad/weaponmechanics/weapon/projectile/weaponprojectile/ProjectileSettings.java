@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -261,7 +262,9 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
                 if (projectileType != EntityType.DROPPED_ITEM
                         && projectileType != EntityType.FALLING_BLOCK
                         && projectileType != EntityType.FIREWORK
-                        && projectileType != EntityType.ARMOR_STAND) {
+                        && projectileType != EntityType.ARMOR_STAND
+                        && (ReflectionUtil.getMCVersion() >= 19 && projectileType != EntityType.ITEM_DISPLAY && projectileType != EntityType.BLOCK_DISPLAY)) {
+
                     throw data.exception(null, "When using " + projectileType + ", you CAN'T use Projectile_Item_Or_Block",
                             SerializerException.forValue(projectileItem));
                 }

@@ -8,6 +8,7 @@ import net.minecraft.core.Rotations;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -93,6 +94,12 @@ public class FakeEntity_1_20_R1 extends FakeEntity {
                     yield temp;
                 }
                 case FIREWORK -> new FireworkRocketEntity(world.getHandle(), item = CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data), x, y, z, true);
+                case ITEM_DISPLAY -> {
+                    Display.ItemDisplay temp = net.minecraft.world.entity.EntityType.ITEM_DISPLAY.create(world.getHandle());
+                    temp.setPos(x, y, z);
+                    temp.setItemStack(CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
+                    yield temp;
+                }
                 default -> world.createEntity(location, type.getEntityClass());
             };
         } else {
@@ -181,7 +188,7 @@ public class FakeEntity_1_20_R1 extends FakeEntity {
 
         sendPackets(packet, head);
 
-        if (type == EntityType.ARMOR_STAND) updateMeta();
+        if (type == EntityType.ARMOR_STAND || entity instanceof Display) updateMeta();
     }
 
     @Override
