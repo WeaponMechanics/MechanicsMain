@@ -5,6 +5,7 @@ import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
+import me.deecaad.weaponmechanics.events.WeaponMechanicsEntityDamageByEntityEvent;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -110,7 +111,7 @@ public class DamageUtil {
         // For compatibility with plugins that only set the damage to 0.0...
         double tempDamage = damage;
 
-        EntityDamageByEntityEvent entityDamageByEntityEvent = new EntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
+        EntityDamageByEntityEvent entityDamageByEntityEvent = new WeaponMechanicsEntityDamageByEntityEvent(cause, victim, EntityDamageEvent.DamageCause.PROJECTILE, damage);
         Bukkit.getPluginManager().callEvent(entityDamageByEntityEvent);
         if (entityDamageByEntityEvent.isCancelled())
             return true;
