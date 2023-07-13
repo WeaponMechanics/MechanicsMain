@@ -4,11 +4,11 @@ plugins {
 }
 
 dependencies {
-    paperDevBundle("1.20-R0.1-SNAPSHOT")
+    paperDevBundle("1.20.1-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
     implementation(project(":WeaponMechanics"))
 
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
 }
 
 //java {

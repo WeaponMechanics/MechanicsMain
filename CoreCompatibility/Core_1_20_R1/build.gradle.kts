@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    paperDevBundle("1.20-R0.1-SNAPSHOT")
+    paperDevBundle("1.20.1-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
 }
 
