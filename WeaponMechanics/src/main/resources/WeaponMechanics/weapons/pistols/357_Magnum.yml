@@ -110,6 +110,9 @@
 
   Cosmetics:
     Muzzle_Flash: true
+    Death_Messages:
+      - "<yellow>%victim% was killed by the big iron on %shooter%'s hip"
+      - "<rainbow>%shooter% didn't care that he was after %victim%"
     Splash_Mechanics:
       - "Sound{sound=ENTITY_GENERIC_SPLASH, pitch=1.85, noise=0.15} @Target{}"
       - "Particle{particle=WATER_SPLASH, count=20, noise=0.2 0.2 0.2} @Target{}"
