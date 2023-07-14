@@ -5,7 +5,6 @@ import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.compatibility.scope.Scope_1_20_R1;
-import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
@@ -90,7 +89,6 @@ public class v1_20_R1 implements IWeaponCompatibility {
 
     @Override
     public void playHurtAnimation(org.bukkit.entity.LivingEntity victim) {
-        LivingEntity handle = ((CraftLivingEntity) victim).getHandle();
-        handle.level().getServer().getPlayerList().broadcast(null, handle.getX(), handle.getY(), handle.getZ(), 50.0, handle.level().dimension(), new ClientboundHurtAnimationPacket(handle));
+        victim.playHurtAnimation(0);
     }
 }
