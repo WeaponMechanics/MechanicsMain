@@ -78,6 +78,11 @@ Disabled_Trigger_Checks:
 # that your weapon *MAY* not fill up all the way, and *SOME* ammo may not be consumed.
 Milliseconds_Between_Ammo_Conversions: 8000
 
+# Setting this to true allows creative players to shoot guns that require ammo without
+# consuming any ammo. WAIT STOP: This may confuse you as to why ammo is not working during
+# testing! Please only set this if you are aware of the risks.
+Creative_Mode_Bypass_Ammo: false
+
 # This defines how smooth weapon recoil is. Lower values means smoother recoil,
 # but more packets sent. In default minecraft this value would be 50 (1 tick). In WeaponMechanics, it
 # can be lower. It is recommended to use values divisible by 5.

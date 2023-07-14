@@ -22,6 +22,7 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -216,9 +217,14 @@ public class ReloadHandler implements IValidator, TriggerListener {
         AmmoTypes ammoTypes = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class) : null;
         if (ammoTypes != null && !ammoTypes.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
             Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
-            if (outOfAmmoMechanics != null)
-                outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, weaponStack));
-            return false;
+
+            // Creative mode bypass... #176
+            if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !getBasicConfigurations().getBool("Creative_Mode_Bypass_Ammo")) {
+                if (outOfAmmoMechanics != null)
+                    outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, weaponStack));
+                return false;
+            }
+
         }
 
         WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
