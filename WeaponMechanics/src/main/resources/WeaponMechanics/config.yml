@@ -194,6 +194,8 @@ Damage:
     Sprinting: +5%
     In_Midair: +5%
 
+    Shielding: -100%
+
     # Change the damage per entity type. Good for PVE type servers that
     # want "a little bit" of friendly fire.
     Entities: []
