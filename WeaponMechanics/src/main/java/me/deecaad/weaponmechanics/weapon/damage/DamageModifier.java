@@ -14,6 +14,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
@@ -52,6 +53,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
     private double inMidairModifier;
 
     // Misc modifiers
+    private double shieldModifier;
     private DoubleMap<EntityType> entityTypeModifiers;
     private DoubleMap<PotionEffectType> potionEffectModifiers;
 
@@ -65,7 +67,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
     public DamageModifier(double min, double max, double perArmorPoint, DoubleMap<Material> armorModifiers, DoubleMap<Enchantment> enchantmentModifiers,
                           double headModifier, double bodyModifier, double armsModifier, double legsModifier, double feetModifier, double backModifier,
                           double sneakingModifier, double walkingModifier, double swimmingModifier, double sprintingModifier, double inMidairModifier,
-                          DoubleMap<EntityType> entityTypeModifiers, DoubleMap<PotionEffectType> potionEffectModifiers) {
+                          double shieldModifier, DoubleMap<EntityType> entityTypeModifiers, DoubleMap<PotionEffectType> potionEffectModifiers) {
         this.min = min;
         this.max = max;
         this.perArmorPoint = perArmorPoint;
@@ -82,6 +84,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         this.swimmingModifier = swimmingModifier;
         this.sprintingModifier = sprintingModifier;
         this.inMidairModifier = inMidairModifier;
+        this.shieldModifier = shieldModifier;
         this.entityTypeModifiers = entityTypeModifiers;
         this.potionEffectModifiers = potionEffectModifiers;
     }
@@ -298,6 +301,11 @@ public class DamageModifier implements Serializer<DamageModifier> {
         if (wrapper.isInMidair())
             rate += inMidairModifier;
 
+        // For the shield modifier, the player must be blocking with a shield
+        // and be facing the bullet.
+        if (!isBackStab && wrapper.getEntity() instanceof Player player && player.isBlocking())
+            rate += shieldModifier;
+
         // Do double damage to zombies, half damage to players (PVE scenario), for example
         if (entityTypeModifiers != null) {
             rate += entityTypeModifiers.get(victim.getType());
@@ -387,6 +395,8 @@ public class DamageModifier implements Serializer<DamageModifier> {
         double sprintingModifier = serializePercentage(data.of("Sprinting"));
         double inMidairModifier = serializePercentage(data.of("In_Midair"));
 
+        double shieldModifier = serializePercentage(data.of("Shielding"));
+
         DoubleMap<EntityType> entityTypeModifiers = new DoubleMap<>();
         List<String[]> entitySplitList = data.ofList("Entities")
                 .addArgument(EntityType.class, true)
@@ -424,7 +434,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
         }
 
         return new DamageModifier(min, max, perArmorPoint, armorModifiers, enchantmentModifiers, headModifier, bodyModifier, armsModifier, legsModifier, feetModifier, backModifier,
-                sneakingModifier, walkingModifier, swimmingModifier, sprintingModifier, inMidairModifier, entityTypeModifiers, potionEffectModifiers);
+                sneakingModifier, walkingModifier, swimmingModifier, sprintingModifier, inMidairModifier, shieldModifier, entityTypeModifiers, potionEffectModifiers);
     }
 
     /**
