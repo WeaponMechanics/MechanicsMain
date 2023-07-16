@@ -149,6 +149,14 @@ Placeholder_Symbols:
 # with potion effects, armor, and other statuses.
 Damage:
 
+  # Ignoring armor stands helps compatibility with other plugins.
+  # For best compatibility, set all of these to true. If you want
+  # to be able to damage armor stands, set them to false.
+  Ignore_Armor_Stand:
+    Marker: true
+    Invisible: false
+    Always: false
+
   # 64 is the value Minecraft uses, but you can use a smaller number if you
   # are worried about performance. 0 will disable enderman teleporting.
   Enderman_Teleport_Attempts: 64

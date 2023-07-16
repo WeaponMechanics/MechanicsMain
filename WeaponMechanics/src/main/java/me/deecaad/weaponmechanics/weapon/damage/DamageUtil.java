@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.damage;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -12,10 +13,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Statistic;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Enderman;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
@@ -44,21 +42,32 @@ public class DamageUtil {
      * @return true if damage was cancelled
      */
     public static boolean apply(LivingEntity cause, LivingEntity victim, double damage) {
+        Configuration config = getBasicConfigurations();
+
+        // Skip armor stands for better plugin compatibility
+        if (victim instanceof ArmorStand armorStand) {
+
+            if (config.getBool("Damage.Ignore_Armor_Stand.Always"))
+                return true;
+            if (config.getBool("Damage.Ignore_Armor_Stand.Marker") && armorStand.isMarker())
+                return true;
+            if (config.getBool("Damage.Ignore_Armor_Stand.Invisible") && armorStand.isInvisible())
+                return true;
+        }
 
         if (victim.isInvulnerable() || victim.isDead())
             return true;
 
         // Make sure the player is not in creative or spectator, can only damage survival/adventure
-        if (victim.getType() == EntityType.PLAYER) {
-            GameMode gamemode = ((Player) victim).getGameMode();
+        if (victim instanceof Player player) {
+            GameMode gamemode = player.getGameMode();
 
             if (gamemode == GameMode.CREATIVE || gamemode == GameMode.SPECTATOR)
                 return true;
         }
 
         // Use enderman teleport API added in 1.20.1
-        else if (victim.getType() == EntityType.ENDERMAN && ReflectionUtil.getMCVersion() >= 20) {
-            Enderman enderman = (Enderman) victim;
+        else if (victim instanceof Enderman enderman && ReflectionUtil.getMCVersion() >= 20) {
 
             // 64 is the value minecraft uses
             int teleportAttempts = WeaponMechanics.getBasicConfigurations().getInt("Damage.Enderman_Teleport_Attempts", 64);
@@ -134,8 +143,8 @@ public class DamageUtil {
 
         // Apply any remaining damage to the victim, and handle internals
         WeaponCompatibilityAPI.getWeaponCompatibility().logDamage(victim, cause, oldHealth, damage, false);
-        if (cause.getType() == EntityType.PLAYER) {
-            WeaponCompatibilityAPI.getWeaponCompatibility().setKiller(victim, (Player) cause);
+        if (cause instanceof Player player) {
+            WeaponCompatibilityAPI.getWeaponCompatibility().setKiller(victim, player);
         }
 
         // Visual red flash
