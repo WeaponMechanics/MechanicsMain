@@ -259,11 +259,17 @@ public class DamageUtil {
 
         if (ReflectionUtil.getMCVersion() >= 13) {
             if (armor.getItemMeta() instanceof Damageable meta) {
-                meta.setDamage(Math.min(meta.getDamage() + amount, armor.getType().getMaxDurability()));
+                meta.setDamage(meta.getDamage() + amount);
                 armor.setItemMeta(meta);
+
+                if (meta.getDamage() >= armor.getType().getMaxDurability())
+                    armor.setAmount(0);
             }
         } else {
             armor.setDurability((short) (armor.getDurability() + amount));
+
+            if (armor.getDurability() >= armor.getType().getMaxDurability())
+                armor.setAmount(0);
         }
 
         return armor;
