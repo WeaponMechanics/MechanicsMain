@@ -113,12 +113,15 @@ public class ZoomData {
             if (hasZoomNightVision()) scopeHandler.useNightVision(entityWrapper, this);
 
             Mechanics zoomOffMechanics = getConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
-            if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entityWrapper.getEntity(), this.scopeWeaponTitle, this.scopeWeaponStack));
 
             WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(this.scopeWeaponTitle, this.scopeWeaponStack,
                     entityWrapper.getEntity(), getHandData().isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND,
-                    WeaponScopeEvent.ScopeType.OUT, 0, 0);
+                    WeaponScopeEvent.ScopeType.OUT, 0, 0, zoomOffMechanics);
             Bukkit.getPluginManager().callEvent(weaponScopeEvent);
+
+            // Get Mechanics from event, so we can let plugins modify them.
+            if (weaponScopeEvent.getMechanics() != null)
+                weaponScopeEvent.getMechanics().use(new CastData(entityWrapper.getEntity(), this.scopeWeaponTitle, this.scopeWeaponStack));
         }
 
         // This just ensures that these are set to null

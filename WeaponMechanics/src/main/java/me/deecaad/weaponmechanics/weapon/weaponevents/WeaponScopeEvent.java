@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
+import me.deecaad.core.mechanics.Mechanics;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -8,7 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called when a weapon scopes in.
+ * Called when a weapon scopes in, if the weapon stacks scopes, or if the weapon
+ * scopes out.
  */
 public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
 
@@ -17,15 +19,19 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
     private final ScopeType scopeType;
     private double zoomAmount;
     private final int zoomStack;
+
+    private Mechanics mechanics;
+
     private boolean isCancelled;
     
     public WeaponScopeEvent(String weaponTitle, ItemStack weaponStack, LivingEntity livingEntity, EquipmentSlot hand,
-                            ScopeType scopeType, double zoomAmount, int zoomStack) {
+                            ScopeType scopeType, double zoomAmount, int zoomStack, Mechanics mechanics) {
         super(weaponTitle, weaponStack, livingEntity, hand);
 
         this.scopeType = scopeType;
         this.zoomAmount = zoomAmount;
         this.zoomStack = zoomStack;
+        this.mechanics = mechanics;
     }
 
     /**
@@ -70,6 +76,15 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
      */
     public int getZoomStack() {
         return zoomStack;
+    }
+
+    public Mechanics getMechanics() {
+        return mechanics;
+    }
+
+    public void setMechanics(Mechanics mechanics) {
+        this.mechanics.clearDirty(); // clear any modifications
+        this.mechanics = mechanics;
     }
 
     @Override

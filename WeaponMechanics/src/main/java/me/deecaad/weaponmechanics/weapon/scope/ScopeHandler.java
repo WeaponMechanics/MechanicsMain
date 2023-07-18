@@ -160,7 +160,9 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 int currentStacks = zoomData.getZoomStacks();
                 double zoomAmount = Double.parseDouble(zoomStacks.get(currentStacks));
                 int zoomStack = currentStacks + 1;
-                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.STACK, zoomAmount, zoomStack);
+                Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
+
+                WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.STACK, zoomAmount, zoomStack, zoomStackingMechanics);
                 Bukkit.getPluginManager().callEvent(weaponScopeEvent);
                 if (weaponScopeEvent.isCancelled()) {
                     return false;
@@ -173,9 +175,8 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
-                Mechanics zoomStackingMechanics = config.getObject(weaponTitle + ".Scope.Zoom_Stacking.Mechanics", Mechanics.class);
-                if (zoomStackingMechanics != null)
-                    zoomStackingMechanics.use(new CastData(entity, weaponTitle, weaponStack));
+                if (weaponScopeEvent.getMechanics() != null)
+                    weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
 
                 return true;
             } else {
@@ -190,8 +191,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
         double zoomAmount = config.getDouble(weaponTitle + ".Scope.Zoom_Amount");
         if (zoomAmount == 0) return false;
 
+        Mechanics scopeMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Mechanics.class);
+
         // zoom stack = 0, because its not used OR this is first zoom in
-        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0);
+        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.IN, zoomAmount, 0, scopeMechanics);
         Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         if (weaponScopeEvent.isCancelled()) {
             return false;
@@ -201,12 +204,13 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
-        Mechanics zoomMechanics = config.getObject(weaponTitle + ".Scope.Mechanics", Mechanics.class);
-        if (zoomMechanics != null) zoomMechanics.use(new CastData(entity, weaponTitle, weaponStack));
+        if (weaponScopeEvent.getMechanics() != null)
+            weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
-        if (config.getBool(weaponTitle + ".Scope.Night_Vision")) useNightVision(entityWrapper, zoomData);
+        if (config.getBool(weaponTitle + ".Scope.Night_Vision"))
+            useNightVision(entityWrapper, zoomData);
 
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastScopeTime(System.currentTimeMillis());
@@ -218,20 +222,14 @@ public class ScopeHandler implements IValidator, TriggerListener {
      * @return true if successfully zoomed out
      */
     private boolean zoomOut(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
-        boolean result = zoomOutWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
 
-        return result;
-    }
-
-    /**
-     * @return true if successfully zoomed out
-     */
-    private boolean zoomOutWithoutTiming(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         if (!zoomData.isZooming()) return false;
         LivingEntity entity = entityWrapper.getEntity();
 
+        Mechanics zoomOffMechanics = getConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
+
         // Zoom amount and stack 0 because zooming out
-        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.OUT, 0, 0);
+        WeaponScopeEvent weaponScopeEvent = new WeaponScopeEvent(weaponTitle, weaponStack, entity, slot, WeaponScopeEvent.ScopeType.OUT, 0, 0, zoomOffMechanics);
         Bukkit.getPluginManager().callEvent(weaponScopeEvent);
         if (weaponScopeEvent.isCancelled()) {
             return false;
@@ -242,12 +240,13 @@ public class ScopeHandler implements IValidator, TriggerListener {
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
         zoomData.setZoomStacks(0);
 
-        Mechanics zoomOffMechanics = getConfigurations().getObject(weaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
-        if (zoomOffMechanics != null) zoomOffMechanics.use(new CastData(entity, weaponTitle, weaponStack));
+        if (weaponScopeEvent.getMechanics() != null)
+            weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
 
-        if (zoomData.hasZoomNightVision()) useNightVision(entityWrapper, zoomData);
+        if (zoomData.hasZoomNightVision())
+            useNightVision(entityWrapper, zoomData);
 
         return true;
     }
