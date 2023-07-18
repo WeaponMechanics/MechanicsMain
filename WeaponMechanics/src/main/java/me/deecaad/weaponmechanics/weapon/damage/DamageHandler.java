@@ -96,8 +96,21 @@ public class DamageHandler {
             return false;
         }
 
+        // Get Mechanics so attachments can modify them in the damage event
+        Mechanics damageMechanics = config.getObject(weaponTitle + ".Damage.Mechanics", Mechanics.class);
+        Mechanics killMechanics = config.getObject(weaponTitle + ".Damage.Kill.Mechanics", Mechanics.class);
+        Mechanics backstabMechanics = config.getObject(weaponTitle + ".Damage.Backstab.Mechanics", Mechanics.class);
+        Mechanics criticalHitMechanics = config.getObject(weaponTitle + ".Damage.Critical_Hit.Mechanics", Mechanics.class);
+        Mechanics headMechanics = config.getObject(weaponTitle + ".Damage.Head.Mechanics", Mechanics.class);
+        Mechanics bodyMechanics = config.getObject(weaponTitle + ".Damage.Body.Mechanics", Mechanics.class);
+        Mechanics armsMechanics = config.getObject(weaponTitle + ".Damage.Arms.Mechanics", Mechanics.class);
+        Mechanics legsMechanics = config.getObject(weaponTitle + ".Damage.Legs.Mechanics", Mechanics.class);
+        Mechanics feetMechanics = config.getObject(weaponTitle + ".Damage.Feet.Mechanics", Mechanics.class);
+
         WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, slot, victim,
-                damage, isBackstab, isCritical, point, armorDamage, fireTicks, isExplosion, distanceTravelled, damageModifier);
+                damage, isBackstab, isCritical, point, armorDamage, fireTicks, isExplosion, distanceTravelled, damageModifier,
+                damageMechanics, killMechanics, backstabMechanics, criticalHitMechanics, headMechanics, bodyMechanics,
+                armsMechanics, legsMechanics, feetMechanics);
         Bukkit.getPluginManager().callEvent(damageEntityEvent);
         if (damageEntityEvent.isCancelled())
             return false;
@@ -137,22 +150,26 @@ public class DamageHandler {
         StatsData victimData = victim.getType() == EntityType.PLAYER ? ((PlayerWrapper) victimWrapper).getStatsData() : null;
 
         // On all damage
-        useMechanics(config, cast, weaponTitle + ".Damage");
+        if (damageEntityEvent.getDamageMechanics() != null)
+            damageEntityEvent.getDamageMechanics().use(cast);
         if (shooterData != null) {
             shooterData.add(weaponTitle, WeaponStat.TOTAL_DAMAGE, (float) finalDamage);
             shooterData.set(weaponTitle, WeaponStat.LONGEST_DISTANCE_HIT,
                     (key, value) -> value == null ? (float) distanceTravelled : Math.max((float) value, (float) distanceTravelled));
         }
-        if (victimData != null) victimData.add(PlayerStat.DAMAGE_TAKEN, (float) finalDamage);
+        if (victimData != null)
+            victimData.add(PlayerStat.DAMAGE_TAKEN, (float) finalDamage);
 
         boolean killed = false;
         if (victim.isDead() || victim.getHealth() <= 0.0) {
             killed = true;
             Bukkit.getPluginManager().callEvent(new WeaponKillEntityEvent(weaponTitle, weaponStack, shooter, slot, victim, damageEntityEvent));
 
-            // On kill
-            useMechanics(config, cast, weaponTitle + ".Damage.Kill");
-            if (victimData != null) victimData.add(PlayerStat.WEAPON_DEATHS, 1);
+            if (damageEntityEvent.getKillMechanics() != null)
+                damageEntityEvent.getKillMechanics().use(cast);
+
+            if (victimData != null)
+                victimData.add(PlayerStat.WEAPON_DEATHS, 1);
 
             if (shooterData != null) {
                 if (victim.getType() == EntityType.PLAYER) {
@@ -179,7 +196,9 @@ public class DamageHandler {
 
         // On backstab
         if (damageEntityEvent.isBackstab()) {
-            useMechanics(config, cast, weaponTitle + ".Damage.Backstab");
+            if (damageEntityEvent.getBackstabMechanics() != null)
+                damageEntityEvent.getBackstabMechanics().use(cast);
+
             if (shooterData != null) {
                 shooterData.add(weaponTitle, WeaponStat.BACKSTABS, 1);
                 if (killed) shooterData.add(weaponTitle, WeaponStat.BACKSTAB_KILLS, 1);
@@ -188,7 +207,9 @@ public class DamageHandler {
 
         // On critical
         if (damageEntityEvent.isCritical()) {
-            useMechanics(config, cast, weaponTitle + ".Damage.Critical_Hit");
+            if (damageEntityEvent.getCriticalHitMechanics() != null)
+                damageEntityEvent.getCriticalHitMechanics().use(cast);
+
             if (shooterData != null) {
                 shooterData.add(weaponTitle, WeaponStat.CRITICAL_HITS, 1);
                 if (killed) shooterData.add(weaponTitle, WeaponStat.CRITICAL_KILLS, 1);
@@ -197,7 +218,15 @@ public class DamageHandler {
 
         // On point
         if (point != null) {
-            useMechanics(config, cast, weaponTitle + ".Damage." + point.getReadable());
+            Mechanics mechanics = switch (point) {
+                case HEAD -> damageEntityEvent.getHeadMechanics();
+                case BODY -> damageEntityEvent.getBodyMechanics();
+                case ARMS -> damageEntityEvent.getArmsMechanics();
+                case LEGS -> damageEntityEvent.getLegsMechanics();
+                case FEET -> damageEntityEvent.getFeetMechanics();
+            };
+            if (mechanics != null)
+                mechanics.use(cast);
 
             if (shooterData != null) {
                 switch (point) {
@@ -226,13 +255,6 @@ public class DamageHandler {
         }
 
         return true;
-    }
-
-    private void useMechanics(Configuration config, CastData cast, String path) {
-        Mechanics mechanics = config.getObject(path + ".Mechanics", Mechanics.class);
-        if (mechanics != null) {
-            mechanics.use(cast);
-        }
     }
 
     public void tryUseExplosion(WeaponProjectile projectile, Location origin, DoubleMap<LivingEntity> exposures) {

@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.file.Configuration;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
 import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
@@ -39,12 +40,25 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private double distanceTravelled;
     private List<DamageModifier> damageModifiers;
 
+    private Mechanics damageMechanics;
+    private Mechanics killMechanics;
+    private Mechanics backstabMechanics;
+    private Mechanics criticalHitMechanics;
+    private Mechanics headMechanics;
+    private Mechanics bodyMechanics;
+    private Mechanics armsMechanics;
+    private Mechanics legsMechanics;
+    private Mechanics feetMechanics;
+
     private boolean isCancelled;
 
     public WeaponDamageEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
                                    LivingEntity victim, double baseDamage, boolean isBackstab, boolean isCritical,
                                    DamagePoint point, int armorDamage, int fireTicks, boolean isExplosion,
-                                   double distanceTravelled, DamageModifier damageModifier) {
+                                   double distanceTravelled, DamageModifier damageModifier, Mechanics damageMechanics,
+                                   Mechanics killMechanics, Mechanics backstabMechanics, Mechanics criticalHitMechanics,
+                                   Mechanics headMechanics, Mechanics bodyMechanics, Mechanics armsMechanics,
+                                   Mechanics legsMechanics, Mechanics feetMechanics) {
 
         super(weaponTitle, weaponItem, weaponUser, hand);
 
@@ -59,6 +73,16 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.isExplosion = isExplosion;
         this.dropoff = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Damage.Dropoff", DamageDropoff.class);
         this.distanceTravelled = distanceTravelled;
+
+        this.damageMechanics = damageMechanics;
+        this.killMechanics = killMechanics;
+        this.backstabMechanics = backstabMechanics;
+        this.criticalHitMechanics = criticalHitMechanics;
+        this.headMechanics = headMechanics;
+        this.bodyMechanics = bodyMechanics;
+        this.armsMechanics = armsMechanics;
+        this.legsMechanics = legsMechanics;
+        this.feetMechanics = feetMechanics;
 
         this.damageModifiers = new LinkedList<>();
         this.damageModifiers.add(damageModifier);
@@ -272,6 +296,87 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
     public List<DamageModifier> getDamageModifiers() {
         return damageModifiers;
+    }
+
+    public Mechanics getDamageMechanics() {
+        return damageMechanics;
+    }
+
+    public void setDamageMechanics(Mechanics damageMechanics) {
+        this.damageMechanics.clearDirty(); // clear any modifications
+        this.damageMechanics = damageMechanics;
+    }
+
+    public Mechanics getKillMechanics() {
+        return killMechanics;
+    }
+
+    public void setKillMechanics(Mechanics killMechanics) {
+        this.killMechanics.clearDirty(); // clear any modifications
+        this.killMechanics = killMechanics;
+    }
+
+    public Mechanics getBackstabMechanics() {
+        return backstabMechanics;
+    }
+
+    public void setBackstabMechanics(Mechanics backstabMechanics) {
+        this.backstabMechanics.clearDirty(); // clear any modifications
+        this.backstabMechanics = backstabMechanics;
+    }
+
+    public Mechanics getCriticalHitMechanics() {
+        return criticalHitMechanics;
+    }
+
+    public void setCriticalHitMechanics(Mechanics criticalHitMechanics) {
+        this.criticalHitMechanics.clearDirty(); // clear any modifications
+        this.criticalHitMechanics = criticalHitMechanics;
+    }
+
+    public Mechanics getHeadMechanics() {
+        return headMechanics;
+    }
+
+    public void setHeadMechanics(Mechanics headMechanics) {
+        this.headMechanics.clearDirty(); // clear any modifications
+        this.headMechanics = headMechanics;
+    }
+
+    public Mechanics getBodyMechanics() {
+        return bodyMechanics;
+    }
+
+    public void setBodyMechanics(Mechanics bodyMechanics) {
+        this.bodyMechanics.clearDirty(); // clear any modifications
+        this.bodyMechanics = bodyMechanics;
+    }
+
+    public Mechanics getArmsMechanics() {
+        return armsMechanics;
+    }
+
+    public void setArmsMechanics(Mechanics armsMechanics) {
+        this.armsMechanics.clearDirty(); // clear any modifications
+        this.armsMechanics = armsMechanics;
+    }
+
+    public Mechanics getLegsMechanics() {
+        return legsMechanics;
+    }
+
+    public void setLegsMechanics(Mechanics legsMechanics) {
+        this.legsMechanics.clearDirty(); // clear any modifications
+        this.legsMechanics = legsMechanics;
+    }
+
+    public Mechanics getFeetMechanics() {
+        return feetMechanics;
+    }
+
+    public void setFeetMechanics(Mechanics feetMechanics) {
+        this.feetMechanics.clearDirty(); // clear any modifications
+        this.feetMechanics = feetMechanics;
     }
 
     @Override

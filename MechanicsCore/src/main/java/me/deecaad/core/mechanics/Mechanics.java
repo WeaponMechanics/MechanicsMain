@@ -65,9 +65,7 @@ public class Mechanics implements Serializer<Mechanics> {
      * When using {@link #addDirty(List)}, after casting the mechanics
      * ({@link #use(CastData)}), you should clear the dirty mechanics.
      *
-     * <p>We cannot automatically call this method in #use since there are
-     * some instances, like the PrepareWeaponShootEvent, that need to cast
-     * mechanics multiple times before clearing the dirt list.
+     * <p>This method is automatically called after using {@link #use(CastData)}.
      */
     public void clearDirty() {
         dirty.clear();
