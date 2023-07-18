@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.weapon.explode.regeneration.BlockRegenSorter;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -24,15 +25,20 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
     private List<Block> blocks;
     private BlockRegenSorter sorter;
     private DoubleMap<LivingEntity> entities;
+
+    private Mechanics mechanics;
+
     private boolean isCancelled;
 
-    public ProjectileExplodeEvent(WeaponProjectile projectile, List<Block> blocks,
-                                  BlockRegenSorter sorter, DoubleMap<LivingEntity> entities) {
+    public ProjectileExplodeEvent(WeaponProjectile projectile, List<Block> blocks, BlockRegenSorter sorter,
+                                  DoubleMap<LivingEntity> entities, Mechanics mechanics) {
         super(projectile);
 
         this.blocks = blocks;
         this.sorter = sorter;
         this.entities = entities;
+
+        this.mechanics = mechanics;
     }
 
     /**
@@ -98,6 +104,15 @@ public class ProjectileExplodeEvent extends ProjectileEvent implements Cancellab
      */
     public void setEntities(DoubleMap<LivingEntity> entities) {
         this.entities = entities;
+    }
+
+    public Mechanics getMechanics() {
+        return mechanics;
+    }
+
+    public void setMechanics(Mechanics mechanics) {
+        this.mechanics.clearDirty(); // clear any modifications
+        this.mechanics = mechanics;
     }
 
     @Override

@@ -233,14 +233,16 @@ public class Explosion implements Serializer<Explosion> {
         List<Block> blocks = shape.getBlocks(origin);
         BlockRegenSorter sorter = new LayerDistanceSorter(origin, this);
         DoubleMap<LivingEntity> entities = exposure.mapExposures(origin, shape);
+        Mechanics mechanics = this.mechanics;
         if (projectile != null) {
             // This event is not cancellable. If developers want to cancel
             // explosions, they should use ProjectilePreExplodeEvent
-            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, blocks, sorter, entities);
+            ProjectileExplodeEvent event = new ProjectileExplodeEvent(projectile, blocks, sorter, entities, mechanics);
             Bukkit.getPluginManager().callEvent(event);
             blocks = event.getBlocks();
             sorter = event.getSorter();
             entities = event.getEntities();
+            mechanics = event.getMechanics();
 
             // Late check on bukkit event, which is cancellable because it requires blocks list...
             // + just default yield to 5, it can't be exactly used nicely in this...
@@ -332,7 +334,7 @@ public class Explosion implements Serializer<Explosion> {
         }
 
         if (flashbang != null) flashbang.trigger(exposure, projectile, origin);
-        if (mechanics != null) {
+        if (mechanics != null) { // NOT this.mechanics for event
             CastData cast = new CastData(cause, projectile == null ? null : projectile.getWeaponTitle(), projectile == null ? null : projectile.getWeaponStack());
             cast.setTargetLocation(origin);
             mechanics.use(cast);
