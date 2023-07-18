@@ -81,17 +81,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
     public boolean startReloadWithoutTrigger(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack,
                                              EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
 
-        // This method is called from many places in reload handler and shoot handler as well
-        // so that's why even startReloadWithoutTriggerAndWithoutTiming() is a separated method
-
-        boolean result = startReloadWithoutTriggerAndWithoutTiming(entityWrapper, weaponTitle, weaponStack, slot, dualWield, isReloadLoop);
-
-        return result;
-    }
-
-    private boolean startReloadWithoutTriggerAndWithoutTiming(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack,
-                                                              EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
-
         // Don't try to reload if either one of the hands is already reloading / full autoing
         HandData mainHandData = entityWrapper.getMainHandData();
         HandData offHandData = entityWrapper.getOffHandData();
@@ -102,7 +91,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         WeaponPreReloadEvent preReloadEvent = new WeaponPreReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot);
         Bukkit.getPluginManager().callEvent(preReloadEvent);
-        if (preReloadEvent.isCancelled()) return false;
+        if (preReloadEvent.isCancelled())
+            return false;
 
         Configuration config = getConfigurations();
 
@@ -227,8 +217,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         }
 
+        Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
         WeaponReloadEvent reloadEvent = new WeaponReloadEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
-                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime);
+                reloadDuration, tempAmmoToAdd, tempMagazineSize, firearmOpenTime, firearmCloseTime, reloadStartMechanics);
         Bukkit.getPluginManager().callEvent(reloadEvent);
 
         reloadDuration = reloadEvent.getReloadTime();
@@ -323,8 +314,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
                     CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
                 }
 
-                Mechanics reloadStartMechanics = config.getObject(weaponTitle + ".Reload.Start_Mechanics", Mechanics.class);
-                if (reloadStartMechanics != null) reloadStartMechanics.use(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask));
+
+                if (reloadEvent.getMechanics() != null)
+                    reloadEvent.getMechanics().use(new CastData(shooter, weaponTitle, weaponStack, handData::addReloadTask));
 
                 if (weaponInfoDisplay != null) weaponInfoDisplay.send(playerWrapper, slot);
 
@@ -374,6 +366,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         LivingEntity shooter = entityWrapper.getEntity();
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, FirearmState.OPEN);
+        event.setTime(firearmOpenTime);
         Bukkit.getPluginManager().callEvent(event);
 
         return new ChainTask(event.getTime()) {
@@ -410,6 +403,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         LivingEntity shooter = entityWrapper.getEntity();
         WeaponFirearmEvent event = new WeaponFirearmEvent(weaponTitle, weaponStack, shooter, slot, firearmAction, FirearmState.CLOSE);
+        event.setTime(firearmCloseTime);
         Bukkit.getPluginManager().callEvent(event);
 
         return new ChainTask(event.getTime()) {
