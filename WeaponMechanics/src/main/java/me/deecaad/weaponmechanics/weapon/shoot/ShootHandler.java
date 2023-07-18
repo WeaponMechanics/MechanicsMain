@@ -627,10 +627,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (prepareEvent.isCancelled())
             return;
 
-        if (prepareEvent.getShootMechanics() != null) {
+        if (prepareEvent.getShootMechanics() != null)
             prepareEvent.getShootMechanics().use(new CastData(livingEntity, weaponTitle, weaponStack));
-            prepareEvent.getShootMechanics().clearDirty();
-        }
 
         // Reset fall distance for #134
         if (prepareEvent.isResetFallDistance())
