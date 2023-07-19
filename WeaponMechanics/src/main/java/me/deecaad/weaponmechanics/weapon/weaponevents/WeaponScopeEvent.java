@@ -83,7 +83,8 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
     }
 
     public void setMechanics(Mechanics mechanics) {
-        this.mechanics.clearDirty(); // clear any modifications
+        if (this.mechanics != null)
+            this.mechanics.clearDirty(); // clear any modifications
         this.mechanics = mechanics;
     }
 

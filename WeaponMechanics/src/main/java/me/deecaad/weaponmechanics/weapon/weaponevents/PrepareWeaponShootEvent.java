@@ -40,7 +40,8 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
     }
 
     public void setShootMechanics(Mechanics shootMechanics) {
-        this.shootMechanics.clearDirty(); // clear any modifications
+        if (this.shootMechanics != null)
+            this.shootMechanics.clearDirty(); // clear any modifications
         this.shootMechanics = shootMechanics;
     }
 
