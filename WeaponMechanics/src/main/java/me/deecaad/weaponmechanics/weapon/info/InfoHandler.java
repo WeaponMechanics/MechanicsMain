@@ -12,7 +12,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
-import me.deecaad.weaponmechanics.weapon.skin.Skin;
+import me.deecaad.weaponmechanics.weapon.skin.BaseSkin;
 import me.deecaad.weaponmechanics.weapon.skin.SkinList;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponGenerateEvent;
@@ -183,7 +183,7 @@ public class InfoHandler implements IValidator {
 
         // Apply default skin
         SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
-        Skin defaultSkin = skins == null ? null : skins.getSkin(null, null);
+        BaseSkin defaultSkin = skins == null ? null : skins.getSkin(null, null);
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
         }
@@ -241,7 +241,7 @@ public class InfoHandler implements IValidator {
 
         // Apply default skin
         SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
-        Skin defaultSkin = skins == null ? null : skins.getSkin(null, null);
+        BaseSkin defaultSkin = skins == null ? null : skins.getSkin(null, null);
         if (defaultSkin != null) {
             defaultSkin.apply(weaponStack);
         }

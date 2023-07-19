@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public class SkinList implements Serializer<SkinList> {
 
-    private final Map<String, Map<SkinIdentifier, Skin>> map;
+    private final Map<String, Map<SkinIdentifier, BaseSkin>> map;
 
     /**
      * Default constructor for serializer.
@@ -28,7 +28,7 @@ public class SkinList implements Serializer<SkinList> {
         map = Collections.emptyMap();
     }
 
-    public SkinList(Map<String, Map<SkinIdentifier, Skin>> map) {
+    public SkinList(Map<String, Map<SkinIdentifier, BaseSkin>> map) {
         this.map = map;
     }
 
@@ -36,7 +36,7 @@ public class SkinList implements Serializer<SkinList> {
         return new HashSet<>(map.keySet());
     }
 
-    public Skin getSkin(@Nullable String skin, @Nullable SkinIdentifier id) {
+    public BaseSkin getSkin(@Nullable String skin, @Nullable SkinIdentifier id) {
         if (skin == null) {
             skin = "default";
         }
@@ -45,7 +45,7 @@ public class SkinList implements Serializer<SkinList> {
             id = SkinIdentifier.DEFAULT;
         }
 
-        Map<SkinIdentifier, Skin> temp = map.get(skin);
+        Map<SkinIdentifier, BaseSkin> temp = map.get(skin);
         return temp == null ? null : temp.get(id);
     }
 
@@ -57,8 +57,8 @@ public class SkinList implements Serializer<SkinList> {
     @NotNull
     @Override
     public SkinList serialize(SerializeData data) throws SerializerException {
-        Map<String, Map<SkinIdentifier, Skin>> map = new HashMap<>();
-        Map<SkinIdentifier, Skin> defaultSkinData = new HashMap<>();
+        Map<String, Map<SkinIdentifier, BaseSkin>> map = new HashMap<>();
+        Map<SkinIdentifier, BaseSkin> defaultSkinData = new HashMap<>();
 
         ConfigurationSection section = data.of().assertExists().assertType(ConfigurationSection.class).get();
         Set<String> keys = section.getKeys(false);
@@ -90,7 +90,7 @@ public class SkinList implements Serializer<SkinList> {
                     continue;
                 }
 
-                Map<SkinIdentifier, Skin> temp = serializeOne(data.move(key));
+                Map<SkinIdentifier, BaseSkin> temp = serializeOne(data.move(key));
                 map.put(key.toLowerCase(Locale.ROOT), temp);
                 continue;
             }
@@ -100,15 +100,15 @@ public class SkinList implements Serializer<SkinList> {
             if (id == SkinIdentifier.SCOPE_STACK)
                 id = new SkinIdentifier(key);
 
-            defaultSkinData.put(id, data.of(key).assertExists().serialize(Skin.class));
+            defaultSkinData.put(id, data.of(key).assertExists().serialize(BaseSkin.class));
         }
 
         map.put("default", defaultSkinData);
         return new SkinList(map);
     }
 
-    private Map<SkinIdentifier, Skin> serializeOne(SerializeData data) throws SerializerException {
-        Map<SkinIdentifier, Skin> map = new HashMap<>();
+    private Map<SkinIdentifier, BaseSkin> serializeOne(SerializeData data) throws SerializerException {
+        Map<SkinIdentifier, BaseSkin> map = new HashMap<>();
 
         ConfigurationSection section = data.of().assertExists().assertType(ConfigurationSection.class).get();
         Set<String> keys = section.getKeys(false);
@@ -130,7 +130,7 @@ public class SkinList implements Serializer<SkinList> {
             if (id == SkinIdentifier.SCOPE_STACK)
                 id = new SkinIdentifier(key);
 
-            map.put(id, data.of(key).assertExists().serialize(Skin.class));
+            map.put(id, data.of(key).assertExists().serialize(BaseSkin.class));
         }
 
         return map;

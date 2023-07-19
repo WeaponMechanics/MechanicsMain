@@ -43,7 +43,7 @@ public class SkinHandler {
         if (event.isCancelled())
             return false;
 
-        Skin skin = getSkin(skins, event.getSkin(), hand, weaponStack, triggerType, forceDefault);
+        BaseSkin skin = getSkin(skins, event.getSkin(), hand, weaponStack, triggerType, forceDefault);
         if (skin != null) {
             skin.apply(weaponStack);
             return true;
@@ -52,24 +52,24 @@ public class SkinHandler {
         return false;
     }
 
-    public Skin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType) {
+    public BaseSkin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType) {
         return getSkin(skins, skin, hand, weaponStack, triggerType, false);
     }
 
-    public Skin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType, boolean forceDefault) {
+    public BaseSkin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType, boolean forceDefault) {
         if (forceDefault) return skins.getSkin(skin, SkinList.SkinIdentifier.DEFAULT);
 
-        Skin reloadSkin = skins.getSkin(skin, SkinList.SkinIdentifier.RELOAD);
+        BaseSkin reloadSkin = skins.getSkin(skin, SkinList.SkinIdentifier.RELOAD);
         if ((!hand.isReloading() || reloadSkin == null) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
-            Skin emptyAmmoSkin = skins.getSkin(skin, SkinList.SkinIdentifier.NO_AMMO);
+            BaseSkin emptyAmmoSkin = skins.getSkin(skin, SkinList.SkinIdentifier.NO_AMMO);
             if (emptyAmmoSkin != null)
                 return emptyAmmoSkin;
         }
 
         if (hand.getZoomData().isZooming()) {
-            Skin zoomSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SCOPE);
+            BaseSkin zoomSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SCOPE);
 
-            Skin stackySkin = skins.getSkin(skin, new SkinList.SkinIdentifier("Scope_" + hand.getZoomData().getZoomStacks()));
+            BaseSkin stackySkin = skins.getSkin(skin, new SkinList.SkinIdentifier("Scope_" + hand.getZoomData().getZoomStacks()));
             if (stackySkin != null)
                 zoomSkin = stackySkin;
 
@@ -91,7 +91,7 @@ public class SkinHandler {
                 && (entityWrapper.isSprinting() || triggerType == TriggerType.START_SPRINT)
                 && !entityWrapper.isDualWielding()) {
 
-            Skin sprintSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SPRINT);
+            BaseSkin sprintSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SPRINT);
             if (sprintSkin != null)
                 return sprintSkin;
         }
