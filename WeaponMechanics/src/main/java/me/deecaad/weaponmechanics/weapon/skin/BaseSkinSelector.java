@@ -71,6 +71,12 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
         for (String key : keys) {
             SkinAction action = SkinAction.fromString(key);
 
+            // If we found a string, we should definitely be using the relative selector instead.
+            // Of course, skip Item for inline HAND item serializer.
+            if (data.of(key).is(String.class) || data.of(key).is(Integer.class))
+                if (!"Item".equals(key))
+                    return new RelativeSkinSelector().serialize(data);
+
             if (action == null) {
 
                 if ("Attachments".equals(key)) {

@@ -621,6 +621,10 @@ public class SerializeData {
          * @return true, if the value matched the type.
          */
         public boolean is(Class<?> type) {
+            if (type == int.class || type == short.class || type == long.class || type == float.class || type == double.class || type == boolean.class || type == char.class || type == byte.class) {
+                throw new IllegalArgumentException("Silly developer, these are primitive types! Check wrapper classes instead.");
+            }
+
             Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
             return value != null && type.isAssignableFrom(value.getClass());
         }

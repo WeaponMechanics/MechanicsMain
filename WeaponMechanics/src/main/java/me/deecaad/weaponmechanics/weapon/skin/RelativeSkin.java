@@ -41,23 +41,12 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
                     "When using the '+10' feature of skins, ALL of your skins on this weapon must use the + feature");
         }
 
-        String str = data.of().assertExists().assertType(String.class).get().toString().trim().toLowerCase();
+        String str = data.of().assertExists().get().toString().trim().toLowerCase();
 
-        boolean hasAddPrefix = false;
-        if (str.startsWith("+")) {
-            hasAddPrefix = true;
+        if (str.startsWith("+"))
             str = str.substring(1).trim();
-        }
-
-        if (str.startsWith("add")) {
-            hasAddPrefix = true;
+        if (str.startsWith("add"))
             str = str.substring(3).trim();
-        }
-
-        // Basically we want to force people
-        if (!hasAddPrefix) {
-            throw data.exception(null, "Expected an addition, like +10 or +20, but got '" + str + "'");
-        }
 
         try {
             return new RelativeSkin(Integer.parseInt(str));
