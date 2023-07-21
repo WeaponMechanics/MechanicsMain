@@ -37,12 +37,9 @@
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 201
-    Scope:
-      Custom_Model_Data: 211
-    Sprint:
-      Custom_Model_Data: 216
+    Default: 9
+    Scope: +1000
+    Sprint: +2000
   Projectile: "pistol.Projectile"
   Shoot:
     Trigger:

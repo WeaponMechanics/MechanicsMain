@@ -29,12 +29,10 @@ MG34:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 241
-    Scope:
-      Custom_Model_Data: 251
-    Sprint:
-      Custom_Model_Data: 256
+    Default: 11
+    Scope: +1000
+    Sprint: +2000
+
   Projectile: "light_machine_gun.Projectile"
   Shoot:
     Trigger:

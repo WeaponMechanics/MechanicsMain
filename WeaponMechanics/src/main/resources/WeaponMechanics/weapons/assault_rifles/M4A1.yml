@@ -30,12 +30,12 @@ M4A1:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 161
-    Scope:
-      Custom_Model_Data: 171
-    Sprint:
-      Custom_Model_Data: 176
+    Default: 7
+    Scope: +1000
+    Sprint: +2000
+    Attachments:
+      Reflex_Sight: +10000
+      Suppressor: +100000
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

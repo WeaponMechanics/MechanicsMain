@@ -29,12 +29,9 @@ AX_50:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 361
-    Scope:
-      Custom_Model_Data: 9999
-    Sprint:
-      Custom_Model_Data: 371
+    Default: 13
+    Scope: +1000
+    Sprint: +2000
   Projectile: "sniper_rifle.Projectile"
   Shoot:
     Trigger:
