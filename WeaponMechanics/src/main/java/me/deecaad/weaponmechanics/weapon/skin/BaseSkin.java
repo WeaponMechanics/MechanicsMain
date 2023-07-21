@@ -1,21 +1,24 @@
 package me.deecaad.weaponmechanics.weapon.skin;
 
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 public class BaseSkin implements Skin, Serializer<BaseSkin>  {
 
-    private Material type;
-    private byte data;
-    private short durability;
-    private int customModelData;
+    private Optional<Material> type;
+    private OptionalInt data;
+    private OptionalInt durability;
+    private OptionalInt customModelData;
 
     /**
      * Default constructor for Serializer
@@ -23,83 +26,124 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
     public BaseSkin() {
     }
 
-    public BaseSkin(Material type, byte data, short durability, int customModelData) {
+    public BaseSkin(int customModelData) {
+        this.type = Optional.empty();
+        this.data = OptionalInt.empty();
+        this.durability = OptionalInt.empty();
+        this.customModelData = OptionalInt.of(customModelData);
+    }
+
+    public BaseSkin(Optional<Material> type, OptionalInt data, OptionalInt durability, OptionalInt customModelData) {
         this.type = type;
         this.data = data;
         this.durability = durability;
         this.customModelData = customModelData;
     }
 
+    public boolean hasType() {
+        return type.isPresent();
+    }
+
     public Material getType() {
-        return type;
+        return type.orElse(null);
+    }
+
+    public boolean hasData() {
+        return data.isPresent();
     }
 
     public byte getData() {
-        return data;
+        return (byte) data.orElse(Byte.MIN_VALUE);
+    }
+
+    public boolean hasDurability() {
+        return durability.isPresent();
     }
 
     public short getDurability() {
-        return durability;
+        return (short) durability.orElse(Short.MIN_VALUE);
+    }
+
+    public boolean hasCustomModelData() {
+        return customModelData.isPresent();
     }
 
     public int getCustomModelData() {
-        return customModelData;
+        return customModelData.orElse(Integer.MIN_VALUE);
     }
 
     /**
      * Applies this skin to given item stack
      *
-     * @param itemStack the item stack for which to apply skin
+     * @param weapon the item stack for which to apply skin
      */
-    public void apply(ItemStack itemStack) {
-        double version = CompatibilityAPI.getVersion();
+    public void apply(@NotNull ItemStack weapon) {
+        int version = ReflectionUtil.getMCVersion();
 
-        if (type != null && itemStack.getType() != type) {
-            itemStack.setType(type);
-        }
+        if (type.isPresent() && weapon.getType() != type.get())
+            weapon.setType(type.get());
 
-        if (data != -1 && version < 1.13 && itemStack.getData().getData() != data) {
-            itemStack.getData().setData(data);
-        }
+        if (data.isPresent())
+            weapon.getData().setData((byte) data.getAsInt());
 
         boolean hasMetaChanges = false;
-        ItemMeta meta = itemStack.getItemMeta();
+        ItemMeta meta = weapon.getItemMeta();
 
         // Happens when somebody tries to apply a skin to air
         if (meta == null)
-            throw new IllegalArgumentException("Tried to apply skin to item without meta: " + itemStack);
+            throw new IllegalArgumentException("Tried to apply skin to item without meta: " + weapon);
 
-        if (durability != -1) {
-            if (version >= 1.132) {
-                if (((org.bukkit.inventory.meta.Damageable) meta).getDamage() != durability) {
-                    ((org.bukkit.inventory.meta.Damageable) meta).setDamage(durability);
+        if (durability.isPresent()) {
+            if (version >= 13) {
+                if (((org.bukkit.inventory.meta.Damageable) meta).getDamage() != durability.getAsInt()) {
+                    ((org.bukkit.inventory.meta.Damageable) meta).setDamage(durability.getAsInt());
                     hasMetaChanges = true;
                 }
-            } else if (itemStack.getDurability() != durability) {
-                itemStack.setDurability(durability);
+            } else if (weapon.getDurability() != durability.getAsInt()) {
+                weapon.setDurability((short) durability.getAsInt());
                 hasMetaChanges = true;
             }
         }
 
-        if (customModelData != -1 && version >= 1.14
-                && (!meta.hasCustomModelData() || meta.getCustomModelData() != customModelData)) {
-            meta.setCustomModelData(customModelData);
+        if (customModelData.isPresent() && (!meta.hasCustomModelData() || meta.getCustomModelData() != customModelData.getAsInt())) {
+            meta.setCustomModelData(customModelData.getAsInt());
             hasMetaChanges = true;
         }
 
         if (hasMetaChanges) {
-            itemStack.setItemMeta(meta);
+            weapon.setItemMeta(meta);
         }
     }
 
     @Override
     @Nonnull
     public BaseSkin serialize(SerializeData data) throws SerializerException {
+        int version = ReflectionUtil.getMCVersion();
+        boolean shouldUseCmd = version >= 14;
 
-        Material type = data.of("Type").getEnum(Material.class, null);
-        byte legacyData = (byte) data.of("Legacy_Data").assertPositive().getInt(-1);
-        short durability = (short) data.of("Durability").assertPositive().getInt(-1);
-        int customModelData = data.of("Custom_Model_Data").assertPositive().getInt(-1);
+        Optional<Material> type = Optional.ofNullable(data.of("Type").getEnum(Material.class, null));
+        OptionalInt legacyData = data.has("Legacy_Data") ? OptionalInt.of(data.of("Legacy_Data").assertExists().assertRange(0, Byte.MAX_VALUE).getInt()) : OptionalInt.empty();
+        OptionalInt durability = data.has("Durability") ? OptionalInt.of(data.of("Durability").assertExists().assertRange(0, Short.MAX_VALUE).getInt()) : OptionalInt.empty();
+        OptionalInt customModelData = data.has("Custom_Model_Data") ? OptionalInt.of(data.of("Custom_Model_Data").assertExists().assertPositive().getInt()) : OptionalInt.empty();
+
+        if (legacyData.isPresent() && version > 12) {
+            throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version 1." + version,
+                    "Instead, use the '" + (shouldUseCmd ? "Custom_Model_Data" : "Durability") + "' feature",
+                    "Check out the wiki: https://github.com/WeaponMechanics/MechanicsMain/wiki/Skins");
+        }
+
+        // Cannot use Custom_Model_Data on 1.14
+        if (!shouldUseCmd && customModelData.isPresent()) {
+            throw data.exception("Custom_Model_Data", "Cannot use 'Custom_Model_Data' on MC version 1." + version,
+                    "Custom_Model_Data was added in Minecraft 1.14",
+                    "To fix, you can either update your server, or use 'Durability' instead");
+        }
+
+        // Should use at least 1
+        if (type.isEmpty() && legacyData.isEmpty() && durability.isEmpty() && customModelData.isEmpty()) {
+            throw data.exception(null, "Tried to create a skin without using 'Durability' or 'Custom_Model_Data'... did you misspell something?",
+                    "Double check your configs to make sure it is spelled right.");
+        }
 
         return new BaseSkin(type, legacyData, durability, customModelData);
     }
