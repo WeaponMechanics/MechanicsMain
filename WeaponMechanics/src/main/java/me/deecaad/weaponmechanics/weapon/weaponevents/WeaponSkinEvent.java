@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import me.deecaad.weaponmechanics.weapon.skin.SkinList;
+import me.deecaad.weaponmechanics.weapon.skin.SkinSelector;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
@@ -18,14 +18,14 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    private final SkinList skinList;
+    private final SkinSelector skinList;
     private final TriggerType cause;
     private final boolean forceDefault;
     private String skin;
 
     private boolean cancel;
 
-    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinList skinList) {
+    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinSelector skinList) {
         super(weaponTitle, weaponStack, shooter, hand);
         this.skinList = skinList;
         this.cause = null;
@@ -33,7 +33,7 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
         this.skin = "default";
     }
 
-    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinList skinList, TriggerType cause, boolean forceDefault) {
+    public WeaponSkinEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, SkinSelector skinList, TriggerType cause, boolean forceDefault) {
         super(weaponTitle, weaponStack, shooter, hand);
         this.skinList = skinList;
         this.cause = cause;
@@ -43,11 +43,11 @@ public class WeaponSkinEvent extends WeaponEvent implements Cancellable {
 
     /**
      * Returns the config options for this skin. You can get this by using
-     * <code>WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class)</code>
+     * <code>WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class)</code>
      *
      * @return The non-null skin list.
      */
-    public SkinList getSkinList() {
+    public SkinSelector getSkinSelector() {
         return skinList;
     }
 
