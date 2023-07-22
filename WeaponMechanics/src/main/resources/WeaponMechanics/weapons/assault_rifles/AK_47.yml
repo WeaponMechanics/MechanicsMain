@@ -52,10 +52,10 @@ AK_47:
       Break_Blocks: true
   Skin:
     Default: 5
-    Scope: +1000
-    Sprint: +2000
-    blue: +10000
-    red: +20000
+    Scope: ADD 1000
+    Sprint: ADD 2000
+    blue: ADD 10000 # blue and red will only work if you have purchased WMC
+    red: ADD 20000
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

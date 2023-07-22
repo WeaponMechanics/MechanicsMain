@@ -31,11 +31,11 @@ M4A1:
       Break_Blocks: true
   Skin:
     Default: 7
-    Scope: +1000
-    Sprint: +2000
-    Attachments:
-      Reflex_Sight: +10000
-      Suppressor: +100000
+    Scope: ADD 1000
+    Sprint: ADD 2000
+    Attachments:  # attachments will only work if you have purchased WeaponMechanicsPlus
+      Reflex_Sight: ADD 10000
+      Suppressor: ADD 100000
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

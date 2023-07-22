@@ -30,8 +30,8 @@ AUG:
       Break_Blocks: true
   Skin:
     Default: 2
-    Scope: +1000
-    Sprint: +10000
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "sub_machine_gun.Projectile"
   Shoot:
     Trigger:

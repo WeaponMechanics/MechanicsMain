@@ -103,6 +103,9 @@ Smooth_Damage_Dropoff: false
 Disable_Entity_Explode_Event: false
 Disable_Block_Break_Event: false
 
+# Having `Strict_Relative_Skins: true` makes it so when you are creating skin configs
+# using
+
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but
 # they improve smaller ones.

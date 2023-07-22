@@ -38,8 +38,8 @@
       Break_Blocks: true
   Skin:
     Default: 9
-    Scope: +1000
-    Sprint: +2000
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "pistol.Projectile"
   Shoot:
     Trigger:
