@@ -29,12 +29,9 @@ Kar98k:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 221
-    Scope:
-      Custom_Model_Data: 231
-    Sprint:
-      Custom_Model_Data: 236
+    Default: 10
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "marksman_rifle.Projectile"
   Shoot:
     Trigger:

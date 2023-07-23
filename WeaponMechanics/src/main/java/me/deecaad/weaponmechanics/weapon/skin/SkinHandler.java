@@ -34,7 +34,7 @@ public class SkinHandler {
 
     public boolean tryUse(TriggerType triggerType, EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean forceDefault) {
         HandData hand = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-        SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
+        SkinSelector skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
         if (skins == null || !weaponStack.hasItemMeta())
             return false;
 
@@ -43,44 +43,39 @@ public class SkinHandler {
         if (event.isCancelled())
             return false;
 
-        Skin skin = getSkin(skins, event.getSkin(), hand, weaponStack, triggerType, forceDefault);
-        if (skin != null) {
-            skin.apply(weaponStack);
-            return true;
-        }
+        SkinSelector.SkinAction action = getSkinAction(skins, event.getSkin(), hand, weaponStack, triggerType, forceDefault);
+        String[] attachments = CustomTag.ATTACHMENTS.getStringArray(weaponStack);
+        skins.apply(weaponStack, event.getSkin(), action, attachments);
 
         return false;
     }
 
-    public Skin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType) {
-        return getSkin(skins, skin, hand, weaponStack, triggerType, false);
+    public SkinSelector.SkinAction getSkinAction(SkinSelector skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType) {
+        return getSkinAction(skins, skin, hand, weaponStack, triggerType, false);
     }
 
-    public Skin getSkin(SkinList skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType, boolean forceDefault) {
-        if (forceDefault) return skins.getSkin(skin, SkinList.SkinIdentifier.DEFAULT);
+    public SkinSelector.SkinAction getSkinAction(SkinSelector skins, String skin, HandData hand, ItemStack weaponStack, TriggerType triggerType, boolean forceDefault) {
+        // This is used usually when dequipping the weapon
+        if (forceDefault)
+            return SkinSelector.SkinAction.DEFAULT;
 
-        Skin reloadSkin = skins.getSkin(skin, SkinList.SkinIdentifier.RELOAD);
-        if ((!hand.isReloading() || reloadSkin == null) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
-            Skin emptyAmmoSkin = skins.getSkin(skin, SkinList.SkinIdentifier.NO_AMMO);
-            if (emptyAmmoSkin != null)
-                return emptyAmmoSkin;
+        if ((!hand.isReloading() || skins.hasAction(skin, SkinSelector.SkinAction.RELOAD)) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
+            if (skins.hasAction(skin, SkinSelector.SkinAction.NO_AMMO))
+                return SkinSelector.SkinAction.NO_AMMO;
         }
 
         if (hand.getZoomData().isZooming()) {
-            Skin zoomSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SCOPE);
 
-            Skin stackySkin = skins.getSkin(skin, new SkinList.SkinIdentifier("Scope_" + hand.getZoomData().getZoomStacks()));
-            if (stackySkin != null)
-                zoomSkin = stackySkin;
+            SkinSelector.SkinAction stackAction = new SkinSelector.SkinAction("Scope_" + hand.getZoomData().getZoomStacks());
+            if (skins.hasAction(skin, stackAction))
+                return stackAction;
 
-            if (zoomSkin != null)
-                return zoomSkin;
+            if (skins.hasAction(skin, SkinSelector.SkinAction.SCOPE))
+                return SkinSelector.SkinAction.SCOPE;
         }
 
-        if (hand.isReloading()) {
-            if (reloadSkin != null)
-                return reloadSkin;
-        }
+        if (hand.isReloading() && skins.hasAction(skin, SkinSelector.SkinAction.RELOAD))
+            return SkinSelector.SkinAction.RELOAD;
 
         // Checks are like this due to when PlayerToggleSprintEvent is called player isn't yet actually sprinting
         // since the event is also cancellable. This ignores the cancelling of sprint event,
@@ -91,11 +86,10 @@ public class SkinHandler {
                 && (entityWrapper.isSprinting() || triggerType == TriggerType.START_SPRINT)
                 && !entityWrapper.isDualWielding()) {
 
-            Skin sprintSkin = skins.getSkin(skin, SkinList.SkinIdentifier.SPRINT);
-            if (sprintSkin != null)
-                return sprintSkin;
+            if (skins.hasAction(skin, SkinSelector.SkinAction.SPRINT))
+                return SkinSelector.SkinAction.SPRINT;
         }
 
-        return skins.getSkin(skin, SkinList.SkinIdentifier.DEFAULT);
+        return SkinSelector.SkinAction.DEFAULT;
     }
 }

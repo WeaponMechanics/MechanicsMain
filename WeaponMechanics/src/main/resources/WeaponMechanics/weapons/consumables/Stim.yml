@@ -16,6 +16,10 @@ Stim:
     Cancel:
       Block_Interactions: true
       Item_Interactions: true
+  Skin:
+    Default:
+      Type: FEATHER
+      Custom_Model_Data: -1  # negative numbers are ok here!
   Shoot:
     Trigger:
       Main_Hand: "RIGHT_CLICK"

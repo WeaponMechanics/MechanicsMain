@@ -30,14 +30,10 @@ FR_5_56:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 311
-    Scope:
-      Custom_Model_Data: 321
-    Sprint:
-      Custom_Model_Data: 326
-    Reload:
-      Custom_Model_Data: 331
+    Default: 12
+    Scope: ADD 1000
+    Sprint: ADD 2000
+    Reload: ADD 3000
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

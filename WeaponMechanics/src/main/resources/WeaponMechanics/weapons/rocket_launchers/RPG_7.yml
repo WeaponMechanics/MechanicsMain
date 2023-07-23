@@ -29,12 +29,11 @@ RPG_7:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 101
-    Scope:
-      Custom_Model_Data: 111
-    Sprint:
-      Custom_Model_Data: 116
+    Default: 4
+    Scope: ADD 1000
+    Sprint: ADD 2000
+    blue: ADD 10000 # blue and red will only work if you have WMC purchased
+    red: ADD 20000
   Projectile: "rocket_launcher.Projectile"
   Shoot:
     Trigger:

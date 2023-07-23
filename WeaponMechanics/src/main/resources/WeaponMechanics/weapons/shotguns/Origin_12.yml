@@ -30,12 +30,9 @@ Origin_12:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 81
-    Scope:
-      Custom_Model_Data: 91
-    Sprint:
-      Custom_Model_Data: 96
+    Default: 3
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "shotgun.Projectile"
   Shoot:
     Trigger:

@@ -29,12 +29,9 @@ FN_FAL:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 141
-    Scope:
-      Custom_Model_Data: 151
-    Sprint:
-      Custom_Model_Data: 156
+    Default: 6
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

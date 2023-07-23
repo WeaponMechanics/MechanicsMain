@@ -29,12 +29,9 @@ AUG:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 21
-    Scope:
-      Custom_Model_Data: 31
-    Sprint:
-      Custom_Model_Data: 36
+    Default: 2
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "sub_machine_gun.Projectile"
   Shoot:
     Trigger:

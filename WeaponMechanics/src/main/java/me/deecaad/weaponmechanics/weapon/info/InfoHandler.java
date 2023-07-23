@@ -12,8 +12,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
-import me.deecaad.weaponmechanics.weapon.skin.Skin;
-import me.deecaad.weaponmechanics.weapon.skin.SkinList;
+import me.deecaad.weaponmechanics.weapon.skin.SkinSelector;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponGenerateEvent;
 import org.bukkit.Bukkit;
@@ -182,11 +181,9 @@ public class InfoHandler implements IValidator {
         weaponStack.setItemMeta(weaponMeta);
 
         // Apply default skin
-        SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
-        Skin defaultSkin = skins == null ? null : skins.getSkin(null, null);
-        if (defaultSkin != null) {
-            defaultSkin.apply(weaponStack);
-        }
+        SkinSelector skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
+        if (skins != null)
+            skins.getDefaultSkin().apply(weaponStack);
 
         return weaponStack;
     }
@@ -240,10 +237,9 @@ public class InfoHandler implements IValidator {
         }
 
         // Apply default skin
-        SkinList skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinList.class);
-        Skin defaultSkin = skins == null ? null : skins.getSkin(null, null);
-        if (defaultSkin != null) {
-            defaultSkin.apply(weaponStack);
+        SkinSelector skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
+        if (skins != null) {
+            skins.getDefaultSkin().apply(weaponStack);
         }
 
         // First we should try to put the gun in the entity's main hand. If

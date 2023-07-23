@@ -31,12 +31,9 @@ R9_0:
       Arm_Swing_Animation: true
       Break_Blocks: true
   Skin:
-    Default:
-      Custom_Model_Data: 381
-    Scope:
-      Custom_Model_Data: 391
-    Sprint:
-      Custom_Model_Data: 396
+    Default: 14
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "shotgun.Projectile"
   Shoot:
     Trigger:

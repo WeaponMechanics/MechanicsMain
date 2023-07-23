@@ -28,12 +28,9 @@ Uzi:
       Drop_Item: true
       Arm_Swing_Animation: true
   Skin:
-    Default:
-      Custom_Model_Data: 1
-    Scope:
-      Custom_Model_Data: 11
-    Sprint:
-      Custom_Model_Data: 16
+    Default: 1
+    Scope: ADD 1000
+    Sprint: ADD 2000
   Projectile: "sub_machine_gun.Projectile"
   Shoot:
     Trigger:
