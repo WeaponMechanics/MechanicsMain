@@ -343,6 +343,13 @@ public abstract class AProjectile {
         // Update last location here since handle collisions will change the location
         lastLocation = location.clone();
 
+        // Update motion BEFORE updating position, see #339
+        double gravity = getGravity();
+        if (gravity != 0) {
+            motion.setY(motion.getY() - gravity);
+        }
+        motion.multiply(getDrag());
+
         // Handle collisions will update location and distance travelled
         if (handleCollisions()) {
             return true;
@@ -353,7 +360,6 @@ public abstract class AProjectile {
             return true;
         }
 
-        double gravity = getGravity();
         if (gravity == 0 && VectorUtil.isEmpty(motion)) {
 
             // No need to continue as motion is empty and there isn't gravity currently
@@ -370,7 +376,6 @@ public abstract class AProjectile {
             motion.setY(motion.getY() - gravity);
         }
 
-        motion.multiply(getDrag());
         motionLength = motion.length();
 
         double minimumSpeed = getMinimumSpeed();
