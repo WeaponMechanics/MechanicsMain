@@ -34,8 +34,8 @@ M4A1:
     Scope: ADD 1000
     Sprint: ADD 2000
     Attachments:  # attachments will only work if you have purchased WeaponMechanicsPlus
-      Reflex_Sight: ADD 10000
-      Suppressor: ADD 100000
+      Reflex_Sight: ADD 100000
+      Suppressor: ADD 1000000
   Projectile: "assault_rifle.Projectile"
   Shoot:
     Trigger:

@@ -19,7 +19,8 @@ Combat_Knife:
     Weapon_Get_Mechanics:
       - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
   Skin:
-    Default: -10  # negative numbers work fine for Custom Model Data
+    Default:
+      Custom_Model_Data: -10  # negative numbers work fine for Custom Model Data
   Damage:
     Base_Damage: 13
     Armor_Damage: 4

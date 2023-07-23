@@ -104,7 +104,9 @@ Disable_Entity_Explode_Event: false
 Disable_Block_Break_Event: false
 
 # Having `Strict_Relative_Skins: true` makes it so when you are creating skin configs
-# using
+# using the 'ADD x' feature, WeaponMechanics will strictly make sure you follow
+# the suggested format. Disabling this makes it much easier for you to make mistakes.
+Strict_Relative_Skins: true
 
 # These options define how "random" the explosions are. It doesn't effect block
 # regeneration. These effects don't look very pretty on larger explosions, but

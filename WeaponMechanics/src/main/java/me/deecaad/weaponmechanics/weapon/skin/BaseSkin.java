@@ -124,7 +124,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
         Optional<Material> type = Optional.ofNullable(data.of("Type").getEnum(Material.class, null));
         OptionalInt legacyData = data.has("Legacy_Data") ? OptionalInt.of(data.of("Legacy_Data").assertExists().assertRange(0, Byte.MAX_VALUE).getInt()) : OptionalInt.empty();
         OptionalInt durability = data.has("Durability") ? OptionalInt.of(data.of("Durability").assertExists().assertRange(0, Short.MAX_VALUE).getInt()) : OptionalInt.empty();
-        OptionalInt customModelData = data.has("Custom_Model_Data") ? OptionalInt.of(data.of("Custom_Model_Data").assertExists().assertPositive().getInt()) : OptionalInt.empty();
+        OptionalInt customModelData = data.has("Custom_Model_Data") ? OptionalInt.of(data.of("Custom_Model_Data").assertExists().getInt()) : OptionalInt.empty();
 
         if (legacyData.isPresent() && version > 12) {
             throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version 1." + version,
@@ -132,7 +132,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
                     "Check out the wiki: https://github.com/WeaponMechanics/MechanicsMain/wiki/Skins");
         }
 
-        // Cannot use Custom_Model_Data on 1.14
+        // Cannot use Custom_Model_Data before 1.14
         if (!shouldUseCmd && customModelData.isPresent()) {
             throw data.exception("Custom_Model_Data", "Cannot use 'Custom_Model_Data' on MC version 1." + version,
                     "Custom_Model_Data was added in Minecraft 1.14",

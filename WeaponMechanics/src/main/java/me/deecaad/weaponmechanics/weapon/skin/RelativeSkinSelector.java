@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.skin;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -102,12 +103,18 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         Map<SkinAction, RelativeSkin> actions = new LinkedHashMap<>();
         Map<String, RelativeSkin> attachments = new LinkedHashMap<>();
 
-        // The base skin can choose the skin material, but usually it's just an int
-        BaseSkin base;
-        if (data.of("Default").is(ConfigurationSection.class))
-            base = data.of("Default").serialize(BaseSkin.class);
-        else
-            base = new BaseSkin(data.of("Default").assertExists().getInt());
+        // The base skin is the starting integer for the custom_model_data
+        BaseSkin base = new BaseSkin(data.of("Default").assertExists().getInt());
+
+        // Strict check
+        if (WeaponMechanics.getBasicConfigurations().getBool("Strict_Relative_Skins", true)) {
+
+            // base skin should be [1, 999]
+            if (base.getCustomModelData() < 1 || base.getCustomModelData() > 999) {
+                throw data.exception("Default", "Your 'Default: " + base.getCustomModelData() + "' is incorrect",
+                        "The default skin should be a number between 1 and 999");
+            }
+        }
 
         // Now everything else is expected to be a relative skin. Anything else
         // is an error.
