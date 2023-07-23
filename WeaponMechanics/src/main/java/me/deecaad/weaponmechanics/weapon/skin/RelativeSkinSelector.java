@@ -38,6 +38,18 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         return base;
     }
 
+    public Map<String, RelativeSkin> getSkins() {
+        return skins;
+    }
+
+    public Map<SkinAction, RelativeSkin> getActions() {
+        return actions;
+    }
+
+    public Map<String, RelativeSkin> getAttachments() {
+        return attachments;
+    }
+
     @Override
     public boolean hasAction(@Nullable String skin, @Nullable SkinAction action) {
         return actions.containsKey(action);
