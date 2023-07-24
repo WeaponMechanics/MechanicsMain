@@ -69,7 +69,7 @@ FN_FAL:
         Sneaking: 50%
         In_Midair: 150%
     Mechanics:
-      - CustomSound{sound=shoot.fnfal, volume=6, noise=0.1}
+      - "CustomSound{sound=shoot.fnfal.loud, volume=6, noise=0.1}"
   Reload:
     Trigger:
       Main_Hand: "DROP_ITEM"
