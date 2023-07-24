@@ -208,9 +208,8 @@ public class ItemSerializer implements Serializer<ItemStack> {
             ReflectionUtil.invokeMethod(setUnbreakable, ReflectionUtil.invokeMethod(spigotMethod, itemMeta), true);
         }
 
-        int customModelData = data.of("Custom_Model_Data").assertPositive().getInt(-99);
-        if (customModelData != -99 && CompatibilityAPI.getVersion() >= 1.14) {
-            itemMeta.setCustomModelData(customModelData);
+        if (data.has("Custom_Model_Data") && CompatibilityAPI.getVersion() >= 1.14) {
+            itemMeta.setCustomModelData(data.of("Custom_Model_Data").assertExists().getInt());
         }
 
         boolean hideFlags = data.of("Hide_Flags").getBool(false);
