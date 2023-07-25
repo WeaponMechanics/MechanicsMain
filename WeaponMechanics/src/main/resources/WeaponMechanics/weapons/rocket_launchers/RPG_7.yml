@@ -128,7 +128,7 @@ RPG_7:
       Only_When_Scoping: false
 
   Trail:
-    Distance_Between_Particles: 0.1
+    Distance_Between_Particles: 0.25
     Particle_Chooser: LOOP
     Particles:
       - "Particle{particle=SMOKE_NORMAL, count=3, noise=0.01 0.01 0.01}"

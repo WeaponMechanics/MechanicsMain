@@ -70,7 +70,7 @@ rocket_launcher:
       Type: "ARMOR_STAND"
       Projectile_Item_Or_Block:
         Type: "FEATHER"
-        Custom_Model_Data: 341
+        Custom_Model_Data: -100
       Minimum:
         Speed: 40
       Gravity: 4.0
@@ -79,6 +79,57 @@ rocket_launcher:
         In_Water: 0.96
         When_Raining_Or_Snowing: 0.98
       Size: 0.5
+
+fatman:
+  Projectile:
+    Projectile_Settings:
+      Type: "ARMOR_STAND"
+      Projectile_Item_Or_Block:
+        Type: "FEATHER"
+        Custom_Model_Data: -101
+      Minimum:
+        Speed: 10
+      Gravity: 4.0
+      Drag:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+      Size: 0.5
+
+fatman_rock:
+  Projectile:
+    Projectile_Settings:
+      Type: "FALLING_BLOCK"
+      Projectile_Item_Or_Block: 
+        Type: STONE
+      Minimum:
+        Speed: 10
+      Gravity: 4.0
+      Drag:
+        Base: 0.99
+        In_Water: 0.96
+        When_Raining_Or_Snowing: 0.98
+      Size: 0.5
+    Through:
+      Maximum_Through_Amount: 20
+      Blocks:
+        Default_Speed_Multiplier: 0.8
+        Whitelist: true
+        List:
+          - "$GLASS"
+      Entities:
+        Allow_Any: true
+        Default_Speed_Multiplier: 1.0
+    Bouncy:
+      Maximum_Bounce_Amount: 1
+      Blocks:
+        Allow_Any: true
+        Default_Speed_Multiplier: 0.9
+      Rolling:
+        Required_Motion_To_Start_Rolling: 100
+        Blocks:
+          Allow_Any: true
+          Default_Speed_Multiplier: 0.99
 
 assault_rifle:
   Projectile:
