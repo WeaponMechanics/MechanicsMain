@@ -5,6 +5,14 @@ Fatman:
       Name: "<gold>Fatman"
       Lore:
         - "<gray>Shoulder-mounted unguided nuclear missile catapult."
+        - ""
+        - "<gray>Weapon Statistics <gold>-<gray> 62.5"
+        - "<gold>➣<gray> 38 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 98 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 23 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 18 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 39 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 36 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
@@ -159,6 +167,14 @@ Fatman_Rock:
       Name: "<gold>Fatman"
       Lore:
         - "<gray>Shoulder-mounted unguided rock catapult."
+        - ""
+        - "<gray>Weapon Statistics <gold>-<gray> 62.5"
+        - "<gold>➣<gray> 38 <gold>⟸ <gray>Accuracy"
+        - "<gold>➣<gray> 98 <gold>⟸ <gray>Damage"
+        - "<gold>➣<gray> 23 <gold>⟸ <gray>Range"
+        - "<gold>➣<gray> 18 <gold>⟸ <gray>Fire Rate"
+        - "<gold>➣<gray> 39 <gold>⟸ <gray>Mobility"
+        - "<gold>➣<gray> 36 <gold>⟸ <gray>Control"
       Unbreakable: true
       Hide_Flags: true
       Attributes:
