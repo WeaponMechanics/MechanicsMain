@@ -4,6 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +20,49 @@ public interface SkinSelector {
      */
     @NotNull
     BaseSkin getDefaultSkin();
+
+    /**
+     * Applies the default skin ({@link #getDefaultSkin()}) to the given weapon.
+     *
+     * @param weapon The item to apply the skin to.
+     */
+    default void applyDefaultSkin(@NotNull ItemStack weapon) {
+        getDefaultSkin().apply(weapon);
+    }
+
+    /**
+     * Returns a list of custom skins that were configured. May return an empty
+     * set if no skins are configured. This method will still return the full
+     * list of skins, even if WeaponMechanicsCosmetics is not installed.
+     *
+     * @return All configured cosmetic skins.
+     */
+    @NotNull
+    Set<String> getCustomSkins();
+
+    /**
+     * Returns a list of skin actions present for the given skin. If the skin
+     * does not exist, this method will return <code>null</code> (Except for
+     * relative skins, which will always return the full set of actions regardless
+     * of input).
+     *
+     * @param skin The skin to check, or null for default.
+     * @return The present actions.
+     */
+    @Nullable
+    Set<SkinAction> getActions(@Nullable String skin);
+
+    /**
+     * Returns a list of attachments for the given skin. If the skin does not
+     * exist, this method will return <code>null</code> (Except for relative
+     * skins, which will always return the full set of attachments, else an
+     * empty set).
+     *
+     * @param skin The skin to check, or null for default.
+     * @return The present attachments.
+     */
+    @Nullable
+    Set<String> getAttachments(@Nullable String skin);
 
     /**
      * Returns <code>true</code> if the given <code>action</code> exists for the

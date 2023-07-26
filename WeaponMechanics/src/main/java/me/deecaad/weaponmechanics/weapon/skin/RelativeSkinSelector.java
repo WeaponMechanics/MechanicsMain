@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,11 +35,6 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
         this.attachments = attachments;
     }
 
-    @Override
-    public @NotNull BaseSkin getDefaultSkin() {
-        return base;
-    }
-
     public Map<String, RelativeSkin> getSkins() {
         return skins;
     }
@@ -49,6 +45,26 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
 
     public Map<String, RelativeSkin> getAttachments() {
         return attachments;
+    }
+
+    @Override
+    public @NotNull BaseSkin getDefaultSkin() {
+        return base;
+    }
+
+    @Override
+    public @NotNull Set<String> getCustomSkins() {
+        return new HashSet<>(skins.keySet());
+    }
+
+    @Override
+    public @NotNull Set<SkinAction> getActions(@Nullable String skin) {
+        return new HashSet<>(actions.keySet());
+    }
+
+    @Override
+    public @Nullable Set<String> getAttachments(@Nullable String skin) {
+        return new HashSet<>(attachments.keySet());
     }
 
     @Override

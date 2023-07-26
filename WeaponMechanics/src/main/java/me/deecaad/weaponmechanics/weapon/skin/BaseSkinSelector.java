@@ -41,6 +41,27 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
     }
 
     @Override
+    public @NotNull Set<String> getCustomSkins() {
+        Set<String> copy = new HashSet<>(map.keySet());
+        copy.remove("Default");
+        return copy;
+    }
+
+    @Override
+        public @Nullable Set<SkinAction> getActions(@Nullable String skin) {
+        Map<SkinAction, BaseSkin> actions = map.get(skin);
+        return actions == null ? null : new HashSet<>(actions.keySet());
+    }
+
+    @Override
+    public @Nullable Set<String> getAttachments(@Nullable String skin) {
+        // weird code, but it follows the contract. Return null if the skin
+        // doesn't exist, then return the set of attachments (which is always none).
+        Map<SkinAction, BaseSkin> actions = map.get(skin);
+        return actions == null ? null : new HashSet<>();
+    }
+
+    @Override
     public boolean hasAction(@Nullable String skin, @Nullable SkinAction action) {
         return getSkin(skin, action, null) != null;
     }
