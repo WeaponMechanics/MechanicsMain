@@ -353,11 +353,14 @@ public class BlockDamage implements Serializer<BlockDamage> {
                         "In order to use durability, use 'BREAK' or 'CRACK'");
             }
 
-            // You must use durability for BREAK/CRACk
+            // If user wants to break or crack this block, then they are
+            // trying to override the default block durability. Hence,
+            // block durability is a required argument.
             if ((mode == BreakMode.CRACK || mode == BreakMode.BREAK) && blockDurability == -1) {
+                int goodNumber = ReflectionUtil.getMCVersion() < 13 ? 1 : (int) materials.get(0).getBlastResistance() + 1;
                 throw data.listException("Blocks", i, "When using '" + mode + "', you MUST also use durability",
                         SerializerException.forValue(String.join(" ", split)),
-                        "For example, try '" + String.join(" ", split) + " " + ((int) materials.get(0).getBlastResistance() + 1) + "' instead");
+                        "For example, try '" + String.join(" ", split) + " " + goodNumber + "' instead");
             }
 
             // Illegal value... how can something have 0 health?
@@ -368,7 +371,6 @@ public class BlockDamage implements Serializer<BlockDamage> {
             if (mask == null)
                 mask = Material.AIR;
 
-            // Fill up the map in the loop, so we can collect all the values.
             DamageConfig config = new DamageConfig(mode, blockDurability, mask);
             for (Material mat : materials)
                 blocks.put(mat, config);
