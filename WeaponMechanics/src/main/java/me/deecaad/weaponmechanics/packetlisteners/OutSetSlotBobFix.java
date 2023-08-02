@@ -4,7 +4,6 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
@@ -79,6 +78,12 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
 
     @Override
     public void onPacketSending(PacketEvent event) {
+
+        // Temporary players do not have inventories. This check avoids an unsupported
+        // operation exception. Seems to be an issue with NPC plugins/GeyserMC.
+        if (event.isPlayerTemporary())
+            return;
+
         Player player = event.getPlayer();
 
         // 0 is the player's inventory.
@@ -128,12 +133,13 @@ public class OutSetSlotBobFix extends PacketAdapter implements Listener {
             this.type = itemStack.getType();
             this.amount = itemStack.getAmount();
             ItemMeta itemMeta = itemStack.getItemMeta();
-            if (itemMeta == null) return;
+            if (itemMeta == null)
+                return;
+
             if (itemMeta.hasDisplayName()) this.displayName = itemMeta.getDisplayName();
             if (itemMeta.hasLore()) this.lore = itemMeta.getLore();
-            double version = CompatibilityAPI.getVersion();
-            if (version >= 1.14 && itemMeta.hasCustomModelData()) this.customModelData = itemMeta.getCustomModelData();
-            if (version < 1.13) {
+            if (ReflectionUtil.getMCVersion() >= 14 && itemMeta.hasCustomModelData()) this.customModelData = itemMeta.getCustomModelData();
+            if (ReflectionUtil.getMCVersion() < 13) {
                 this.durability = itemStack.getDurability();
             } else if (itemMeta instanceof Damageable damageableItemMeta) {
                 if (damageableItemMeta.hasDamage()) this.durability = ((Damageable) itemMeta).getDamage();
