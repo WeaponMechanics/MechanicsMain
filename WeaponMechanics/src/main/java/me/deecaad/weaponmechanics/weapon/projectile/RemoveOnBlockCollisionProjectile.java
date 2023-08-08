@@ -29,9 +29,10 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
     }
 
     @Override
-    public boolean handleCollisions() {
-        Vector possibleNextLocation = getLocation().add(getMotion());
-        List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation, getNormalizedMotion());
+    public boolean updatePosition() {
+        Vector[] positionAndVelocity = nextPositionAndVelocity();
+        Vector possibleNextLocation = positionAndVelocity[0];
+        List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation);
         if (hits != null) {
             RayTraceResult firstHit = hits.get(0);
             setRawLocation(firstHit.getHitLocation());
@@ -39,6 +40,8 @@ public class RemoveOnBlockCollisionProjectile extends AProjectile {
             return true;
         }
         setRawLocation(possibleNextLocation);
+        setMotion(positionAndVelocity[1]);
+        addDistanceTravelled(getMotionLength());
         return false;
     }
 }
