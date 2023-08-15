@@ -10,10 +10,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class DamageMechanic extends Mechanic {
 
+    public static final String METADATA_KEY = "mechanicscore-damagemechanic";
+
     private double damage;
+    private boolean resetHitCooldown;
 
     private boolean requiresEvent;
-    private boolean ignoreArmor
+    private boolean ignoreArmor;
 
     /**
      * Default constructor for serializer
@@ -21,13 +24,29 @@ public class DamageMechanic extends Mechanic {
     public DamageMechanic() {
     }
 
-    public DamageMechanic(int ticks) {
-        this.ticks = ticks;
+    public DamageMechanic(double damage, boolean ignoreArmor, boolean resetHitCooldown) {
+        this.damage = damage;
+        this.resetHitCooldown = resetHitCooldown;
+
+        this.requiresEvent = ignoreArmor; // add more conditions in the future
+        this.ignoreArmor = ignoreArmor;
+    }
+
+    public double getDamage() {
+        return damage;
+    }
+
+    public boolean isRequireEvent() {
+        return requiresEvent;
+    }
+
+    public boolean isIgnoreArmor() {
+        return ignoreArmor;
     }
 
     @Override
     public String getKeyword() {
-        return "Ignite";
+        return "Damage";
     }
 
     @Override
@@ -38,14 +57,23 @@ public class DamageMechanic extends Mechanic {
             return;
 
         LivingEntity target = cast.getTarget();
-        target.setMetadata("mechanicscore-damagemechanic", new FixedMetadataValue(MechanicsCore.getPlugin(), this));
+        if (requiresEvent)
+            target.setMetadata(METADATA_KEY, new FixedMetadataValue(MechanicsCore.getPlugin(), this));
+
+        // The MechanicsCastListener will modify this damage for armor
+        cast.getTarget().damage(damage);
+
+        if (resetHitCooldown)
+            cast.getTarget().setNoDamageTicks(0);
     }
 
     @NotNull
     @Override
     public Mechanic serialize(SerializeData data) throws SerializerException {
-        int ticks = data.of("Time").getInt(100);
+        double damage = data.of("Damage").getDouble(1.0);
+        boolean ignoreArmor = data.of("Ignore_Armor").getBool(false);
+        boolean resetHitCooldown = data.of("Reset_Cooldown").getBool(false);
 
-        return applyParentArgs(data, new IgniteMechanic(ticks));
+        return applyParentArgs(data, new DamageMechanic(damage, ignoreArmor, resetHitCooldown));
     }
 }

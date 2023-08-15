@@ -5,6 +5,7 @@ import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
+import me.deecaad.core.listeners.MechanicsCastListener;
 import me.deecaad.core.mechanics.PlayerEffectMechanicList;
 import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
@@ -89,6 +90,7 @@ public class MechanicsCore extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
+        Bukkit.getPluginManager().registerEvents(new MechanicsCastListener(), this);
 
         // Adventure Chat API
         adventure = BukkitAudiences.create(this);
