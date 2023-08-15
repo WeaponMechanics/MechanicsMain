@@ -55,7 +55,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
         @NotNull
         @Override
         public FireworkData serialize(SerializeData data) throws SerializerException {
-            FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BURST);
+            FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BALL);
             boolean trail = data.of("Trail").getBool(false);
             boolean flicker = data.of("Flicker").getBool(false);
 
