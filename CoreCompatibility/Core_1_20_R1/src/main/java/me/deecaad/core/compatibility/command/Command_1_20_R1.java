@@ -28,12 +28,12 @@ import net.minecraft.commands.synchronization.ArgumentUtils;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.*;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
@@ -298,7 +298,7 @@ public class Command_1_20_R1 implements CommandCompatibility {
 
     @Override
     public ArgumentType<?> biome() {
-        return ResourceOrTagArgument.resourceOrTag(COMMAND_BUILD_CONTEXT, Registries.BIOME);
+        return ResourceArgument.resource(COMMAND_BUILD_CONTEXT, Registries.BIOME);
     }
 
     @Override
@@ -373,18 +373,11 @@ public class Command_1_20_R1 implements CommandCompatibility {
 
     @Override
     public BiomeHolder getBiome(CommandContext<Object> context, String key) throws CommandSyntaxException {
-        ResourceOrTagArgument.Result<net.minecraft.world.level.biome.Biome> biomeResult = ResourceOrTagArgument.getResourceOrTag(cast(context), key, Registries.BIOME);
-
-        String name = biomeResult.asPrintable();
-
-        if (biomeResult.unwrap().left().isPresent()) {
-            ResourceKey<net.minecraft.world.level.biome.Biome> resource = biomeResult.unwrap().left().get().key();
-            Biome biome = EnumUtil.getIfPresent(Biome.class, resource.location().getPath()).orElse(Biome.CUSTOM);
-            NamespacedKey namespaced = new NamespacedKey(resource.location().getNamespace(), resource.location().getPath());
-            return new BiomeHolder(biome, namespaced);
-        } else {
-            throw ERROR_BIOME_INVALID.create(name);
-        }
+        Holder.Reference<net.minecraft.world.level.biome.Biome> holder = ResourceArgument.getResource(cast(context), key, Registries.BIOME);
+        ResourceLocation location = holder.key().location();
+        Biome bukkit = EnumUtil.getIfPresent(Biome.class, location.getPath()).orElse(Biome.CUSTOM);
+        NamespacedKey namespaced = new NamespacedKey(location.getNamespace(), location.getPath());
+        return new BiomeHolder(bukkit, namespaced);
     }
 
     @Override
