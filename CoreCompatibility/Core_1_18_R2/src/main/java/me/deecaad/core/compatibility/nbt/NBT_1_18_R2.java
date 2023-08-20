@@ -40,12 +40,12 @@ public class NBT_1_18_R2 extends NBT_Persistent {
 
         if (path == null) {
             nms.setTag(from.copy());
-            toItem.setItemMeta(nms.getBukkitStack().getItemMeta());
+            toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
             return;
         }
 
         to.put(path, from.getCompound(path).copy());
-        toItem.setItemMeta(nms.getBukkitStack().getItemMeta());
+        toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
     }
 
     @Nonnull
