@@ -1,19 +1,21 @@
 package me.deecaad.core.mechanics;
 
+import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class CastData implements Cloneable {
+public class CastData implements Cloneable, PlaceholderData {
 
     // Sourcing information. "Where did this come from?"
     private final LivingEntity source;
@@ -53,7 +55,7 @@ public class CastData implements Cloneable {
         this.taskIdConsumer = taskIdConsumer;
     }
 
-    @Nonnull
+    @NotNull
     public LivingEntity getSource() {
         return source;
     }
@@ -62,7 +64,7 @@ public class CastData implements Cloneable {
         return sourceLocation != null;
     }
 
-    @Nonnull
+    @NotNull
     public Location getSourceLocation() {
         return sourceLocation != null ? sourceLocation : source.getLocation();
     }
@@ -79,7 +81,7 @@ public class CastData implements Cloneable {
         return targetLocation != null;
     }
 
-    @Nonnull
+    @NotNull
     public Location getTargetLocation() {
         if (targetLocation == null && targetEntity == null) {
             debug.log(LogLevel.WARN, "Not targeting either entity nor location", new Throwable());
@@ -122,5 +124,30 @@ public class CastData implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
         }
+    }
+
+    // Implement PlaceholderData methods
+
+    @Override
+    public @Nullable Player player() {
+        if (source instanceof Player player)
+            return player;
+        else
+            return null;
+    }
+
+    @Override
+    public @Nullable ItemStack item() {
+        return itemStack;
+    }
+
+    @Override
+    public @Nullable String itemTitle() {
+        return itemTitle;
+    }
+
+    @Override
+    public @Nullable Map<String, String> tempPlaceholders() {
+        return tempPlaceholders;
     }
 }

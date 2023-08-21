@@ -16,7 +16,7 @@ import static me.deecaad.core.MechanicsCore.debug;
 public final class PlaceholderAPI {
 
     private static final Map<String, PlaceholderHandler> placeholderHandlers = new HashMap<>();
-    public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("%([a-zA-Z_\\-]+)%");
+    public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("<[a-zA-Z_\\-]+>");
 
     /**
      * Don't let anyone instantiate this class.
@@ -24,18 +24,28 @@ public final class PlaceholderAPI {
     private PlaceholderAPI() {
     }
 
-    public static String addPercentSigns(String str) {
+    public static String addDiamond(String str) {
         str = str.toLowerCase(Locale.ROOT);
-        if (!str.startsWith("%"))
-            str = "%" + str;
-        if (!str.endsWith("%"))
-            str = str + "%";
+        if (!str.startsWith("<"))
+            str = "<" + str;
+        if (!str.endsWith(">"))
+            str = str + ">";
+
+        return str;
+    }
+
+    public static String removeDiamond(String str) {
+        str = str.toLowerCase(Locale.ROOT);
+        if (str.startsWith("<"))
+            str = str.substring(1);
+        if (!str.endsWith(">"))
+            str = str.substring(0, str.length() - 1);
 
         return str;
     }
 
     public static PlaceholderHandler getPlaceholder(String str) {
-        return placeholderHandlers.get(addPercentSigns(str));
+        return placeholderHandlers.get(removeDiamond(str));
     }
 
     public static Collection<PlaceholderHandler> listPlaceholders() {

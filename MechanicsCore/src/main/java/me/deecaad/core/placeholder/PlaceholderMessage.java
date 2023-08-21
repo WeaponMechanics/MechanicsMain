@@ -1,17 +1,19 @@
 package me.deecaad.core.placeholder;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.deecaad.core.MechanicsCore;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.intellij.lang.annotations.RegExp;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
-
-import static me.deecaad.core.placeholder.PlaceholderAPI.PLACEHOLDER_PATTERN;
+import java.util.regex.Pattern;
 
 /**
  * Represents a message template that can contain placeholders.
@@ -19,18 +21,11 @@ import static me.deecaad.core.placeholder.PlaceholderAPI.PLACEHOLDER_PATTERN;
  */
 public class PlaceholderMessage {
 
+    public static final @RegExp String TAG = "<[a-zA-Z_\\-]+>";
+    public static final Pattern TAG_PATTERN = Pattern.compile(TAG);
+
     private final String template;
     private final Set<String> presentPlaceholders;
-
-    /**
-     * Constructs a new PlaceholderMessage based on the provided template string.
-     *
-     * @param template The template string containing potential placeholders.
-     * @throws InvalidPlaceholderException If a placeholder in the template does not have a corresponding handler.
-     */
-    public PlaceholderMessage(String template) throws InvalidPlaceholderException {
-        this(template, Collections.emptySet());
-    }
 
     /**
      * Constructs a new PlaceholderMessage based on the provided template string.
@@ -39,33 +34,24 @@ public class PlaceholderMessage {
      * may be used if you add them.
      *
      * @param template                  The template string containing potential placeholders.
-     * @param allowedCustomPlaceholders Any allowed custom placeholders (with the % before and after)
-     * @throws InvalidPlaceholderException If a placeholder in the template does not exist.
+     * @param allowedCustomPlaceholders Any allowed custom placeholders (without diamonds)
      */
-    public PlaceholderMessage(String template, Set<String> allowedCustomPlaceholders) throws InvalidPlaceholderException {
+    public PlaceholderMessage(String template, Set<String> allowedCustomPlaceholders) {
         Set<String> presentPlaceholders = new LinkedHashSet<>();
 
-        Matcher matcher = PLACEHOLDER_PATTERN.matcher(template);
-        StringBuilder updatedTemplate = new StringBuilder();
+        Matcher matcher = TAG_PATTERN.matcher(template);
 
         while (matcher.find()) {
             String placeholderString = matcher.group(1).toLowerCase();
 
             // Make sure the placeholder is valid
-            PlaceholderHandler placeholderHandler = PlaceholderAPI.getPlaceholder(placeholderString);
-            if (placeholderHandler == null && !allowedCustomPlaceholders.contains(PlaceholderAPI.addPercentSigns(placeholderString))) {
-                throw new InvalidPlaceholderException(placeholderString, allowedCustomPlaceholders);
+            PlaceholderHandler placeholderHandler = PlaceholderHandler.REGISTRY.get(placeholderString);
+            if (placeholderHandler != null && !allowedCustomPlaceholders.contains(placeholderString)) {
+                presentPlaceholders.add(placeholderString);
             }
-
-            presentPlaceholders.add(placeholderString);
-
-            // Replace the found placeholder in the template with its lowercase version
-            matcher.appendReplacement(updatedTemplate, "%" + placeholderString + "%");
         }
 
-        matcher.appendTail(updatedTemplate);
-
-        this.template = updatedTemplate.toString();  // Update the template with the lowercase placeholders
+        this.template = template;
         this.presentPlaceholders = Collections.unmodifiableSet(presentPlaceholders);
     }
 
@@ -89,28 +75,17 @@ public class PlaceholderMessage {
 
     /**
      * Generates a map where the keys are the identified placeholders in the template,
-     * and the values are all set to null.
+     * and the values are all set to null. The placeholders are added to the map stored
+     * in <code>data</code>.
      *
-     * @param player    The player involved, or null.
-     * @param itemStack The item involved, or null.
-     * @param itemTitle The item title in config, or null.
-     * @param slot      The equipment slot the item is held in, or null.
-     * @return A map with placeholder handlers as keys and null as values.
+     * @param data The data to pass to the placeholder handlers.
      */
-    public Map<String, Object> generateMap(
-            @Nullable Player player,
-            @Nullable ItemStack itemStack,
-            @Nullable String itemTitle,
-            @Nullable EquipmentSlot slot
-    ) {
-        Map<String, Object> resultMap = new HashMap<>(presentPlaceholders.size());
+    public void fillMap(PlaceholderData data) {
         for (String placeholder : presentPlaceholders) {
-            PlaceholderHandler handler = PlaceholderAPI.getPlaceholder(placeholder);
+            PlaceholderHandler handler = PlaceholderHandler.REGISTRY.get(placeholder);
             if (handler != null)
-                resultMap.put(placeholder, handler.onRequest(player, itemStack, itemTitle, slot));
+                data.placeholders().put(placeholder, handler.onRequest(data));
         }
-
-        return resultMap;
     }
 
     /**
@@ -119,7 +94,7 @@ public class PlaceholderMessage {
      * @param replacements A map containing PlaceholderHandlers as keys and the desired replacement values as values.
      * @return A new string where placeholders in the template have been replaced with the corresponding values.
      */
-    public String replacePlaceholders(Map<String, Object> replacements) {
+    public String replacePlaceholders(Map<String, String> replacements) {
         String result = template;
         for (String placeholder : presentPlaceholders) {
             result = result.replace(placeholder, String.valueOf(replacements.get(placeholder)));
@@ -127,20 +102,28 @@ public class PlaceholderMessage {
         return result;
     }
 
-    public Component replaceAndDeserialize(
-            @Nullable Player player,
-            @Nullable ItemStack itemStack,
-            @Nullable String itemTitle,
-            @Nullable EquipmentSlot slot,
-            @Nullable Map<String, Object> customTags
-    ) {
-        Map<String, Object> tags = generateMap(player, itemStack, itemTitle, slot);
-        if (customTags != null) tags.putAll(customTags);
+    public Component replaceAndDeserialize(PlaceholderData data) {
+        fillMap(data);
 
-        PlaceholderRequestEvent event = new PlaceholderRequestEvent(player, itemStack, itemTitle, slot, tags);
+        // Let other plugins customize the appearance of placeholders
+        PlaceholderRequestEvent event = new PlaceholderRequestEvent(data);
         Bukkit.getPluginManager().callEvent(event);
 
-        String message = replacePlaceholders(event.getRequests());
-        return MechanicsCore.getPlugin().message.deserialize(message);
+        // Let PlaceholderAPI
+        String message = template;
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            PlaceholderAPI.setPlaceholders(data.player(), message);
+        }
+
+        // Convert the placeholder map into the tag resolver format for the adventure api
+        Map<String, String> placeholders = event.placeholders();
+        TagResolver[] tagResolvers = new TagResolver[event.placeholders().size()];
+        int i = 0;
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            tagResolvers[i++] = Placeholder.unparsed(entry.getKey(), entry.getValue());
+        }
+
+        // Adventure api does the heavy lifting
+        return MechanicsCore.getPlugin().message.deserialize(message, tagResolvers);
     }
 }

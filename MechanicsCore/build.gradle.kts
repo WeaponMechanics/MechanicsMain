@@ -22,10 +22,10 @@ dependencies {
 
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 
-    implementation("net.kyori:adventure-api:4.13.0")
-    implementation("net.kyori:adventure-text-serializer-legacy:4.13.0")
+    implementation("net.kyori:adventure-api:4.14.0")
+    implementation("net.kyori:adventure-text-serializer-legacy:4.14.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.0")
-    implementation("net.kyori:adventure-text-minimessage:4.13.0")
+    implementation("net.kyori:adventure-text-minimessage:4.14.0")
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.slf4j:slf4j-nop:1.7.30")
     implementation("io.lumine:Mythic-Dist:5.0.1-SNAPSHOT")

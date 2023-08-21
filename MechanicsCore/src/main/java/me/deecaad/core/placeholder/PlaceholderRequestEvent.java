@@ -1,5 +1,6 @@
 package me.deecaad.core.placeholder;
 
+import net.kyori.adventure.text.minimessage.tag.TagPattern;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -10,50 +11,56 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+/**
+ * This event is called whenever a {@link PlaceholderMessage} requests values
+ * from a {@link PlaceholderHandler} (usually multiple placeholder handlers).
+ *
+ * <p>WeaponMechanicsPlus uses this event to add special formats to existing
+ * placeholders, and add more placeholders.
+ */
 public class PlaceholderRequestEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
 
-    @Nullable private final Player player;
-    @Nullable private final ItemStack item;
-    @Nullable private final String itemTitle;
-    @Nullable private final EquipmentSlot slot;
+    @NotNull private final PlaceholderData data;
 
-    private Map<String, Object> requests;
-
-    public PlaceholderRequestEvent(@Nullable Player player, @Nullable ItemStack item, @Nullable String itemTitle, @Nullable EquipmentSlot slot, Map<String, Object> requests) {
-        this.player = player;
-        this.item = item;
-        this.itemTitle = itemTitle;
-        this.slot = slot;
-        this.requests = requests;
+    public PlaceholderRequestEvent(@NotNull PlaceholderData data) {
+        this.data = data;
     }
 
-    public @Nullable Player getPlayer() {
-        return player;
+    public PlaceholderData getPlaceholderData() {
+        return data;
     }
 
-    public @Nullable ItemStack getItem() {
-        return item;
+    public @Nullable Player player() {
+        return data.player();
     }
 
-    public @Nullable String getItemTitle() {
-        return itemTitle;
+    public @Nullable ItemStack item() {
+        return data.item();
     }
 
-    public @Nullable EquipmentSlot getSlot() {
-        return slot;
+    public @Nullable String itemTitle() {
+        return data.itemTitle();
     }
 
-    public Map<String, Object> getRequests() {
-        return requests;
+    public @Nullable EquipmentSlot slot() {
+        return data.slot();
     }
 
-    public void setRequests(Map<String, Object> requests) {
-        this.requests = requests;
+    public @NotNull Map<String, String> placeholders() {
+        return data.placeholders();
     }
 
-    public void setRequest(String placeholder, Object value) {
-        this.requests.put(placeholder, value);
+    public boolean hasPlaceholder(@TagPattern String placeholder) {
+        return placeholders().containsKey(placeholder);
+    }
+
+    public String getPlaceholderValue(@TagPattern String placeholder) {
+        return placeholders().get(placeholder);
+    }
+
+    public void setPlaceholder(@TagPattern String placeholder, String value) {
+        placeholders().put(placeholder, value);
     }
 
     @NotNull

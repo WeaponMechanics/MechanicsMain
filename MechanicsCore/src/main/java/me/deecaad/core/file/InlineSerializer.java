@@ -1,5 +1,6 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.Keyable;
 import me.deecaad.core.utils.StringUtil;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface InlineSerializer<T> extends Serializer<T> {
+public interface InlineSerializer<T> extends Serializer<T>, Keyable {
 
     Pattern NAME_FINDER = Pattern.compile(".+?(?=\\{)");
     String UNIQUE_IDENTIFIER = "uniqueIdentifier";
@@ -18,6 +19,11 @@ public interface InlineSerializer<T> extends Serializer<T> {
     default boolean shouldSerialize(SerializeData data) {
         // We don't want FileReader activating on these by default
         return false;
+    }
+
+    @Override
+    default String getKey() {
+        return getInlineKeyword();
     }
 
     /**

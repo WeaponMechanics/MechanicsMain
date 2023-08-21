@@ -5,14 +5,13 @@ import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.PlayerEffectMechanicList;
+import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
-import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
-import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
@@ -120,7 +119,6 @@ public class MechanicsCore extends JavaPlugin {
     public void onDisable() {
         HandlerList.unregisterAll(this);
         Bukkit.getServer().getScheduler().cancelTasks(this);
-        PlaceholderAPI.onDisable();
         debug = null;
         adventure.close();
         adventure = null;
