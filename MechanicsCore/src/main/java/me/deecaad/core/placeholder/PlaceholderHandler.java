@@ -17,13 +17,7 @@ public abstract class PlaceholderHandler {
      * @param placeholderName the placeholder (for example %my_placeholder%)
      */
     public PlaceholderHandler(String placeholderName) {
-        if (!placeholderName.startsWith("%")) {
-            placeholderName = "%" + placeholderName;
-        }
-        if (!placeholderName.endsWith("%")) {
-            placeholderName = placeholderName + "%";
-        }
-        this.placeholderName = placeholderName.toLowerCase(Locale.ROOT);
+        this.placeholderName = PlaceholderAPI.addPercentSigns(placeholderName).toLowerCase(Locale.ROOT);
     }
 
     /**

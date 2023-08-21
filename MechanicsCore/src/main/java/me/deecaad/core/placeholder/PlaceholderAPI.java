@@ -13,10 +13,34 @@ import java.util.regex.Pattern;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
-public class PlaceholderAPI {
+public final class PlaceholderAPI {
 
     private static final Map<String, PlaceholderHandler> placeholderHandlers = new HashMap<>();
-    private static final Pattern PLACEHOLDERS = Pattern.compile("%([^%,^\\s]+)%");
+    public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("%([a-zA-Z_\\-]+)%");
+
+    /**
+     * Don't let anyone instantiate this class.
+     */
+    private PlaceholderAPI() {
+    }
+
+    public static String addPercentSigns(String str) {
+        str = str.toLowerCase(Locale.ROOT);
+        if (!str.startsWith("%"))
+            str = "%" + str;
+        if (!str.endsWith("%"))
+            str = str + "%";
+
+        return str;
+    }
+
+    public static PlaceholderHandler getPlaceholder(String str) {
+        return placeholderHandlers.get(addPercentSigns(str));
+    }
+
+    public static Collection<PlaceholderHandler> listPlaceholders() {
+        return Collections.unmodifiableCollection(placeholderHandlers.values());
+    }
 
     /**
      * Same placeholder name can't be added twice
@@ -30,7 +54,7 @@ public class PlaceholderAPI {
                     "Ignoring this new placeholder...");
             return;
         }
-        Matcher matcher = PLACEHOLDERS.matcher(placeholderHandler.getPlaceholderName());
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(placeholderHandler.getPlaceholderName());
         if (!matcher.find()) {
             debug.log(LogLevel.ERROR,
                     "Tried to add placeholder handler which format wasn't valid (" + placeholderHandler.getPlaceholderName() + ").",
@@ -74,7 +98,7 @@ public class PlaceholderAPI {
             return null;
         }
         if (!placeholderHandlers.isEmpty()) {
-            Matcher matcher = PLACEHOLDERS.matcher(to);
+            Matcher matcher = PLACEHOLDER_PATTERN.matcher(to);
             while (matcher.find()) {
                 String currentPlaceholder = matcher.group(1).toLowerCase(Locale.ROOT);
 
@@ -139,7 +163,7 @@ public class PlaceholderAPI {
      * @return the string with applied placeholder
      */
     public static String applyTempPlaceholder(String to, String placeholder, String value) {
-        Matcher matcher = PLACEHOLDERS.matcher(to);
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(to);
         while (matcher.find()) {
             String currentPlaceholder = matcher.group(1);
             if (currentPlaceholder.equalsIgnoreCase(placeholder)) {
