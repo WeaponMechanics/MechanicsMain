@@ -5,6 +5,5 @@ plugins {
 dependencies {
     implementation(project(":MechanicsCore"))
     compileOnly(files(file("../../lib/nms/spigot-1.13.2.jar")))
+    adventureChatAPI()
 }
-
-description = "CoreCompatibility 1.13 R2"

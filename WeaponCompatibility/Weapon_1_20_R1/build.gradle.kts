@@ -8,20 +8,11 @@ dependencies {
     implementation(project(":MechanicsCore"))
     implementation(project(":WeaponMechanics"))
 
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
+    compileOnly(Dependencies.PROTOCOL_LIB)
 }
-
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(17))
-//    }
-//}
-
 tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
         options.release.set(17)
     }
 }
-
-description = "WeaponCompatibility 1.20 R1"

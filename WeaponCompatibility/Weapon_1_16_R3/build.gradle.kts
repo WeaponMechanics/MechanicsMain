@@ -7,7 +7,5 @@ dependencies {
     implementation(project(":WeaponMechanics"))
     compileOnly(files(file("../../lib/nms/spigot-1.16.5.jar")))
 
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly(Dependencies.PROTOCOL_LIB)
 }
-
-description = "WeaponCompatibility 1.16 R3"
