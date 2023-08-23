@@ -137,7 +137,7 @@ public class RepairItemListener implements Listener {
             if (CustomTag.BROKEN_WEAPON.hasString(weapon)) {
                 repairBrokenItem(event);
 
-            }else{
+            } else {
 
                 // Only attempt to repair guns with proper repair items
                 if (weaponTitle == null || event.getCursor() == null)
@@ -145,7 +145,7 @@ public class RepairItemListener implements Listener {
 
                 Configuration config = WeaponMechanics.getConfigurations();
                 CustomDurability customDurability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-                if (customDurability.isRepairOnlyBroken()){
+                if (customDurability.isRepairOnlyBroken()) {
                     return;
                 }
 
@@ -230,7 +230,7 @@ public class RepairItemListener implements Listener {
                 if (kit.getBreakMechanics() != null) kit.getBreakMechanics().use(cast);
             }
 
-            if(kit.consumeOnUse){
+            if (kit.consumeOnUse) {
                 repairItem.setAmount(0);
             }
 
@@ -328,6 +328,7 @@ public class RepairItemListener implements Listener {
         private Set<String> armors;
         private Mechanics breakMechanics;
         private boolean consumeOnUse;
+
         /**
          * Default constructor for serializers.
          */
