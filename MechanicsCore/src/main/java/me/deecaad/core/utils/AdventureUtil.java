@@ -1,12 +1,14 @@
 package me.deecaad.core.utils;
 
 import me.deecaad.core.MechanicsCore;
+import me.deecaad.core.compatibility.CompatibilityAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,8 +30,8 @@ import java.util.Objects;
 public final class AdventureUtil {
 
     // 1.16+ use adventure in item lore and display name (hex code support)
-    private static Field loreField;
-    private static Field displayField;
+    public static Field loreField;
+    public static Field displayField;
 
     static {
         if (ReflectionUtil.getMCVersion() >= 16) { // before 1.16, hex was not supported by MC
@@ -43,6 +45,16 @@ public final class AdventureUtil {
      * Don't let anyone instantiate this class.
      */
     private AdventureUtil() {
+    }
+
+    /**
+     * Returns the display name of the item in adventure format.
+     *
+     * @param item The item get the name from.
+     * @return The name component.
+     */
+    public static Component getName(@NotNull ItemStack item) {
+        return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
     }
 
     /**
@@ -95,6 +107,33 @@ public final class AdventureUtil {
             String str = GsonComponentSerializer.gson().serialize(name);
             ReflectionUtil.setField(displayField, meta, str);
         }
+    }
+
+    @Nullable
+    public static List<Component> getLore(@NotNull ItemStack item) {
+        return getLore(Objects.requireNonNull(item.getItemMeta()));
+    }
+
+    @Nullable
+    public static List<Component> getLore(@NotNull ItemMeta meta) {
+        boolean useLegacy = ReflectionUtil.getMCVersion() < 16; // before 1.16, hex was not supported by MC
+
+        List<String> lore = useLegacy
+                ? meta.getLore()
+                : (List<String>) ReflectionUtil.invokeField(loreField, meta);
+
+        if (lore == null)
+            return null;
+
+        List<Component> components = new ArrayList<>(lore.size());
+        for (String line : lore) {
+            Component component = useLegacy
+                    ? LegacyComponentSerializer.legacySection().deserialize(line)
+                    : GsonComponentSerializer.gson().deserialize(line);
+            components.add(component);
+        }
+
+        return components;
     }
 
     /**

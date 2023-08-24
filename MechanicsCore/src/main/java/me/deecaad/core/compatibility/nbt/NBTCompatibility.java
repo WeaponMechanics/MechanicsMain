@@ -1,6 +1,8 @@
 package me.deecaad.core.compatibility.nbt;
 
 import me.deecaad.core.utils.AttributeType;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -321,16 +323,14 @@ public interface NBTCompatibility {
     default double getAttribute(@NotNull ItemStack bukkitItem, @NotNull AttributeType attribute, @Nullable AttributeSlot slot) {
         ItemMeta meta = bukkitItem.getItemMeta();
 
-        if (meta == null) {
+        if (meta == null)
             return 0.0; // Return a default value if the item doesn't have any meta information
-        }
 
         Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
         Collection<AttributeModifier> modifiers = meta.getAttributeModifiers(bukkitAttribute);
 
-        if (modifiers == null) {
+        if (modifiers == null)
             return 0.0; // Return 0.0 if there are no attribute modifiers for the given attribute
-        }
 
         double value = 0.0;
         for (AttributeModifier modifier : modifiers) {
@@ -426,6 +426,12 @@ public interface NBTCompatibility {
      */
     @NotNull
     String getNBTDebug(@NotNull ItemStack bukkitStack);
+
+    @NotNull
+    default Component getDisplayName(@NotNull ItemStack item) {
+        String legacyText = item.getItemMeta().getDisplayName();
+        return LegacyComponentSerializer.legacySection().deserialize(legacyText);
+    }
 
     /**
      * This enum outlines the different slots an attribute can be applied to.

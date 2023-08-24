@@ -1,10 +1,14 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.clip.placeholderapi.PlaceholderAPI;
+import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -12,6 +16,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ItemAmmo implements IAmmoType {
@@ -278,11 +284,36 @@ public class ItemAmmo implements IAmmoType {
     }
 
     private void updatePlaceholders(ItemStack itemStack, Player player) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta == null) return;
+        if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+            return;
 
-        itemMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(itemMeta.getDisplayName(), player, itemStack, null, null));
-        itemMeta.setLore(PlaceholderAPI.applyPlaceholders(itemMeta.getLore(), player, itemStack, null, null));
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)
+            return;
+
+        // Slow AF, but this isn't done often and there isn't really a faster way
+        // (except by skipping placeholders)
+        String name = GsonComponentSerializer.gson().serialize(AdventureUtil.getName(itemStack));
+        name = PlaceholderAPI.setPlaceholders(player, name);
+        AdventureUtil.setName(itemMeta, GsonComponentSerializer.gson().deserialize(name));
+
+        List<Component> lore = AdventureUtil.getLore(itemMeta);
+        if (lore != null && !lore.isEmpty()) {
+            // Convert components to strings
+            List<String> loreStrings = new ArrayList<>(lore.size());
+            for (Component component : lore)
+                loreStrings.add(GsonComponentSerializer.gson().serialize(component));
+
+            // Let placeholderapi do its thing
+            PlaceholderAPI.setPlaceholders(player, loreStrings);
+
+            // convert strings back to components
+            for (int i = 0; i < loreStrings.size(); i++)
+                lore.set(i, GsonComponentSerializer.gson().deserialize(loreStrings.get(i)));
+
+            AdventureUtil.setLore(itemMeta, lore);
+        }
+
         itemStack.setItemMeta(itemMeta);
     }
 }
