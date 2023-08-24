@@ -83,8 +83,7 @@ public class PlaceholderMessage {
     public void fillMap(PlaceholderData data) {
         for (String placeholder : presentPlaceholders) {
             PlaceholderHandler handler = PlaceholderHandler.REGISTRY.get(placeholder);
-            if (handler != null)
-                data.placeholders().put(placeholder, handler.onRequest(data));
+            data.placeholders().put(placeholder, handler == null ? null : handler.onRequest(data));
         }
     }
 
