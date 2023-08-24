@@ -1,24 +1,23 @@
 package me.deecaad.weaponmechanics.weapon.placeholders;
 
+import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PMaxDurability extends PlaceholderHandler {
 
     public PMaxDurability() {
-        super("%custom_max_durability%");
+        super("custom_max_durability");
     }
+
 
     @Nullable
     @Override
-    public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot) {
-        if (itemStack == null) return null;
+    public String onRequest(@NotNull PlaceholderData data) {
+        if (data.item() == null) return null;
 
-        return String.valueOf(CustomTag.MAX_DURABILITY.getInteger(itemStack));
+        return String.valueOf(CustomTag.MAX_DURABILITY.getInteger(data.item()));
     }
 }
