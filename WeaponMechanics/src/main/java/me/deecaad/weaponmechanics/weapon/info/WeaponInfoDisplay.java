@@ -6,6 +6,8 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.placeholder.PlaceholderData;
+import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -13,6 +15,7 @@ import me.deecaad.weaponmechanics.wrappers.MessageHelper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -35,9 +38,9 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
         }
     }
 
-    private String actionBar;
+    private PlaceholderMessage actionBar;
 
-    private String bossBar;
+    private PlaceholderMessage bossBar;
     private BossBar.Color barColor;
     private BossBar.Overlay barStyle;
 
@@ -45,10 +48,10 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     private boolean showAmmoInExpLevel;
     private boolean showAmmoInExpProgress;
 
-    private String dualWieldMainActionBar;
-    private String dualWieldMainBossBar;
-    private String dualWieldOffActionBar;
-    private String dualWieldOffBossBar;
+    private PlaceholderMessage dualWieldMainActionBar;
+    private PlaceholderMessage dualWieldMainBossBar;
+    private PlaceholderMessage dualWieldOffActionBar;
+    private PlaceholderMessage dualWieldOffBossBar;
 
     /**
      * Default constructor for serializer
@@ -59,17 +62,17 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     public WeaponInfoDisplay(String actionBar, String bossBar, BossBar.Color barColor, BossBar.Overlay barStyle,
                              boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress,
                              String dualWieldMainActionBar, String dualWieldMainBossBar, String dualWieldOffActionBar, String dualWieldOffBossBar) {
-        this.actionBar = actionBar;
-        this.bossBar = bossBar;
+        this.actionBar = new PlaceholderMessage(actionBar);
+        this.bossBar = new PlaceholderMessage(bossBar);
         this.barColor = barColor;
         this.barStyle = barStyle;
         this.showAmmoInBossBarProgress = showAmmoInBossBarProgress;
         this.showAmmoInExpLevel = showAmmoInExpLevel;
         this.showAmmoInExpProgress = showAmmoInExpProgress;
-        this.dualWieldMainActionBar = dualWieldMainActionBar;
-        this.dualWieldMainBossBar = dualWieldMainBossBar;
-        this.dualWieldOffActionBar = dualWieldOffActionBar;
-        this.dualWieldOffBossBar = dualWieldOffBossBar;
+        this.dualWieldMainActionBar = new PlaceholderMessage(dualWieldMainActionBar);
+        this.dualWieldMainBossBar = new PlaceholderMessage(dualWieldMainBossBar);
+        this.dualWieldOffActionBar = new PlaceholderMessage(dualWieldOffActionBar);
+        this.dualWieldOffBossBar = new PlaceholderMessage(dualWieldOffBossBar);
     }
 
     public void send(PlayerWrapper playerWrapper, EquipmentSlot slot) {
@@ -143,11 +146,11 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 if (mainhand) {
                     if (mainStack != null && mainStack.hasItemMeta()) {
                         Audience audience = MechanicsCore.getPlugin().adventure.player(player);
-                        audience.sendActionBar(MechanicsCore.getPlugin().message.deserialize(PlaceholderAPI.applyPlaceholders(actionBar, player, mainStack, mainWeapon, slot)));
+                        audience.sendActionBar(actionBar.replaceAndDeserialize(PlaceholderData.of(player, mainStack, mainWeapon, slot)));
                     }
                 } else if (offStack != null && offStack.hasItemMeta()) {
                     Audience audience = MechanicsCore.getPlugin().adventure.player(player);
-                    audience.sendActionBar(MechanicsCore.getPlugin().message.deserialize(PlaceholderAPI.applyPlaceholders(actionBar, player, offStack, offWeapon, slot)));
+                    audience.sendActionBar(actionBar.replaceAndDeserialize(PlaceholderData.of(player, offStack, offWeapon, slot)));
                 }
             }
         }
@@ -265,7 +268,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     private String getDualDisplay(WeaponInfoDisplay display, Player player, ItemStack stack, String weapon, EquipmentSlot slot, WeaponInfoDisplay otherDisplay, boolean bossbar, boolean isInverted) {
         if (display == null) return null;
 
-        String toApply;
+        PlaceholderMessage toApply;
 
         if (otherDisplay == null) {
             toApply = bossbar

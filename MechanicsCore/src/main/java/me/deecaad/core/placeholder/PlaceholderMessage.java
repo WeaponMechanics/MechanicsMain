@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.intellij.lang.annotations.RegExp;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -34,9 +35,8 @@ public class PlaceholderMessage {
      * may be used if you add them.
      *
      * @param template                  The template string containing potential placeholders.
-     * @param allowedCustomPlaceholders Any allowed custom placeholders (without diamonds)
      */
-    public PlaceholderMessage(String template, Set<String> allowedCustomPlaceholders) {
+    public PlaceholderMessage(@NotNull String template) {
         Set<String> presentPlaceholders = new LinkedHashSet<>();
 
         Matcher matcher = TAG_PATTERN.matcher(template);
@@ -46,7 +46,7 @@ public class PlaceholderMessage {
 
             // Make sure the placeholder is valid
             PlaceholderHandler placeholderHandler = PlaceholderHandler.REGISTRY.get(placeholderString);
-            if (placeholderHandler != null && !allowedCustomPlaceholders.contains(placeholderString)) {
+            if (placeholderHandler != null) {
                 presentPlaceholders.add(placeholderString);
             }
         }

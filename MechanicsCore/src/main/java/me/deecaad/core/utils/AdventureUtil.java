@@ -1,10 +1,13 @@
 package me.deecaad.core.utils;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -218,5 +221,47 @@ public final class AdventureUtil {
             meta.setLore(lore);
         else
             ReflectionUtil.setField(loreField, meta, lore);
+    }
+
+    /**
+     * Replaces any PlaceholderAPI placeholders present in the display name
+     * and lore of the item. If PlaceholderAPI is not installed, this
+     * method is skipped.
+     *
+     * @param player    The player holding the item.
+     * @param itemStack The item to apply the placeholders to.
+     */
+    public static void updatePlaceholders(Player player, ItemStack itemStack) {
+        if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
+            return;
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)
+            return;
+
+        // Slow AF, but this isn't done often and there isn't really a faster way
+        // (except by skipping placeholders)
+        String name = GsonComponentSerializer.gson().serialize(AdventureUtil.getName(itemStack));
+        name = PlaceholderAPI.setPlaceholders(player, name);
+        AdventureUtil.setName(itemMeta, GsonComponentSerializer.gson().deserialize(name));
+
+        List<Component> lore = AdventureUtil.getLore(itemMeta);
+        if (lore != null && !lore.isEmpty()) {
+            // Convert components to strings
+            List<String> loreStrings = new ArrayList<>(lore.size());
+            for (Component component : lore)
+                loreStrings.add(GsonComponentSerializer.gson().serialize(component));
+
+            // Let placeholderapi do its thing
+            PlaceholderAPI.setPlaceholders(player, loreStrings);
+
+            // convert strings back to components
+            for (int i = 0; i < loreStrings.size(); i++)
+                lore.set(i, GsonComponentSerializer.gson().deserialize(loreStrings.get(i)));
+
+            AdventureUtil.setLore(itemMeta, lore);
+        }
+
+        itemStack.setItemMeta(itemMeta);
     }
 }

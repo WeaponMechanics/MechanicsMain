@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -29,17 +30,17 @@ public class CastData implements Cloneable, PlaceholderData {
 
     // Extra data used by some mechanics
     private Consumer<Integer> taskIdConsumer;
-    private Map<String, String> tempPlaceholders;
+    private @NotNull Map<String, String> tempPlaceholders;
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack) {
         this.source = source;
         this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
-
+        this.tempPlaceholders = new HashMap<>();
     }
 
-    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Map<String, String> tempPlaceholders) {
+    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, @NotNull Map<String, String> tempPlaceholders) {
         this.source = source;
         this.sourceLocation = null;
         this.itemTitle = itemTitle;
@@ -53,6 +54,7 @@ public class CastData implements Cloneable, PlaceholderData {
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.taskIdConsumer = taskIdConsumer;
+        this.tempPlaceholders = new HashMap<>();
     }
 
     @NotNull
@@ -102,21 +104,6 @@ public class CastData implements Cloneable, PlaceholderData {
         return taskIdConsumer;
     }
 
-    @Nullable
-    public Map<String, String> getTempPlaceholders() {
-        return tempPlaceholders;
-    }
-
-    @Nullable
-    public String getItemTitle() {
-        return itemTitle;
-    }
-
-    @Nullable
-    public ItemStack getItemStack() {
-        return itemStack;
-    }
-
     @Override
     public CastData clone() {
         try {
@@ -147,7 +134,7 @@ public class CastData implements Cloneable, PlaceholderData {
     }
 
     @Override
-    public @Nullable Map<String, String> tempPlaceholders() {
+    public @NotNull Map<String, String> placeholders() {
         return tempPlaceholders;
     }
 }

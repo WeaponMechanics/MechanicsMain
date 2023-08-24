@@ -1,9 +1,12 @@
 package me.deecaad.weaponmechanics.weapon.reload;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.placeholder.PlaceholderData;
+import me.deecaad.core.placeholder.PlaceholderMessage;
+import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
@@ -20,8 +23,8 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -108,9 +111,11 @@ public class ReloadHandler implements IValidator, TriggerListener {
         // Handle permissions
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle);
         if (!hasPermission) {
-            if (shooter.getType() == EntityType.PLAYER) {
-                String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
-                shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+            if (shooter instanceof Player player) {
+                String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", "<red>You do not have permission to use " + weaponTitle);
+                PlaceholderMessage message = new PlaceholderMessage(StringUtil.colorAdventure(permissionMessage));
+                Component component = message.replaceAndDeserialize(PlaceholderData.of(player, weaponStack, weaponTitle, slot));
+                MechanicsCore.getPlugin().adventure.player(player).sendMessage(component);
             }
             return false;
         }
