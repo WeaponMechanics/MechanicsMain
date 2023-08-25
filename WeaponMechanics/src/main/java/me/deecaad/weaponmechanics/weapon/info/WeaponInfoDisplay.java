@@ -67,17 +67,17 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     public WeaponInfoDisplay(String actionBar, String bossBar, BossBar.Color barColor, BossBar.Overlay barStyle,
                              boolean showAmmoInBossBarProgress, boolean showAmmoInExpLevel, boolean showAmmoInExpProgress,
                              String dualWieldMainActionBar, String dualWieldMainBossBar, String dualWieldOffActionBar, String dualWieldOffBossBar) {
-        this.actionBar = new PlaceholderMessage(actionBar);
-        this.bossBar = new PlaceholderMessage(bossBar);
+        this.actionBar = actionBar == null ? null : new PlaceholderMessage(actionBar);
+        this.bossBar = bossBar == null ? null : new PlaceholderMessage(bossBar);
         this.barColor = barColor;
         this.barStyle = barStyle;
         this.showAmmoInBossBarProgress = showAmmoInBossBarProgress;
         this.showAmmoInExpLevel = showAmmoInExpLevel;
         this.showAmmoInExpProgress = showAmmoInExpProgress;
-        this.dualWieldMainActionBar = new PlaceholderMessage(dualWieldMainActionBar);
-        this.dualWieldMainBossBar = new PlaceholderMessage(dualWieldMainBossBar);
-        this.dualWieldOffActionBar = new PlaceholderMessage(dualWieldOffActionBar);
-        this.dualWieldOffBossBar = new PlaceholderMessage(dualWieldOffBossBar);
+        this.dualWieldMainActionBar = dualWieldMainActionBar == null ? null : new PlaceholderMessage(dualWieldMainActionBar);
+        this.dualWieldMainBossBar = dualWieldMainBossBar == null ? null : new PlaceholderMessage(dualWieldMainBossBar);
+        this.dualWieldOffActionBar = dualWieldOffActionBar == null ? null : new PlaceholderMessage(dualWieldOffActionBar);
+        this.dualWieldOffBossBar = dualWieldOffBossBar == null ? null : new PlaceholderMessage(dualWieldOffBossBar);
         this.dualWieldMainHandFormat = new PlaceholderMessage(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Main_Hand", "<gold><ammo_left><gray>»<gold><reload> <gold><firearm-state><weapon-title>")));
         this.dualWieldOffHandFormat = new PlaceholderMessage(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Off_Hand", "<gold><weapon_title><firearm_state> <gold><reload><gray>«<gold><ammo-left>")));
         this.dualWieldSplit = MechanicsCore.getPlugin().message.deserialize(StringUtil.colorAdventure(getBasicConfigurations().getString("Placeholder_Symbols.Dual_Wield.Split", " <gray>|</gray> ")));

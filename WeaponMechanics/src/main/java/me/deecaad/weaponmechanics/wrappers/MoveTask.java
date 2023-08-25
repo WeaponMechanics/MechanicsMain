@@ -5,6 +5,7 @@ import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.block.BlockCompatibility;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.events.PlayerJumpEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponStopShootingEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -15,6 +16,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class MoveTask extends BukkitRunnable {
@@ -46,6 +48,9 @@ public class MoveTask extends BukkitRunnable {
 
             return;
         }
+
+        handleStopShooting(entityWrapper.getHandData(true));
+        handleStopShooting(entityWrapper.getHandData(false));
 
         Location from = this.from;
         Location to = entity.getLocation();
@@ -161,10 +166,23 @@ public class MoveTask extends BukkitRunnable {
         return belowHitBox == null && currentHitBox == null;
     }
 
-    /**
-     * Basically checks if entity is swimming.
-     */
-    private boolean isSwimming(LivingEntity livingEntity) {
+    private void handleStopShooting(HandData handData) {
+        // Already fired the event
+        if (handData.isFiredWeaponStopShootEvent())
+            return;
+        // Haven't shot the gun
+        if (handData.getLastWeaponShotTitle() == null || handData.getLastWeaponShot() == null)
+            return;
+        // Hasn't been 1 second since they stopped shooting
+        if (System.currentTimeMillis() - handData.getLastShotTime() <= 1200L)
+            return;
+
+        handData.setFiredWeaponStopShootEvent(true);
+        WeaponStopShootingEvent event = new WeaponStopShootingEvent(handData.getLastWeaponShotTitle(), handData.getLastWeaponShot(), entityWrapper.getEntity(), handData.isMainhand() ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, handData.getLastShotTime());
+        Bukkit.getPluginManager().callEvent(event);
+    }
+
+    private static boolean isSwimming(LivingEntity livingEntity) {
         if (livingEntity.isInsideVehicle()) return false;
 
         // 1.13 introduced block data for blocks like stairs and slabs, and can

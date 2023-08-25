@@ -659,6 +659,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
                 HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
                 handData.setLastShotTime(System.currentTimeMillis());
+                handData.setLastWeaponShot(weaponTitle, weaponStack);
             }
 
             return;
@@ -712,6 +713,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (!isMelee) {
             HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
             handData.setLastShotTime(System.currentTimeMillis());
+            handData.setLastWeaponShot(weaponTitle, weaponStack);
         }
     }
 
