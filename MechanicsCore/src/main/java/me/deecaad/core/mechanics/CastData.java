@@ -22,7 +22,6 @@ public class CastData implements Cloneable, PlaceholderData {
     private final LivingEntity source;
     private final String itemTitle;
     private final ItemStack itemStack;
-    private final Location sourceLocation;
 
     // Targeting information. This is filled in during casting.
     private LivingEntity targetEntity;
@@ -30,31 +29,39 @@ public class CastData implements Cloneable, PlaceholderData {
 
     // Extra data used by some mechanics
     private Consumer<Integer> taskIdConsumer;
-    private @NotNull Map<String, String> tempPlaceholders;
+    private final @NotNull Map<String, String> tempPlaceholders;
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack) {
         this.source = source;
-        this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.tempPlaceholders = new HashMap<>();
+        addDefaultPlaceholders();
     }
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, @NotNull Map<String, String> tempPlaceholders) {
         this.source = source;
-        this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.tempPlaceholders = tempPlaceholders;
+        addDefaultPlaceholders();
     }
 
     public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Consumer<Integer> taskIdConsumer) {
         this.source = source;
-        this.sourceLocation = null;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
         this.taskIdConsumer = taskIdConsumer;
         this.tempPlaceholders = new HashMap<>();
+        addDefaultPlaceholders();
+    }
+
+    private void addDefaultPlaceholders() {
+        Location location = getSourceLocation();
+        tempPlaceholders.put("source_name", source.getName());
+        tempPlaceholders.put("source_x", String.valueOf(location.getX()));
+        tempPlaceholders.put("source_y", String.valueOf(location.getY()));
+        tempPlaceholders.put("source_z", String.valueOf(location.getZ()));
     }
 
     @NotNull
@@ -62,13 +69,9 @@ public class CastData implements Cloneable, PlaceholderData {
         return source;
     }
 
-    public boolean hasSourceLocation() {
-        return sourceLocation != null;
-    }
-
     @NotNull
     public Location getSourceLocation() {
-        return sourceLocation != null ? sourceLocation : source.getLocation();
+        return source.getLocation();
     }
 
     public LivingEntity getTarget() {
@@ -76,6 +79,12 @@ public class CastData implements Cloneable, PlaceholderData {
     }
 
     public void setTargetEntity(LivingEntity targetEntity) {
+        Location location = targetEntity.getLocation();
+        tempPlaceholders.put("target_name", targetEntity.getName());
+        tempPlaceholders.put("target_x", String.valueOf(location.getX()));
+        tempPlaceholders.put("target_y", String.valueOf(location.getY()));
+        tempPlaceholders.put("target_z", String.valueOf(location.getZ()));
+
         this.targetEntity = targetEntity;
     }
 
@@ -92,6 +101,9 @@ public class CastData implements Cloneable, PlaceholderData {
     }
 
     public void setTargetLocation(Location targetLocation) {
+        tempPlaceholders.put("target_x", String.valueOf(targetLocation.getX()));
+        tempPlaceholders.put("target_y", String.valueOf(targetLocation.getY()));
+        tempPlaceholders.put("target_z", String.valueOf(targetLocation.getZ()));
         this.targetLocation = () -> targetLocation;
     }
 

@@ -87,20 +87,6 @@ public class PlaceholderMessage {
         }
     }
 
-    /**
-     * Replaces the placeholders in the template with the corresponding values provided in the replacements map.
-     *
-     * @param replacements A map containing PlaceholderHandlers as keys and the desired replacement values as values.
-     * @return A new string where placeholders in the template have been replaced with the corresponding values.
-     */
-    public String replacePlaceholders(Map<String, String> replacements) {
-        String result = template;
-        for (String placeholder : presentPlaceholders) {
-            result = result.replace(placeholder, String.valueOf(replacements.get(placeholder)));
-        }
-        return result;
-    }
-
     public Component replaceAndDeserialize(PlaceholderData data) {
         fillMap(data);
 
