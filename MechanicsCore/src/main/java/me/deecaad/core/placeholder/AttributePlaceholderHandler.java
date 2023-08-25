@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-public class AttributePlaceholderHandler extends NumericPlaceholderHandler {
+public abstract class AttributePlaceholderHandler extends NumericPlaceholderHandler {
 
     private final AttributeType attribute;
 

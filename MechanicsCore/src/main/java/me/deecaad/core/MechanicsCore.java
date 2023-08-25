@@ -12,6 +12,7 @@ import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
+import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.FileUtil;
 import me.deecaad.core.utils.LogLevel;
@@ -68,6 +69,10 @@ public class MechanicsCore extends JavaPlugin {
                     Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
                     Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
                 }
+
+                // Placeholders
+                searcher.findAllSubclasses(PlaceholderHandler.class, getClassLoader(), true)
+                        .stream().map(ReflectionUtil::newInstance).forEach(PlaceholderHandler.REGISTRY::add);
 
             } catch (IOException ex) {
                 debug.log(LogLevel.ERROR, "Error while searching Jar", ex);
