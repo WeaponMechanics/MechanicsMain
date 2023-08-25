@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;
@@ -15,7 +14,6 @@ public class WeaponStopShootingEvent extends WeaponEvent {
     public WeaponStopShootingEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, long lastShootTime) {
         super(weaponTitle, weaponStack, shooter, hand);
         this.lastShootTime = lastShootTime;
-        Bukkit.broadcastMessage("Stopped shooting");
     }
 
     public long getLastShootTime() {
