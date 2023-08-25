@@ -45,7 +45,7 @@ public class PlaceholderMessageChain {
         TagResolver[] tagResolvers = new TagResolver[event.placeholders().size()];
         int i = 0;
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            tagResolvers[i++] = Placeholder.unparsed(entry.getKey(), entry.getValue());
+            tagResolvers[i++] = Placeholder.parsed(entry.getKey(), entry.getValue());
         }
 
         return tagResolvers;

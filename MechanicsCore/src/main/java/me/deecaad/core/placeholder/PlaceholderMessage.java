@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 public class PlaceholderMessage {
 
-    public static final @RegExp String TAG = "<[a-zA-Z_\\-]+>";
+    public static final @RegExp String TAG = "<([a-zA-Z_\\-]+)>";
     public static final Pattern TAG_PATTERN = Pattern.compile(TAG);
 
     private final String template;
@@ -119,7 +119,7 @@ public class PlaceholderMessage {
         TagResolver[] tagResolvers = new TagResolver[event.placeholders().size()];
         int i = 0;
         for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            tagResolvers[i++] = Placeholder.unparsed(entry.getKey(), entry.getValue());
+            tagResolvers[i++] = Placeholder.parsed(entry.getKey(), entry.getValue());
         }
 
         // Adventure api does the heavy lifting
