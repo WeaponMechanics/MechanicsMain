@@ -472,7 +472,7 @@ public class SerializeData {
                         continue;
 
                     try {
-                        if (argument.clazz == int.class) {
+                        if (argument.clazz == int.class || argument.clazz == Integer.class) {
                             argument.clazz = Integer.class; // Set class to be more human-readable in error
                             int parseInt = Integer.parseInt(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseInt < argument.min || parseInt > argument.max))
@@ -480,7 +480,7 @@ public class SerializeData {
 
                             if (argument.positive && parseInt < 0)
                                 throw new SerializerNegativeException(serializer, parseInt, getLocation(i));
-                        } else if (argument.clazz == double.class) {
+                        } else if (argument.clazz == double.class || argument.clazz == Double.class) {
                             argument.clazz = Double.class;
                             double parseDouble = Double.parseDouble(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseDouble < argument.min || parseDouble > argument.max))
@@ -489,7 +489,7 @@ public class SerializeData {
                             if (argument.positive && parseDouble < 0.0)
                                 throw new SerializerNegativeException(serializer, parseDouble, getLocation(i));
 
-                        } else if (argument.clazz == boolean.class) {
+                        } else if (argument.clazz == boolean.class || argument.clazz == Boolean.class) {
                             argument.clazz = Boolean.class;
                             if (!component.equalsIgnoreCase("true") && !component.equalsIgnoreCase("false"))
                                 throw new Exception();
