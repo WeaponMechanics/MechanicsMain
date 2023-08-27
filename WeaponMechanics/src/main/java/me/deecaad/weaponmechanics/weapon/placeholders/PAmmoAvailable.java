@@ -1,10 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.placeholders;
 
+import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
@@ -14,19 +13,19 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getPlayerWrapper;
 public class PAmmoAvailable extends PlaceholderHandler {
 
     public PAmmoAvailable() {
-        super("%ammo-available%");
+        super("ammo_available");
     }
 
     @Nullable
     @Override
-    public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot) {
-        if (itemStack == null || weaponTitle == null) return null;
+    public String onRequest(@NotNull PlaceholderData data) {
+        if (data.item() == null || data.itemTitle() == null) return null;
 
-        AmmoTypes ammoTypes = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
+        AmmoTypes ammoTypes = getConfigurations().getObject(data.itemTitle() + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
 
-        // Simply don't show anything
-        if (ammoTypes == null) return "";
+        if (ammoTypes == null)
+            return null;
 
-        return String.valueOf(ammoTypes.getMaximumAmmo(itemStack, getPlayerWrapper(player), getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size")));
+        return String.valueOf(ammoTypes.getMaximumAmmo(data.item(), getPlayerWrapper(data.player()), getConfigurations().getInt(data.itemTitle() + ".Reload.Magazine_Size")));
     }
 }

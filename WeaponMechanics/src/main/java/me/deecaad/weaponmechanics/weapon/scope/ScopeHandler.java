@@ -1,9 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.placeholder.PlaceholderData;
+import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
@@ -15,6 +17,7 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.ZoomData;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
@@ -81,7 +84,6 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         // Handle permissions
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(shooter, weaponTitle);
-        String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
 
         // Check if entity is already zooming
         if (zoomData.isZooming()) {
@@ -98,7 +100,9 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 // Handle permissions
                 if (!hasPermission) {
                     if (shooter.getType() == EntityType.PLAYER) {
-                        shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+                        PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle));
+                        Component component = permissionMessage.replaceAndDeserialize(PlaceholderData.of((Player) shooter, weaponStack, weaponTitle, slot));
+                        MechanicsCore.getPlugin().adventure.sender(shooter).sendMessage(component);
                     }
                     return false;
                 }
@@ -126,7 +130,9 @@ public class ScopeHandler implements IValidator, TriggerListener {
             // Handle permissions
             if (!hasPermission) {
                 if (shooter.getType() == EntityType.PLAYER) {
-                    shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+                    PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle));
+                    Component component = permissionMessage.replaceAndDeserialize(PlaceholderData.of((Player) shooter, weaponStack, weaponTitle, slot));
+                    MechanicsCore.getPlugin().adventure.sender(shooter).sendMessage(component);
                 }
                 return false;
             }

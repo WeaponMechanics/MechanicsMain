@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api("org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT")
+    api(Dependencies.LATEST_SPIGOT_API)
     implementation(project(":MechanicsCore"))
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.7")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.6")
@@ -19,5 +19,3 @@ tasks {
         options.release.set(16)
     }
 }
-
-description = "WorldGuardV7"

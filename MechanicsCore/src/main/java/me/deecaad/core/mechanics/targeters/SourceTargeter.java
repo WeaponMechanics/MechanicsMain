@@ -25,8 +25,6 @@ public class SourceTargeter extends Targeter {
     public List<CastData> getTargets0(CastData cast) {
         CastData copy = cast.clone();
         copy.setTargetEntity(copy.getSource());
-        if (copy.hasSourceLocation())
-            copy.setTargetLocation(copy.getSourceLocation());
         return List.of(copy);
     }
 

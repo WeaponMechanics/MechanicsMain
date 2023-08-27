@@ -6,13 +6,8 @@ plugins {
 dependencies {
     implementation(project(":MechanicsCore"))
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
+    adventureChatAPI()
 }
-
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(16))
-//    }
-//}
 
 tasks {
     compileJava {
@@ -20,5 +15,3 @@ tasks {
         options.release.set(16)
     }
 }
-
-description = "CoreCompatibility 1.17 R1"
