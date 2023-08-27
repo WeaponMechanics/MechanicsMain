@@ -102,13 +102,27 @@ public enum CustomTag {
      * weapon. Each string in the list is an {@link #ATTACHMENT_TITLE}, and can
      * be used to pull information from config.
      */
-    ATTACHMENTS;
+    ATTACHMENTS,
+
+    /**
+     * Armor title is stored as a string, and is used by ArmorMechanics to
+     * determine if an item is a custom armor added by the plugin.
+     */
+    ARMOR_TITLE(null, "armormechanics"),
+
+    /**
+     * Prevent remove is stored as an int, and is used by ArmorMechanics as a
+     * marker to prevent armor from being unequipped.
+     */
+    PREVENT_REMOVE(null, "armormechanics");
 
 
+    private final String owningPlugin;
     private final String id;
 
     CustomTag() {
         this.id = name().toLowerCase(Locale.ROOT).replace('_', '-');
+        this.owningPlugin = "weaponmechanics";
     }
 
     /**
@@ -119,6 +133,12 @@ public enum CustomTag {
      */
     CustomTag(String id) {
         this.id = id;
+        this.owningPlugin = "weaponmechanics";
+    }
+
+    CustomTag(String id, String owningPlugin) {
+        this.id = id != null ? id : name().toLowerCase(Locale.ROOT).replace('_', '-');
+        this.owningPlugin = owningPlugin;
     }
 
     /**
@@ -129,70 +149,70 @@ public enum CustomTag {
     }
 
     public String getKey() {
-        return "WeaponMechanics:" + getId();
+        return owningPlugin + ":" + getId();
     }
 
     public boolean hasString(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().hasString(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().hasString(item, owningPlugin, id);
     }
 
     public String getString(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().getString(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().getString(item, owningPlugin, id);
     }
 
     public void setString(ItemStack item, String value) {
-        CompatibilityAPI.getNBTCompatibility().setString(item, "WeaponMechanics", id, value);
+        CompatibilityAPI.getNBTCompatibility().setString(item, owningPlugin, id, value);
     }
 
     public boolean hasInteger(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().hasInt(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().hasInt(item, owningPlugin, id);
     }
 
     public int getInteger(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().getInt(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().getInt(item, owningPlugin, id);
     }
 
     public void setInteger(ItemStack item, int value) {
-        CompatibilityAPI.getNBTCompatibility().setInt(item, "WeaponMechanics", id, value);
+        CompatibilityAPI.getNBTCompatibility().setInt(item, owningPlugin, id, value);
     }
 
     public boolean hasDouble(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().hasDouble(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().hasDouble(item, owningPlugin, id);
     }
 
     public double getDouble(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().getDouble(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().getDouble(item, owningPlugin, id);
     }
 
     public void setDouble(ItemStack item, double value) {
-        CompatibilityAPI.getNBTCompatibility().setDouble(item, "WeaponMechanics", id, value);
+        CompatibilityAPI.getNBTCompatibility().setDouble(item, owningPlugin, id, value);
     }
 
     public boolean hasArray(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().hasArray(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().hasArray(item, owningPlugin, id);
     }
 
     public int[] getArray(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().getArray(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().getArray(item, owningPlugin, id);
     }
 
     public void setArray(ItemStack item, int[] value) {
-        CompatibilityAPI.getNBTCompatibility().setArray(item, "WeaponMechanics", id, value);
+        CompatibilityAPI.getNBTCompatibility().setArray(item, owningPlugin, id, value);
     }
 
     public boolean hasStringArray(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().hasStringArray(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().hasStringArray(item, owningPlugin, id);
     }
 
     public String[] getStringArray(ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().getStringArray(item, "WeaponMechanics", id);
+        return CompatibilityAPI.getNBTCompatibility().getStringArray(item, owningPlugin, id);
     }
 
     public void setStringArray(ItemStack item, String[] value) {
-        CompatibilityAPI.getNBTCompatibility().setStringArray(item, "WeaponMechanics", id, value);
+        CompatibilityAPI.getNBTCompatibility().setStringArray(item, owningPlugin, id, value);
     }
 
     public void remove(ItemStack item) {
-        CompatibilityAPI.getNBTCompatibility().remove(item, "WeaponMechanics", id);
+        CompatibilityAPI.getNBTCompatibility().remove(item, owningPlugin, id);
     }
 }
