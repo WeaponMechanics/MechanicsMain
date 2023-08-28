@@ -1,5 +1,6 @@
 package me.deecaad.core.mechanics;
 
+import me.deecaad.core.file.JarSearcherExempt;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.conditions.Condition;
@@ -21,7 +22,7 @@ import java.util.function.Supplier;
  * which may exist 10+ times in 1 {@link Mechanics}, causing major performance issues
  * on big servers.
  */
-public class PlayerEffectMechanicList extends Mechanic {
+public final class PlayerEffectMechanicList extends Mechanic implements JarSearcherExempt {
 
     private final List<PlayerEffectMechanic> mechanics;
 

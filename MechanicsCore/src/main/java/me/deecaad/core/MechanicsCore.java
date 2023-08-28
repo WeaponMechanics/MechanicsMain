@@ -7,7 +7,6 @@ import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
 import me.deecaad.core.listeners.MechanicsCastListener;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.mechanics.PlayerEffectMechanicList;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
@@ -58,10 +57,10 @@ public class MechanicsCore extends JavaPlugin {
                 JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
 
                 searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                        .stream().map(ReflectionUtil::newInstance).filter(mechanic -> !(mechanic instanceof PlayerEffectMechanicList)).forEach(Mechanics.MECHANICS::add);
+                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
                 searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
                         .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
-                searcher.findAllSubclasses(Condition.class, getClassLoader(), true, MythicMobsEntityCondition.class, MythicMobsFactionCondition.class)
+                searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
                         .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
                 // Add the MythicMobs conditions ONLY IF mythicmobs is present to
