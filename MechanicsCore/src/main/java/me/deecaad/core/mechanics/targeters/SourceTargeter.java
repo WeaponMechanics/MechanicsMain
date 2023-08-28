@@ -24,9 +24,6 @@ public class SourceTargeter extends Targeter {
     @Override
     public Iterator<CastData> getTargets0(CastData cast) {
         cast.setTargetEntity(cast.getTarget());
-        if (cast.hasSourceLocation())
-            cast.setTargetLocation(cast.getSourceLocation());
-
         return new SingleIterator<>(cast);
     }
 

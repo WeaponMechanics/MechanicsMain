@@ -21,6 +21,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
     public static final Registry<Mechanic> MECHANICS = new Registry<>("Mechanic");
     public static final Registry<Targeter> TARGETERS = new Registry<>("Targeter");
+    public static final Registry<ShapeTargeter> SHAPES = new Registry<>("Shape");
     public static final Registry<Condition> CONDITIONS = new Registry<>("Condition");
 
     private List<Mechanic> mechanics;
@@ -85,6 +86,8 @@ public class Mechanics implements Serializer<Mechanics> {
             mechanic.use(cast);
         for (Mechanic mechanic : dirty)
             mechanic.use(cast);
+
+        clearDirty();
     }
 
     @NotNull
