@@ -7,12 +7,8 @@ plugins {
 }
 
 repositories {
-    maven {
-        name = "lumine-repo"
-        url = uri("http://mvn.lumine.io/repository/maven-public/")
-        isAllowInsecureProtocol = true
-    }
     mavenCentral()
+    maven(url = "https://mvn.lumine.io/repository/maven-public/")
 }
 
 dependencies {

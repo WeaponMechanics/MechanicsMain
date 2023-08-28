@@ -120,11 +120,12 @@ public class JarSearcher {
 
             // Check for inheritance and abstraction
             int mod = subclass.getModifiers();
-            if (!clazz.isAssignableFrom(subclass)) {
+            if (JarSearcherExempt.class.isAssignableFrom(subclass))
                 continue;
-            } else if (isIgnoreAbstract && (Modifier.isAbstract(mod) || Modifier.isInterface(mod))) {
+            else if (!clazz.isAssignableFrom(subclass))
                 continue;
-            }
+            else if (isIgnoreAbstract && (Modifier.isAbstract(mod) || Modifier.isInterface(mod)))
+                continue;
 
             subclasses.add((Class<T>) subclass);
         }

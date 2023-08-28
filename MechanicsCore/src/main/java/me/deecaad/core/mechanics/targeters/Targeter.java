@@ -8,7 +8,7 @@ import me.deecaad.core.mechanics.CastData;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * A targeter returns a list of targets. A target can be a {@link org.bukkit.Location},
@@ -60,22 +60,35 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
      * @param cast The non-null origin of the cast.
      * @return The list of targets.
      */
-    public final List<CastData> getTargets(CastData cast) {
-        List<CastData> targets = getTargets0(cast);
-        if (offset != null || eye) {
-            for (CastData target : targets) {
-                Location origin = eye && target.getTarget() != null ? target.getTarget().getEyeLocation() : target.getTargetLocation();
-                if (offset != null)
-                    origin.add(offset.getVector(target.getTarget()));
+    public final Iterator<CastData> getTargets(CastData cast) {
+        Iterator<CastData> targets = getTargets0(cast);
 
-                target.setTargetLocation(origin);
-            }
+        // Only modify if we need to
+        if (offset != null || eye) {
+            return new Iterator<>() {
+                @Override
+                public boolean hasNext() {
+                    return targets.hasNext();
+                }
+
+                @Override
+                public CastData next() {
+                    CastData target = targets.next();
+
+                    Location origin = (eye && target.getTarget() != null) ? target.getTarget().getEyeLocation() : target.getTargetLocation();
+                    if (offset != null)
+                        origin.add(offset.getVector(target.getTarget()));
+
+                    target.setTargetLocation(origin);
+                    return target;
+                }
+            };
         }
 
         return targets;
     }
 
-    protected abstract List<CastData> getTargets0(CastData cast);
+    protected abstract Iterator<CastData> getTargets0(CastData cast);
 
     protected Targeter applyParentArgs(SerializeData data, Targeter targeter) throws SerializerException {
         VectorSerializer offset = data.of("Offset").serialize(VectorSerializer.class);
