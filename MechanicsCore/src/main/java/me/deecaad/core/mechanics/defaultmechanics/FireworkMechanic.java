@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -149,7 +150,8 @@ public class FireworkMechanic extends PlayerEffectMechanic {
             }
 
             OUTER:
-            for (CastData target : viewers.getTargets(center)) {
+            for (Iterator<CastData> it = viewers.getTargets(center); it.hasNext(); ) {
+                CastData target = it.next();
                 if (!(target.getTarget() instanceof Player player))
                     continue;
 

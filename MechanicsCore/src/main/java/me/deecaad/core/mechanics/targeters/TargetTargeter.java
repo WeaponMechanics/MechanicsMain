@@ -6,7 +6,7 @@ import me.deecaad.core.mechanics.CastData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Iterator;
 
 public class TargetTargeter extends Targeter {
 
@@ -22,8 +22,8 @@ public class TargetTargeter extends Targeter {
     }
 
     @Override
-    protected List<CastData> getTargets0(CastData cast) {
-        return List.of(cast.clone());
+    protected Iterator<CastData> getTargets0(CastData cast) {
+        return new SingleIterator<>(cast);
     }
 
     @Override

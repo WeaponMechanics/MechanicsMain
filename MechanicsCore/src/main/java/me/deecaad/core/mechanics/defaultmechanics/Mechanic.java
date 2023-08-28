@@ -13,6 +13,7 @@ import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -121,7 +122,8 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
         }
 
         OUTER:
-        for (CastData target : targeter.getTargets(cast)) {
+        for (Iterator<CastData> it = targeter.getTargets(cast); it.hasNext(); ) {
+            CastData target = it.next();
             for (Condition condition : conditions)
                 if (!condition.isAllowed(target))
                     continue OUTER;
