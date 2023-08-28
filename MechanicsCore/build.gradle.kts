@@ -12,27 +12,27 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT")
-    compileOnly("me.clip:placeholderapi:2.10.10")
+    compileOnly(Dependencies.LATEST_SPIGOT_API)
+    compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("io.netty:netty-all:4.1.90.Final")
     compileOnly("com.mojang:brigadier:1.0.18")
 
-    compileOnly("com.github.dmulloy2:ProtocolLib:4.8.0")
+    compileOnly(Dependencies.PROTOCOL_LIB)
 
-    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    implementation(Dependencies.JSON_SIMPLE)
 
-    implementation("net.kyori:adventure-api:4.13.0")
-    implementation("net.kyori:adventure-text-serializer-legacy:4.13.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.0")
-    implementation("net.kyori:adventure-text-minimessage:4.13.0")
+    implementation(Dependencies.ADVENTURE_API)
+    implementation(Dependencies.ADVENTURE_BUKKIT)
+    implementation(Dependencies.ADVENTURE_TEXT_LEGACY)
+    implementation(Dependencies.ADVENTURE_TEXT_MINIMESSAGE)
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.slf4j:slf4j-nop:1.7.30")
-    implementation("io.lumine:Mythic-Dist:5.0.1-SNAPSHOT")
+    implementation(Dependencies.MYTHIC_MOBS)
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-    testImplementation("org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT")
-    testImplementation("org.jetbrains:annotations:24.0.1")
+    testImplementation(Dependencies.LATEST_SPIGOT_API)
+    testImplementation(Dependencies.ANNOTATIONS)
 }
 
 tasks.test {

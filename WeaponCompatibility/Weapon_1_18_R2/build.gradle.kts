@@ -8,14 +8,8 @@ dependencies {
     implementation(project(":MechanicsCore"))
     implementation(project(":WeaponMechanics"))
 
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly(Dependencies.PROTOCOL_LIB)
 }
-
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(17))
-//    }
-//}
 
 tasks {
     compileJava {
@@ -23,5 +17,3 @@ tasks {
         options.release.set(17)
     }
 }
-
-description = "WeaponCompatibility 1.18 R2"

@@ -1,10 +1,13 @@
 package me.deecaad.core.compatibility.nbt;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTagVisitor;
 import net.minecraft.nbt.Tag;
@@ -40,12 +43,12 @@ public class NBT_1_20_R1 extends NBT_Persistent {
 
         if (path == null) {
             nms.setTag(from.copy());
-            toItem.setItemMeta(nms.getBukkitStack().getItemMeta());
+            toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
             return;
         }
 
         to.put(path, from.getCompound(path).copy());
-        toItem.setItemMeta(nms.getBukkitStack().getItemMeta());
+        toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
     }
 
     @Nonnull
@@ -65,6 +68,13 @@ public class NBT_1_20_R1 extends NBT_Persistent {
     public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
         CompoundTag nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName(@NotNull ItemStack item) {
+        net.minecraft.network.chat.Component component = CraftItemStack.asNMSCopy(item).getDisplayName();
+        JsonElement json = net.minecraft.network.chat.Component.Serializer.toJsonTree(component);
+        return GsonComponentSerializer.gson().serializer().fromJson(json, Component.class);
     }
 
     private static class TagColorVisitor extends StringTagVisitor {

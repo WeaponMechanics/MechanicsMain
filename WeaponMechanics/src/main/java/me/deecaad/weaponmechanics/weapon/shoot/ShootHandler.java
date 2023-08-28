@@ -1,11 +1,13 @@
 package me.deecaad.weaponmechanics.weapon.shoot;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.placeholder.PlaceholderData;
+import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -27,6 +29,7 @@ import me.deecaad.weaponmechanics.weapon.weaponevents.*;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -166,8 +169,9 @@ public class ShootHandler implements IValidator, TriggerListener {
         boolean hasPermission = weaponHandler.getInfoHandler().hasPermission(entityWrapper.getEntity(), weaponTitle);
         if (!hasPermission) {
             if (shooter.getType() == EntityType.PLAYER) {
-                String permissionMessage = getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle);
-                shooter.sendMessage(PlaceholderAPI.applyPlaceholders(permissionMessage, (Player) shooter, weaponStack, weaponTitle, slot));
+                PlaceholderMessage permissionMessage = new PlaceholderMessage(getBasicConfigurations().getString("Messages.Permissions.Use_Weapon", ChatColor.RED + "You do not have permission to use " + weaponTitle));
+                Component component = permissionMessage.replaceAndDeserialize(PlaceholderData.of((Player) shooter, weaponStack, weaponTitle, slot));
+                MechanicsCore.getPlugin().adventure.sender(shooter).sendMessage(component);
             }
             return false;
         }
@@ -655,6 +659,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
                 HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
                 handData.setLastShotTime(System.currentTimeMillis());
+                handData.setLastWeaponShot(weaponTitle, weaponStack);
             }
 
             return;
@@ -708,6 +713,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         if (!isMelee) {
             HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
             handData.setLastShotTime(System.currentTimeMillis());
+            handData.setLastWeaponShot(weaponTitle, weaponStack);
         }
     }
 

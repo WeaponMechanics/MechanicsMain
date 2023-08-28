@@ -6,13 +6,8 @@ plugins {
 dependencies {
     paperDevBundle("1.19.4-R0.1-SNAPSHOT")
     implementation(project(":MechanicsCore"))
+    adventureChatAPI()
 }
-
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(17))
-//    }
-//}
 
 tasks {
     compileJava {
@@ -20,5 +15,3 @@ tasks {
         options.release.set(17)
     }
 }
-
-description = "CoreCompatibility 1.19 R3"

@@ -18,7 +18,6 @@ import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
-import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
@@ -170,6 +169,7 @@ public class WeaponMechanics {
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
         setupDatabase();
+        registerPlaceholders();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Add PlayerWrapper in onEnable in case server is reloaded for example
@@ -186,7 +186,6 @@ public class WeaponMechanics {
         new TaskChain(javaPlugin)
                 .thenRunSync(() -> {
                     loadConfig();
-                    registerPlaceholders();
                     registerListeners();
                     registerBStats();
                     registerPermissions();
@@ -341,7 +340,7 @@ public class WeaponMechanics {
     void registerPlaceholders() {
         debug.debug("Registering placeholders");
         try {
-            new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, getClassLoader(), true).forEach(PlaceholderAPI::addPlaceholderHandler);
+            new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, getClassLoader(), true).forEach(PlaceholderHandler.REGISTRY::add);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -586,7 +585,6 @@ public class WeaponMechanics {
                 .thenRunSync(() -> {
 
                     loadConfig();
-                    registerPlaceholders();
                     registerPacketListeners();
                     registerListeners();
                     registerCommands();

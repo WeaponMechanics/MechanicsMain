@@ -59,7 +59,7 @@ public class SkinHandler {
         if (forceDefault)
             return SkinSelector.SkinAction.DEFAULT;
 
-        if ((!hand.isReloading() || skins.hasAction(skin, SkinSelector.SkinAction.RELOAD)) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
+        if ((!hand.isReloading() || !skins.hasAction(skin, SkinSelector.SkinAction.RELOAD)) && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0) {
             if (skins.hasAction(skin, SkinSelector.SkinAction.NO_AMMO))
                 return SkinSelector.SkinAction.NO_AMMO;
         }

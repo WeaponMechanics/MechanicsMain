@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Objects;
 
@@ -99,7 +98,7 @@ public class ItemAmmo implements IAmmoType {
             // Handle conversion
             potentialAmmo.setType(ammoTemplate.getType());
             potentialAmmo.setItemMeta(ammoTemplate.getItemMeta());
-            updatePlaceholders(potentialAmmo, wrapper.getPlayer());
+            AdventureUtil.updatePlaceholders(wrapper.getPlayer(), potentialAmmo);
 
             inventory.setItem(i, potentialAmmo);
             hasAmmo = true;
@@ -267,7 +266,7 @@ public class ItemAmmo implements IAmmoType {
 
     private void giveOrDrop(Player player, ItemStack itemStack) {
         Inventory inventory = player.getInventory();
-        updatePlaceholders(itemStack, player);
+        AdventureUtil.updatePlaceholders(player, itemStack);
 
         // Check if inventory doesn't have any free slots
         if (inventory.firstEmpty() == -1) {
@@ -275,14 +274,5 @@ public class ItemAmmo implements IAmmoType {
             return;
         }
         inventory.addItem(itemStack);
-    }
-
-    private void updatePlaceholders(ItemStack itemStack, Player player) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta == null) return;
-
-        itemMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(itemMeta.getDisplayName(), player, itemStack, null, null));
-        itemMeta.setLore(PlaceholderAPI.applyPlaceholders(itemMeta.getLore(), player, itemStack, null, null));
-        itemStack.setItemMeta(itemMeta);
     }
 }

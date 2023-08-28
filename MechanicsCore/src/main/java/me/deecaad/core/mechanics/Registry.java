@@ -1,14 +1,14 @@
 package me.deecaad.core.mechanics;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.InlineSerializer;
+import me.deecaad.core.utils.Keyable;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public final class Registry<T extends InlineSerializer<T>> {
+public final class Registry<T extends Keyable> {
 
     private final String registryName;
     private final Map<String, T> registry;
@@ -39,11 +39,11 @@ public final class Registry<T extends InlineSerializer<T>> {
      * @throws IllegalArgumentException If a duplicate key is found.
      */
     public Registry<T> add(T item) {
-        String key = toKey(item.getInlineKeyword());
+        String key = toKey(item.getKey());
         T existing = registry.get(key);
 
         if (existing != null) {
-            MechanicsCore.debug.warn("Overriding '" + existing + "' with '" + item + "'");
+            MechanicsCore.debug.warn("Overriding '" + existing + "' with '" + item + "' in " + registryName + " registry");
         }
 
         registry.put(key, item);

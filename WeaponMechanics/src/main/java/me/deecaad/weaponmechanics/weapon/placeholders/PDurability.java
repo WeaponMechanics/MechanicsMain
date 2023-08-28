@@ -2,19 +2,22 @@ package me.deecaad.weaponmechanics.weapon.placeholders;
 
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderHandler;
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class PWeaponTitle extends PlaceholderHandler {
+public class PDurability extends PlaceholderHandler {
 
-    public PWeaponTitle() {
-        super("weapon_title");
+    public PDurability() {
+        super("custom_durability");
     }
 
     @Nullable
     @Override
     public String onRequest(@NotNull PlaceholderData data) {
-        return data.itemTitle();
+        if (data.item() == null) return null;
+
+        return String.valueOf(CustomTag.DURABILITY.getInteger(data.item()));
     }
 }
