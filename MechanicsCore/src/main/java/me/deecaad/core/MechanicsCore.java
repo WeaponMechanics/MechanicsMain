@@ -5,12 +5,13 @@ import me.deecaad.core.events.triggers.EquipListener;
 import me.deecaad.core.file.*;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.listeners.ItemCraftListener;
+import me.deecaad.core.listeners.MechanicsCastListener;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.mechanics.PlayerEffectMechanicList;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
+import me.deecaad.core.mechanics.defaultmechanics.MythicSkillMechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
@@ -57,15 +58,15 @@ public class MechanicsCore extends JavaPlugin {
                 JarSearcher searcher = new JarSearcher(new JarFile(getFile()));
 
                 searcher.findAllSubclasses(Mechanic.class, getClassLoader(), true)
-                        .stream().map(ReflectionUtil::newInstance).filter(mechanic -> !(mechanic instanceof PlayerEffectMechanicList)).forEach(Mechanics.MECHANICS::add);
+                        .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.MECHANICS::add);
                 searcher.findAllSubclasses(Targeter.class, getClassLoader(), true)
                         .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.TARGETERS::add);
-                searcher.findAllSubclasses(Condition.class, getClassLoader(), true, MythicMobsEntityCondition.class, MythicMobsFactionCondition.class)
+                searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
                         .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
-                // Add the MythicMobs conditions ONLY IF mythicmobs is present to
-                // avoid error.
+                // Add the MythicMobs conditions ONLY IF mythicmobs is present to avoid errors
                 if (getServer().getPluginManager().getPlugin("MythicMobs") != null) {
+                    Mechanics.MECHANICS.add(new MythicSkillMechanic());
                     Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
                     Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
                 }
@@ -93,6 +94,7 @@ public class MechanicsCore extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(EquipListener.SINGLETON, this);
         }
         Bukkit.getPluginManager().registerEvents(new ItemCraftListener(), this);
+        Bukkit.getPluginManager().registerEvents(new MechanicsCastListener(), this);
 
         // Adventure Chat API
         adventure = BukkitAudiences.create(this);

@@ -3,9 +3,7 @@ package me.deecaad.core.mechanics;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
-import me.deecaad.core.mechanics.targeters.SourceTargeter;
-import me.deecaad.core.mechanics.targeters.Targeter;
-import me.deecaad.core.mechanics.targeters.WorldTargeter;
+import me.deecaad.core.mechanics.targeters.*;
 import me.deecaad.core.utils.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +21,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
     public static final Registry<Mechanic> MECHANICS = new Registry<>("Mechanic");
     public static final Registry<Targeter> TARGETERS = new Registry<>("Targeter");
+    public static final Registry<ShapeTargeter> SHAPES = new Registry<>("Shape");
     public static final Registry<Condition> CONDITIONS = new Registry<>("Condition");
 
     private List<Mechanic> mechanics;
@@ -87,6 +86,8 @@ public class Mechanics implements Serializer<Mechanics> {
             mechanic.use(cast);
         for (Mechanic mechanic : dirty)
             mechanic.use(cast);
+
+        clearDirty();
     }
 
     @NotNull
@@ -107,11 +108,13 @@ public class Mechanics implements Serializer<Mechanics> {
         for (Object obj : list) {
             Mechanic mechanic = serializeOne(data, obj.toString());
 
-            if (mechanic instanceof PlayerEffectMechanic playerMechanic
-                    && mechanic.getTargeter() instanceof WorldTargeter worldTargeter
-                    && worldTargeter.isDefaultValues()) {
-
-                cacheList.addMechanic(playerMechanic);
+            if (mechanic instanceof PlayerEffectMechanic playerMechanic && mechanic.getTargeter() instanceof WorldTargeter worldTargeter) {
+                if (worldTargeter.isDefaultValues()) {
+                    cacheList.addMechanic(playerMechanic);
+                } else {
+                    // Well, at least it is a player mechanic, no need to loop through the whole world!
+                    playerMechanic.targeter = new WorldPlayersTargeter(worldTargeter.getWorldName());
+                }
             } else {
                 mechanics.add(mechanic);
             }
