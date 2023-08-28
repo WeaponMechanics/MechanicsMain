@@ -41,10 +41,12 @@ public final class PlayerEffectMechanicList extends Mechanic implements JarSearc
         return mechanics.isEmpty();
     }
 
-    @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
-        throw new UnsupportedOperationException("Cannot directly serialize a PlayerEffectMechanicList");
+    protected void handleTargetersAndConditions(CastData cast) {
+        // This Mechanic is a special Mechanic that stores a list of mechanics that
+        // can have their targeters cached. This improves performance. Of course, that
+        // means that this mechanic SHOULD NOT use targeters.
+        use0(cast);
     }
 
     @Override
@@ -71,5 +73,11 @@ public final class PlayerEffectMechanicList extends Mechanic implements JarSearc
             mechanic.playFor(cast, cacheList);
             cacheList.clear();
         }
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(SerializeData data) throws SerializerException {
+        throw new UnsupportedOperationException("Cannot directly serialize a PlayerEffectMechanicList");
     }
 }

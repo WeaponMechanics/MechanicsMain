@@ -11,6 +11,7 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
+import me.deecaad.core.mechanics.defaultmechanics.MythicSkillMechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.Debugger;
@@ -63,9 +64,9 @@ public class MechanicsCore extends JavaPlugin {
                 searcher.findAllSubclasses(Condition.class, getClassLoader(), true)
                         .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
-                // Add the MythicMobs conditions ONLY IF mythicmobs is present to
-                // avoid error.
+                // Add the MythicMobs conditions ONLY IF mythicmobs is present to avoid errors
                 if (getServer().getPluginManager().getPlugin("MythicMobs") != null) {
+                    Mechanics.MECHANICS.add(new MythicSkillMechanic());
                     Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
                     Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
                 }

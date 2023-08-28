@@ -23,7 +23,7 @@ public class SourceTargeter extends Targeter {
 
     @Override
     public Iterator<CastData> getTargets0(CastData cast) {
-        cast.setTargetEntity(cast.getTarget());
+        cast.setTargetEntity(cast.getSource());
         return new SingleIterator<>(cast);
     }
 

@@ -27,6 +27,11 @@ public class WorldPlayersTargeter extends WorldTargeter {
     }
 
     @Override
+    public String getKeyword() {
+        return "WorldPlayers";
+    }
+
+    @Override
     public Iterator<CastData> getTargets0(CastData cast) {
         if (getWorldCache() == null || getWorldName() == null)
             setWorldCache(getWorldName() == null ? cast.getSource().getWorld() : Bukkit.getWorld(getWorldName()));
