@@ -21,10 +21,10 @@
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "<gold>.50 GS%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
+        Message: "<gold>.50 GS<firearm_state> <gray>«<gold><ammo_left><gray>»<reload>"
         Dual_Wield:
-          Main_Hand: "<gold>%ammo-left%<gray>»<gold>%reload% <gold>%firearm-state%.50 GS"
-          Off_Hand: "<gold>.50 GS%firearm-state% <gold>%reload%<gray>«<gold>%ammo-left%"
+          Main_Hand: "<gold><ammo_left><gray>»<reload> <gold><firearm_state>.50 GS"
+          Off_Hand: "<gold>.50 GS<firearm_state> <reload><gray>«<gold><ammo_left>"
     Dual_Wield:
       Whitelist: true
       Weapons:
@@ -141,7 +141,7 @@
     Reload:
       Item_Cooldown: true
       Exp: true
-      Action_Bar: "<gray>Reloading %bar% <gray>%time%s"
+      Action_Bar: "<gray>Reloading <bar> <gray><time>s"
       Action_Bar_Cancelled: "<red>Reload Cancelled"
       Bar:
         Left_Color: "<gray>"
