@@ -6,6 +6,7 @@ import net.kyori.adventure.text.minimessage.tag.TagPattern;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * A PlaceholderHandler is a variable in a string. Instances of this class
@@ -44,4 +45,17 @@ public abstract class PlaceholderHandler implements Keyable {
      */
     @Nullable
     public abstract String onRequest(@NotNull PlaceholderData data);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlaceholderHandler that = (PlaceholderHandler) o;
+        return Objects.equals(placeholderName, that.placeholderName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(placeholderName);
+    }
 }

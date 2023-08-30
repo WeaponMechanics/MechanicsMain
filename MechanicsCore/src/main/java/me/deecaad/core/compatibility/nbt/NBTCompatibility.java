@@ -320,17 +320,20 @@ public interface NBTCompatibility {
      */
     void remove(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key);
 
-    default double getAttribute(@NotNull ItemStack bukkitItem, @NotNull AttributeType attribute, @Nullable AttributeSlot slot) {
+
+    default double getAttributeValue(@NotNull ItemStack bukkitItem, @NotNull AttributeType attribute, @Nullable AttributeSlot slot) {
         ItemMeta meta = bukkitItem.getItemMeta();
 
-        if (meta == null)
+        if (meta == null) {
             return 0.0; // Return a default value if the item doesn't have any meta information
+        }
 
         Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
         Collection<AttributeModifier> modifiers = meta.getAttributeModifiers(bukkitAttribute);
 
-        if (modifiers == null)
+        if (modifiers == null) {
             return 0.0; // Return 0.0 if there are no attribute modifiers for the given attribute
+        }
 
         double value = 0.0;
         for (AttributeModifier modifier : modifiers) {
@@ -351,6 +354,24 @@ public interface NBTCompatibility {
         }
 
         return value;
+    }
+
+
+    @Nullable
+    default AttributeModifier getAttribute(@NotNull ItemStack bukkitItem, @NotNull AttributeType attribute, @Nullable AttributeSlot slot) {
+        ItemMeta meta = bukkitItem.getItemMeta();
+        Attribute bukkitAttribute = Attribute.valueOf(attribute.name());
+
+        UUID uuid = (slot == null) ? attribute.getUUID() : slot.modify(attribute.getUUID());
+
+        // API doesn't allow modifying AttributeModifiers so I have to delete old ones based on their UUIDs
+        // and add these new AttributeModifiers which contain new amount for the Attribute
+        for (AttributeModifier existingModifier : meta.getAttributeModifiers(bukkitAttribute)) {
+            if (uuid.equals(existingModifier.getUniqueId()))
+                return existingModifier;
+        }
+
+        return null;
     }
 
 

@@ -36,6 +36,6 @@ public abstract class AttributePlaceholderHandler extends NumericPlaceholderHand
             case HEAD -> NBTCompatibility.AttributeSlot.HEAD;
         };
 
-        return CompatibilityAPI.getNBTCompatibility().getAttribute(item, attribute, slot);
+        return CompatibilityAPI.getNBTCompatibility().getAttributeValue(item, attribute, slot);
     }
 }
