@@ -1,6 +1,7 @@
 package me.deecaad.core.placeholder;
 
 import net.kyori.adventure.text.minimessage.tag.TagPattern;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -24,6 +25,7 @@ public class PlaceholderRequestEvent extends Event {
     @NotNull private final PlaceholderData data;
 
     public PlaceholderRequestEvent(@NotNull PlaceholderData data) {
+        super(!Bukkit.isPrimaryThread());
         this.data = data;
     }
 
