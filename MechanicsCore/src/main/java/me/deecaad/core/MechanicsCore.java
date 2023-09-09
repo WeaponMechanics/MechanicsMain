@@ -63,11 +63,14 @@ public class MechanicsCore extends JavaPlugin {
                 searcher.findAllSubclasses(Condition.class, getClassLoader(), true, MythicMobsEntityCondition.class, MythicMobsFactionCondition.class)
                         .stream().map(ReflectionUtil::newInstance).forEach(Mechanics.CONDITIONS::add);
 
-                // Add the MythicMobs conditions ONLY IF mythicmobs is present to
-                // avoid error.
-                if (getServer().getPluginManager().getPlugin("MythicMobs") != null) {
-                    Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
-                    Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
+                // Add the MythicMobs conditions ONLY IF mythicmobs is present to avoid error.
+                try {
+                    if (getServer().getPluginManager().getPlugin("MythicMobs") != null) {
+                        Mechanics.CONDITIONS.add(new MythicMobsEntityCondition());
+                        Mechanics.CONDITIONS.add(new MythicMobsFactionCondition());
+                    }
+                } catch (Throwable ex) {
+                    debug.warn("Cannot hook into MythicMobs... MythicMobs might be outdated");
                 }
 
             } catch (IOException ex) {
