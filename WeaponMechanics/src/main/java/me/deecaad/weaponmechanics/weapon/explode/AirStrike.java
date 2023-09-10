@@ -218,6 +218,10 @@ public class AirStrike implements Serializer<AirStrike> {
         int min = data.of("Minimum_Bombs").assertExists().assertPositive().getInt();
         int max = data.of("Maximum_Bombs").assertExists().assertPositive().getInt();
 
+        if (min > max) {
+            throw data.exception("Minimum_Bombs", "The number for 'Minimum_Bombs' should be less then 'Maximum_Bombs'");
+        }
+
         Projectile projectile = data.of("Dropped_Projectile").assertExists().serialize(Projectile.class);
 
         double yOffset = data.of("Height").assertPositive().getDouble(60.0);
