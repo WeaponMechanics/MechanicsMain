@@ -30,6 +30,11 @@ public class Spread implements Serializer<Spread> {
     }
 
     public Spread(double baseSpread, ModifySpreadWhen modifySpreadWhen, ChangingSpread changingSpread) {
+        this(null, baseSpread, modifySpreadWhen, changingSpread);
+    }
+
+    public Spread(SpreadImage spreadImage, double baseSpread, ModifySpreadWhen modifySpreadWhen, ChangingSpread changingSpread) {
+        this.spreadImage = spreadImage;
         this.baseSpread = baseSpread;
         this.modifySpreadWhen = modifySpreadWhen;
         this.changingSpread = changingSpread;
@@ -48,7 +53,8 @@ public class Spread implements Serializer<Spread> {
         double yaw = shootLocation.getYaw(), pitch = shootLocation.getPitch();
         if (spreadImage != null) {
             Point point = spreadImage.getLocation();
-            return getNormalizedSpreadImageDirection(Math.toRadians(yaw), Math.toRadians(pitch), point.getYaw(), point.getPitch());
+            yaw += point.getYaw();
+            pitch += point.getPitch();
         }
 
         double spread = baseSpread;
@@ -100,14 +106,12 @@ public class Spread implements Serializer<Spread> {
     @Nonnull
     public Spread serialize(SerializeData data) throws SerializerException {
         SpreadImage spreadImage = data.of("Spread_Image").serialize(SpreadImage.class);
-        if (spreadImage != null)
-            return new Spread(spreadImage);
 
         double baseSpread = data.of("Base_Spread").assertExists().assertPositive().getDouble();
         baseSpread /= 100.0;
 
         ModifySpreadWhen modifySpreadWhen = (ModifySpreadWhen) data.of("Modify_Spread_When").serialize(new ModifySpreadWhen());
         ChangingSpread changingSpread = data.of("Changing_Spread").serialize(ChangingSpread.class);
-        return new Spread(baseSpread, modifySpreadWhen, changingSpread);
+        return new Spread(spreadImage, baseSpread, modifySpreadWhen, changingSpread);
     }
 }
