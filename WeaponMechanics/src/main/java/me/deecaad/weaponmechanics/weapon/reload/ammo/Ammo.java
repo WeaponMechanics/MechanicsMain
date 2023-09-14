@@ -1,0 +1,112 @@
+package me.deecaad.weaponmechanics.weapon.reload.ammo;
+
+import me.deecaad.core.file.SerializeData;
+import me.deecaad.core.file.Serializer;
+import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.file.serializers.ItemSerializer;
+import me.deecaad.core.utils.Keyable;
+import me.deecaad.weaponmechanics.utils.CustomTag;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
+import java.util.Objects;
+
+public class Ammo implements Keyable, Serializer<Ammo> {
+
+    private final String ammoTitle;
+    private final String symbol;
+    private final IAmmoType type;
+
+    public Ammo(String ammoTitle, String symbol, IAmmoType type) {
+        this.ammoTitle = ammoTitle;
+        this.symbol = symbol;
+        this.type = type;
+    }
+
+    @Override
+    public String getKey() {
+        return ammoTitle;
+    }
+
+    @NotNull
+    @Override
+    public Ammo serialize(SerializeData data) throws SerializerException {
+        String[] split = data.key.split("\\.");
+        String ammoTitle = split[split.length - 1];
+        String symbol = data.of("Symbol").assertType(String.class).get(null);
+
+        // Ammo can use 1 of Experience, Money, or Items.
+        int count = 0;
+        if (data.has("Experience_As_Ammo_Cost"))
+            count++;
+        if (data.has("Money_As_Ammo_Cost"))
+            count++;
+        if (data.has("Item_Ammo"))
+            count++;
+
+        if (count < 1) {
+            throw data.exception(null, "Tried to create an Ammo without any cost. Try adding 'Item_Ammo' as a cost");
+        }
+        if (count > 1) {
+            throw data.exception(null, "Tried to create an Ammo with multiple costs. Try using just 'Item_Ammo'");
+        }
+
+        IAmmoType ammoType = null;
+
+        int experienceCost = data.of("Experience_As_Ammo_Cost").assertPositive().getInt(-1);
+        if (experienceCost != -1) {
+            ammoType = new ExperienceAmmo(experienceCost);
+        }
+
+        int moneyCost = data.of("Money_As_Ammo_Cost").assertPositive().getInt(-1);
+        if (moneyCost != -1) {
+            ammoType = new MoneyAmmo(moneyCost);
+        }
+
+        if (data.has("Item_Ammo")) {
+            ItemStack bulletItem = null;
+            ItemStack magazineItem = null;
+
+            // Items with NBT tags added have to be serialized in a special order,
+            // otherwise the crafted item will be missing the NBT tag.
+            if (data.has("Item_Ammo.Bullet_Item")) {
+                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getKey(), ammoTitle);
+                bulletItem = new ItemSerializer().serializeWithTags(data.move("Item_Ammo.Bullet_Item"), tags);
+            }
+
+            // Items with NBT tags added have to be serialized in a special order,
+            // otherwise the crafted item will be missing the NBT tag.
+            if (data.has("Item_Ammo.Magazine_Item")) {
+                Map<String, Object> tags = Map.of(CustomTag.AMMO_TITLE.getKey(), ammoTitle, CustomTag.AMMO_MAGAZINE.getKey(), 1);
+                magazineItem = new ItemSerializer().serializeWithTags(data.move("Item_Ammo.Magazine_Item"), tags);
+            }
+
+            if (magazineItem == null && bulletItem == null) {
+                throw data.exception(null, "Missing both 'Bullet_Item' and 'Magazine_Item' for your ammo... Use at least 1 of them!");
+            }
+
+            AmmoConverter ammoConverter = (AmmoConverter) data.of("Item_Ammo.Ammo_Converter_Check").serialize(new AmmoConverter());
+            ammoType = new ItemAmmo(ammoTitle, bulletItem, magazineItem, ammoConverter);
+        }
+
+        if (ammoType == null) {
+            throw data.exception(null, "Something went wrong... Check your Ammo config to make sure it is correct!");
+        }
+
+        return new Ammo(ammoTitle, symbol, ammoType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ammo ammo = (Ammo) o;
+        return Objects.equals(ammoTitle, ammo.ammoTitle);
+    }
+
+    @Override
+    public int hashCode() {
+        return ammoTitle.hashCode();
+    }
+}

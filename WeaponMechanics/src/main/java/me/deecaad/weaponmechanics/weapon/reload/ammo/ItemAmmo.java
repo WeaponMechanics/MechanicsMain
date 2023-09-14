@@ -16,16 +16,13 @@ import java.util.Objects;
 public class ItemAmmo implements IAmmoType {
 
     // Defined in ammo types list
-    private final String ammoName;
-
-    private final String symbol;
+    private final String ammoTitle;
     private final ItemStack bulletItem;
     private final ItemStack magazineItem;
     private final AmmoConverter ammoConverter;
 
-    public ItemAmmo(String ammoName, String symbol, ItemStack bulletItem, ItemStack magazineItem, AmmoConverter ammoConverter) {
-        this.ammoName = ammoName;
-        this.symbol = symbol;
+    public ItemAmmo(String ammoTitle, ItemStack bulletItem, ItemStack magazineItem, AmmoConverter ammoConverter) {
+        this.ammoTitle = ammoTitle;
         this.bulletItem = bulletItem;
         this.magazineItem = magazineItem;
         this.ammoConverter = ammoConverter;
@@ -37,16 +34,6 @@ public class ItemAmmo implements IAmmoType {
 
     public ItemStack getMagazineItem() {
         return magazineItem == null ? null : magazineItem.clone();
-    }
-
-    @Override
-    public String getAmmoName() {
-        return ammoName;
-    }
-
-    @Override
-    public String getSymbol() {
-        return symbol != null ? symbol : ammoName;
     }
 
     @Override
@@ -71,7 +58,7 @@ public class ItemAmmo implements IAmmoType {
             // When we are on cool down (convert = false), then we just want
             // to return true ASAP for performance.
             String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
-            if (Objects.equals(ammoName, potentialAmmoName)) {
+            if (Objects.equals(ammoTitle, potentialAmmoName)) {
                 hasAmmo = true;
                 if (!convert)
                     return true;
@@ -131,7 +118,7 @@ public class ItemAmmo implements IAmmoType {
             // No conversion checks here (Conversions are handled by the
             // hasAmmo() method). If the ammo type doesn't match, SKIP.
             String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
-            if (!Objects.equals(ammoName, potentialAmmoName))
+            if (!Objects.equals(ammoTitle, potentialAmmoName))
                 continue;
 
             // Consider that people will configure both BULLETS and MAGAZINES.
@@ -227,7 +214,7 @@ public class ItemAmmo implements IAmmoType {
             if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR) continue;
 
             String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
-            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoName)) continue;
+            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoTitle)) continue;
 
             // Now we know it's actually an ammo item
             if (CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1) {

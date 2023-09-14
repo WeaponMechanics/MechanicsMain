@@ -576,10 +576,10 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         int magazineSize = data.of("Magazine_Size").assertExists().assertPositive().getInt();
         int reloadDuration = data.of("Reload_Duration").assertExists().assertPositive().getInt();
-        int ammoPerReload = data.of("Ammo_Per_Reload").assertPositive().getInt(-99);
+        int ammoPerReload = data.of("Ammo_Per_Reload").assertPositive().getInt(-1);
 
         boolean unloadAmmoOnReload = data.of("Unload_Ammo_On_Reload").getBool(false);
-        if (unloadAmmoOnReload && ammoPerReload != -99) {
+        if (unloadAmmoOnReload && ammoPerReload != -1) {
             // Using ammo per reload and unload ammo on reload at same time is considered as error
             throw data.exception(null, "Cannot use 'Ammo_Per_Reload' and 'Unload_Ammo_On_Reload' at the same time");
         }
@@ -588,6 +588,13 @@ public class ReloadHandler implements IValidator, TriggerListener {
         if (shootDelayAfterReload != 0) {
             // Convert to millis
             configuration.set(data.key + ".Shoot_Delay_After_Reload", shootDelayAfterReload * 50);
+        }
+
+        // Warning that the user is using the old system
+        if (data.has("Ammo.Ammo_Types")) {
+            throw data.exception("Ammo.Ammo_Types", "You are using the old Ammo_Types format",
+                    "In WeaponMechanics 3.0.0 we recoded Ammo for simplified config and improved features",
+                    "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
         }
     }
 }
