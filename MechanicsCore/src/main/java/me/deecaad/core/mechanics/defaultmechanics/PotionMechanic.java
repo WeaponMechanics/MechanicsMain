@@ -11,10 +11,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Stream;
 
 public class PotionMechanic extends Mechanic {
 
@@ -56,6 +55,7 @@ public class PotionMechanic extends Mechanic {
     @Override
     public Mechanic serialize(SerializeData data) throws SerializerException {
         String potionStr = data.of("Potion").assertExists().assertType(String.class).get().toString().trim();
+        String potionLower = potionStr.toLowerCase(Locale.ROOT);
         PotionEffectType potion = PotionEffectType.getByName(potionStr.toUpperCase(Locale.ROOT));
         int time = data.of("Time").assertPositive().getInt(100);
         int amplifier = data.of("Level").assertPositive().getInt(1) - 1;
@@ -67,14 +67,21 @@ public class PotionMechanic extends Mechanic {
         // minecraft keys instead of the legacy enum. This also technically
         // supports custom potion effects, but I don't know if those exist...
         if (potion == null && ReflectionUtil.getMCVersion() >= 13) {
-            potion = PotionEffectType.getByKey(NamespacedKey.fromString(potionStr.toLowerCase(Locale.ROOT)));
+            potion = PotionEffectType.getByKey(NamespacedKey.fromString(potionLower));
         }
 
-        // Make sure that the potion type exists
+        // Try by name for 1.12.2 support
         if (potion == null) {
-            List<String> options = Arrays.stream(PotionEffectType.values())
-                    .flatMap(type -> ReflectionUtil.getMCVersion() >= 13 ? Stream.of(type.getName(), type.getKey().getKey()) : Stream.of(type.getName()))
-                    .toList();
+            potion = PotionEffectType.getByName(potionLower);
+        }
+
+        if (potion == null) {
+            List<String> options = new ArrayList<>();
+            for (PotionEffectType type : PotionEffectType.values()) {
+                options.add(type.getName());
+                if (ReflectionUtil.getMCVersion() >= 13)
+                    options.add(type.getKey().getKey());
+            }
 
             throw new SerializerOptionsException(this, "Potion", options, potionStr, data.of("Potion").getLocation());
         }

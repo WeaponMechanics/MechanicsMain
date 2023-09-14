@@ -17,8 +17,10 @@ import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -197,11 +199,11 @@ public class DamageUtil {
             default -> ReflectionUtil.getMCVersion() != 12 || type != EntityType.ILLUSIONER;
         };
     }
-    
+
     public static void damageArmor(LivingEntity victim, int amount) {
         damageArmor(victim, amount, null);
     }
-    
+
     public static void damageArmor(LivingEntity victim, int amount, @Nullable DamagePoint point) {
 
         // If the damage amount is 0, we can skip the calculations
@@ -214,55 +216,51 @@ public class DamageUtil {
             return;
 
         if (point == null) {
-            ItemStack helmet = damage(equipment.getHelmet(), amount);
-            equipment.setHelmet(helmet);
-            ItemStack chestplate = damage(equipment.getChestplate(), amount);
-            equipment.setChestplate(chestplate);
-            ItemStack leggings = damage(equipment.getLeggings(), amount);
-            equipment.setLeggings(leggings);
-            ItemStack boots = damage(equipment.getBoots(), amount);
-            equipment.setBoots(boots);
+            damage(equipment, EquipmentSlot.HEAD, amount);
+            damage(equipment, EquipmentSlot.CHEST, amount);
+            damage(equipment, EquipmentSlot.LEGS, amount);
+            damage(equipment, EquipmentSlot.FEET, amount);
         } else {
             switch (point) {
-                case HEAD -> {
-                    ItemStack helmet = damage(equipment.getHelmet(), amount);
-                    equipment.setHelmet(helmet);
-                }
-                case BODY, ARMS -> {
-                    ItemStack chestplate = damage(equipment.getChestplate(), amount);
-                    equipment.setChestplate(chestplate);
-                }
-                case LEGS -> {
-                    ItemStack leggings = damage(equipment.getLeggings(), amount);
-                    equipment.setLeggings(leggings);
-                }
-                case FEET -> {
-                    ItemStack boots = damage(equipment.getBoots(), amount);
-                    equipment.setBoots(boots);
-                }
+                case HEAD -> damage(equipment, EquipmentSlot.HEAD, amount);
+                case BODY, ARMS -> damage(equipment, EquipmentSlot.CHEST, amount);
+                case LEGS -> damage(equipment, EquipmentSlot.LEGS, amount);
+                case FEET -> damage(equipment, EquipmentSlot.FEET, amount);
                 default -> throw new IllegalArgumentException("Unknown point: " + point);
             }
         }
     }
 
-    private static ItemStack damage(ItemStack armor, int amount) {
-        if (armor == null || "AIR".equals(armor.getType().name()))
-            return null;
+    private static void damage(EntityEquipment equipment, EquipmentSlot slot, int amount) {
+        ItemStack armor = switch (slot) {
+            case HEAD -> equipment.getHelmet();
+            case CHEST -> equipment.getChestplate();
+            case LEGS -> equipment.getLeggings();
+            case FEET -> equipment.getBoots();
+            default -> throw new IllegalArgumentException("Invalid slot: " + slot);
+        };
 
-        if (armor.hasItemMeta()) {
-            int level = armor.getItemMeta().getEnchantLevel(Enchantment.DURABILITY);
-            boolean damages = NumberUtil.chance(0.6 + 0.4 / (level + 1));
+        // All items implement Damageable (since Spigot is stupid). We use this check
+        // to see if an item is *actually* damageable.
+        if (armor == null || "AIR".equals(armor.getType().name()) || (ReflectionUtil.getMCVersion() >= 13 && armor.getType().getMaxDurability() == 0))
+            return;
 
-            if (!damages)
-                return armor;
-        }
+        ItemMeta meta = armor.getItemMeta();
+        if (meta == null)
+            return;
+
+        // Formula taken from Unbreaking enchant code
+        int level = meta.getEnchantLevel(Enchantment.DURABILITY);
+        boolean skipDamage = !NumberUtil.chance(0.6 + 0.4 / (level + 1));
+        if (skipDamage)
+            return;
 
         if (ReflectionUtil.getMCVersion() >= 13) {
-            if (armor.getItemMeta() instanceof Damageable meta) {
-                meta.setDamage(meta.getDamage() + amount);
+            if (meta instanceof Damageable damageable) {
+                damageable.setDamage(damageable.getDamage() + amount);
                 armor.setItemMeta(meta);
 
-                if (meta.getDamage() >= armor.getType().getMaxDurability())
+                if (damageable.getDamage() >= armor.getType().getMaxDurability())
                     armor.setAmount(0);
             }
         } else {
@@ -272,7 +270,14 @@ public class DamageUtil {
                 armor.setAmount(0);
         }
 
-        return armor;
+        // Getting an ItemStack from an EntityEquipment copies the item... we
+        // need to set the item.
+        switch (slot) {
+            case HEAD -> equipment.setHelmet(armor);
+            case CHEST -> equipment.setChestplate(armor);
+            case LEGS -> equipment.setLeggings(armor);
+            case FEET -> equipment.setBoots(armor);
+        }
     }
     
     /**

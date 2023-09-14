@@ -2,6 +2,18 @@ import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
 
 plugins {
     id("com.github.breadmoirai.github-release") version "2.4.1"
+    id("com.cjcrafter.polymart-release") version "1.0.1"
+}
+
+polymart {
+    val weaponMechanicsVersion = "2.7.0-SNAPSHOT"
+
+    apiKey = findProperty("polymart_api_key").toString()
+    title = weaponMechanicsVersion
+    version = weaponMechanicsVersion
+    resourceId = 4709
+    message = "This is a *test update* which was **published automatically**. You may ignore this."
+    file.set(file("build").resolve("WeaponMechanics.zip"))
 }
 
 tasks.register<GithubReleaseTask>("createGithubRelease").configure {
