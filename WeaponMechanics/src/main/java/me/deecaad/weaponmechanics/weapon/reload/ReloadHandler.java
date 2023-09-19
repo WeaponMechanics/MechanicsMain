@@ -13,7 +13,7 @@ import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmType;
 import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerListener;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
@@ -209,8 +209,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
             return false;
         }
 
-        AmmoTypes ammoTypes = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class) : null;
-        if (ammoTypes != null && !ammoTypes.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
+        AmmoConfig ammo = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class) : null;
+        if (ammo != null && !ammo.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
             Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
 
             // Creative mode bypass... #176
@@ -259,9 +259,9 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 // Here creating this again since this may change if there isn't enough ammo...
                 int ammoToAdd = finalAmmoToAdd + unloadedAmount;
 
-                if (ammoTypes != null) {
+                if (ammo != null) {
 
-                    int removedAmount = ammoTypes.removeAmmo(taskReference, playerWrapper, ammoToAdd, magazineSize);
+                    int removedAmount = ammo.removeAmmo(taskReference, playerWrapper, ammoToAdd, magazineSize);
 
                     // Just check if for some reason ammo disappeared from entity before reaching reload "complete" state
                     if (removedAmount <= 0) {
@@ -311,7 +311,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 if (unloadAmmoOnReload && ammoLeft > 0) {
                     // unload weapon and give ammo back to given entity
 
-                    if (ammoTypes != null) ammoTypes.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
+                    if (ammo != null) ammo.giveAmmo(weaponStack, playerWrapper, ammoLeft, magazineSize);
                     unloadedAmount = ammoLeft;
 
                     handleWeaponStackAmount(entityWrapper, weaponStack);

@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.placeholders;
 
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderHandler;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -21,11 +21,11 @@ public class PAmmoAvailable extends PlaceholderHandler {
     public String onRequest(@NotNull PlaceholderData data) {
         if (data.item() == null || data.itemTitle() == null) return null;
 
-        AmmoTypes ammoTypes = getConfigurations().getObject(data.itemTitle() + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
+        AmmoConfig ammo = getConfigurations().getObject(data.itemTitle() + ".Reload.Ammo", AmmoConfig.class);
 
-        if (ammoTypes == null)
+        if (ammo == null)
             return null;
 
-        return String.valueOf(ammoTypes.getMaximumAmmo(data.item(), getPlayerWrapper(data.player()), getConfigurations().getInt(data.itemTitle() + ".Reload.Magazine_Size")));
+        return String.valueOf(ammo.getMaximumAmmo(data.item(), getPlayerWrapper(data.player()), getConfigurations().getInt(data.itemTitle() + ".Reload.Magazine_Size")));
     }
 }

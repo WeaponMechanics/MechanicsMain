@@ -27,8 +27,8 @@ import me.deecaad.weaponmechanics.weapon.explode.shapes.*;
 import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.ProjectileSettings;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.IAmmoType;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.Ammo;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig;
 import me.deecaad.weaponmechanics.weapon.shoot.CustomDurability;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
@@ -81,8 +81,8 @@ public class WeaponMechanicsCommand {
         String weaponTitle = (String) data.previousArguments()[data.previousArguments().length - 1];
         Configuration config = WeaponMechanics.getConfigurations();
 
-        AmmoTypes types = config.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-        return types == null ? null : types.getAmmoTypes().stream().map(IAmmoType::getAmmoName).map(Tooltip::of).toArray(Tooltip[]::new);
+        AmmoConfig ammo = config.getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class);
+        return ammo == null ? null : ammo.getAmmunitions().stream().map(Ammo::getAmmoTitle).map(Tooltip::of).toArray(Tooltip[]::new);
     };
 
     public static Function<CommandData, Tooltip[]> REPAIR_KIT_SUGGESTIONS = (data) -> {
@@ -515,23 +515,20 @@ public class WeaponMechanicsCommand {
             return;
         }
 
-        String path = title + ".Reload.Ammo.Ammo_Types";
-        Configuration config = WeaponMechanics.getConfigurations();
-        if (!config.containsKey(path)) {
+        AmmoConfig ammo = WeaponMechanics.getConfigurations().getObject(title + ".Reload.Ammo", AmmoConfig.class);
+        if (ammo == null) {
             sender.sendMessage(RED + title + " does not use ammo");
             return;
         }
 
-        AmmoTypes ammo = config.getObject(path, AmmoTypes.class);
         ammo.giveAmmo(sender.getInventory().getItemInMainHand(), WeaponMechanics.getPlayerWrapper(sender), amount, 64);
-
         sender.sendMessage(GREEN + "Sent ammo");
     }
 
     public static void giveAmmo(CommandSender sender, Player player, String weaponTitle, String ammoName, boolean magazine, int amount) {
         ItemStack item;
         try {
-            item = WeaponMechanicsAPI.getAmmoItem(weaponTitle, ammoName, magazine);
+            item = WeaponMechanicsAPI.generateAmmo(weaponTitle, magazine);
         } catch (Throwable ex) {
             sender.sendMessage(RED + ex.getMessage());
             return;

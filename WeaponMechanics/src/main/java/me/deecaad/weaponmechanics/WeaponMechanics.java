@@ -41,7 +41,7 @@ import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
@@ -321,6 +321,7 @@ public class WeaponMechanics {
         }
 
         // Fill configuration mappings (except config.yml)
+        AmmoRegistry.init();
 
         try {
             QueueSerializerEvent event = new QueueSerializerEvent(javaPlugin, getDataFolder());
@@ -607,9 +608,6 @@ public class WeaponMechanics {
 
         HandlerList.unregisterAll(getPlugin());
         Bukkit.getServer().getScheduler().cancelTasks(getPlugin());
-
-        // Clear AmmoType registry for reload
-        AmmoTypes.clearRegistry();
 
         // Close database and save data in SYNC
         if (database != null) {

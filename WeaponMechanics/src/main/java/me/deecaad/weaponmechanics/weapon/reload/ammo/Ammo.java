@@ -14,14 +14,36 @@ import java.util.Objects;
 
 public class Ammo implements Keyable, Serializer<Ammo> {
 
-    private final String ammoTitle;
-    private final String symbol;
-    private final IAmmoType type;
+    private String ammoTitle;
+    private String symbol;
+    private IAmmoType type;
+
+    /**
+     * Default constructor for serializer.
+     */
+    public Ammo() {
+    }
 
     public Ammo(String ammoTitle, String symbol, IAmmoType type) {
         this.ammoTitle = ammoTitle;
         this.symbol = symbol;
         this.type = type;
+    }
+
+    public String getAmmoTitle() {
+        return ammoTitle;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public String getDisplay() {
+        return symbol == null ? ammoTitle : symbol;
+    }
+
+    public IAmmoType getType() {
+        return type;
     }
 
     @Override
