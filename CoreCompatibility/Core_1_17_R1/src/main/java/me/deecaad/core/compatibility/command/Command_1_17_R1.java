@@ -526,9 +526,9 @@ public class Command_1_17_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Particle getParticle(CommandContext<Object> context, String key) {
+    public ParticleHolder getParticle(CommandContext<Object> context, String key) {
         ParticleOptions particle = ParticleArgument.getParticle(cast(context), key);
-        return CraftParticle.toBukkit(particle);
+        return new ParticleHolder(CraftParticle.toBukkit(particle), particle, particle.writeToString());
     }
 
     @Override
@@ -563,8 +563,10 @@ public class Command_1_17_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Sound getSound(CommandContext<Object> context, String key) {
-        return CraftSound.getBukkit(Registry.SOUND_EVENT.get(ResourceLocationArgument.getId(cast(context), key)));
+    public SoundHolder getSound(CommandContext<Object> context, String key) {
+        ResourceLocation location = ResourceLocationArgument.getId(cast(context), key);
+        Sound bukkit = CraftSound.getBukkit(Registry.SOUND_EVENT.get(location));
+        return new SoundHolder(bukkit, new NamespacedKey(location.getNamespace(), location.getPath()));
     }
 
     @Override

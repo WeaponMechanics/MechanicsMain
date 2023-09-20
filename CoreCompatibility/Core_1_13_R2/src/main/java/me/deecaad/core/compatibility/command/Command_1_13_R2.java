@@ -13,7 +13,6 @@ import me.deecaad.core.commands.wrappers.*;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_13_R2.*;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -504,8 +503,9 @@ public class Command_1_13_R2 implements CommandCompatibility {
     }
 
     @Override
-    public Particle getParticle(CommandContext<Object> context, String key) {
-        return CraftParticle.toBukkit(ArgumentParticle.a(cast(context), key));
+    public ParticleHolder getParticle(CommandContext<Object> context, String key) {
+        ParticleParam particle = ArgumentParticle.a(cast(context), key);
+        return new ParticleHolder(CraftParticle.toBukkit(particle), particle, particle.a());
     }
 
     @Override
@@ -540,10 +540,10 @@ public class Command_1_13_R2 implements CommandCompatibility {
     }
 
     @Override
-    public Sound getSound(CommandContext<Object> context, String key) {
+    public SoundHolder getSound(CommandContext<Object> context, String key) {
         MinecraftKey mc = ArgumentMinecraftKeyRegistered.c(cast(context), key);
-        String name = mc.getKey().toUpperCase(Locale.ROOT).replaceAll("\\.", "_");
-        return Sound.valueOf(name);
+        String name = mc.getKey().replaceAll("\\.", "_").toUpperCase(Locale.ROOT);
+        return new SoundHolder(Sound.valueOf(name), new NamespacedKey(mc.b(), mc.getKey()));
     }
 
     @Override
