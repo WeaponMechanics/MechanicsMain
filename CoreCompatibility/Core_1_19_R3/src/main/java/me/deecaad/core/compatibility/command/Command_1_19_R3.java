@@ -38,6 +38,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec2;
@@ -579,7 +580,8 @@ public class Command_1_19_R3 implements CommandCompatibility {
     @Override
     public SoundHolder getSound(CommandContext<Object> context, String key) {
         ResourceLocation location = ResourceLocationArgument.getId(cast(context), key);
-        Sound bukkit = CraftSound.getBukkit(BuiltInRegistries.SOUND_EVENT.get(location));
+        SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(location);
+        Sound bukkit = sound == null ? null : CraftSound.getBukkit(sound);
         return new SoundHolder(bukkit, new NamespacedKey(location.getNamespace(), location.getPath()));
     }
 

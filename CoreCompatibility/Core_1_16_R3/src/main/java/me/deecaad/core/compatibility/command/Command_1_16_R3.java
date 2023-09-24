@@ -542,7 +542,8 @@ public class Command_1_16_R3 implements CommandCompatibility {
     @Override
     public SoundHolder getSound(CommandContext<Object> context, String key) {
         MinecraftKey location = ArgumentMinecraftKeyRegistered.e(cast(context), key);
-        Sound bukkit = CraftSound.getBukkit(IRegistry.SOUND_EVENT.get(location));
+        SoundEffect sound = IRegistry.SOUND_EVENT.get(location);
+        Sound bukkit = sound == null ? null : CraftSound.getBukkit(sound);
         return new SoundHolder(bukkit, new NamespacedKey(location.getNamespace(), location.getKey()));
     }
 

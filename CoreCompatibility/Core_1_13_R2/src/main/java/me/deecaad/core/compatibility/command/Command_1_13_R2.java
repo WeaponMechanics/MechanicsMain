@@ -543,7 +543,7 @@ public class Command_1_13_R2 implements CommandCompatibility {
     public SoundHolder getSound(CommandContext<Object> context, String key) {
         MinecraftKey mc = ArgumentMinecraftKeyRegistered.c(cast(context), key);
         String name = mc.getKey().replaceAll("\\.", "_").toUpperCase(Locale.ROOT);
-        return new SoundHolder(Sound.valueOf(name), new NamespacedKey(mc.b(), mc.getKey()));
+        return new SoundHolder(EnumUtil.getIfPresent(Sound.class, name).orElse(null), new NamespacedKey(mc.b(), mc.getKey()));
     }
 
     @Override
