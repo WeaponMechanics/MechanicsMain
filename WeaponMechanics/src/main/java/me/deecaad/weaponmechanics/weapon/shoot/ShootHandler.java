@@ -648,6 +648,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         // Unscope after shoot for #73
         if (unscopeAfterShoot) {
             entityWrapper.getHandData(mainHand).getZoomData().ifZoomingForceZoomOut();
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         if (projectile == null || isMelee) {
