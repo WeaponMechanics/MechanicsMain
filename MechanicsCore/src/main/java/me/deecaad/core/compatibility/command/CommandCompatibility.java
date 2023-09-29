@@ -191,7 +191,7 @@ public interface CommandCompatibility {
 
     String getObjectiveCriteria(CommandContext<Object> context, String key);
 
-    Particle getParticle(CommandContext<Object> context, String key);
+    ParticleHolder getParticle(CommandContext<Object> context, String key);
 
     Player getPlayer(CommandContext<Object> context, String key) throws CommandSyntaxException;
 
@@ -204,7 +204,7 @@ public interface CommandCompatibility {
 
     Rotation getRotation(CommandContext<Object> context, String key);
 
-    Sound getSound(CommandContext<Object> context, String key);
+    SoundHolder getSound(CommandContext<Object> context, String key);
 
     String getTeam(CommandContext<Object> context, String key) throws CommandSyntaxException;
 

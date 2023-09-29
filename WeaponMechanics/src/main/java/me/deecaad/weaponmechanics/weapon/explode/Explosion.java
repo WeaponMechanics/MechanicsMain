@@ -244,17 +244,14 @@ public class Explosion implements Serializer<Explosion> {
             entities = event.getEntities();
             mechanics = event.getMechanics();
 
-            // Late check on bukkit event, which is cancellable because it requires blocks list...
-            // + just default yield to 5, it can't be exactly used nicely in this...
-            if (!getBasicConfigurations().getBool("Disable_Entity_Explode_Event") && blockDamage != null) {
-
-                // ++ check that this explosion could actually break blocks before calling bukkit event
-                List<Block> breakableBlocks = blockDamage.filterBreakbleBlocks(blocks);
-                if (!breakableBlocks.isEmpty()) {
-                    EntityExplodeEvent entityExplodeEvent = new EntityExplodeEvent(projectile.getShooter(), origin, breakableBlocks, 5);
-                    Bukkit.getPluginManager().callEvent(entityExplodeEvent);
-                    if (entityExplodeEvent.isCancelled()) return;
-                }
+            // Use Bukkit's EntityExplodeEvent to allow other protection plugins
+            // (Towny, for example) to cancel the explosion or filter blocks w/o
+            // explicitly depending on WeaponMechanics.
+            if (blockDamage != null && !blocks.isEmpty() && !getBasicConfigurations().getBool("Disable_Entity_Explode_Event")) {
+                EntityExplodeEvent entityExplodeEvent = new EntityExplodeEvent(projectile.getShooter(), origin, blocks, 5);
+                Bukkit.getPluginManager().callEvent(entityExplodeEvent);
+                if (entityExplodeEvent.isCancelled())
+                    return;
             }
         }
 

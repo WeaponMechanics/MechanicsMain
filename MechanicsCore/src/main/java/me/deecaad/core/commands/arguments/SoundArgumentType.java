@@ -5,11 +5,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import org.bukkit.Sound;
+import me.deecaad.core.commands.wrappers.SoundHolder;
 
 import java.util.concurrent.CompletableFuture;
 
-public class SoundArgumentType extends CommandArgumentType<Sound> {
+public class SoundArgumentType extends CommandArgumentType<SoundHolder> {
 
     @Override
     public ArgumentType<?> getBrigadierType() {
@@ -17,7 +17,7 @@ public class SoundArgumentType extends CommandArgumentType<Sound> {
     }
 
     @Override
-    public Sound parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
+    public SoundHolder parse(CommandContext<Object> context, String key) throws CommandSyntaxException {
         return compatibility().getSound(context, key);
     }
 

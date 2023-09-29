@@ -467,7 +467,13 @@ public class WeaponMechanics {
             public void onJoin(PlayerJoinEvent event) {
                 if (event.getPlayer().isOp()) {
                     new TaskChain(javaPlugin)
-                            .thenRunAsync((callback) -> updateChecker.hasUpdate())
+                            .thenRunAsync((callback) -> {
+                                try {
+                                    return updateChecker.hasUpdate();
+                                } catch (Throwable ex) {
+                                    return null;
+                                }
+                            })
                             .thenRunSync((callback) -> {
                                 UpdateInfo update = (UpdateInfo) callback;
                                 if (callback != null) {

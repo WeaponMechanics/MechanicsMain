@@ -13,7 +13,6 @@ import me.deecaad.core.commands.wrappers.*;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_16_R3.*;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -504,8 +503,9 @@ public class Command_1_16_R3 implements CommandCompatibility {
     }
 
     @Override
-    public Particle getParticle(CommandContext<Object> context, String key) {
-        return CraftParticle.toBukkit(ArgumentParticle.a(cast(context), key));
+    public ParticleHolder getParticle(CommandContext<Object> context, String key) {
+        ParticleParam particle = ArgumentParticle.a(cast(context), key);
+        return new ParticleHolder(CraftParticle.toBukkit(particle), particle, particle.a());
     }
 
     @Override
@@ -540,8 +540,11 @@ public class Command_1_16_R3 implements CommandCompatibility {
     }
 
     @Override
-    public Sound getSound(CommandContext<Object> context, String key) {
-        return CraftSound.getBukkit(IRegistry.SOUND_EVENT.get(ArgumentMinecraftKeyRegistered.e(cast(context), key)));
+    public SoundHolder getSound(CommandContext<Object> context, String key) {
+        MinecraftKey location = ArgumentMinecraftKeyRegistered.e(cast(context), key);
+        SoundEffect sound = IRegistry.SOUND_EVENT.get(location);
+        Sound bukkit = sound == null ? null : CraftSound.getBukkit(sound);
+        return new SoundHolder(bukkit, new NamespacedKey(location.getNamespace(), location.getKey()));
     }
 
     @Override

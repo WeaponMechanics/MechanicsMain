@@ -625,6 +625,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
+        boolean unscopeAfterShoot = config.getBool(weaponTitle + ".Shoot.Unscope_After_Shot");
 
         PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, shootMechanics, resetFallDistance, projectile, projectileSpeed, projectileAmount);
         Bukkit.getPluginManager().callEvent(prepareEvent);
@@ -646,6 +647,12 @@ public class ShootHandler implements IValidator, TriggerListener {
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
             if (weaponInfoDisplay != null)
                 weaponInfoDisplay.send(playerWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+        }
+
+        // Unscope after shoot for #73
+        if (unscopeAfterShoot) {
+            entityWrapper.getHandData(mainHand).getZoomData().ifZoomingForceZoomOut();
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
         }
 
         if (projectile == null || isMelee) {

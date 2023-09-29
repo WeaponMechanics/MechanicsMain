@@ -12,7 +12,6 @@ import me.deecaad.core.commands.wrappers.*;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import net.minecraft.server.v1_15_R1.*;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -501,9 +500,11 @@ public class Command_1_15_R1 implements CommandCompatibility {
         return ArgumentScoreboardCriteria.a(cast(context), key).getName();
     }
 
+
     @Override
-    public Particle getParticle(CommandContext<Object> context, String key) {
-        return CraftParticle.toBukkit(ArgumentParticle.a(cast(context), key));
+    public ParticleHolder getParticle(CommandContext<Object> context, String key) {
+        ParticleParam particle = ArgumentParticle.a(cast(context), key);
+        return new ParticleHolder(CraftParticle.toBukkit(particle), particle, particle.a());
     }
 
     @Override
@@ -538,10 +539,10 @@ public class Command_1_15_R1 implements CommandCompatibility {
     }
 
     @Override
-    public Sound getSound(CommandContext<Object> context, String key) {
+    public SoundHolder getSound(CommandContext<Object> context, String key) {
         MinecraftKey mc = ArgumentMinecraftKeyRegistered.d(cast(context), key);
         String name = mc.getKey().replaceAll("\\.", "_").toUpperCase(Locale.ROOT);
-        return Sound.valueOf(name);
+        return new SoundHolder(EnumUtil.getIfPresent(Sound.class, name).orElse(null), new NamespacedKey(mc.getNamespace(), mc.getKey()));
     }
 
     @Override
