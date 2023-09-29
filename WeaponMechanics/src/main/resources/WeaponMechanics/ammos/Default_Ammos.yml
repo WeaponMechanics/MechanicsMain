@@ -1,0 +1,7 @@
+Rocket:
+  Item_Ammo:
+    Bullet_Item:
+      Type: TNT
+      Name: "<red>Rocket"
+      Lore:
+        - "<gray>High yield explosive ammo to load into a rocket launcher."

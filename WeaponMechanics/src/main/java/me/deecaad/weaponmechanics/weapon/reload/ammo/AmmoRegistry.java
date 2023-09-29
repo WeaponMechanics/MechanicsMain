@@ -27,7 +27,10 @@ public class AmmoRegistry {
     public static void init() {
         AMMO_REGISTRY.clear(); // For reloads
 
-        File ammoFolder = new File(WeaponMechanics.getPlugin().getDataFolder(), "ammo");
+        File ammoFolder = new File(WeaponMechanics.getPlugin().getDataFolder(), "ammos");
+        if (!ammoFolder.exists())
+            return;
+
         try {
             FileUtil.PathReference pathReference = FileUtil.PathReference.of(ammoFolder.toURI());
             Files.walkFileTree(pathReference.path(), new SimpleFileVisitor<>() {
@@ -58,7 +61,9 @@ public class AmmoRegistry {
                 }
             });
         } catch (Throwable ex) {
-            WeaponMechanics.debug.log(LogLevel.ERROR, "Some error occurred whilst reading ammo folder");
+            WeaponMechanics.debug.log(LogLevel.ERROR, "Some error occurred whilst reading ammos folder", ex);
         }
+
+        WeaponMechanics.debug.info("Loaded " + AmmoRegistry.AMMO_REGISTRY.getOptions().size() + " ammo types");
     }
 }

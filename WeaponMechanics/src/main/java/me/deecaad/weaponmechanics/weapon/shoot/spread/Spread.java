@@ -107,7 +107,7 @@ public class Spread implements Serializer<Spread> {
     public Spread serialize(SerializeData data) throws SerializerException {
         SpreadImage spreadImage = data.of("Spread_Image").serialize(SpreadImage.class);
 
-        double baseSpread = data.of("Base_Spread").assertExists().assertPositive().getDouble();
+        double baseSpread = data.of("Base_Spread").assertExists(spreadImage == null).assertPositive().getDouble(0.0);
         baseSpread /= 100.0;
 
         ModifySpreadWhen modifySpreadWhen = (ModifySpreadWhen) data.of("Modify_Spread_When").serialize(new ModifySpreadWhen());

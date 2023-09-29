@@ -329,7 +329,7 @@ public class WeaponMechanics {
             event.addValidators(validators);
             Bukkit.getPluginManager().callEvent(event);
 
-            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments");
+            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments", "ammos");
             configurations.add(temp);
         } catch (IOException e) {
             e.printStackTrace();
