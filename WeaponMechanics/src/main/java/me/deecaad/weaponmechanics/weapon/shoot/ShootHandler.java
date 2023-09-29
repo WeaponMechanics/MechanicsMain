@@ -615,15 +615,15 @@ public class ShootHandler implements IValidator, TriggerListener {
     public void shoot(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, Location shootLocation, boolean mainHand, boolean updateSpreadChange, boolean isMelee) {
         Configuration config = getConfigurations();
         LivingEntity livingEntity = entityWrapper.getEntity();
+        EquipmentSlot slot = mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND;
 
         Mechanics shootMechanics = config.getObject(weaponTitle + ".Shoot.Mechanics", Mechanics.class);
         boolean resetFallDistance = config.getBool(weaponTitle + ".Shoot.Reset_Fall_Distance");
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
-        boolean unscopeAfterShoot = config.getBool(weaponTitle + ".Shoot.Unscope_After_Shot");
 
-        PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, shootMechanics, resetFallDistance, projectile, projectileSpeed, projectileAmount);
+        PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, shootMechanics, resetFallDistance, projectile, projectileSpeed, projectileAmount);
         Bukkit.getPluginManager().callEvent(prepareEvent);
         if (prepareEvent.isCancelled())
             return;
@@ -642,13 +642,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
             WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
             if (weaponInfoDisplay != null)
-                weaponInfoDisplay.send(playerWrapper, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
-        }
-
-        // Unscope after shoot for #73
-        if (unscopeAfterShoot) {
-            entityWrapper.getHandData(mainHand).getZoomData().ifZoomingForceZoomOut();
-            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                weaponInfoDisplay.send(playerWrapper, slot);
         }
 
         if (projectile == null || isMelee) {
@@ -657,7 +651,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
             // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
             if (!isMelee) {
-                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+                WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, false);
                 Bukkit.getPluginManager().callEvent(event);
 
                 HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
@@ -689,7 +683,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             }
 
             // Only create bullet first if WeaponShootEvent changes
-            WeaponProjectile bullet = prepareEvent.getProjectile().create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+            WeaponProjectile bullet = prepareEvent.getProjectile().create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, slot);
 
             WeaponShootEvent shootEvent = new WeaponShootEvent(bullet);
             Bukkit.getPluginManager().callEvent(shootEvent);
@@ -708,14 +702,20 @@ public class ShootHandler implements IValidator, TriggerListener {
                 entityWrapper.getHandData(mainHand).cancelTasks();
         }
 
-        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), mainHand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND);
+        boolean unscopeAfterShot = config.getBool(weaponTitle + ".Shoot.Unscope_After_Shot");
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, unscopeAfterShot);
         Bukkit.getPluginManager().callEvent(event);
 
-        // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
-        if (!isMelee) {
-            HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
-            handData.setLastShotTime(System.currentTimeMillis());
+        // Unscope after shoot for #73
+        // Must unscope AFTER shooting so spread works properly
+        if (event.isUnscopeAfterShot()) {
+            entityWrapper.getHandData(mainHand).getZoomData().ifZoomingForceZoomOut();
+            weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
         }
+
+        // Update this AFTER shot (e.g. spread reset time won't work properly otherwise
+        HandData handData = mainHand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
+        handData.setLastShotTime(System.currentTimeMillis());
     }
 
     /**
@@ -750,7 +750,7 @@ public class ShootHandler implements IValidator, TriggerListener {
             projectile.shoot(bullet, perProjectileShootLocation);
         }
 
-        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity, null);
+        WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, null, livingEntity, null, false);
         Bukkit.getPluginManager().callEvent(event);
     }
 

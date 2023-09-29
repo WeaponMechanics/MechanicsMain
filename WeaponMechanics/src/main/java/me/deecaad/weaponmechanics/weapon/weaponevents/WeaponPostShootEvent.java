@@ -15,8 +15,19 @@ public class WeaponPostShootEvent extends WeaponEvent {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    public WeaponPostShootEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand) {
+    private boolean unscopeAfterShot;
+
+    public WeaponPostShootEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, boolean unscopeAfterShot) {
         super(weaponTitle, weaponStack, shooter, hand);
+        this.unscopeAfterShot = unscopeAfterShot;
+    }
+
+    public boolean isUnscopeAfterShot() {
+        return unscopeAfterShot;
+    }
+
+    public void setUnscopeAfterShot(boolean unscopeAfterShot) {
+        this.unscopeAfterShot = unscopeAfterShot;
     }
 
     @Override
