@@ -707,7 +707,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 entityWrapper.getHandData(mainHand).cancelTasks();
         }
 
-        boolean unscopeAfterShot = config.getBool(weaponTitle + ".Shoot.Unscope_After_Shot");
+        boolean unscopeAfterShot = config.getBool(weaponTitle + ".Scope.Unscope_After_Shot");
         WeaponPostShootEvent event = new WeaponPostShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, unscopeAfterShot);
         Bukkit.getPluginManager().callEvent(event);
 

@@ -6,6 +6,8 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.vivecraft.VSE;
@@ -122,6 +124,14 @@ public class ZoomData {
             // Get Mechanics from event, so we can let plugins modify them.
             if (weaponScopeEvent.getMechanics() != null)
                 weaponScopeEvent.getMechanics().use(new CastData(entityWrapper.getEntity(), this.scopeWeaponTitle, this.scopeWeaponStack));
+
+            // Reset slowdown
+            if (entityWrapper.isPlayer() && getConfigurations().containsKey(scopeWeaponTitle + ".Scope.Movement_Speed")) {
+                AttributeInstance attributeInstance = entityWrapper.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+                if (attributeInstance != null) {
+                    attributeInstance.setBaseValue(0.10000000149011612D);
+                }
+            }
         }
 
         // This just ensures that these are set to null

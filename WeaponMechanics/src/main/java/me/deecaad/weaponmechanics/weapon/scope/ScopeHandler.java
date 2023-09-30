@@ -7,6 +7,7 @@ import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.LogLevel;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
@@ -20,6 +21,8 @@ import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -147,17 +150,16 @@ public class ScopeHandler implements IValidator, TriggerListener {
      * @return true if successfully zoomed in or stacked
      */
     private boolean zoomIn(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
-        boolean result = zoomInWithoutTiming(weaponStack, weaponTitle, entityWrapper, zoomData, slot);
-
-        return result;
-    }
-
-    /**
-     * @return true if successfully zoomed in or stacked
-     */
-    private boolean zoomInWithoutTiming(ItemStack weaponStack, String weaponTitle, EntityWrapper entityWrapper, ZoomData zoomData, EquipmentSlot slot) {
         Configuration config = getConfigurations();
         LivingEntity entity = entityWrapper.getEntity();
+
+        // If the entity is on shoot cooldown and the weapon uses Unscope_After_Shot,
+        // then the entity is not allowed to enter scope until the cooldown is over.
+        boolean unscopeAfterShot = config.getBool(weaponTitle + ".Scope.Unscope_After_Shot");
+        int delayBetweenShots = config.getInt(weaponTitle + ".Shoot.Delay_Between_Shots");
+        if (unscopeAfterShot && delayBetweenShots != 0 && !NumberUtil.hasMillisPassed(zoomData.getHandData().getLastShotTime(), delayBetweenShots)) {
+            return false;
+        }
 
         if (zoomData.isZooming()) { // zoom stack
 
@@ -208,6 +210,16 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         zoomData.setScopeData(weaponTitle, weaponStack);
 
+        // Slowdown. Must go before updateZoom since packet affects fov changes
+        // TODO add multiple mob support
+        double scopeSpeed = config.getDouble(weaponTitle + ".Scope.Movement_Speed", 1.0);
+        if (scopeSpeed != 1.0 && entityWrapper.isPlayer()) {
+            AttributeInstance attributeInstance = entityWrapper.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            if (attributeInstance != null) {
+                attributeInstance.setBaseValue(0.10000000149011612D * scopeSpeed);
+            }
+        }
+
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
         if (weaponScopeEvent.getMechanics() != null)
@@ -253,6 +265,14 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         if (zoomData.hasZoomNightVision())
             useNightVision(entityWrapper, zoomData);
+
+        // Reset slowdown
+        if (entityWrapper.isPlayer() && getConfigurations().containsKey(weaponTitle + ".Scope.Movement_Speed")) {
+            AttributeInstance attributeInstance = entityWrapper.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            if (attributeInstance != null) {
+                attributeInstance.setBaseValue(0.10000000149011612D);
+            }
+        }
 
         return true;
     }
@@ -332,5 +352,10 @@ public class ScopeHandler implements IValidator, TriggerListener {
             // Convert to millis
             configuration.set(data.key + ".Shoot_Delay_After_Scope", shootDelayAfterScope * 50);
         }
+
+        // Convert from percentage to decimal
+        String scopeMovementSpeedStr = data.of("Movement_Speed").get("100%");
+        double scopeMovementSpeed = Double.parseDouble(scopeMovementSpeedStr.replace("%", "")) / 100;
+        configuration.set(data.key + ".Movement_Speed", scopeMovementSpeed);
     }
 }

@@ -83,6 +83,8 @@ AX_50:
       Off_Hand: "LEFT_CLICK"
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 16
+    Movement_Speed: 0%
+    Unscope_After_Shot: true
     Mechanics:
       - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
