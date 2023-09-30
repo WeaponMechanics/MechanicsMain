@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 public class Through implements Serializer<Through>, Cloneable {
 
     // -1 = infinite
-    private int maximumThroughAmount;
+    private double maximumThroughAmount;
 
     private ListHolder<Material> blocks;
     private ListHolder<EntityType> entities;
@@ -25,17 +25,17 @@ public class Through implements Serializer<Through>, Cloneable {
     public Through() {
     }
 
-    public Through(int maximumThroughAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities) {
+    public Through(double maximumThroughAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities) {
         this.maximumThroughAmount = maximumThroughAmount;
         this.blocks = blocks;
         this.entities = entities;
     }
 
-    public int getMaximumThroughAmount() {
+    public double getMaximumThroughAmount() {
         return maximumThroughAmount;
     }
 
-    public void setMaximumThroughAmount(int maximumThroughAmount) {
+    public void setMaximumThroughAmount(double maximumThroughAmount) {
         this.maximumThroughAmount = maximumThroughAmount;
     }
 
@@ -89,7 +89,7 @@ public class Through implements Serializer<Through>, Cloneable {
             throw data.exception(null, "'Through' requires at least one of 'Blocks' or 'Entities'");
         }
 
-        int maximumThroughAmount = data.of("Maximum_Through_Amount").getInt(1);
+        double maximumThroughAmount = data.of("Maximum_Through_Amount").getDouble(-1.0);
 
         return new Through(maximumThroughAmount, blocks, entities);
     }

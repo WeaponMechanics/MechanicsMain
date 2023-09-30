@@ -83,7 +83,7 @@ public class RayTrace {
         return cast(world, start, end, direction, 0);
     }
 
-    public List<RayTraceResult> cast(World world, Vector start, Vector end, Vector direction, int maximumBlockThrough) {
+    public List<RayTraceResult> cast(World world, Vector start, Vector end, Vector direction, double maximumBlockThrough) {
         List<RayTraceResult> hits = new ArrayList<>(5);
         getBlockHits(hits, world, start, end, direction, maximumBlockThrough);
         getEntityHits(hits, world, start, end, direction);
@@ -110,7 +110,7 @@ public class RayTrace {
         return null;
     }
 
-    private void getBlockHits(List<RayTraceResult> hits, World world, Vector start, Vector end, Vector direction, int maximumBlockThrough) {
+    private void getBlockHits(List<RayTraceResult> hits, World world, Vector start, Vector end, Vector direction, double maximumBlockThrough) {
         if (this.disableBlockChecks) return;
 
         // Method based on NMS block traversing
@@ -130,7 +130,7 @@ public class RayTrace {
 
             // Don't count liquid as actual hits along the path
             if (!allowLiquid || !startBlock.isLiquid()) {
-                if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) return;
+                if (maximumBlockThrough != -1.0 && (maximumBlockThrough -= rayStartBlock.getThroughDistance()) < 0) return;
             }
         }
 
