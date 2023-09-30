@@ -1,6 +1,8 @@
 package me.deecaad.core.compatibility;
 
 import me.deecaad.core.file.serializers.ColorSerializer;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Color;
 import org.bukkit.Particle;
@@ -253,18 +255,18 @@ public class HitBox {
         double closestHit = -1;
         for (HitBox boxPart : voxelShape) {
 
-            if (mainBoxHit.isBlock()) {
-                boxPart.setBlockHitBox(mainBoxHit.getBlock());
-            } else {
-                boxPart.setLivingEntity(mainBoxHit.getLivingEntity());
+            if (mainBoxHit instanceof BlockTraceResult blockHit) {
+                boxPart.setBlockHitBox(blockHit.getBlock());
+            } else if (mainBoxHit instanceof EntityTraceResult entityHit) {
+                boxPart.setLivingEntity(entityHit.getEntity());
             }
 
             RayTraceResult boxPartHit = boxPart.ray(location, normalizedMotion);
             if (boxPartHit == null) continue;
 
             // Only closest hit
-            if (closestHit == -1 || boxPartHit.getDistanceTravelled() < closestHit) {
-                closestHit = boxPartHit.getDistanceTravelled();
+            if (closestHit == -1 || boxPartHit.getHitMin() < closestHit) {
+                closestHit = boxPartHit.getHitMin();
                 hit = boxPartHit;
             }
         }
@@ -358,24 +360,14 @@ public class HitBox {
 
         if (tMax < 0.0) return null;
 
-        double t;
-        BlockFace hitBlockFace;
-        if (tMin < 0.0) {
-            t = tMax;
-            hitBlockFace = hitBlockFaceMax;
-        } else {
-            t = tMin;
-            hitBlockFace = hitBlockFaceMin;
-        }
-
         if (block != null) {
-            return new RayTraceResult(this, normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace, block);
+            return new BlockTraceResult(location, normalizedMotion, this, hitBlockFaceMin, hitBlockFaceMax, tMin, tMax, block);
         } else if (livingEntity == null) {
             // When not entity or block hitbox
-            return new RayTraceResult(this, normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace);
+            return new RayTraceResult(location, normalizedMotion, this, hitBlockFaceMin, hitBlockFaceMax, tMin, tMax);
         }
 
-        return new RayTraceResult(this, normalizedMotion.clone().multiply(t).add(location), t, hitBlockFace, livingEntity);
+        return new EntityTraceResult(location, normalizedMotion, this,  hitBlockFaceMin, hitBlockFaceMax, tMin, tMax, livingEntity);
     }
 
     public void outlineAllBoxes(Entity player) {

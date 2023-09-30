@@ -13,6 +13,7 @@ import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderMessage;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
@@ -30,8 +31,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,26 +79,20 @@ public class MeleeHandler implements IValidator {
             if (weaponTitle == null) return false;
         }
 
-        boolean result = meleeWithoutTimings(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield, knownVictim);
-
-        return result;
-    }
-
-    private boolean meleeWithoutTimings(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity knownVictim) {
-        Configuration config = getConfigurations();
         HandData handData = entityWrapper.getMainHandData();
 
         int meleeHitDelay = config.getInt(weaponTitle + ".Melee.Melee_Hit_Delay");
         if (meleeHitDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastMeleeTime(), meleeHitDelay)) return false;
 
         int meleeMissDelay = config.getInt(weaponTitle + ".Melee.Melee_Miss.Melee_Miss_Delay");
-        if (meleeMissDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastMeleeMissTime(), meleeMissDelay)) return false;
+        if (meleeMissDelay != 0 && !NumberUtil.hasMillisPassed(handData.getLastMeleeMissTime(), meleeMissDelay))
+            return false;
 
         double meleeRange = config.getDouble(weaponTitle + ".Melee.Melee_Range");
         LivingEntity shooter = entityWrapper.getEntity();
         Location eyeLocation = shooter.getEyeLocation();
         Vector direction = eyeLocation.getDirection();
-        RayTraceResult hit = getHit(shooter, eyeLocation, direction, meleeRange, knownVictim);
+        EntityTraceResult hit = getHit(shooter, eyeLocation, direction, meleeRange, knownVictim);
 
         if (hit != null) {
             boolean result = weaponHandler.getShootHandler().shootWithoutTrigger(entityWrapper, weaponTitle, weaponStack, slot, triggerType, dualWield);
@@ -144,7 +139,7 @@ public class MeleeHandler implements IValidator {
         return true;
     }
 
-    private RayTraceResult getHit(LivingEntity shooter, Location eyeLocation, Vector direction, double range, @Nullable LivingEntity knownVictim) {
+    private @Nullable EntityTraceResult getHit(LivingEntity shooter, Location eyeLocation, Vector direction, double range, @Nullable LivingEntity knownVictim) {
 
         Vector eyeLocationToVector = eyeLocation.toVector();
 
@@ -155,8 +150,7 @@ public class MeleeHandler implements IValidator {
             }
 
             RayTrace rayTrace = new RayTrace()
-                    .withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId()
-                                    || entity.getPassengers().contains(shooter));
+                    .withEntityFilter(entity -> entity.getEntityId() == shooter.getEntityId() || entity.getPassengers().contains(shooter));
             List<RayTraceResult> hits = rayTrace.cast(eyeLocation.getWorld(), eyeLocationToVector, direction, range);
 
             if (hits == null) return null;
@@ -164,12 +158,12 @@ public class MeleeHandler implements IValidator {
             RayTraceResult firstHit = hits.get(0);
 
             // If first hit isn't entity
-            if (firstHit.getLivingEntity() == null) return null;
+            if (!(firstHit instanceof EntityTraceResult entityHit)) return null;
 
             // If first entity hit isn't in range
-            if (firstHit.getDistanceTravelled() > range) return null;
+            if (entityHit.getHitMin() > range) return null;
 
-            return firstHit;
+            return entityHit;
         }
 
         // Simply check where known victim was hit and whether it was in range
@@ -177,9 +171,10 @@ public class MeleeHandler implements IValidator {
         if (entityBox == null) return null;
 
         RayTraceResult rayTraceResult = entityBox.rayTrace(eyeLocationToVector, direction);
-        if (rayTraceResult == null || (range > 0 && rayTraceResult.getDistanceTravelled() > range)) return null; // Didn't hit in range
+        if (rayTraceResult == null || (range > 0 && rayTraceResult.getHitMin() > range))
+            return null; // Didn't hit in range
 
-        return rayTraceResult;
+        return (EntityTraceResult) rayTraceResult;
     }
 
     @Override

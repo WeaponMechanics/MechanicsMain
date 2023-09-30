@@ -1,9 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
@@ -45,17 +47,20 @@ public class Through implements Serializer<Through>, Cloneable {
     public boolean handleThrough(WeaponProjectile projectile, RayTraceResult hit) {
 
         Double speedModifier;
-        if (hit.isBlock()) {
+        if (hit instanceof BlockTraceResult blockHit) {
 
             // Fixes #299
             // When a projectile hits a block, a script may delete that block.
             // So if the block was deleted, let's just say Through was handled.
-            if (hit.getBlock().isEmpty())
+            if (blockHit.getBlock().isEmpty())
                 return true;
 
-            speedModifier = blocks != null ? blocks.isValid(hit.getBlock().getType()) : null;
+            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlock().getType()) : null;
+        } else if (hit instanceof EntityTraceResult entityHit) {
+            speedModifier = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
-            speedModifier = entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+            // should never occur, projectile should die
+            return false;
         }
 
         // Speed modifier null would mean that it wasn't valid material or entity type

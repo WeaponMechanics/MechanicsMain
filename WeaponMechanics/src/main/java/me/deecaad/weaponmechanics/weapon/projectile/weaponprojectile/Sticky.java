@@ -1,9 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
@@ -27,10 +29,13 @@ public class Sticky implements Serializer<Sticky>, Cloneable {
 
     public boolean handleSticking(WeaponProjectile projectile, RayTraceResult hit) {
         Double isValid;
-        if (hit.isBlock()) {
-            isValid = blocks != null ? blocks.isValid(hit.getBlock().getType()) : null;
+        if (hit instanceof BlockTraceResult blockHit) {
+            isValid = blocks != null ? blocks.isValid(blockHit.getBlock().getType()) : null;
+        } else if (hit instanceof EntityTraceResult entityHit) {
+            isValid = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
-            isValid = entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+            // Should never occur, projectile should die
+            return false;
         }
 
         // Null means that it wasn't valid material or entity type

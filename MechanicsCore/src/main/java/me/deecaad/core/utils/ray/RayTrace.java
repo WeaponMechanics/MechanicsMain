@@ -91,15 +91,15 @@ public class RayTrace {
         if (!hits.isEmpty()) {
 
             // If more than 1 hit, sort based on distance travelled (lowest to highest)
-            if (hits.size() > 1) hits.sort(Comparator.comparingDouble(RayTraceResult::getDistanceTravelled));
+            if (hits.size() > 1) hits.sort(Comparator.comparingDouble(RayTraceResult::getHitMin));
 
             if (this.outlineHitPosition) hits.get(0).outlineOnlyHitPosition(entity);
             if (this.outlineHitBox) {
                 RayTraceResult firstHit = hits.get(0);
-                if (firstHit.isBlock()) {
-                    CompatibilityAPI.getBlockCompatibility().getHitBox(firstHit.getBlock()).outlineAllBoxes(entity);
-                } else {
-                    HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(firstHit.getLivingEntity());
+                if (firstHit instanceof BlockTraceResult blockHit) {
+                    CompatibilityAPI.getBlockCompatibility().getHitBox(blockHit.getBlock()).outlineAllBoxes(entity);
+                } else if (firstHit instanceof EntityTraceResult entityHit) {
+                    HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(entityHit.getEntity());
                     entityBox.grow(raySize);
                     entityBox.outlineAllBoxes(entity);
                 }
@@ -179,7 +179,7 @@ public class RayTrace {
 
                 // Don't count liquid as actual hits along the path
                 if (!allowLiquid || !newBlock.isLiquid()) {
-                    if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) break;
+                    if (--maximumBlockThrough < 0) break;
                 }
 
             }
