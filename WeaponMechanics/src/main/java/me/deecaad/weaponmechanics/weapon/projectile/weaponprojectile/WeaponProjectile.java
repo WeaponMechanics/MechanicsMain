@@ -409,7 +409,7 @@ public class WeaponProjectile extends AProjectile {
             if (through != null && through.handleThrough(this, hit)) {
                 // Continue since projectile went through.
                 // We still need to check that other collisions also allows this
-                ++throughAmount;
+                throughAmount += hit.getThroughDistance();
 
                 // Update last hit entity / block
                 updateLastHit(hit);

@@ -48,14 +48,7 @@ public class Through implements Serializer<Through>, Cloneable {
 
         Double speedModifier;
         if (hit instanceof BlockTraceResult blockHit) {
-
-            // Fixes #299
-            // When a projectile hits a block, a script may delete that block.
-            // So if the block was deleted, let's just say Through was handled.
-            if (blockHit.getBlock().isEmpty())
-                return true;
-
-            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlock().getType()) : null;
+            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlockState().getType()) : null;
         } else if (hit instanceof EntityTraceResult entityHit) {
             speedModifier = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
@@ -64,7 +57,10 @@ public class Through implements Serializer<Through>, Cloneable {
         }
 
         // Speed modifier null would mean that it wasn't valid material or entity type
-        if (speedModifier == null || (maximumThroughAmount != -1 && maximumThroughAmount - projectile.getThroughAmount() < 1)) {
+        if (speedModifier == null)
+            return false;
+
+        if (maximumThroughAmount != -1 && maximumThroughAmount - projectile.getThroughAmount() - hit.getThroughDistance() <= 0.0) {
             // Projectile should die
             return false;
         }
