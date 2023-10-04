@@ -8,6 +8,7 @@ import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -103,8 +104,8 @@ public class Spread implements Serializer<Spread> {
     }
 
     @Override
-    @Nonnull
-    public Spread serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Spread serialize(@NotNull SerializeData data) throws SerializerException {
         SpreadImage spreadImage = data.of("Spread_Image").serialize(SpreadImage.class);
 
         double baseSpread = data.of("Base_Spread").assertExists(spreadImage == null).assertPositive().getDouble(0.0);

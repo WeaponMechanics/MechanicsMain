@@ -1,9 +1,10 @@
 package me.deecaad.core.file;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +66,7 @@ public interface Configuration {
      *
      * @return Immutable, non-null set of all keys.
      */
+    @NotNull
     Set<String> getKeys();
 
     /**
@@ -76,7 +78,7 @@ public interface Configuration {
      * @param key The location to look for a value.
      * @return The integer found.
      */
-    int getInt(String key);
+    int getInt(@NotNull String key);
 
     /**
      * Returns the integer present at the given <code>key</code>. If there is a
@@ -89,7 +91,7 @@ public interface Configuration {
      *            exist or the value is not a number.
      * @return The integer found.
      */
-    int getInt(String key, int def);
+    int getInt(@NotNull String key, int def);
 
     /**
      * Returns the double present at the given <code>key</code>. If there is a
@@ -100,7 +102,7 @@ public interface Configuration {
      * @param key The location to look for a value.
      * @return The double found.
      */
-    double getDouble(String key);
+    double getDouble(@NotNull String key);
 
     /**
      * Returns the double present at the given <code>key</code>. If there is a
@@ -113,7 +115,7 @@ public interface Configuration {
      *            exist or the value is not a number.
      * @return The double found.
      */
-    double getDouble(String key, double def);
+    double getDouble(@NotNull String key, double def);
 
     /**
      * Returns the {@link String} present at the given <code>key</code>. If the
@@ -123,7 +125,7 @@ public interface Configuration {
      * @param key The location to look for a value.
      * @return The {@link String} found.
      */
-    String getString(String key);
+    @Nullable String getString(@NotNull String key);
 
     /**
      * Returns the {@link String} present at the given <code>key</code>. If the
@@ -135,7 +137,9 @@ public interface Configuration {
      *            exist or the value is not a {@link String}.
      * @return The {@link String} found.
      */
-    String getString(String key, String def);
+    @Contract("_, null -> null; _, !null -> !null")
+    @Nullable
+    String getString(String key, @Nullable String def);
 
     /**
      * Returns the boolean present at the given <code>key</code>. If the value
@@ -145,7 +149,7 @@ public interface Configuration {
      * @param key The location to look for a value.
      * @return The boolean found.
      */
-    boolean getBool(String key);
+    boolean getBool(@NotNull String key);
 
     /**
      * Returns the boolean present at the given <code>key</code>. If the value
@@ -157,7 +161,7 @@ public interface Configuration {
      *            exist or the value is not a boolean.
      * @return The boolean found.
      */
-    boolean getBool(String key, boolean def);
+    boolean getBool(@NotNull String key, boolean def);
 
     /**
      * Returns the {@link List} of {@link String}s at the given
@@ -165,7 +169,7 @@ public interface Configuration {
      * of {@link String}s, or if the key is not present, then this method
      * should return an immutable empty list.
      *
-     * If you want to modify this list, you should create a deep copy of the
+     * <p>If you want to modify this list, you should create a deep copy of the
      * returned {@link List}, modify that, and set it using
      * {@link #set(String, Object)}.
      *
@@ -174,8 +178,8 @@ public interface Configuration {
      * @param key The location to pull the value from.
      * @return The pulled value.
      */
-    @Nonnull
-    List<String> getList(String key);
+    @NotNull
+    List<String> getList(@NotNull String key);
 
     /**
      * Returns the {@link List} of {@link String}s at the given
@@ -188,7 +192,9 @@ public interface Configuration {
      *            exist or the value is not a {@link List} of {@link String}s.
      * @return The pulled value.
      */
-    List<String> getList(String key, List<String> def);
+    @Contract("_, null -> null; _, !null -> !null")
+    @Nullable
+    List<String> getList(@NotNull String key, @Nullable List<String> def);
 
     /**
      * Returns the {@link Object} at the given <code>key</code>. If the key is
@@ -198,7 +204,7 @@ public interface Configuration {
      * @return The pulled value.
      */
     @Nullable
-    Object getObject(String key);
+    Object getObject(@NotNull String key);
 
     /**
      * Returns the {@link Object} at the given <code>key</code>. If the key is
@@ -209,7 +215,9 @@ public interface Configuration {
      *            exist.
      * @return The pulled value.
      */
-    Object getObject(String key, Object def);
+    @Contract("_, null -> null; _, !null -> !null")
+    @Nullable
+    Object getObject(@NotNull String key, @Nullable Object def);
 
     /**
      * Returns the {@link Object} at the given <code>key</code>. The value is
@@ -222,7 +230,7 @@ public interface Configuration {
      * @return The pulled value.
      */
     @Nullable
-    <T> T getObject(String key, Class<T> clazz);
+    <T> T getObject(@NotNull String key, @NotNull Class<T> clazz);
 
     /**
      * Returns the {@link Object} at the given <code>key</code>. The value is
@@ -236,7 +244,9 @@ public interface Configuration {
      * @param <T> The class type to cast the value to.
      * @return The pulled value.
      */
-    <T> T getObject(String key, T def, Class<T> clazz);
+    @Contract("_, null, _ -> null; _, !null, _ -> !null")
+    @Nullable
+    <T> T getObject(@NotNull String key, @Nullable T def, @NotNull Class<T> clazz);
 
     /**
      * Returns <code>true</code> if the given <code>key</code> is present in
@@ -246,7 +256,7 @@ public interface Configuration {
      * @param key The key to check for.
      * @return <code>true</code> if the <code>key</code> is present.
      */
-    boolean containsKey(String key);
+    boolean containsKey(@NotNull String key);
 
     /**
      * Returns <code>true</code> if the given <code>key</code> is present in
@@ -263,7 +273,7 @@ public interface Configuration {
      * @return <code>true</code> if the <code>key</code> is present and if the
      *         value matches the class type.
      */
-    boolean containsKey(String key, Class<?> clazz);
+    boolean containsKey(@NotNull String key, @NotNull Class<?> clazz);
 
     /**
      * Removes every key-value pair from the backing data structures, leaving
@@ -280,5 +290,5 @@ public interface Configuration {
      * @param consumer What to do with every key
      * @param deep     true if should go deep
      */
-    void forEach(String path, BiConsumer<String, Object> consumer, boolean deep);
+    void forEach(@NotNull String path, @NotNull BiConsumer<String, Object> consumer, boolean deep);
 }

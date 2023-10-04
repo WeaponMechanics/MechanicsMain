@@ -4,6 +4,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import org.bukkit.Color;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -53,7 +54,29 @@ public class RayTraceResult {
     }
 
     /**
-     * Returns the hitface. Will be one of:
+     * Returns the hit face. Will be one of:
+     * <ul>
+     *     <li>{@link BlockFace#NORTH}</li>
+     *     <li>{@link BlockFace#EAST}</li>
+     *     <li>{@link BlockFace#SOUTH}</li>
+     *     <li>{@link BlockFace#WEST}</li>
+     *     <li>{@link BlockFace#UP}</li>
+     *     <li>{@link BlockFace#DOWN}</li>
+     * </ul>
+     *
+     * <p>Even when the raytrace starts within the hitbox, this will return the
+     * hit face as if it were "moved back" before ray tracing. This means that
+     * you might want to check {@link #getHitMin()} and check if it is negative.
+     *
+     * @return The hit hitface.
+     */
+    @NotNull
+    public BlockFace getHitFace() {
+        return hitFace;
+    }
+
+    /**
+     * Returns the exit face. Will be one of:
      * <ul>
      *     <li>{@link BlockFace#NORTH}</li>
      *     <li>{@link BlockFace#EAST}</li>
@@ -66,8 +89,8 @@ public class RayTraceResult {
      * @return The hit hitface.
      */
     @NotNull
-    public BlockFace getHitFace() {
-        return hitFace;
+    public BlockFace getExitFace() {
+        return exitFace;
     }
 
     /**
@@ -153,6 +176,27 @@ public class RayTraceResult {
         } else {
             player.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 1, 0, 0, 0, 0.0001, new Particle.DustOptions(Color.BLACK, 1.5f), true);
         }
+    }
+
+    // DEPRECATED METHODS FROM BEFORE WE SWITCHED TO BlockTraceResult and EntityTraceResult
+    @Deprecated
+    public boolean isBlock() {
+        return this instanceof BlockTraceResult;
+    }
+
+    @Deprecated
+    public Block getBlock() {
+        return ((BlockTraceResult) this).getBlock();
+    }
+
+    @Deprecated
+    public boolean isEntity() {
+        return this instanceof EntityTraceResult;
+    }
+
+    @Deprecated
+    public Entity getLivingEntity() {
+        return ((EntityTraceResult) this).getEntity();
     }
 
     @Override

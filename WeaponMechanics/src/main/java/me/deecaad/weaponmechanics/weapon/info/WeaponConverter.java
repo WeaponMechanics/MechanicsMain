@@ -107,7 +107,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     }
 
     @Override
-    public @NotNull WeaponConverter serialize(SerializeData data) throws SerializerException {
+    public @NotNull WeaponConverter serialize(@NotNull SerializeData data) throws SerializerException {
         boolean type = data.of("Type").getBool(false);
         boolean name = data.of("Name").getBool(false);
         boolean lore = data.of("Lore").getBool(false);

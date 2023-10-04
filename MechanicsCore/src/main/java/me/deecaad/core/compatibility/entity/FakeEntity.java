@@ -7,9 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public abstract class FakeEntity {
     protected Vector motion;
     protected int cache = -1;
 
-    public FakeEntity(@Nonnull Location location, @Nonnull EntityType type) {
+    public FakeEntity(@NotNull Location location, @NotNull EntityType type) {
         this.type = type;
         this.location = new Location(location.getWorld(), 0, 0, 0);
         this.motion = new Vector();
@@ -113,6 +113,7 @@ public abstract class FakeEntity {
      *
      * @return The nullable extra data (block or item).
      */
+    @Nullable
     public abstract Object getData();
 
     /**
@@ -199,7 +200,7 @@ public abstract class FakeEntity {
      * @param motion The motion the entity is moving with.
      * @see #setMotion(double, double, double)
      */
-    public final void setMotion(@Nonnull Vector motion) {
+    public final void setMotion(@NotNull Vector motion) {
         setMotion(motion.getX(), motion.getY(), motion.getZ());
     }
 
@@ -230,7 +231,7 @@ public abstract class FakeEntity {
      * @param yaw   The yaw to set the entity at.
      * @param pitch The pitch to set the entity at.
      */
-    public final void setPosition(Vector pos, float yaw, float pitch) {
+    public final void setPosition(@NotNull Vector pos, float yaw, float pitch) {
         setPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch, false);
     }
 
@@ -341,18 +342,16 @@ public abstract class FakeEntity {
 
     protected final byte convertYaw(float degrees) {
         degrees *= 256.0f / 360.0f;
-        switch (type) {
-            case ARROW:
-                return (byte) -degrees;
-            case WITHER_SKULL:
-            case ENDER_DRAGON:
-                return (byte) (degrees - 128.0f);
-            default:
+        return switch (type) {
+            case ARROW -> (byte) -degrees;
+            case WITHER_SKULL, ENDER_DRAGON -> (byte) (degrees - 128.0f);
+            default -> {
                 if (!type.isAlive() && type != EntityType.ARMOR_STAND) {
-                    return (byte) (degrees - 64.0f);
+                    yield (byte) (degrees - 64.0f);
                 }
-                return (byte) degrees;
-        }
+                yield (byte) degrees;
+            }
+        };
     }
 
     // * ------------------------- * //
@@ -372,7 +371,7 @@ public abstract class FakeEntity {
      *
      * @param player The non-null player to show the entity to.
      */
-    public abstract void show(@Nonnull Player player);
+    public abstract void show(@NotNull Player player);
 
     /**
      * Updates the meta for all players that currently see it. This method
@@ -396,7 +395,7 @@ public abstract class FakeEntity {
      *
      * @param player The non-null player to hide the entity from.
      */
-    public abstract void remove(@Nonnull Player player);
+    public abstract void remove(@NotNull Player player);
 
     /**
      * Plays an entity effect for this entity. Make sure that the given effect
@@ -404,7 +403,7 @@ public abstract class FakeEntity {
      *
      * @param effect The non-null effect to play.
      */
-    public abstract void playEffect(@Nonnull EntityEffect effect);
+    public abstract void playEffect(@NotNull EntityEffect effect);
 
     /**
      * Sets new item to given equipment slot.
@@ -412,7 +411,7 @@ public abstract class FakeEntity {
      * @param equipmentSlot the equipment slot to modify
      * @param itemStack the item stack set to slot
      */
-    public abstract void setEquipment(@Nonnull EquipmentSlot equipmentSlot, @Nullable ItemStack itemStack);
+    public abstract void setEquipment(@NotNull EquipmentSlot equipmentSlot, @Nullable ItemStack itemStack);
 
     /**
      * Updates the equipment for all players that currently see it. This method
@@ -455,5 +454,4 @@ public abstract class FakeEntity {
         }
         return OBJECT_REGISTRY.get(type.name());
     }
-
 }

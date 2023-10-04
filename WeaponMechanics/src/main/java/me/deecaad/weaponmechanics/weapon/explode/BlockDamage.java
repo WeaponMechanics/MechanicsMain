@@ -295,13 +295,13 @@ public class BlockDamage implements Serializer<BlockDamage> {
     }
 
     @Override
-    public boolean letPassThrough(String key) {
+    public boolean letPassThrough(@NotNull String key) {
         return key.endsWith("Spawn_Falling_Block_Chance") || key.endsWith("Regenerate_After_Ticks");
     }
 
     @Override
     @NotNull
-    public BlockDamage serialize(SerializeData data) throws SerializerException {
+    public BlockDamage serialize(@NotNull SerializeData data) throws SerializerException {
 
         // Added November 1st, 2022 to detect out-dated configurations
         if (data.has("Block_List") || data.has("Shots_To_Break_Blocks")) {

@@ -36,7 +36,7 @@ public class IgniteMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         int ticks = data.of("Time").getInt(100);
 
         return applyParentArgs(data, new IgniteMechanic(ticks));

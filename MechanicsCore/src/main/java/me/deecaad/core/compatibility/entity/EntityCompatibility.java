@@ -11,9 +11,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public interface EntityCompatibility {
@@ -106,7 +106,7 @@ public interface EntityCompatibility {
      * @param entity The non-null bukkit entity who has absorption hearts.
      * @return The amount of absorption hearts.
      */
-    default double getAbsorption(@Nonnull LivingEntity entity) {
+    default double getAbsorption(@NotNull LivingEntity entity) {
         return entity.getAbsorptionAmount();
     }
 
@@ -116,7 +116,7 @@ public interface EntityCompatibility {
      * @param entity     The non-null bukkit entity to set the hearts of.
      * @param absorption The amount of absorption hearts.
      */
-    default void setAbsorption(@Nonnull LivingEntity entity, double absorption) {
+    default void setAbsorption(@NotNull LivingEntity entity, double absorption) {
         entity.setAbsorptionAmount(absorption);
     }
 

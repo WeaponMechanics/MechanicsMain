@@ -2,8 +2,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.plugin.Plugin;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class ProjectileScriptManager {
 
@@ -17,7 +16,7 @@ public abstract class ProjectileScriptManager {
         return plugin;
     }
 
-    public abstract void attach(@Nonnull AProjectile projectile);
+    public abstract void attach(@NotNull AProjectile projectile);
 
     public void register() {
         WeaponMechanics.getProjectilesRunnable().addScriptManager(this);

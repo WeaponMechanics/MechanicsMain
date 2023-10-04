@@ -40,7 +40,7 @@ public class LightningMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         boolean isEffect = data.of("Effect").getBool(false);
 
         return applyParentArgs(data, new LightningMechanic(isEffect));

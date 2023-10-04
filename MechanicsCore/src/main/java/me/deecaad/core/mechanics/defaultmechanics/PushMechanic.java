@@ -63,7 +63,7 @@ public class PushMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         double speed = data.of("Speed").assertExists().getDouble();
         double verticalMultiplier = data.of("Vertical_Multiplier").getDouble(1.0);
 

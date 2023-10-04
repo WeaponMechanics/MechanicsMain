@@ -62,7 +62,7 @@ public class MythicSkillMechanic extends Mechanic implements JarSearcherExempt {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String skill = data.of("Skill").assertExists().assertType(String.class).get();
         float power = (float) data.of("Power").getDouble(1.0);
 

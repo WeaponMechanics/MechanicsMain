@@ -10,6 +10,7 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.vivecraft.VSE;
 
 import javax.annotation.Nonnull;
@@ -110,8 +111,8 @@ public class Recoil implements Serializer<Recoil> {
     }
 
     @Override
-    @Nonnull
-    public Recoil serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Recoil serialize(@NotNull SerializeData data) throws SerializerException {
         RecoilPattern recoilPattern = data.of("Recoil_Pattern").serialize(RecoilPattern.class);
         List<Float> randomHorizontal = convertToFloatList(data.ofList("Horizontal"));
         List<Float> randomVertical = convertToFloatList(data.ofList("Vertical"));

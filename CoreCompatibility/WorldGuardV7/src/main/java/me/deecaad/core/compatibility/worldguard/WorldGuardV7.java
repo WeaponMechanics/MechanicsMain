@@ -14,9 +14,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +32,7 @@ public class WorldGuardV7 implements WorldGuardCompatibility {
     }
 
     @Override
-    public boolean testFlag(Location location, @Nullable Player player, String flagName) {
+    public boolean testFlag(@NotNull Location location, @Nullable Player player, @NotNull String flagName) {
         RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery regionQuery = regionContainer.createQuery();
         ApplicableRegionSet applicableRegionSet = regionQuery.getApplicableRegions(BukkitAdapter.adapt(location));
@@ -52,7 +51,7 @@ public class WorldGuardV7 implements WorldGuardCompatibility {
     }
 
     @Override
-    public Object getValue(@Nonnull Location location, @Nonnull String flagName) {
+    public Object getValue(@NotNull Location location, @NotNull String flagName) {
         RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery regionQuery = regionContainer.createQuery();
         ApplicableRegionSet applicableRegionSet = regionQuery.getApplicableRegions(BukkitAdapter.adapt(location));
@@ -67,13 +66,12 @@ public class WorldGuardV7 implements WorldGuardCompatibility {
     }
 
     @Override
-    public void registerFlag(String flagString, FlagType type) {
+    public void registerFlag(@NotNull String flagString, @NotNull FlagType type) {
         Flag<?> flag = switch (type) {
             case INT_FLAG -> new IntegerFlag(flagString);
             case STATE_FLAG -> new StateFlag(flagString, true);
             case DOUBLE_FLAG -> new DoubleFlag(flagString);
             case STRING_FLAG -> new StringFlag(flagString);
-            default -> throw new IllegalArgumentException("Unknown FlagType " + type);
         };
 
         // An illegal argument exception will occur here if the flag

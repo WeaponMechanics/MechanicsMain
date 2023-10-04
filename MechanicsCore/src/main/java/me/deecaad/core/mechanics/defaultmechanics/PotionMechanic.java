@@ -53,7 +53,7 @@ public class PotionMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String potionStr = data.of("Potion").assertExists().assertType(String.class).get().toString().trim();
         String potionLower = potionStr.toLowerCase(Locale.ROOT);
         PotionEffectType potion = PotionEffectType.getByName(potionStr.toUpperCase(Locale.ROOT));

@@ -2,8 +2,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.plugin.Plugin;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A projectile script is a class that can be attached to a projectile. The
@@ -23,22 +22,24 @@ import javax.annotation.Nonnull;
  */
 public abstract class ProjectileScript<T extends AProjectile> {
 
-    private final Plugin owner;
-    protected final T projectile;
+    private final @NotNull Plugin owner;
+    protected final @NotNull T projectile;
     protected boolean removeScript;
     protected boolean removeProjectile;
 
-    public ProjectileScript(@Nonnull Plugin owner, @Nonnull T projectile) {
+    public ProjectileScript(@NotNull Plugin owner, @NotNull T projectile) {
         this.owner = owner;
         this.projectile = projectile;
         this.removeScript = false;
         this.removeProjectile = false;
     }
 
+    @NotNull
     public Plugin getOwner() {
         return owner;
     }
 
+    @NotNull
     public T getProjectile() {
         return projectile;
     }
@@ -102,5 +103,5 @@ public abstract class ProjectileScript<T extends AProjectile> {
      *
      * @param hit The non-null ray trace result of block or living entity.
      */
-    public void onCollide(@Nonnull RayTraceResult hit) {}
+    public void onCollide(@NotNull RayTraceResult hit) {}
 }

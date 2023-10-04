@@ -33,7 +33,7 @@ public class ScopingCondition extends Condition {
 
     @NotNull
     @Override
-    public Condition serialize(SerializeData data) throws SerializerException {
+    public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new ScopingCondition());
     }
 }

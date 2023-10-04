@@ -46,19 +46,19 @@ public class NBT_1_12_R1 implements NBTCompatibility {
     }
 
     @Override
-    public boolean hasString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
+    public boolean hasString(@NotNull ItemStack bukkitItem, @Nullable String plugin, @NotNull String key) {
         return getBukkitCompound(getNMSStack(bukkitItem)).hasKey(getTagName(plugin, key));
     }
 
     @Override
-    public String getString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String def) {
+    public String getString(@NotNull ItemStack bukkitItem, @Nullable String plugin, @NotNull String key, String def) {
         String value = getBukkitCompound(getNMSStack(bukkitItem)).getString(getTagName(plugin, key));
         return value != null && !value.isEmpty() ? value : def;
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public void setString(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, String value) {
+    public void setString(@NotNull ItemStack bukkitItem, @Nullable String plugin, @NotNull String key, String value) {
         net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
         getBukkitCompound(nmsStack).setString(getTagName(plugin, key), value);
 
@@ -66,21 +66,21 @@ public class NBT_1_12_R1 implements NBTCompatibility {
     }
 
     @Override
-    public boolean hasInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key) {
+    public boolean hasInt(@NotNull ItemStack bukkitItem, @Nullable String plugin, @NotNull String key) {
         return getBukkitCompound(getNMSStack(bukkitItem)).hasKey(getTagName(plugin, key));
     }
 
     @Override
-    public int getInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int def) {
+    public int getInt(@NotNull ItemStack bukkitItem, @Nullable String plugin, @NotNull String key, int def) {
         NBTTagCompound nbt = getBukkitCompound(getNMSStack(bukkitItem));
         String tag = getTagName(plugin, key);
         if (!nbt.hasKey(tag)) return def;
         return nbt.getInt(tag);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public void setInt(@Nonnull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int value) {
+    public void setInt(@NotNull ItemStack bukkitItem, @Nullable String plugin, @Nonnull String key, int value) {
         net.minecraft.server.v1_12_R1.ItemStack nmsStack = getNMSStack(bukkitItem);
         getBukkitCompound(nmsStack).setInt(getTagName(plugin, key), value);
 

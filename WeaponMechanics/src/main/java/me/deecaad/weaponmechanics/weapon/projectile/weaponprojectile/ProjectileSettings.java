@@ -8,9 +8,9 @@ import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class ProjectileSettings implements Serializer<ProjectileSettings>, Cloneable {
@@ -227,8 +227,8 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
     }
 
     @Override
-    @Nonnull
-    public ProjectileSettings serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ProjectileSettings serialize(@NotNull SerializeData data) throws SerializerException {
 
         String type = data.of("Type").assertExists().get().toString().trim().toUpperCase(Locale.ROOT);
         boolean isInvisible = type.equals("INVISIBLE");

@@ -11,6 +11,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProje
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -95,8 +96,8 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
     }
 
     @Override
-    @Nonnull
-    public ClusterBomb serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ClusterBomb serialize(@NotNull SerializeData data) throws SerializerException {
         int bombs = data.of("Number_Of_Bombs").assertExists().assertPositive().getInt();
         Projectile projectileSettings = data.of("Split_Projectile").serialize(Projectile.class);
         double speed = data.of("Projectile_Speed").assertPositive().getDouble(30.0) / 20.0;

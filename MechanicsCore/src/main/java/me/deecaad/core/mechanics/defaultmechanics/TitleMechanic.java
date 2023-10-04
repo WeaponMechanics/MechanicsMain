@@ -69,7 +69,7 @@ public class TitleMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String title = data.of("Title").getAdventure(null);
         String subtitle = data.of("Subtitle").getAdventure(null);
         int fadeIn = data.of("Fade_In").assertPositive().getInt(10);

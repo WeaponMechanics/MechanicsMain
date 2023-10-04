@@ -11,8 +11,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 
 public class Flashbang implements Serializer<Flashbang> {
@@ -98,8 +98,8 @@ public class Flashbang implements Serializer<Flashbang> {
     }
 
     @Override
-    @Nonnull
-    public Flashbang serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Flashbang serialize(@NotNull SerializeData data) throws SerializerException {
         double distance = data.of("Effect_Distance").assertExists().assertPositive().getDouble();
         Mechanics mechanics = data.of("Mechanics").assertExists().serialize(Mechanics.class);
 

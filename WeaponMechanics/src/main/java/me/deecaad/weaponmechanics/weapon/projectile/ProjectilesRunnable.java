@@ -5,8 +5,8 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,7 +47,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
         runTaskTimer(plugin, 0, 0);
     }
 
-    public void addScriptManager(@Nonnull ProjectileScriptManager manager) {
+    public void addScriptManager(@NotNull ProjectileScriptManager manager) {
         managers.add(manager);
     }
 
@@ -58,7 +58,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
      *
      * @param projectile The non-null projectile to tick.
      */
-    public void addProjectile(AProjectile projectile) {
+    public void addProjectile(@NotNull AProjectile projectile) {
         if (projectile == null)
             throw new IllegalArgumentException("Cannot add null projectile!");
 
@@ -80,13 +80,9 @@ public class ProjectilesRunnable extends BukkitRunnable {
      * @param projectiles The non-null collection of non-null projectiles.
      */
     public void addProjectiles(Collection<? extends AProjectile> projectiles) {
-        if (projectiles.contains(null))
-            throw new IllegalArgumentException("Cannot add null projectiles");
-
         if (Bukkit.getServer().isPrimaryThread()) {
             for (AProjectile projectile : projectiles) {
-
-                if (projectile.isDead()) continue;
+                if (projectile == null || projectile.isDead()) continue;
 
                 tickOnAdd(projectile);
             }
@@ -96,7 +92,7 @@ public class ProjectilesRunnable extends BukkitRunnable {
         asyncProjectiles.addAll(projectiles);
     }
 
-    private void tickOnAdd(AProjectile projectile) {
+    private void tickOnAdd(@NotNull AProjectile projectile) {
         for (ProjectileScriptManager manager : managers) {
             manager.attach(projectile);
         }

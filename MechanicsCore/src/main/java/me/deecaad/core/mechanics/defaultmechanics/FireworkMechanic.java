@@ -55,7 +55,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
 
         @NotNull
         @Override
-        public FireworkData serialize(SerializeData data) throws SerializerException {
+        public FireworkData serialize(@NotNull SerializeData data) throws SerializerException {
             FireworkEffect.Type type = data.of("Shape").getEnum(FireworkEffect.Type.class, FireworkEffect.Type.BALL);
             boolean trail = data.of("Trail").getBool(false);
             boolean flicker = data.of("Flicker").getBool(false);
@@ -182,7 +182,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         ItemStack fireworkItem = new ItemStack(ReflectionUtil.getMCVersion() >= 13 ? Material.FIREWORK_ROCKET : Material.valueOf("FIREWORK"));
         FireworkMeta meta = (FireworkMeta) fireworkItem.getItemMeta();
         List<FireworkEffect> effects = data.of("Effects").getImpliedList(new FireworkData()).stream().map(FireworkData::getEffect).toList();

@@ -122,11 +122,11 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
     @NotNull
     @Override
-    public AmmoConfig serialize(SerializeData data) throws SerializerException {
+    public AmmoConfig serialize(@NotNull SerializeData data) throws SerializerException {
         Mechanics mechanics = data.of("Out_Of_Ammo_Mechanics").serialize(Mechanics.class);
-        Trigger switchTrigger = data.of("Switch_Ammo_Types.Trigger").serialize(Trigger.class);
-        Mechanics switchMechanics = data.of("Switch_Ammo_Types.Trigger").serialize(Mechanics.class);
-        List<String> ammunitionStrings = data.of("Ammunitions").assertType(List.class).assertExists().get();
+        Trigger switchTrigger = data.of("Ammo_Switch_Trigger").serialize(Trigger.class);
+        Mechanics switchMechanics = data.of("Ammo_Switch_Mechanics").serialize(Mechanics.class);
+        List<String> ammunitionStrings = data.of("Ammos").assertType(List.class).assertExists().get();
 
         List<Ammo> ammunitions = new ArrayList<>(ammunitionStrings.size());
         for (int i = 0; i < ammunitionStrings.size(); i++) {
@@ -138,7 +138,7 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
                 throw new SerializerOptionsException(this, "Ammo", AmmoRegistry.AMMO_REGISTRY.getOptions(), ammoTitle, data.ofList("Ammunitions").getLocation(i));
             }
 
-            ammunitions.add(AmmoRegistry.AMMO_REGISTRY.get(ammoTitle));
+            ammunitions.add(ammo);
         }
 
         return new AmmoConfig(mechanics, switchTrigger, switchMechanics, ammunitions);

@@ -2,9 +2,8 @@ package me.deecaad.core.utils;
 
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.Math.cos;
@@ -34,8 +33,11 @@ public final class VectorUtil {
      * @param length The non-negative {@link Vector#length()} of the vector.
      * @return The non-null randomized vector.
      */
-    @Nonnull
-    public static Vector random(@Nonnegative double length) {
+    @NotNull
+    public static Vector random(double length) {
+        if (length < 0)
+            throw new IllegalArgumentException("length < 0");
+
         double x = ThreadLocalRandom.current().nextDouble(-1, 1);
         double y = ThreadLocalRandom.current().nextDouble(-1, 1);
         double z = ThreadLocalRandom.current().nextDouble(-1, 1);
@@ -52,7 +54,8 @@ public final class VectorUtil {
      * @param length The non-negative new length for the vector.
      * @return A reference to <code>vector</code>.
      */
-    public static Vector setLength(Vector vector, double length) {
+    @NotNull
+    public static Vector setLength(@NotNull Vector vector, double length) {
         double m = length / vector.length();
         return vector.multiply(m);
     }
@@ -90,7 +93,7 @@ public final class VectorUtil {
      * @return The non-null nearest horizontal block face.
      * @throws IllegalArgumentException If the angle is not normalized.
      */
-    @Nonnull
+    @NotNull
     public static BlockFace getHorizontalFace(float yaw) {
         int index = Math.round(yaw / (360f / AXIS.length));
         try {
@@ -111,6 +114,7 @@ public final class VectorUtil {
      * @return The non-null instantiated vector.
      * @see Math#toRadians(double)
      */
+    @NotNull
     public static Vector getVector(double yaw, double pitch) {
         double cosPitch = Math.cos(pitch);
 
@@ -138,8 +142,8 @@ public final class VectorUtil {
      *               point closer to <code>max</code>.
      * @return The non-null, new interpolated vector.
      */
-    @Nonnull
-    public static Vector lerp(@Nonnull Vector min, @Nonnull Vector max, double factor) {
+    @NotNull
+    public static Vector lerp(@NotNull Vector min, @NotNull Vector max, double factor) {
         double x = NumberUtil.lerp(min.getX(), max.getX(), factor);
         double y = NumberUtil.lerp(min.getY(), max.getY(), factor);
         double z = NumberUtil.lerp(min.getZ(), max.getZ(), factor);
@@ -172,8 +176,8 @@ public final class VectorUtil {
      * @param zFactor The factor to apply to the z dimension.
      * @return The non-null, new interpolated vector.
      */
-    @Nonnull
-    public static Vector lerp(@Nonnull Vector min, @Nonnull Vector max, double xFactor, double yFactor, double zFactor) {
+    @NotNull
+    public static Vector lerp(@NotNull Vector min, @NotNull Vector max, double xFactor, double yFactor, double zFactor) {
         double x = NumberUtil.lerp(min.getX(), max.getX(), xFactor);
         double y = NumberUtil.lerp(min.getY(), max.getY(), yFactor);
         double z = NumberUtil.lerp(min.getZ(), max.getZ(), zFactor);
@@ -190,7 +194,8 @@ public final class VectorUtil {
      * @param b The second corner of the box
      * @return The minimum vector
      */
-    public static Vector min(Vector a, Vector b) {
+    @NotNull
+    public static Vector min(@NotNull Vector a, @NotNull Vector b) {
         return new Vector(Math.min(a.getX(), b.getX()), Math.min(a.getY(), b.getY()), Math.min(a.getZ(), b.getZ()));
     }
 
@@ -203,7 +208,7 @@ public final class VectorUtil {
      * @param b The second corner of the box
      * @return The maximum vector
      */
-    public static Vector max(@Nonnull Vector a, @Nonnull Vector b) {
+    public static Vector max(@NotNull Vector a, @NotNull Vector b) {
         return new Vector(Math.max(a.getX(), b.getX()), Math.max(a.getY(), b.getY()), Math.max(a.getZ(), b.getZ()));
     }
 
@@ -215,7 +220,7 @@ public final class VectorUtil {
      * @param y The y value to add
      * @param z The z value to add
      */
-    public static Vector add(@Nonnull Vector a, double x, double y, double z) {
+    public static Vector add(@NotNull Vector a, double x, double y, double z) {
         a.setX(a.getX() + x);
         a.setY(a.getY() + y);
         a.setZ(a.getZ() + z);
@@ -229,13 +234,14 @@ public final class VectorUtil {
      * @return The perpendicular method
      * @throws IllegalArgumentException If the given vector's length is 0
      */
-    public static Vector getPerpendicular(Vector vector) {
+    @NotNull
+    public static Vector getPerpendicular(@NotNull Vector vector) {
+        if (isEmpty(vector))
+            throw new IllegalArgumentException("Vector length cannot be 0");
+
         double x = vector.getX();
         double y = vector.getY();
         double z = vector.getZ();
-
-        if (isEmpty(vector))
-            throw new IllegalArgumentException("Vector length cannot be 0");
 
         if (!NumberUtil.equals(y, 0.0))
             return new Vector(z, 0, -x);
@@ -253,7 +259,7 @@ public final class VectorUtil {
      * @return The angle between the vectors
      * @see Math#toDegrees(double)
      */
-    public static double getAngleBetween(@Nonnull Vector a, @Nonnull Vector b) {
+    public static double getAngleBetween(@NotNull Vector a, @NotNull Vector b) {
 
         // ALGEBRA: sqrt(a) * sqrt(b) = sqrt(a * b)
         double denominator = Math.sqrt(a.lengthSquared() * b.lengthSquared());

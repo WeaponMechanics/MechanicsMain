@@ -1,10 +1,9 @@
 package me.deecaad.core.utils;
 
-import javax.annotation.Nonnull;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.TreeSet;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -30,11 +29,14 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
     /**
      * Adds an <code>element</code> with the given weight to the map.
      *
-     * @param element The non-null element to add.
+     * @param element The element to add.
      * @param chance  The non-negative weight to map to the element.
      * @return <code>true</code> if the element was successfully added.
      */
     public boolean add(E element, double chance) {
+        if (chance <= 0.0)
+            throw new IllegalArgumentException("chance <= 0.0");
+
         Node<E> node = new Node<>(element, chance, totalProbability);
         if (set.add(node)) {
             totalProbability += chance;
@@ -51,7 +53,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
      * @param element The element to remove.
      * @return <code>true</code> if the element was removed.
      */
-    public boolean remove(@Nonnull E element) {
+    public boolean remove(E element) {
         Node<E> removedElement = null;
         Iterator<Node<E>> iterator = iterator();
 
@@ -64,7 +66,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
             // removed element's chance
             if (removedElement != null) {
                 node.offset -= removedElement.chance;
-            } else if (element.equals(node.value)) {
+            } else if (Objects.equals(element, node.value)) {
                 iterator.remove();
                 totalProbability -= node.chance;
                 removedElement = node;
@@ -80,6 +82,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
      *
      * @return The randomized element.
      */
+    @Nullable
     public E get() {
         dummy.offset = ThreadLocalRandom.current().nextDouble(totalProbability);
         Node<E> temp = set.floor(dummy);
@@ -104,7 +107,7 @@ public class ProbabilityMap<E> implements Iterable<ProbabilityMap.Node<E>> {
         return set.size();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Iterator<Node<E>> iterator() {
         return set.iterator();

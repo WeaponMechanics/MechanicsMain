@@ -1,8 +1,8 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class JarInstancer extends JarSearcher {
 
-    public JarInstancer(@Nonnull JarFile jar) {
+    public JarInstancer(@NotNull JarFile jar) {
         super(jar);
     }
 

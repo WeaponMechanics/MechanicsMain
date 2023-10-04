@@ -2,11 +2,10 @@ package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Locale;
 
 import static me.deecaad.core.MechanicsCore.debug;
 
@@ -23,7 +22,7 @@ public interface Serializer<T> {
      *
      * @return The nullable unique identifier.
      */
-    default String getKeyword() {
+    default @Nullable String getKeyword() {
         return null;
     }
 
@@ -36,7 +35,7 @@ public interface Serializer<T> {
      *
      * @return The nullable parent paths
      */
-    default List<String> getParentKeywords() {
+    default @Nullable List<String> getParentKeywords() {
         return null;
     }
 
@@ -48,7 +47,7 @@ public interface Serializer<T> {
      * @param data The config information.
      * @return true if the serializer should serialize.
      */
-    default boolean shouldSerialize(SerializeData data) {
+    default boolean shouldSerialize(@NotNull SerializeData data) {
         return true;
     }
 
@@ -62,7 +61,7 @@ public interface Serializer<T> {
      * @param path the path to this serializer's path (path to keyword like path.keyword)
      * @return true if this serializer should be used later
      */
-    default String useLater(ConfigurationSection configurationSection, String path) {
+    default @org.jetbrains.annotations.Nullable String useLater(ConfigurationSection configurationSection, String path) {
 
         // Checks if keyword is actually an string
         // -> If it is, then it means that it is used as path to other location where
@@ -129,10 +128,11 @@ public interface Serializer<T> {
      * @param key The non-null key to check
      * @return true if the key should be saved.
      */
-    default boolean letPassThrough(String key) {
+    default boolean letPassThrough(@NotNull String key) {
         return false;
     }
 
+    @NotNull
     default String getName() {
         // Sometimes a class will end with 'Serializer' in its name, like
         // 'ColorSerializer'. This information may be confusing to some people,
@@ -155,6 +155,5 @@ public interface Serializer<T> {
      * @return The non-null serialized data.
      * @throws SerializerException If there is an error in config.
      */
-    @Nonnull
-    T serialize(SerializeData data) throws SerializerException;
+    @NotNull T serialize(@NotNull SerializeData data) throws SerializerException;
 }

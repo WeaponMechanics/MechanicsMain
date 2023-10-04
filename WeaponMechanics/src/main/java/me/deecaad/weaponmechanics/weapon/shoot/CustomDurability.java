@@ -322,7 +322,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     @NotNull
     @Override
-    public CustomDurability serialize(SerializeData data) throws SerializerException {
+    public CustomDurability serialize(@NotNull SerializeData data) throws SerializerException {
         int maxDurability = data.of("Max_Durability").assertPositive().assertExists().getInt();
         int minMaxDurability = data.of("Min_Max_Durability").assertPositive().get(0);
         int loseMaxDurabilityPerRepair = data.of("Lose_Max_Durability_Per_Repair").assertPositive().get(0);

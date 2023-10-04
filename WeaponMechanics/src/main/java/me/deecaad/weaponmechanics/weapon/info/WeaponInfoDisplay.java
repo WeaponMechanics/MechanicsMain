@@ -24,6 +24,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
@@ -343,8 +344,8 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
     }
 
     @Override
-    @Nonnull
-    public WeaponInfoDisplay serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public WeaponInfoDisplay serialize(@NotNull SerializeData data) throws SerializerException {
 
         // ACTION BAR
         String actionBarMessage = data.of("Action_Bar.Message").getAdventure(null);

@@ -1,5 +1,0 @@
-Color: <Name/RGB/HEX>
-
-# If type is Name, then use RED, YELLOW, BLUE, etc
-# If type is RGB, then use "rrr~ggg~bbb"
-# If type is HEX, then use "#FFFFFF" or "0xFFFFFF"

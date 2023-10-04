@@ -386,7 +386,7 @@ public class RepairItemListener implements Listener {
 
         @NotNull
         @Override
-        public RepairKit serialize(SerializeData data) throws SerializerException {
+        public RepairKit serialize(@NotNull SerializeData data) throws SerializerException {
             String repairKitTitle = data.key.split("\\.")[0];
 
             int totalDurability = data.of("Total_Durability").assertPositive().assertExists().getInt();

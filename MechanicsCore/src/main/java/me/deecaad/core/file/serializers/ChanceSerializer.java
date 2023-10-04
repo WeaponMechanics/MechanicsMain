@@ -13,7 +13,7 @@ public class ChanceSerializer implements Serializer<Double> {
 
     @NotNull
     @Override
-    public Double serialize(SerializeData data) throws SerializerException {
+    public Double serialize(@NotNull SerializeData data) throws SerializerException {
         Object value = data.of().assertExists().get();
         double chance = 0.0;
 

@@ -58,7 +58,7 @@ public class CommandMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         boolean console = data.of("Console").getBool(false);
         String command = data.of("Command").assertType(String.class).assertExists().get();
         return applyParentArgs(data, new CommandMechanic(console, command));

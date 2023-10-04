@@ -62,7 +62,7 @@ public class ScatterTargeter extends ShapeTargeter {
 
     @NotNull
     @Override
-    public Targeter serialize(SerializeData data) throws SerializerException {
+    public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         int points = data.of("Points").assertExists().getInt();
         double horizontalRange = data.of("Horizontal_Range").getDouble(5.0);
         double verticalRange = data.of("Vertical_Range").getDouble(0.0);

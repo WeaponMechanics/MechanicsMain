@@ -5,6 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.ProbabilityMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -104,8 +105,8 @@ public class SpreadImage implements Serializer<SpreadImage> {
     }
 
     @Override
-    @Nonnull
-    public SpreadImage serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public SpreadImage serialize(@NotNull SerializeData data) throws SerializerException {
         String imageName = data.of("Name").assertExists().assertType(String.class).get();
 
         // 9/10, people will be using a png. If no file extension is provided,

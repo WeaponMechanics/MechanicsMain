@@ -2,12 +2,12 @@ package me.deecaad.core.file;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class SerializerListTest {
 
     public static final Serializer<?> DUMMY = new Serializer<>() {
-        @Nonnull
+        @NotNull
         @Override
-        public Object serialize(SerializeData data) throws SerializerException {
+        public Object serialize(@NotNull SerializeData data) throws SerializerException {
             throw new RuntimeException();
         }
     };

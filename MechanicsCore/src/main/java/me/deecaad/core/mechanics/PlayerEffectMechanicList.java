@@ -77,7 +77,7 @@ public final class PlayerEffectMechanicList extends Mechanic implements JarSearc
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         throw new UnsupportedOperationException("Cannot directly serialize a PlayerEffectMechanicList");
     }
 }

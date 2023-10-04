@@ -4,8 +4,8 @@ import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class SerializerException extends Exception {
      * @param messages   The messages telling the user the error and how to fix it.
      * @param location   The file + path location to the issue {@link StringUtil#foundAt(File, String)}
      */
-    public SerializerException(@Nonnull Serializer<?> serializer, String[] messages, @Nonnull String location) {
+    public SerializerException(@NotNull Serializer<?> serializer, String[] messages, @NotNull String location) {
         this.messages = messages;
         this.location = location;
         this.serializerName = serializer.getName();

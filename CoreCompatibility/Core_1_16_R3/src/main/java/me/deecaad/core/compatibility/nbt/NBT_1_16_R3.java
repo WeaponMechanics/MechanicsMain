@@ -44,7 +44,7 @@ public class NBT_1_16_R3 extends NBT_Persistent {
         toItem.setItemMeta(CraftItemStack.asBukkitCopy(nms).getItemMeta());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public net.minecraft.server.v1_16_R3.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);

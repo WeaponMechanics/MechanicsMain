@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -45,8 +46,8 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
     }
 
     @Override
-    @Nonnull
-    public RecoilPattern serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public RecoilPattern serialize(@NotNull SerializeData data) throws SerializerException {
         List<String[]> list = data.ofList("List")
                 .addArgument(double.class, true)
                 .addArgument(double.class, true)

@@ -6,8 +6,8 @@ import me.deecaad.core.file.SerializerOptionsException;
 import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class Factory<T> {
      * Only subclasses should be able to instantiate this class. It does not
      * make sense to instantiate a factory otherwise.
      */
-    protected Factory(@Nonnull Class<T> clazz) {
+    protected Factory(@NotNull Class<T> clazz) {
         this.map = new HashMap<>();
         this.clazz = clazz;
     }

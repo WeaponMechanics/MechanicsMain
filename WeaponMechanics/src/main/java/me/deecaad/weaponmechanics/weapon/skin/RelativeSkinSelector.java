@@ -113,7 +113,7 @@ public class RelativeSkinSelector implements SkinSelector, Serializer<RelativeSk
 
     @NotNull
     @Override
-    public RelativeSkinSelector serialize(SerializeData data) throws SerializerException {
+    public RelativeSkinSelector serialize(@NotNull SerializeData data) throws SerializerException {
 
         Map<String, RelativeSkin> skins = new LinkedHashMap<>();
         Map<SkinAction, RelativeSkin> actions = new LinkedHashMap<>();

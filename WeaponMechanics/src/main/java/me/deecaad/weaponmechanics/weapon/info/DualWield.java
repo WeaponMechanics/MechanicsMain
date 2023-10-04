@@ -10,6 +10,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -83,8 +84,8 @@ public class DualWield implements Serializer<DualWield> {
     }
 
     @Override
-    @Nonnull
-    public DualWield serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public DualWield serialize(@NotNull SerializeData data) throws SerializerException {
         List<String[]> weaponsList = data.ofList("Weapons")
                 .addArgument(String.class, true, true)
                 .assertExists().assertList().get();

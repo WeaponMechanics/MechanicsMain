@@ -13,8 +13,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public class Bouncy implements Serializer<Bouncy>, Cloneable {
 
     // -1 = infinite
@@ -160,8 +158,8 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     }
 
     @Override
-    @Nonnull
-    public @NotNull Bouncy serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Bouncy serialize(@NotNull SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 

@@ -6,8 +6,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An event that fires when a {@link org.bukkit.entity.LivingEntity} changes an
@@ -39,7 +38,7 @@ public class EntityEquipmentEvent extends EntityEvent {
      *
      * @return The non-null slot the item is being equipped to/from.
      */
-    @Nonnull
+    @NotNull
     public EquipmentSlot getSlot() {
         return slot;
     }

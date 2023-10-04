@@ -44,9 +44,9 @@ public class DefaultExplosion implements ExplosionShape {
         this.bound = gridSize - 1;
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public List<Block> getBlocks(@Nonnull Location origin) {
+    public List<Block> getBlocks(@NotNull Location origin) {
         if (origin.getWorld() == null)
             throw new IllegalArgumentException("origin is null");
 
@@ -105,7 +105,7 @@ public class DefaultExplosion implements ExplosionShape {
     }
 
     @Override
-    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+    public List<LivingEntity> getEntities(@NotNull Location origin) {
 
         // How far away from the explosion to damage players
         double damageRadius = yield * 2.0F;

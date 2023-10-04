@@ -8,6 +8,7 @@ import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -54,8 +55,8 @@ public class Sticky implements Serializer<Sticky>, Cloneable {
     }
 
     @Override
-    @Nonnull
-    public Sticky serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Sticky serialize(@NotNull SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 

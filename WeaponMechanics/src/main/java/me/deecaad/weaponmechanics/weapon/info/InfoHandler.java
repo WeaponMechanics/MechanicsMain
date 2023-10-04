@@ -21,8 +21,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -67,7 +67,7 @@ public class InfoHandler implements IValidator {
      * @param weapon The non-null "inaccurate" weapon-title.
      * @return The non-null valid weapon-title.
      */
-    @Nonnull
+    @NotNull
     public String getWeaponTitle(String weapon) {
 
         // Before checking for similarities, do a startsWith check (since

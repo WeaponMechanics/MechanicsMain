@@ -126,7 +126,7 @@ public class SoundMechanic extends PlayerEffectMechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         Sound sound = data.of("Sound").assertExists().getEnum(Sound.class);
         float volume = (float) data.of("Volume").assertPositive().getDouble(1.0);
         float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble(1.0);

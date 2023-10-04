@@ -11,8 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Wraps a {@link LivingEntity} object to simplify per-entity data/methods that
@@ -220,17 +219,17 @@ public class EntityWrapper {
         return entity.isInsideVehicle();
     }
 
-    @Nonnull
+    @NotNull
     public HandData getHandData(boolean mainHand) {
         return mainHand ? getMainHandData() : getOffHandData();
     }
 
-    @Nonnull
+    @NotNull
     public HandData getMainHandData() {
         return mainHandData == null ? mainHandData = new HandData(this, true) : mainHandData;
     }
 
-    @Nonnull
+    @NotNull
     public HandData getOffHandData() {
         return offHandData == null ? offHandData = new HandData(this, false) : offHandData;
     }

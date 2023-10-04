@@ -2,9 +2,9 @@ package me.deecaad.core.compatibility.worldguard;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
@@ -28,7 +28,7 @@ public interface WorldGuardCompatibility {
      * @param flagName The non-null name of the flag.
      * @return <code>true</code> if the flag is enabled.
      */
-    boolean testFlag(@Nonnull Location location, @Nullable Player player, @Nonnull String flagName);
+    boolean testFlag(@NotNull Location location, @Nullable Player player, @NotNull String flagName);
 
     /**
      * Returns the value of a flag with the given <code>flagName</code>. The
@@ -42,7 +42,7 @@ public interface WorldGuardCompatibility {
      * @return The value of the flag for that region, or <code>null</code>.
      */
     @Nullable
-    Object getValue(@Nonnull Location location, @Nonnull String flagName);
+    Object getValue(@NotNull Location location, @NotNull String flagName);
 
     /**
      * Registers a new flag with the given name and datatype.
@@ -51,7 +51,7 @@ public interface WorldGuardCompatibility {
      * @param type The non-null data type of the flag.
      * @throws NullPointerException If type is <code>null</code>.
      */
-    void registerFlag(@Nonnull String flag, @Nonnull FlagType type);
+    void registerFlag(@NotNull String flag, @NotNull FlagType type);
 
     /**
      * Returns <code>true</code> if world guard is installed. This is the same
@@ -68,7 +68,7 @@ public interface WorldGuardCompatibility {
      *
      * @return The non-null set of flag names.
      */
-    @Nonnull
+    @NotNull
     Set<String> getRegisteredFlags();
 
     /**

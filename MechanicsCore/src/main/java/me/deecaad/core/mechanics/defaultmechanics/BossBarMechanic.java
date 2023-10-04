@@ -85,7 +85,7 @@ public class BossBarMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String title = data.of("Title").assertExists().getAdventure();
         BossBar.Color color = data.of("Color").getEnum(BossBar.Color.class, BossBar.Color.RED);
         BossBar.Overlay style = data.of("Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.PROGRESS);

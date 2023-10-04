@@ -24,8 +24,8 @@ import org.bukkit.inventory.meta.*;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -65,12 +65,12 @@ public class ItemSerializer implements Serializer<ItemStack> {
     }
 
     @Override
-    @Nonnull
-    public ItemStack serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ItemStack serialize(@NotNull SerializeData data) throws SerializerException {
         return serializeWithTags(data, Collections.emptyMap());
     }
 
-    public ItemStack serializeWithTags(SerializeData data, Map<String, Object> tags) throws SerializerException {
+    public ItemStack serializeWithTags(@NotNull SerializeData data, @NotNull Map<String, Object> tags) throws SerializerException {
 
         // When the key is null, that probably means we are currently in an
         // inline serializer. Skip the fancy shit.
@@ -96,7 +96,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         return itemStack;
     }
 
-    public void applyTags(ItemStack item, Map<String, Object> tags) {
+    public void applyTags(@NotNull ItemStack item, @NotNull Map<String, Object> tags) {
         NBTCompatibility nbt = CompatibilityAPI.getNBTCompatibility();
 
         for (Map.Entry<String, Object> entry : tags.entrySet()) {
@@ -119,7 +119,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         }
     }
 
-    public ItemStack attemptInline(SerializeData data) throws SerializerException {
+    public ItemStack attemptInline(@NotNull SerializeData data) throws SerializerException {
         try {
 
             // Check the ITEM_REGISTRY to see if they are trying to inline
@@ -149,7 +149,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
         return null;
     }
 
-    public ItemStack serializeWithoutRecipe(SerializeData data) throws SerializerException {
+    public ItemStack serializeWithoutRecipe(@NotNull SerializeData data) throws SerializerException {
 
         // TODO Add byte data support using 'Data:' or 'Extra_Data:' key
         Material type = data.of("Type").assertExists().getEnum(Material.class);

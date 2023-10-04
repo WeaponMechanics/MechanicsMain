@@ -36,7 +36,7 @@ public class RelativeSkin implements Skin, Serializer<RelativeSkin> {
 
     @NotNull
     @Override
-    public RelativeSkin serialize(SerializeData data) throws SerializerException {
+    public RelativeSkin serialize(@NotNull SerializeData data) throws SerializerException {
 
         if (data.of().is(ConfigurationSection.class)) {
             throw data.exception(null, "Tried to override a 'Relative Skin' with 'Normal Skin'",

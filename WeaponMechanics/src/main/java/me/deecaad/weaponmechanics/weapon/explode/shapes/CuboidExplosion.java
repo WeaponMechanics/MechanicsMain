@@ -57,9 +57,9 @@ public class CuboidExplosion implements ExplosionShape {
      *               Should not be null
      * @return The blocks within the explosion
      */
-    @Nonnull
+    @NotNull
     @Override
-    public List<Block> getBlocks(@Nonnull Location origin) {
+    public List<Block> getBlocks(@NotNull Location origin) {
         List<Block> temp = new ArrayList<>((int) (2 * width + 2 * height) + 1);
 
         double noiseDistance = config.getDouble("Explosions.Spherical.Noise_Distance", 1.25);
@@ -107,9 +107,9 @@ public class CuboidExplosion implements ExplosionShape {
      *               Should not be null
      * @return All entities within the explosion
      */
-    @Nonnull
+    @NotNull
     @Override
-    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+    public List<LivingEntity> getEntities(@NotNull Location origin) {
         double xMin = origin.getX() - width,  xMax = origin.getX() + width;
         double yMin = origin.getY() - height, yMax = origin.getY() + height;
         double zMin = origin.getZ() - width,  zMax = origin.getZ() + width;

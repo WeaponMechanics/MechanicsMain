@@ -53,7 +53,7 @@ public class Ammo implements Keyable, Serializer<Ammo> {
 
     @NotNull
     @Override
-    public Ammo serialize(SerializeData data) throws SerializerException {
+    public Ammo serialize(@NotNull SerializeData data) throws SerializerException {
         String[] split = data.key.split("\\.");
         String ammoTitle = split[split.length - 1];
         String symbol = data.of("Symbol").assertType(String.class).get(null);

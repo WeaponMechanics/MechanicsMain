@@ -4,9 +4,9 @@ import me.deecaad.core.utils.Debugger;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public class FileReader {
     private final List<ValidatorData> validatorDatas;
     private final Map<String, IValidator> validators;
 
-    public FileReader(@Nonnull Debugger debug, @Nullable List<Serializer<?>> serializers, @Nullable List<IValidator> validators) {
+    public FileReader(@NotNull Debugger debug, @Nullable List<Serializer<?>> serializers, @Nullable List<IValidator> validators) {
         this.debug = debug;
         this.serializers = new HashMap<>();
         this.validators = new HashMap<>();

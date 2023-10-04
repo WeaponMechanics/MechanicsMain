@@ -8,7 +8,6 @@ import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class ModifySpreadWhen extends AModifyWhen {
@@ -36,8 +35,8 @@ public class ModifySpreadWhen extends AModifyWhen {
     }
 
     @Override
-    @Nonnull
-    public @NotNull ModifySpreadWhen serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ModifySpreadWhen serialize(@NotNull SerializeData data) throws SerializerException {
         NumberModifier always = getModifierHandler(data.of("Always"));
         NumberModifier zooming = getModifierHandler(data.of("Zooming"));
         NumberModifier sneaking = getModifierHandler(data.of("Sneaking"));

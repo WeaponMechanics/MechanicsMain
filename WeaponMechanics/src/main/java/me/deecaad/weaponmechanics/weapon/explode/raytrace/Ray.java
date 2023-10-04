@@ -10,9 +10,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -32,7 +32,7 @@ public class Ray {
      * @param origin    The starting point of this ray
      * @param direction The direction and magnitude to trace
      */
-    public Ray(@Nonnull Location origin, @Nonnull Vector direction) {
+    public Ray(@NotNull Location origin, @NotNull Vector direction) {
         if (origin.getWorld() == null)
             throw new IllegalArgumentException("World cannot be null");
 
@@ -50,7 +50,7 @@ public class Ray {
      * @param start The starting point
      * @param stop  The ending point
      */
-    public Ray(@Nonnull World world, Vector start, Vector stop) {
+    public Ray(@NotNull World world, Vector start, Vector stop) {
         this.world = world;
         this.origin = start;
         this.end = stop;
@@ -86,7 +86,7 @@ public class Ray {
      * @param accuracy  The distance (in blocks) between checks
      * @return The collision data
      */
-    public TraceResult trace(@Nonnull TraceCollision collision, @Nonnegative double accuracy) {
+    public TraceResult trace(@NotNull TraceCollision collision, @Nonnegative double accuracy) {
         return trace(collision, accuracy, false);
     }
 
@@ -99,7 +99,7 @@ public class Ray {
      * @param isShow    Useful for debugging. Spawns redstone particles that are removed after 1 minute
      * @return The collision data
      */
-    public TraceResult trace(@Nonnull TraceCollision collision, @Nonnegative double accuracy, boolean isShow) {
+    public TraceResult trace(@NotNull TraceCollision collision, @Nonnegative double accuracy, boolean isShow) {
         BlockCompatibility factory = CompatibilityAPI.getBlockCompatibility();
 
         // Store the entities between the starting and ending point of the ray. Map the

@@ -80,7 +80,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
 
     @NotNull
     @Override
-    public SkinSelector serialize(SerializeData data) throws SerializerException {
+    public SkinSelector serialize(@NotNull SerializeData data) throws SerializerException {
         Map<String, Map<SkinAction, BaseSkin>> map = new HashMap<>();
         Map<SkinAction, BaseSkin> defaultSkinData = new HashMap<>();
 

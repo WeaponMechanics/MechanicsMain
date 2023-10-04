@@ -12,8 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import static me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision.BLOCK_OR_ENTITY;
 
@@ -38,8 +37,8 @@ public interface ExplosionExposure {
      * @param shape The shape of the explosion
      * @return The effected players and their impact level
      */
-    @Nonnull
-    DoubleMap<LivingEntity> mapExposures(@Nonnull Location origin, @Nonnull ExplosionShape shape);
+    @NotNull
+    DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape);
 
     /**
      * Determines if the given entity can see the given <code>Location</code>. This
@@ -49,7 +48,7 @@ public interface ExplosionExposure {
      * @param entity The entity to check against
      * @return true if the entity can see the origin
      */
-    default boolean canSee(@Nonnull Location origin, @Nonnull LivingEntity entity) {
+    default boolean canSee(@NotNull Location origin, @NotNull LivingEntity entity) {
         return canSee(origin, entity, FOV);
     }
 
@@ -61,7 +60,7 @@ public interface ExplosionExposure {
      * @param fov The field of view of the entity
      * @return true if the entity can see the origin
      */
-    default boolean canSee(@Nonnull Location originLoc, @Nonnull LivingEntity entity, double fov) {
+    default boolean canSee(@NotNull Location originLoc, @NotNull LivingEntity entity, double fov) {
 
         // Get the vector between the entity and origin, and the player's eye
         // vector, and determine the angle between the 2 vectors.

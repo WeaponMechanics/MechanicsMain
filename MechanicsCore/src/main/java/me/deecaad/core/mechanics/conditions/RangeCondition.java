@@ -48,7 +48,7 @@ public class RangeCondition extends Condition {
 
     @NotNull
     @Override
-    public Condition serialize(SerializeData data) throws SerializerException {
+    public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         double minNum = data.of("Min").assertPositive().getDouble(-1.0);
         double maxNum = data.of("Max").assertPositive().getDouble(-1.0);
 

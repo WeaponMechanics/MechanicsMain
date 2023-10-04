@@ -15,8 +15,8 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -222,7 +222,7 @@ public abstract class SubCommand extends BukkitCommand {
     public abstract void execute(CommandSender sender, String[] args);
 
     @Override
-    public boolean execute(@Nonnull CommandSender sender, @Nonnull String label, @Nonnull String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
             sender.sendMessage(getPermissionMessage() == null ? ChatColor.RED + "Invalid Permissions" : getPermissionMessage());
             return false;
@@ -242,8 +242,8 @@ public abstract class SubCommand extends BukkitCommand {
     }
 
     @Override
-    @Nonnull
-    public List<String> tabComplete(@Nonnull CommandSender sender, @Nonnull String alias, @Nonnull String[] args) {
+    @NotNull
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
             return Collections.emptyList();
         } else {

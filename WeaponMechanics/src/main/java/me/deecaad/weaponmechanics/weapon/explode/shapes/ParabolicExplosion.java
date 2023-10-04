@@ -53,9 +53,9 @@ public class ParabolicExplosion implements ExplosionShape {
         return angle;
     }
     
-    @Nonnull
+    @NotNull
     @Override
-    public List<Block> getBlocks(@Nonnull Location origin) {
+    public List<Block> getBlocks(@NotNull Location origin) {
         List<Block> temp = new ArrayList<>();
 
         // Solve for x
@@ -89,9 +89,9 @@ public class ParabolicExplosion implements ExplosionShape {
         return temp;
     }
     
-    @Nonnull
+    @NotNull
     @Override
-    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+    public List<LivingEntity> getEntities(@NotNull Location origin) {
         List<LivingEntity> all = origin.getWorld().getLivingEntities();
         List<LivingEntity> temp = new ArrayList<>(all.size());
 

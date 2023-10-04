@@ -46,7 +46,7 @@ public class Circumstance implements Serializer<Circumstance> {
 
     @NotNull
     @Override
-    public Circumstance serialize(SerializeData data) throws SerializerException {
+    public Circumstance serialize(@NotNull SerializeData data) throws SerializerException {
         ConfigurationSection circumstanceSection = data.of().assertExists().assertType(ConfigurationSection.class).get();
         List<CircumstanceData> circumstances = new ArrayList<>(1);
 

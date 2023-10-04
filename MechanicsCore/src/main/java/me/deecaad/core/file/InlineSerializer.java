@@ -2,6 +2,7 @@ package me.deecaad.core.file;
 
 import me.deecaad.core.utils.Keyable;
 import me.deecaad.core.utils.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
     String UNIQUE_IDENTIFIER = "uniqueIdentifier";
 
     @Override
-    default boolean shouldSerialize(SerializeData data) {
+    default boolean shouldSerialize(@NotNull SerializeData data) {
         // We don't want FileReader activating on these by default
         return false;
     }

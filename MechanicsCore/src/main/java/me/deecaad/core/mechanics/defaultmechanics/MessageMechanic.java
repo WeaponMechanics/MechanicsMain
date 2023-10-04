@@ -53,7 +53,7 @@ public class MessageMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String message = data.of("Message").assertExists().getAdventure();
         return applyParentArgs(data, new MessageMechanic(message));
     }

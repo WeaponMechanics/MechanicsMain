@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -41,8 +42,8 @@ public class Detonation implements Serializer<Detonation> {
     }
 
     @Override
-    @Nonnull
-    public Detonation serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Detonation serialize(@NotNull SerializeData data) throws SerializerException {
 
         Set<ExplosionTrigger> triggers = new HashSet<>(ExplosionTrigger.values().length, 1.0f);
         for (ExplosionTrigger trigger : ExplosionTrigger.values()) {

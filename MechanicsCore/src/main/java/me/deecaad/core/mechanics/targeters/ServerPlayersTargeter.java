@@ -54,7 +54,7 @@ public class ServerPlayersTargeter extends Targeter {
 
     @NotNull
     @Override
-    public Targeter serialize(SerializeData data) throws SerializerException {
+    public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new ServerPlayersTargeter());
     }
 }

@@ -50,7 +50,7 @@ public class OnGroundCondition extends Condition {
 
     @NotNull
     @Override
-    public Condition serialize(SerializeData data) throws SerializerException {
+    public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         List<MapConfigLike.Holder> materials = data.of("Blocks").assertType(List.class).get(List.of());
         Set<Material> blocks = new HashSet<>();
 

@@ -283,7 +283,7 @@ public class FakeEntity_1_20_R1 extends FakeEntity {
     }
 
     @Override
-    public void playEffect(@Nonnull EntityEffect effect) {
+    public void playEffect(@NotNull EntityEffect effect) {
         if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
         sendPackets(new ClientboundEntityEventPacket(entity, effect.getData()));
     }

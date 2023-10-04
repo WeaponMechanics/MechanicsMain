@@ -92,7 +92,7 @@ public class Mechanics implements Serializer<Mechanics> {
 
     @NotNull
     @Override
-    public Mechanics serialize(SerializeData data) throws SerializerException {
+    public Mechanics serialize(@NotNull SerializeData data) throws SerializerException {
         List<?> list = data.config.getList(data.key);
         List<Mechanic> mechanics = new ArrayList<>();
 

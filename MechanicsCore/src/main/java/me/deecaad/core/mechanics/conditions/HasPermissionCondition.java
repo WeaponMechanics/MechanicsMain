@@ -42,7 +42,7 @@ public class HasPermissionCondition extends Condition {
 
     @NotNull
     @Override
-    public Condition serialize(SerializeData data) throws SerializerException {
+    public Condition serialize(@NotNull SerializeData data) throws SerializerException {
         String permission = data.of("Permission").assertExists().get();
 
         return applyParentArgs(data, new HasPermissionCondition(permission));
