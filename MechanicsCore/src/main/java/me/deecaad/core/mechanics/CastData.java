@@ -3,6 +3,7 @@ package me.deecaad.core.mechanics;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +32,7 @@ public class CastData implements Cloneable, PlaceholderData {
     private Consumer<Integer> taskIdConsumer;
     private final @NotNull Map<String, String> tempPlaceholders;
 
-    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack) {
+    public CastData(@NotNull LivingEntity source, @Nullable String itemTitle, @Nullable ItemStack itemStack) {
         this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
@@ -39,7 +40,7 @@ public class CastData implements Cloneable, PlaceholderData {
         addDefaultPlaceholders();
     }
 
-    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, @NotNull Map<String, String> tempPlaceholders) {
+    public CastData(@NotNull LivingEntity source, @Nullable String itemTitle, @Nullable ItemStack itemStack, @NotNull Map<String, String> tempPlaceholders) {
         this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
@@ -47,7 +48,7 @@ public class CastData implements Cloneable, PlaceholderData {
         addDefaultPlaceholders();
     }
 
-    public CastData(LivingEntity source, String itemTitle, ItemStack itemStack, Consumer<Integer> taskIdConsumer) {
+    public CastData(@NotNull LivingEntity source, @Nullable String itemTitle, @Nullable ItemStack itemStack, @Nullable Consumer<Integer> taskIdConsumer) {
         this.source = source;
         this.itemTitle = itemTitle;
         this.itemStack = itemStack;
@@ -74,11 +75,27 @@ public class CastData implements Cloneable, PlaceholderData {
         return source.getLocation();
     }
 
+    @NotNull
+    public World getSourceWorld() {
+        return source.getWorld();
+    }
+
+    @Nullable
     public LivingEntity getTarget() {
         return targetEntity;
     }
 
-    public void setTargetEntity(LivingEntity targetEntity) {
+    @Nullable
+    public World getTargetWorld() {
+        if (targetEntity != null)
+            return targetEntity.getWorld();
+        if (targetLocation != null)
+            return targetLocation.get().getWorld();
+
+        return null;
+    }
+
+    public void setTargetEntity(@NotNull LivingEntity targetEntity) {
         Location location = targetEntity.getLocation();
         tempPlaceholders.put("target_name", targetEntity.getName());
         tempPlaceholders.put("target_x", String.valueOf(location.getX()));
@@ -92,7 +109,7 @@ public class CastData implements Cloneable, PlaceholderData {
         return targetLocation != null;
     }
 
-    @NotNull
+    @Nullable
     public Location getTargetLocation() {
         if (targetLocation == null && targetEntity == null) {
             debug.log(LogLevel.WARN, "Not targeting either entity nor location", new Throwable());
@@ -100,14 +117,20 @@ public class CastData implements Cloneable, PlaceholderData {
         return targetLocation != null ? targetLocation.get() : targetEntity.getLocation();
     }
 
-    public void setTargetLocation(Location targetLocation) {
+    public void setTargetLocation(@NotNull Location targetLocation) {
         tempPlaceholders.put("target_x", String.valueOf(targetLocation.getX()));
         tempPlaceholders.put("target_y", String.valueOf(targetLocation.getY()));
         tempPlaceholders.put("target_z", String.valueOf(targetLocation.getZ()));
         this.targetLocation = () -> targetLocation;
     }
 
-    public void setTargetLocation(Supplier<Location> targetLocation) {
+    public void setTargetLocation(@Nullable Supplier<Location> targetLocation) {
+        if (targetLocation != null) {
+            Location location = targetLocation.get();
+            tempPlaceholders.put("target_x", String.valueOf(location.getX()));
+            tempPlaceholders.put("target_y", String.valueOf(location.getY()));
+            tempPlaceholders.put("target_z", String.valueOf(location.getZ()));
+        }
         this.targetLocation = targetLocation;
     }
 

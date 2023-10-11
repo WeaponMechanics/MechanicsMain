@@ -3,6 +3,7 @@ package me.deecaad.core.mechanics.targeters;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
@@ -20,8 +21,8 @@ public abstract class ShapeTargeter extends RelativeTargeter {
     }
 
     @Override
-    protected final Iterator<CastData> getTargets0(CastData cast) {
-        Iterator<Vector> points = getPoints();
+    protected final @NotNull Iterator<CastData> getTargets0(@NotNull CastData cast) {
+        Iterator<Vector> points = getPoints(cast);
         Location source = isUseTarget ? cast.getTargetLocation() : cast.getSourceLocation();
 
         // We may have been targeting an entity or a got a cloned location. We
@@ -49,5 +50,5 @@ public abstract class ShapeTargeter extends RelativeTargeter {
         };
     }
 
-    public abstract Iterator<Vector> getPoints();
+    public abstract @NotNull Iterator<Vector> getPoints(@NotNull CastData cast);
 }
