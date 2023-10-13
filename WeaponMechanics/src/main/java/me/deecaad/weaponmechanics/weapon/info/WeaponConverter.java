@@ -67,13 +67,11 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
             }
         }
         if (this.enchantments) {
-            if (weaponMeta.hasEnchants() != otherMeta.hasEnchants()
-                    || (weaponMeta.hasEnchants() && !equals(weaponMeta.getEnchants(), otherMeta.getEnchants()))) {
-                // If weapon would have enchantments, but other doesn't
-                // OR
-                // If weapon and other enchantments doesn't match
-                return false;
-            }
+            // If weapon would have enchantments, but other doesn't
+            // OR
+            // If weapon and other enchantments doesn't match
+            return weaponMeta.hasEnchants() == otherMeta.hasEnchants()
+                    && (!weaponMeta.hasEnchants() || equals(weaponMeta.getEnchants(), otherMeta.getEnchants()));
         }
         return true;
     }

@@ -77,7 +77,7 @@ import java.util.stream.Collectors;
 public class Command_1_18_R2 implements CommandCompatibility {
 
     public static final MinecraftServer SERVER = ((CraftServer) Bukkit.getServer()).getServer();
-    private static final DynamicCommandExceptionType ERROR_BIOME_INVALID = new DynamicCommandExceptionType(arg -> new TranslatableComponent("commands.locate.biome.invalid", arg));;
+    private static final DynamicCommandExceptionType ERROR_BIOME_INVALID = new DynamicCommandExceptionType(arg -> new TranslatableComponent("commands.locate.biome.invalid", arg));
 
     @Override
     public SimpleCommandMap getCommandMap() {

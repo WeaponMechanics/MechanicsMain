@@ -66,7 +66,7 @@ public interface PlaceholderData {
         @Nullable private ItemStack item;
         @Nullable private String itemTitle;
         @Nullable private EquipmentSlot slot;
-        @NotNull private Map<String, String> placeholders = new HashMap<>();
+        @NotNull private final Map<String, String> placeholders = new HashMap<>();
 
         // Setter methods for each field
         public Builder setPlayer(Player player) {

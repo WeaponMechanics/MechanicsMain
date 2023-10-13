@@ -30,13 +30,13 @@ public class v1_12_R1 implements IWeaponCompatibility {
         }
     }
 
-    private Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
+    private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> RELATIVE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Z,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.X_ROT,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y_ROT));
 
-    private Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
+    private final Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> ABSOLUTE_FLAGS = new HashSet<>(Arrays.asList(PacketPlayOutPosition.EnumPlayerTeleportFlags.X,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Y,
             PacketPlayOutPosition.EnumPlayerTeleportFlags.Z));
 

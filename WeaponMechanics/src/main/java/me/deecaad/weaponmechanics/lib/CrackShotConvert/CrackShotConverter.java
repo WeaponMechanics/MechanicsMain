@@ -319,7 +319,7 @@ public class CrackShotConverter {
 
     private static class SoundConvert implements Converter {
 
-        private boolean isTarget;
+        private final boolean isTarget;
 
         public SoundConvert() {
             this.isTarget = false;
@@ -694,7 +694,7 @@ public class CrackShotConverter {
 
     private static class FireworkConvert implements Converter {
 
-        private boolean isTarget;
+        private final boolean isTarget;
 
         public FireworkConvert() {
             this.isTarget = false;

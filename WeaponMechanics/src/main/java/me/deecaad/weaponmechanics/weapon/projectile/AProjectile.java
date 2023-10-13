@@ -47,7 +47,7 @@ public abstract class AProjectile {
      * @see ProjectileScript
      * @see ProjectilesRunnable
      */
-    private List<ProjectileScript<?>> scripts;
+    private final List<ProjectileScript<?>> scripts;
 
     protected AProjectile(Location location, Vector motion) {
         this(null, location, motion);
