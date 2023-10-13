@@ -4,7 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.sql.*;
 import java.util.function.Consumer;
 

@@ -76,7 +76,7 @@ public class v1_16_R3 implements ICompatibility {
         return entityCompatibility;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public BlockCompatibility getBlockCompatibility() {
         return blockCompatibility;

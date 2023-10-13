@@ -5,7 +5,7 @@ import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoConfig;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 

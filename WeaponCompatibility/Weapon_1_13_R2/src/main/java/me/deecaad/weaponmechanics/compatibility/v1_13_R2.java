@@ -12,8 +12,8 @@ import org.bukkit.craftbukkit.v1_13_R2.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,7 +46,7 @@ public class v1_13_R2 implements IWeaponCompatibility {
         this.scopeCompatibility = new Scope_1_13_R2();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public IScopeCompatibility getScopeCompatibility() {
         return scopeCompatibility;

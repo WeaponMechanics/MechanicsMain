@@ -6,7 +6,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.EnumUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

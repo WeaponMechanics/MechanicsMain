@@ -49,7 +49,7 @@ public class WorldGuardV6 implements WorldGuardCompatibility {
     }
 
     @Override
-    public Object getValue(@Nonnull Location location, @Nonnull String flagName) {
+    public Object getValue(@NotNull Location location, @NotNull String flagName) {
         RegionManager regionManager = WorldGuardPlugin.inst().getRegionManager(location.getWorld());
         ApplicableRegionSet applicableRegionSet = regionManager.getApplicableRegions(location);
 

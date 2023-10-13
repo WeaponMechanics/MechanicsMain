@@ -4,7 +4,7 @@ import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProje
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This class outlines convenient methods for any {@link WeaponEvent} that

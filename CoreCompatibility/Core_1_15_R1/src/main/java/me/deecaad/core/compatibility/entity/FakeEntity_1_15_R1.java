@@ -273,7 +273,7 @@ public class FakeEntity_1_15_R1 extends FakeEntity {
     }
 
     @Override
-    public void setEquipment(@Nonnull org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
+    public void setEquipment(@NotNull org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
         if (!type.isAlive())
             throw new IllegalStateException("Cannot set equipment of " + type);
 

@@ -16,7 +16,7 @@ import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class Block_1_17_R1 implements BlockCompatibility {
     }
 
     @Override
-    public @NotNull Object getCrackPacket(@Nonnull Block block, int crack, int id) {
+    public @NotNull Object getCrackPacket(@NotNull Block block, int crack, int id) {
         BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
         return new ClientboundBlockDestructionPacket(id, pos, crack);
     }

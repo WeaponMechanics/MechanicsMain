@@ -24,7 +24,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;

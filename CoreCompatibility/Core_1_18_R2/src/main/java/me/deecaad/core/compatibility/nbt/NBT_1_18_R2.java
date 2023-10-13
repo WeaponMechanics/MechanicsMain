@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -51,21 +51,21 @@ public class NBT_1_18_R2 extends NBT_Persistent {
         toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public net.minecraft.world.item.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
+    public net.minecraft.world.item.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public ItemStack getBukkitStack(@Nonnull Object nmsStack) {
+    public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) nmsStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
+    public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         CompoundTag nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
     }

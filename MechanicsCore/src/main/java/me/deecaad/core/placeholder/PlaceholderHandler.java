@@ -5,7 +5,7 @@ import me.deecaad.core.utils.Keyable;
 import net.kyori.adventure.text.minimessage.tag.TagPattern;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 /**
