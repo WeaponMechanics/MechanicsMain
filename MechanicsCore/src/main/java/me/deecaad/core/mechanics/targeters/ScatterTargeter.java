@@ -48,7 +48,7 @@ public class ScatterTargeter extends ShapeTargeter {
         }
 
         // Max attempts to try traceDown
-        final int maxAttempts = 3 * points;
+        final int maxAttempts = 5;
 
         return new Iterator<>() {
             final Vector cache = new Vector();
@@ -82,7 +82,7 @@ public class ScatterTargeter extends ShapeTargeter {
                 // If we are in a solid block, we have succeeded in finding ground!
                 // Now we should go to the top of the block.
                 if (isTraceDown)
-                    y++;
+                    y = Math.floor(y + 1) + 0.05;
 
                 cache.setX(x);
                 cache.setY(y);
