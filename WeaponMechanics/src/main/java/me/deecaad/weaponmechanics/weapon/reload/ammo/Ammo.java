@@ -8,6 +8,7 @@ import me.deecaad.core.utils.Keyable;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
@@ -24,30 +25,30 @@ public class Ammo implements Keyable, Serializer<Ammo> {
     public Ammo() {
     }
 
-    public Ammo(String ammoTitle, String symbol, IAmmoType type) {
+    public Ammo(@NotNull String ammoTitle, @Nullable String symbol, @NotNull IAmmoType type) {
         this.ammoTitle = ammoTitle;
         this.symbol = symbol;
         this.type = type;
     }
 
-    public String getAmmoTitle() {
+    public @NotNull String getAmmoTitle() {
         return ammoTitle;
     }
 
-    public String getSymbol() {
+    public @Nullable String getSymbol() {
         return symbol;
     }
 
-    public String getDisplay() {
+    public @NotNull String getDisplay() {
         return symbol == null ? ammoTitle : symbol;
     }
 
-    public IAmmoType getType() {
+    public @NotNull IAmmoType getType() {
         return type;
     }
 
     @Override
-    public String getKey() {
+    public @NotNull String getKey() {
         return ammoTitle;
     }
 

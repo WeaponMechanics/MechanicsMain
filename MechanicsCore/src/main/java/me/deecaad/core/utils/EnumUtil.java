@@ -1,5 +1,8 @@
 package me.deecaad.core.utils;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.ref.WeakReference;
 import java.util.*;
 
@@ -89,17 +92,30 @@ public final class EnumUtil {
      * {@link Optional}. The resulting {@link Optional} will be empty if no
      * {@link Enum} with the <code>name</code> exists.
      *
-     * @param clazz The enum's non-null class type. This is generally a static
-     *              class reference.
+     * @param clazz The enum's non-null class type.
      * @param name  The name of the enum to grab. This string should be trimmed
      *              ({@link String#trim()}) and uppercase
      *              ({@link String#toUpperCase()}).
      * @param <T>   The generic type of the enum.
      * @return An optional of the enum found, or an empty optional.
      */
-    public static <T extends Enum<T>> Optional<T> getIfPresent(Class<T> clazz, String name) {
+    public static <T extends Enum<T>> @NotNull Optional<T> getIfPresent(@NotNull Class<T> clazz, @NotNull String name) {
         WeakReference<? extends Enum<?>> reference = getConstants(clazz).get(name.trim().toUpperCase(Locale.ROOT));
         return reference == null ? Optional.empty() : Optional.of(clazz.cast(reference.get()));
+    }
+
+    /**
+     * Returns an {@link Enum} of the given {@link Class}, or returns null.
+     *
+     * @param clazz The enum's non-null class type.
+     * @param name  The name of the enum to grab. This string should be trimmed
+     *              ({@link String#trim()}) and uppercase
+     *              ({@link String#toUpperCase()}).
+     * @param <T>   The generic type of the enum.
+     * @return The enum found, or null.
+     */
+    public static <T extends Enum<T>> @Nullable T getOrNull(@NotNull Class<T> clazz, @NotNull String name) {
+        return getIfPresent(clazz, name).orElse(null);
     }
 
     /**
@@ -111,7 +127,7 @@ public final class EnumUtil {
      * @return immutable set of all enums.
      * @see Collections#unmodifiableMap(Map)
      */
-    public static <T extends Enum<T>> Set<String> getOptions(Class<T> clazz) {
+    public static <T extends Enum<T>> @NotNull Set<String> getOptions(@NotNull Class<T> clazz) {
         Map<String, WeakReference<T>> temp = getConstants(clazz);
         return temp.keySet();
     }
@@ -124,9 +140,9 @@ public final class EnumUtil {
      * @param clazz Class to grab the enum from.
      * @param <T>   The enum type.
      * @return An immutable set of all enums.
-     * @see Collections#unmodifiableMap(Map) 
+     * @see Collections#unmodifiableMap(Map)
      */
-    public static <T extends Enum<T>> List<T> getValues(Class<T> clazz) {
+    public static <T extends Enum<T>> @NotNull List<T> getValues(@NotNull Class<T> clazz) {
         Map<String, WeakReference<T>> temp = getConstants(clazz);
 
         List<T> list = new ArrayList<>(temp.size());

@@ -23,7 +23,7 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
     }
 
     @Override
-    default String getKey() {
+    default @NotNull String getKey() {
         return getInlineKeyword();
     }
 
@@ -35,7 +35,13 @@ public interface InlineSerializer<T> extends Serializer<T>, Keyable {
      * @return The non-null lowerCamelCase keyword.
      */
     default String getInlineKeyword() {
-        String[] split = getKeyword().split("_");
+        String keyword = getKeyword();
+        if (keyword == null) {
+            String name = getClass().getSimpleName();
+            throw new NullPointerException("Keyword for " + name + " is null");
+        }
+
+        String[] split = keyword.split("_");
         //split[0] = split[0].toLowerCase(Locale.ROOT); // lower camel case
         return String.join("", split);
     }

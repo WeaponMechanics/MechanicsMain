@@ -3,6 +3,7 @@ package me.deecaad.core.placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +56,7 @@ public interface PlaceholderData {
             @Nullable ItemStack item,
             @Nullable String itemTitle,
             @Nullable EquipmentSlot slot,
-            @Nullable Map<String, String> tempPlaceholders
+            @NotNull Map<String, String> tempPlaceholders
     ) {
         return new Direct(player, item, itemTitle, slot, tempPlaceholders);
     }
@@ -69,27 +70,37 @@ public interface PlaceholderData {
         @NotNull private final Map<String, String> placeholders = new HashMap<>();
 
         // Setter methods for each field
-        public Builder setPlayer(Player player) {
+        @Contract("_ -> this")
+        @NotNull
+        public Builder setPlayer(@Nullable Player player) {
             this.player = player;
             return this;
         }
 
-        public Builder setItem(ItemStack item) {
+        @Contract("_ -> this")
+        @NotNull
+        public Builder setItem(@Nullable ItemStack item) {
             this.item = item;
             return this;
         }
 
-        public Builder setItemTitle(String itemTitle) {
+        @Contract("_ -> this")
+        @NotNull
+        public Builder setItemTitle(@Nullable String itemTitle) {
             this.itemTitle = itemTitle;
             return this;
         }
 
-        public Builder setSlot(EquipmentSlot slot) {
+        @Contract("_ -> this")
+        @NotNull
+        public Builder setSlot(@Nullable EquipmentSlot slot) {
             this.slot = slot;
             return this;
         }
 
-        public Builder setPlaceholder(String placeholder, String value) {
+        @Contract("_, _ -> this")
+        @NotNull
+        public Builder setPlaceholder(@NotNull String placeholder, @NotNull String value) {
             placeholders.put(placeholder, value);
             return this;
         }

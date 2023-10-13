@@ -44,7 +44,7 @@ public class Factory<T> {
      * @throws InternalError If no "good" constructor exists.
      * @throws SerializerException invalid key OR missing argument OR invalid argument type.
      */
-    public final T get(String key, Map<String, Object> arguments) throws SerializerException {
+    public final T get(@NotNull String key, @NotNull Map<String, Object> arguments) throws SerializerException {
         key = key.trim().toUpperCase(Locale.ROOT);
         Arguments args = map.get(key);
 
@@ -90,17 +90,17 @@ public class Factory<T> {
         return ReflectionUtil.newInstance(args.manufacturedType, objects);
     }
 
-    public final void set(String key, Arguments args) {
+    public final void set(@NotNull String key, @NotNull Arguments args) {
         for (String str : key.split(", ?")) {
             map.put(str.trim().toUpperCase(Locale.ROOT), args);
         }
     }
 
-    public Set<String> getOptions() {
+    public @NotNull Set<String> getOptions() {
         return map.keySet();
     }
 
-    public Map<String, Class<T>> getMap() {
+    public @NotNull Map<String, Class<T>> getMap() {
         HashMap<String, Class<T>> temp = new HashMap<>(map.size());
         map.forEach((key, value) -> temp.put(key, value.manufacturedType));
         return temp;

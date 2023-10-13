@@ -56,7 +56,7 @@ public final class AdventureUtil {
      * @param item The item get the name from.
      * @return The name component.
      */
-    public static Component getName(@NotNull ItemStack item) {
+    public static @NotNull Component getName(@NotNull ItemStack item) {
         return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
     }
 

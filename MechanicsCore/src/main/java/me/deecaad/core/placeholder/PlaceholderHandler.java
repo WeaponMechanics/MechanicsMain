@@ -23,7 +23,7 @@ public abstract class PlaceholderHandler implements Keyable {
     }
 
     @Override
-    public String getKey() {
+    public @NotNull String getKey() {
         return getPlaceholderName();
     }
 
@@ -33,7 +33,7 @@ public abstract class PlaceholderHandler implements Keyable {
      *
      * @return This placeholder's name
      */
-    public String getPlaceholderName() {
+    public @NotNull String getPlaceholderName() {
         return this.placeholderName;
     }
 
