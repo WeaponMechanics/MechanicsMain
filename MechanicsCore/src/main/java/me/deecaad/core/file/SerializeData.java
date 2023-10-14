@@ -1135,7 +1135,7 @@ public class SerializeData {
             T base = registry.get(key);
 
             if (base == null)
-                throw new SerializerOptionsException(serializer, registry.getName(), registry.getOptions(), key, getLocation());
+                throw new SerializerOptionsException(serializer, registry.getKey(), registry.getOptions(), key, getLocation());
 
             return base.serialize(nested);
         }
@@ -1187,7 +1187,7 @@ public class SerializeData {
                 String id = ((MapConfigLike.Holder) map.get(UNIQUE_IDENTIFIER)).value().toString();
                 InlineSerializer<T> serializer = registry.get(id);
                 if (serializer == null)
-                    throw new SerializerOptionsException(SerializeData.this.serializer, registry.getName(), registry.getOptions(), id, getLocation());
+                    throw new SerializerOptionsException(SerializeData.this.serializer, registry.getKey(), registry.getOptions(), id, getLocation());
 
                 ConfigLike temp = new MapConfigLike((Map<String, MapConfigLike.Holder>) map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
                 SerializeData nested = new SerializeData(serializer, file, null, temp);
