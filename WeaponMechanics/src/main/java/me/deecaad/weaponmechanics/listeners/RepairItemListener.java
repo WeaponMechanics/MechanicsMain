@@ -136,15 +136,22 @@ public class RepairItemListener implements Listener {
             // complicated, so we handle it separately.
             if (CustomTag.BROKEN_WEAPON.hasString(weapon)) {
                 repairBrokenItem(event);
-                return;
+
+            } else {
+
+                // Only attempt to repair guns with proper repair items
+                if (weaponTitle == null || event.getCursor() == null)
+                    return;
+
+                Configuration config = WeaponMechanics.getConfigurations();
+                CustomDurability customDurability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
+                if (customDurability.isRepairOnlyBroken()) {
+                    return;
+                }
+
+                CastData cast = new CastData(event.getWhoClicked(), weaponTitle, weapon);
+                repair(weapon, weaponTitle, event.getCursor(), cast);
             }
-
-            // Only attempt to repair guns with proper repair items
-            if (weaponTitle == null || event.getCursor() == null)
-                return;
-
-            CastData cast = new CastData(event.getWhoClicked(), weaponTitle, weapon);
-            repair(weapon, weaponTitle, event.getCursor(), cast);
         }
     }
 
@@ -221,6 +228,10 @@ public class RepairItemListener implements Listener {
                 CustomTag.DURABILITY.setInteger(weapon, durability + availableRepair);
                 repairItem.setAmount(0);
                 if (kit.getBreakMechanics() != null) kit.getBreakMechanics().use(cast);
+            }
+
+            if (kit.consumeOnUse) {
+                repairItem.setAmount(0);
             }
 
             // When "overrideMaxDurabilityLoss" is -1, it is automatically set
@@ -316,6 +327,7 @@ public class RepairItemListener implements Listener {
         private Set<String> weapons;
         private Set<String> armors;
         private Mechanics breakMechanics;
+        private boolean consumeOnUse;
 
         /**
          * Default constructor for serializers.
@@ -324,7 +336,7 @@ public class RepairItemListener implements Listener {
         }
 
         public RepairKit(ItemStack item, int totalDurability, int overrideMaxDurabilityLoss, boolean blacklist,
-                         Set<String> weapons, Set<String> armors, Mechanics breakMechanics) {
+                         Set<String> weapons, Set<String> armors, Mechanics breakMechanics, boolean consumeOnUse) {
             this.item = item;
             this.totalDurability = totalDurability;
             this.overrideMaxDurabilityLoss = overrideMaxDurabilityLoss;
@@ -332,6 +344,7 @@ public class RepairItemListener implements Listener {
             this.weapons = weapons;
             this.armors = armors;
             this.breakMechanics = breakMechanics;
+            this.consumeOnUse = consumeOnUse;
         }
 
         public ItemStack getItem() {
@@ -360,6 +373,14 @@ public class RepairItemListener implements Listener {
 
         public Mechanics getBreakMechanics() {
             return breakMechanics;
+        }
+
+        public boolean isConsumeOnUse() {
+            return consumeOnUse;
+        }
+
+        public void setConsumeOnUse(boolean consumeOnUse) {
+            this.consumeOnUse = consumeOnUse;
         }
 
         /**
@@ -400,8 +421,9 @@ public class RepairItemListener implements Listener {
             ItemStack item = new ItemSerializer().serializeWithTags(data.move("Item"), tags);
 
             Mechanics breakMechanics = data.of("Break_Mechanics").serialize(Mechanics.class);
+            boolean consumeOnUse = data.of("Consume_On_Use").get(false);
 
-            return new RepairKit(item, totalDurability, overrideMaxDurabilityLoss, blacklist, weapons, armors, breakMechanics);
+            return new RepairKit(item, totalDurability, overrideMaxDurabilityLoss, blacklist, weapons, armors, breakMechanics, consumeOnUse);
         }
     }
 }

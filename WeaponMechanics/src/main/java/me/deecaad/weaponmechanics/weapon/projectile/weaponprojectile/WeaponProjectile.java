@@ -332,10 +332,10 @@ public class WeaponProjectile extends AProjectile {
     }
 
     @Override
-    public boolean handleCollisions() {
+    public boolean updatePosition() {
 
-        Vector motion = getMotion();
-        Vector possibleNextLocation = getLocation().add(motion);
+        Vector[] positionAndVelocity = nextPositionAndVelocity();
+        Vector possibleNextLocation = positionAndVelocity[0];
         if (!getWorld().isChunkLoaded(possibleNextLocation.getBlockX() >> 4, possibleNextLocation.getBlockZ() >> 4)) {
             // Remove projectile if next location would be in unloaded chunk
             return true;
@@ -356,7 +356,8 @@ public class WeaponProjectile extends AProjectile {
         }
 
         // Don't check for new collisions if motion is empty
-        if (VectorUtil.isEmpty(motion)) return false;
+        setMotion(positionAndVelocity[1]);
+        if (VectorUtil.isEmpty(positionAndVelocity[1])) return false;
 
         // Returns sorted list of hits
 
