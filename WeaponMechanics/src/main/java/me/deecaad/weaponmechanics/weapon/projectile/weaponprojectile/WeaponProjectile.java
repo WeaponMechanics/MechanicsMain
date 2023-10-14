@@ -1,7 +1,9 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.utils.VectorUtil;
-import me.deecaad.core.utils.ray.*;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
+import me.deecaad.core.utils.ray.RayTrace;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.weaponevents.ProjectileEndEvent;
@@ -334,8 +336,7 @@ public class WeaponProjectile extends AProjectile {
     @Override
     public boolean updatePosition() {
 
-        Vector[] positionAndVelocity = nextPositionAndVelocity();
-        Vector possibleNextLocation = positionAndVelocity[0];
+        Vector possibleNextLocation = getLocation().add(getMotion());
         if (!getWorld().isChunkLoaded(possibleNextLocation.getBlockX() >> 4, possibleNextLocation.getBlockZ() >> 4)) {
             // Remove projectile if next location would be in unloaded chunk
             return true;
@@ -356,8 +357,7 @@ public class WeaponProjectile extends AProjectile {
         }
 
         // Don't check for new collisions if motion is empty
-        setMotion(positionAndVelocity[1]);
-        if (VectorUtil.isEmpty(positionAndVelocity[1])) return false;
+        if (getMotionLength() < Vector.getEpsilon()) return false;
 
         // Returns sorted list of hits
 
@@ -375,7 +375,6 @@ public class WeaponProjectile extends AProjectile {
             return hasTravelledMaximumDistance();
         }
 
-        double cacheMotionLength = getMotionLength();
         double distanceAlreadyAdded = 0;
 
         for (RayTraceResult hit : hits) {
@@ -422,7 +421,7 @@ public class WeaponProjectile extends AProjectile {
 
                 // We want to check that projectile isn't already rolling
                 // If it is already rolling we want to allow bouncing against hits
-                if (!isRolling() && cacheMotionLength < bouncy.getRequiredMotionToStartRollingOrDie()) {
+                if (!isRolling() && getMotionLength() < bouncy.getRequiredMotionToStartRollingOrDie()) {
 
                     // Returns true if projectile should die, false otherwise
                     return !(hit instanceof BlockTraceResult blockHit) || !bouncy.handleRolling(this, blockHit.getBlock());
@@ -443,7 +442,7 @@ public class WeaponProjectile extends AProjectile {
         // Here we know that projectile didn't die on any collision.
         // We still have to update the location to last possible location.
         setRawLocation(possibleNextLocation);
-        addDistanceTravelled(cacheMotionLength - distanceAlreadyAdded);
+        addDistanceTravelled(getMotionLength() - distanceAlreadyAdded);
 
         return hasTravelledMaximumDistance();
     }

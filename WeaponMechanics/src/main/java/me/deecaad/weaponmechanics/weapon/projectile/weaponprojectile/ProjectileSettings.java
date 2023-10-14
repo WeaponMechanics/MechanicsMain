@@ -271,7 +271,7 @@ public class ProjectileSettings implements Serializer<ProjectileSettings>, Clone
             }
         }
 
-        double gravity = data.of("Gravity").getDouble(10);
+        double gravity = data.of("Gravity").getDouble(10) / 200.0;
 
         // -1 so that CustomProjectile#tick() can understand that minimum or maximum speed isn't used
         double minimumSpeed = data.of("Minimum.Speed").assertPositive().getDouble(-20.0) / 20.0;

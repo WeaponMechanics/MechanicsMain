@@ -168,6 +168,7 @@ public class RayTraceResult {
     }
 
     public void outlineOnlyHitPosition(Entity player) {
+        Vector hitLocation = getHitLocation();
         double x = hitLocation.getX();
         double y = hitLocation.getY();
         double z = hitLocation.getZ();

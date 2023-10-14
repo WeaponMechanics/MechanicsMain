@@ -10,8 +10,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -343,6 +343,13 @@ public abstract class AProjectile {
         // Update last location here since handle collisions will change the location
         lastLocation = location.clone();
 
+        // Update motion BEFORE updating position, see #339
+        double gravity = getGravity();
+        if (gravity != 0) {
+            motion.setY(motion.getY() - gravity);
+        }
+        motion.multiply(getDrag());
+
         // Handle collisions will update location and distance travelled
         if (updatePosition()) {
             return true;
@@ -353,8 +360,7 @@ public abstract class AProjectile {
             return true;
         }
 
-        double gravity = getGravity();
-        if (gravity == 0 && VectorUtil.isEmpty(motion)) {
+        if (gravity == 0 && motionLength < Vector.getEpsilon()) {
 
             // No need to continue as motion is empty and there isn't gravity currently
 
@@ -364,10 +370,6 @@ public abstract class AProjectile {
             scriptEvent(ProjectileScript::onTickEnd);
             ++aliveTicks;
             return false;
-        }
-
-        if (gravity != 0) {
-            motion.setY(motion.getY() - gravity);
         }
 
         motionLength = motion.length();
@@ -453,37 +455,6 @@ public abstract class AProjectile {
      * @return true if projectile should be removed from projectile runnable
      */
     public abstract boolean updatePosition();
-
-    public Vector[] nextPositionAndVelocity() {
-
-        // There are many ways we can estimate the projectile's pos/velocity.
-        // Here are the ones we considered:
-        //
-        // EULER -> fastest, least accurate, makes projectile accelerate downwards faster
-        // RUNGE-KUTTA -> slowest, most accurate, basically euler method, but done X times in 1 tick
-        // KINEMATICS -> pretty fast, pretty accurate, but assumes acceleration is constant
-        //
-        // We decided to go with a KINEMATICS approach since our acceleration is
-        // *basically* constant, which means it might even be more accurate than RUNGE-KUTTA
-
-        // acceleration = drag and gravity
-        double drag = getDrag();
-        double gravity = getGravity();
-        Vector acceleration = getMotion().multiply(-(1 - drag));
-        acceleration.setY(acceleration.getY() - gravity);
-
-        // Current velocity... already in blocks/tick so no need to multiply by timestep
-        Vector velocity = getMotion();
-
-        // update position... position = position + velocity*time + 0.5*acceleration*time^2
-        double timeStep = 0.05; // 20 ticks per second = 0.05 seconds between ticks
-        Vector position = getLocation().add(velocity).add(acceleration.multiply(timeStep * timeStep));
-
-        // update velocity... accleration was previously multiplied by timestep twice, so we gotta undo that
-        velocity.add(acceleration.multiply(20));
-
-        return new Vector[]{ position, velocity };
-    }
 
     /**
      * Override this method to do something on start
