@@ -18,9 +18,9 @@ import org.bukkit.block.data.type.Candle;
 import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -46,7 +46,7 @@ public final class BlockDamageData {
     /**
      * Shorthand for {@link #damage(Block, double, boolean, boolean, Material)}
      */
-    public static DamageData damage(@Nonnull Block block, double damage, boolean isBreak, boolean isRegenerate) {
+    public static DamageData damage(@NotNull Block block, double damage, boolean isBreak, boolean isRegenerate) {
         return damage(block, damage, isBreak, isRegenerate, MASK);
     }
 
@@ -62,7 +62,7 @@ public final class BlockDamageData {
      * @param mask         The block to replace... Usually {@link #MASK}.
      * @return <code>true</code> if the block was broken.
      */
-    public static DamageData damage(@Nonnull Block block, double damage, boolean isBreak, boolean isRegenerate, Material mask) {
+    public static DamageData damage(@NotNull Block block, double damage, boolean isBreak, boolean isRegenerate, Material mask) {
         ChunkPos pos = new ChunkPos(block);
 
         // Get the DamageData for the given block, or create a new one if needed
@@ -74,7 +74,7 @@ public final class BlockDamageData {
     }
 
     @Nullable
-    public static DamageData getBlockDamage(@Nonnull Block block) {
+    public static DamageData getBlockDamage(@NotNull Block block) {
         Map<Block, DamageData> map = DAMAGE_MAP.get(new ChunkPos(block));
         if (map == null)
             return null;
@@ -92,7 +92,7 @@ public final class BlockDamageData {
      * @param block The non-null block position to test.
      * @return true if the block is broken and going to regenerate.
      */
-    public static boolean isBroken(@Nonnull Block block) {
+    public static boolean isBroken(@NotNull Block block) {
         DamageData data = getBlockDamage(block);
         return data != null && data.isBroken();
     }
@@ -104,7 +104,7 @@ public final class BlockDamageData {
      *
      * @param block The non-null block to regenerate
      */
-    public static void regenerate(@Nonnull Block block) {
+    public static void regenerate(@NotNull Block block) {
         Map<Block, DamageData> data = DAMAGE_MAP.get(new ChunkPos(block));
 
         if (data == null)
@@ -125,7 +125,7 @@ public final class BlockDamageData {
      * @param chunk The non-null chunk to regenerate all blocks.
      * @see #regenerate(Block)
      */
-    public static void regenerate(@Nonnull Chunk chunk) {
+    public static void regenerate(@NotNull Chunk chunk) {
         ChunkPos pos = new ChunkPos(chunk);
 
         regenerate(pos);
@@ -141,7 +141,7 @@ public final class BlockDamageData {
      * @param world The non-null world to regenerate all blocks.
      * @see #regenerate(Block)
      */
-    public static void regenerate(@Nonnull World world) {
+    public static void regenerate(@NotNull World world) {
         Iterator<ChunkPos> iterator = DAMAGE_MAP.keySet().iterator();
 
         while (iterator.hasNext()) {
@@ -164,7 +164,7 @@ public final class BlockDamageData {
         }
     }
 
-    private static void regenerate(@Nonnull ChunkPos pos) {
+    private static void regenerate(@NotNull ChunkPos pos) {
         Map<Block, DamageData> blocks = DAMAGE_MAP.get(pos);
 
         if (blocks == null)

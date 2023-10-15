@@ -5,10 +5,6 @@ import org.bukkit.inventory.ItemStack;
 
 public interface IAmmoType {
 
-    String getAmmoName();
-
-    String getSymbol();
-
     boolean hasAmmo(PlayerWrapper playerWrapper);
 
     int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize);

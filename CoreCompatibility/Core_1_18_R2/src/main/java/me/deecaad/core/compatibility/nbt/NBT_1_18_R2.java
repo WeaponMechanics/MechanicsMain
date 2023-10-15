@@ -1,10 +1,13 @@
 package me.deecaad.core.compatibility.nbt;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonElement;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.core.utils.StringUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTagVisitor;
 import net.minecraft.nbt.Tag;
@@ -13,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -48,23 +51,30 @@ public class NBT_1_18_R2 extends NBT_Persistent {
         toItem.setItemMeta(getBukkitStack(nms).getItemMeta());
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public net.minecraft.world.item.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
+    public net.minecraft.world.item.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public ItemStack getBukkitStack(@Nonnull Object nmsStack) {
+    public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) nmsStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
+    public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         CompoundTag nbt = getNMSStack(bukkitStack).getTag();
         return nbt == null ? "null" : new TagColorVisitor().visit(nbt);
+    }
+
+    @Override
+    public @NotNull Component getDisplayName(@NotNull ItemStack item) {
+        net.minecraft.network.chat.Component component = CraftItemStack.asNMSCopy(item).getDisplayName();
+        JsonElement json = net.minecraft.network.chat.Component.Serializer.toJsonTree(component);
+        return GsonComponentSerializer.gson().serializer().fromJson(json, Component.class);
     }
 
     private static class TagColorVisitor extends StringTagVisitor {

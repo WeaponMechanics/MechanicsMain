@@ -1,13 +1,11 @@
 package me.deecaad.weaponmechanics.weapon.placeholders;
 
+import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmAction;
 import me.deecaad.weaponmechanics.weapon.firearm.FirearmState;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -15,20 +13,20 @@ import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 public class PFirearmState extends PlaceholderHandler {
 
     public PFirearmState() {
-        super("%firearm-state%");
+        super("firearm_state");
     }
 
     @Nullable
     @Override
-    public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot) {
-        if (itemStack == null || weaponTitle == null) return null;
+    public String onRequest(@NotNull PlaceholderData data) {
+        if (data.item() == null || data.itemTitle() == null) return null;
 
-        FirearmAction firearmAction = getConfigurations().getObject(weaponTitle + ".Firearm_Action", FirearmAction.class);
+        FirearmAction firearmAction = getConfigurations().getObject(data.itemTitle() + ".Firearm_Action", FirearmAction.class);
 
         // Simply don't show anything
         if (firearmAction == null) return "";
 
-        FirearmState state = firearmAction.getState(itemStack);
+        FirearmState state = firearmAction.getState(data.item());
 
         return switch (state) {
             case OPEN -> getBasicConfigurations().getString("Placeholder_Symbols." + firearmAction.getFirearmType().name() + ".Open", " □");

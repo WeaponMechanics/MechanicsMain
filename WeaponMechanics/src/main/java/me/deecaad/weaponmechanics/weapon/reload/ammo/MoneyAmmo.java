@@ -8,40 +8,24 @@ import org.bukkit.inventory.ItemStack;
 
 public class MoneyAmmo implements IAmmoType {
 
-    private static final IVaultCompatibility vaultCompatibility = CompatibilityAPI.getVaultCompatibility();
+    private final double moneyAsAmmoCost;
 
-    // Defined in ammo types list
-    private String ammoName;
-
-    private String symbol;
-    private double moneyAsAmmoCost;
-
-    public MoneyAmmo(String ammoName, String symbol, double moneyAsAmmoCost) {
-        this.ammoName = ammoName;
-        this.symbol = symbol;
+    public MoneyAmmo(double moneyAsAmmoCost) {
         this.moneyAsAmmoCost = moneyAsAmmoCost;
     }
 
     @Override
-    public String getAmmoName() {
-        return ammoName;
-    }
-
-    @Override
-    public String getSymbol() {
-        return symbol != null ? symbol : ammoName;
-    }
-
-    @Override
     public boolean hasAmmo(PlayerWrapper playerWrapper) {
-        return vaultCompatibility.getBalance(playerWrapper.getPlayer()) >= moneyAsAmmoCost;
+        IVaultCompatibility vault = CompatibilityAPI.getVaultCompatibility();
+        return vault.getBalance(playerWrapper.getPlayer()) >= moneyAsAmmoCost;
     }
 
     @Override
     public int removeAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        IVaultCompatibility vault = CompatibilityAPI.getVaultCompatibility();
         if (amount == 0) return 0;
         Player player = playerWrapper.getPlayer();
-        double balance = vaultCompatibility.getBalance(player);
+        double balance = vault.getBalance(player);
         if (balance == 0) return 0;
 
         double removeMoney = this.moneyAsAmmoCost * amount;
@@ -53,23 +37,25 @@ public class MoneyAmmo implements IAmmoType {
             amount = (int) (balance / moneyAsAmmoCost);
             if (amount == 0) return 0;
 
-            vaultCompatibility.withdrawBalance(player, amount * moneyAsAmmoCost);
+            vault.withdrawBalance(player, amount * moneyAsAmmoCost);
             return amount;
         }
 
-        vaultCompatibility.withdrawBalance(player, removeMoney);
+        vault.withdrawBalance(player, removeMoney);
         return amount;
     }
 
     @Override
     public void giveAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
+        IVaultCompatibility vault = CompatibilityAPI.getVaultCompatibility();
         if (amount == 0) return;
-        vaultCompatibility.depositBalance(playerWrapper.getPlayer(), this.moneyAsAmmoCost * amount);
+        vault.depositBalance(playerWrapper.getPlayer(), this.moneyAsAmmoCost * amount);
     }
 
     @Override
     public int getMaximumAmmo(PlayerWrapper playerWrapper, int maximumMagazineSize) {
-        double balance = vaultCompatibility.getBalance(playerWrapper.getPlayer());
+        IVaultCompatibility vault = CompatibilityAPI.getVaultCompatibility();
+        double balance = vault.getBalance(playerWrapper.getPlayer());
         if (balance == 0) return 0;
 
         // Divide with money cost and convert to int

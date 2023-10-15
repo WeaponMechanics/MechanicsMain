@@ -4,20 +4,16 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.placeholder.PlaceholderMessage;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-
 public class MessageMechanic extends Mechanic {
 
-    private String message;
+    private PlaceholderMessage message;
 
     /**
      * Default constructor for serializer.
@@ -26,11 +22,11 @@ public class MessageMechanic extends Mechanic {
     }
 
     public MessageMechanic(String message) {
-        this.message = message;
+        this.message = new PlaceholderMessage(message);
     }
 
     public String getMessage() {
-        return message;
+        return message.getTemplate();
     }
 
     @Override
@@ -38,14 +34,9 @@ public class MessageMechanic extends Mechanic {
         if (!(cast.getTarget() instanceof Player player))
             return;
 
-        String itemTitle = cast.getItemTitle();
-        ItemStack itemStack = cast.getItemStack();
-        Map<String, String> tempPlaceholders = cast.getTempPlaceholders();
-
         // Parse and send the message to the 1 player
         // TODO this method would benefit from having access to the target list
-        MiniMessage PARSER = MechanicsCore.getPlugin().message;
-        Component chat = PARSER.deserialize(PlaceholderAPI.applyPlaceholders(message, player, itemStack, itemTitle, null, tempPlaceholders));
+        Component chat = message.replaceAndDeserialize(cast);
         Audience audience = MechanicsCore.getPlugin().adventure.player(player);
         audience.sendMessage(chat);
     }
@@ -62,7 +53,7 @@ public class MessageMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String message = data.of("Message").assertExists().getAdventure();
         return applyParentArgs(data, new MessageMechanic(message));
     }

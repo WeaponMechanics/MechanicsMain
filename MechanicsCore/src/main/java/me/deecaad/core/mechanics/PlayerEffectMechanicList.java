@@ -1,5 +1,6 @@
 package me.deecaad.core.mechanics;
 
+import me.deecaad.core.file.JarSearcherExempt;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.conditions.Condition;
@@ -21,7 +22,7 @@ import java.util.function.Supplier;
  * which may exist 10+ times in 1 {@link Mechanics}, causing major performance issues
  * on big servers.
  */
-public class PlayerEffectMechanicList extends Mechanic {
+public final class PlayerEffectMechanicList extends Mechanic implements JarSearcherExempt {
 
     private final List<PlayerEffectMechanic> mechanics;
 
@@ -40,10 +41,12 @@ public class PlayerEffectMechanicList extends Mechanic {
         return mechanics.isEmpty();
     }
 
-    @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
-        throw new UnsupportedOperationException("Cannot directly serialize a PlayerEffectMechanicList");
+    protected void handleTargetersAndConditions(CastData cast) {
+        // This Mechanic is a special Mechanic that stores a list of mechanics that
+        // can have their targeters cached. This improves performance. Of course, that
+        // means that this mechanic SHOULD NOT use targeters.
+        use0(cast);
     }
 
     @Override
@@ -70,5 +73,11 @@ public class PlayerEffectMechanicList extends Mechanic {
             mechanic.playFor(cast, cacheList);
             cacheList.clear();
         }
+    }
+
+    @NotNull
+    @Override
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
+        throw new UnsupportedOperationException("Cannot directly serialize a PlayerEffectMechanicList");
     }
 }

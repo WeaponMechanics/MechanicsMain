@@ -9,8 +9,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.MainHand;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
 
@@ -112,8 +111,8 @@ public class Trigger implements Serializer<Trigger> {
     }
 
     @Override
-    @Nonnull
-    public Trigger serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Trigger serialize(@NotNull SerializeData data) throws SerializerException {
         TriggerType main = data.of("Main_Hand").getEnum(TriggerType.class, null);
         TriggerType off = data.of("Off_Hand").getEnum(TriggerType.class, null);
 

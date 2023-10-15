@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -123,8 +124,8 @@ public class Projectile implements Serializer<Projectile> {
     }
 
     @Override
-    @Nonnull
-    public Projectile serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Projectile serialize(@NotNull SerializeData data) throws SerializerException {
         ProjectileSettings projectileSettings = data.of("Projectile_Settings").assertExists().serialize(ProjectileSettings.class);
 
         Sticky sticky = data.of("Sticky").serialize(Sticky.class);

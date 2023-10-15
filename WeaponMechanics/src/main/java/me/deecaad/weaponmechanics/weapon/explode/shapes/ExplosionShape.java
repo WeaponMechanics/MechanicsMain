@@ -4,9 +4,9 @@ import me.deecaad.weaponmechanics.utils.Factory;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -39,8 +39,8 @@ public interface ExplosionShape {
      * @param origin The non-null origin of the explosion (Usually the center).
      * @return The non-null list of blocks contained in the explosion.
      */
-    @Nonnull
-    List<Block> getBlocks(@Nonnull Location origin);
+    @NotNull
+    List<Block> getBlocks(@NotNull Location origin);
 
     /**
      * Returns a list of all effect entities effected by this shape. An entity
@@ -52,7 +52,7 @@ public interface ExplosionShape {
      * @param origin The non-null origin of the explosion (Usually the center).
      * @return The non-null list of entities contained in the explosion.
      */
-    List<LivingEntity> getEntities(@Nonnull Location origin);
+    List<LivingEntity> getEntities(@NotNull Location origin);
 
     /**
      * Returns the maximum distance from the origin of the explosion that an
@@ -75,7 +75,7 @@ public interface ExplosionShape {
      * @param point  The non-null point to test.
      * @return True if the point is in this shape.
      */
-    boolean isContained(@Nonnull Location origin, @Nonnull Location point);
+    boolean isContained(@NotNull Location origin, @NotNull Location point);
 
     /**
      * Returns the area, measured in meters cubed (blocks cubed), of this

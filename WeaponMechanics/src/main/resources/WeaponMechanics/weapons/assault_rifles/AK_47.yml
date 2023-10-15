@@ -42,7 +42,7 @@ AK_47:
                 w: oak_planks
     Weapon_Info_Display:
       Action_Bar:
-        Message: "<gold>AK-47%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
+        Message: "<gold>AK-47<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
       - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 30
@@ -151,7 +151,7 @@ AK_47:
     Reload:
       Item_Cooldown: true
       Exp: true
-      Action_Bar: "<gray>Reloading %bar% <gray>%time%s"
+      Action_Bar: "<gray>Reloading <bar> <gray><time>s"
       Action_Bar_Cancelled: "<red>Reload Cancelled"
       Bar:
         Left_Color: "<gray>"

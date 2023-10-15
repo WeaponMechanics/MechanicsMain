@@ -67,13 +67,11 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
             }
         }
         if (this.enchantments) {
-            if (weaponMeta.hasEnchants() != otherMeta.hasEnchants()
-                    || (weaponMeta.hasEnchants() && !equals(weaponMeta.getEnchants(), otherMeta.getEnchants()))) {
-                // If weapon would have enchantments, but other doesn't
-                // OR
-                // If weapon and other enchantments doesn't match
-                return false;
-            }
+            // If weapon would have enchantments, but other doesn't
+            // OR
+            // If weapon and other enchantments doesn't match
+            return weaponMeta.hasEnchants() == otherMeta.hasEnchants()
+                    && (!weaponMeta.hasEnchants() || equals(weaponMeta.getEnchants(), otherMeta.getEnchants()));
         }
         return true;
     }
@@ -107,7 +105,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     }
 
     @Override
-    public @NotNull WeaponConverter serialize(SerializeData data) throws SerializerException {
+    public @NotNull WeaponConverter serialize(@NotNull SerializeData data) throws SerializerException {
         boolean type = data.of("Type").getBool(false);
         boolean name = data.of("Name").getBool(false);
         boolean lore = data.of("Lore").getBool(false);

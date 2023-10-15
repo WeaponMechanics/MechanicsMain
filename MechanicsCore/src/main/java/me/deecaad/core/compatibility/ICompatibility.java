@@ -8,8 +8,7 @@ import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This interface outlines a version dependant api, where there is an
@@ -26,7 +25,7 @@ public interface ICompatibility {
      * @param player The non-null player to get the ping of.
      * @return The ping, in milliseconds, of the player.
      */
-    default int getPing(@Nonnull Player player) {
+    default int getPing(@NotNull Player player) {
         // Since 1.16 R3
         return player.getPing();
     }
@@ -39,7 +38,7 @@ public interface ICompatibility {
      * @param entityId The unique, numeric id of the entity.
      * @return The bukkit entity with the id, or <code>null</code>.
      */
-    Entity getEntityById(@Nonnull World world, int entityId);
+    Entity getEntityById(@NotNull World world, int entityId);
 
     /**
      * Returns the nms EntityPlayer wrapped by the given bukkit {@link Player}.
@@ -47,8 +46,8 @@ public interface ICompatibility {
      * @param player The non-null bukkit player.
      * @return The non-null nms player.
      */
-    @Nonnull
-    Object getEntityPlayer(@Nonnull Player player);
+    @NotNull
+    Object getEntityPlayer(@NotNull Player player);
 
     /**
      * Overloaded version of {@link #sendPackets(Player, Object...)} which does
@@ -78,7 +77,7 @@ public interface ICompatibility {
      * @throws UnsupportedOperationException In minecraft protocol versions
      *                                       1_13_R2 and higher.
      */
-    @Nonnull
+    @NotNull
     NBTCompatibility getNBTCompatibility();
 
     /**
@@ -87,7 +86,7 @@ public interface ICompatibility {
      *
      * @return This version's non-null entity compatibility.
      */
-    @Nonnull
+    @NotNull
     EntityCompatibility getEntityCompatibility();
 
     /**
@@ -96,10 +95,10 @@ public interface ICompatibility {
      *
      * @return This version's non-null block compatibility.
      */
-    @Nonnull
+    @NotNull
     BlockCompatibility getBlockCompatibility();
 
-    @Nonnull
+    @NotNull
     default CommandCompatibility getCommandCompatibility() {
         throw new IllegalStateException("Tried to use command compatibility on MC: " + ReflectionUtil.getMCVersion());
     }

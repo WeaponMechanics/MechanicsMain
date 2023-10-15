@@ -20,7 +20,7 @@ MG34:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "<gold>MG34%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
+        Message: "<gold>MG34<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
       - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 40
@@ -127,7 +127,7 @@ MG34:
     Reload:
       Item_Cooldown: true
       Exp: true
-      Action_Bar: "<gray>Reloading %bar% <gray>%time%s"
+      Action_Bar: "<gray>Reloading <bar> <gray><time>s"
       Action_Bar_Cancelled: "<red>Reload Cancelled"
       Bar:
         Left_Color: "<gray>"

@@ -83,7 +83,7 @@ public class RayTrace {
         return cast(world, start, end, direction, 0);
     }
 
-    public List<RayTraceResult> cast(World world, Vector start, Vector end, Vector direction, int maximumBlockThrough) {
+    public List<RayTraceResult> cast(World world, Vector start, Vector end, Vector direction, double maximumBlockThrough) {
         List<RayTraceResult> hits = new ArrayList<>(5);
         getBlockHits(hits, world, start, end, direction, maximumBlockThrough);
         getEntityHits(hits, world, start, end, direction);
@@ -91,15 +91,15 @@ public class RayTrace {
         if (!hits.isEmpty()) {
 
             // If more than 1 hit, sort based on distance travelled (lowest to highest)
-            if (hits.size() > 1) hits.sort(Comparator.comparingDouble(RayTraceResult::getDistanceTravelled));
+            if (hits.size() > 1) hits.sort(Comparator.comparingDouble(RayTraceResult::getHitMin));
 
             if (this.outlineHitPosition) hits.get(0).outlineOnlyHitPosition(entity);
             if (this.outlineHitBox) {
                 RayTraceResult firstHit = hits.get(0);
-                if (firstHit.isBlock()) {
-                    CompatibilityAPI.getBlockCompatibility().getHitBox(firstHit.getBlock()).outlineAllBoxes(entity);
-                } else {
-                    HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(firstHit.getLivingEntity());
+                if (firstHit instanceof BlockTraceResult blockHit) {
+                    CompatibilityAPI.getBlockCompatibility().getHitBox(blockHit.getBlock()).outlineAllBoxes(entity);
+                } else if (firstHit instanceof EntityTraceResult entityHit) {
+                    HitBox entityBox = CompatibilityAPI.getEntityCompatibility().getHitBox(entityHit.getEntity());
                     entityBox.grow(raySize);
                     entityBox.outlineAllBoxes(entity);
                 }
@@ -110,7 +110,7 @@ public class RayTrace {
         return null;
     }
 
-    private void getBlockHits(List<RayTraceResult> hits, World world, Vector start, Vector end, Vector direction, int maximumBlockThrough) {
+    private void getBlockHits(List<RayTraceResult> hits, World world, Vector start, Vector end, Vector direction, double maximumBlockThrough) {
         if (this.disableBlockChecks) return;
 
         // Method based on NMS block traversing
@@ -130,7 +130,7 @@ public class RayTrace {
 
             // Don't count liquid as actual hits along the path
             if (!allowLiquid || !startBlock.isLiquid()) {
-                if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) return;
+                if (maximumBlockThrough != -1.0 && (maximumBlockThrough -= rayStartBlock.getThroughDistance()) < 0) return;
             }
         }
 
@@ -179,7 +179,7 @@ public class RayTrace {
 
                 // Don't count liquid as actual hits along the path
                 if (!allowLiquid || !newBlock.isLiquid()) {
-                    if (maximumBlockThrough != -1 && --maximumBlockThrough < 0) break;
+                    if (--maximumBlockThrough < 0) break;
                 }
 
             }

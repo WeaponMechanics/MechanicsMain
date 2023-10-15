@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -33,7 +32,12 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
         this.customModelData = OptionalInt.of(customModelData);
     }
 
-    public BaseSkin(Optional<Material> type, OptionalInt data, OptionalInt durability, OptionalInt customModelData) {
+    public BaseSkin(
+            @NotNull Optional<Material> type,
+            @NotNull OptionalInt data,
+            @NotNull OptionalInt durability,
+            @NotNull OptionalInt customModelData
+    ) {
         this.type = type;
         this.data = data;
         this.durability = durability;
@@ -116,8 +120,8 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
     }
 
     @Override
-    @Nonnull
-    public BaseSkin serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public BaseSkin serialize(@NotNull SerializeData data) throws SerializerException {
         int version = ReflectionUtil.getMCVersion();
         boolean shouldUseCmd = version >= 14;
 

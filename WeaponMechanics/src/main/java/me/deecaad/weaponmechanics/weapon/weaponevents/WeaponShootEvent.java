@@ -25,7 +25,7 @@ public class WeaponShootEvent extends WeaponEvent {
         return projectile;
     }
 
-    public void setProjectile(@Nonnull WeaponProjectile projectile) {
+    public void setProjectile(@NotNull WeaponProjectile projectile) {
         if (projectile == null)
             throw new IllegalArgumentException("projectile cannot be null");
 

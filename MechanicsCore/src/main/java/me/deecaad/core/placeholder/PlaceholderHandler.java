@@ -1,50 +1,61 @@
 package me.deecaad.core.placeholder;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import me.deecaad.core.mechanics.Registry;
+import me.deecaad.core.utils.Keyable;
+import net.kyori.adventure.text.minimessage.tag.TagPattern;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-import java.util.Locale;
+import org.jetbrains.annotations.Nullable;
+import java.util.Objects;
 
-public abstract class PlaceholderHandler {
+/**
+ * A PlaceholderHandler is a variable in a string. Instances of this class
+ * return the current value of the variable, which can then be used in the string.
+ */
+public abstract class PlaceholderHandler implements Keyable {
+
+    public static final Registry<PlaceholderHandler> REGISTRY = new Registry<>("Placeholders");
 
     private final String placeholderName;
 
-    /**
-     * Creates new placeholder handler instance
-     *
-     * @param placeholderName the placeholder (for example %my_placeholder%)
-     */
-    public PlaceholderHandler(String placeholderName) {
-        if (!placeholderName.startsWith("%")) {
-            placeholderName = "%" + placeholderName;
-        }
-        if (!placeholderName.endsWith("%")) {
-            placeholderName = placeholderName + "%";
-        }
-        this.placeholderName = placeholderName.toLowerCase(Locale.ROOT);
+    public PlaceholderHandler(@TagPattern String placeholderName) {
+        this.placeholderName = placeholderName;
+    }
+
+    @Override
+    public @NotNull String getKey() {
+        return getPlaceholderName();
     }
 
     /**
-     * For example this could be %my_placeholder% or %this_is_my_other_placeholder%
+     * Returns the lowercase id for this placeholder without any formatting.
+     * The returned value will not have the diamond '<>' characters.
      *
-     * @return the placeholder name
+     * @return This placeholder's name
      */
-    public String getPlaceholderName() {
+    public @NotNull String getPlaceholderName() {
         return this.placeholderName;
     }
 
     /**
-     * Used to modify placeholder result when this specific placeholder is being requested.
-     * Remember to check nulls!
+     * Returns the value for this placeholder, given the <code>data</code>.
      *
-     * @param player the player involved in this request, can be null
-     * @param itemStack the item stack involved in this request, can be null
-     * @param itemTitle the item title involved in this request, can be null
-     * @param slot the weapon slot involved in this request, can be null
+     * @param data The data used to generate placeholders from
      * @return the result for placeholder or null
      */
     @Nullable
-    public abstract String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String itemTitle, @Nullable EquipmentSlot slot);
+    public abstract String onRequest(@NotNull PlaceholderData data);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlaceholderHandler that = (PlaceholderHandler) o;
+        return Objects.equals(placeholderName, that.placeholderName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(placeholderName);
+    }
 }

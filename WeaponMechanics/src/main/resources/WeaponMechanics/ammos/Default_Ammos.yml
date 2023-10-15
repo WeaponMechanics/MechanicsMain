@@ -1,0 +1,8 @@
+Rocket:
+  Item_Ammo:
+    Bullet_Item:
+      Type: TNT
+#      Custom_Model_Data: 2  # Use custom model data if you want to use a custom texture for the ammo
+      Name: "<red>Rocket"
+      Lore:
+        - "<gray>High yield explosive ammo to load into a rocket launcher."

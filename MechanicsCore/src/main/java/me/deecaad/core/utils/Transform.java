@@ -16,7 +16,7 @@ public class Transform {
 
     // Transforms inherit their parent's position/rotation
     private Transform parent;
-    private List<Transform> children;
+    private final List<Transform> children;
 
     public Transform() {
         children = new ArrayList<>();

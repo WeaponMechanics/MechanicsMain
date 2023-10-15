@@ -5,6 +5,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.SerializerTypeException;
 import me.deecaad.weaponmechanics.weapon.shoot.AModifyWhen;
 import me.deecaad.weaponmechanics.weapon.shoot.NumberModifier;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -30,8 +31,8 @@ public class ModifyRecoilWhen extends AModifyWhen {
     }
 
     @Override
-    @Nonnull
-    public ModifyRecoilWhen serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ModifyRecoilWhen serialize(@NotNull SerializeData data) throws SerializerException {
 
         NumberModifier always = getModifierHandler(data.of("Always"));
         NumberModifier zooming = getModifierHandler(data.of("Zooming"));

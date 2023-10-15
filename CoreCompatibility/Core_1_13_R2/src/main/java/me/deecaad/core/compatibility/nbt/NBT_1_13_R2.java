@@ -14,7 +14,7 @@ import org.bukkit.inventory.meta.tags.ItemTagType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,12 +50,12 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     @Override
-    public boolean hasString(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasString(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getBukkitCompound(bukkitItem.getItemMeta()).hasCustomTag(getKey(plugin, key), ItemTagType.STRING);
     }
 
     @Override
-    public String getString(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String def) {
+    public String getString(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String def) {
         CustomItemTagContainer nbt = getBukkitCompound(bukkitItem.getItemMeta());
         NamespacedKey tag = getKey(plugin, key);
 
@@ -63,7 +63,7 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     @Override
-    public void setString(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String value) {
+    public void setString(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         CustomItemTagContainer nbt = getBukkitCompound(meta);
 
@@ -72,12 +72,12 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     @Override
-    public boolean hasInt(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasInt(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getBukkitCompound(bukkitItem.getItemMeta()).hasCustomTag(getKey(plugin, key), ItemTagType.INTEGER);
     }
 
     @Override
-    public int getInt(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, int def) {
+    public int getInt(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int def) {
         CustomItemTagContainer nbt = getBukkitCompound(bukkitItem.getItemMeta());
         NamespacedKey tag = getKey(plugin, key);
 
@@ -85,7 +85,7 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     @Override
-    public void setInt(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, int value) {
+    public void setInt(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         CustomItemTagContainer nbt = getBukkitCompound(meta);
 
@@ -94,12 +94,12 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     @Override
-    public boolean hasDouble(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasDouble(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getBukkitCompound(bukkitItem.getItemMeta()).hasCustomTag(getKey(plugin, key), ItemTagType.DOUBLE);
     }
 
     @Override
-    public double getDouble(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, double def) {
+    public double getDouble(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, double def) {
         CustomItemTagContainer nbt = getBukkitCompound(bukkitItem.getItemMeta());
         NamespacedKey tag = getKey(plugin, key);
 
@@ -107,7 +107,7 @@ public class NBT_1_13_R2 implements NBTCompatibility {
     }
 
     @Override
-    public void setDouble(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, double value) {
+    public void setDouble(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, double value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         CustomItemTagContainer nbt = getBukkitCompound(meta);
 
@@ -167,21 +167,21 @@ public class NBT_1_13_R2 implements NBTCompatibility {
         nbt.removeCustomTag(getKey(plugin, key));
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public net.minecraft.server.v1_13_R2.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
+    public net.minecraft.server.v1_13_R2.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public ItemStack getBukkitStack(@Nonnull Object nmsStack) {
+    public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_13_R2.ItemStack) nmsStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
+    public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
         if (nbt == null)
             return "null";

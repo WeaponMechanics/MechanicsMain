@@ -5,22 +5,18 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.placeholder.PlaceholderMessage;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-
 public class BossBarMechanic extends Mechanic {
 
-    private String title;
+    private PlaceholderMessage title;
     private BossBar.Color color;
     private BossBar.Overlay style;
     private float progress;
@@ -30,7 +26,7 @@ public class BossBarMechanic extends Mechanic {
     }
 
     public BossBarMechanic(String title, BossBar.Color color, BossBar.Overlay style, float progress, int time) {
-        this.title = title;
+        this.title = new PlaceholderMessage(title);
         this.color = color;
         this.style = style;
         this.progress = progress;
@@ -38,7 +34,7 @@ public class BossBarMechanic extends Mechanic {
     }
 
     public String getTitle() {
-        return title;
+        return title.getTemplate();
     }
 
     public BossBar.Color getColor() {
@@ -62,14 +58,9 @@ public class BossBarMechanic extends Mechanic {
         if (!(cast.getTarget() instanceof Player player))
             return;
 
-        String itemTitle = cast.getItemTitle();
-        ItemStack itemStack = cast.getItemStack();
-        Map<String, String> tempPlaceholders = cast.getTempPlaceholders();
-
         // Parse and send the message to the 1 player
         // TODO this method would benefit from having access to the target list
-        MiniMessage PARSER = MechanicsCore.getPlugin().message;
-        Component chat = PARSER.deserialize(PlaceholderAPI.applyPlaceholders(title, player, itemStack, itemTitle, null, tempPlaceholders));
+        Component chat = title.replaceAndDeserialize(cast);
         Audience audience = MechanicsCore.getPlugin().adventure.player(player);
         BossBar bossBar = BossBar.bossBar(chat, progress, color, style);
 
@@ -94,7 +85,7 @@ public class BossBarMechanic extends Mechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         String title = data.of("Title").assertExists().getAdventure();
         BossBar.Color color = data.of("Color").getEnum(BossBar.Color.class, BossBar.Color.RED);
         BossBar.Overlay style = data.of("Style").getEnum(BossBar.Overlay.class, BossBar.Overlay.PROGRESS);

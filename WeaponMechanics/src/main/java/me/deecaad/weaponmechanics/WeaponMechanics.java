@@ -18,7 +18,6 @@ import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
 import me.deecaad.core.mechanics.targeters.Targeter;
-import me.deecaad.core.placeholder.PlaceholderAPI;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.core.utils.*;
 import me.deecaad.weaponmechanics.commands.WeaponMechanicsCommand;
@@ -42,7 +41,7 @@ import me.deecaad.weaponmechanics.weapon.info.InfoHandler;
 import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
@@ -70,7 +69,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.error.YAMLException;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -170,6 +169,7 @@ public class WeaponMechanics {
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
 
         setupDatabase();
+        registerPlaceholders();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             // Add PlayerWrapper in onEnable in case server is reloaded for example
@@ -186,7 +186,6 @@ public class WeaponMechanics {
         new TaskChain(javaPlugin)
                 .thenRunSync(() -> {
                     loadConfig();
-                    registerPlaceholders();
                     registerListeners();
                     registerBStats();
                     registerPermissions();
@@ -322,6 +321,7 @@ public class WeaponMechanics {
         }
 
         // Fill configuration mappings (except config.yml)
+        AmmoRegistry.init();
 
         try {
             QueueSerializerEvent event = new QueueSerializerEvent(javaPlugin, getDataFolder());
@@ -329,7 +329,7 @@ public class WeaponMechanics {
             event.addValidators(validators);
             Bukkit.getPluginManager().callEvent(event);
 
-            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments");
+            Configuration temp = new FileReader(debug, event.getSerializers(), event.getValidators()).fillAllFiles(getDataFolder(), "config.yml", "repair_kits", "attachments", "ammos");
             configurations.add(temp);
         } catch (IOException e) {
             e.printStackTrace();
@@ -341,7 +341,7 @@ public class WeaponMechanics {
     void registerPlaceholders() {
         debug.debug("Registering placeholders");
         try {
-            new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, getClassLoader(), true).forEach(PlaceholderAPI::addPlaceholderHandler);
+            new JarInstancer(new JarFile(getFile())).createAllInstances(PlaceholderHandler.class, getClassLoader(), true).forEach(PlaceholderHandler.REGISTRY::add);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -592,7 +592,6 @@ public class WeaponMechanics {
                 .thenRunSync(() -> {
 
                     loadConfig();
-                    registerPlaceholders();
                     registerPacketListeners();
                     registerListeners();
                     registerCommands();
@@ -615,9 +614,6 @@ public class WeaponMechanics {
 
         HandlerList.unregisterAll(getPlugin());
         Bukkit.getServer().getScheduler().cancelTasks(getPlugin());
-
-        // Clear AmmoType registry for reload
-        AmmoTypes.clearRegistry();
 
         // Close database and save data in SYNC
         if (database != null) {

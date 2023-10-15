@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.Style;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.IntFunction;
 
@@ -258,16 +259,19 @@ public class TableBuilder {
     public record TableConstraints(int rows, int columns, int pixels) {
 
         @Contract(pure = true)
+        @NotNull
         public TableConstraints setRows(int rows) {
             return new TableConstraints(rows, columns, pixels);
         }
 
         @Contract(pure = true)
+        @NotNull
         public TableConstraints setColumns(int columns) {
             return new TableConstraints(rows, columns, pixels);
         }
 
         @Contract(pure = true)
+        @NotNull
         public TableConstraints setPixels(int pixels) {
             return new TableConstraints(rows, columns, pixels);
         }

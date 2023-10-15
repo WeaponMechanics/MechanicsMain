@@ -1,27 +1,27 @@
 package me.deecaad.weaponmechanics.weapon.placeholders;
 
+import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.placeholder.PlaceholderHandler;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class PReload extends PlaceholderHandler {
 
     public PReload() {
-        super("%reload%");
+        super("reload");
     }
 
     @Nullable
     @Override
-    public String onRequest(@Nullable Player player, @Nullable ItemStack itemStack, @Nullable String weaponTitle, @Nullable EquipmentSlot slot) {
-        if (player == null || slot == null) return null;
+    public String onRequest(@NotNull PlaceholderData data) {
+        if (data.player() == null || data.slot() == null) return null;
 
-        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(player);
-        if (slot == EquipmentSlot.HAND ? playerWrapper.getMainHandData().isReloading() : playerWrapper.getOffHandData().isReloading()) {
+        PlayerWrapper playerWrapper = WeaponMechanics.getPlayerWrapper(data.player());
+        if (data.slot() == EquipmentSlot.HAND ? playerWrapper.getMainHandData().isReloading() : playerWrapper.getOffHandData().isReloading()) {
             return WeaponMechanics.getBasicConfigurations().getString("Placeholder_Symbols.Reload");
         }
 

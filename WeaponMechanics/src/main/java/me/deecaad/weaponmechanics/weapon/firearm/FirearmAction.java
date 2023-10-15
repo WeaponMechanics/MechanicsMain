@@ -7,6 +7,7 @@ import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -85,8 +86,8 @@ public class FirearmAction implements Serializer<FirearmAction> {
     }
 
     @Override
-    @Nonnull
-    public FirearmAction serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public FirearmAction serialize(@NotNull SerializeData data) throws SerializerException {
 
         FirearmType type = data.of("Type").assertExists().getEnum(FirearmType.class);
 

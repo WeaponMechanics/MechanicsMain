@@ -7,9 +7,9 @@ import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Stream;
@@ -38,8 +38,7 @@ public class SerializeData {
      * Wiki link to be used in exception messages in order to better assist
      * users in solving their issues.
      */
-    public @Nullable
-    String wikiLink;
+    public @Nullable String wikiLink;
 
     /**
      * The fully serialized configuration to be used in case a
@@ -59,14 +58,14 @@ public class SerializeData {
     private boolean usingStep;
 
 
-    public SerializeData(@Nonnull String serializer, @Nonnull File file, String key, @Nonnull ConfigLike config) {
+    public SerializeData(@NotNull String serializer, @NotNull File file, String key, @NotNull ConfigLike config) {
         this.serializer = serializer;
         this.file = file;
         this.key = key;
         this.config = config;
     }
 
-    public SerializeData(@Nonnull String serializer, @Nonnull SerializeData other, @Nonnull String relative) {
+    public SerializeData(@NotNull String serializer, @NotNull SerializeData other, @NotNull String relative) {
         this.serializer = serializer;
         this.file = other.file;
         this.key = other.getPath(relative);
@@ -75,7 +74,7 @@ public class SerializeData {
         copyMutables(other);
     }
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull File file, String key, @Nonnull ConfigLike config) {
+    public SerializeData(@NotNull Serializer<?> serializer, @NotNull File file, String key, @NotNull ConfigLike config) {
         this.serializer = getSimpleName(serializer);
         this.file = file;
         this.key = key;
@@ -84,7 +83,7 @@ public class SerializeData {
         wikiLink = serializer.getWikiLink();
     }
 
-    public SerializeData(@Nonnull Serializer<?> serializer, @Nonnull SerializeData other, @Nonnull String relative) {
+    public SerializeData(@NotNull Serializer<?> serializer, @NotNull SerializeData other, @NotNull String relative) {
         this.serializer = getSimpleName(serializer);
         this.file = other.file;
         this.key = other.getPath(relative);
@@ -94,31 +93,16 @@ public class SerializeData {
         wikiLink = serializer.getWikiLink();
     }
 
-    private SerializeData copyMutables(SerializeData from) {
+    @NotNull
+    private SerializeData copyMutables(@NotNull SerializeData from) {
         this.wikiLink = from.wikiLink;
         this.usingStep = from.usingStep;
         return this;
     }
 
-    /**
-     * Returns the simplified nam of the serializer. This is done by stripping
-     * away the first instance of "Serializer" in the name, and anything after
-     * that.
-     *
-     * @param serializer The non-null serializer to get the name.
-     * @return The simplified name
-     */
-    private static String getSimpleName(Serializer<?> serializer) {
-
-        // Sometimes a class will end with 'Serializer' in its name, like
-        // 'ColorSerializer'. This information may be confusing to some people,
-        // so we can strip it away here.
-        String simple = serializer.getClass().getSimpleName();
-        int index = simple.indexOf("Serializer");
-        if (index > 0)
-            simple = simple.substring(0, index);
-
-        return simple;
+    @NotNull
+    private static String getSimpleName(@NotNull Serializer<?> serializer) {
+        return serializer.getName();
     }
 
     /**
@@ -128,7 +112,7 @@ public class SerializeData {
      * @return The total path + relative path.
      */
     private String getPath(String relative) {
-        return key == null || key.isEmpty() ? relative : (key + "." + relative);
+        return (key == null || key.isEmpty()) ? relative : (key + "." + relative);
     }
 
     /**
@@ -140,7 +124,8 @@ public class SerializeData {
      * @return The non-null serialize data.
      * @throws IllegalArgumentException If no configuration section exists at the location.
      */
-    public SerializeData move(String relative) {
+    @NotNull
+    public SerializeData move(@NotNull String relative) {
         return new SerializeData(serializer, this, relative).copyMutables(this);
     }
 
@@ -152,7 +137,8 @@ public class SerializeData {
      * @throws SerializerException If no path-to config is defined.
      * @throws InternalError       If the serializer has no default constructor.
      */
-    public <T extends Serializer<T>> SerializeData step(Class<T> serializer) throws SerializerException {
+    @NotNull
+    public <T extends Serializer<T>> SerializeData step(@NotNull Class<T> serializer) throws SerializerException {
         return step(ReflectionUtil.newInstance(serializer));
     }
 
@@ -166,7 +152,8 @@ public class SerializeData {
      * @return The non-null serialize data.
      * @throws SerializerException If no path-to config is defined.
      */
-    public SerializeData step(Serializer<?> serializer) throws SerializerException {
+    @NotNull
+    public SerializeData step(@NotNull Serializer<?> serializer) throws SerializerException {
         if (serializer.getKeyword() == null || !serializer.canUsePathTo())
             throw new IllegalArgumentException(serializer + " does not support path-to");
 
@@ -190,6 +177,7 @@ public class SerializeData {
         return move(relative);
     }
 
+    @NotNull
     public ConfigListAccessor ofList() {
         String[] split = key.split("\\.");
         StringBuilder key = new StringBuilder();
@@ -197,7 +185,7 @@ public class SerializeData {
         for (int i = 0; i < split.length - 1; i++)
             key.append(split[i]).append('.');
 
-        if (key.length() > 0)
+        if (!key.isEmpty())
             key.setLength(key.length() - 1);
 
         return new SerializeData(serializer, file, key.toString(), config).copyMutables(this).ofList(split[split.length - 1]);
@@ -210,7 +198,7 @@ public class SerializeData {
         for (int i = 0; i < split.length - 1; i++)
             key.append(split[i]).append('.');
 
-        if (key.length() > 0)
+        if (!key.isEmpty())
             key.setLength(key.length() - 1);
 
         return new SerializeData(serializer, file, key.toString(), config).copyMutables(this).of(split[split.length - 1]);
@@ -224,7 +212,8 @@ public class SerializeData {
      * @param relative The non-null, non-empty key relative to this.key.
      * @return The non-null config accessor.
      */
-    public ConfigAccessor of(String relative) {
+    @NotNull
+    public ConfigAccessor of(@NotNull String relative) {
         return new ConfigAccessor(relative);
     }
 
@@ -265,7 +254,8 @@ public class SerializeData {
      * @param messages The non-empty list of messages to include.
      * @return The non-null constructed exception.
      */
-    public SerializerException exception(String relative, String... messages) {
+    @NotNull
+    public SerializerException exception(@Nullable String relative, String... messages) {
         if (messages.length == 0)
             throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
 
@@ -286,7 +276,8 @@ public class SerializeData {
      * @param messages The non-empty list of messages to include
      * @return The non-null constructed exception.
      */
-    public SerializerException listException(String relative, int index, String... messages) {
+    @NotNull
+    public SerializerException listException(@Nullable String relative, int index, String... messages) {
         if (messages.length == 0)
             throw new IllegalArgumentException("Hey you! Yeah you! Don't be lazy, add messages!");
 
@@ -304,7 +295,8 @@ public class SerializeData {
      * @param messages The non-null array of messages to append to.
      * @return The list (with 1 more element, if the link was added).
      */
-    private String[] appendWikiLink(String[] messages) {
+    @NotNull
+    private String[] appendWikiLink(@NotNull String[] messages) {
         if (wikiLink == null || Arrays.stream(messages).anyMatch(str -> str.startsWith("Wiki: ")))
             return messages;
 
@@ -314,6 +306,7 @@ public class SerializeData {
         return copy;
     }
 
+    @NotNull
     private String getWikiMessage() {
         return "Wiki: " + wikiLink;
     }
@@ -335,10 +328,12 @@ public class SerializeData {
             this.relative = relative;
         }
 
+        @NotNull
         public ConfigListAccessor addArgument(Class<?> clazz, boolean required) {
             return this.addArgument(clazz, required, false);
         }
 
+        @NotNull
         public ConfigListAccessor addArgument(Class<?> clazz, boolean required, boolean skipCheck) {
 
             // Ensure that all required arguments are in order. For example,
@@ -355,11 +350,13 @@ public class SerializeData {
             return this;
         }
 
+        @NotNull
         public ConfigListAccessor assertArgumentPositive() {
             arguments.getLast().positive = true;
             return this;
         }
 
+        @NotNull
         public ConfigListAccessor assertArgumentRange(double min, double max) {
             arguments.getLast().min = min;
             arguments.getLast().max = max;
@@ -373,7 +370,7 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
-        @Nonnull
+        @NotNull
         public ConfigListAccessor assertExists() throws SerializerException {
             if (!has(relative))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
@@ -391,13 +388,14 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
+        @NotNull
         public ConfigListAccessor assertExists(boolean exists) throws SerializerException {
             if (exists)
                 return assertExists();
             return this;
         }
 
-        @Nonnull
+        @NotNull
         @SuppressWarnings({"unchecked", "rawtypes"})
         public ConfigListAccessor assertList() throws SerializerException {
             if (arguments.isEmpty())
@@ -472,7 +470,7 @@ public class SerializeData {
                         continue;
 
                     try {
-                        if (argument.clazz == int.class) {
+                        if (argument.clazz == int.class || argument.clazz == Integer.class) {
                             argument.clazz = Integer.class; // Set class to be more human-readable in error
                             int parseInt = Integer.parseInt(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseInt < argument.min || parseInt > argument.max))
@@ -480,7 +478,7 @@ public class SerializeData {
 
                             if (argument.positive && parseInt < 0)
                                 throw new SerializerNegativeException(serializer, parseInt, getLocation(i));
-                        } else if (argument.clazz == double.class) {
+                        } else if (argument.clazz == double.class || argument.clazz == Double.class) {
                             argument.clazz = Double.class;
                             double parseDouble = Double.parseDouble(component);
                             if (!Double.isNaN(argument.min) && !Double.isNaN(argument.max) && (parseDouble < argument.min || parseDouble > argument.max))
@@ -489,7 +487,7 @@ public class SerializeData {
                             if (argument.positive && parseDouble < 0.0)
                                 throw new SerializerNegativeException(serializer, parseDouble, getLocation(i));
 
-                        } else if (argument.clazz == boolean.class) {
+                        } else if (argument.clazz == boolean.class || argument.clazz == Boolean.class) {
                             argument.clazz = Boolean.class;
                             if (!component.equalsIgnoreCase("true") && !component.equalsIgnoreCase("false"))
                                 throw new Exception();
@@ -552,7 +550,7 @@ public class SerializeData {
             }
         }
 
-        private class ClassArgument {
+        private static class ClassArgument {
             Class<?> clazz;
             boolean required;
             boolean skipCheck;
@@ -587,7 +585,7 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
-        @Nonnull
+        @NotNull
         public ConfigAccessor assertExists() throws SerializerException {
             if (!has(relative))
                 throw new SerializerMissingKeyException(serializer, relative, getLocation())
@@ -606,6 +604,7 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the key is not explicitly defined.
          */
+        @NotNull
         public ConfigAccessor assertExists(boolean exists) throws SerializerException {
             if (exists)
                 return assertExists();
@@ -620,7 +619,7 @@ public class SerializeData {
          * @param type Which type to check for
          * @return true, if the value matched the type.
          */
-        public boolean is(Class<?> type) {
+        public boolean is(@NotNull Class<?> type) {
             if (type == int.class || type == short.class || type == long.class || type == float.class || type == double.class || type == boolean.class || type == char.class || type == byte.class) {
                 throw new IllegalArgumentException("Silly developer, these are primitive types! Check wrapper classes instead.");
             }
@@ -638,8 +637,8 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type does not match.
          */
-        @Nonnull
-        public ConfigAccessor assertType(Class<?> type) throws SerializerException {
+        @NotNull
+        public ConfigAccessor assertType(@NotNull Class<?> type) throws SerializerException {
             Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
 
             // Use assertExists for required keys
@@ -687,7 +686,7 @@ public class SerializeData {
          * @throws SerializerException If the config value is not an integer.
          */
         public int getInt(int def) throws SerializerException {
-            Number num = getNumber(def);
+            Number num = Objects.requireNonNull(getNumber(def));
             if (Double.compare(Math.floor(num.doubleValue()), Math.ceil(num.doubleValue())) != 0)
                 throw new SerializerTypeException(serializer, Integer.class, Double.class, num, getLocation())
                         .addMessage(wikiLink != null, getWikiMessage());
@@ -722,7 +721,7 @@ public class SerializeData {
          * @throws SerializerException If the config value is not a double.
          */
         public double getDouble(double def) throws SerializerException {
-            return getNumber(def).doubleValue();
+            return Objects.requireNonNull(getNumber(def)).doubleValue();
         }
 
         /**
@@ -778,7 +777,8 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type is not a number.
          */
-        public Number getNumber(Number def) throws SerializerException {
+        @Nullable
+        public Number getNumber(@Nullable Number def) throws SerializerException {
             Object value = usingStep ? pathToConfig.getObject(getPath(relative)) : config.get(getPath(relative));
 
             // Use assertExists for required keys
@@ -811,7 +811,7 @@ public class SerializeData {
          * @return A non-null reference to this accessor (builder pattern).
          * @throws SerializerException If the type is not a number or is not positive.
          */
-        @Nonnull
+        @NotNull
         public ConfigAccessor assertPositive() throws SerializerException {
             Number value = getNumber(null);
 
@@ -838,7 +838,7 @@ public class SerializeData {
          * @throws SerializerException      If the value is not in range.
          * @throws IllegalArgumentException If min larger than max.
          */
-        @Nonnull
+        @NotNull
         public ConfigAccessor assertRange(int min, int max) throws SerializerException {
             if (min > max)
                 throw new IllegalArgumentException("min > max");
@@ -870,7 +870,7 @@ public class SerializeData {
          * @throws SerializerException      If the value is not in range.
          * @throws IllegalArgumentException If min larger than max.
          */
-        @Nonnull
+        @NotNull
         public ConfigAccessor assertRange(double min, double max) throws SerializerException {
             if (min > max)
                 throw new IllegalArgumentException("min > max");
@@ -889,6 +889,7 @@ public class SerializeData {
             return this;
         }
 
+        @NotNull
         public String getLocation() {
             String stepAddon = usingStep ? " (File location will be inaccurate since you are using path-to)" : "";
             if (relative == null || relative.isEmpty()) {
@@ -908,6 +909,7 @@ public class SerializeData {
          * @return The data stored at this relative key.
          */
         @SuppressWarnings("unchecked")
+        @NotNull
         public <T> T get() {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
@@ -925,8 +927,9 @@ public class SerializeData {
          * @param <T>          The expected data-type of the data.
          * @return The data stored at this relative key, or default.
          */
-        @SuppressWarnings("unchecked")
+        @Nullable
         public <T> T get(T defaultValue) {
+            // noinspection unchecked
             return (T) (usingStep ? pathToConfig.getObject(getPath(relative), defaultValue) : config.get(getPath(relative), defaultValue));
         }
 
@@ -939,7 +942,8 @@ public class SerializeData {
          * @return The user input enum value, or null.
          * @throws SerializerException If the user defined an invalid type.
          */
-        public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz) throws SerializerException {
+        @Nullable
+        public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz) throws SerializerException {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
@@ -958,7 +962,8 @@ public class SerializeData {
          * @return The serialized enum type, or defaultValue.
          * @throws SerializerException If there is a misconfiguration in config.
          */
-        public <T extends Enum<T>> T getEnum(@Nonnull Class<T> clazz, T defaultValue) throws SerializerException {
+        @Nullable
+        public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz, @Nullable T defaultValue) throws SerializerException {
             Object value = usingStep ? pathToConfig.getObject(getPath(relative), "") : config.get(getPath(relative), "");
             String input = value.toString().trim();
 
@@ -984,14 +989,16 @@ public class SerializeData {
             return list.get(0);
         }
 
-        public <T extends Keyed> T getKeyed(@Nonnull org.bukkit.Registry<T> registry) throws SerializerException {
+        @Nullable
+        public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry) throws SerializerException {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
 
             return getKeyed(registry, null);
         }
 
-        public <T extends Keyed> T getKeyed(@Nonnull org.bukkit.Registry<T> registry, T defaultValue) throws SerializerException {
+        @Nullable
+        public <T extends Keyed> T getKeyed(@NotNull org.bukkit.Registry<T> registry, @Nullable T defaultValue) throws SerializerException {
             Object value = usingStep ? pathToConfig.getObject(getPath(relative), "") : config.get(getPath(relative), "");
             String input = value.toString().trim().toLowerCase(Locale.ROOT);
 
@@ -1052,6 +1059,7 @@ public class SerializeData {
          *
          * @return The converted string from config.
          */
+        @Nullable
         public String getAdventure() {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
@@ -1071,7 +1079,8 @@ public class SerializeData {
          *
          * @return The converted string from config.
          */
-        public String getAdventure(String defaultValue) {
+        @Nullable
+        public String getAdventure(@Nullable String defaultValue) {
             if (!has(relative))
                 return defaultValue;
 
@@ -1091,6 +1100,7 @@ public class SerializeData {
          * @return A serialized instance.
          * @throws SerializerException If there are any errors in config.
          */
+        @Nullable
         public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry) throws SerializerException {
             if (!exists)
                 throw new IllegalStateException("Either provide a default value or use assertExists()!");
@@ -1110,7 +1120,8 @@ public class SerializeData {
          * @return A serialized instance.
          * @throws SerializerException If there are any errors in config.
          */
-        public <T extends InlineSerializer<T>> T getRegistry(Registry<T> registry, T defaultValue) throws SerializerException {
+        @Nullable
+        public <T extends InlineSerializer<T>> T getRegistry(@NotNull Registry<T> registry, @Nullable T defaultValue) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
             if (!has(relative))
@@ -1124,7 +1135,7 @@ public class SerializeData {
             T base = registry.get(key);
 
             if (base == null)
-                throw new SerializerOptionsException(serializer, registry.getName(), registry.getOptions(), key, getLocation());
+                throw new SerializerOptionsException(serializer, registry.getKey(), registry.getOptions(), key, getLocation());
 
             return base.serialize(nested);
         }
@@ -1154,7 +1165,8 @@ public class SerializeData {
             return impliedType.serialize(SerializeData.this);
         }
 
-        public <T extends InlineSerializer<T>> List<T> getRegistryList(Registry<T> registry) throws SerializerException {
+        @NotNull
+        public <T extends InlineSerializer<T>> List<T> getRegistryList(@NotNull Registry<T> registry) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
             if (!has(relative))
@@ -1175,7 +1187,7 @@ public class SerializeData {
                 String id = ((MapConfigLike.Holder) map.get(UNIQUE_IDENTIFIER)).value().toString();
                 InlineSerializer<T> serializer = registry.get(id);
                 if (serializer == null)
-                    throw new SerializerOptionsException(SerializeData.this.serializer, registry.getName(), registry.getOptions(), id, getLocation());
+                    throw new SerializerOptionsException(SerializeData.this.serializer, registry.getKey(), registry.getOptions(), id, getLocation());
 
                 ConfigLike temp = new MapConfigLike((Map<String, MapConfigLike.Holder>) map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
                 SerializeData nested = new SerializeData(serializer, file, null, temp);
@@ -1186,6 +1198,7 @@ public class SerializeData {
             return returnValue;
         }
 
+        @NotNull
         public <T extends InlineSerializer<T>> List<T> getImpliedList(T impliedType) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
@@ -1223,7 +1236,8 @@ public class SerializeData {
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
-        public <T extends Serializer<T>> T serialize(@Nonnull Class<T> serializerClass) throws SerializerException {
+        @Nullable
+        public <T extends Serializer<T>> T serialize(@NotNull Class<T> serializerClass) throws SerializerException {
             return serialize(ReflectionUtil.newInstance(serializerClass));
         }
 
@@ -1237,7 +1251,8 @@ public class SerializeData {
          * @return The serialized object.
          * @throws SerializerException If there is a mistake in config found during serialization.
          */
-        public <T> T serialize(@Nonnull Serializer<T> serializer) throws SerializerException {
+        @Nullable
+        public <T> T serialize(@NotNull Serializer<T> serializer) throws SerializerException {
 
             // Use assertExists for required keys
             if (!has(relative))

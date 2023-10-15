@@ -1,9 +1,9 @@
 package me.deecaad.core.utils;
 
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.Arrays;
 
@@ -100,7 +100,7 @@ public final class ReflectionUtil {
      * @param name The non-null name of the class to find.
      * @return The NMS class with that name.
      */
-    public static Class<?> getNMSClass(@Nonnull String pack, @Nonnull String name) {
+    public static Class<?> getNMSClass(@NotNull String pack, @NotNull String name) {
         String className;
 
         if (getMCVersion() < 17)
@@ -123,7 +123,8 @@ public final class ReflectionUtil {
      * @param className The non-null name of the class to get.
      * @return The NMS class with that name, or <code>null</code>.
      */
-    public static Class<?> getPacketClass(@Nonnull String className) {
+    @NotNull
+    public static Class<?> getPacketClass(@NotNull String className) {
         return getNMSClass("network.protocol.game", className);
     }
 
@@ -134,7 +135,8 @@ public final class ReflectionUtil {
      * @param className The non-null name of the class to get.
      * @return The CB class with that name, or null.
      */
-    public static Class<?> getCBClass(@Nonnull String className) {
+    @NotNull
+    public static Class<?> getCBClass(@NotNull String className) {
         try {
             return Class.forName(cbVersion + className);
         } catch (ClassNotFoundException e) {
@@ -150,7 +152,8 @@ public final class ReflectionUtil {
      * @param parameters The types of parameters that the constructor takes.
      * @return The found constructor, or <code>null</code>.
      */
-    public static <T> Constructor<T> getConstructor(@Nonnull Class<T> clazz, Class<?>... parameters) {
+    @NotNull
+    public static <T> Constructor<T> getConstructor(@NotNull Class<T> clazz, Class<?>... parameters) {
         try {
             return clazz.getConstructor(parameters);
         } catch (NoSuchMethodException | SecurityException e) {
@@ -168,7 +171,8 @@ public final class ReflectionUtil {
      * @return A new object of the given class.
      * @see #newInstance(Constructor, Object...)
      */
-    public static <T> T newInstance(@Nonnull Class<T> constructorSupplier, Object... parameters) {
+    @NotNull
+    public static <T> T newInstance(@NotNull Class<T> constructorSupplier, Object... parameters) {
         Class<?>[] classes = new Class[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
             classes[i] = parameters[i].getClass();
@@ -201,7 +205,8 @@ public final class ReflectionUtil {
      * @param parameters  The parameters that the constructor takes.
      * @return The new object, or null.
      */
-    public static <T> T newInstance(@Nonnull Constructor<T> constructor, Object... parameters) {
+    @NotNull
+    public static <T> T newInstance(@NotNull Constructor<T> constructor, Object... parameters) {
         try {
             return constructor.newInstance(parameters);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -210,7 +215,8 @@ public final class ReflectionUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Class<T> getClass(@Nonnull String className) {
+    @NotNull
+    public static <T> Class<T> getClass(@NotNull String className) {
         try {
             return (Class<T>) Class.forName(className);
         } catch (ClassNotFoundException e) {
@@ -227,7 +233,8 @@ public final class ReflectionUtil {
      * @param <T>   The generic type of the class.
      * @return The new instance, or <code>null</code>.
      */
-    public static <T> T newInstance(@Nonnull Class<T> clazz) {
+    @NotNull
+    public static <T> T newInstance(@NotNull Class<T> clazz) {
         try {
             Constructor<T> constructor = clazz.getConstructor();
             return constructor.newInstance();
@@ -249,9 +256,10 @@ public final class ReflectionUtil {
      *
      * @param clazz     The non-null class to pull the field from.
      * @param fieldName The non-null name of the field to pull.
-     * @return The found field, or null.
+     * @return The found field.
      */
-    public static Field getField(@Nonnull Class<?> clazz, @Nonnull String fieldName) {
+    @NotNull
+    public static Field getField(@NotNull Class<?> clazz, @NotNull String fieldName) {
         try {
             Field field = clazz.getDeclaredField(fieldName);
 
@@ -278,7 +286,7 @@ public final class ReflectionUtil {
      * @return The non-null found field.
      * @throws IllegalArgumentException If no such field exists.
      */
-    public static Field getField(@Nonnull Class<?> target, Class<?> type) {
+    public static Field getField(@NotNull Class<?> target, Class<?> type) {
         return getField(target, type, 0, false);
     }
 
@@ -298,11 +306,11 @@ public final class ReflectionUtil {
      * @return The non-null found field.
      * @throws IllegalArgumentException If no such field exists.
      */
-    public static Field getField(@Nonnull Class<?> target, Class<?> type, int index) {
+    public static Field getField(@NotNull Class<?> target, Class<?> type, int index) {
         return getField(target, type, index, false);
     }
 
-    public static Field getField(@Nonnull Class<?> target, Class<?> type, int index, boolean skipStatic) {
+    public static Field getField(@NotNull Class<?> target, Class<?> type, int index, boolean skipStatic) {
         for (final Field field : target.getDeclaredFields()) {
 
             // Type check. Make sure the field's datatype
@@ -338,7 +346,7 @@ public final class ReflectionUtil {
      *                 for static fields.
      * @return The value of the field, or <code>null</code>.
      */
-    public static Object invokeField(@Nonnull Field field, @Nullable Object instance) {
+    public static Object invokeField(@NotNull Field field, @Nullable Object instance) {
         try {
             return field.get(instance);
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -356,7 +364,7 @@ public final class ReflectionUtil {
      *                 this should be <code>null</code>.
      * @param value    The value to set to the field.
      */
-    public static void setField(@Nonnull Field field, @Nullable Object instance, Object value) {
+    public static void setField(@NotNull Field field, @Nullable Object instance, Object value) {
         try {
 
             // TODO This does not work yet. static final fields are tough
@@ -385,7 +393,7 @@ public final class ReflectionUtil {
      * @return The method that matches the given signature, or
      *         <code>null</code>.
      */
-    public static Method getMethod(@Nonnull Class<?> clazz, @Nonnull String methodName, Class<?>... parameters) {
+    public static Method getMethod(@NotNull Class<?> clazz, @NotNull String methodName, Class<?>... parameters) {
         try {
             Method method = clazz.getDeclaredMethod(methodName, parameters);
 
@@ -413,7 +421,7 @@ public final class ReflectionUtil {
      * @return The non-null method that matches the given signature.
      * @throws IllegalArgumentException If no such method exists.
      */
-    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, Class<?>... params) {
+    public static Method getMethod(@NotNull Class<?> target, @Nullable Class<?> returnType, Class<?>... params) {
         return getMethod(target, returnType, 0, params);
     }
 
@@ -434,7 +442,7 @@ public final class ReflectionUtil {
      * @return The non-null method that matches the given signature.
      * @throws IllegalArgumentException If no such method exists.
      */
-    public static Method getMethod(@Nonnull Class<?> target, @Nullable Class<?> returnType, int index, Class<?>... params) {
+    public static Method getMethod(@NotNull Class<?> target, @Nullable Class<?> returnType, int index, Class<?>... params) {
         for (final Method method : target.getDeclaredMethods()) {
             if (returnType != null && !returnType.isAssignableFrom(method.getReturnType()))
                 continue;
@@ -469,7 +477,7 @@ public final class ReflectionUtil {
      * @param parameters The parameters of the method.
      * @return The returned value from the method, or <code>null</code>.
      */
-    public static Object invokeMethod(@Nonnull Method method, Object instance, Object... parameters) {
+    public static Object invokeMethod(@NotNull Method method, Object instance, Object... parameters) {
         try {
             return method.invoke(instance, parameters);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

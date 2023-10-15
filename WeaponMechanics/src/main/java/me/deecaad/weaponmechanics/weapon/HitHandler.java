@@ -2,13 +2,14 @@ package me.deecaad.weaponmechanics.weapon;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.compatibility.worldguard.WorldGuardCompatibility;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
-import me.deecaad.weaponmechanics.weapon.damage.DamageHandler;
 import me.deecaad.weaponmechanics.weapon.damage.DamagePoint;
 import me.deecaad.weaponmechanics.weapon.explode.Explosion;
 import me.deecaad.weaponmechanics.weapon.explode.ExplosionTrigger;
@@ -50,13 +51,21 @@ public class HitHandler {
      * @return true if hit was cancelled
      */
     public boolean handleHit(RayTraceResult result, WeaponProjectile projectile) {
-        return result.isBlock() ? handleBlockHit(result, projectile) : handleEntityHit(result, projectile);
+        if (result instanceof BlockTraceResult blockHit)
+            return handleBlockHit(blockHit, projectile);
+        else if (result instanceof EntityTraceResult entityHit)
+            return handleEntityHit(entityHit, projectile);
+
+        // DeeCaaD wrote that there is the possibility for non-block, non-entity
+        // collisions. Was he on crack? Maybe... Or maybe I (CJCrafter) don't understand...
+        // Return true to cancel the hit
+        return true;
     }
 
     /**
      * @return true if hit was cancelled
      */
-    public boolean handleMeleeHit(RayTraceResult result, LivingEntity shooter, Vector shooterDirection, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
+    public boolean handleMeleeHit(EntityTraceResult result, LivingEntity shooter, Vector shooterDirection, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot) {
         // Handle worldguard flags
         WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
         Location loc = result.getHitLocation().clone().toLocation(shooter.getWorld());
@@ -70,7 +79,7 @@ public class HitHandler {
         }
 
         Configuration config = WeaponMechanics.getConfigurations();
-        LivingEntity livingEntity = result.getLivingEntity();
+        LivingEntity livingEntity = result.getEntity();
         int meleeHitDelay = config.getInt(weaponTitle + ".Melee.Melee_Hit_Delay") / 50;
         boolean backstab = livingEntity.getLocation().getDirection().dot(shooterDirection) > 0.0;
         WeaponMeleeHitEvent event = new WeaponMeleeHitEvent(weaponTitle, weaponStack, shooter, slot, livingEntity, meleeHitDelay, backstab);
@@ -87,10 +96,10 @@ public class HitHandler {
         }
 
         return !weaponHandler.getDamageHandler().tryUse(livingEntity, getConfigurations().getDouble(weaponTitle + ".Damage.Base_Damage"),
-                getDamagePoint(result, shooterDirection), backstab, shooter, weaponTitle, weaponStack, slot, result.getDistanceTravelled());
+                getDamagePoint(result, shooterDirection), backstab, shooter, weaponTitle, weaponStack, slot, result.getHitMinClamped());
     }
 
-    private boolean handleBlockHit(RayTraceResult result, WeaponProjectile projectile) {
+    private boolean handleBlockHit(BlockTraceResult result, WeaponProjectile projectile) {
         ProjectileHitBlockEvent hitBlockEvent = new ProjectileHitBlockEvent(projectile, result.getBlock(), result.getHitFace(), result.getHitLocation().clone());
         Bukkit.getPluginManager().callEvent(hitBlockEvent);
         if (hitBlockEvent.isCancelled()) return true;
@@ -101,10 +110,10 @@ public class HitHandler {
         return false;
     }
 
-    private boolean handleEntityHit(RayTraceResult result, WeaponProjectile projectile) {
+    private boolean handleEntityHit(EntityTraceResult result, WeaponProjectile projectile) {
         // Handle worldguard flags
         WorldGuardCompatibility worldGuard = CompatibilityAPI.getWorldGuardCompatibility();
-        Location loc = result.getHitLocation().clone().toLocation(projectile.getWorld());
+        Location loc = result.getHitLocation().toLocation(projectile.getWorld());
         LivingEntity shooter = projectile.getShooter();
 
         if (!worldGuard.testFlag(loc, shooter instanceof Player ? (Player) shooter : null, "weapon-damage")) { // is cancelled check
@@ -115,7 +124,7 @@ public class HitHandler {
             return true;
         }
 
-        LivingEntity livingEntity = result.getLivingEntity();
+        LivingEntity livingEntity = result.getEntity();
         boolean backstab = livingEntity.getLocation().getDirection().dot(projectile.getMotion()) > 0.0;
 
         DamagePoint hitPoint = getDamagePoint(result, shooter.getLocation().getDirection());
@@ -143,9 +152,8 @@ public class HitHandler {
      * @param normalizedMotion the normalized direction
      * @return the damage point or null if tried to cast when living entity was not defined
      */
-    private DamagePoint getDamagePoint(RayTraceResult result, Vector normalizedMotion) {
-        LivingEntity livingEntity = result.getLivingEntity();
-        if (livingEntity == null) return null;
+    private DamagePoint getDamagePoint(EntityTraceResult result, Vector normalizedMotion) {
+        LivingEntity livingEntity = result.getEntity();
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
 
         EntityType type = livingEntity.getType();

@@ -20,7 +20,7 @@ RPG_7:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "<gold>RPG-7 <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
+        Message: "<gold>RPG-7 <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
       - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.75, listeners=Source{}}"
     Weapon_Equip_Delay: 40
@@ -138,7 +138,7 @@ RPG_7:
       Item_Cooldown: true
       Exp: true
       Boss_Bar:
-        Message: "<gray>Reloading %time%s"
+        Message: "<gray>Reloading <time>s"
         Color: YELLOW
         Style: PROGRESS
     Weapon_Equip_Delay:

@@ -13,8 +13,8 @@ import net.minecraft.world.entity.RelativeMovement;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,7 +49,7 @@ public class v1_20_R1 implements IWeaponCompatibility {
         this.scopeCompatibility = new Scope_1_20_R1();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public IScopeCompatibility getScopeCompatibility() {
         return scopeCompatibility;

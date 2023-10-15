@@ -274,13 +274,13 @@ public class FakeEntity_1_18_R2 extends FakeEntity {
     }
 
     @Override
-    public void playEffect(@Nonnull EntityEffect effect) {
+    public void playEffect(@NotNull EntityEffect effect) {
         if (!effect.getApplicable().isAssignableFrom(type.getEntityClass())) return;
         sendPackets(new ClientboundEntityEventPacket(entity, effect.getData()));
     }
 
     @Override
-    public void setEquipment(@Nonnull org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
+    public void setEquipment(@NotNull org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
         if (!type.isAlive())
             throw new IllegalStateException("Cannot set equipment of " + type);
 

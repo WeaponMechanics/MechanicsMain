@@ -4,23 +4,21 @@ import me.deecaad.weaponmechanics.compatibility.scope.IScopeCompatibility;
 import org.bukkit.EntityEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public interface IWeaponCompatibility {
 
     /**
      * @return the scope compatibility
      */
-    @Nonnull
-    IScopeCompatibility getScopeCompatibility();
+    @NotNull IScopeCompatibility getScopeCompatibility();
 
     /**
      * Rotates player's camera rotation with given values.
      * Absolute true means that yaw and pitch will be SET to the given values.
      * While as absolute false means that yaw and pitch is ADDED to the given values.
      *
-     * Having absolute true may cause that player's movement glitches a bit.
+     * <p>Having absolute true may cause that player's movement glitches a bit.
      *
      * @param player the player whose camera rotation to rotate
      * @param yaw absolute or relative rotation on the X axis, in degrees

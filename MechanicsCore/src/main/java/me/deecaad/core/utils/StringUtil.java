@@ -1,7 +1,8 @@
 package me.deecaad.core.utils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -31,7 +32,7 @@ public final class StringUtil {
      * @param string The non-null string to search in.
      * @return The number of occurrences.
      */
-    public static int countChars(char c, String string) {
+    public static int countChars(char c, @NotNull String string) {
         int count = 0;
         for (int i = 0; i < string.length(); i++) {
             char character = string.charAt(i);
@@ -50,7 +51,8 @@ public final class StringUtil {
      * @return The non-null repeated string.
      * @throws IllegalArgumentException If count is negative.
      */
-    public static String repeat(String str, int count) {
+    @NotNull
+    public static String repeat(@NotNull String str, int count) {
         if (count < 0)
             throw new IllegalArgumentException("count cannot be negative");
 
@@ -76,7 +78,7 @@ public final class StringUtil {
      * @return true if the character is escaped.
      * @throws IndexOutOfBoundsException If index is out of bounds.
      */
-    public static boolean isEscaped(String str, int index) {
+    public static boolean isEscaped(@NotNull String str, int index) {
         if (index == 0)
             return false;
 
@@ -100,7 +102,7 @@ public final class StringUtil {
      * @param index The index of the character to test.
      * @return true if the character is escaped and should be included.
      */
-    public static boolean isEscapedAndInclude(String str, int index) {
+    public static boolean isEscapedAndInclude(@NotNull String str, int index) {
         if (index == 0)
             return false;
 
@@ -130,7 +132,7 @@ public final class StringUtil {
      * @return The first found string, or <code>null</code>.
      */
     @Nullable
-    public static String match(@Nonnull String regex, @Nonnull String str) {
+    public static String match(@NotNull String regex, @NotNull String str) {
         Matcher matcher = Pattern.compile(regex).matcher(str);
         if (matcher.find()) {
             return matcher.group();
@@ -150,7 +152,8 @@ public final class StringUtil {
      * @param string The non-null string to color.
      * @return The non-null colored string.
      */
-    public static String color(String string) {
+    @NotNull
+    public static String color(@NotNull String string) {
         if (string == null)
             throw new IllegalArgumentException("string cannot be null!");
 
@@ -209,7 +212,8 @@ public final class StringUtil {
      *
      * @return The string with the new format.
      */
-    public static String colorAdventure(String value) {
+    @Nullable
+    public static String colorAdventure(@Nullable String value) {
         if (value == null)
             return null;
 
@@ -275,6 +279,7 @@ public final class StringUtil {
      * @param i The non-negative number to translate.
      * @return The non-null string ordinal.
      */
+    @NotNull
     public static String ordinal(int i) {
         return switch (i % 100) {
             case 11, 12, 13 -> i + "th";
@@ -294,7 +299,8 @@ public final class StringUtil {
      * @param from The non-null strings to split.
      * @return The non-null split strings.
      */
-    public static String[] splitCapitalLetters(String from) {
+    @NotNull
+    public static String[] splitCapitalLetters(@NotNull String from) {
         return from.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
     }
 
@@ -310,7 +316,8 @@ public final class StringUtil {
      * @param from The non-null string to split.
      * @return The non-null split strings.
      */
-    public static String[] splitAfterWord(String from) {
+    @NotNull
+    public static String[] splitAfterWord(@NotNull String from) {
         return from.split("(?!\\S+) |(?!\\S+)");
     }
 
@@ -329,7 +336,8 @@ public final class StringUtil {
      * @param from The non-null string to split.
      * @return The non-null split strings.
      */
-    public static String[] split(String from) {
+    @NotNull
+    public static String[] split(@NotNull String from) {
         boolean addDash = false;
         if (from.startsWith("-")) {
             addDash = true;
@@ -349,7 +357,8 @@ public final class StringUtil {
      * @param strings The non-null strings to color and add to a list.
      * @return The non-null list of colored strings.
      */
-    public static List<String> getList(String... strings) {
+    @NotNull
+    public static List<String> getList(@NotNull String... strings) {
         List<String> temp = new ArrayList<>(strings.length);
         for (String str : strings) {
             temp.add(StringUtil.color(str));
@@ -365,11 +374,13 @@ public final class StringUtil {
      * @param path The non-null key in config.
      * @return The non-null human-readable location.
      */
-    public static String foundAt(File file, String path) {
+    @NotNull
+    public static String foundAt(@NotNull File file, @NotNull String path) {
         return "Located in file '" + file + "' at '" + path + "'";
     }
 
-    public static String foundAt(File file, String path, int i) {
+    @NotNull
+    public static String foundAt(@NotNull File file, @NotNull String path, int i) {
         return "Located in file '" + file + "' at '" + path + "' (The " + ordinal(i) + " list item)";
     }
 
@@ -385,11 +396,13 @@ public final class StringUtil {
      * @param camel The camel-case formatted {@link String}.
      * @return The name-spaced-key formatted {@link String}.
      */
-    public static String camelToSnake(String camel) {
+    @NotNull
+    public static String camelToSnake(@NotNull String camel) {
         return String.join("_", camel.split("(?=[A-Z])")).toLowerCase(Locale.ROOT);
     }
 
-    public static String upperSnakeCase(String snake) {
+    @NotNull
+    public static String upperSnakeCase(@NotNull String snake) {
         StringBuilder builder = new StringBuilder(snake.length());
         String[] split = snake.split("_");
         for (String str : split)
@@ -414,7 +427,8 @@ public final class StringUtil {
      * @param key The non-null upper or lower snake-case {@link String}.
      * @return The non-null user readable format
      */
-    public static String keyToRead(String key) {
+    @NotNull
+    public static String keyToRead(@NotNull String key) {
         String[] split = key.toLowerCase(Locale.ROOT).split("_");
 
         StringBuilder builder = new StringBuilder();
@@ -435,7 +449,8 @@ public final class StringUtil {
      * @param <T>       The <code>enumClazz</code> generic type.
      * @return The non-null user-readable correction.
      */
-    public static <T extends Enum<T>> String debugDidYouMean(String input, Class<T> enumClazz) {
+    @NotNull
+    public static <T extends Enum<T>> String debugDidYouMean(@NotNull String input, @NotNull Class<T> enumClazz) {
         return "Did you mean " + didYouMean(input, EnumUtil.getOptions(enumClazz)) + " instead of " + input + "?";
     }
 
@@ -464,7 +479,8 @@ public final class StringUtil {
      * @param options All possible options that the input could be.
      * @return The most similar string to <code>input</code>.
      */
-    public static String didYouMean(String input, Iterable<String> options) {
+    @NotNull
+    public static String didYouMean(@NotNull String input, @NotNull Iterable<String> options) {
         String closest = null;
         int difference = Integer.MAX_VALUE;
         int[] table = mapToCharTable(input.toLowerCase(Locale.ROOT));
@@ -483,10 +499,13 @@ public final class StringUtil {
             }
         }
 
+        if (closest == null)
+            throw new IllegalArgumentException("Passed 0 options");
+
         return closest;
     }
 
-    public static int[] mapToCharTable(String str) {
+    public static int[] mapToCharTable(@NotNull String str) {
         int[] table = new int[LOWER_ALPHABET.length()];
         for (int i = 0; i < str.length(); i++) {
 

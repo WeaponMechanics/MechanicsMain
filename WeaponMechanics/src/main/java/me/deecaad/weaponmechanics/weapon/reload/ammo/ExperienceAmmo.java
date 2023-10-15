@@ -6,26 +6,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class ExperienceAmmo implements IAmmoType {
 
-    // Defined in ammo types list
-    private String ammoName;
+    private final int experienceAsAmmoCost;
 
-    private String symbol;
-    private int experienceAsAmmoCost;
-
-    public ExperienceAmmo(String ammoName, String symbol, int experienceAsAmmoCost) {
-        this.ammoName = ammoName;
-        this.symbol = symbol;
+    public ExperienceAmmo(int experienceAsAmmoCost) {
         this.experienceAsAmmoCost = experienceAsAmmoCost;
-    }
-
-    @Override
-    public String getAmmoName() {
-        return ammoName;
-    }
-
-    @Override
-    public String getSymbol() {
-        return symbol != null ? symbol : ammoName;
     }
 
     @Override

@@ -5,8 +5,8 @@ import me.deecaad.core.utils.EnumUtil;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.StringUtil;
 import org.bukkit.Color;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
@@ -35,8 +35,8 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
     }
 
     @Override
-    @Nonnull
-    public ColorSerializer serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ColorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
 
         String input = data.config.getString(data.key);
         if (input == null || input.isEmpty())
@@ -82,7 +82,7 @@ public class ColorSerializer implements InlineSerializer<ColorSerializer> {
         // for people to ask questions.
         else if (HEX_PATTERN.matcher(input).find()) {
             Matcher matcher = HEX_PATTERN.matcher(input);
-            matcher.find();
+            matcher.find(); // always true
             String substring = matcher.group();
             int rgb = Integer.parseInt(substring, 16);
             return Color.fromRGB(rgb);

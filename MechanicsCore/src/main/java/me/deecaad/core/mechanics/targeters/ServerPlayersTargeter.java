@@ -4,12 +4,11 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Iterator;
 
 public class ServerPlayersTargeter extends Targeter {
 
@@ -25,17 +24,21 @@ public class ServerPlayersTargeter extends Targeter {
     }
 
     @Override
-    public List<CastData> getTargets0(CastData cast) {
+    public Iterator<CastData> getTargets0(CastData cast) {
+        Iterator<? extends Player> playerIterator = Bukkit.getServer().getOnlinePlayers().iterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return playerIterator.hasNext();
+            }
 
-        // Loop through every player in the server
-        List<CastData> targets = new LinkedList<>();
-        for (LivingEntity target : Bukkit.getServer().getOnlinePlayers()) {
-            CastData copy = cast.clone();
-            copy.setTargetEntity(target);
-            targets.add(copy);
-        }
-
-        return targets;
+            @Override
+            public CastData next() {
+                Player target = playerIterator.next();
+                cast.setTargetEntity(target);
+                return cast;
+            }
+        };
     }
 
     @Override
@@ -51,8 +54,7 @@ public class ServerPlayersTargeter extends Targeter {
 
     @NotNull
     @Override
-    public Targeter serialize(SerializeData data) throws SerializerException {
-        String worldName = data.of("World").assertType(String.class).get(null);
-        return applyParentArgs(data, new WorldTargeter(worldName));
+    public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
+        return applyParentArgs(data, new ServerPlayersTargeter());
     }
 }

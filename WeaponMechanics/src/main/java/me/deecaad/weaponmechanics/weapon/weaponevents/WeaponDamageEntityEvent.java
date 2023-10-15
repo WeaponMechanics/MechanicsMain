@@ -38,7 +38,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private boolean isExplosion;
     private DamageDropoff dropoff;
     private double distanceTravelled;
-    private List<DamageModifier> damageModifiers;
+    private final List<DamageModifier> damageModifiers;
 
     private Mechanics damageMechanics;
     private Mechanics killMechanics;

@@ -1,18 +1,21 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
 public class Through implements Serializer<Through>, Cloneable {
 
     // -1 = infinite
-    private int maximumThroughAmount;
+    private double maximumThroughAmount;
 
     private ListHolder<Material> blocks;
     private ListHolder<EntityType> entities;
@@ -23,17 +26,17 @@ public class Through implements Serializer<Through>, Cloneable {
     public Through() {
     }
 
-    public Through(int maximumThroughAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities) {
+    public Through(double maximumThroughAmount, ListHolder<Material> blocks, ListHolder<EntityType> entities) {
         this.maximumThroughAmount = maximumThroughAmount;
         this.blocks = blocks;
         this.entities = entities;
     }
 
-    public int getMaximumThroughAmount() {
+    public double getMaximumThroughAmount() {
         return maximumThroughAmount;
     }
 
-    public void setMaximumThroughAmount(int maximumThroughAmount) {
+    public void setMaximumThroughAmount(double maximumThroughAmount) {
         this.maximumThroughAmount = maximumThroughAmount;
     }
 
@@ -45,21 +48,20 @@ public class Through implements Serializer<Through>, Cloneable {
     public boolean handleThrough(WeaponProjectile projectile, RayTraceResult hit) {
 
         Double speedModifier;
-        if (hit.isBlock()) {
-
-            // Fixes #299
-            // When a projectile hits a block, a script may delete that block.
-            // So if the block was deleted, let's just say Through was handled.
-            if (hit.getBlock().isEmpty())
-                return true;
-
-            speedModifier = blocks != null ? blocks.isValid(hit.getBlock().getType()) : null;
+        if (hit instanceof BlockTraceResult blockHit) {
+            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlockState().getType()) : null;
+        } else if (hit instanceof EntityTraceResult entityHit) {
+            speedModifier = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
-            speedModifier = entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+            // should never occur, projectile should die
+            return false;
         }
 
         // Speed modifier null would mean that it wasn't valid material or entity type
-        if (speedModifier == null || (maximumThroughAmount != -1 && maximumThroughAmount - projectile.getThroughAmount() < 1)) {
+        if (speedModifier == null)
+            return false;
+
+        if (maximumThroughAmount != -1 && maximumThroughAmount - projectile.getThroughAmount() - hit.getThroughDistance() <= 0.0) {
             // Projectile should die
             return false;
         }
@@ -79,8 +81,8 @@ public class Through implements Serializer<Through>, Cloneable {
     }
 
     @Override
-    @Nonnull
-    public Through serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Through serialize(@NotNull SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 
@@ -88,7 +90,7 @@ public class Through implements Serializer<Through>, Cloneable {
             throw data.exception(null, "'Through' requires at least one of 'Blocks' or 'Entities'");
         }
 
-        int maximumThroughAmount = data.of("Maximum_Through_Amount").getInt(1);
+        double maximumThroughAmount = data.of("Maximum_Through_Amount").getDouble(-1.0);
 
         return new Through(maximumThroughAmount, blocks, entities);
     }

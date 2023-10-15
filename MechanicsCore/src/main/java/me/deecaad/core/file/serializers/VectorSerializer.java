@@ -101,7 +101,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
 
     @NotNull
     @Override
-    public VectorSerializer serialize(SerializeData data) throws SerializerException {
+    public VectorSerializer serialize(@NotNull SerializeData data) throws SerializerException {
         String input = data.of().assertExists().get().toString().trim();
 
         // Allow for easy 0 option

@@ -6,7 +6,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.StringUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -21,10 +21,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -68,7 +67,7 @@ public class InfoHandler implements IValidator {
      * @param weapon The non-null "inaccurate" weapon-title.
      * @return The non-null valid weapon-title.
      */
-    @Nonnull
+    @NotNull
     public String getWeaponTitle(String weapon) {
 
         // Before checking for similarities, do a startsWith check (since
@@ -175,10 +174,8 @@ public class InfoHandler implements IValidator {
         weaponStack = weaponStack.clone();
         weaponStack.setAmount(amount);
 
-        ItemMeta weaponMeta = weaponStack.getItemMeta();
-        weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), null, weaponStack, weaponTitle, null));
-        //weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), null, weaponStack, weaponTitle, null));
-        weaponStack.setItemMeta(weaponMeta);
+        // Applying placeholders has to be done via adventure, else we lose formatting
+        AdventureUtil.updatePlaceholders(null, weaponStack);
 
         // Apply default skin
         SkinSelector skins = getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
@@ -230,10 +227,7 @@ public class InfoHandler implements IValidator {
         Player player = isPlayer ? (Player) entity : null;
 
         if (isPlayer) {
-            ItemMeta weaponMeta = weaponStack.getItemMeta();
-            weaponMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(weaponMeta.getDisplayName(), player, weaponStack, weaponTitle, null));
-            //weaponMeta.setLore(PlaceholderAPI.applyPlaceholders(weaponMeta.getLore(), player, weaponStack, weaponTitle, null));
-            weaponStack.setItemMeta(weaponMeta);
+            AdventureUtil.updatePlaceholders(player, weaponStack);
         }
 
         // Apply default skin

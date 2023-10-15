@@ -8,9 +8,7 @@ import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
 import me.deecaad.weaponmechanics.weapon.projectile.AProjectile;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoTypes;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.IAmmoType;
-import me.deecaad.weaponmechanics.weapon.reload.ammo.ItemAmmo;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.*;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Chunk;
@@ -20,10 +18,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This class outlines static utility methods to help developers find functions
@@ -51,7 +49,7 @@ public final class WeaponMechanicsAPI {
      * @see PlayerWrapper
      */
     @Nonnegative
-    public static double getScopeLevel(@Nonnull LivingEntity entity) {
+    public static double getScopeLevel(@NotNull LivingEntity entity) {
         checkState();
         notNull(entity);
 
@@ -74,7 +72,7 @@ public final class WeaponMechanicsAPI {
      * @param entity The non-null living entity to check the scope state of.
      * @return <code>true</code> if the entity is scoping.
      */
-    public static boolean isScoping(@Nonnull LivingEntity entity) {
+    public static boolean isScoping(@NotNull LivingEntity entity) {
         return getScopeLevel(entity) != 0;
     }
 
@@ -85,7 +83,7 @@ public final class WeaponMechanicsAPI {
      * @param entity The non-null living entity to check the reload state of.
      * @return <code>true</code> if the entity is reloading.
      */
-    public static boolean isReloading(@Nonnull LivingEntity entity) {
+    public static boolean isReloading(@NotNull LivingEntity entity) {
         checkState();
         notNull(entity);
 
@@ -104,8 +102,8 @@ public final class WeaponMechanicsAPI {
      * @return The non-null weapon item.
      * @see me.deecaad.weaponmechanics.weapon.info.InfoHandler
      */
-    @Nonnull
-    public static ItemStack generateWeapon(@Nonnull String weaponTitle) {
+    @NotNull
+    public static ItemStack generateWeapon(@NotNull String weaponTitle) {
         checkState();
         return plugin.weaponHandler.getInfoHandler().generateWeapon(weaponTitle, 1);
     }
@@ -130,7 +128,7 @@ public final class WeaponMechanicsAPI {
      * @param projectile The non-null projectile to add.
      * @see ProjectilesRunnable
      */
-    public static void addProjectile(@Nonnull AProjectile projectile) {
+    public static void addProjectile(@NotNull AProjectile projectile) {
         checkState();
         ProjectilesRunnable runnable = plugin.projectilesRunnable;
         runnable.addProjectile(projectile);
@@ -144,7 +142,7 @@ public final class WeaponMechanicsAPI {
      * @return <code>true</code> if the block is broken.
      * @see BlockDamageData
      */
-    public static boolean isBroken(@Nonnull Block block) {
+    public static boolean isBroken(@NotNull Block block) {
         checkState();
         notNull(block);
         return BlockDamageData.isBroken(block);
@@ -174,7 +172,7 @@ public final class WeaponMechanicsAPI {
      * @return The item's weapon title, or null.
      */
     @Nullable
-    public static String getWeaponTitle(@Nonnull ItemStack item) {
+    public static String getWeaponTitle(@NotNull ItemStack item) {
         if (!item.hasItemMeta())
             return null;
         else
@@ -182,62 +180,44 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
-     * Returns the ammo name which is currently used in weapon. If the weapon
-     * doesn't use ammo, this method will return <code>null</code>.
+     * Returns the ammo currently loaded in the weapon
      *
-     * @param weaponTitle The non-null weapon-title of the weapon.
      * @param weaponStack The non-null weapon item stack.
-     * @return The current ammo name, or null.
+     * @return The current ammo, or null.
      */
     @Nullable
-    public static String getCurrentAmmoName(@Nonnull String weaponTitle, @Nonnull ItemStack weaponStack) {
+    public static Ammo getCurrentAmmo(@NotNull ItemStack weaponStack) {
         checkState();
-        notNull(weaponTitle);
         notNull(weaponStack);
 
-        AmmoTypes ammoTypes = plugin.configurations.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-        if (ammoTypes == null) return null;
+        String weaponTitle = getWeaponTitle(weaponStack);
+        AmmoConfig ammo = plugin.configurations.getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class);
+        if (ammo == null) return null;
 
-        return ammoTypes.getCurrentAmmoName(weaponStack);
+        return ammo.getCurrentAmmo(weaponStack);
     }
 
     /**
-     * Returns the ammo item stack from given weapon and ammo type. If the weapon doesn't use ammo,
-     * this method will return <code>null</code>.
+     * Generates the item for the given ammo, or returns null if the ammo does
+     * not use items for ammo.
      *
-     * @param weaponTitle The non-null weapon-title of the weapon.
-     * @param ammoType The non-null ammo type name
-     * @param magazine Whether magazine or bullet item should be fetched
-     * @return The ammo item, or null
+     * @param ammoTitle The ammo to generate.
+     * @param magazine  true=generate magazine, false=generate bullet.
+     * @return The generated item, or null.
      */
     @Nullable
-    public static ItemStack getAmmoItem(@Nonnull String weaponTitle, @Nonnull String ammoType, boolean magazine) {
+    public static ItemStack generateAmmo(@NotNull String ammoTitle, boolean magazine) {
         checkState();
-        notNull(weaponTitle);
-        notNull(ammoType);
+        Ammo ammo = AmmoRegistry.AMMO_REGISTRY.get(ammoTitle);
+        if (ammo == null)
+            return null;
 
-        AmmoTypes ammoTypes = plugin.configurations.getObject(weaponTitle + ".Reload.Ammo.Ammo_Types", AmmoTypes.class);
-        if (ammoTypes == null) return null;
-
-        for (IAmmoType iAmmoType : ammoTypes.getAmmoTypes()) {
-            if (iAmmoType.getAmmoName().equals(ammoType)) {
-
-                if (!(iAmmoType instanceof ItemAmmo itemAmmo)) {
-                    throw new IllegalArgumentException("Weapon " + weaponTitle + " ammo type name " + ammoType + " is not item ammo");
-                }
-
-                ItemStack item = magazine ? itemAmmo.getMagazineItem() : itemAmmo.getBulletItem();
-                if (item == null) {
-                    throw new NullPointerException("Weapon " + weaponTitle + " does not have " + (magazine ? "magazine" : "bullet item") + " defined on ammo type " + ammoType);
-                }
-
-                return item;
-            }
+        if (ammo.getType() instanceof ItemAmmo itemAmmo) {
+            return magazine ? itemAmmo.getMagazineItem() : itemAmmo.getBulletItem();
         }
 
-        throw new NullPointerException("Weapon " + weaponTitle + " does not have ammo type named " + ammoType + " (it is case sensitive)");
+        return null;
     }
-
 
     public static void shoot(LivingEntity shooter, String weaponTitle, Location target) {
         shoot(shooter, weaponTitle, target.toVector().subtract(shooter.getEyeLocation().toVector()));

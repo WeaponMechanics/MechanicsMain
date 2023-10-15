@@ -338,7 +338,7 @@ public class DamageModifier implements Serializer<DamageModifier> {
 
     @NotNull
     @Override
-    public DamageModifier serialize(SerializeData data) throws SerializerException {
+    public DamageModifier serialize(@NotNull SerializeData data) throws SerializerException {
         double min = serializePercentage(data.of("Min"), "20%");
         double max = serializePercentage(data.of("Max"), "1000%");
 

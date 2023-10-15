@@ -8,9 +8,8 @@ import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,21 +43,21 @@ public class NBT_1_16_R3 extends NBT_Persistent {
         toItem.setItemMeta(CraftItemStack.asBukkitCopy(nms).getItemMeta());
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public net.minecraft.server.v1_16_R3.ItemStack getNMSStack(@Nonnull ItemStack bukkitStack) {
+    public net.minecraft.server.v1_16_R3.ItemStack getNMSStack(@NotNull ItemStack bukkitStack) {
         return CraftItemStack.asNMSCopy(bukkitStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public ItemStack getBukkitStack(@Nonnull Object nmsStack) {
+    public ItemStack getBukkitStack(@NotNull Object nmsStack) {
         return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_16_R3.ItemStack) nmsStack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public String getNBTDebug(@Nonnull ItemStack bukkitStack) {
+    public String getNBTDebug(@NotNull ItemStack bukkitStack) {
         NBTTagCompound nbt = getNMSStack(bukkitStack).getTag();
         if (nbt == null)
             return "null";

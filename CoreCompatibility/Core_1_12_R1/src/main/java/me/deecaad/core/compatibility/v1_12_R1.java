@@ -18,8 +18,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 public class v1_12_R1 implements ICompatibility {
 
     static {
@@ -71,13 +69,13 @@ public class v1_12_R1 implements ICompatibility {
         return nbtCompatibility;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public EntityCompatibility getEntityCompatibility() {
         return entityCompatibility;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public BlockCompatibility getBlockCompatibility() {
         return blockCompatibility;

@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
-import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTrace;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -37,7 +38,7 @@ public class WeaponProjectile extends AProjectile {
     private final EquipmentSlot hand;
 
     private StickedData stickedData;
-    private int throughAmount;
+    private double throughAmount;
     private int bounces;
     private boolean rolling;
 
@@ -303,7 +304,7 @@ public class WeaponProjectile extends AProjectile {
     /**
      * @return the amount of hit boxes this projectile has gone through using through feature
      */
-    public int getThroughAmount() {
+    public double getThroughAmount() {
         return throughAmount;
     }
 
@@ -333,10 +334,9 @@ public class WeaponProjectile extends AProjectile {
     }
 
     @Override
-    public boolean handleCollisions() {
+    public boolean updatePosition() {
 
-        Vector motion = getMotion();
-        Vector possibleNextLocation = getLocation().add(motion);
+        Vector possibleNextLocation = getLocation().add(getMotion());
         if (!getWorld().isChunkLoaded(possibleNextLocation.getBlockX() >> 4, possibleNextLocation.getBlockZ() >> 4)) {
             // Remove projectile if next location would be in unloaded chunk
             return true;
@@ -357,12 +357,12 @@ public class WeaponProjectile extends AProjectile {
         }
 
         // Don't check for new collisions if motion is empty
-        if (VectorUtil.isEmpty(motion)) return false;
+        if (getMotionLength() < Vector.getEpsilon()) return false;
 
         // Returns sorted list of hits
 
         List<RayTraceResult> hits = rayTrace.cast(getWorld(), getLocation(), possibleNextLocation, getNormalizedMotion(),
-                through == null ? 0 : through.getMaximumThroughAmount());
+                through == null ? 0.0 : through.getMaximumThroughAmount());
         if (hits == null) {
 
             // Check if can't keep rolling
@@ -375,14 +375,13 @@ public class WeaponProjectile extends AProjectile {
             return hasTravelledMaximumDistance();
         }
 
-        double cacheMotionLength = getMotionLength();
         double distanceAlreadyAdded = 0;
 
         for (RayTraceResult hit : hits) {
 
             // Stay on track of current location and distance travelled on each loop
             setRawLocation(hit.getHitLocation());
-            double add = hit.getDistanceTravelled() - distanceAlreadyAdded;
+            double add = hit.getHitMinClamped() - distanceAlreadyAdded;
             addDistanceTravelled(distanceAlreadyAdded += add);
 
             if (hasTravelledMaximumDistance()) {
@@ -393,7 +392,7 @@ public class WeaponProjectile extends AProjectile {
             onCollide(hit);
 
             // We only want to let onCollide to be called onLiquid hits
-            if (hit.isBlock() && hit.getBlock().isLiquid()) {
+            if (hit instanceof BlockTraceResult blockHit && blockHit.getBlock().isLiquid()) {
                 continue;
             }
 
@@ -410,7 +409,7 @@ public class WeaponProjectile extends AProjectile {
             if (through != null && through.handleThrough(this, hit)) {
                 // Continue since projectile went through.
                 // We still need to check that other collisions also allows this
-                ++throughAmount;
+                throughAmount += hit.getThroughDistance();
 
                 // Update last hit entity / block
                 updateLastHit(hit);
@@ -422,10 +421,10 @@ public class WeaponProjectile extends AProjectile {
 
                 // We want to check that projectile isn't already rolling
                 // If it is already rolling we want to allow bouncing against hits
-                if (!isRolling() && cacheMotionLength < bouncy.getRequiredMotionToStartRollingOrDie()) {
+                if (!isRolling() && getMotionLength() < bouncy.getRequiredMotionToStartRollingOrDie()) {
 
                     // Returns true if projectile should die, false otherwise
-                    return !hit.isBlock() || !bouncy.handleRolling(this, hit.getBlock());
+                    return !(hit instanceof BlockTraceResult blockHit) || !bouncy.handleRolling(this, blockHit.getBlock());
                 } else if (bouncy.handleBounce(this, hit)) {
                     // Break since projectile bounced to different direction
                     ++bounces;
@@ -443,20 +442,12 @@ public class WeaponProjectile extends AProjectile {
         // Here we know that projectile didn't die on any collision.
         // We still have to update the location to last possible location.
         setRawLocation(possibleNextLocation);
-        addDistanceTravelled(cacheMotionLength - distanceAlreadyAdded);
+        addDistanceTravelled(getMotionLength() - distanceAlreadyAdded);
 
         return hasTravelledMaximumDistance();
     }
 
     private void updateLastHit(RayTraceResult hit) {
-        if (hit.isBlock()) {
-            lastBlock = hit.getBlock().getLocation();
-            lastBlockUpdateTick = getAliveTicks() + 1;
-        } else {
-            lastEntity = hit.getLivingEntity().getEntityId();
-            lastEntityUpdateTick = getAliveTicks() + 1;
-        }
-
         // Logic of +1 for last update tick:
 
         // Current alive tick is 5 in this case
@@ -475,6 +466,14 @@ public class WeaponProjectile extends AProjectile {
         // getAliveTicks = 7 // CHECKS 2 TICKS AFTER HIT
         // 7 <= 6 = FALSE
         // -> equalToLastHit is false even if the hit entity / block is same
+
+        if (hit instanceof BlockTraceResult blockHit) {
+            lastBlock = blockHit.getBlock().getLocation();
+            lastBlockUpdateTick = getAliveTicks() + 1;
+        } else if (hit instanceof EntityTraceResult entityHit) {
+            lastEntity = entityHit.getEntity().getEntityId();
+            lastEntityUpdateTick = getAliveTicks() + 1;
+        }
     }
 
     private boolean equalToLastHit(Block hit) {

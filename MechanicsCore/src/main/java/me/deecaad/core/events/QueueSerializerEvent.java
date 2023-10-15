@@ -27,7 +27,6 @@ import java.util.List;
  *     <li>{@link me.deecaad.core.file.serializers.ItemSerializer}</li>
  *     <li>{@link me.deecaad.core.file.serializers.ChanceSerializer}</li>
  *     <li>{@link me.deecaad.core.file.serializers.ColorSerializer}</li>
- *     <li>{@link me.deecaad.core.file.serializers.LocationAdjuster}</li>
  * </ul>
  *
  * <p>If you want to add, for example, the {@link me.deecaad.core.file.serializers.ItemSerializer}

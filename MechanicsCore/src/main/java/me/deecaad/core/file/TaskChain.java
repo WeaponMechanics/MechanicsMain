@@ -2,8 +2,8 @@ package me.deecaad.core.file;
 
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
@@ -106,7 +106,7 @@ public class TaskChain {
         this.queue = new ChainQueue();
     }
 
-    public TaskChain thenRunSync(@Nonnull Function<Object, Object> function) {
+    public TaskChain thenRunSync(@NotNull Function<Object, Object> function) {
         if (function == null)
             throw new IllegalArgumentException("Function cannot be null");
 
@@ -115,7 +115,7 @@ public class TaskChain {
         return this;
     }
 
-    public TaskChain thenRunAsync(@Nonnull Function<Object, Object> function) {
+    public TaskChain thenRunAsync(@NotNull Function<Object, Object> function) {
         if (function == null)
             throw new IllegalArgumentException("Function cannot be null");
 
@@ -124,7 +124,7 @@ public class TaskChain {
         return this;
     }
 
-    public TaskChain thenRunSync(@Nonnull Runnable runnable) {
+    public TaskChain thenRunSync(@NotNull Runnable runnable) {
         if (runnable == null)
             throw new IllegalArgumentException("Function cannot be null");
 
@@ -133,7 +133,7 @@ public class TaskChain {
         return this;
     }
 
-    public TaskChain thenRunAsync(@Nonnull Runnable runnable) {
+    public TaskChain thenRunAsync(@NotNull Runnable runnable) {
         if (runnable == null)
             throw new IllegalArgumentException("Function cannot be null");
 

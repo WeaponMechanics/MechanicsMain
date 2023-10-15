@@ -20,7 +20,7 @@ AX_50:
       Deny_Use_In_Crafting: true
     Weapon_Info_Display:
       Action_Bar:
-        Message: "<gold>AX-50%firearm-state% <gray>«<gold>%ammo-left%<gray>»<gold>%reload%"
+        Message: "<gold>AX-50<firearm_state> <gray>«<gold><ammo_left><gray>»<gold><reload>"
     Weapon_Get_Mechanics:
       - "Sound{sound=ITEM_ARMOR_EQUIP_CHAIN, pitch=0.5, listeners=Source{}}"
     Weapon_Equip_Delay: 50
@@ -83,6 +83,8 @@ AX_50:
       Off_Hand: "LEFT_CLICK"
     Zoom_Amount: 1.5
     Shoot_Delay_After_Scope: 16
+    Movement_Speed: 0%
+    Unscope_After_Shot: true
     Mechanics:
       - "CustomSound{sound=scope.in, volume=0.5, noise=0.1, listeners=Source{}}"
     Zoom_Off:
@@ -131,7 +133,7 @@ AX_50:
     Reload:
       Item_Cooldown: true
       Exp: true
-      Action_Bar: "<gray>Reloading %bar% <gray>%time%s"
+      Action_Bar: "<gray>Reloading <bar> <gray><time>s"
       Action_Bar_Cancelled: "<red>Reload Cancelled"
       Bar:
         Left_Color: "<gray>"

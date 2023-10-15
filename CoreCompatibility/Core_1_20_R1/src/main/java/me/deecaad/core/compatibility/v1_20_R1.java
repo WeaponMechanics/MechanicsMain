@@ -71,13 +71,13 @@ public class v1_20_R1 implements ICompatibility {
         return nbtCompatibility;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public EntityCompatibility getEntityCompatibility() {
         return entityCompatibility;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public BlockCompatibility getBlockCompatibility() {
         return blockCompatibility;

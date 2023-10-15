@@ -7,9 +7,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class WeaponEvent extends EntityEvent {
 
@@ -33,7 +33,7 @@ public abstract class WeaponEvent extends EntityEvent {
      *
      * @return The non-null weapon title.
      */
-    @Nonnull
+    @NotNull
     public String getWeaponTitle() {
         return weaponTitle;
     }
@@ -56,7 +56,7 @@ public abstract class WeaponEvent extends EntityEvent {
      * @return The non-null entity that fired the weapon. This will not
      * always be a player!
      */
-    @Nonnull
+    @NotNull
     public LivingEntity getShooter() {
         return this.shooter;
     }

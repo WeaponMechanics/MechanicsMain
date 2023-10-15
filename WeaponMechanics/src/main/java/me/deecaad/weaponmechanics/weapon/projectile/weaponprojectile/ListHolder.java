@@ -6,8 +6,7 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.EnumUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +68,8 @@ public class ListHolder<T extends Enum<T>> implements Serializer<ListHolder<T>> 
     }
 
     @Override
-    @Nonnull
-    public @NotNull ListHolder<T> serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ListHolder<T> serialize(@NotNull SerializeData data) throws SerializerException {
         boolean allowAny = data.of("Allow_Any").getBool(false);
 
         Map<T, Double> mapList = new HashMap<>();

@@ -1,6 +1,8 @@
 package me.deecaad.core.file;
 
+import me.deecaad.core.utils.Keyable;
 import me.deecaad.core.utils.StringUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,15 +11,20 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public interface InlineSerializer<T> extends Serializer<T> {
+public interface InlineSerializer<T> extends Serializer<T>, Keyable {
 
     Pattern NAME_FINDER = Pattern.compile(".+?(?=\\{)");
     String UNIQUE_IDENTIFIER = "uniqueIdentifier";
 
     @Override
-    default boolean shouldSerialize(SerializeData data) {
+    default boolean shouldSerialize(@NotNull SerializeData data) {
         // We don't want FileReader activating on these by default
         return false;
+    }
+
+    @Override
+    default @NotNull String getKey() {
+        return getInlineKeyword();
     }
 
     /**
@@ -28,7 +35,13 @@ public interface InlineSerializer<T> extends Serializer<T> {
      * @return The non-null lowerCamelCase keyword.
      */
     default String getInlineKeyword() {
-        String[] split = getKeyword().split("_");
+        String keyword = getKeyword();
+        if (keyword == null) {
+            String name = getClass().getSimpleName();
+            throw new NullPointerException("Keyword for " + name + " is null");
+        }
+
+        String[] split = keyword.split("_");
         //split[0] = split[0].toLowerCase(Locale.ROOT); // lower camel case
         return String.join("", split);
     }

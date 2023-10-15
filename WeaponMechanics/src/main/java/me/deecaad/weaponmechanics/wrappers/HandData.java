@@ -4,6 +4,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponStopShootingEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
@@ -31,10 +32,16 @@ public class HandData {
     private long lastMeleeTime;
     private long lastMeleeMissTime;
 
+    // Save weaponstack/weaponTitle for reload complete and cancel events
     private long reloadStart;
     private final Set<Integer> reloadTasks = new HashSet<>();
     private ItemStack reloadWeaponStack;
     private String reloadWeaponTitle;
+
+    // Save weaponstack/weapontitle for weapon stop shooting event
+    private boolean firedWeaponStopShootEvent = false;
+    private ItemStack lastWeaponShot;
+    private String lastWeaponShotTitle;
 
     private ZoomData zoomData;
     private final Set<Integer> firearmActionTasks = new HashSet<>();
@@ -83,6 +90,12 @@ public class HandData {
         stopReloadingTasks();
         stopFirearmActionTasks();
         getZoomData().ifZoomingForceZoomOut();
+
+        // Tasks cancelled means a weapon switch or similar, so make sure we have fired a stop shooting event
+        if (!firedWeaponStopShootEvent && lastWeaponShot != null && lastWeaponShotTitle != null) {
+            firedWeaponStopShootEvent = true;
+            Bukkit.getPluginManager().callEvent(new WeaponStopShootingEvent(lastWeaponShotTitle, lastWeaponShot, entityWrapper.getEntity(), mainhand ? EquipmentSlot.HAND : EquipmentSlot.OFF_HAND, lastShotTime));
+        }
 
         if (!trySkinUpdate) return;
 
@@ -241,6 +254,28 @@ public class HandData {
     public void setReloadData(String weaponTitle, ItemStack weaponStack) {
         this.reloadWeaponTitle = weaponTitle;
         this.reloadWeaponStack = weaponStack;
+    }
+
+    public boolean isFiredWeaponStopShootEvent() {
+        return firedWeaponStopShootEvent;
+    }
+
+    public void setFiredWeaponStopShootEvent(boolean firedWeaponStopShootEvent) {
+        this.firedWeaponStopShootEvent = firedWeaponStopShootEvent;
+    }
+
+    public ItemStack getLastWeaponShot() {
+        return lastWeaponShot;
+    }
+
+    public String getLastWeaponShotTitle() {
+        return lastWeaponShotTitle;
+    }
+
+    public void setLastWeaponShot(String weaponTitle, ItemStack weaponStack) {
+        this.firedWeaponStopShootEvent = false;
+        this.lastWeaponShotTitle = weaponTitle;
+        this.lastWeaponShot = weaponStack;
     }
 
     public ZoomData getZoomData() {

@@ -1,8 +1,8 @@
 package me.deecaad.core.file;
 
 import me.deecaad.core.utils.LogLevel;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -13,12 +13,12 @@ import static me.deecaad.core.MechanicsCore.debug;
 
 public class SerializerInstancer extends JarSearcher {
 
-    public SerializerInstancer(@Nonnull JarFile jar) {
+    public SerializerInstancer(@NotNull JarFile jar) {
         super(jar);
     }
 
     @SuppressWarnings("rawtypes")
-    public List<Serializer<?>> createAllInstances(ClassLoader classLoader, Class<?>... classes) {
+    public List<Serializer<?>> createAllInstances(@NotNull ClassLoader classLoader, Class<?>... classes) {
         List<Class<Serializer>> validClasses = findAllSubclasses(Serializer.class, classLoader, true, classes);
 
         List<Serializer<?>> instances = new ArrayList<>(validClasses.size());

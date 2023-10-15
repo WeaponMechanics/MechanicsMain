@@ -68,7 +68,7 @@ public class ChangingSpread implements Serializer<ChangingSpread> {
     }
 
     @Override
-    public @NotNull ChangingSpread serialize(SerializeData data) throws SerializerException {
+    public @NotNull ChangingSpread serialize(@NotNull SerializeData data) throws SerializerException {
         ModifySpreadWhen increaseChangeWhen = (ModifySpreadWhen) data.of("Increase_Change_When").assertExists().serialize(new ModifySpreadWhen());
         double startingAmount = data.of("Starting_Amount").getDouble(0.0) * 0.01;
         int resetTime = data.of("Reset_Time").getInt(20) * 50; // Convert to millis

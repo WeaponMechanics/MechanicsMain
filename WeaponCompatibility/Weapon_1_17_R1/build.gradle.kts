@@ -8,14 +8,8 @@ dependencies {
     implementation(project(":WeaponMechanics"))
     paperDevBundle("1.17.1-R0.1-SNAPSHOT")
 
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly(Dependencies.PROTOCOL_LIB)
 }
-
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(16))
-//    }
-//}
 
 tasks {
     compileJava {
@@ -23,5 +17,3 @@ tasks {
         options.release.set(16)
     }
 }
-
-description = "WeaponCompatibility 1.17 R1"

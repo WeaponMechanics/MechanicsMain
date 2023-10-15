@@ -14,17 +14,17 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.debug;
 
 public class DefaultExposure implements ExplosionExposure {
 
-    @Nonnull
+    @NotNull
     @Override
-    public DoubleMap<LivingEntity> mapExposures(@Nonnull Location origin, @Nonnull ExplosionShape shape) {
+    public DoubleMap<LivingEntity> mapExposures(@NotNull Location origin, @NotNull ExplosionShape shape) {
 
         List<LivingEntity> entities = shape.getEntities(origin);
 

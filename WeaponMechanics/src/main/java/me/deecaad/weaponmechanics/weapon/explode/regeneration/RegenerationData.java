@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.explode.regeneration;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -49,8 +50,8 @@ public class RegenerationData implements Serializer<RegenerationData> {
     }
 
     @Override
-    @Nonnull
-    public RegenerationData serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public RegenerationData serialize(@NotNull SerializeData data) throws SerializerException {
         int ticksBeforeStart = data.of("Ticks_Before_Start").assertPositive().getInt(1200); // 1 minute, in ticks
         int maxBlocksPerUpdate = data.of("Max_Blocks_Per_Update").assertPositive().getInt(1);
         int interval = data.of("Ticks_Between_Updates").assertPositive().getInt(1);

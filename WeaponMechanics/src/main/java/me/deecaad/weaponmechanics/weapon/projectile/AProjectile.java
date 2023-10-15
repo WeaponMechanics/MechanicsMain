@@ -2,16 +2,16 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -47,7 +47,7 @@ public abstract class AProjectile {
      * @see ProjectileScript
      * @see ProjectilesRunnable
      */
-    private List<ProjectileScript<?>> scripts;
+    private final List<ProjectileScript<?>> scripts;
 
     protected AProjectile(Location location, Vector motion) {
         this(null, location, motion);
@@ -351,7 +351,7 @@ public abstract class AProjectile {
         motion.multiply(getDrag());
 
         // Handle collisions will update location and distance travelled
-        if (handleCollisions()) {
+        if (updatePosition()) {
             return true;
         }
 
@@ -360,7 +360,7 @@ public abstract class AProjectile {
             return true;
         }
 
-        if (gravity == 0 && VectorUtil.isEmpty(motion)) {
+        if (gravity == 0 && motionLength < Vector.getEpsilon()) {
 
             // No need to continue as motion is empty and there isn't gravity currently
 
@@ -370,10 +370,6 @@ public abstract class AProjectile {
             scriptEvent(ProjectileScript::onTickEnd);
             ++aliveTicks;
             return false;
-        }
-
-        if (gravity != 0) {
-            motion.setY(motion.getY() - gravity);
         }
 
         motionLength = motion.length();
@@ -452,12 +448,13 @@ public abstract class AProjectile {
     }
 
     /**
-     * Projectile collision handling. This method has to also update
-     * projectile location and distance travelled based on collisions.
+     * This method updates the projectile's position/velocity, and handles all
+     * physics interactions during that movement. This method also updates
+     * {@link #distanceTravelled}.
      *
      * @return true if projectile should be removed from projectile runnable
      */
-    public abstract boolean handleCollisions();
+    public abstract boolean updatePosition();
 
     /**
      * Override this method to do something on start

@@ -10,10 +10,9 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -107,8 +106,8 @@ public interface BlockCompatibility {
      *              values are more visibly cracked.
      * @return The non-null animation packet.
      */
-    @Nonnull
-    Object getCrackPacket(@Nonnull Block block, int crack);
+    @NotNull
+    Object getCrackPacket(@NotNull Block block, int crack);
 
     /**
      * Returns a block break animation packet for the given <code>block</code>
@@ -127,8 +126,8 @@ public interface BlockCompatibility {
      *              packet, use {@link #getCrackPacket(Block, int)}}.
      * @return The non-null animation packet.
      */
-    @Nonnull
-    Object getCrackPacket(@Nonnull Block block, int crack, int id);
+    @NotNull
+    Object getCrackPacket(@NotNull Block block, int crack, int id);
 
     /**
      * Returns a list of multi block change packets that masks all of the given
@@ -152,8 +151,8 @@ public interface BlockCompatibility {
      *               be ignored.
      * @return The non-null list of non-null block mask packets.
      */
-    @Nonnull
-    List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nonnull Material mask, @Nonnegative byte data);
+    @NotNull
+    List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @NotNull Material mask, byte data);
 
     /**
      * Returns a list of multi block change packets that masks all given
@@ -173,8 +172,8 @@ public interface BlockCompatibility {
      * @param mask   The non-null state to mask the block as.
      * @return The non-null list of non-null block mask packets.
      */
-    @Nonnull
-    List<Object> getMultiBlockMaskPacket(@Nonnull List<Block> blocks, @Nullable BlockState mask);
+    @NotNull
+    List<Object> getMultiBlockMaskPacket(@NotNull List<Block> blocks, @Nullable BlockState mask);
 
     default SoundData getBlockSound(Object blockData, SoundType type) {
         BlockData data = (BlockData) blockData;

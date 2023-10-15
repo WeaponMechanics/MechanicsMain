@@ -6,6 +6,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.utils.LogLevel;
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -30,7 +31,7 @@ public class JarSearcher {
      *
      * @param jar The <code>.jar</code> file to search.
      */
-    public JarSearcher(JarFile jar) {
+    public JarSearcher(@NotNull JarFile jar) {
         if (jar == null) {
             throw new IllegalArgumentException("Cannot search a null jar!");
         }
@@ -60,7 +61,7 @@ public class JarSearcher {
      * @return A {@link List} of every subclass.
      */
     @SuppressWarnings("unchecked")
-    public <T> List<Class<T>> findAllSubclasses(Class<T> clazz, ClassLoader clazzLoader, boolean isIgnoreAbstract, Class<?>... classes) {
+    public <T> List<Class<T>> findAllSubclasses(@NotNull Class<T> clazz, @NotNull ClassLoader clazzLoader, boolean isIgnoreAbstract, Class<?>... classes) {
         if (clazz == null) throw new IllegalArgumentException("clazz cannot be null");
 
         // Create the class blacklist. The class "clazz" and any classes listed
@@ -120,11 +121,12 @@ public class JarSearcher {
 
             // Check for inheritance and abstraction
             int mod = subclass.getModifiers();
-            if (!clazz.isAssignableFrom(subclass)) {
+            if (JarSearcherExempt.class.isAssignableFrom(subclass))
                 continue;
-            } else if (isIgnoreAbstract && (Modifier.isAbstract(mod) || Modifier.isInterface(mod))) {
+            else if (!clazz.isAssignableFrom(subclass))
                 continue;
-            }
+            else if (isIgnoreAbstract && (Modifier.isAbstract(mod) || Modifier.isInterface(mod)))
+                continue;
 
             subclasses.add((Class<T>) subclass);
         }

@@ -10,7 +10,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Called whenever a projectile hits an entity. This may be called

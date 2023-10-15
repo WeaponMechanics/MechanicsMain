@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -100,7 +101,8 @@ public class SoundMechanic extends PlayerEffectMechanic {
         // this sound. In this case, we have to loop through every player and
         // manually play the sound packet for them.
         OUTER:
-        for (CastData target : listeners.getTargets(center)) {
+        for (Iterator<CastData> it = listeners.getTargets(center); it.hasNext(); ) {
+            CastData target = it.next();
             if (!(target.getTarget() instanceof Player player))
                 continue;
 
@@ -124,7 +126,7 @@ public class SoundMechanic extends PlayerEffectMechanic {
 
     @NotNull
     @Override
-    public Mechanic serialize(SerializeData data) throws SerializerException {
+    public Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
         Sound sound = data.of("Sound").assertExists().getEnum(Sound.class);
         float volume = (float) data.of("Volume").assertPositive().getDouble(1.0);
         float pitch = (float) data.of("Pitch").assertRange(0.5, 2.0).getDouble(1.0);

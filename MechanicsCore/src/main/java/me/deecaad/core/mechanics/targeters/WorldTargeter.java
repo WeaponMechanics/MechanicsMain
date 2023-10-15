@@ -10,8 +10,8 @@ import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class WorldTargeter extends Targeter {
 
@@ -28,31 +28,48 @@ public class WorldTargeter extends Targeter {
         this.worldName = worldName;
     }
 
+    public String getWorldName() {
+        return worldName;
+    }
+
+    public World getWorldCache() {
+        return worldCache;
+    }
+
+    public void setWorldCache(World worldCache) {
+        this.worldCache = worldCache;
+    }
+
     @Override
     public boolean isEntity() {
         return true;
     }
 
     @Override
-    public List<CastData> getTargets0(CastData cast) {
+    public Iterator<CastData> getTargets0(CastData cast) {
         if (worldCache == null || worldName == null)
             worldCache = worldName == null ? cast.getSource().getWorld() : Bukkit.getWorld(worldName);
 
         // User may have typed the name of the world wrong... It is case-sensitive
         if (worldCache == null) {
             MechanicsCore.debug.warn("There was an error getting the world for '" + worldName  + "'");
-            return List.of();
+            return Collections.emptyIterator();
         }
 
         // Loop through every living entity in the world
-        List<CastData> targets = new LinkedList<>();
-        for (LivingEntity target : worldCache.getLivingEntities()) {
-            CastData copy = cast.clone();
-            copy.setTargetEntity(target);
-            targets.add(copy);
-        }
+        Iterator<LivingEntity> entityIterator = worldCache.getLivingEntities().iterator();
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return entityIterator.hasNext();
+            }
 
-        return targets;
+            @Override
+            public CastData next() {
+                cast.setTargetEntity(entityIterator.next());
+                return cast;
+            }
+        };
     }
 
     @Override
@@ -68,7 +85,7 @@ public class WorldTargeter extends Targeter {
 
     @NotNull
     @Override
-    public Targeter serialize(SerializeData data) throws SerializerException {
+    public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         String worldName = data.of("World").assertType(String.class).get(null);
         return applyParentArgs(data, new WorldTargeter(worldName));
     }

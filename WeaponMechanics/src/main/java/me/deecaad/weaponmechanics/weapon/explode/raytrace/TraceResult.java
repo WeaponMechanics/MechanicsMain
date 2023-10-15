@@ -2,9 +2,9 @@ package me.deecaad.weaponmechanics.weapon.explode.raytrace;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.Set;
 
@@ -14,16 +14,16 @@ public class TraceResult {
     private final Set<Block> blocks;
 
     TraceResult(@Nullable Entity entity, @Nullable Block block) {
-        entities = Collections.singleton(entity);
-        blocks = Collections.singleton(block);
+        entities = (entity == null) ? Collections.emptySet() : Collections.singleton(entity);
+        blocks = (block == null) ? Collections.emptySet() : Collections.singleton(block);
     }
 
-    TraceResult(@Nonnull Set<Entity> entities, @Nonnull Set<Block> blocks) {
+    TraceResult(@NotNull Set<Entity> entities, @NotNull Set<Block> blocks) {
         this.entities = entities;
         this.blocks = blocks;
     }
 
-    @Nonnull
+    @NotNull
     public Set<Entity> getEntities() {
         return entities;
     }
@@ -36,7 +36,7 @@ public class TraceResult {
         return entities.stream().findFirst().orElse(null);
     }
 
-    @Nonnull
+    @NotNull
     public Set<Block> getBlocks() {
         return blocks;
     }

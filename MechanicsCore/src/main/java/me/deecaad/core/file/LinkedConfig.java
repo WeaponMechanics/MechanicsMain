@@ -5,9 +5,9 @@ import me.deecaad.core.utils.StringUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -88,12 +88,12 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public Set<String> getKeys() {
+    public @NotNull Set<String> getKeys() {
         return super.keySet();
     }
 
     @Override
-    public int getInt(@Nonnull String key) {
+    public int getInt(@NotNull String key) {
         Object value = super.get(key);
         if (!(value instanceof Number)) {
             return 0;
@@ -103,7 +103,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public int getInt(String key, int def) {
+    public int getInt(@NotNull String key, int def) {
         Object value = super.get(key);
         if (!(value instanceof Number)) {
             return def;
@@ -113,7 +113,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public double getDouble(@Nonnull String key) {
+    public double getDouble(@NotNull String key) {
         Object value = super.get(key);
         if (!(value instanceof Number)) {
             return 0.0;
@@ -123,7 +123,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public double getDouble(String key, double def) {
+    public double getDouble(@NotNull String key, double def) {
         Object value = super.get(key);
         if (!(value instanceof Number)) {
             return def;
@@ -133,7 +133,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public boolean getBool(@Nonnull String key) {
+    public boolean getBool(@NotNull String key) {
         Object value = super.get(key);
         if (!(value instanceof Boolean)) {
             return false;
@@ -143,7 +143,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public boolean getBool(String key, boolean def) {
+    public boolean getBool(@NotNull String key, boolean def) {
         Object value = super.get(key);
         if (!(value instanceof Boolean)) {
             return def;
@@ -152,10 +152,10 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         }
     }
 
-    @Nonnull
+    @NotNull
     @Override
     @SuppressWarnings("unchecked")
-    public List<String> getList(String key) {
+    public List<String> getList(@NotNull String key) {
         Object value = super.get(key);
         if (!(value instanceof List)) {
             return Collections.emptyList();
@@ -166,7 +166,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<String> getList(String key, List<String> def) {
+    public List<String> getList(@NotNull String key, List<String> def) {
         Object value = super.get(key);
         if (!(value instanceof List)) {
             return def;
@@ -177,7 +177,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Nullable
     @Override
-    public String getString(@Nonnull String key) {
+    public String getString(@NotNull String key) {
         Object value = super.get(key);
         if (!(value instanceof String)) {
             return null;
@@ -198,18 +198,18 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
 
     @Nullable
     @Override
-    public Object getObject(String key) {
+    public Object getObject(@NotNull String key) {
         return super.get(key);
     }
 
     @Override
-    public Object getObject(String key, Object def) {
+    public Object getObject(@NotNull String key, Object def) {
         return super.getOrDefault(key, def);
     }
 
     @Nullable
     @Override
-    public <T> T getObject(String key, Class<T> clazz) {
+    public <T> T getObject(@NotNull String key, @NotNull Class<T> clazz) {
         Object value = super.get(key);
         if (!clazz.isInstance(value)) {
             return null;
@@ -219,7 +219,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public <T> T getObject(String key, T def, Class<T> clazz) {
+    public <T> T getObject(@NotNull String key, T def, @NotNull Class<T> clazz) {
         Object value = super.get(key);
         if (!clazz.isInstance(value)) {
             return def;
@@ -229,17 +229,17 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
     }
 
     @Override
-    public boolean containsKey(@Nonnull String key) {
+    public boolean containsKey(@NotNull String key) {
         return super.containsKey(key);
     }
 
     @Override
-    public boolean containsKey(String key, Class<?> clazz) {
+    public boolean containsKey(@NotNull String key, @NotNull Class<?> clazz) {
         return super.containsKey(key) && clazz.isInstance(get(key));
     }
 
     @Override
-    public void forEach(@Nonnull String basePath, @Nonnull BiConsumer<String, Object> consumer, boolean deep) {
+    public void forEach(@NotNull String basePath, @NotNull BiConsumer<String, Object> consumer, boolean deep) {
         int memorySections = StringUtil.countChars('.', basePath);
         if (basePath.isEmpty()) memorySections--;
 
@@ -259,7 +259,7 @@ public class LinkedConfig extends LinkedHashMap<String, Object> implements Confi
         }
     }
 
-    public void save(@Nonnull File file) {
+    public void save(@NotNull File file) {
         FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
 
         // basic support for changing keys during the program AND

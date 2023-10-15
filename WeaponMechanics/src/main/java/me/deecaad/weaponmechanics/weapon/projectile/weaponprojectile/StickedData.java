@@ -1,13 +1,15 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class StickedData {
 
@@ -17,14 +19,16 @@ public class StickedData {
     private final String worldName;
 
     public StickedData(RayTraceResult hit) {
-        if (hit.isBlock()) {
-            blockLocation = hit.getBlock().getLocation();
+        if (hit instanceof BlockTraceResult blockHit) {
+            blockLocation = blockHit.getBlock().getLocation();
             relativeLocation = hit.getHitLocation().clone().subtract(blockLocation.toVector());
             worldName = blockLocation.getWorld().getName();
-        } else {
-            livingEntity = hit.getLivingEntity();
+        } else if (hit instanceof EntityTraceResult entityHit) {
+            livingEntity = entityHit.getEntity();
             relativeLocation = hit.getHitLocation().clone().subtract(livingEntity.getLocation().toVector());
             worldName = livingEntity.getWorld().getName();
+        } else {
+            throw new IllegalArgumentException("RayTraceResult is not BlockTraceResult or EntityTraceResult");
         }
     }
 

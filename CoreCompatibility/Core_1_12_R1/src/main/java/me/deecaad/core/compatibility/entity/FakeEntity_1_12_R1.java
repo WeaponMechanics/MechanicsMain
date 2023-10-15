@@ -17,7 +17,6 @@ import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -278,7 +277,7 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
     }
 
     @Override
-    public void setEquipment(@Nonnull org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
+    public void setEquipment(@NotNull org.bukkit.inventory.EquipmentSlot equipmentSlot, org.bukkit.inventory.ItemStack itemStack) {
         if (!type.isAlive())
             throw new IllegalStateException("Cannot set equipment of " + type);
 

@@ -6,8 +6,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,7 +40,7 @@ public final class DistanceUtil {
      * @param world Which world to pull the viewing distance from.
      * @return The non-negative viewing distance, in blocks.
      */
-    public static int getRange(World world) {
+    public static int getRange(@NotNull World world) {
 
         // world.getRange() only exists in 1.14+
         if (ReflectionUtil.getMCVersion() < 14) return getRange();
@@ -49,7 +49,10 @@ public final class DistanceUtil {
         return distance << 4;
     }
 
-    public static List<Player> getPlayersInRange(@Nonnull Location origin) {
+    public static List<Player> getPlayersInRange(@NotNull Location origin) {
+        if (origin.getWorld() == null)
+            throw new IllegalArgumentException("origin.world cannot be null");
+
         return getPlayersInRange(origin, -1.0, getRange(origin.getWorld()));
     }
 
@@ -61,10 +64,10 @@ public final class DistanceUtil {
      * @param origin The coordinates that from where entities are taken
      * @return The entities withing range of view distance from origin
      */
-    public static List<Player> getPlayersInRange(@Nonnull Location origin, double min, double max) {
+    public static List<Player> getPlayersInRange(@NotNull Location origin, double min, double max) {
         World world = origin.getWorld();
         if (world == null)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("origin.world cannot be null");
 
         // AABB
         double x1max = origin.getX() - max;
@@ -127,7 +130,7 @@ public final class DistanceUtil {
      * @param origin  The coordinates that the packet is being spawned at.
      * @param packets The packets to send to players in view.
      */
-    public static void sendPacket(@Nonnull Location origin, Object... packets) {
+    public static void sendPacket(@NotNull Location origin, Object... packets) {
         if (origin.getWorld() == null)
             throw new IllegalArgumentException("Cannot have null world");
 

@@ -2,6 +2,7 @@ package me.deecaad.core.file;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AdventureTest {
 
     public static final Serializer<?> DUMMY = new Serializer<>() {
-        @Nonnull
+        @NotNull
         @Override
-        public Object serialize(SerializeData data) {
+        public Object serialize(@NotNull SerializeData data) {
             throw new RuntimeException();
         }
     };

@@ -46,6 +46,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
     private int repairPerExp;
     private Mechanics repairMechanics;
     private Mechanics denyRepairMechanics;
+    private boolean repairOnlyBroken;
 
     /**
      * Default constructor for serializer
@@ -55,7 +56,8 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     public CustomDurability(int maxDurability, int minMaxDurability, int loseMaxDurabilityPerRepair, int durabilityPerShot,
                             double chance, ItemStack replaceItem, Mechanics durabilityMechanics, Mechanics breakMechanics,
-                            Map<ItemStack, Integer> repairItems, int repairPerExp, Mechanics repairMechanics, Mechanics denyRepairMechanics) {
+                            Map<ItemStack, Integer> repairItems, int repairPerExp, Mechanics repairMechanics, Mechanics denyRepairMechanics,
+                            boolean repairOnlyBroken) {
         this.maxDurability = maxDurability;
         this.minMaxDurability = minMaxDurability;
         this.loseMaxDurabilityPerRepair = loseMaxDurabilityPerRepair;
@@ -68,6 +70,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
         this.repairPerExp = repairPerExp;
         this.repairMechanics = repairMechanics;
         this.denyRepairMechanics = denyRepairMechanics;
+        this.repairOnlyBroken = repairOnlyBroken;
     }
 
     public int getMaxDurability() {
@@ -164,6 +167,14 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     public void setDenyRepairMechanics(Mechanics denyRepairMechanics) {
         this.denyRepairMechanics = denyRepairMechanics;
+    }
+
+    public boolean isRepairOnlyBroken() {
+        return repairOnlyBroken;
+    }
+
+    public void setRepairOnlyBroken(boolean repairOnlyBroken) {
+        this.repairOnlyBroken = repairOnlyBroken;
     }
 
     /**
@@ -322,7 +333,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
     @NotNull
     @Override
-    public CustomDurability serialize(SerializeData data) throws SerializerException {
+    public CustomDurability serialize(@NotNull SerializeData data) throws SerializerException {
         int maxDurability = data.of("Max_Durability").assertPositive().assertExists().getInt();
         int minMaxDurability = data.of("Min_Max_Durability").assertPositive().get(0);
         int loseMaxDurabilityPerRepair = data.of("Lose_Max_Durability_Per_Repair").assertPositive().get(0);
@@ -358,9 +369,11 @@ public class CustomDurability implements Serializer<CustomDurability> {
         int repairPerExp = data.of("Repair_Per_Exp").assertPositive().getInt(0);
         Mechanics repairMechanics = data.of("Repair_Mechanics").serialize(Mechanics.class);
         Mechanics denyRepairMechanics = data.of("Deny_Repair_Mechanics").serialize(Mechanics.class);
+        boolean repairOnlyBroken = data.of("Repair_Only_Broken").getBool(false);
 
         return new CustomDurability(maxDurability, minMaxDurability, loseMaxDurabilityPerRepair, durabilityPerShot,
-                chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics);
+                chance, replaceItem, durabilityMechanics, breakMechanics, repairItems, repairPerExp, repairMechanics, denyRepairMechanics,
+                repairOnlyBroken);
     }
 
     /**

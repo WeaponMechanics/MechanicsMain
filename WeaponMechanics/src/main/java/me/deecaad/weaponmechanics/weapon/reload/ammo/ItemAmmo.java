@@ -1,6 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
-import me.deecaad.core.placeholder.PlaceholderAPI;
+import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
@@ -10,23 +10,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Objects;
 
 public class ItemAmmo implements IAmmoType {
 
     // Defined in ammo types list
-    private final String ammoName;
-
-    private final String symbol;
+    private final String ammoTitle;
     private final ItemStack bulletItem;
     private final ItemStack magazineItem;
     private final AmmoConverter ammoConverter;
 
-    public ItemAmmo(String ammoName, String symbol, ItemStack bulletItem, ItemStack magazineItem, AmmoConverter ammoConverter) {
-        this.ammoName = ammoName;
-        this.symbol = symbol;
+    public ItemAmmo(String ammoTitle, ItemStack bulletItem, ItemStack magazineItem, AmmoConverter ammoConverter) {
+        this.ammoTitle = ammoTitle;
         this.bulletItem = bulletItem;
         this.magazineItem = magazineItem;
         this.ammoConverter = ammoConverter;
@@ -38,16 +34,6 @@ public class ItemAmmo implements IAmmoType {
 
     public ItemStack getMagazineItem() {
         return magazineItem == null ? null : magazineItem.clone();
-    }
-
-    @Override
-    public String getAmmoName() {
-        return ammoName;
-    }
-
-    @Override
-    public String getSymbol() {
-        return symbol != null ? symbol : ammoName;
     }
 
     @Override
@@ -72,7 +58,7 @@ public class ItemAmmo implements IAmmoType {
             // When we are on cool down (convert = false), then we just want
             // to return true ASAP for performance.
             String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
-            if (Objects.equals(ammoName, potentialAmmoName)) {
+            if (Objects.equals(ammoTitle, potentialAmmoName)) {
                 hasAmmo = true;
                 if (!convert)
                     return true;
@@ -99,7 +85,7 @@ public class ItemAmmo implements IAmmoType {
             // Handle conversion
             potentialAmmo.setType(ammoTemplate.getType());
             potentialAmmo.setItemMeta(ammoTemplate.getItemMeta());
-            updatePlaceholders(potentialAmmo, wrapper.getPlayer());
+            AdventureUtil.updatePlaceholders(wrapper.getPlayer(), potentialAmmo);
 
             inventory.setItem(i, potentialAmmo);
             hasAmmo = true;
@@ -132,7 +118,7 @@ public class ItemAmmo implements IAmmoType {
             // No conversion checks here (Conversions are handled by the
             // hasAmmo() method). If the ammo type doesn't match, SKIP.
             String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
-            if (!Objects.equals(ammoName, potentialAmmoName))
+            if (!Objects.equals(ammoTitle, potentialAmmoName))
                 continue;
 
             // Consider that people will configure both BULLETS and MAGAZINES.
@@ -228,7 +214,7 @@ public class ItemAmmo implements IAmmoType {
             if (potentialAmmo == null || potentialAmmo.getType() == Material.AIR) continue;
 
             String potentialAmmoName = CustomTag.AMMO_TITLE.getString(potentialAmmo);
-            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoName)) continue;
+            if (potentialAmmoName == null || !potentialAmmoName.equals(ammoTitle)) continue;
 
             // Now we know it's actually an ammo item
             if (CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1) {
@@ -267,7 +253,7 @@ public class ItemAmmo implements IAmmoType {
 
     private void giveOrDrop(Player player, ItemStack itemStack) {
         Inventory inventory = player.getInventory();
-        updatePlaceholders(itemStack, player);
+        AdventureUtil.updatePlaceholders(player, itemStack);
 
         // Check if inventory doesn't have any free slots
         if (inventory.firstEmpty() == -1) {
@@ -275,14 +261,5 @@ public class ItemAmmo implements IAmmoType {
             return;
         }
         inventory.addItem(itemStack);
-    }
-
-    private void updatePlaceholders(ItemStack itemStack, Player player) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta == null) return;
-
-        itemMeta.setDisplayName(PlaceholderAPI.applyPlaceholders(itemMeta.getDisplayName(), player, itemStack, null, null));
-        itemMeta.setLore(PlaceholderAPI.applyPlaceholders(itemMeta.getLore(), player, itemStack, null, null));
-        itemStack.setItemMeta(itemMeta);
     }
 }

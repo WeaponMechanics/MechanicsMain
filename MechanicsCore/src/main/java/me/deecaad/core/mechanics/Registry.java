@@ -1,19 +1,19 @@
 package me.deecaad.core.mechanics;
 
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.file.InlineSerializer;
+import me.deecaad.core.utils.Keyable;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public final class Registry<T extends InlineSerializer<T>> {
+public final class Registry<T extends Keyable> implements Keyable {
 
     private final String registryName;
     private final Map<String, T> registry;
 
-    public Registry(String registryName) {
+    public Registry(@NotNull String registryName) {
         this.registryName = registryName;
         this.registry = new HashMap<>();
     }
@@ -26,7 +26,8 @@ public final class Registry<T extends InlineSerializer<T>> {
      *
      * @return The non-null name of this registry.
      */
-    public String getName() {
+    @Override
+    public @NotNull String getKey() {
         return registryName;
     }
 
@@ -38,12 +39,14 @@ public final class Registry<T extends InlineSerializer<T>> {
      * @return A non-null reference to this (builder-pattern).
      * @throws IllegalArgumentException If a duplicate key is found.
      */
-    public Registry<T> add(T item) {
-        String key = toKey(item.getInlineKeyword());
+    @Contract("_ -> this")
+    @NotNull
+    public Registry<T> add(@NotNull T item) {
+        String key = toKey(item.getKey());
         T existing = registry.get(key);
 
         if (existing != null) {
-            MechanicsCore.debug.warn("Overriding '" + existing + "' with '" + item + "'");
+            MechanicsCore.debug.warn("Overriding '" + existing + "' with '" + item + "' in " + registryName + " registry");
         }
 
         registry.put(key, item);
@@ -51,14 +54,23 @@ public final class Registry<T extends InlineSerializer<T>> {
     }
 
     /**
-     * Returns the serializer associated with the given key, or
-     * <code>null</code>.
+     * Returns the item associated with the given key, or null.
      *
-     * @param key The non-null key to check.
-     * @return The nullable serializer associated with the key.
+     * @param key The key to check.
+     * @return The serializer associated with the key.
      */
-    public T get(String key) {
+    public @Nullable T get(@NotNull String key) {
         return registry.get(toKey(key));
+    }
+
+    /**
+     * Returns the optional item associated with the given key.
+     *
+     * @param key The key to check.
+     * @return The optional item.
+     */
+    public @NotNull Optional<T> getIfPresent(@NotNull String key) {
+        return Optional.ofNullable(get(key));
     }
 
     /**
@@ -68,7 +80,7 @@ public final class Registry<T extends InlineSerializer<T>> {
      *
      * @return The non-null set of options.
      */
-    public Set<String> getOptions() {
+    public @NotNull Set<String> getOptions() {
         return registry.keySet();
     }
 

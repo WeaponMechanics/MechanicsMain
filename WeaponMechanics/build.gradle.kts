@@ -7,28 +7,21 @@ plugins {
 }
 
 repositories {
-    maven {
-        name = "lumine-repo"
-        url = uri("http://mvn.lumine.io/repository/maven-public/")
-        isAllowInsecureProtocol = true
-    }
     mavenCentral()
+    maven(url = "https://mvn.lumine.io/repository/maven-public/")
 }
 
 dependencies {
-    api("org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT")
+    api(Dependencies.LATEST_SPIGOT_API)
     implementation(project(":MechanicsCore"))
-    implementation("org.bstats:bstats-bukkit:3.0.1")
+    implementation(Dependencies.BSTATS)
     implementation("me.cjcrafter:mechanicsautodownload:1.3.1")
 
-    implementation("net.kyori:adventure-api:4.13.0")
-    implementation("net.kyori:adventure-text-serializer-legacy:4.13.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.0")
-    implementation("net.kyori:adventure-text-minimessage:4.13.0")
+    adventureChatAPI()
 
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
-
-    implementation("io.lumine:Mythic-Dist:5.0.1-SNAPSHOT")
+    compileOnly(Dependencies.PROTOCOL_LIB)
+    compileOnly(Dependencies.PLACEHOLDER_API)
+    compileOnly(Dependencies.MYTHIC_MOBS)
     compileOnly(files(file("../lib/crackshot/CrackShotPlus.jar")))
     compileOnly(files(file("../lib/crackshot/CrackShot.jar")))
     compileOnly(files(file("../lib/vivecraft/Vivecraft_Spigot_Extensions.jar")))

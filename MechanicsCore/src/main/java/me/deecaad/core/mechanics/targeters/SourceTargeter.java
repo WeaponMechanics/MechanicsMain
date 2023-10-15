@@ -6,7 +6,7 @@ import me.deecaad.core.mechanics.CastData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Iterator;
 
 public class SourceTargeter extends Targeter {
 
@@ -22,12 +22,9 @@ public class SourceTargeter extends Targeter {
     }
 
     @Override
-    public List<CastData> getTargets0(CastData cast) {
-        CastData copy = cast.clone();
-        copy.setTargetEntity(copy.getSource());
-        if (copy.hasSourceLocation())
-            copy.setTargetLocation(copy.getSourceLocation());
-        return List.of(copy);
+    public Iterator<CastData> getTargets0(CastData cast) {
+        cast.setTargetEntity(cast.getSource());
+        return new SingleIterator<>(cast);
     }
 
     @Override
@@ -43,7 +40,7 @@ public class SourceTargeter extends Targeter {
 
     @NotNull
     @Override
-    public Targeter serialize(SerializeData data) throws SerializerException {
+    public Targeter serialize(@NotNull SerializeData data) throws SerializerException {
         return applyParentArgs(data, new SourceTargeter());
     }
 }

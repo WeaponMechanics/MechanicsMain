@@ -1,17 +1,17 @@
 package me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.ray.RayTraceResult;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ray.BlockTraceResult;
+import me.deecaad.core.utils.ray.EntityTraceResult;
+import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 
 public class Bouncy implements Serializer<Bouncy>, Cloneable {
 
@@ -68,10 +68,13 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
      */
     public boolean handleBounce(WeaponProjectile projectile, RayTraceResult hit) {
         Double speedModifier;
-        if (hit.isBlock()) {
-            speedModifier = blocks != null ? blocks.isValid(hit.getBlock().getType()) : null;
+        if (hit instanceof BlockTraceResult blockHit) {
+            speedModifier = blocks != null ? blocks.isValid(blockHit.getBlock().getType()) : null;
+        } else if (hit instanceof EntityTraceResult entityHit) {
+            speedModifier = entities != null ? entities.isValid(entityHit.getEntity().getType()) : null;
         } else {
-            speedModifier = entities != null ? entities.isValid(hit.getLivingEntity().getType()) : null;
+            // should never occur, so projectile should die
+            return false;
         }
 
         // Speed modifier null would mean that it wasn't valid material or entity type
@@ -155,8 +158,8 @@ public class Bouncy implements Serializer<Bouncy>, Cloneable {
     }
 
     @Override
-    @Nonnull
-    public @NotNull Bouncy serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public Bouncy serialize(@NotNull SerializeData data) throws SerializerException {
         ListHolder<Material> blocks = data.of("Blocks").serialize(new ListHolder<>(Material.class));
         ListHolder<EntityType> entities = data.of("Entities").serialize(new ListHolder<>(EntityType.class));
 

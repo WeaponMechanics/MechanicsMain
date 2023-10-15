@@ -7,6 +7,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -28,8 +29,8 @@ public class WeaponItemSerializer extends ItemSerializer {
     }
 
     @Override
-    @Nonnull
-    public ItemStack serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public ItemStack serialize(@NotNull SerializeData data) throws SerializerException {
         ItemStack weaponStack = super.serializeWithoutRecipe(data);
 
         // Crossbows are not allowed to be used as the weapon's type. WMC

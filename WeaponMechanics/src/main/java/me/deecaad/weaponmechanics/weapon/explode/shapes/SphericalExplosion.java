@@ -29,9 +29,9 @@ public class SphericalExplosion implements ExplosionShape {
         this.radiusSquared = radius * radius;
     }
     
-    @Nonnull
+    @NotNull
     @Override
-    public List<Block> getBlocks(@Nonnull Location origin) {
+    public List<Block> getBlocks(@NotNull Location origin) {
         List<Block> temp = new ArrayList<>();
         
         Location pos1 = origin.clone().add(-radius, -radius, -radius);
@@ -68,9 +68,9 @@ public class SphericalExplosion implements ExplosionShape {
         return temp;
     }
     
-    @Nonnull
+    @NotNull
     @Override
-    public List<LivingEntity> getEntities(@Nonnull Location origin) {
+    public List<LivingEntity> getEntities(@NotNull Location origin) {
         return origin.getWorld().getLivingEntities()
                 .stream()
                 .filter(entity -> entity.getLocation().distanceSquared(origin) < radiusSquared)

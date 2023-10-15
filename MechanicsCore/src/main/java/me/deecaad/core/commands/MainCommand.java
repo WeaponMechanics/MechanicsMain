@@ -3,8 +3,8 @@ package me.deecaad.core.commands;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +70,7 @@ public abstract class MainCommand extends BukkitCommand {
      * @return Returns true every time.
      */
     @Override
-    public boolean execute(@Nonnull CommandSender sender, @Nonnull String label, @Nonnull String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission(permission)) {
             sender.sendMessage(ChatColor.RED + "Invalid permissions!");
             return true;
@@ -104,9 +104,9 @@ public abstract class MainCommand extends BukkitCommand {
      * @param args   The arguments being typed.
      * @return The possible options for arguments.
      */
-    @Nonnull
+    @NotNull
     @Override
-    public List<String> tabComplete(@Nonnull CommandSender sender, @Nonnull String alias, @Nonnull String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
         if (!sender.hasPermission(permission)) {
             return new ArrayList<>();
         }

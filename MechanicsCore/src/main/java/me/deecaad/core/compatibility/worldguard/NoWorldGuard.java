@@ -3,9 +3,8 @@ package me.deecaad.core.compatibility.worldguard;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Set;
 
@@ -15,17 +14,17 @@ import java.util.Set;
 public class NoWorldGuard implements WorldGuardCompatibility {
 
     @Override
-    public boolean testFlag(Location location, @Nullable Player player, String flagName) {
+    public boolean testFlag(@NotNull Location location, @Nullable Player player, @NotNull String flagName) {
         return true;
     }
 
     @Override
-    public Object getValue(@Nonnull Location location, @Nonnull String flagName) {
+    public Object getValue(@NotNull Location location, @NotNull String flagName) {
         return null;
     }
 
     @Override
-    public void registerFlag(String flag, FlagType type) {
+    public void registerFlag(@NotNull String flag, @NotNull FlagType type) {
     }
 
     @Override

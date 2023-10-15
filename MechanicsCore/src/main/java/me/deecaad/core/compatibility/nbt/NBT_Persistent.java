@@ -4,8 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Due to class loading issues, this logic (that was originally implemented in
@@ -14,18 +13,18 @@ import javax.annotation.Nonnull;
  */
 public abstract class NBT_Persistent implements NBTCompatibility {
 
-    public boolean hasString(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasString(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), PersistentDataType.STRING);
     }
 
-    public String getString(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String def) {
+    public String getString(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String def) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
         return nbt.getOrDefault(getKey(plugin, key), PersistentDataType.STRING, def);
     }
 
-    public void setString(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String value) {
+    public void setString(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
@@ -33,18 +32,18 @@ public abstract class NBT_Persistent implements NBTCompatibility {
         bukkitItem.setItemMeta(meta);
     }
 
-    public boolean hasInt(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasInt(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), PersistentDataType.INTEGER);
     }
 
-    public int getInt(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, int def) {
+    public int getInt(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int def) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
         return nbt.getOrDefault(getKey(plugin, key), PersistentDataType.INTEGER, def);
     }
 
-    public void setInt(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, int value) {
+    public void setInt(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
@@ -52,18 +51,18 @@ public abstract class NBT_Persistent implements NBTCompatibility {
         bukkitItem.setItemMeta(meta);
     }
 
-    public boolean hasDouble(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasDouble(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), PersistentDataType.DOUBLE);
     }
 
-    public double getDouble(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, double def) {
+    public double getDouble(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, double def) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
         return nbt.getOrDefault(getKey(plugin, key), PersistentDataType.DOUBLE, def);
     }
 
-    public void setDouble(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, double value) {
+    public void setDouble(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, double value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
@@ -71,18 +70,18 @@ public abstract class NBT_Persistent implements NBTCompatibility {
         bukkitItem.setItemMeta(meta);
     }
 
-    public boolean hasArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), PersistentDataType.INTEGER_ARRAY);
     }
 
-    public int[] getArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, int[] def) {
+    public int[] getArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int[] def) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
         return nbt.has(getKey(plugin, key), PersistentDataType.INTEGER_ARRAY) ? nbt.get(getKey(plugin, key), PersistentDataType.INTEGER_ARRAY) : def;
     }
 
-    public void setArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, int[] value) {
+    public void setArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, int[] value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
@@ -90,18 +89,18 @@ public abstract class NBT_Persistent implements NBTCompatibility {
         bukkitItem.setItemMeta(meta);
     }
 
-    public boolean hasStringArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public boolean hasStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         return getCompound(bukkitItem.getItemMeta()).has(getKey(plugin, key), StringPersistentType.INSTANCE);
     }
 
-    public String[] getStringArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String[] def) {
+    public String[] getStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String[] def) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
         return nbt.has(getKey(plugin, key), StringPersistentType.INSTANCE) ? nbt.get(getKey(plugin, key), StringPersistentType.INSTANCE) : def;
     }
 
-    public void setStringArray(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key, String[] value) {
+    public void setStringArray(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key, String[] value) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
@@ -109,7 +108,7 @@ public abstract class NBT_Persistent implements NBTCompatibility {
         bukkitItem.setItemMeta(meta);
     }
 
-    public void remove(@Nonnull ItemStack bukkitItem, @Nonnull String plugin, @Nonnull String key) {
+    public void remove(@NotNull ItemStack bukkitItem, @NotNull String plugin, @NotNull String key) {
         ItemMeta meta = bukkitItem.getItemMeta();
         PersistentDataContainer nbt = getCompound(meta);
 
@@ -117,7 +116,7 @@ public abstract class NBT_Persistent implements NBTCompatibility {
         bukkitItem.setItemMeta(meta);
     }
 
-    private PersistentDataContainer getCompound(@Nonnull ItemMeta meta) {
+    private PersistentDataContainer getCompound(@NotNull ItemMeta meta) {
         return meta.getPersistentDataContainer();
     }
 }

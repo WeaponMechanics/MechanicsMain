@@ -2,8 +2,7 @@ package me.deecaad.core.compatibility;
 
 import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.Bukkit;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class CompatibilitySetup {
 

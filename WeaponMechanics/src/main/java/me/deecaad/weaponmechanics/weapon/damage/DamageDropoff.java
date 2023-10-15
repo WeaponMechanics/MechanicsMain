@@ -5,6 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -59,8 +60,8 @@ public class DamageDropoff implements Serializer<DamageDropoff> {
     }
 
     @Override
-    @Nonnull
-    public DamageDropoff serialize(SerializeData data) throws SerializerException {
+    @NotNull
+    public DamageDropoff serialize(@NotNull SerializeData data) throws SerializerException {
 
         List<String[]> list = data.ofList()
                 .addArgument(double.class, true)
