@@ -59,6 +59,12 @@ public class Ammo implements Keyable, Serializer<Ammo> {
         String ammoTitle = split[split.length - 1];
         String symbol = data.of("Symbol").assertType(String.class).get(null);
 
+        if (data.has("Ammo_Types")) {
+            throw data.exception("Ammo_Types", "Ammo_Types is outdated since WeaponMechanics 3.0.0",
+                    "In order to use Ammo, you should update your configs. Check the wiki for more info:",
+                    "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
+        }
+
         // Ammo can use 1 of Experience, Money, or Items.
         int count = 0;
         if (data.has("Experience_As_Ammo_Cost"))
