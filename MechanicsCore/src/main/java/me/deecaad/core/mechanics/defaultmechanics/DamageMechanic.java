@@ -7,6 +7,7 @@ import me.deecaad.core.mechanics.CastData;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DamageMechanic extends Mechanic {
 
@@ -47,6 +48,11 @@ public class DamageMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Damage";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/damage";
     }
 
     @Override

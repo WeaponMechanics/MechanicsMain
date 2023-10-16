@@ -4,6 +4,7 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class IgniteMechanic extends Mechanic {
 
@@ -22,6 +23,11 @@ public class IgniteMechanic extends Mechanic {
     @Override
     public String getKeyword() {
         return "Ignite";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/ignite";
     }
 
     @Override

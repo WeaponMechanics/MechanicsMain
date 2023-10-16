@@ -10,7 +10,6 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
 import me.deecaad.core.utils.NumberUtil;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -58,12 +57,6 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
 
     public double getChance() {
         return chance;
-    }
-
-    @Nullable
-    @Override
-    public String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics#mechanics";
     }
 
     /**

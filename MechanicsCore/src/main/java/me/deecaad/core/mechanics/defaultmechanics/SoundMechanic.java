@@ -121,7 +121,7 @@ public class SoundMechanic extends PlayerEffectMechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SoundMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/sound";
     }
 
     @NotNull

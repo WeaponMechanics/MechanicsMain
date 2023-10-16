@@ -177,7 +177,7 @@ public class FireworkMechanic extends PlayerEffectMechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/FireworkMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/firework";
     }
 
     @NotNull

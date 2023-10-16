@@ -55,7 +55,7 @@ public class LeapMechanic extends Mechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/LeapMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/leap";
     }
 
     @NotNull

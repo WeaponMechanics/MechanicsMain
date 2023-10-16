@@ -120,7 +120,7 @@ public class CustomSoundMechanic extends PlayerEffectMechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/CustomSoundMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/custom-sound";
     }
 
     @NotNull

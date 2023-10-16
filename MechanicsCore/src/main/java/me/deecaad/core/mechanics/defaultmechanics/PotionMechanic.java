@@ -48,7 +48,7 @@ public class PotionMechanic extends Mechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/PotionMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/potion";
     }
 
     @NotNull

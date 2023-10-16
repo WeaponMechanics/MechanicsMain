@@ -80,7 +80,7 @@ public class ActionBarMechanic extends Mechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/ActionBarMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/action-bar";
     }
 
     @NotNull

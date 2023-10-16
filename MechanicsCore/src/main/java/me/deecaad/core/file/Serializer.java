@@ -61,7 +61,7 @@ public interface Serializer<T> {
      * @param path the path to this serializer's path (path to keyword like path.keyword)
      * @return true if this serializer should be used later
      */
-    default @org.jetbrains.annotations.Nullable String useLater(ConfigurationSection configurationSection, String path) {
+    default @Nullable String useLater(ConfigurationSection configurationSection, String path) {
 
         // Checks if keyword is actually an string
         // -> If it is, then it means that it is used as path to other location where

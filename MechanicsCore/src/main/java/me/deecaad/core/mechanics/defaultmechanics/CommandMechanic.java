@@ -53,7 +53,7 @@ public class CommandMechanic extends Mechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/CommandMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/command";
     }
 
     @NotNull

@@ -64,7 +64,7 @@ public class TitleMechanic extends Mechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/TitleMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/title";
     }
 
     @NotNull

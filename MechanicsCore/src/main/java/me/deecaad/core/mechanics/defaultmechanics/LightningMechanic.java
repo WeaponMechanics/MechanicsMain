@@ -4,7 +4,9 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class LightningMechanic extends Mechanic {
 
@@ -30,12 +32,22 @@ public class LightningMechanic extends Mechanic {
     }
 
     @Override
+    public @Nullable String getWikiLink() {
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/lightning";
+    }
+
+    @Override
     protected void use0(CastData cast) {
         Location strikeLocation = cast.getTargetLocation();
+        World world = cast.getTargetWorld();
+        if (strikeLocation == null || world == null) {
+            return;
+        }
+
         if (isEffect)
-            strikeLocation.getWorld().strikeLightningEffect(strikeLocation);
+            world.strikeLightningEffect(strikeLocation);
         else
-            strikeLocation.getWorld().strikeLightning(strikeLocation);
+            world.strikeLightning(strikeLocation);
     }
 
     @NotNull

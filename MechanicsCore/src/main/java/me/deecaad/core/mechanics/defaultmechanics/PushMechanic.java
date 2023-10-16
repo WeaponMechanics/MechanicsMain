@@ -58,7 +58,7 @@ public class PushMechanic extends Mechanic {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/PushMechanic";
+        return "https://cjcrafter.gitbook.io/mechanics/mechanics/push";
     }
 
     @NotNull

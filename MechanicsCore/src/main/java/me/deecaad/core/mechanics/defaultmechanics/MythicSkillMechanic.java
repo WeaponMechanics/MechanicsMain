@@ -9,6 +9,7 @@ import me.deecaad.core.mechanics.conditions.Condition;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +36,16 @@ public class MythicSkillMechanic extends Mechanic implements JarSearcherExempt {
     }
 
     @Override
+    public String getKeyword() {
+        return "MythicSkill";
+    }
+
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/mythicmobs#mythic-skill-mechanic";
+    }
+
+    @Override
     protected void use0(CastData cast) {
         Collection<Entity> eTargets = new ArrayList<>();
         Collection<Location> lTargets = new ArrayList<>();
@@ -53,11 +64,6 @@ public class MythicSkillMechanic extends Mechanic implements JarSearcherExempt {
         }
 
         MythicBukkit.inst().getAPIHelper().castSkill(cast.getSource(), skillName, cast.getSourceLocation(), eTargets, lTargets, power);
-    }
-
-    @Override
-    public String getKeyword() {
-        return "MythicSkill";
     }
 
     @NotNull
