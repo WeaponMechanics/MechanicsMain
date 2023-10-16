@@ -288,7 +288,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                 // "970e0a59-b95d-45a9-9039-b43ac4fbfc7c https://textures.minecraft.net/texture/a0564817fcc8dd51bc1957c0b7ea142db687dd6f1caafd35bb4dcfee592421c"
                 // https://www.spigotmc.org/threads/create-a-skull-item-stack-with-a-custom-texture-base64.82416/
                 if (uuid != null && url != null) {
-                    GameProfile dummy = new GameProfile(uuid, null);
+                    GameProfile dummy = new GameProfile(uuid, "ArmorMechanicsSkull");
                     byte[] encoded = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
                     dummy.getProperties().put("textures", new Property("textures", new String(encoded)));
 
