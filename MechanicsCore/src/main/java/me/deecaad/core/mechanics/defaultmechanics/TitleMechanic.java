@@ -31,15 +31,15 @@ public class TitleMechanic extends Mechanic {
         this.times = times;
     }
 
-    public PlaceholderMessage getTitle() {
+    public @Nullable PlaceholderMessage getTitle() {
         return title;
     }
 
-    public PlaceholderMessage getSubtitle() {
+    public @Nullable PlaceholderMessage getSubtitle() {
         return subtitle;
     }
 
-    public Title.Times getTimes() {
+    public @NotNull Title.Times getTimes() {
         return times;
     }
 

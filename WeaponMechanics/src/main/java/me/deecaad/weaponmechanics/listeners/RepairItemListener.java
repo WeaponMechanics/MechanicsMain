@@ -145,7 +145,7 @@ public class RepairItemListener implements Listener {
 
                 Configuration config = WeaponMechanics.getConfigurations();
                 CustomDurability customDurability = config.getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
-                if (customDurability.isRepairOnlyBroken()) {
+                if (customDurability != null && customDurability.isRepairOnlyBroken()) {
                     return;
                 }
 
