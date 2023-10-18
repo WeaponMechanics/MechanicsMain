@@ -23,7 +23,9 @@ public abstract class ShapeTargeter extends RelativeTargeter {
     @Override
     protected final @NotNull Iterator<CastData> getTargets0(@NotNull CastData cast) {
         Iterator<Vector> points = getPoints(cast);
-        Location source = isUseTarget ? cast.getTargetLocation() : cast.getSourceLocation();
+        Location source = isUseTarget
+                ? (isEye() && cast.getTarget() != null ? cast.getTarget().getEyeLocation() : cast.getTargetLocation())
+                : (isEye() ? cast.getSource().getEyeLocation() : cast.getSourceLocation());
 
         // We may have been targeting an entity or a got a cloned location. We
         // must set the target location here, so we are modifying the reference.
