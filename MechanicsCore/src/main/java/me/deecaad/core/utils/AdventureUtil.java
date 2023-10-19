@@ -2,7 +2,6 @@ package me.deecaad.core.utils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.deecaad.core.MechanicsCore;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -57,7 +56,15 @@ public final class AdventureUtil {
      * @return The name component.
      */
     public static @NotNull Component getName(@NotNull ItemStack item) {
-        return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null)
+            return Component.empty();
+
+        return ReflectionUtil.getMCVersion() < 16
+                ? LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName())
+                : GsonComponentSerializer.gson().deserialize((String) ReflectionUtil.invokeField(displayField, meta));
+
+        //return CompatibilityAPI.getNBTCompatibility().getDisplayName(item);
     }
 
     /**

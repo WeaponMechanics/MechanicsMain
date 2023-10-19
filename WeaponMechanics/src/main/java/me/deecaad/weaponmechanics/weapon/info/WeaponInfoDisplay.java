@@ -26,7 +26,6 @@ import org.bukkit.inventory.MainHand;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
@@ -199,7 +198,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
             BossBar bossBar = messageHelper.getBossBar();
             if (bossBar == null) {
-                bossBar = BossBar.bossBar(MechanicsCore.getPlugin().message.deserialize(builder.toString()), 1.0f, barColor, barStyle);
+                bossBar = BossBar.bossBar(builder, 1.0f, barColor, barStyle);
                 messageHelper.setBossBar(bossBar);
 
                 Audience audience = MechanicsCore.getPlugin().adventure.player(player);
@@ -207,7 +206,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
 
             } else {
                 Bukkit.getScheduler().cancelTask(messageHelper.getBossBarTask());
-                bossBar.name(MechanicsCore.getPlugin().message.deserialize(builder.toString()));
+                bossBar.name(builder);
                 bossBar.color(barColor);
                 bossBar.overlay(barStyle);
             }
