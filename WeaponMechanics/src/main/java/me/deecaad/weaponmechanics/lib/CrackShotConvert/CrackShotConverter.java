@@ -72,9 +72,8 @@ public class CrackShotConverter {
         DELAY_BETWEEN_SHOTS_IN_BURST("Burstfire.Delay_Between_Shots_In_Burst", "Shoot.Burst.Ticks_Between_Each_Shot", new ValueNonZeroConvert()),
 
         // AMMO
-        AMMO("Ammo.", "Reload.Ammo.Ammo_Types.", new AmmoConverter()),
-        SOUNDS_OUT_OF_AMMO("Ammo.Sounds_Out_Of_Ammo", "Reload.Ammo.Out_Of_Ammo", new SoundConvert()),
-        SOUNDS_SHOOT_WITH_NO_AMMO("Ammo.Sounds_Shoot_With_No_Ammo", "Reload.Ammo.Out_Of_Ammo", new SoundConvert()),
+        SOUNDS_OUT_OF_AMMO("Ammo.Sounds_Out_Of_Ammo", "Reload.Ammo.Out_Of_Ammo_Mechanics", new SoundConvert()),
+        SOUNDS_SHOOT_WITH_NO_AMMO("Ammo.Sounds_Shoot_With_No_Ammo", "Reload.Ammo.Out_Of_Ammo_Mechanics", new SoundConvert()),
 
         // RELOAD
         RELOAD_TRIGGER("Reload.Enable", "Reload.Trigger.Main_Hand", new ValueBooleanConvert("drop_item", null)),
@@ -859,27 +858,6 @@ public class CrackShotConverter {
             }
 
             toConfig.set(to, mechanics);
-        }
-    }
-
-    private static class AmmoConverter implements Converter {
-
-        @Override
-        public void convert(String from, String to, YamlConfiguration fromConfig, YamlConfiguration toConfig) {
-            if (!fromConfig.getBoolean(from + "Enable")) {
-                return;
-            }
-
-            String weapon = from.split("\\.")[0];
-            to = to + weapon + "_Ammo.Item_Ammo.";
-
-            toConfig.set(to + "Ammo_Converter_Check.Type", true);
-            new MaterialConvert().convert(from + "Ammo_Item_ID", to + "Bullet_Item.Type", fromConfig, toConfig);
-            String nameCheck = fromConfig.getString(from + "Ammo_Name_Check", null);
-            if (nameCheck != null) {
-                toConfig.set(to + "Bullet_Item.Name", nameCheck);
-                toConfig.set(to + "Ammo_Converter_Check.Name", true);
-            }
         }
     }
 

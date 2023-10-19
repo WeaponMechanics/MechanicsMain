@@ -211,12 +211,11 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         AmmoConfig ammo = playerWrapper != null ? config.getObject(weaponTitle + ".Reload.Ammo", AmmoConfig.class) : null;
         if (ammo != null && !ammo.hasAmmo(weaponTitle, weaponStack, playerWrapper)) {
-            Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
 
             // Creative mode bypass... #176
             if (playerWrapper.getPlayer().getGameMode() != GameMode.CREATIVE || !getBasicConfigurations().getBool("Creative_Mode_Bypass_Ammo")) {
-                if (outOfAmmoMechanics != null)
-                    outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, weaponStack));
+                if (ammo.getOutOfAmmoMechanics() != null)
+                    ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, weaponStack));
                 return false;
             }
 
@@ -265,9 +264,8 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                     // Just check if for some reason ammo disappeared from entity before reaching reload "complete" state
                     if (removedAmount <= 0) {
-                        Mechanics outOfAmmoMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Out_Of_Ammo", Mechanics.class);
-                        if (outOfAmmoMechanics != null)
-                            outOfAmmoMechanics.use(new CastData(shooter, weaponTitle, taskReference));
+                        if (ammo.getOutOfAmmoMechanics() != null)
+                            ammo.getOutOfAmmoMechanics().use(new CastData(shooter, weaponTitle, taskReference));
 
                         // Remove next task as reload can't be finished
                         setNextTask(null);

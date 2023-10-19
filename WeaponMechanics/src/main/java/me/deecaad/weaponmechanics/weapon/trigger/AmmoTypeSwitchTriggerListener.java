@@ -50,8 +50,8 @@ public class AmmoTypeSwitchTriggerListener implements TriggerListener {
         entityWrapper.getMainHandData().cancelTasks();
         entityWrapper.getOffHandData().cancelTasks();
 
-        Mechanics ammoTypeSwitchMechanics = getConfigurations().getObject(weaponTitle + ".Reload.Ammo.Ammo_Type_Switch.Mechanics", Mechanics.class);
-        if (ammoTypeSwitchMechanics != null) ammoTypeSwitchMechanics.use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
+        if (ammo.getSwitchMechanics() != null)
+            ammo.getSwitchMechanics().use(new CastData(entityWrapper.getEntity(), weaponTitle, weaponStack));
 
         WeaponInfoDisplay weaponInfoDisplay = getConfigurations().getObject(weaponTitle + ".Info.Weapon_Info_Display", WeaponInfoDisplay.class);
         if (weaponInfoDisplay != null) weaponInfoDisplay.send((PlayerWrapper) entityWrapper, slot);
