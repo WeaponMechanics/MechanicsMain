@@ -10,10 +10,10 @@ object Versions {
     const val MYTHIC_MOBS = "5.3.5"
 
     // Adventure Chat API
-    const val ADVENTURE_API = "4.14.0"
-    const val ADVENTURE_BUKKIT = "4.3.0"
-    const val ADVENTURE_TEXT_LEGACY = "4.14.0"
-    const val ADVENTURE_TEXT_MINIMESSAGE = "4.14.0"
+    const val ADVENTURE_API = "4.15.0-SNAPSHOT"
+    const val ADVENTURE_BUKKIT = "4.3.1"
+    const val ADVENTURE_TEXT_LEGACY = ADVENTURE_API
+    const val ADVENTURE_TEXT_MINIMESSAGE = ADVENTURE_API
 
     // Misc
     const val JSON_SIMPLE = "1.1.1"
