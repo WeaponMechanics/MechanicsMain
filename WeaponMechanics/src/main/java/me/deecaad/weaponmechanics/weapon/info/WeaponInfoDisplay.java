@@ -148,7 +148,7 @@ public class WeaponInfoDisplay implements Serializer<WeaponInfoDisplay> {
                 ComponentLike mainHand = getDualDisplay(mainDisplay, PlaceholderData.of(player, mainStack, mainWeapon, EquipmentSlot.HAND), offDisplay, false, hasInvertedMainHand);
 
                 Audience audience = MechanicsCore.getPlugin().adventure.player(player);
-                audience.sendActionBar(MechanicsCore.getPlugin().message.deserialize(buildDisplay(Component.text(), hasInvertedMainHand, mainHand, offHand).toString()));
+                audience.sendActionBar(buildDisplay(Component.text(), hasInvertedMainHand, mainHand, offHand));
             } else {
                 if (mainhand) {
                     if (mainStack != null && mainStack.hasItemMeta()) {
