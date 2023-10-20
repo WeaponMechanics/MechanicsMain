@@ -8,6 +8,7 @@ import me.deecaad.core.listeners.ItemCraftListener;
 import me.deecaad.core.listeners.MechanicsCastListener;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.mechanics.conditions.Condition;
+import me.deecaad.core.mechanics.conditions.GeyserCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsEntityCondition;
 import me.deecaad.core.mechanics.conditions.MythicMobsFactionCondition;
 import me.deecaad.core.mechanics.defaultmechanics.Mechanic;
@@ -73,6 +74,14 @@ public class MechanicsCore extends JavaPlugin {
                     }
                 } catch (Throwable ex) {
                     debug.warn("Cannot hook into MythicMobs... MythicMobs might be outdated");
+                }
+
+                try {
+                    if (getServer().getPluginManager().isPluginEnabled("Geyser-Spigot")) {
+                        Mechanics.CONDITIONS.add(new GeyserCondition());
+                    }
+                } catch (Throwable ex) {
+                    debug.warn("Cannot hook into Geyser... Geyser might be outdated");
                 }
 
                 // Placeholders

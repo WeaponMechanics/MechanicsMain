@@ -43,6 +43,11 @@ repositories {
         name = "sonatype-oss-snapshots"
     }
 
+    maven {
+        url = uri("https://repo.opencollab.dev/main/")
+    }
+
+
     //maven {
     //    url = uri("https://repo.dmulloy2.net/repository/public/")
     //}

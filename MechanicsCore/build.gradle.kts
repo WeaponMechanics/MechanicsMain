@@ -15,6 +15,7 @@ dependencies {
     compileOnly("com.mojang:brigadier:1.0.18")
 
     compileOnly(Dependencies.PROTOCOL_LIB)
+    compileOnly(Dependencies.GEYSER)
 
     implementation(Dependencies.JSON_SIMPLE)
 
