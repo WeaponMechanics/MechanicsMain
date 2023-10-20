@@ -97,7 +97,7 @@ public class PlaceholderMessage {
         // Let PlaceholderAPI
         String message = template;
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            PlaceholderAPI.setPlaceholders(data.player(), message);
+            message = PlaceholderAPI.setPlaceholders(data.player(), message);
         }
 
         // Convert the placeholder map into the tag resolver format for the adventure api
