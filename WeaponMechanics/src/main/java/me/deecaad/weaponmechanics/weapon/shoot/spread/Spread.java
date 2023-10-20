@@ -4,13 +4,10 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 
 public class Spread implements Serializer<Spread> {
 
@@ -51,7 +48,7 @@ public class Spread implements Serializer<Spread> {
      * @return the normalized spread direction
      */
     public Vector getNormalizedSpreadDirection(EntityWrapper entityWrapper, Location shootLocation, boolean mainHand, boolean updateSpreadChange) {
-        double yaw = shootLocation.getYaw(), pitch = shootLocation.getPitch();
+        double yaw = Math.toRadians(shootLocation.getYaw()), pitch = Math.toRadians(shootLocation.getPitch());
         if (spreadImage != null) {
             Point point = spreadImage.getLocation();
             yaw += point.getYaw();
@@ -66,36 +63,28 @@ public class Spread implements Serializer<Spread> {
         return getNormalizedSpreadDirection(yaw, pitch, spread);
     }
 
-    private Vector getNormalizedSpreadImageDirection(double startYaw, double startPitch, double yaw, double pitch) {
-        return VectorUtil.getVector(startYaw + yaw, startPitch + pitch).normalize();
-    }
-
     /**
      * Used to get random normalized spread direction
      *
-     * @param yaw the yaw of direction
-     * @param pitch the pitch of direction
+     * @param yaw the yaw of direction, as radians
+     * @param pitch the pitch of direction, as radians
      * @param spread the spread
      * @return the randomized direction based on given params as normalized vector
      */
     private Vector getNormalizedSpreadDirection(double yaw, double pitch, double spread) {
 
         // Create random numbers for horizontal and vertical spread
-        double randomX = NumberUtil.random(-spread, spread),
-                randomY = NumberUtil.random(-spread, spread),
-                randomZ = NumberUtil.random(-spread, spread);
+        double randomX = NumberUtil.random(-spread, spread);
+        double randomY = NumberUtil.random(-spread, spread);
+        double randomZ = NumberUtil.random(-spread, spread);
 
-        // Change yaw and pitch to radians
-        double yawToRad = Math.toRadians(yaw);
-        double pitchToRad = Math.toRadians(pitch);
-
-        double xz = Math.cos(pitchToRad);
+        double xz = Math.cos(pitch);
 
         // Last calculate the direction and add randomness to it
         // Then normalize it.
-        return new Vector(-xz * Math.sin(yawToRad) + randomX,
-                -Math.sin(pitchToRad) + randomY,
-                xz * Math.cos(yawToRad) + randomZ).normalize();
+        return new Vector(-xz * Math.sin(yaw) + randomX,
+                -Math.sin(pitch) + randomY,
+                xz * Math.cos(yaw) + randomZ).normalize();
     }
 
     @Override

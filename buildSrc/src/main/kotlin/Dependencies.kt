@@ -7,7 +7,7 @@ object Versions {
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.3"
-    const val MYTHIC_MOBS = "5.0.1-SNAPSHOT"
+    const val MYTHIC_MOBS = "5.3.5"
 
     // Adventure Chat API
     const val ADVENTURE_API = "4.14.0"
