@@ -9,8 +9,8 @@ import me.deecaad.weaponmechanics.weapon.shoot.SelectiveFireState;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * Simple class to handle weapon item serialization a bit differently.
@@ -43,6 +43,16 @@ public class WeaponItemSerializer extends ItemSerializer {
                     "Purchase WMC to 'fake' the crossbow animation for other players: https://www.spigotmc.org/resources/104539/");
 
         String weaponTitle = data.key.split("\\.")[0];
+
+        // Ensure the weapon title uses the correct format, mostly for other plugin compatibility
+        Pattern pattern = Pattern.compile("[A-Za-z0-9_]+");
+        if (!pattern.matcher(weaponTitle).matches()) {
+            throw data.exception(null, "Weapon title must only contain letters, numbers, and underscores!",
+                    "For example, AK-47 is not allowed, but AK_47 is fine",
+                    "This is only for the weapon title (the name defined in config), NOT the display name of the weapon. The display can be whatever you want.",
+                    SerializerException.forValue(weaponTitle));
+        }
+
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeapon(weaponTitle);
 
         int magazineSize = (Integer) data.config.get(weaponTitle + ".Reload.Magazine_Size", -1);

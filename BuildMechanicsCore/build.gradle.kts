@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 description = "Library plugin for WeaponMechanics"
-version = "3.0.3"
+version = "3.0.4"
 
 plugins {
     `maven-publish`
@@ -47,7 +47,7 @@ bukkit {
 
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
     authors = listOf("DeeCaaD", "CJCrafter")
-    loadBefore = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI", "MythicMobs")
+    loadBefore = listOf("WorldEdit", "WorldGuard", "PlaceholderAPI", "MythicMobs", "Geyser-Spigot")
 }
 
 tasks.named<ShadowJar>("shadowJar") {
