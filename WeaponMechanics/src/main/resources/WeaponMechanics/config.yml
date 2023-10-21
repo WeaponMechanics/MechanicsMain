@@ -147,8 +147,8 @@ Placeholder_Symbols:
 
     # These two aren't actually placeholder symbols, but are used when weapon
     # doesn't have Dual_Wield section defined in Weapon_Info_Display.
-    Main_Hand: "<gold>%ammo-left%<gray>»<gold>%reload% <gold>%firearm-state%%weapon-title%"
-    Off_Hand: "<gold>%weapon-title%%firearm-state% <gold>%reload%<gray>«<gold>%ammo-left%"
+    Main_Hand: "<gold><ammo_left><gray>»<gold><reload> <gold><firearm_state><weapon-title>"
+    Off_Hand: "<gold><weapon_title><firearm_state> <gold><reload><gray>«<gold><ammo_left>"
 
 # This is the global damaging system. It defines how bullets damage entities
 # with potion effects, armor, and other statuses.
