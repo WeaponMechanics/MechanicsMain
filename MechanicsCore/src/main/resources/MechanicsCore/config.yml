@@ -6,6 +6,12 @@
 Debug_Level: 2
 Print_Traces: false
 
+# Turning on this feature will cause placeholder messages to use 3x the CPU.
+# If you want to use "placeholders inside of placeholders," like:
+# %changeoutput<_input:<ammo_left>_matcher:10_ifmatch:<ammo_left>_else:0<ammo_left>%,
+# then you need to set this to true.
+Advanced_Placeholders: false
+
 # The MechanicsCore item registry is *very* primitive. Imagine you have 'steel'
 # and 'steel_sheet' as 2 custom items. When MechanicsCore first loads,
 # 'steel_sheet' will actually be broken since 'steel' doesn't exist yet. To fix

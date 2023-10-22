@@ -88,6 +88,8 @@ public class PlaceholderMessage {
     }
 
     public Component replaceAndDeserialize(PlaceholderData data) {
+        boolean isAdvancedPlaceholders = MechanicsCore.getPlugin().getConfig().getBoolean("Advanced_Placeholders", false);
+        boolean isPlaceholderApi = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
         fillMap(data);
 
         // Let other plugins customize the appearance of placeholders
@@ -96,7 +98,7 @@ public class PlaceholderMessage {
 
         // Let PlaceholderAPI
         String message = template;
-        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (!isAdvancedPlaceholders && isPlaceholderApi) {
             message = PlaceholderAPI.setPlaceholders(data.player(), message);
         }
 
@@ -109,6 +111,12 @@ public class PlaceholderMessage {
         }
 
         // Adventure api does the heavy lifting
-        return MechanicsCore.getPlugin().message.deserialize(message, tagResolvers);
+        Component returnValue = MechanicsCore.getPlugin().message.deserialize(message, tagResolvers);
+        if (isAdvancedPlaceholders && isPlaceholderApi) {
+            message = MechanicsCore.getPlugin().message.serialize(returnValue);
+            message = PlaceholderAPI.setPlaceholders(data.player(), message);
+            returnValue = MechanicsCore.getPlugin().message.deserialize(message);
+        }
+        return returnValue;
     }
 }
