@@ -32,6 +32,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -52,6 +54,25 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
     public ReloadHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
+    }
+
+    private static void setLeftAmmo(ItemStack weaponStack, String weaponTitle, int ammoToSet) {
+        CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
+
+        ItemMeta weaponMeta = weaponStack.getItemMeta();
+        if (!(weaponMeta instanceof Damageable damageable)) return;
+
+        int capacity = getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size");
+
+        if (damageable.isUnbreakable()) {
+            damageable.setUnbreakable(false);
+        }
+
+        short maxDurability = weaponStack.getType().getMaxDurability();
+        float usedAmmoPercentage = (float) (capacity - ammoToSet) / capacity;
+
+        damageable.setDamage(Math.min((int) (usedAmmoPercentage * maxDurability), maxDurability - 1));
+        weaponStack.setItemMeta(damageable);
     }
 
     @Override
@@ -122,7 +143,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
         if (ammoLeft == -1) { // This shouldn't be -1 at this point since reload should be used, perhaps ammo was added for weapon in configs later in server...
-            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+            setLeftAmmo(weaponStack, weaponTitle, 0);
             ammoLeft = 0;
         }
 
@@ -283,7 +304,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                 handleWeaponStackAmount(entityWrapper, taskReference);
 
-                CustomTag.AMMO_LEFT.setInteger(taskReference, finalAmmoSet);
+                setLeftAmmo(taskReference, weaponTitle, finalAmmoSet);
 
                 // If there is still close task coming, don't call finish reload
                 // Close task will always call it anyway
@@ -314,7 +335,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                     handleWeaponStackAmount(entityWrapper, weaponStack);
 
-                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+                    setLeftAmmo(weaponStack, weaponTitle, 0);
                 }
 
 
@@ -487,7 +508,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         if (!CustomTag.AMMO_LEFT.hasInteger(weaponStack)) {
             // If the ammo was added later on, add the tag
-            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
+            setLeftAmmo(weaponStack, weaponTitle, 0);
             return 0;
         }
 
@@ -510,7 +531,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 return false;
             }
 
-            CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
+            setLeftAmmo(weaponStack, weaponTitle, ammoToSet);
         }
         return true;
     }
