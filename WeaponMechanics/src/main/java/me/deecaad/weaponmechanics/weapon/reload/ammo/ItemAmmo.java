@@ -129,14 +129,9 @@ public class ItemAmmo implements IAmmoType {
             // Users will shoot their gun until it is half empty, and expect it
             // to be reloaded using BULLET items (so no ammo is wasted).
             boolean isMagazine = CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1;
-            boolean canUseMag = total == 0 && amount >= maximumMagSize;
 
             if (isMagazine) {
                 magazineSlot = i;
-                if (canUseMag) {
-                    consumeItem(inventory, i, potentialAmmo, 1);
-                    return amount;
-                }
             } else if (bulletItem != null) {
 
                 // If the one stack of bullets is enough to fill the gun, then
