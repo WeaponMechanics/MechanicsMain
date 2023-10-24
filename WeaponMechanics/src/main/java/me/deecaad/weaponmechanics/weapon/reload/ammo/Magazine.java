@@ -4,6 +4,7 @@ import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -48,6 +49,12 @@ public class Magazine {
         List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(itemMeta.getLore());
         lore.add(ChatColor.GRAY + "Capacity: " + ChatColor.GREEN + ammoAmount + "/" + capacity);
         itemMeta.setLore(lore);
+
+        if (ammoAmount < capacity && itemMeta instanceof Damageable damageable) {
+            short maxDurability = item.getType().getMaxDurability();
+            float usedAmmoPercentage = (float) (capacity - ammoAmount) / capacity;
+            damageable.setDamage((int) (usedAmmoPercentage * maxDurability));
+        }
 
         PersistentDataContainer dataContainer = itemMeta.getPersistentDataContainer();
         dataContainer.set(new NamespacedKey(WeaponMechanics.getPlugin(), "ammo"), PersistentDataType.INTEGER, ammoAmount);
