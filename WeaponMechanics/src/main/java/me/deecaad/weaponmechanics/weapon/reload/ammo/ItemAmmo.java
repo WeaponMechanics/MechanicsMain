@@ -108,6 +108,7 @@ public class ItemAmmo implements IAmmoType {
         PlayerInventory inventory = wrapper.getPlayer().getInventory();
         int magazineSlot = -1;
         int total = 0;
+        int previousMagazineAmount = 0;
 
         for (int i = 0; i < 36; i++) {
 
@@ -131,7 +132,11 @@ public class ItemAmmo implements IAmmoType {
             boolean isMagazine = CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1;
 
             if (isMagazine) {
-                magazineSlot = i;
+                int magazineAmount = Magazine.getAmmoFromItem(potentialAmmo);
+                if (magazineAmount > previousMagazineAmount) {
+                    previousMagazineAmount = magazineAmount;
+                    magazineSlot = i;
+                }
             } else if (bulletItem != null) {
 
                 // If the one stack of bullets is enough to fill the gun, then
