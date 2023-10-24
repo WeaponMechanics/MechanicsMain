@@ -62,16 +62,16 @@ public class ReloadHandler implements IValidator, TriggerListener {
         ItemMeta weaponMeta = weaponStack.getItemMeta();
         if (!(weaponMeta instanceof Damageable damageable)) return;
 
-        int capacity = getConfigurations().getInt(weaponTitle + ".Reload.Magazine_Size");
-
         if (damageable.isUnbreakable()) {
             damageable.setUnbreakable(false);
         }
 
-        short maxDurability = weaponStack.getType().getMaxDurability();
-        float usedAmmoPercentage = (float) (capacity - ammoToSet) / capacity;
+        short vanillaMaxDurability = weaponStack.getType().getMaxDurability();
+        int maxDurability = CustomTag.MAX_DURABILITY.getInteger(weaponStack);
+        int durability = CustomTag.DURABILITY.getInteger(weaponStack);
+        float damagePercentage = (float) (maxDurability - durability) / maxDurability;
 
-        damageable.setDamage(Math.min((int) (usedAmmoPercentage * maxDurability), maxDurability - 1));
+        damageable.setDamage(Math.min((int) (damagePercentage * vanillaMaxDurability), vanillaMaxDurability - 1));
         weaponStack.setItemMeta(damageable);
     }
 
