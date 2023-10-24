@@ -138,11 +138,7 @@ public class DamageHandler {
 
         EntityWrapper shooterWrapper = WeaponMechanics.getEntityWrapper(shooter, true);
 
-        Map<String, String> tempPlaceholders = new HashMap<>();
-        tempPlaceholders.put("%shooter%", shooter.getName());
-        tempPlaceholders.put("%victim%", victim.getName());
-
-        CastData cast = new CastData(shooter, weaponTitle, weaponStack, tempPlaceholders);
+        CastData cast = new CastData(shooter, weaponTitle, weaponStack);
         cast.setTargetEntity(victim);
 
         EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim, true);
