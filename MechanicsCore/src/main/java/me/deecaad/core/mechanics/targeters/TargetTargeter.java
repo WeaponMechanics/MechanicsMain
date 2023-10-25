@@ -23,6 +23,14 @@ public class TargetTargeter extends Targeter {
 
     @Override
     protected Iterator<CastData> getTargets0(CastData cast) {
+
+        // Seems redundant, but actually SUPER important. Remember that the 'cast'
+        // variable is reused by all mechanics. So we need to update the target.
+        if (cast.getTarget() != null)
+            cast.setTargetEntity(cast.getTarget());
+        if (cast.hasTargetLocation())
+            cast.setTargetLocation(cast.getTargetLocationSupplier());
+
         return new SingleIterator<>(cast);
     }
 

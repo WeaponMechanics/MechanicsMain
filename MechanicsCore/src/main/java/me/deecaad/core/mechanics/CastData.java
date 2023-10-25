@@ -117,6 +117,11 @@ public class CastData implements Cloneable, PlaceholderData {
         return targetLocation != null ? targetLocation.get() : targetEntity.getLocation();
     }
 
+    @NotNull
+    public Supplier<Location> getTargetLocationSupplier() {
+        return targetLocation;
+    }
+
     public void setTargetLocation(@NotNull Location targetLocation) {
         tempPlaceholders.put("target_x", String.valueOf(targetLocation.getX()));
         tempPlaceholders.put("target_y", String.valueOf(targetLocation.getY()));
