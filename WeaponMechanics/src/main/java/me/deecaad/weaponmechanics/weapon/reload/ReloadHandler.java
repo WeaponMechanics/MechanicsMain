@@ -594,5 +594,12 @@ public class ReloadHandler implements IValidator, TriggerListener {
                     "In WeaponMechanics 3.0.0 we recoded Ammo for simplified config and improved features",
                     "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
         }
+
+        // Easy mistake to make... Should be Ammo.Ammos
+        if (data.has("Ammos")) {
+            throw data.exception("Ammos", "Oops! You put 'Ammos' directly in the reload section",
+                    "You should add an 'Ammo' section first, and put the 'Ammos' in there!",
+                    "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo");
+        }
     }
 }
