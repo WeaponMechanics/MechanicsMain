@@ -96,6 +96,7 @@ public class Ammo implements Keyable, Serializer<Ammo> {
         if (data.has("Item_Ammo")) {
             ItemStack bulletItem = null;
             ItemStack magazineItem = null;
+            int magazineCapacity = 0;
 
             // Items with NBT tags added have to be serialized in a special order,
             // otherwise the crafted item will be missing the NBT tag.
@@ -111,12 +112,16 @@ public class Ammo implements Keyable, Serializer<Ammo> {
                 magazineItem = new ItemSerializer().serializeWithTags(data.move("Item_Ammo.Magazine_Item"), tags);
             }
 
+            if (data.has("Item_Ammo.Magazine_Capacity")) {
+                magazineCapacity = data.of("Item_Ammo.Magazine_Capacity").assertPositive().getInt(-1);
+            }
+
             if (magazineItem == null && bulletItem == null) {
                 throw data.exception(null, "Missing both 'Bullet_Item' and 'Magazine_Item' for your ammo... Use at least 1 of them!");
             }
 
             AmmoConverter ammoConverter = (AmmoConverter) data.of("Item_Ammo.Ammo_Converter_Check").serialize(new AmmoConverter());
-            ammoType = new ItemAmmo(ammoTitle, bulletItem, magazineItem, ammoConverter);
+            ammoType = new ItemAmmo(ammoTitle, bulletItem, magazineItem, magazineCapacity, ammoConverter);
         }
 
         if (ammoType == null) {

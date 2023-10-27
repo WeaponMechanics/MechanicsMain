@@ -18,13 +18,13 @@ public class ItemAmmo implements IAmmoType {
     // Defined in ammo types list
     private final String ammoTitle;
     private final ItemStack bulletItem;
-    private final ItemStack magazineItem;
+    private final Magazine magazine;
     private final AmmoConverter ammoConverter;
 
-    public ItemAmmo(String ammoTitle, ItemStack bulletItem, ItemStack magazineItem, AmmoConverter ammoConverter) {
+    public ItemAmmo(String ammoTitle, ItemStack bulletItem, ItemStack magazineItem, int magazineCapacity, AmmoConverter ammoConverter) {
         this.ammoTitle = ammoTitle;
         this.bulletItem = bulletItem;
-        this.magazineItem = magazineItem;
+        this.magazine = magazineItem != null && magazineCapacity > 0 ? new Magazine(this, magazineItem, magazineCapacity) : null;
         this.ammoConverter = ammoConverter;
     }
 
@@ -32,8 +32,12 @@ public class ItemAmmo implements IAmmoType {
         return bulletItem == null ? null : bulletItem.clone();
     }
 
+    public Magazine getMagazine() {
+        return magazine;
+    }
+
     public ItemStack getMagazineItem() {
-        return magazineItem == null ? null : magazineItem.clone();
+        return magazine == null ? null : magazine.toItem();
     }
 
     @Override
@@ -75,8 +79,8 @@ public class ItemAmmo implements IAmmoType {
             ItemStack ammoTemplate = null;
             if (bulletItem != null && ammoConverter.isMatch(potentialAmmo, bulletItem))
                 ammoTemplate = bulletItem.clone();
-            if (magazineItem != null && ammoConverter.isMatch(potentialAmmo, magazineItem))
-                ammoTemplate = magazineItem.clone();
+            if (magazine != null && ammoConverter.isMatch(potentialAmmo, magazine.getBaseItem()))
+                ammoTemplate = magazine.getBaseItem().clone(); // FIXME
 
             // Item did not match either of the ammo templates, skip it.
             if (ammoTemplate == null)
@@ -104,6 +108,7 @@ public class ItemAmmo implements IAmmoType {
         PlayerInventory inventory = wrapper.getPlayer().getInventory();
         int magazineSlot = -1;
         int total = 0;
+        int previousMagazineAmount = 0;
 
         for (int i = 0; i < 36; i++) {
 
@@ -125,13 +130,12 @@ public class ItemAmmo implements IAmmoType {
             // Users will shoot their gun until it is half empty, and expect it
             // to be reloaded using BULLET items (so no ammo is wasted).
             boolean isMagazine = CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1;
-            boolean canUseMag = total == 0 && (bulletItem == null || amount >= maximumMagSize);
 
             if (isMagazine) {
-                magazineSlot = i;
-                if (canUseMag) {
-                    consumeItem(inventory, i, potentialAmmo, 1);
-                    return amount;
+                int magazineAmount = Magazine.getAmmoFromItem(potentialAmmo);
+                if (magazineAmount > previousMagazineAmount) {
+                    previousMagazineAmount = magazineAmount;
+                    magazineSlot = i;
                 }
             } else if (bulletItem != null) {
 
@@ -156,9 +160,14 @@ public class ItemAmmo implements IAmmoType {
         // and magazines in the inventory. So this reload was probably manually
         // triggered by the player, so we should use the magazines in the inventory.
         if (total == 0 && magazineSlot != -1) {
-            consumeItem(inventory, magazineSlot, inventory.getItem(magazineSlot), 1);
-            return amount;
-            // TODO refund individual bullets?
+            ItemStack item = inventory.getItem(magazineSlot);
+            int magazineAmount = Magazine.getAmmoFromItem(item);
+            int newAmount = magazineAmount - amount;
+            consumeItem(inventory, magazineSlot, item, 1);
+            if (newAmount > 0) {
+                giveOrDrop(wrapper.getPlayer(), magazine.toItem(newAmount));
+            }
+            return Math.min(amount, magazineAmount);
         }
 
         return total;
@@ -178,10 +187,10 @@ public class ItemAmmo implements IAmmoType {
     public void giveAmmo(ItemStack weaponStack, PlayerWrapper playerWrapper, int amount, int maximumMagazineSize) {
         Player player = playerWrapper.getPlayer();
 
-        if (magazineItem != null) {
+        if (magazine != null) {
             int magazinesGiveAmount = amount / maximumMagazineSize;
             if (magazinesGiveAmount > 0) {
-                giveOrDrop(player, magazineItem.clone(), magazinesGiveAmount);
+                giveOrDrop(player, magazine.toItem(), magazinesGiveAmount);
             }
 
             // Give rest of the ammo as bullet items back if defined
@@ -220,7 +229,7 @@ public class ItemAmmo implements IAmmoType {
             if (CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1) {
                 amount += (potentialAmmo.getAmount() * maximumMagazineSize);
             } else {
-                amount +=  potentialAmmo.getAmount();
+                amount += potentialAmmo.getAmount();
             }
         }
         return amount;

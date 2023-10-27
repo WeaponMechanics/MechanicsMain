@@ -42,6 +42,7 @@ import me.deecaad.weaponmechanics.weapon.placeholders.PlaceholderValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.HitBoxValidator;
 import me.deecaad.weaponmechanics.weapon.projectile.ProjectilesRunnable;
 import me.deecaad.weaponmechanics.weapon.reload.ammo.AmmoRegistry;
+import me.deecaad.weaponmechanics.weapon.reload.ammo.MagazineMergingListeners;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
 import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
@@ -363,6 +364,8 @@ public class WeaponMechanics {
         // Other
         Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
         Bukkit.getPluginManager().registerEvents(RepairItemListener.getInstance(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new MagazineMergingListeners(), getPlugin());
+
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
 
             // We need to make sure we are running MM v5
