@@ -124,14 +124,6 @@ public class ZoomData {
             // Get Mechanics from event, so we can let plugins modify them.
             if (weaponScopeEvent.getMechanics() != null)
                 weaponScopeEvent.getMechanics().use(new CastData(entityWrapper.getEntity(), this.scopeWeaponTitle, this.scopeWeaponStack));
-
-            // Reset slowdown
-            if (entityWrapper.isPlayer() && getConfigurations().containsKey(scopeWeaponTitle + ".Scope.Movement_Speed")) {
-                AttributeInstance attributeInstance = entityWrapper.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-                if (attributeInstance != null) {
-                    attributeInstance.setBaseValue(0.10000000149011612D);
-                }
-            }
         }
 
         // This just ensures that these are set to null

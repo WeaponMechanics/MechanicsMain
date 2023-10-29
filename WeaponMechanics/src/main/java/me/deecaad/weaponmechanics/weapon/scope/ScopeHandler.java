@@ -209,17 +209,6 @@ public class ScopeHandler implements IValidator, TriggerListener {
         }
 
         zoomData.setScopeData(weaponTitle, weaponStack);
-
-        // Slowdown. Must go before updateZoom since packet affects fov changes
-        // TODO add multiple mob support
-        double scopeSpeed = config.getDouble(weaponTitle + ".Scope.Movement_Speed", 1.0);
-        if (scopeSpeed != 1.0 && entityWrapper.isPlayer()) {
-            AttributeInstance attributeInstance = entityWrapper.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-            if (attributeInstance != null) {
-                attributeInstance.setBaseValue(0.10000000149011612D * scopeSpeed);
-            }
-        }
-
         updateZoom(entityWrapper, zoomData, weaponScopeEvent.getZoomAmount());
 
         if (weaponScopeEvent.getMechanics() != null)
@@ -265,14 +254,6 @@ public class ScopeHandler implements IValidator, TriggerListener {
 
         if (zoomData.hasZoomNightVision())
             useNightVision(entityWrapper, zoomData);
-
-        // Reset slowdown
-        if (entityWrapper.isPlayer() && getConfigurations().containsKey(weaponTitle + ".Scope.Movement_Speed")) {
-            AttributeInstance attributeInstance = entityWrapper.getEntity().getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-            if (attributeInstance != null) {
-                attributeInstance.setBaseValue(0.10000000149011612D);
-            }
-        }
 
         return true;
     }
