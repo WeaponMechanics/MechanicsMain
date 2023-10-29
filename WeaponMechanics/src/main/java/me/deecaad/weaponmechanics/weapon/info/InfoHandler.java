@@ -274,33 +274,29 @@ public class InfoHandler implements IValidator {
         if (mainWeaponTitle == null || offWeaponTitle == null) return false;
 
         // Check that main hand weapon allows
-        if (mainWeaponTitle != null) {
-            DualWield mainDualWield = getConfigurations().getObject(mainWeaponTitle + ".Info.Dual_Wield", DualWield.class);
-            if (mainDualWield == null) {
-                // Doesn't allow since its null
-                return true;
-            }
+        DualWield mainDualWield = getConfigurations().getObject(mainWeaponTitle + ".Info.Dual_Wield", DualWield.class);
+        if (mainDualWield == null) {
+            // Doesn't allow since its null
+            return true;
+        }
 
-            // Check if works with off hand weapon
-            if (mainDualWield.denyDualWieldingWith(offWeaponTitle)) {
-                mainDualWield.sendDeniedMessage(checkCause, player, mainWeaponTitle);
-                return true;
-            }
+        // Check if works with off hand weapon
+        if (mainDualWield.denyDualWieldingWith(offWeaponTitle)) {
+            mainDualWield.sendDeniedMessage(checkCause, player, mainWeaponTitle);
+            return true;
         }
 
         // Check that off hand weapon allows
-        if (offWeaponTitle != null) {
-            DualWield offDualWield = getConfigurations().getObject(offWeaponTitle + ".Info.Dual_Wield", DualWield.class);
-            if (offDualWield == null) {
-                // Doesn't allow since its null
-                return true;
-            }
+        DualWield offDualWield = getConfigurations().getObject(offWeaponTitle + ".Info.Dual_Wield", DualWield.class);
+        if (offDualWield == null) {
+            // Doesn't allow since its null
+            return true;
+        }
 
-            // Check if works with main hand weapon
-            if (offDualWield.denyDualWieldingWith(mainWeaponTitle)) {
-                offDualWield.sendDeniedMessage(checkCause, player, offWeaponTitle);
-                return true;
-            }
+        // Check if works with main hand weapon
+        if (offDualWield.denyDualWieldingWith(mainWeaponTitle)) {
+            offDualWield.sendDeniedMessage(checkCause, player, offWeaponTitle);
+            return true;
         }
 
         return false;
