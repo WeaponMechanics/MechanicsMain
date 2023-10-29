@@ -1,5 +1,6 @@
 package me.deecaad.core.utils;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -45,8 +46,12 @@ public final class DistanceUtil {
         // world.getRange() only exists in 1.14+
         if (ReflectionUtil.getMCVersion() < 14) return getRange();
 
-        int distance = world.getViewDistance();
-        return distance << 4;
+        try {
+            return world.getViewDistance() << 4;
+        } catch (Throwable ex) {
+            MechanicsCore.debug.error("Looks like you are on a CraftBukkit server! Skipping world.getViewDistance()");
+            return getRange();
+        }
     }
 
     public static List<Player> getPlayersInRange(@NotNull Location origin) {
