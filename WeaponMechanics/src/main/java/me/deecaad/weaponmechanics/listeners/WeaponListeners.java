@@ -4,6 +4,7 @@ import me.deecaad.core.events.EntityEquipmentEvent;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.utils.MetadataKey;
 import me.deecaad.weaponmechanics.weapon.WeaponHandler;
 import me.deecaad.weaponmechanics.weapon.damage.AssistData;
@@ -11,11 +12,13 @@ import me.deecaad.weaponmechanics.weapon.info.WeaponInfoDisplay;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponAssistEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponEquipEvent;
+import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponStopShootingEvent;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import me.deecaad.weaponmechanics.wrappers.StatsData;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -34,7 +37,11 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
@@ -191,5 +198,38 @@ public class WeaponListeners implements Listener {
         EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(e.getPlayer());
         entityWrapper.getMainHandData().cancelTasks();
         entityWrapper.getOffHandData().cancelTasks();
+    }
+
+    @EventHandler
+    public void onStopShooting(WeaponStopShootingEvent event) {
+        ItemStack weaponStack = event.getWeaponStack();
+        ItemMeta weaponMeta = weaponStack.getItemMeta();
+
+        int maxDurability = CustomTag.MAX_DURABILITY.getInteger(weaponStack);
+        int durability = CustomTag.DURABILITY.getInteger(weaponStack);
+        float damagePercentage = (float) (maxDurability - durability) / maxDurability;
+
+        if (maxDurability <= 0) return;
+
+        if (weaponMeta instanceof Damageable damageable) {
+            short vanillaMaxDurability = weaponStack.getType().getMaxDurability();
+
+            if (damageable.isUnbreakable()) {
+                damageable.setUnbreakable(false);
+            }
+
+            damageable.setDamage(Math.min((int) (damagePercentage * vanillaMaxDurability), vanillaMaxDurability - 1));
+        }
+
+        List<String> lore = weaponMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(weaponMeta.getLore());
+        if (lore.isEmpty() || !lore.get(lore.size() - 1).contains("Gun Durability")) {
+            lore.add("");
+            lore.add(ChatColor.GRAY + "Gun Durability: " + ChatColor.GREEN + durability + "/" + maxDurability);
+        } else {
+            lore.set(lore.size() - 1, ChatColor.GRAY + "Gun Durability: " + ChatColor.GREEN + durability + "/" + maxDurability);
+        }
+        weaponMeta.setLore(lore);
+        
+        weaponStack.setItemMeta(weaponMeta);
     }
 }
