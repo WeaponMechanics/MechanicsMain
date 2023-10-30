@@ -25,6 +25,7 @@ import me.deecaad.weaponmechanics.wrappers.HandData;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -36,6 +37,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,8 +73,19 @@ public class ReloadHandler implements IValidator, TriggerListener {
         int durability = CustomTag.DURABILITY.getInteger(weaponStack);
         float damagePercentage = (float) (maxDurability - durability) / maxDurability;
 
+        if (maxDurability <= 0) return;
+
+        List<String> lore = weaponMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(weaponMeta.getLore());
+        if (lore.isEmpty() || !lore.get(lore.size() - 1).contains("Gun Durability")) {
+            lore.add("");
+            lore.add(ChatColor.GRAY + "Gun Durability: " + ChatColor.GREEN + durability + "/" + maxDurability);
+        } else {
+            lore.set(lore.size() - 1, ChatColor.GRAY + "Gun Durability: " + ChatColor.GREEN + durability + "/" + maxDurability);
+        }
+        weaponMeta.setLore(lore);
+
         damageable.setDamage(Math.min((int) (damagePercentage * vanillaMaxDurability), vanillaMaxDurability - 1));
-        weaponStack.setItemMeta(damageable);
+        weaponStack.setItemMeta(weaponMeta);
     }
 
     @Override

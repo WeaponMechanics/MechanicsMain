@@ -84,8 +84,8 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
         // ammo type, BUT the player MIGHT have ammo for different types that
         // can be loaded into the gun. Of course, for that, we need the gun to
         // be empty. Then we search.
-        int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weapon);
-        if (ammoLeft > 0) return false;
+//        int ammoLeft = CustomTag.AMMO_LEFT.getInteger(weapon);
+//        if (ammoLeft > 0) return false;
 
         for (int i = 0; i < ammunitions.size(); i++) {
             if (i == index) continue; // already checked for this ^^^

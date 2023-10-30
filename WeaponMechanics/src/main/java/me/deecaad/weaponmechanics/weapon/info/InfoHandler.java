@@ -16,14 +16,16 @@ import me.deecaad.weaponmechanics.weapon.skin.SkinSelector;
 import me.deecaad.weaponmechanics.weapon.trigger.TriggerType;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponGenerateEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
@@ -56,6 +58,18 @@ public class InfoHandler implements IValidator {
 
     public InfoHandler(WeaponHandler weaponHandler) {
         this.weaponHandler = weaponHandler;
+    }
+
+    private static int[] mapToCharTable(String str) {
+        int[] table = new int["abcdefghijklmnopqrstuvwxyz".length()];
+        for (int i = 0; i < str.length(); i++) {
+            try {
+                table[Character.toLowerCase(str.charAt(i)) - 97]++;
+            } catch (ArrayIndexOutOfBoundsException ignore) {
+                // Sometimes a string will contain something like an underscore.
+            }
+        }
+        return table;
     }
 
     /**
@@ -185,7 +199,6 @@ public class InfoHandler implements IValidator {
         return weaponStack;
     }
 
-
     public boolean giveOrDropWeapon(String weaponTitle, LivingEntity entity, int amount) {
         return giveOrDropWeapon(weaponTitle, entity, amount, Collections.emptyMap());
     }
@@ -216,8 +229,18 @@ public class InfoHandler implements IValidator {
         // Custom Durability Arguments
         CustomDurability customDurability = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Shoot.Custom_Durability", CustomDurability.class);
         if (customDurability != null) {
-            CustomTag.DURABILITY.setInteger(weaponStack, durability == -1 ? customDurability.getMaxDurability() : durability);
-            CustomTag.MAX_DURABILITY.setInteger(weaponStack, maxDurability == -1 ? customDurability.getMaxDurability() : maxDurability);
+            int durabilityValue = durability == -1 ? customDurability.getMaxDurability() : durability;
+            int maxDurabilityValue = maxDurability == -1 ? customDurability.getMaxDurability() : maxDurability;
+            
+            CustomTag.DURABILITY.setInteger(weaponStack, durabilityValue);
+            CustomTag.MAX_DURABILITY.setInteger(weaponStack, maxDurabilityValue);
+
+            ItemMeta weaponMeta = weaponStack.getItemMeta();
+            List<String> lore = weaponMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(weaponMeta.getLore());
+            lore.add("");
+            lore.add(ChatColor.GRAY + "Gun Durability: " + ChatColor.GREEN + durabilityValue + "/" + maxDurabilityValue);
+            weaponMeta.setLore(lore);
+            weaponStack.setItemMeta(weaponMeta);
         }
 
         // Let other plugins modify generated weapons (for example, to add attachments)
@@ -263,9 +286,9 @@ public class InfoHandler implements IValidator {
     /**
      * Checks if two weapons are able to work together when holding both of them
      *
-     * @param player the player for which to send denied message if not allowed to dual wield
+     * @param player          the player for which to send denied message if not allowed to dual wield
      * @param mainWeaponTitle the main hand weapon title
-     * @param offWeaponTitle the off hand weapon title
+     * @param offWeaponTitle  the off hand weapon title
      * @return whether dual wielding is allowed
      */
     public boolean denyDualWielding(TriggerType checkCause, @Nullable Player player, @Nullable String mainWeaponTitle, @Nullable String offWeaponTitle) {
@@ -304,18 +327,6 @@ public class InfoHandler implements IValidator {
         }
 
         return false;
-    }
-
-    private static int[] mapToCharTable(String str) {
-        int[] table = new int["abcdefghijklmnopqrstuvwxyz".length()];
-        for (int i = 0; i < str.length(); i++) {
-            try {
-                table[Character.toLowerCase(str.charAt(i)) - 97]++;
-            } catch (ArrayIndexOutOfBoundsException ignore) {
-                // Sometimes a string will contain something like an underscore.
-            }
-        }
-        return table;
     }
 
     @Override

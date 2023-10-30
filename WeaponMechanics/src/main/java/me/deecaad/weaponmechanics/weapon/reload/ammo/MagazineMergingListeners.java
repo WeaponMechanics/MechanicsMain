@@ -21,7 +21,7 @@ public class MagazineMergingListeners implements Listener {
         String itemAmmoName = CustomTag.AMMO_TITLE.getString(item);
         String cursorAmmoName = CustomTag.AMMO_TITLE.getString(cursor);
 
-        if (!Objects.equals(itemAmmoName, cursorAmmoName)) return;
+        if (!Objects.equals(itemAmmoName, cursorAmmoName) || itemAmmoName == null) return;
 
         Ammo ammo = AmmoRegistry.AMMO_REGISTRY.get(itemAmmoName);
         if (ammo == null) return;
