@@ -89,8 +89,6 @@ public class ItemSerializer implements Serializer<ItemStack> {
             return inline;
         }
 
-        data.of().assertType(ConfigurationSection.class);
-
         ItemStack itemStack = serializeWithoutRecipe(data);
         applyTags(itemStack, tags);
         itemStack = serializeRecipe(data, itemStack);

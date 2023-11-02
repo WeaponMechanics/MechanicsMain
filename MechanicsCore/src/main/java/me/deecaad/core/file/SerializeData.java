@@ -964,15 +964,15 @@ public class SerializeData {
          */
         @Nullable
         public <T extends Enum<T>> T getEnum(@NotNull Class<T> clazz, @Nullable T defaultValue) throws SerializerException {
-            Object value = usingStep ? pathToConfig.getObject(getPath(relative), "") : config.get(getPath(relative), "");
-            String input = value.toString().trim();
+            String input = usingStep ? pathToConfig.getString(getPath(relative)) : config.getString(getPath(relative));
 
             // Use assertExists for required keys
-            if (input.isEmpty())
+            if (input == null || input.isBlank())
                 return defaultValue;
 
             // Wildcards are not allowed for singleton enums, they are only
             // allowed for lists.
+            input = input.trim();
             if (input.startsWith("$"))
                 throw new SerializerEnumException(serializer, clazz, input, false, getLocation())
                         .addMessage(wikiLink != null, getWikiMessage());
@@ -1145,24 +1145,30 @@ public class SerializeData {
          * instead of allowing every type from a registry, 1 specific type is
          * allowed.
          *
-         * @param impliedType Which type we expect.
-         * @param <T>         Which type we expect.
+         * @param impliedType      The serializer.
+         * @param <SerializerType> Which type of the serializer.
+         * @param <SerializedType> The type to create.
          * @return The serialized instance.
          * @throws SerializerException If there are any errors in config.
          */
-        public <T extends InlineSerializer<T>> T getImplied(T impliedType) throws SerializerException {
+        public <SerializerType extends Serializer<SerializedType>, SerializedType> @Nullable SerializedType getImplied(
+                @NotNull SerializerType impliedType
+        ) throws SerializerException {
             if (!(config instanceof MapConfigLike mapLike))
                 throw new UnsupportedOperationException("Cannot use registries with " + config);
+            if (!has(relative))
+                return null;
 
-            // todo fixme
-            // It's ok if a user defines this, but it MUST match the impliedType
-            if (has(UNIQUE_IDENTIFIER)) {
-                String key = of(UNIQUE_IDENTIFIER).assertExists().assertType(String.class).get();
-                if (!Registry.matches(key, impliedType.getKeyword()))
-                    throw exception(relative, "Found keyword '" + key + "', but expected '" + impliedType.getInlineKeyword() + "'");
-            }
+            Map<String, ?> map = (Map<String, ?>) config.get(getPath(relative));
 
-            return impliedType.serialize(SerializeData.this);
+            // We have to make sure that the user used the "JSON Format" in the string.
+            if (map.containsKey(UNIQUE_IDENTIFIER) && !Registry.matches(map.get(UNIQUE_IDENTIFIER).toString(), impliedType.getKeyword()))
+                throw exception(relative, "Expected a '" + impliedType.getKeyword() + "' but got a '" + map.get(UNIQUE_IDENTIFIER) + "'");
+
+            ConfigLike temp = new MapConfigLike((Map<String, MapConfigLike.Holder>) map).setDebugInfo(mapLike.getFile(), mapLike.getPath(), mapLike.getFullLine());
+            SerializeData nested = new SerializeData(impliedType, file, null, temp);
+
+            return impliedType.serialize(nested);
         }
 
         @NotNull
