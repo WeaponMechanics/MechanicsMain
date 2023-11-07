@@ -1,5 +1,6 @@
 package me.deecaad.core.mechanics.defaultmechanics;
 
+import me.deecaad.core.file.JarSearcherExempt;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
@@ -9,7 +10,7 @@ import org.bukkit.block.SculkCatalyst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SculkBloomMechanic extends ActivateBlockMechanic<SculkCatalyst> {
+public class SculkBloomMechanic extends ActivateBlockMechanic<SculkCatalyst> implements JarSearcherExempt {
 
     private int charge;
 
@@ -46,6 +47,7 @@ public class SculkBloomMechanic extends ActivateBlockMechanic<SculkCatalyst> {
 
     @Override
     public @NotNull Mechanic serialize(@NotNull SerializeData data) throws SerializerException {
+        // This should never be true since we only register this Mechanic in 1.20.2+
         if (ReflectionUtil.getMCVersion() < 20) {
             throw data.exception(null, "The SculkBloom{} Mechanic is only available in 1.20.2+");
         }
