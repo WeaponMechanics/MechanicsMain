@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.weaponmechanics.utils.CustomTag;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -34,14 +35,18 @@ public class MagazineMergingListeners implements Listener {
 
         int itemAmmoAmount = Magazine.getAmmoFromItem(item);
         int cursorAmmoAmount = Magazine.getAmmoFromItem(cursor);
-        if (magazine.getCapacity() == itemAmmoAmount || magazine.getCapacity() == cursorAmmoAmount) return;
+
+        int capacity = Magazine.getCapacity(item);
+        int cursorCapacity = Magazine.getCapacity(cursor);
+        if (capacity != cursorCapacity) return;
+        if (capacity == itemAmmoAmount || cursorCapacity == cursorAmmoAmount) return;
 
         itemAmmoAmount += cursorAmmoAmount;
-        cursorAmmoAmount = Math.max(itemAmmoAmount - magazine.getCapacity(), 0);
-        itemAmmoAmount = Math.min(itemAmmoAmount, magazine.getCapacity());
+        cursorAmmoAmount = Math.max(itemAmmoAmount - capacity, 0);
+        itemAmmoAmount = Math.min(itemAmmoAmount, capacity);
 
-        ItemStack newItem = magazine.toItem(itemAmmoAmount);
-        ItemStack newCursor = cursorAmmoAmount == 0 ? null : magazine.toItem(cursorAmmoAmount);
+        ItemStack newItem = magazine.toItem(itemAmmoAmount, capacity);
+        ItemStack newCursor = cursorAmmoAmount == 0 ? new ItemStack(Material.AIR) : magazine.toItem(cursorAmmoAmount, capacity);
 
         event.setCurrentItem(newItem);
         event.getWhoClicked().setItemOnCursor(newCursor);

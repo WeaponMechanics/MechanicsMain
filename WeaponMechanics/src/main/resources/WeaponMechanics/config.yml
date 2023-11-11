@@ -72,6 +72,7 @@ Disabled_Trigger_Checks:
   Drop_Item: false
   Swap_Hand_Items: false
 
+Load_Different_Magazine: true
 # This defines the delay between ammo conversion checks. A check occurs whenever
 # a player attempts to reload a weapon. If the player attempts to reload multiple
 # times within this delay, the conversion check will only trigger once. This means
@@ -186,8 +187,8 @@ Damage:
     # Armor modifiers... for simplicity, I recommend only changing 'Per_Armor_Point'.
     # This will make sure you keep compatibility with changes to the item attributes.
     Per_Armor_Point: -3%
-    Armor: []
-      #- IRON_HELMET -5%
+    Armor: [ ]
+    #- IRON_HELMET -5%
     Enchantments:
       - projectile_protection -8%
       - protection -4%
@@ -211,12 +212,12 @@ Damage:
 
     # Change the damage per entity type. Good for PVE type servers that
     # want "a little bit" of friendly fire.
-    Entities: []
-      #- ZOMBIE +50%
-      #- PLAYER -50%
+    Entities: [ ]
+    #- ZOMBIE +50%
+    #- PLAYER -50%
 
-    Potions: []
-      #- weakness +10%
+    Potions: [ ]
+    #- weakness +10%
 
   Explosion:
     Damage_Modifiers:

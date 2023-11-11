@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 import me.deecaad.core.utils.AdventureUtil;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Material;
@@ -24,7 +25,7 @@ public class ItemAmmo implements IAmmoType {
     public ItemAmmo(String ammoTitle, ItemStack bulletItem, ItemStack magazineItem, int magazineCapacity, AmmoConverter ammoConverter) {
         this.ammoTitle = ammoTitle;
         this.bulletItem = bulletItem;
-        this.magazine = magazineItem != null && magazineCapacity > 0 ? new Magazine(this, magazineItem, magazineCapacity) : null;
+        this.magazine = magazineItem != null ? new Magazine(this, magazineItem) : null;
         this.ammoConverter = ammoConverter;
     }
 
@@ -37,7 +38,7 @@ public class ItemAmmo implements IAmmoType {
     }
 
     public ItemStack getMagazineItem() {
-        return magazine == null ? null : magazine.toItem();
+        return magazine == null ? null : magazine.toItem(-1, -1);
     }
 
     @Override
@@ -111,7 +112,6 @@ public class ItemAmmo implements IAmmoType {
         int previousMagazineAmount = 0;
 
         for (int i = 0; i < 36; i++) {
-
             // Do not consume held item since it is probably a weapon
             if (i == inventory.getHeldItemSlot())
                 continue;
@@ -131,14 +131,14 @@ public class ItemAmmo implements IAmmoType {
             // to be reloaded using BULLET items (so no ammo is wasted).
             boolean isMagazine = CustomTag.AMMO_MAGAZINE.getInteger(potentialAmmo) == 1;
 
-            if (isMagazine) {
-                int magazineAmount = Magazine.getAmmoFromItem(potentialAmmo);
+            boolean loadDifferentMagazine = WeaponMechanics.getBasicConfigurations().getBool("Load_Different_Magazine", true);
+            if (isMagazine && (loadDifferentMagazine || Magazine.getCapacity(weapon) == Magazine.getCapacity(WeaponMechanicsAPI.getWeaponTitle(weapon)))) {
+                int magazineAmount = Magazine.getAmmo(weapon, potentialAmmo);
                 if (magazineAmount > previousMagazineAmount) {
                     previousMagazineAmount = magazineAmount;
                     magazineSlot = i;
                 }
             } else if (bulletItem != null) {
-
                 // If the one stack of bullets is enough to fill the gun, then
                 // consume only that stack and stop.
                 if (potentialAmmo.getAmount() >= amount) {
@@ -147,7 +147,6 @@ public class ItemAmmo implements IAmmoType {
                     consumeItem(inventory, i, potentialAmmo, amount);
                     return total;
                 }
-
                 // Completely consume the ammo
                 amount -= potentialAmmo.getAmount();
                 total += potentialAmmo.getAmount();
@@ -161,11 +160,13 @@ public class ItemAmmo implements IAmmoType {
         // triggered by the player, so we should use the magazines in the inventory.
         if (total == 0 && magazineSlot != -1) {
             ItemStack item = inventory.getItem(magazineSlot);
-            int magazineAmount = Magazine.getAmmoFromItem(item);
+            int magazineAmount = Magazine.getAmmo(weapon, item);
             int newAmount = magazineAmount - amount;
             consumeItem(inventory, magazineSlot, item, 1);
             if (newAmount > 0) {
-                giveOrDrop(wrapper.getPlayer(), magazine.toItem(newAmount));
+                int capacity = Magazine.getCapacity(item);
+                if (capacity <= 0) capacity = Magazine.getCapacity(WeaponMechanicsAPI.getWeaponTitle(weapon));
+                giveOrDrop(wrapper.getPlayer(), magazine.toItem(newAmount, capacity));
             }
             return Math.min(amount, magazineAmount);
         }
@@ -190,7 +191,8 @@ public class ItemAmmo implements IAmmoType {
         if (magazine != null) {
             int magazinesGiveAmount = amount / maximumMagazineSize;
             if (magazinesGiveAmount > 0) {
-                giveOrDrop(player, magazine.toItem(), magazinesGiveAmount);
+                String weaponTitle = WeaponMechanics.getWeaponHandler().getInfoHandler().getWeaponTitle(weaponStack, false);
+                giveOrDrop(player, magazine.toItem(weaponTitle), magazinesGiveAmount);
             }
 
             // Give rest of the ammo as bullet items back if defined
