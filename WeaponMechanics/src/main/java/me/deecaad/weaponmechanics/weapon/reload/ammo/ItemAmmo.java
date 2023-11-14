@@ -161,14 +161,22 @@ public class ItemAmmo implements IAmmoType {
         if (total == 0 && magazineSlot != -1) {
             ItemStack item = inventory.getItem(magazineSlot);
             int magazineAmount = Magazine.getAmmo(weapon, item);
-            int newAmount = magazineAmount - amount;
+            int weaponAmount = CustomTag.AMMO_LEFT.getInteger(weapon);
+            int capacity = Magazine.getCapacity(WeaponMechanicsAPI.getWeaponTitle(weapon));
+
+            if (magazineAmount <= weaponAmount) return 0;
+
             consumeItem(inventory, magazineSlot, item, 1);
-            if (newAmount > 0) {
-                int capacity = Magazine.getCapacity(item);
-                if (capacity <= 0) capacity = Magazine.getCapacity(WeaponMechanicsAPI.getWeaponTitle(weapon));
-                giveOrDrop(wrapper.getPlayer(), magazine.toItem(newAmount, capacity));
+            if (weaponAmount > 0) {
+                giveOrDrop(wrapper.getPlayer(), magazine.toItem(weaponAmount, capacity));
             }
-            return Math.min(amount, magazineAmount);
+
+            int newAmount = magazineAmount - weaponAmount;
+            if (magazineAmount > capacity) {
+                giveOrDrop(wrapper.getPlayer(), magazine.toItem(magazineAmount - capacity, capacity));
+            }
+
+            return Math.max(0, Math.min(capacity - weaponAmount, newAmount));
         }
 
         return total;
