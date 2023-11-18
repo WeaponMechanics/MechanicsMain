@@ -172,9 +172,9 @@ public class ItemAmmo implements IAmmoType {
             }
 
             int newAmount = magazineAmount - weaponAmount;
-            if (magazineAmount > capacity) {
-                giveOrDrop(wrapper.getPlayer(), magazine.toItem(magazineAmount - capacity, capacity));
-            }
+//            if (magazineAmount > capacity) {
+//                giveOrDrop(wrapper.getPlayer(), magazine.toItem(magazineAmount - capacity, capacity));
+//            }
 
             return Math.max(0, Math.min(capacity - weaponAmount, newAmount));
         }
