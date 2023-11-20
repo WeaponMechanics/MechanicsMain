@@ -4,6 +4,7 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +21,7 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     private boolean name;
     private boolean lore;
     private boolean enchantments;
+    private boolean cmd;
 
     /**
      * Default constructor for serializer
@@ -27,11 +29,12 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
     public WeaponConverter() {
     }
 
-    public WeaponConverter(boolean type, boolean name, boolean lore, boolean enchantments) {
+    public WeaponConverter(boolean type, boolean name, boolean lore, boolean enchantments, boolean cmd) {
         this.type = type;
         this.name = name;
         this.lore = lore;
         this.enchantments = enchantments;
+        this.cmd = cmd;
     }
 
     /**
@@ -54,6 +57,9 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         }
         ItemMeta weaponMeta = weaponStack.getItemMeta();
         ItemMeta otherMeta = other.getItemMeta();
+        if (weaponMeta == null || otherMeta == null)
+            throw new IllegalArgumentException("Tried to convert an item that was air");
+
         if (this.name) {
             if (weaponMeta.hasDisplayName() != otherMeta.hasDisplayName()
                     || (weaponMeta.hasDisplayName() && !weaponMeta.getDisplayName().equals(otherMeta.getDisplayName()))) {
@@ -66,6 +72,12 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
                 return false;
             }
         }
+        if (this.cmd && ReflectionUtil.getMCVersion() >= 14) {
+            if (weaponMeta.getCustomModelData() != otherMeta.getCustomModelData()) {
+                return false;
+            }
+        }
+
         if (this.enchantments) {
             // If weapon would have enchantments, but other doesn't
             // OR
@@ -110,15 +122,20 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
         boolean name = data.of("Name").getBool(false);
         boolean lore = data.of("Lore").getBool(false);
         boolean enchantments = data.of("Enchantments").getBool(false);
+        boolean cmd = data.of("Custom_Model_Data").getBool(false);
 
-        if (!type && !name && !lore && !enchantments) {
-            throw data.exception(null, "'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
+        if (!type && !name && !lore && !enchantments && !cmd) {
+            throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data' are all 'false'",
                     "One of them should be 'true' to allow weapon conversion",
                     "If you want to remove the weapon conversion feature, remove the '" + getKeyword() + "' option from config");
         }
 
+        if (cmd && ReflectionUtil.getMCVersion() < 14) {
+            throw data.exception("Custom_Model_Data", "Custom_Model_Data is only available for 1.14+");
+        }
+
         WeaponMechanics.getWeaponHandler().getInfoHandler().addWeaponWithConvert(data.key.split("\\.")[0]);
 
-        return new WeaponConverter(type, name, lore, enchantments);
+        return new WeaponConverter(type, name, lore, enchantments, cmd);
     }
 }

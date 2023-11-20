@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.reload.ammo;
 
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.weapon.info.WeaponConverter;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,8 +15,8 @@ public class AmmoConverter extends WeaponConverter {
         super();
     }
 
-    public AmmoConverter(boolean type, boolean name, boolean lore, boolean enchantments) {
-        super(type, name, lore, enchantments);
+    public AmmoConverter(boolean type, boolean name, boolean lore, boolean enchantments, boolean cmd) {
+        super(type, name, lore, enchantments, cmd);
     }
 
     @Override
@@ -31,13 +32,18 @@ public class AmmoConverter extends WeaponConverter {
         boolean name = data.of("Name").getBool(false);
         boolean lore = data.of("Lore").getBool(false);
         boolean enchantments = data.of("Enchantments").getBool(false);
+        boolean cmd = data.of("Custom_Model_Data").getBool(false);
 
-        if (!type && !name && !lore && !enchantments) {
-            throw data.exception(null, "'Type', 'Name', 'Lore', and 'Enchantments' are all 'false'",
+        if (!type && !name && !lore && !enchantments && !cmd) {
+            throw data.exception(null, "'Type', 'Name', 'Lore', 'Enchantments', 'Custom_Model_Data' are all 'false'",
                     "One of them should be 'true' to allow ammo conversion",
-                    "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter' option from config");
+                    "If you want to remove the ammo conversion feature, remove the 'Ammo_Converter_Check' option from config");
         }
 
-        return new AmmoConverter(type, name, lore, enchantments);
+        if (cmd && ReflectionUtil.getMCVersion() < 14) {
+            throw data.exception("Custom_Model_Data", "Custom_Model_Data is only available for 1.14+");
+        }
+
+        return new AmmoConverter(type, name, lore, enchantments, cmd);
     }
 }
