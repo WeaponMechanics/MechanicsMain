@@ -84,7 +84,7 @@ public class SkinHandler {
         EntityWrapper entityWrapper = hand.getEntityWrapper();
         if (triggerType != TriggerType.END_SPRINT
                 && (entityWrapper.isSprinting() || triggerType == TriggerType.START_SPRINT)
-                && !entityWrapper.isDualWielding()) {
+                && !entityWrapper.isDualWieldingWeapons()) {
 
             if (skins.hasAction(skin, SkinSelector.SkinAction.SPRINT))
                 return SkinSelector.SkinAction.SPRINT;
