@@ -2,6 +2,9 @@ package me.deecaad.weaponmechanics;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import me.cjcrafter.auto.AutoMechanicsDownload;
+import me.cjcrafter.auto.UpdateChecker;
+import me.cjcrafter.auto.UpdateInfo;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
@@ -45,6 +48,10 @@ import me.deecaad.weaponmechanics.weapon.stats.PlayerStat;
 import me.deecaad.weaponmechanics.weapon.stats.WeaponStat;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -53,14 +60,17 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.error.YAMLException;
 
+import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -71,8 +81,6 @@ import java.util.logging.Logger;
 
 public class WeaponMechanics {
 
-    // public so people can import a static variable
-    public static Debugger debug;
     private static WeaponMechanics plugin;
     JavaPlugin javaPlugin;
     Map<LivingEntity, EntityWrapper> entityWrappers;
@@ -80,142 +88,17 @@ public class WeaponMechanics {
     Configuration basicConfiguration;
     MainCommand mainCommand;
     WeaponHandler weaponHandler;
+    UpdateChecker updateChecker;
     ProjectilesRunnable projectilesRunnable;
     ProtocolManager protocolManager;
     Metrics metrics;
     Database database;
 
+    // public so people can import a static variable
+    public static Debugger debug;
+
     public WeaponMechanics(JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
-    }
-
-    /**
-     * @return The BukkitRunnable holding the projectiles being ticked
-     */
-    public static ProjectilesRunnable getProjectilesRunnable() {
-        return plugin.projectilesRunnable;
-    }
-
-    /**
-     * @return the WeaponMechanics plugin instance
-     */
-    public static Plugin getPlugin() {
-        return plugin.javaPlugin;
-    }
-
-    /**
-     * This method can't return null because new EntityWrapper is created if not found.
-     *
-     * @param entity the entity wrapper to get
-     * @return the entity wrapper
-     */
-    public static EntityWrapper getEntityWrapper(LivingEntity entity) {
-        if (entity.getType() == EntityType.PLAYER) {
-            return getPlayerWrapper((Player) entity);
-        }
-        return getEntityWrapper(entity, false);
-    }
-
-    /**
-     * This method will return null if no auto add is set to true and EntityWrapper is not found.
-     * If no auto add is false then new EntityWrapper is automatically created if not found and returned by this method.
-     *
-     * @param entity    the entity
-     * @param noAutoAdd true means that EntityWrapper wont be automatically added if not found
-     * @return the entity wrapper or null if no auto add is true and EntityWrapper was not found
-     */
-    @Nullable
-    public static EntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
-        if (entity.getType() == EntityType.PLAYER) {
-            return getPlayerWrapper((Player) entity);
-        }
-        EntityWrapper wrapper = plugin.entityWrappers.get(entity);
-        if (wrapper == null) {
-            if (noAutoAdd) {
-                return null;
-            }
-            wrapper = new EntityWrapper(entity);
-            plugin.entityWrappers.put(entity, wrapper);
-        }
-        return wrapper;
-    }
-
-    /**
-     * This method can't return null because new PlayerWrapper is created if not found.
-     * Use mainly getEntityWrapper() instead of this unless you especially need something from PlayerWrapper.
-     *
-     * @param player the player wrapper to get
-     * @return the player wrapper
-     */
-    public static PlayerWrapper getPlayerWrapper(Player player) {
-        EntityWrapper wrapper = plugin.entityWrappers.get(player);
-        if (wrapper == null) {
-            wrapper = new PlayerWrapper(player);
-            plugin.entityWrappers.put(player, wrapper);
-        }
-        if (!(wrapper instanceof PlayerWrapper)) {
-            // Exception is better in this case as we need to know where this mistake happened
-            throw new IllegalArgumentException("Tried to get PlayerWrapper from player which didn't have PlayerWrapper (only EntityWrapper)...?");
-        }
-        return (PlayerWrapper) wrapper;
-    }
-
-    /**
-     * Removes entity (and player) wrapper and all of its content.
-     * Move task is also cancelled.
-     *
-     * @param entity the entity (or player)
-     */
-    public static void removeEntityWrapper(LivingEntity entity) {
-        EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
-        if (oldWrapper != null) {
-            int oldMoveTask = oldWrapper.getMoveTaskId();
-            if (oldMoveTask != 0) {
-                Bukkit.getScheduler().cancelTask(oldMoveTask);
-            }
-            oldWrapper.getMainHandData().cancelTasks();
-            oldWrapper.getOffHandData().cancelTasks();
-        }
-    }
-
-    /**
-     * This method returns ALL configurations EXCEPT config.yml used by WeaponMechanics.
-     *
-     * @return the configurations interface
-     */
-    public static Configuration getConfigurations() {
-        return plugin.configurations;
-    }
-
-    /**
-     * This method returns ONLY config.yml configurations used by WeaponMechanics.
-     *
-     * @return the configurations interface
-     */
-    public static Configuration getBasicConfigurations() {
-        return plugin.basicConfiguration;
-    }
-
-    /**
-     * @return the main command instance of WeaponMechanics
-     */
-    public static MainCommand getMainCommand() {
-        return plugin.mainCommand;
-    }
-
-    /**
-     * @return the current weapon handler
-     */
-    public static WeaponHandler getWeaponHandler() {
-        return plugin.weaponHandler;
-    }
-
-    /**
-     * @return the database instance if enabled
-     */
-    @Nullable
-    public static Database getDatabase() {
-        return plugin.database;
     }
 
     public org.bukkit.configuration.Configuration getConfig() {
@@ -379,9 +262,9 @@ public class WeaponMechanics {
 
                         if (("https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/WeaponMechanicsResourcePack.zip").equals(link)) {
                             try {
-//                                AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
-//                                String version = auto.RESOURCE_PACK_VERSION;
-//                                link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
+                                AutoMechanicsDownload auto = new AutoMechanicsDownload(10000, 30000);
+                                String version = auto.RESOURCE_PACK_VERSION;
+                                link = "https://raw.githubusercontent.com/WeaponMechanics/MechanicsMain/master/resourcepack/WeaponMechanicsResourcePack-" + version + ".zip";
                             } catch (InternalError e) {
                                 debug.log(LogLevel.DEBUG, "Failed to fetch resource pack version due to timeout", e);
                                 return null;
@@ -560,6 +443,57 @@ public class WeaponMechanics {
     }
 
     void registerUpdateChecker() {
+        if (!basicConfiguration.getBool("Update_Checker.Enable", true) || updateChecker != null) return;
+
+        debug.debug("Registering update checker");
+
+        updateChecker = new UpdateChecker(javaPlugin, UpdateChecker.spigot(99913, "WeaponMechanics"));
+
+        try {
+            UpdateInfo consoleUpdate = updateChecker.hasUpdate();
+            if (consoleUpdate != null) {
+                Audience audience = MechanicsCore.getPlugin().adventure.sender(Bukkit.getConsoleSender());
+                Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(consoleUpdate.current, consoleUpdate.newest), NamedTextColor.RED)
+                        .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
+                        .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
+
+                audience.sendMessage(component);
+            }
+        } catch (Throwable ex) {
+            debug.log(LogLevel.DEBUG, "UpdateChecker error", ex);
+            debug.error("UpdateChecker failed to connect: " + ex.getMessage());
+            return;
+        }
+
+        Listener listener = new Listener() {
+            @EventHandler
+            public void onJoin(PlayerJoinEvent event) {
+                if (event.getPlayer().isOp()) {
+                    new TaskChain(javaPlugin)
+                            .thenRunAsync((callback) -> {
+                                try {
+                                    return updateChecker.hasUpdate();
+                                } catch (Throwable ex) {
+                                    return null;
+                                }
+                            })
+                            .thenRunSync((callback) -> {
+                                UpdateInfo update = (UpdateInfo) callback;
+                                if (callback != null) {
+                                    Audience audience = MechanicsCore.getPlugin().adventure.player(event.getPlayer());
+                                    Component component = Component.text("WeaponMechanics is outdated! %s -> %s".formatted(update.current, update.newest), NamedTextColor.RED)
+                                            .clickEvent(ClickEvent.openUrl("https://github.com/WeaponMechanics/MechanicsMain/releases/latest/download/WeaponMechanics.zip"))
+                                            .hoverEvent(Component.text("Click to download", NamedTextColor.GRAY));
+
+                                    audience.sendMessage(component);
+                                }
+                                return null;
+                            });
+                }
+            }
+        };
+
+        Bukkit.getPluginManager().registerEvents(listener, javaPlugin);
     }
 
     void registerBStats() {
@@ -711,5 +645,134 @@ public class WeaponMechanics {
         plugin = null;
         debug = null;
         WeaponMechanicsAPI.setInstance(null);
+    }
+
+    /**
+     * @return The BukkitRunnable holding the projectiles being ticked
+     */
+    public static ProjectilesRunnable getProjectilesRunnable() {
+        return plugin.projectilesRunnable;
+    }
+
+    /**
+     * @return the WeaponMechanics plugin instance
+     */
+    public static Plugin getPlugin() {
+        return plugin.javaPlugin;
+    }
+
+    /**
+     * This method can't return null because new EntityWrapper is created if not found.
+     *
+     * @param entity the entity wrapper to get
+     * @return the entity wrapper
+     */
+    public static EntityWrapper getEntityWrapper(LivingEntity entity) {
+        if (entity.getType() == EntityType.PLAYER) {
+            return getPlayerWrapper((Player) entity);
+        }
+        return getEntityWrapper(entity, false);
+    }
+
+    /**
+     * This method will return null if no auto add is set to true and EntityWrapper is not found.
+     * If no auto add is false then new EntityWrapper is automatically created if not found and returned by this method.
+     *
+     * @param entity    the entity
+     * @param noAutoAdd true means that EntityWrapper wont be automatically added if not found
+     * @return the entity wrapper or null if no auto add is true and EntityWrapper was not found
+     */
+    @Nullable
+    public static EntityWrapper getEntityWrapper(LivingEntity entity, boolean noAutoAdd) {
+        if (entity.getType() == EntityType.PLAYER) {
+            return getPlayerWrapper((Player) entity);
+        }
+        EntityWrapper wrapper = plugin.entityWrappers.get(entity);
+        if (wrapper == null) {
+            if (noAutoAdd) {
+                return null;
+            }
+            wrapper = new EntityWrapper(entity);
+            plugin.entityWrappers.put(entity, wrapper);
+        }
+        return wrapper;
+    }
+
+    /**
+     * This method can't return null because new PlayerWrapper is created if not found.
+     * Use mainly getEntityWrapper() instead of this unless you especially need something from PlayerWrapper.
+     *
+     * @param player the player wrapper to get
+     * @return the player wrapper
+     */
+    public static PlayerWrapper getPlayerWrapper(Player player) {
+        EntityWrapper wrapper = plugin.entityWrappers.get(player);
+        if (wrapper == null) {
+            wrapper = new PlayerWrapper(player);
+            plugin.entityWrappers.put(player, wrapper);
+        }
+        if (!(wrapper instanceof PlayerWrapper)) {
+            // Exception is better in this case as we need to know where this mistake happened
+            throw new IllegalArgumentException("Tried to get PlayerWrapper from player which didn't have PlayerWrapper (only EntityWrapper)...?");
+        }
+        return (PlayerWrapper) wrapper;
+    }
+
+    /**
+     * Removes entity (and player) wrapper and all of its content.
+     * Move task is also cancelled.
+     *
+     * @param entity the entity (or player)
+     */
+    public static void removeEntityWrapper(LivingEntity entity) {
+        EntityWrapper oldWrapper = plugin.entityWrappers.remove(entity);
+        if (oldWrapper != null) {
+            int oldMoveTask = oldWrapper.getMoveTaskId();
+            if (oldMoveTask != 0) {
+                Bukkit.getScheduler().cancelTask(oldMoveTask);
+            }
+            oldWrapper.getMainHandData().cancelTasks();
+            oldWrapper.getOffHandData().cancelTasks();
+        }
+    }
+
+    /**
+     * This method returns ALL configurations EXCEPT config.yml used by WeaponMechanics.
+     *
+     * @return the configurations interface
+     */
+    public static Configuration getConfigurations() {
+        return plugin.configurations;
+    }
+
+    /**
+     * This method returns ONLY config.yml configurations used by WeaponMechanics.
+     *
+     * @return the configurations interface
+     */
+    public static Configuration getBasicConfigurations() {
+        return plugin.basicConfiguration;
+    }
+
+    /**
+     * @return the main command instance of WeaponMechanics
+     */
+    public static MainCommand getMainCommand() {
+        return plugin.mainCommand;
+    }
+
+    /**
+     * @return the current weapon handler
+     */
+    public static WeaponHandler getWeaponHandler() {
+        return plugin.weaponHandler;
+    }
+
+    /**
+     * @return the database instance if enabled
+     */
+    @Nullable
+    public static Database getDatabase() {
+        return plugin.database;
     }
 }
