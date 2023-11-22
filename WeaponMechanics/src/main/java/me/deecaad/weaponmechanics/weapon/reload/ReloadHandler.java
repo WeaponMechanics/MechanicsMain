@@ -54,10 +54,6 @@ public class ReloadHandler implements IValidator, TriggerListener {
         this.weaponHandler = weaponHandler;
     }
 
-    private static void setLeftAmmo(ItemStack weaponStack, String weaponTitle, int ammoToSet) {
-        CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
-    }
-
     @Override
     public boolean allowOtherTriggers() {
         return false;
@@ -126,7 +122,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         int ammoLeft = getAmmoLeft(weaponStack, weaponTitle);
         if (ammoLeft == -1) { // This shouldn't be -1 at this point since reload should be used, perhaps ammo was added for weapon in configs later in server...
-            setLeftAmmo(weaponStack, weaponTitle, 0);
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             ammoLeft = 0;
         }
 
@@ -287,7 +283,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                 handleWeaponStackAmount(entityWrapper, taskReference);
 
-                setLeftAmmo(taskReference, weaponTitle, finalAmmoSet);
+                CustomTag.AMMO_LEFT.setInteger(weaponStack, finalAmmoSet);
 
                 // If there is still close task coming, don't call finish reload
                 // Close task will always call it anyway
@@ -318,7 +314,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
                     handleWeaponStackAmount(entityWrapper, weaponStack);
 
-                    setLeftAmmo(weaponStack, weaponTitle, 0);
+                    CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
                 }
 
 
@@ -491,7 +487,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
 
         if (!CustomTag.AMMO_LEFT.hasInteger(weaponStack)) {
             // If the ammo was added later on, add the tag
-            setLeftAmmo(weaponStack, weaponTitle, 0);
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, 0);
             return 0;
         }
 
@@ -514,7 +510,7 @@ public class ReloadHandler implements IValidator, TriggerListener {
                 return false;
             }
 
-            setLeftAmmo(weaponStack, weaponTitle, ammoToSet);
+            CustomTag.AMMO_LEFT.setInteger(weaponStack, ammoToSet);
         }
         return true;
     }
