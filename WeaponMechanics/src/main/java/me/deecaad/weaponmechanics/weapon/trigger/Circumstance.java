@@ -4,6 +4,8 @@ import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerEnumException;
 import me.deecaad.core.file.SerializerException;
+import me.deecaad.core.mechanics.CastData;
+import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +18,7 @@ import java.util.Locale;
 public class Circumstance implements Serializer<Circumstance> {
 
     private List<CircumstanceData> circumstances;
+    private Mechanics denyMechanics;
 
     /**
      * Default constructor for serializer
@@ -23,8 +26,9 @@ public class Circumstance implements Serializer<Circumstance> {
     public Circumstance() {
     }
 
-    public Circumstance(List<CircumstanceData> circumstances) {
+    public Circumstance(List<CircumstanceData> circumstances, Mechanics denyMechanics) {
         this.circumstances = circumstances;
+        this.denyMechanics = denyMechanics;
     }
 
     /**
@@ -38,6 +42,11 @@ public class Circumstance implements Serializer<Circumstance> {
 
         for (CircumstanceData circumstance : this.circumstances) {
             if (circumstance.deny(entityWrapper)) {
+                if (denyMechanics != null) {
+                    CastData cast = new CastData(entityWrapper.getEntity(), null, null);
+                    cast.placeholders().put("deny_reason", circumstance.circumstanceType.getHumanName());
+                    denyMechanics.use(cast);
+                }
                 return true;
             }
         }
@@ -49,8 +58,12 @@ public class Circumstance implements Serializer<Circumstance> {
     public Circumstance serialize(@NotNull SerializeData data) throws SerializerException {
         ConfigurationSection circumstanceSection = data.of().assertExists().assertType(ConfigurationSection.class).get();
         List<CircumstanceData> circumstances = new ArrayList<>(1);
+        Mechanics denyMechanics = data.of("Deny_Mechanics").serialize(Mechanics.class);
 
         for (String type : circumstanceSection.getKeys(false)) {
+            if (type.equals("Deny_Mechanics"))
+                continue;
+
             String typeToUpper = type.toUpperCase(Locale.ROOT);
 
             String value = data.config.getString(data.key + "." + type);
@@ -65,10 +78,10 @@ public class Circumstance implements Serializer<Circumstance> {
             }
         }
 
-        return new Circumstance(circumstances);
+        return new Circumstance(circumstances, denyMechanics);
     }
 
-    private record CircumstanceData(CircumstanceType circumstanceType, boolean required) {
+    public record CircumstanceData(CircumstanceType circumstanceType, boolean required) {
         public boolean deny(EntityWrapper entityWrapper) {
                 return required != switch (circumstanceType) {
                     case RELOADING -> entityWrapper.isReloading();
@@ -97,6 +110,16 @@ public class Circumstance implements Serializer<Circumstance> {
         DUAL_WIELDING,
         SWIMMING,
         IN_MIDAIR,
-        GLIDING
+        GLIDING;
+
+        private final String humanName;
+
+        CircumstanceType() {
+            this.humanName = name().toLowerCase(Locale.ROOT).replace("_", " ");
+        }
+
+        public String getHumanName() {
+            return humanName;
+        }
     }
 }

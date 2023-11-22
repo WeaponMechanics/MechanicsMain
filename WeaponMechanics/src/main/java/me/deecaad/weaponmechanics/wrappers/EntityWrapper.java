@@ -6,11 +6,13 @@ import me.deecaad.weaponmechanics.events.EntityToggleInMidairEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleStandEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleSwimEvent;
 import me.deecaad.weaponmechanics.events.EntityToggleWalkEvent;
+import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -208,8 +210,28 @@ public class EntityWrapper {
      * @return <code>true</code> when the entity is dual wielding.
      */
     public boolean isDualWielding() {
-        EntityEquipment entityEquipment = entity.getEquipment();
-        return entityEquipment.getItemInMainHand().getType() != Material.AIR && entityEquipment.getItemInOffHand().getType() != Material.AIR;
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment == null)
+            return false; // never occurs, but lets be safe
+        return equipment.getItemInMainHand().getType() != Material.AIR && equipment.getItemInOffHand().getType() != Material.AIR;
+    }
+
+    /**
+     * Returns <code>true</code> if the entity is dual wielding two weapons
+     * from WeaponMechanics.
+     *
+     * @return <code>true</code> when the entity is dual wielding two weapons.
+     * @see #isDualWielding()
+     */
+    public boolean isDualWieldingWeapons() {
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment == null)
+            return false; // never occurs, but lets be safe
+
+        ItemStack main = equipment.getItemInMainHand();
+        ItemStack off = equipment.getItemInOffHand();
+        return main.getType() != Material.AIR && off.getType() != Material.AIR
+                && CustomTag.WEAPON_TITLE.hasString(main) && CustomTag.WEAPON_TITLE.hasString(off);
     }
 
     /**

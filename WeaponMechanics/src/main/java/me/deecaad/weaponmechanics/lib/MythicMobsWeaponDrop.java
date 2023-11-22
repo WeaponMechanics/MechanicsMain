@@ -20,7 +20,10 @@ public class MythicMobsWeaponDrop implements IItemDrop {
         this.amount = config.getInteger(new String[]{ "amount", "a" }, 1);
 
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
-        this.weaponTitle = info.getWeaponTitle(weaponTitle);
+        try {
+            weaponTitle = info.getWeaponTitle(weaponTitle);
+        } catch (IllegalArgumentException ignore) {}
+        this.weaponTitle = weaponTitle;
 
         if (this.amount < 1) {
             WeaponMechanics.debug.error("MythicMobs expected positive integer, found: " + amount,

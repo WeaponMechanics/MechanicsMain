@@ -12,6 +12,7 @@ import me.deecaad.weaponmechanics.weapon.trigger.Trigger;
 import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,6 +121,11 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
         return "Ammo";
     }
 
+    @Override
+    public @Nullable String getWikiLink() {
+        return "https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/reload/ammo";
+    }
+
     @NotNull
     @Override
     public AmmoConfig serialize(@NotNull SerializeData data) throws SerializerException {
@@ -135,7 +141,7 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
 
             // Make sure the ammo exists
             if (ammo == null) {
-                throw new SerializerOptionsException(this, "Ammo", AmmoRegistry.AMMO_REGISTRY.getOptions(), ammoTitle, data.ofList("Ammunitions").getLocation(i));
+                throw new SerializerOptionsException(this, "Ammo", AmmoRegistry.AMMO_REGISTRY.getOptions(), ammoTitle, data.ofList("Ammos").getLocation(i));
             }
 
             ammunitions.add(ammo);

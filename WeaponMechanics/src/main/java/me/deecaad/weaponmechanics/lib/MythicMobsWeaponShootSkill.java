@@ -9,7 +9,6 @@ import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
-import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -22,12 +21,18 @@ public class MythicMobsWeaponShootSkill implements ITargetedEntitySkill, ITarget
 
     public MythicMobsWeaponShootSkill(MythicLineConfig config) {
 
-        String weaponTitle = config.getString(new String[]{ "weaponTitle", "weapon" });
-        this.spread = Math.toRadians(config.getDouble(new String[]{ "spread" }, 0.0));
+        String weaponTitle = config.getString(new String[]{"weaponTitle", "weapon"});
+        this.spread = Math.toRadians(config.getDouble(new String[]{"spread"}, 0.0));
         this.targetHead = config.getBoolean("head", true);
 
         // Parse an accurate weaponTitle (Checking case/spelling)
-        this.weaponTitle = WeaponMechanics.getWeaponHandler().getInfoHandler().getWeaponTitle(weaponTitle);
+        try {
+            weaponTitle = WeaponMechanics.getWeaponHandler().getInfoHandler().getWeaponTitle(weaponTitle);
+        } catch (IllegalArgumentException e) {
+            // Error occurs if MythicMobs serializes before WeaponMechanics, so just skip fancy shit
+        }
+
+        this.weaponTitle = weaponTitle;
     }
 
     @Override

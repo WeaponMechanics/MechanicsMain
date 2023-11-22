@@ -1,7 +1,9 @@
 package me.deecaad.core.file;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface ConfigLike {
 
@@ -17,7 +19,7 @@ public interface ConfigLike {
 
     default String getString(String key) {
         Object temp = get(key);
-        if (temp == null)
+        if (temp == null || temp instanceof Collection<?> || temp instanceof Map<?,?>)
             return null;
 
         return temp.toString();

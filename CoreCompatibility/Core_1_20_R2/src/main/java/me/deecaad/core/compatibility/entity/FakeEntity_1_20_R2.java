@@ -139,7 +139,7 @@ public class FakeEntity_1_20_R2 extends FakeEntity {
     @Override
     public void setDisplay(@Nullable String display) {
         entity.setCustomName(CraftChatMessage.fromStringOrNull(display));
-        entity.setCustomNameVisible(display != null && !"".equals(display));
+        entity.setCustomNameVisible(display != null && !display.isEmpty());
     }
 
     @Override

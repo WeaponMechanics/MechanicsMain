@@ -1,7 +1,6 @@
 package me.deecaad.core.file;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,7 +136,6 @@ public interface Configuration {
      *            exist or the value is not a {@link String}.
      * @return The {@link String} found.
      */
-    @Contract("_, null -> null; _, !null -> !null")
     @Nullable
     String getString(String key, @Nullable String def);
 
@@ -192,7 +190,6 @@ public interface Configuration {
      *            exist or the value is not a {@link List} of {@link String}s.
      * @return The pulled value.
      */
-    @Contract("_, null -> null; _, !null -> !null")
     @Nullable
     List<String> getList(@NotNull String key, @Nullable List<String> def);
 
@@ -215,7 +212,6 @@ public interface Configuration {
      *            exist.
      * @return The pulled value.
      */
-    @Contract("_, null -> null; _, !null -> !null")
     @Nullable
     Object getObject(@NotNull String key, @Nullable Object def);
 
@@ -244,7 +240,6 @@ public interface Configuration {
      * @param <T> The class type to cast the value to.
      * @return The pulled value.
      */
-    @Contract("_, null, _ -> null; _, !null, _ -> !null")
     @Nullable
     <T> T getObject(@NotNull String key, @Nullable T def, @NotNull Class<T> clazz);
 

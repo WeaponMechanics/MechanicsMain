@@ -3,7 +3,7 @@ import gradle.kotlin.dsl.accessors._257d6030bdcc0b367a335c8e2149827a.compileOnly
 object Versions {
 
     // Spigot + Plugins
-    const val LATEST_SPIGOT_API = "1.20.1-R0.1-SNAPSHOT"
+    const val LATEST_SPIGOT_API = "1.20.2-R0.1-SNAPSHOT"
     const val BSTATS = "3.0.1"
     const val PROTOCOL_LIB = "5.1.0"
     const val PLACEHOLDER_API = "2.11.3"

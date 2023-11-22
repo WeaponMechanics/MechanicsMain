@@ -14,6 +14,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.*;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -87,8 +88,6 @@ public class ItemSerializer implements Serializer<ItemStack> {
             applyTags(inline, tags);
             return inline;
         }
-
-        data.of().assertType(ConfigurationSection.class);
 
         ItemStack itemStack = serializeWithoutRecipe(data);
         applyTags(itemStack, tags);
@@ -373,7 +372,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     // Handle initial colors
                     String[] colors = split[1].split(", ?");
                     for (String color : colors)
-                        builder.withColor(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
+                        builder.withColor(ColorSerializer.fromString(data.move("Firework.Effects"), color));
 
                     builder.trail(split.length > 2 && split[2].equalsIgnoreCase("true"));
                     builder.flicker(split.length > 3 && split[3].equalsIgnoreCase("true"));
@@ -381,7 +380,7 @@ public class ItemSerializer implements Serializer<ItemStack> {
                     // Handle the fade colors
                     String[] fadeColors = split.length > 4 ? split[4].split(", ?") : new String[0];
                     for (String color : fadeColors)
-                        builder.withFade(new ColorSerializer().fromString(data.move("Firework.Effects"), color));
+                        builder.withFade(ColorSerializer.fromString(data.move("Firework.Effects"), color));
 
                     // Add the newly constructed firework effect to the list.
                     meta.addEffect(builder.build());
@@ -390,6 +389,24 @@ public class ItemSerializer implements Serializer<ItemStack> {
             } catch (ClassCastException ex) {
                 throw data.exception("Firework", "Tried to use Firework when the item wasn't a firework rocket!",
                         SerializerException.forValue(type));
+            }
+        }
+
+        if (data.has("Light_Level")) {
+            if (ReflectionUtil.getMCVersion() < 17) {
+                throw data.exception("Light_Level", "Tried to use light level before MC 1.17!",
+                        "The light block was added in Minecraft version 1.17!");
+            }
+
+            try {
+                BlockDataMeta meta = (BlockDataMeta) itemStack.getItemMeta();
+                Levelled levelled = (Levelled) meta.getBlockData(Material.LIGHT);
+                int level = data.of("Light_Level").assertRange(0, levelled.getMaximumLevel()).getInt(0);
+                levelled.setLevel(level);
+                meta.setBlockData(levelled);
+                itemStack.setItemMeta(meta);
+            } catch (ClassCastException ex) {
+                throw data.exception("Light_Level", "Tried to use the Light_Level option on a non 'LIGHT' block");
             }
         }
 

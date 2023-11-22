@@ -61,6 +61,10 @@ public class TriggerEntityListeners implements Listener {
             return;
         }
 
+        // MythicMobs damage skill support. Holding a gun while dealing damage normally triggers this
+        if (victim.hasMetadata("doing-skill-damage"))
+            return;
+
         EntityDamageEvent.DamageCause cause = e.getCause();
         boolean isSweep = ReflectionUtil.getMCVersion() > 10 && cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK;
         if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK && !isSweep) return;

@@ -3,7 +3,6 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.WeaponMechanics;
@@ -25,9 +24,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.*;
 
@@ -70,8 +66,7 @@ public class DamageHandler {
             return false;
 
         // Critical Hit chance
-        double chance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance", -1);
-        boolean isCritical = chance != -1 && NumberUtil.chance((chance / 100));
+        double critChance = config.getDouble(weaponTitle + ".Damage.Critical_Hit.Chance", -1) / 100;
 
         int armorDamage = config.getInt(weaponTitle + ".Damage.Armor_Damage");
         int fireTicks = config.getInt(weaponTitle + ".Damage.Fire_Ticks");
@@ -108,7 +103,7 @@ public class DamageHandler {
         Mechanics feetMechanics = config.getObject(weaponTitle + ".Damage.Feet.Mechanics", Mechanics.class);
 
         WeaponDamageEntityEvent damageEntityEvent = new WeaponDamageEntityEvent(weaponTitle, weaponStack, shooter, slot, victim,
-                damage, isBackstab, isCritical, point, armorDamage, fireTicks, isExplosion, distanceTravelled, damageModifier,
+                damage, isBackstab, critChance, point, armorDamage, fireTicks, isExplosion, distanceTravelled, damageModifier,
                 damageMechanics, killMechanics, backstabMechanics, criticalHitMechanics, headMechanics, bodyMechanics,
                 armsMechanics, legsMechanics, feetMechanics);
         Bukkit.getPluginManager().callEvent(damageEntityEvent);
@@ -202,7 +197,7 @@ public class DamageHandler {
         }
 
         // On critical
-        if (damageEntityEvent.isCritical()) {
+        if (damageEntityEvent.isWasCritical()) {
             if (damageEntityEvent.getCriticalHitMechanics() != null)
                 damageEntityEvent.getCriticalHitMechanics().use(cast);
 

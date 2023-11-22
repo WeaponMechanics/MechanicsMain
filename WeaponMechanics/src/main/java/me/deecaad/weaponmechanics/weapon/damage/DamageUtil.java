@@ -249,6 +249,10 @@ public class DamageUtil {
         if (meta == null)
             return;
 
+        // Do not attempt to damage armor that is unbreakable
+        if (meta.isUnbreakable())
+            return;
+
         // Formula taken from Unbreaking enchant code
         int level = meta.getEnchantLevel(Enchantment.DURABILITY);
         boolean skipDamage = !NumberUtil.chance(0.6 + 0.4 / (level + 1));

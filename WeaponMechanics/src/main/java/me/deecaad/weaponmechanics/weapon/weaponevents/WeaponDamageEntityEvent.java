@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
 import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
@@ -31,7 +32,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private double baseDamage;
     private double finalDamage;
     private boolean isBackstab;
-    private boolean isCritical;
+    private double critChance;
+    private double critDamage;
     private DamagePoint point;
     private int armorDamage;
     private int fireTicks;
@@ -50,10 +52,11 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
     private Mechanics legsMechanics;
     private Mechanics feetMechanics;
 
+    private boolean wasCritical;
     private boolean isCancelled;
 
     public WeaponDamageEntityEvent(String weaponTitle, ItemStack weaponItem, LivingEntity weaponUser, EquipmentSlot hand,
-                                   LivingEntity victim, double baseDamage, boolean isBackstab, boolean isCritical,
+                                   LivingEntity victim, double baseDamage, boolean isBackstab, double critChance,
                                    DamagePoint point, int armorDamage, int fireTicks, boolean isExplosion,
                                    double distanceTravelled, DamageModifier damageModifier, Mechanics damageMechanics,
                                    Mechanics killMechanics, Mechanics backstabMechanics, Mechanics criticalHitMechanics,
@@ -66,7 +69,8 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
         this.baseDamage = baseDamage;
         this.finalDamage = Double.NaN;
         this.isBackstab = isBackstab;
-        this.isCritical = isCritical;
+        this.critChance = critChance;
+        this.critDamage = WeaponMechanics.getConfigurations().getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
         this.point = point;
         this.armorDamage = armorDamage;
         this.fireTicks = fireTicks;
@@ -114,6 +118,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      */
     public void setBaseDamage(double baseDamage) {
         this.finalDamage = Double.NaN;
+        this.wasCritical = false;
         this.baseDamage = baseDamage;
     }
 
@@ -135,9 +140,10 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
                 damage += dropoff.getDamage(distanceTravelled);
             if (point != null)
                 damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
-            if (isCritical)
-                damage += config.getDouble(weaponTitle + ".Damage.Critical_Hit.Bonus_Damage");
-            if (isBackstab)
+            if (NumberUtil.chance(critChance)) {
+                damage += critDamage;
+                wasCritical = true;
+            } if (isBackstab)
                 damage += config.getDouble(weaponTitle + ".Damage.Backstab.Bonus_Damage");
 
             EntityWrapper victimWrapper = WeaponMechanics.getEntityWrapper(victim);
@@ -183,6 +189,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      */
     public void setBackstab(boolean backstab) {
         this.finalDamage = Double.NaN;
+        this.wasCritical = false;
         this.isBackstab = backstab;
     }
 
@@ -191,8 +198,9 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      *
      * @return true if this is critical hit.
      */
+    @Deprecated(forRemoval = true)
     public boolean isCritical() {
-        return isCritical;
+        return NumberUtil.chance(critChance);
     }
 
     /**
@@ -203,7 +211,59 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      */
     public void setCritical(boolean isCritical) {
         this.finalDamage = Double.NaN;
-        this.isCritical = isCritical;
+        this.wasCritical = false;
+        this.critChance = isCritical ? 1.0 : 0.0;
+    }
+
+    /**
+     * Returns the chance of a critical hit.
+     *
+     * @return The chance of a critical hit.
+     */
+    public double getCritChance() {
+        return critChance;
+    }
+
+    /**
+     * Returns true if the damage from the last calculation was a critical hit.
+     *
+     * @return true if this was a critical hit.
+     */
+    public boolean isWasCritical() {
+        return wasCritical;
+    }
+
+    /**
+     * Returns the bonus damage from a critical hit.
+     *
+     * @return The bonus damage from a critical hit.
+     */
+    public double getCritDamage() {
+        return critDamage;
+    }
+
+    /**
+     * Sets the bonus damage from a critical hit. Resets the result of
+     * {@link #getFinalDamage()}.
+     *
+     * @param critDamage The bonus damage from a critical hit.
+     */
+    public void setCritDamage(double critDamage) {
+        this.finalDamage = Double.NaN;
+        this.wasCritical = false;
+        this.critDamage = critDamage;
+    }
+
+    /**
+     * Sets the chance of a critical hit. Resets the result of
+     * {@link #getFinalDamage()}.
+     *
+     * @param critChance The chance of a critical hit.
+     */
+    public double setCritChance(double critChance) {
+        this.finalDamage = Double.NaN;
+        this.wasCritical = false;
+        return this.critChance = critChance;
     }
 
     /**
@@ -223,6 +283,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      */
     public void setPoint(DamagePoint point) {
         this.finalDamage = Double.NaN;
+        this.wasCritical = false;
         this.point = point;
     }
 
@@ -271,6 +332,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
 
     public void setExplosion(boolean explosion) {
         isExplosion = explosion;
+        this.wasCritical = false;
         finalDamage = Double.NaN;
     }
 

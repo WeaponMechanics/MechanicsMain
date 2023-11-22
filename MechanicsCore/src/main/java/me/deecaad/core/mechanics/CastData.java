@@ -1,7 +1,10 @@
 package me.deecaad.core.mechanics;
 
+import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.placeholder.PlaceholderData;
 import me.deecaad.core.utils.LogLevel;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
@@ -59,10 +62,15 @@ public class CastData implements Cloneable, PlaceholderData {
 
     private void addDefaultPlaceholders() {
         Location location = getSourceLocation();
-        tempPlaceholders.put("source_name", source.getName());
+        tempPlaceholders.put("source_name", getName(source));
         tempPlaceholders.put("source_x", String.valueOf(location.getX()));
         tempPlaceholders.put("source_y", String.valueOf(location.getY()));
         tempPlaceholders.put("source_z", String.valueOf(location.getZ()));
+    }
+
+    private String getName(LivingEntity entity) {
+        TextComponent component = LegacyComponentSerializer.legacySection().deserialize(entity.getName());
+        return MechanicsCore.getPlugin().message.serialize(component);
     }
 
     @NotNull
@@ -97,7 +105,7 @@ public class CastData implements Cloneable, PlaceholderData {
 
     public void setTargetEntity(@NotNull LivingEntity targetEntity) {
         Location location = targetEntity.getLocation();
-        tempPlaceholders.put("target_name", targetEntity.getName());
+        tempPlaceholders.put("target_name", getName(targetEntity));
         tempPlaceholders.put("target_x", String.valueOf(location.getX()));
         tempPlaceholders.put("target_y", String.valueOf(location.getY()));
         tempPlaceholders.put("target_z", String.valueOf(location.getZ()));
@@ -115,6 +123,11 @@ public class CastData implements Cloneable, PlaceholderData {
             debug.log(LogLevel.WARN, "Not targeting either entity nor location", new Throwable());
         }
         return targetLocation != null ? targetLocation.get() : targetEntity.getLocation();
+    }
+
+    @NotNull
+    public Supplier<Location> getTargetLocationSupplier() {
+        return targetLocation;
     }
 
     public void setTargetLocation(@NotNull Location targetLocation) {
