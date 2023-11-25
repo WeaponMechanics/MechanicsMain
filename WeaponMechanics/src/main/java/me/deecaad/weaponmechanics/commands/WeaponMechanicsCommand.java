@@ -426,6 +426,9 @@ public class WeaponMechanicsCommand {
             return;
         }
 
+        // Used by the WeaponGenerateEvent
+        data.put("sender", sender);
+
         InfoHandler info = WeaponMechanics.getWeaponHandler().getInfoHandler();
         List<Entity> entitiesGiven = new ArrayList<>();
         Set<String> weaponsGiven = new HashSet<>();
