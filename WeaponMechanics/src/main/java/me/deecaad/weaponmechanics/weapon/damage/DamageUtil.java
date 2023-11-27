@@ -156,8 +156,19 @@ public class DamageUtil {
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
 
-        victim.setHealth(NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
-        boolean killed = victim.isDead() || victim.getHealth() <= 0.0;
+        double newHealth = NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        boolean killed = newHealth <= 0.0;
+        boolean resurrected = false;
+
+        // Try use totem of undying
+        if (killed) {
+            resurrected = CompatibilityAPI.getEntityCompatibility().tryUseTotemOfUndying(victim);
+            killed = !resurrected;
+        }
+
+        // When the victim is resurrected via a totem, their health will already be set to 1.0
+        if (!resurrected)
+            victim.setHealth(newHealth);
 
         // Statistics
         if (victim instanceof Player player) {
