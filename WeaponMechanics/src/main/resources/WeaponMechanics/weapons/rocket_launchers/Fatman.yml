@@ -119,14 +119,16 @@ Fatman:
         - "CustomSound{sound=scope.out, volume=0.5, pitch=0.9, noise=0.1, listeners=Source{}}"
 
   # The following options are added by WeaponMechanicsPlus, and you will not
-  # see the changes take effect until you purchase it. 
+  # see the changes take effect until you purchase it.
   Fire_Mode:
-    Next_Mode: "Fatman_Rock"
     Trigger:
-      Main_Hand: "swap_hands" 
+      Main_Hand: "swap_hands"
       Off_Hand: "swap_hands"
     Mechanics:
       - "Sound{sound=ITEM_FLINTANDSTEEL_USE, volume=0.5, pitch=1.5}"
+    Order:
+      - "Fatman"
+      - "Fatman_Rock rock" # The "rock" parameter makes it so that the Fatman_Rock uses a different ammo pool
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
@@ -253,16 +255,6 @@ Fatman_Rock:
     Zoom_Off:
       Mechanics:
         - "CustomSound{sound=scope.out, volume=0.5, pitch=0.9, noise=0.1, listeners=Source{}}"
-
-  # The following options are added by WeaponMechanicsPlus, and you will not
-  # see the changes take effect until you purchase it. 
-  Fire_Mode:
-    Next_Mode: "Fatman"
-    Trigger:
-      Main_Hand: "swap_hands" 
-      Off_Hand: "swap_hands"
-    Mechanics:
-      - "Sound{sound=ITEM_FLINTANDSTEEL_USE, volume=0.5, pitch=1.5}"
 
   # The following options are added by WeaponMechanicsCosmetics, and you will
   # not see the changes take effect until you purchase it.
