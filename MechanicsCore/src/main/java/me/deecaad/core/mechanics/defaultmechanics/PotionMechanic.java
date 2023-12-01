@@ -66,11 +66,11 @@ public class PotionMechanic extends Mechanic {
         // If we failed to find the potion, try to use the more user-friendly
         // minecraft keys instead of the legacy enum. This also technically
         // supports custom potion effects, but I don't know if those exist...
-        if (potion == null && ReflectionUtil.getMCVersion() >= 13) {
+        if (potion == null && ReflectionUtil.getMCVersion() >= 18) {
             potion = PotionEffectType.getByKey(NamespacedKey.fromString(potionLower));
         }
 
-        // Try by name for 1.12.2 support
+        // Try by name for name support
         if (potion == null) {
             potion = PotionEffectType.getByName(potionLower);
         }
@@ -79,7 +79,7 @@ public class PotionMechanic extends Mechanic {
             List<String> options = new ArrayList<>();
             for (PotionEffectType type : PotionEffectType.values()) {
                 options.add(type.getName());
-                if (ReflectionUtil.getMCVersion() >= 13)
+                if (ReflectionUtil.getMCVersion() >= 18)
                     options.add(type.getKey().getKey());
             }
 
