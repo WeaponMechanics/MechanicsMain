@@ -5,15 +5,10 @@ body:
 
   - type: textarea
     attributes:
-      label: Current Behavior
-      description: A concise description of what you're experiencing.
-    validations:
-      required: true
-
-  - type: textarea
-    attributes:
-      label: Expected Behavior
-      description: A concise description of what you expected to happen.
+      label: Current/Expected Behavior
+      description: A clear and concise description of what the bug is.
+    placeholder: |
+      In here you should explain what is currently happening, and what you expected to happen instead.
     validations:
       required: true
 
@@ -38,7 +33,7 @@ body:
 
   - type: textarea
     attributes:
-      label: Version and Log
+      label: Log File
       description: |
         Please drag and drop your latest.log file into this section.
       placeholder: |
