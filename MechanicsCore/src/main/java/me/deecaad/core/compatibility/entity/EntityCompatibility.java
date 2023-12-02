@@ -2,6 +2,7 @@ package me.deecaad.core.compatibility.entity;
 
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.compatibility.equipevent.TriIntConsumer;
+import me.deecaad.core.utils.ReflectionUtil;
 import org.bukkit.*;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.*;
@@ -191,7 +192,7 @@ public interface EntityCompatibility {
         // This is how Spigot handles resurrection. They always call the event,
         // and cancel the event if there is no totem.
         ItemStack totem = hand == null ? null : (hand == EquipmentSlot.HAND ? mainHand : offHand);
-        EntityResurrectEvent event = new EntityResurrectEvent(entity, hand);
+        EntityResurrectEvent event = ReflectionUtil.getMCVersion() < 19 ? new EntityResurrectEvent(entity) : new EntityResurrectEvent(entity, hand);
         event.setCancelled(hand == null);
         Bukkit.getPluginManager().callEvent(event);
 
