@@ -7,8 +7,8 @@ body:
     attributes:
       label: Current/Expected Behavior
       description: A clear and concise description of what the bug is.
-    placeholder: |
-      In here you should explain what is currently happening, and what you expected to happen instead.
+      placeholder: |
+        In here you should explain what is currently happening, and what you expected to happen instead.
     validations:
       required: true
 
