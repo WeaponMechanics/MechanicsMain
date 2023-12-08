@@ -35,7 +35,7 @@ public class ZoomData {
      */
     public boolean isZooming() {
         EntityWrapper entityWrapper = handData.getEntityWrapper();
-        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null && entityWrapper.isPlayer()) {
+        if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null && entityWrapper.isPlayer()) {
 
             VivePlayer vive = VSE.vivePlayers.get(entityWrapper.getEntity().getUniqueId());
             if (vive != null && vive.isVR()) {

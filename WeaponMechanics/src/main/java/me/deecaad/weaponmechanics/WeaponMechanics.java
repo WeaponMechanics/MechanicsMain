@@ -203,6 +203,13 @@ public class WeaponMechanics {
         if (Bukkit.getPluginManager().getPlugin("WeaponMechanicsCosmetics") == null)
             debug.info("Buy WeaponMechanicsCosmetics to support our development: https://www.spigotmc.org/resources/104539/");
 
+        // Detect Vivecraft-Spigot-Extensions and suggest switching to VivecraftSpigot
+        if (Bukkit.getPluginManager().getPermission("Vivecraft_Spigot_Extensions") != null) {
+            debug.warn("Detected 'Vivecraft_Spigot_Extensions' on your server");
+            debug.warn("For better compatibility with WeaponMechanics, we recommend switching to VivecraftSpigot");
+            debug.warn("VivecraftSpigot: https://www.spigotmc.org/resources/104539/");
+        }
+
         WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
     }

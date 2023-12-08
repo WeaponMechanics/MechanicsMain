@@ -784,7 +784,7 @@ public class ShootHandler implements IValidator, TriggerListener {
      */
     private Location getShootLocation(LivingEntity livingEntity, boolean dualWield, boolean mainhand) {
 
-        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null
+        if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null
                 && livingEntity.getType() == EntityType.PLAYER) {
             // Vivecraft support for VR players
 

@@ -49,7 +49,7 @@ public class Recoil implements Serializer<Recoil> {
 
     public void start(Player player, boolean mainHand) {
 
-        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null
+        if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null
                 && VSE.isVive(player)) {
             // Don't try to use this kind of recoil with Vivecraft players
             return;

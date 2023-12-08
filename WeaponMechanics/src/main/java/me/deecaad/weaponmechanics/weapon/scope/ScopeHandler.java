@@ -58,7 +58,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Configuration config = getConfigurations();
 
-        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null
+        if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null
                 && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
             // Don't try to use scope this way when player is in VR
             return false;

@@ -45,7 +45,7 @@ bukkit {
 
     authors = listOf("DeeCaaD", "CJCrafter")
     depend = listOf("ProtocolLib") // TODO switch to soft depends and add auto installer
-    softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus", "VivecraftReloaded")
+    softDepend = listOf("MechanicsCore", "MythicMobs", "CrackShot", "CrackShotPlus", "VivecraftSpigot")
 
     permissions {
         register("weaponmechanics.use.*") {
