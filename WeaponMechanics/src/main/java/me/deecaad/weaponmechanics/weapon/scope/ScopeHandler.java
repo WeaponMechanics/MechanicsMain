@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.scope;
 
+import com.cjcrafter.vivecraft.VSE;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.*;
 import me.deecaad.core.mechanics.CastData;
@@ -21,15 +22,12 @@ import me.deecaad.weaponmechanics.wrappers.ZoomData;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.vivecraft.VSE;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +58,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
     public boolean tryUse(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, TriggerType triggerType, boolean dualWield, @Nullable LivingEntity victim) {
         Configuration config = getConfigurations();
 
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null
                 && entityWrapper.isPlayer() && VSE.isVive((Player) entityWrapper.getEntity())) {
             // Don't try to use scope this way when player is in VR
             return false;

@@ -41,8 +41,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MainHand;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import org.vivecraft.VSE;
-import org.vivecraft.VivePlayer;
+import com.cjcrafter.vivecraft.VSE;
+import com.cjcrafter.vivecraft.VivePlayer;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
@@ -784,7 +784,7 @@ public class ShootHandler implements IValidator, TriggerListener {
      */
     private Location getShootLocation(LivingEntity livingEntity, boolean dualWield, boolean mainhand) {
 
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null
                 && livingEntity.getType() == EntityType.PLAYER) {
             // Vivecraft support for VR players
 

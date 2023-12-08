@@ -1,5 +1,6 @@
 package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 
+import com.cjcrafter.vivecraft.VSE;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
@@ -11,9 +12,7 @@ import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.vivecraft.VSE;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -50,7 +49,7 @@ public class Recoil implements Serializer<Recoil> {
 
     public void start(Player player, boolean mainHand) {
 
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null
+        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null
                 && VSE.isVive(player)) {
             // Don't try to use this kind of recoil with Vivecraft players
             return;

@@ -9,6 +9,7 @@ object Versions {
     const val PLACEHOLDER_API = "2.11.3"
     const val MYTHIC_MOBS = "5.3.5"
     const val GEYSER = "2.2.0-SNAPSHOT"
+    const val VIVECRAFT = "3.0.0"
 
     // Adventure Chat API
     const val ADVENTURE_API = "4.15.0-SNAPSHOT"
@@ -30,6 +31,7 @@ object Dependencies {
     const val PLACEHOLDER_API = "me.clip:placeholderapi:${Versions.PLACEHOLDER_API}"
     const val MYTHIC_MOBS = "io.lumine:Mythic-Dist:${Versions.MYTHIC_MOBS}"
     const val GEYSER = "org.geysermc.geyser:api:${Versions.GEYSER}"
+    const val VIVECRAFT = "com.cjcrafter:vivecraft:${Versions.VIVECRAFT}"
 
     // Adventure Chat API
     const val ADVENTURE_API = "net.kyori:adventure-api:${Versions.ADVENTURE_API}"

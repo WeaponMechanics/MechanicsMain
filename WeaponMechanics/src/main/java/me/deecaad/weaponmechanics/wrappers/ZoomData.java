@@ -1,17 +1,15 @@
 package me.deecaad.weaponmechanics.wrappers;
 
+import com.cjcrafter.vivecraft.VSE;
+import com.cjcrafter.vivecraft.VivePlayer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.scope.ScopeHandler;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponScopeEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.vivecraft.VSE;
-import org.vivecraft.VivePlayer;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
@@ -37,7 +35,7 @@ public class ZoomData {
      */
     public boolean isZooming() {
         EntityWrapper entityWrapper = handData.getEntityWrapper();
-        if (Bukkit.getPluginManager().getPlugin("Vivecraft-Spigot-Extensions") != null && entityWrapper.isPlayer()) {
+        if (Bukkit.getPluginManager().getPlugin("VivecraftReloaded") != null && entityWrapper.isPlayer()) {
 
             VivePlayer vive = VSE.vivePlayers.get(entityWrapper.getEntity().getUniqueId());
             if (vive != null && vive.isVR()) {
