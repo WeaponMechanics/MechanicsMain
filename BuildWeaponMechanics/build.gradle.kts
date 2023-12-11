@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":Weapon_1_19_R3", "reobf"))
     implementation(project(":Weapon_1_20_R1", "reobf"))
     implementation(project(":Weapon_1_20_R2", "reobf"))
+    implementation(project(":Weapon_1_20_R3", "reobf"))
 }
 
 tasks {
@@ -74,6 +75,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_19_R3"))
         include(project(":Weapon_1_20_R1"))
         include(project(":Weapon_1_20_R2"))
+        include(project(":Weapon_1_20_R3"))
 
         relocate("me.cjcrafter.auto", "me.deecaad.weaponmechanics.lib.auto") {
             include(dependency("me.cjcrafter:mechanicsautodownload"))

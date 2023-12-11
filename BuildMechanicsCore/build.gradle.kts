@@ -30,6 +30,7 @@ dependencies {
     implementation(project(":Core_1_19_R3", "reobf"))
     implementation(project(":Core_1_20_R1", "reobf"))
     implementation(project(":Core_1_20_R2", "reobf"))
+    implementation(project(":Core_1_20_R3", "reobf"))
 }
 
 tasks {
@@ -72,6 +73,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Core_1_19_R3"))
         include(project(":Core_1_20_R1"))
         include(project(":Core_1_20_R2"))
+        include(project(":Core_1_20_R3"))
 
         relocate ("net.kyori", "me.deecaad.core.lib") {
             include(dependency("net.kyori::"))
