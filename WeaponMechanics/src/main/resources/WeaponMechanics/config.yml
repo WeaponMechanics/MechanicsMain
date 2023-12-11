@@ -815,3 +815,8 @@ Entity_Hitboxes:
     BODY: 0.95
     LEGS: 0.0
     FEET: 0.05
+  BREEZE:
+    HEAD: 0.1
+    BODY: 0.8
+    LEGS: 0.075
+    FEET: 0.025
