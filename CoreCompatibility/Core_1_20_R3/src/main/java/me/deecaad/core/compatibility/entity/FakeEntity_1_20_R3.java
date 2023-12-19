@@ -99,10 +99,10 @@ public class FakeEntity_1_20_R3 extends FakeEntity {
                     temp.setItemStack(CraftItemStack.asNMSCopy((org.bukkit.inventory.ItemStack) data));
                     yield temp;
                 }
-                default -> (Entity) world.createEntity(location, type.getEntityClass());
+                default -> world.makeEntity(location, type.getEntityClass());
             };
         } else {
-            entity = (Entity) world.createEntity(location, type.getEntityClass());
+            entity = world.makeEntity(location, type.getEntityClass());
         }
 
         this.setLocation(x, y, z, location.getYaw(), location.getPitch());
