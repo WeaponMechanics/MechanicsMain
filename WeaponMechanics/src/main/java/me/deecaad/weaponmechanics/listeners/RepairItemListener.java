@@ -243,8 +243,10 @@ public class RepairItemListener implements Listener {
         // Not a valid repair item... setAmount(1) is required to get by key in map.
         int availableItems = repairItem.getAmount();
         repairItem.setAmount(1);
-        if (!customDurability.getRepairItems().containsKey(repairItem))
+        if (!customDurability.getRepairItems().containsKey(repairItem)) {
+            repairItem.setAmount(availableItems);
             return false;
+        }
 
         // Calculate how many items can possibly be consumed in order to
         // max out the weapons durability.
