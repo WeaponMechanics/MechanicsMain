@@ -429,10 +429,20 @@ public final class WeaponMechanicsAPI {
      * has not been loaded, or is current reloading, this method will return
      * <code>null</code>.
      *
-     * @return The nullable plugin instance.
+     * @return The plugin instance.
      */
     @NotNull
     public static Plugin getPluginInstance() {
         return WeaponMechanics.getPlugin();
+    }
+
+    /**
+     * Returns the main WeaponMechanics instance. Good for reloading the plugin.
+     *
+     * @return The plugin instance.
+     */
+    @NotNull
+    public static WeaponMechanics getInstance() {
+        return WeaponMechanics.getInstance();
     }
 }

@@ -662,6 +662,10 @@ public class WeaponMechanics {
         return plugin.javaPlugin;
     }
 
+    public static WeaponMechanics getInstance() {
+        return plugin;
+    }
+
     /**
      * This method can't return null because new EntityWrapper is created if not found.
      *
