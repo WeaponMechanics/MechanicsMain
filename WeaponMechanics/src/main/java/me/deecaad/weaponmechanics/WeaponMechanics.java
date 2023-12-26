@@ -210,7 +210,6 @@ public class WeaponMechanics {
             debug.warn("VivecraftSpigot: https://www.spigotmc.org/resources/104539/");
         }
 
-        WeaponMechanicsAPI.setInstance(this);
         debug.start(getPlugin());
     }
 
@@ -612,7 +611,6 @@ public class WeaponMechanics {
                         PlayerWrapper playerWrapper = getPlayerWrapper(player);
                         weaponHandler.getStatsHandler().load(playerWrapper);
                     }
-                    WeaponMechanicsAPI.setInstance(this);
                 });
     }
 
@@ -648,7 +646,6 @@ public class WeaponMechanics {
         projectilesRunnable = null;
         plugin = null;
         debug = null;
-        WeaponMechanicsAPI.setInstance(null);
     }
 
     /**
