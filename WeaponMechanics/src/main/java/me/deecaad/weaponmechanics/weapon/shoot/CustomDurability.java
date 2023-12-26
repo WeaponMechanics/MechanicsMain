@@ -6,12 +6,11 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
-import me.deecaad.core.utils.NumberUtil;
-import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
-import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
@@ -335,8 +334,8 @@ public class CustomDurability implements Serializer<CustomDurability> {
     @Override
     public CustomDurability serialize(@NotNull SerializeData data) throws SerializerException {
         int maxDurability = data.of("Max_Durability").assertPositive().assertExists().getInt();
-        int minMaxDurability = data.of("Min_Max_Durability").assertPositive().get(0);
-        int loseMaxDurabilityPerRepair = data.of("Lose_Max_Durability_Per_Repair").assertPositive().get(0);
+        int minMaxDurability = data.of("Min_Max_Durability").assertPositive().getInt(0);
+        int loseMaxDurabilityPerRepair = data.of("Lose_Max_Durability_Per_Repair").assertPositive().getInt(0);
         int durabilityPerShot = data.of("Durability_Per_Shot").assertPositive().getInt(1);
         Double chance = data.of("Chance_To_Lose").serialize(new ChanceSerializer());
         if (chance == null)
