@@ -130,6 +130,20 @@ public class HandData {
         return fullAutoTaskId != 0;
     }
 
+    /**
+     * If you cancel this task, be sure to call {@link #setFullAutoTask(FullAutoTask, int)}
+     * with null and 0. Otherwise, WeaponMechanics will break.
+     *
+     * @return The full auto task, or null.
+     */
+    public @Nullable FullAutoTask getFullAutoTask() {
+        return fullAutoTask;
+    }
+
+    public int getFullAutoTaskId() {
+        return fullAutoTaskId;
+    }
+
     public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, int fullAutoTaskId) {
         this.fullAutoTask = fullAutoTask;
         this.fullAutoTaskId = fullAutoTaskId;
