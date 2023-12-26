@@ -278,7 +278,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
 
                 Location location = block.getLocation();
                 for (ItemStack item : drops) {
-                    if (item != null)
+                    if (item != null && item.getType() != Material.AIR && item.getAmount() > 0)
                         block.getWorld().dropItemNaturally(location, item);
                 }
             }
