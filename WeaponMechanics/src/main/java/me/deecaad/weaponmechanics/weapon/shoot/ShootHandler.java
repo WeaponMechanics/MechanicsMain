@@ -55,58 +55,6 @@ public class ShootHandler implements IValidator, TriggerListener {
 
     private WeaponHandler weaponHandler;
 
-    /**
-     * Hardcoded full auto values. For every 1 in the array, the gun will fire
-     * on that tick. Some indexes are marked as <i>"perfect"</i>. This means
-     * that the delay between shots is exactly equal no matter what. Some
-     * indexes are marked as <i>"good"</i>. This means that the distance
-     * between zeros are equal.
-     * <p>
-     * Calculated using python: <blockquote><pre>{@code
-     *     from collections import deque
-     *
-     *     for shotsPerSecond in range(1, 21):
-     *         collection = deque([0] * 20)
-     *         accumulate = 0
-     *         for i in range(0, 20):
-     *
-     *             accumulate += shotsPerSecond / 20 + 0.00000000001
-     *             if accumulate >= 1.0:
-     *                 accumulate -= 1.0
-     *                 collection[i] = 1
-     *
-     *         # shift over so the first tick is always a shot
-     *         while collection[0] == 0:
-     *             collection.rotate(-1)
-     *
-     *         print("\t{" + ", ".join(map(str, collection)) + "},")
-     * }</pre></blockquote>
-     * <p>
-     * TODO Switch from int -> boolean for 1.6kb -> 400bits of ram
-     */
-    private static final int[][] AUTO = new int[][]{
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 1 perfect
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, // 2 perfect
-            {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0}, // 4 perfect
-            {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0}, // 5 perfect
-            {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0},
-            {1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0},
-            {1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0},
-            {1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
-            {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, // 10 perfect
-            {1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
-            {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0},
-            {1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0},
-            {1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0},
-            {1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0}, // 15 good
-            {1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0}, // 16 good
-            {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, // 18 good
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, // 19 good
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}  // 20 good
-    };
-
     public ShootHandler() {
     }
 
@@ -380,90 +328,18 @@ public class ShootHandler implements IValidator, TriggerListener {
         Configuration config = getConfigurations();
         int fullyAutomaticShotsPerSecond = config.getInt(weaponTitle + ".Shoot.Fully_Automatic_Shots_Per_Second");
 
-        Trigger trigger = config.getObject(weaponTitle + ".Shoot.Trigger", Trigger.class);
+        // Call event before checking if full auto is used, so weapons can be converted to Full Auto
+        WeaponFullAutoEvent event = new WeaponFullAutoEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, fullyAutomaticShotsPerSecond);
+        Bukkit.getPluginManager().callEvent(event);
 
-        // Not used
-        if (fullyAutomaticShotsPerSecond == 0) return false;
+        // When full auto is not used by this weapon
+        if (event.isCancelled()) return false;
 
-        int baseAmountPerTick = fullyAutomaticShotsPerSecond / 20;
-        int extra = fullyAutomaticShotsPerSecond % 20;
         boolean mainhand = slot == EquipmentSlot.HAND;
-        boolean consumeItemOnShoot = getConfigurations().getBool(weaponTitle + ".Shoot.Consume_Item_On_Shoot");
-        int ammoPerShot = getConfigurations().getInt(weaponTitle + ".Shoot.Ammo_Per_Shot", 1);
-        ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
 
-        handData.setFullAutoTask(new BukkitRunnable() {
-            int tick = 0;
-
-            public void run() {
-                ItemStack taskReference = mainhand ? entityWrapper.getEntity().getEquipment().getItemInMainHand() : entityWrapper.getEntity().getEquipment().getItemInOffHand();
-                if (!taskReference.hasItemMeta()) {
-                    handData.setFullAutoTask(0);
-                    cancel();
-                    return;
-                }
-
-                if (entityWrapper.getMainHandData().isReloading() || entityWrapper.getOffHandData().isReloading()) {
-                    handData.setFullAutoTask(0);
-                    cancel();
-                    return;
-                }
-
-                int ammoLeft = reloadHandler.getAmmoLeft(taskReference, weaponTitle);
-
-                if (!keepFullAutoOn(entityWrapper, triggerType, trigger)) {
-                    handData.setFullAutoTask(0);
-                    cancel();
-
-                    if (ammoLeft == 0) {
-                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
-                    } else {
-                        doShootFirearmActions(entityWrapper, weaponTitle, taskReference, handData, slot);
-                    }
-
-                    return;
-                }
-
-                int shootAmount;
-                if (extra != 0) {
-                    shootAmount = (baseAmountPerTick + AUTO[extra - 1][tick]);
-                } else {
-                    shootAmount = baseAmountPerTick;
-                }
-
-                // START RELOAD STUFF
-
-                if (ammoLeft != -1) {
-
-                    // Check whether shoot amount of this tick should be changed
-                    if (ammoLeft - shootAmount < 0) {
-                        shootAmount = ammoLeft;
-                    }
-
-                    if (!reloadHandler.consumeAmmo(taskReference, weaponTitle, shootAmount * ammoPerShot)) {
-                        handData.setFullAutoTask(0);
-                        cancel();
-
-                        startReloadIfBothWeaponsEmpty(entityWrapper, weaponTitle, taskReference, slot, dualWield, false);
-                        return;
-                    }
-                }
-
-                // END RELOAD STUFF
-
-                for (int i = 0; i < shootAmount; ++i) {
-                    shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, false);
-                    boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
-                    if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
-                        return;
-                    }
-                }
-
-                if (++tick >= 20) {
-                    tick = 0;
-                }
-            }
-        }.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0).getTaskId());
+        FullAutoTask fullAutoTask = new FullAutoTask(weaponHandler, entityWrapper, weaponTitle, weaponStack, mainhand, triggerType, dualWield, event.getShotsPerSecond());
+        int fullAutoTaskId = fullAutoTask.runTaskTimer(WeaponMechanics.getPlugin(), 0, 0).getTaskId();
+        handData.setFullAutoTask(fullAutoTask, fullAutoTaskId);
         return true;
     }
 
@@ -562,7 +438,7 @@ public class ShootHandler implements IValidator, TriggerListener {
     /**
      * Checks whether to keep full auto on with given trigger
      */
-    private boolean keepFullAutoOn(EntityWrapper entityWrapper, TriggerType triggerType, Trigger trigger) {
+    public boolean keepFullAutoOn(EntityWrapper entityWrapper, TriggerType triggerType, Trigger trigger) {
 
         if (!trigger.checkCircumstances(entityWrapper)) {
             return false;
@@ -581,7 +457,7 @@ public class ShootHandler implements IValidator, TriggerListener {
         };
     }
 
-    private void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
+    public void startReloadIfBothWeaponsEmpty(EntityWrapper entityWrapper, String weaponTitle, ItemStack weaponStack, EquipmentSlot slot, boolean dualWield, boolean isReloadLoop) {
         if (entityWrapper.isReloading()) return;
 
         ReloadHandler reloadHandler = weaponHandler.getReloadHandler();
@@ -782,7 +658,7 @@ public class ShootHandler implements IValidator, TriggerListener {
     /**
      * Get the shoot location based on dual wield and main hand
      */
-    private Location getShootLocation(LivingEntity livingEntity, boolean dualWield, boolean mainhand) {
+    public Location getShootLocation(LivingEntity livingEntity, boolean dualWield, boolean mainhand) {
 
         if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null
                 && livingEntity.getType() == EntityType.PLAYER) {

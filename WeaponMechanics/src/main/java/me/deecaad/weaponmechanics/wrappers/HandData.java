@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.wrappers;
 
 import me.deecaad.weaponmechanics.WeaponMechanics;
+import me.deecaad.weaponmechanics.weapon.shoot.FullAutoTask;
 import me.deecaad.weaponmechanics.weapon.shoot.recoil.RecoilTask;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCancelEvent;
 import me.deecaad.weaponmechanics.weapon.weaponevents.WeaponReloadCompleteEvent;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +24,8 @@ public class HandData {
     private final EntityWrapper entityWrapper;
     private final boolean mainhand;
 
-    private int fullAutoTask;
+    private FullAutoTask fullAutoTask;
+    private int fullAutoTaskId;
     private int burstTask;
     private long lastShotTime;
     private long lastScopeTime;
@@ -79,9 +82,10 @@ public class HandData {
      * @param trySkinUpdate whether to also try to update skin
      */
     public void cancelTasks(boolean trySkinUpdate) {
-        if (fullAutoTask != 0) {
-            Bukkit.getScheduler().cancelTask(fullAutoTask);
-            fullAutoTask = 0;
+        if (fullAutoTaskId != 0) {
+            Bukkit.getScheduler().cancelTask(fullAutoTaskId);
+            fullAutoTaskId = 0;
+            fullAutoTask = null;
         }
         if (burstTask != 0) {
             Bukkit.getScheduler().cancelTask(burstTask);
@@ -123,11 +127,12 @@ public class HandData {
     }
 
     public boolean isUsingFullAuto() {
-        return fullAutoTask != 0;
+        return fullAutoTaskId != 0;
     }
 
-    public void setFullAutoTask(int fullAutoTask) {
+    public void setFullAutoTask(@Nullable FullAutoTask fullAutoTask, int fullAutoTaskId) {
         this.fullAutoTask = fullAutoTask;
+        this.fullAutoTaskId = fullAutoTaskId;
     }
 
     public boolean isUsingBurst() {
