@@ -105,6 +105,13 @@ public enum CustomTag {
     ATTACHMENTS,
 
     /**
+     * Weapon skin is stored as a string, and is used by WeaponMechanicsCosmetics
+     * to determine if a weapon has a set skin. This overrides the player's
+     * preferred skin.
+     */
+    WEAPON_SKIN,
+
+    /**
      * Armor title is stored as a string, and is used by ArmorMechanics to
      * determine if an item is a custom armor added by the plugin.
      */
