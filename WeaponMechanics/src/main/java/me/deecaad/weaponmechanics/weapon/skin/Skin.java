@@ -13,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * <p>Next you got the {@link RelativeSkin}. The relative skin ADDS a value
  * to the "central" base skin (The "central" base skin being the one you
- * get from calling {@link SkinList#getSkin(String, SkinList.SkinIdentifier)}
- * and passing <code>null</code> to both parameters). For example, using
+ * get from calling {@link SkinSelector#getDefaultSkin()}). For example, using
  * <code>Custom_Model_Data: +10</code> with the above^^ {@link BaseSkin} will
  * result in an item with a CMD of 82.
  */
