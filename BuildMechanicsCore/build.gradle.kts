@@ -4,7 +4,6 @@ description = "Library plugin for WeaponMechanics"
 version = "3.2.0"
 
 plugins {
-    `maven-publish`
     id("me.deecaad.java-conventions")
     id("com.github.johnrengelman.shadow") version "7.1.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
@@ -95,30 +94,4 @@ tasks.named<ShadowJar>("shadowJar") {
 
 tasks.named("assemble").configure {
     dependsOn("shadowJar")
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsMain")
-            credentials {
-                username = findProperty("user").toString()
-                password = findProperty("pass").toString()
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>("corePublication") {
-            artifact(tasks.named("shadowJar")) {
-                classifier = null
-            }
-
-            pom {
-                groupId = "me.deecaad"
-                artifactId = "mechanicscore" // MUST be lowercase
-                packaging = "jar"
-            }
-        }
-    }
 }

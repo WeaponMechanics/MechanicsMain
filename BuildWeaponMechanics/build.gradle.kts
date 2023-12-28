@@ -96,29 +96,3 @@ tasks.named<ShadowJar>("shadowJar") {
 tasks.named("assemble").configure {
     dependsOn("shadowJar")
 }
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsMain")
-            credentials {
-                username = findProperty("user").toString()
-                password = findProperty("pass").toString()
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>("weaponPublication") {
-            artifact(tasks.named("shadowJar")) {
-                classifier = null
-            }
-
-            pom {
-                groupId = "me.deecaad"
-                artifactId = "weaponmechanics" // MUST be lowercase
-                packaging = "jar"
-            }
-        }
-    }
-}
