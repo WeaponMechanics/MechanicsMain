@@ -1,5 +1,3 @@
-import gradle.kotlin.dsl.accessors._257d6030bdcc0b367a335c8e2149827a.compileOnly
-
 object Versions {
 
     // Spigot + Plugins
@@ -45,8 +43,8 @@ object Dependencies {
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {
-    compileOnly(Dependencies.ADVENTURE_API)
-    compileOnly(Dependencies.ADVENTURE_BUKKIT)
-    compileOnly(Dependencies.ADVENTURE_TEXT_LEGACY)
-    compileOnly(Dependencies.ADVENTURE_TEXT_MINIMESSAGE)
+    add("compileOnly", Dependencies.ADVENTURE_API)
+    add("compileOnly", Dependencies.ADVENTURE_BUKKIT)
+    add("compileOnly", Dependencies.ADVENTURE_TEXT_LEGACY)
+    add("compileOnly", Dependencies.ADVENTURE_TEXT_MINIMESSAGE)
 }

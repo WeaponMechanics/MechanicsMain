@@ -22,7 +22,6 @@ nbactions.xml
 .gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
-gradle.properties
 
 # Maven
 log/

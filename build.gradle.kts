@@ -6,7 +6,7 @@ plugins {
 }
 
 polymart {
-    val weaponMechanicsVersion = "2.7.0-SNAPSHOT"
+    val weaponMechanicsVersion = findProperty("weaponMechanicsVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
 
     apiKey = findProperty("polymart_api_key").toString()
     title = weaponMechanicsVersion
@@ -19,7 +19,7 @@ polymart {
 tasks.register<GithubReleaseTask>("createGithubRelease").configure {
 
     // https://github.com/BreadMoirai/github-release-gradle-plugin
-    val weaponMechanicsVersion = project(":BuildWeaponMechanics").version.toString()
+    val weaponMechanicsVersion = findProperty("weaponMechanicsVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
 
     owner.set("WeaponMechanics")
     repo.set("MechanicsMain")

@@ -29,7 +29,7 @@ public abstract class PlaceholderHandler implements Keyable {
 
     /**
      * Returns the lowercase id for this placeholder without any formatting.
-     * The returned value will not have the diamond '<>' characters.
+     * The returned value will not have the diamond characters.
      *
      * @return This placeholder's name
      */
