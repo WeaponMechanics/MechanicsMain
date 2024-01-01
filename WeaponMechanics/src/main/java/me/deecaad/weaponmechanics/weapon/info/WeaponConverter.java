@@ -73,7 +73,10 @@ public class WeaponConverter implements Serializer<WeaponConverter> {
             }
         }
         if (this.cmd && ReflectionUtil.getMCVersion() >= 14) {
-            if (weaponMeta.getCustomModelData() != otherMeta.getCustomModelData()) {
+            if (weaponMeta.hasCustomModelData() != otherMeta.hasCustomModelData()) {
+                return false;
+            }
+            if (weaponMeta.hasCustomModelData() && weaponMeta.getCustomModelData() != otherMeta.getCustomModelData()) {
                 return false;
             }
         }
