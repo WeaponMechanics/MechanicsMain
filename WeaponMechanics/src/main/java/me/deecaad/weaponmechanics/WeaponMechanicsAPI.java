@@ -68,6 +68,80 @@ public final class WeaponMechanicsAPI {
     }
 
     /**
+     * Gets the skin that will be applied to the weapon item for the given player.
+     * This takes the skin override ({@link #setSkin(ItemStack, String)}) into
+     * account.
+     *
+     * <p>This method will throw an exception if the weapon does not use skins.
+     *
+     * @param player The player holding the weapon.
+     * @param weaponStack The weapon item to get the skin for.
+     * @return Which skin should be applied, or "default" for no skin.
+     */
+    @NotNull
+    public static String getSkinFor(@NotNull Player player, @NotNull ItemStack weaponStack) {
+        String weaponTitle = getWeaponTitle(weaponStack);
+        if (weaponTitle == null) {
+            throw new IllegalArgumentException("Item is not a weapon");
+        }
+
+        // Check if the weapon uses skins
+        SkinSelector skins = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
+        if (skins == null)
+            throw new IllegalArgumentException("Weapon " + weaponTitle + " does not use skins");
+
+        // First check for a skin override
+        String skinOverride = CustomTag.WEAPON_SKIN.getString(weaponStack);
+        if (skinOverride != null)
+            return skinOverride;
+
+        // Check if the player has a skin preference
+        StatsData stats = WeaponMechanics.getPlayerWrapper(player).getStatsData();
+        if (stats == null)
+            return "default";
+
+        String skin = (String) stats.get(weaponTitle, WeaponStat.SKIN, null);
+        if (skin == null)
+            return "default";
+
+        // Check if the skin is valid. This happens when a skin is deleted from config.
+        if (!"default".equals(skin) && !skins.getCustomSkins().contains(skin))
+            return "default";
+
+        return skin;
+    }
+
+    /**
+     * Sets the skin override for the given weapon item. This will override
+     * player preferences ({@link #setSkin(Player, String, String)}).
+     *
+     * <p>This method simply sets the skin override in the item's nbt data. You
+     * can set this value yourself using {@link CustomTag#WEAPON_SKIN}. This
+     * method will throw an exception if the weapon does not use skins.
+     *
+     * @param weaponStack The weapon item to set the skin for.
+     * @param skin The skin to set. If null, the default skin will be used.
+     */
+    public static void setSkin(@NotNull ItemStack weaponStack, @Nullable String skin) {
+        if (skin == null)
+            skin = "default";
+
+        String weaponTitle = getWeaponTitle(weaponStack);
+        if (weaponTitle == null) {
+            throw new IllegalArgumentException("Item is not a weapon");
+        }
+
+        // List valid skins, and check if the skin is valid
+        SkinSelector skins = WeaponMechanics.getConfigurations().getObject(weaponTitle + ".Skin", SkinSelector.class);
+        if (skins == null)
+            throw new IllegalArgumentException("Weapon " + weaponTitle + " does not use skins");
+        if (!"default".equals(skin) && !skins.getCustomSkins().contains(skin))
+            throw new IllegalArgumentException("Weapon " + weaponTitle + " does not have skin " + skin);
+
+        CustomTag.WEAPON_SKIN.setString(weaponStack, skin);
+    }
+
+    /**
      * Attempts to set the player's skin preference for the given weapon.
      *
      * <p>This method simply sets the player's skin preference in the database.
