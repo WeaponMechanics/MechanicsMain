@@ -32,7 +32,7 @@ public class StandingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Standing-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#standing";
     }
 
     @NotNull

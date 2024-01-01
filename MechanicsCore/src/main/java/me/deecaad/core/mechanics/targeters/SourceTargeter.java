@@ -35,7 +35,7 @@ public class SourceTargeter extends Targeter {
     @Nullable
     @Override
     public String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SourceTargeter";
+        return "https://cjcrafter.gitbook.io/mechanics/targeters/source";
     }
 
     @NotNull

@@ -37,7 +37,7 @@ public class HasPermissionCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/HasPermissionCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/has-permission";
     }
 
     @NotNull

@@ -43,7 +43,7 @@ public class RangeCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/RangeCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/range";
     }
 
     @NotNull

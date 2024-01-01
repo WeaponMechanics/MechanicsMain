@@ -32,7 +32,7 @@ public class InMidairCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#In-Midair-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#in-midair";
     }
 
     @NotNull

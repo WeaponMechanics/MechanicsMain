@@ -28,7 +28,7 @@ public class RidingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Riding-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/riding";
     }
 
     @NotNull

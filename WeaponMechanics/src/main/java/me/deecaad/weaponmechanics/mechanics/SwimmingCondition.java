@@ -32,7 +32,7 @@ public class SwimmingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Swimming-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#swimming";
     }
 
     @NotNull

@@ -49,7 +49,7 @@ public class ServerPlayersTargeter extends Targeter {
     @Nullable
     @Override
     public String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/ServerPlayersTargeter";
+        return "https://cjcrafter.gitbook.io/mechanics/targeters/serverplayers";
     }
 
     @NotNull

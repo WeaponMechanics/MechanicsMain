@@ -33,7 +33,7 @@ public class EntityTypeCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/EntityTypeCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/entity-type";
     }
 
     @NotNull

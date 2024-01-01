@@ -28,7 +28,7 @@ public class ReloadingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Reloading";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#reloading";
     }
 
     @NotNull

@@ -32,7 +32,7 @@ public class SprintingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Sprinting-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/sprinting";
     }
 
     @NotNull

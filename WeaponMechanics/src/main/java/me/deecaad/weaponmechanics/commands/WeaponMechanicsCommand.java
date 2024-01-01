@@ -69,7 +69,7 @@ import static org.bukkit.ChatColor.*;
 @SuppressWarnings("unchecked")
 public class WeaponMechanicsCommand {
 
-    public static String WIKI = "https://github.com/WeaponMechanics/MechanicsMain/wiki";
+    public static String WIKI = "https://cjcrafter.gitbook.io/weaponmechanics/";
     public static char SYM = '\u27A2';
 
     public static Function<CommandData, Tooltip[]> WEAPON_SUGGESTIONS = (data) -> {
@@ -693,10 +693,8 @@ public class WeaponMechanicsCommand {
     }
 
     public static void wiki(CommandSender sender) {
-        List<String> pages = Arrays.asList("Information", "Skins", "Shooting", "Scoping",
-                "Reloading", "Projectile", "Damage", "Explosion", "Firearms", "Melee",
-                "Addons", "API", "Commands and Permissions", "References", "Placeholders",
-                "General");
+        List<String> pages = Arrays.asList("Info", "Shoot", "Scope", "Reload",
+                "Skin", "Projectile", "Explosion", "Damage", "Firearm_Action", "Melee");
 
         Style gold = Style.style(NamedTextColor.GOLD);
         Style gray = Style.style(NamedTextColor.GRAY);
@@ -707,7 +705,7 @@ public class WeaponMechanicsCommand {
                 .withElementStyle(gray)
                 .withAttemptSinglePixelFix()
                 .withSupplier(i -> i >= pages.size() ? empty() : text().content(pages.get(i).toUpperCase(Locale.ROOT))
-                        .clickEvent(ClickEvent.openUrl(WIKI + '/' + pages.get(i)))
+                        .clickEvent(ClickEvent.openUrl(WIKI + "/weapon-modules/" + pages.get(i).toLowerCase(Locale.ROOT)))
                         .hoverEvent(text("Click to go to the wiki", gray))
                         .build())
                 .build();

@@ -45,7 +45,7 @@ public class OnGroundCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/OnGroundCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/on-ground";
     }
 
     @NotNull

@@ -28,7 +28,7 @@ public class GlidingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Gliding-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/gliding";
     }
 
     @NotNull

@@ -28,7 +28,7 @@ public abstract class Targeter implements InlineSerializer<Targeter> {
     @Nullable
     @Override
     public String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics#targeters";
+        return "https://cjcrafter.gitbook.io/mechanics/#targeter";
     }
 
     public boolean isEye() {

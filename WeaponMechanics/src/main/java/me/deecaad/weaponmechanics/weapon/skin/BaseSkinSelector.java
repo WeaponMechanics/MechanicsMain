@@ -102,7 +102,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
 
                 if ("Attachments".equals(key)) {
                     throw data.exception(null, "If you want to use Attachments in skins, you cannot use the legacy format",
-                            "Check wiki for new format: https://github.com/WeaponMechanics/MechanicsMain/wiki/Skins");
+                            "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
                 }
 
                 // Hand skin requires 'Item'.
@@ -147,7 +147,7 @@ public class BaseSkinSelector implements SkinSelector, Serializer<SkinSelector> 
                 throw data.exception(key, "Found an unknown skin identifier",
                         SerializerException.forValue(key),
                         SerializerException.didYouMean(key, Arrays.stream(SkinAction.getValues()).map(SkinAction::getKey).collect(Collectors.toList())),
-                        "See: https://github.com/WeaponMechanics/MechanicsMain/wiki/Skins");
+                        "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
             }
 
             // Since SCOPE_STACK matches to different keys, we need to handle

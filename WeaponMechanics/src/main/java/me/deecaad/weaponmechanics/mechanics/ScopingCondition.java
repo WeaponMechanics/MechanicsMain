@@ -28,7 +28,7 @@ public class ScopingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Scoping-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#scoping";
     }
 
     @NotNull

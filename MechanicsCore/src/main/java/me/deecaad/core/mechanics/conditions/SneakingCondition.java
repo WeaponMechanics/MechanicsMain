@@ -32,7 +32,7 @@ public class SneakingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Sneaking-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/sneaking";
     }
 
     @NotNull

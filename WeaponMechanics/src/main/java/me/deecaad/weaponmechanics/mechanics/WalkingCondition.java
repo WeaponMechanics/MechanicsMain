@@ -32,7 +32,7 @@ public class WalkingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Walking-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#walking";
     }
 
     @NotNull

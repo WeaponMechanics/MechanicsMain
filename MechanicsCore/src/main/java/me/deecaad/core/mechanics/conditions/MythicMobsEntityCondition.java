@@ -38,7 +38,7 @@ public class MythicMobsEntityCondition extends Condition implements JarSearcherE
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/MythicMobsEntityCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/mythicmobs#mythic-mobs-entity-condition";
     }
 
     @NotNull

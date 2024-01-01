@@ -57,7 +57,7 @@ public class MythicMobsFactionCondition extends Condition implements JarSearcher
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/MythicMobsFactionCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/mythicmobs#mythic-mobs-faction-condition";
     }
 
     @NotNull

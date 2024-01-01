@@ -32,7 +32,7 @@ public class DualWieldingCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/SimpleConditions#Dual-Wielding-Condition";
+        return "https://cjcrafter.gitbook.io/mechanics/integrations/weaponmechanics#dual-wielding";
     }
 
     @NotNull

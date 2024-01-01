@@ -78,7 +78,7 @@ public class Mechanics implements Serializer<Mechanics> {
     @Nullable
     @Override
     public String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics";
+        return "https://cjcrafter.gitbook.io/mechanics/";
     }
 
     public void use(CastData cast) {

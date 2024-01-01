@@ -133,7 +133,7 @@ public class BaseSkin implements Skin, Serializer<BaseSkin>  {
         if (legacyData.isPresent() && version > 12) {
             throw data.exception("Legacy_Data", "Cannot use 'Legacy_Data' on MC version 1." + version,
                     "Instead, use the '" + (shouldUseCmd ? "Custom_Model_Data" : "Durability") + "' feature",
-                    "Check out the wiki: https://github.com/WeaponMechanics/MechanicsMain/wiki/Skins");
+                    "Wiki: https://cjcrafter.gitbook.io/weaponmechanics/weapon-modules/skin");
         }
 
         // Cannot use Custom_Model_Data before 1.14

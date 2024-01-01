@@ -19,7 +19,7 @@ public abstract class Condition implements InlineSerializer<Condition> {
     @Nullable
     @Override
     public String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/Mechanics#conditions";
+        return "https://cjcrafter.gitbook.io/mechanics/#conditions";
     }
 
     /**

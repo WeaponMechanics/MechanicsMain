@@ -37,7 +37,7 @@ public class MaterialCategoryCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/MaterialCategoryCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/material-category";
     }
 
     @NotNull

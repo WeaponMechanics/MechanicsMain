@@ -51,7 +51,7 @@ public class LightLevelCondition extends Condition {
 
     @Override
     public @Nullable String getWikiLink() {
-        return "https://github.com/WeaponMechanics/MechanicsMain/wiki/LightLevelCondition";
+        return "https://cjcrafter.gitbook.io/mechanics/conditions/light-level";
     }
 
     @NotNull
