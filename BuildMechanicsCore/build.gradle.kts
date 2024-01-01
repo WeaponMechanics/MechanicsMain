@@ -1,8 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-description = "Library plugin for WeaponMechanics"
-version = "3.2.0"
-
 plugins {
     id("me.deecaad.java-conventions")
     id("com.github.johnrengelman.shadow") version "7.1.0"
@@ -41,8 +38,11 @@ tasks {
 
 // See https://github.com/Minecrell/plugin-yml
 bukkit {
+    val mechanicsCoreVersion = findProperty("mechanicsCoreVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
+
     main = "me.deecaad.core.MechanicsCore"
-    name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"
+    name = "MechanicsCore" // Since we don't want to use "BuildMechanicsCore"\
+    version = mechanicsCoreVersion
     apiVersion = "1.13"
 
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
@@ -51,9 +51,10 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
+    val mechanicsCoreVersion = findProperty("mechanicsCoreVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
 
     destinationDirectory.set(file("../build"))
-    archiveFileName.set("MechanicsCore-${version}.jar")
+    archiveFileName.set("MechanicsCore-$mechanicsCoreVersion.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
 
     dependencies {

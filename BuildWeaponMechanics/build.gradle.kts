@@ -1,8 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
-description = "A New Age of Weapons in Minecraft"
-version = "3.2.0"
 
 plugins {
     id("me.deecaad.java-conventions")
@@ -40,8 +38,11 @@ tasks {
 
 // See https://github.com/Minecrell/plugin-yml
 bukkit {
+    val weaponMechanicsVersion = findProperty("weaponMechanicsVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
+
     main = "me.deecaad.weaponmechanics.WeaponMechanicsLoader"
     name = "WeaponMechanics" // Since we don't want to use "BuildWeaponMechanics"
+    version = weaponMechanicsVersion
     apiVersion = "1.13"
 
     authors = listOf("DeeCaaD", "CJCrafter")
@@ -57,8 +58,10 @@ bukkit {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
+    val weaponMechanicsVersion = findProperty("weaponMechanicsVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
+
     destinationDirectory.set(file("../build"))
-    archiveFileName.set("WeaponMechanics-${version}.jar")
+    archiveFileName.set("WeaponMechanics-${weaponMechanicsVersion}.jar")
     configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
 
     dependencies {

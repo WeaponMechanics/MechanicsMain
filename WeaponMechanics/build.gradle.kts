@@ -81,6 +81,7 @@ publishing {
 
                 groupId = "com.cjcrafter"
                 artifactId = "weaponmechanics"
+                version = findProperty("weaponMechanicsVersion") as? String ?: throw IllegalArgumentException("property was null")
 
                 licenses {
                     license {

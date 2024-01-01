@@ -88,8 +88,11 @@ publishing {
                 description.set("Library plugin for WeaponMechanics containing Brigadier Commands, Mechanics, and more")
                 url.set("https://github.com/WeaponMechanics/MechanicsMain")
 
+
+
                 groupId = "com.cjcrafter"
                 artifactId = "mechanicscore"
+                version = findProperty("mechanicsCoreVersion") as? String ?: throw IllegalArgumentException("property was null")
 
                 licenses {
                     license {
