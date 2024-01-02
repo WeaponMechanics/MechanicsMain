@@ -8,6 +8,7 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
     private NumberModifier always;
     private NumberModifier zooming;
     private NumberModifier sneaking;
+    private NumberModifier crawling;
     private NumberModifier standing;
     private NumberModifier walking;
     private NumberModifier riding;
@@ -24,12 +25,13 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
     }
 
     public AModifyWhen(NumberModifier always, NumberModifier zooming, NumberModifier sneaking,
-                       NumberModifier standing, NumberModifier walking, NumberModifier riding,
-                       NumberModifier sprinting, NumberModifier dualWielding, NumberModifier swimming,
-                       NumberModifier inMidair, NumberModifier gliding) {
+                       NumberModifier crawling, NumberModifier standing, NumberModifier walking,
+                       NumberModifier riding, NumberModifier sprinting, NumberModifier dualWielding,
+                       NumberModifier swimming, NumberModifier inMidair, NumberModifier gliding) {
         this.always = always;
         this.zooming = zooming;
         this.sneaking = sneaking;
+        this.crawling = crawling;
         this.standing = standing;
         this.walking = walking;
         this.riding = riding;
@@ -56,6 +58,9 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
         }
         if (sneaking != null && entityWrapper.isSneaking()) {
             tempNumber = sneaking.applyTo(tempNumber);
+        }
+        if (crawling != null && entityWrapper.isCrawling()) {
+            tempNumber = crawling.applyTo(tempNumber);
         }
         if (standing != null && entityWrapper.isStanding()) {
             tempNumber = standing.applyTo(tempNumber);

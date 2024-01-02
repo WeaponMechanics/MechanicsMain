@@ -2,6 +2,7 @@
 Modify_Spread_When:
   Zooming: <amount> or <amount>%
   Sneaking: <amount> or <amount>%
+  Crawling: <amount> or <amount>%
   Standing: <amount> or <amount>%
   Walking: <amount> or <amount>%
   Riding: <amount> or <amount>%
