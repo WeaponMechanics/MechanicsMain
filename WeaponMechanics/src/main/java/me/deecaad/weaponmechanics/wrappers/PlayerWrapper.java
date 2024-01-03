@@ -109,6 +109,27 @@ public class PlayerWrapper extends EntityWrapper {
         return player.isSneaking();
     }
 
+    /**
+     * Returns <code>true</code> if the player is 'crawling'.
+     *
+     * @return <code>true</code> when the player is 'crawling'.
+     */
+    public boolean isCrawling() {
+        if (this.player.isSneaking()) {
+            return false;
+        }
+        if (this.player.isSwimming()) {
+            return false;
+        }
+        if (this.player.isGliding()) {
+            return false;
+        }
+        final double crawlingMaxHeight = 1.5;
+        double hitboxHeight = this.player.getBoundingBox().getHeight();
+
+        return hitboxHeight <= crawlingMaxHeight;
+    }
+
     @Override
     public boolean isSprinting() {
         return player.isSprinting();
