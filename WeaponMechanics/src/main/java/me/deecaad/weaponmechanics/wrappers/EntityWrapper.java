@@ -163,30 +163,6 @@ public class EntityWrapper {
     }
 
     /**
-     * Returns <code>true</code> if the player is 'crawling'.
-     *
-     * @return <code>true</code> when the player is 'crawling'.
-     */
-    public boolean isCrawling() {
-        if (!(entity instanceof Player player)) {
-            return false;
-        }
-        if (player.isSneaking()) {
-            return false;
-        }
-        if (player.isSwimming()) {
-            return false;
-        }
-        if (player.isGliding()) {
-            return false;
-        }
-        final double crawlingMaxHeight = 1.5;
-        double hitboxHeight = entity.getBoundingBox().getHeight();
-
-        return hitboxHeight <= crawlingMaxHeight;
-    }
-
-    /**
      * Returns <code>true</code> if the entity is a player, and the player is
      * sprinting.
      *
