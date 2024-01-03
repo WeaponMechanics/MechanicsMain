@@ -2,6 +2,7 @@ package me.deecaad.weaponmechanics.weapon.shoot;
 
 import me.deecaad.core.file.Serializer;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
+import me.deecaad.weaponmechanics.wrappers.PlayerWrapper;
 
 public abstract class AModifyWhen implements Serializer<AModifyWhen> {
 
@@ -17,7 +18,6 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
     private NumberModifier swimming;
     private NumberModifier inMidair;
     private NumberModifier gliding;
-
     /**
      * Default constructor for serializer.
      */
@@ -59,8 +59,10 @@ public abstract class AModifyWhen implements Serializer<AModifyWhen> {
         if (sneaking != null && entityWrapper.isSneaking()) {
             tempNumber = sneaking.applyTo(tempNumber);
         }
-        if (crawling != null && entityWrapper.isCrawling()) {
-            tempNumber = crawling.applyTo(tempNumber);
+        if (entityWrapper instanceof PlayerWrapper playerWrapper) {
+            if (crawling != null && playerWrapper.isCrawling()) {
+                tempNumber = crawling.applyTo(tempNumber);
+            }
         }
         if (standing != null && entityWrapper.isStanding()) {
             tempNumber = standing.applyTo(tempNumber);
