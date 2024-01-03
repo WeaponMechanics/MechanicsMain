@@ -10,8 +10,8 @@ object Versions {
     const val VIVECRAFT = "3.0.0"
 
     // Adventure Chat API
-    const val ADVENTURE_API = "4.15.0-SNAPSHOT"
-    const val ADVENTURE_BUKKIT = "4.3.1"
+    const val ADVENTURE_API = "4.15.0"
+    const val ADVENTURE_BUKKIT = "4.3.2"
     const val ADVENTURE_TEXT_LEGACY = ADVENTURE_API
     const val ADVENTURE_TEXT_MINIMESSAGE = ADVENTURE_API
 
