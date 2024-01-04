@@ -572,7 +572,7 @@ public class Command_1_13_R2 implements CommandCompatibility {
         return switch (tag.getTypeId()) {
             case 1, 2, 3, 4 -> ((NBTNumber) tag).asInt();
             case 5, 6 -> ((NBTNumber) tag).asDouble();
-            case 8 -> ((NBTTagString) tag).toString();
+            case 8 -> ((NBTTagString) tag).asString();
             case 7, 11, 12, 9 -> convertList((NBTList<NBTBase>) tag);
             case 10 -> convertMap((NBTTagCompound) tag);
             default -> throw new IllegalStateException("Unexpected value: " + tag);

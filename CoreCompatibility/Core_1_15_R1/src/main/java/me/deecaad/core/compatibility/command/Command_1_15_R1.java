@@ -574,7 +574,7 @@ public class Command_1_15_R1 implements CommandCompatibility {
             case 5: case 6:
                 return ((NBTNumber) tag).asDouble();
             case 8:
-                return ((NBTTagString) tag).toString();
+                return ((NBTTagString) tag).asString();
             case 7: case 11: case 12: case 9:
                 return convertList((NBTList<NBTBase>) tag);
             case 10:

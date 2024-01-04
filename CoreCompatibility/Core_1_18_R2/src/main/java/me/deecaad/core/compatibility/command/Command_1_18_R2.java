@@ -609,7 +609,7 @@ public class Command_1_18_R2 implements CommandCompatibility {
         return switch (tag.getId()) {
             case Tag.TAG_BYTE, Tag.TAG_SHORT, Tag.TAG_INT, Tag.TAG_LONG -> ((NumericTag) tag).getAsInt();
             case Tag.TAG_FLOAT, Tag.TAG_DOUBLE -> ((NumericTag) tag).getAsDouble();
-            case Tag.TAG_STRING -> ((StringTag) tag).toString();
+            case Tag.TAG_STRING -> ((StringTag) tag).getAsString();
             case Tag.TAG_BYTE_ARRAY, Tag.TAG_INT_ARRAY, Tag.TAG_LONG_ARRAY, Tag.TAG_LIST -> convertList((CollectionTag<Tag>) tag);
             case Tag.TAG_COMPOUND -> convertMap((CompoundTag) tag);
             default -> throw new IllegalStateException("Unexpected value: " + tag);
