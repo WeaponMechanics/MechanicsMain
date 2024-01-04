@@ -663,7 +663,7 @@ public class WeaponMechanicsCommand {
                 .withElementCharStyle(gold)
                 .withFillChar('=')
                 .withFillCharStyle(Style.style(NamedTextColor.GRAY, TextDecoration.STRIKETHROUGH))
-                .withHeader("Weapons [Page " + requestedPage + "/" + (weapons.size() / (3 * 8) + 1) + "]")
+                .withHeader("Weapons [Page " + requestedPage + "/" + ((weapons.size() - 1) / (3 * 8) + 1) + "]")
                 .withHeaderStyle(gold)
                 .withElementStyle(gray)
                 .withLeft(text().content("«").style(gold)
