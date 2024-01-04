@@ -1,8 +1,12 @@
-@echo off
-ECHO Deleting directory BuildTools work to free space... This may take a while
+#!/bin/bash
 
-rmdir /s /q BuildTools
+echo "Deleting directory BuildTools work to free space... This may take a while"
 
-ECHO Deleted BuildTools
+# Remove the BuildTools directory and its contents
+rm -rf BuildTools
 
-PAUSE
+echo "Deleted BuildTools"
+
+# Pause and wait for user input before exiting
+read -p "Press any key to continue... " -n1 -s
+echo
