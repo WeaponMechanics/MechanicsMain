@@ -4,7 +4,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal()
 
     maven {
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
@@ -40,15 +39,6 @@ repositories {
 
     maven {
         url = uri("https://repo.opencollab.dev/main/")
-    }
-
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/WeaponMechanics/MechanicsAutoDownload")
-        credentials {
-            username = findProperty("user").toString()
-            password = findProperty("pass").toString()
-        }
     }
 }
 

@@ -14,7 +14,6 @@ dependencies {
     api(Dependencies.LATEST_SPIGOT_API)
     implementation(project(":MechanicsCore"))
     implementation(Dependencies.BSTATS)
-    implementation("me.cjcrafter:mechanicsautodownload:1.3.1")
 
     adventureChatAPI()
 

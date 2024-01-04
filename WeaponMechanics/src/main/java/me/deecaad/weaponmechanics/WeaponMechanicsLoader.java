@@ -1,6 +1,5 @@
 package me.deecaad.weaponmechanics;
 
-import me.cjcrafter.auto.AutoMechanicsDownload;
 import me.deecaad.core.MechanicsCore;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -19,21 +18,9 @@ public class WeaponMechanicsLoader extends JavaPlugin {
 
         // Only use AutoMechanicsDownload if Core isn't installed
         if (pm.getPlugin("MechanicsCore") == null) {
-            try {
-                int connect = getConfig().getInt("Mechanics_Core_Download.Read_Timeout", 10) * 1000;
-                int read = getConfig().getInt("Mechanics_Core_Download.Connection_Timeout", 30) * 1000;
-                AutoMechanicsDownload downloader = new AutoMechanicsDownload(connect, read);
-                downloader.MECHANICS_CORE.install();
-            } catch (Throwable e) {
-                getLogger().log(Level.WARNING, "Failed to use auto-installer", e);
-            }
-
-            // Installation failed...
-            if (pm.getPlugin("MechanicsCore") == null) {
-                getLogger().log(Level.SEVERE, "No MechanicsCore found, disabling");
-                pm.disablePlugin(this);
-                return;
-            }
+            getLogger().log(Level.SEVERE, "No MechanicsCore found, disabling");
+            pm.disablePlugin(this);
+            return;
         }
 
         // Sometimes, because we use softDepends in the plugin.yml,
