@@ -8,15 +8,17 @@ plugins {
 repositories {
     mavenCentral()
     maven(url = "https://mvn.lumine.io/repository/maven-public/")
+    maven(url = "https://repo.jeff-media.com/public/")
 }
 
 dependencies {
-    api(Dependencies.LATEST_SPIGOT_API)
-    implementation(project(":MechanicsCore"))
     implementation(Dependencies.BSTATS)
-
+    implementation("com.jeff_media:SpigotUpdateChecker:3.0.3")
+    implementation(Dependencies.GSON)
     adventureChatAPI()
 
+    compileOnly(Dependencies.LATEST_SPIGOT_API)
+    compileOnly(project(":MechanicsCore"))
     compileOnly(Dependencies.PROTOCOL_LIB)
     compileOnly(Dependencies.PLACEHOLDER_API)
     compileOnly(Dependencies.MYTHIC_MOBS)

@@ -12,6 +12,10 @@ configurations {
     compileClasspath.get().extendsFrom(create("shadeOnly"))
 }
 
+repositories {
+    maven(url = "https://repo.jeff-media.com/public/")
+}
+
 dependencies {
     implementation(project(":WeaponMechanics"))
     implementation(project(":WeaponCompatibility"))
@@ -80,15 +84,19 @@ tasks.named<ShadowJar>("shadowJar") {
         include(project(":Weapon_1_20_R2"))
         include(project(":Weapon_1_20_R3"))
 
-        relocate("me.cjcrafter.auto", "me.deecaad.weaponmechanics.lib.auto") {
-            include(dependency("me.cjcrafter:mechanicsautodownload"))
-        }
-
         relocate("org.bstats", "me.deecaad.weaponmechanics.lib.bstats") {
             include(dependency("org.bstats:"))
         }
+        relocate("com.jeff_media", "me.deecaad.weaponmechanics.lib") {
+            include(dependency("com.jeff_media:"))
+        }
+        relocate("com.google.gson", "me.deecaad.weaponmechanics.lib.gson") {
+            include(dependency("com.google.code.gson:"))
+        }
     }
 
+    // This doesn't actually include any dependencies, this relocates all references
+    // to the mechanics core lib.
     relocate("net.kyori", "me.deecaad.core.lib")
 
     doFirst {

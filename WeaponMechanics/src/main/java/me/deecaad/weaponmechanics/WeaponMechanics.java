@@ -2,6 +2,9 @@ package me.deecaad.weaponmechanics;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.jeff_media.updatechecker.UpdateCheckSource;
+import com.jeff_media.updatechecker.UpdateChecker;
+import com.jeff_media.updatechecker.UserAgentBuilder;
 import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.commands.MainCommand;
 import me.deecaad.core.compatibility.CompatibilityAPI;
@@ -151,9 +154,8 @@ public class WeaponMechanics {
         registerPacketListeners();
 
         weaponHandler = new WeaponHandler();
-
-        // Start custom projectile runnable
         projectilesRunnable = new ProjectilesRunnable(getPlugin());
+        resourcePackListener = new ResourcePackListener();
 
         // Set millis between recoil rotations
         Recoil.MILLIS_BETWEEN_ROTATIONS = basicConfiguration.getInt("Recoil_Millis_Between_Rotations", 20);
@@ -355,7 +357,7 @@ public class WeaponMechanics {
         Bukkit.getPluginManager().registerEvents(new ExplosionInteractionListeners(), getPlugin());
 
         // Other
-        Bukkit.getPluginManager().registerEvents(new ResourcePackListener(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(resourcePackListener, getPlugin());
         Bukkit.getPluginManager().registerEvents(RepairItemListener.getInstance(), getPlugin());
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
 
@@ -437,8 +439,11 @@ public class WeaponMechanics {
         if (!basicConfiguration.getBool("Update_Checker.Enable", true)) return;
 
         debug.debug("Registering update checker");
-
-
+        new UpdateChecker(javaPlugin, UpdateCheckSource.SPIGOT, "99913")
+                .setNotifyOpsOnJoin(true)
+                .setUserAgent(new UserAgentBuilder().addPluginNameAndVersion())
+                .checkEveryXHours(24)
+                .checkNow();
     }
 
     void registerBStats() {
@@ -534,6 +539,7 @@ public class WeaponMechanics {
         entityWrappers = new HashMap<>();
         weaponHandler = new WeaponHandler();
         projectilesRunnable = new ProjectilesRunnable(getPlugin());
+        resourcePackListener = new ResourcePackListener();
 
         return new TaskChain(getPlugin())
                 .thenRunAsync(this::writeFiles)

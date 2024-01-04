@@ -48,7 +48,7 @@ public class ResourcePackListener implements Listener {
                     String[] split = fileName.split("-");
                     if (split.length > 1) {
                         String version = split[1];
-                        if (!version.endsWith(".zip")) {
+                        if (version.endsWith(".zip")) {
                             version = version.substring(0, version.length() - 4);
                         }
                         resourcePackVersion = version;

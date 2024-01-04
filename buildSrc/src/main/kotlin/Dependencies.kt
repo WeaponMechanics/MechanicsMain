@@ -18,6 +18,7 @@ object Versions {
     // Misc
     const val JSON_SIMPLE = "1.1.1"
     const val ANNOTATIONS = "24.0.1"
+    const val GSON = "2.10.1"
 }
 
 object Dependencies {
@@ -40,6 +41,7 @@ object Dependencies {
     // Misc
     const val JSON_SIMPLE = "com.googlecode.json-simple:json-simple:${Versions.JSON_SIMPLE}"
     const val ANNOTATIONS = "org.jetbrains:annotations:${Versions.ANNOTATIONS}"
+    const val GSON = "com.google.code.gson:gson:${Versions.GSON}"
 }
 
 fun org.gradle.api.artifacts.dsl.DependencyHandler.adventureChatAPI() {
