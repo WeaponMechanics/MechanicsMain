@@ -180,6 +180,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
                 zoomData.setZoomStacks(zoomStack);
 
                 weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
+                useNightVision(entityWrapper, zoomData, weaponScopeEvent.isNightVision());
 
                 if (weaponScopeEvent.getMechanics() != null)
                     weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
@@ -213,9 +214,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
             weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
-
-        if (config.getBool(weaponTitle + ".Scope.Night_Vision"))
-            useNightVision(entityWrapper, zoomData);
+        useNightVision(entityWrapper, zoomData, weaponScopeEvent.isNightVision());
 
         HandData handData = slot == EquipmentSlot.HAND ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData();
         handData.setLastScopeTime(System.currentTimeMillis());
@@ -249,9 +248,7 @@ public class ScopeHandler implements IValidator, TriggerListener {
             weaponScopeEvent.getMechanics().use(new CastData(entity, weaponTitle, weaponStack));
 
         weaponHandler.getSkinHandler().tryUse(entityWrapper, weaponTitle, weaponStack, slot);
-
-        if (zoomData.hasZoomNightVision())
-            useNightVision(entityWrapper, zoomData);
+        useNightVision(entityWrapper, zoomData, false);
 
         return true;
     }
@@ -277,20 +274,30 @@ public class ScopeHandler implements IValidator, TriggerListener {
     /**
      * Toggles night vision on or off whether it was on before
      */
-    public void useNightVision(EntityWrapper entityWrapper, ZoomData zoomData) {
+    public void useNightVision(EntityWrapper entityWrapper, ZoomData zoomData, boolean isEnable) {
         if (entityWrapper.getEntity().getType() != EntityType.PLAYER) {
             // Not player so no need for night vision
             return;
         }
         Player player = (Player) entityWrapper.getEntity();
 
-        if (!zoomData.hasZoomNightVision()) { // night vision is not on
+        if (isEnable) {
+            // Already on
+            if (zoomData.hasZoomNightVision())
+                return;
+
             zoomData.setZoomNightVision(true);
             scopeCompatibility.addNightVision(player);
-            return;
         }
-        zoomData.setZoomNightVision(false);
-        scopeCompatibility.removeNightVision(player);
+
+        else {
+            // Already off
+            if (!zoomData.hasZoomNightVision())
+                return;
+
+            zoomData.setZoomNightVision(false);
+            scopeCompatibility.removeNightVision(player);
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.mechanics.Mechanics;
+import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -19,6 +20,8 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
     private final ScopeType scopeType;
     private double zoomAmount;
     private final int zoomStack;
+    private boolean isNightVision;
+    private boolean isPumpkinOverlay;
 
     private Mechanics mechanics;
 
@@ -31,6 +34,8 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
         this.scopeType = scopeType;
         this.zoomAmount = zoomAmount;
         this.zoomStack = zoomStack;
+        this.isNightVision = WeaponMechanics.getConfigurations().getBool(weaponTitle + ".Scope.Night_Vision", false);
+        this.isPumpkinOverlay = WeaponMechanics.getConfigurations().getBool(weaponTitle + ".Scope.Pumpkin_Overlay", false);
         this.mechanics = mechanics;
     }
 
@@ -76,6 +81,42 @@ public class WeaponScopeEvent extends WeaponEvent implements Cancellable {
      */
     public int getZoomStack() {
         return zoomStack;
+    }
+
+    /**
+     * Returns whether the user is using night vision or not.
+     *
+     * @return whether the user is using night vision or not.
+     */
+    public boolean isNightVision() {
+        return isNightVision;
+    }
+
+    /**
+     * Sets whether the user is using night vision or not.
+     *
+     * @param isNightVision whether the user is using night vision or not.
+     */
+    public void setNightVision(boolean isNightVision) {
+        this.isNightVision = isNightVision;
+    }
+
+    /**
+     * Returns whether the user is using pumpkin overlay or not.
+     *
+     * @return whether the user is using pumpkin overlay or not.
+     */
+    public boolean isPumpkinOverlay() {
+        return isPumpkinOverlay;
+    }
+
+    /**
+     * Sets whether the user is using pumpkin overlay or not.
+     *
+     * @param isPumpkinOverlay whether the user is using pumpkin overlay or not.
+     */
+    public void setPumpkinOverlay(boolean isPumpkinOverlay) {
+        this.isPumpkinOverlay = isPumpkinOverlay;
     }
 
     public Mechanics getMechanics() {

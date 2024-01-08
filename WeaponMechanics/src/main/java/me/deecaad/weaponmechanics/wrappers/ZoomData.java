@@ -110,7 +110,7 @@ public class ZoomData {
             ScopeHandler scopeHandler = WeaponMechanics.getWeaponHandler().getScopeHandler();
             scopeHandler.updateZoom(entityWrapper, this, 0);
             setZoomStacks(0);
-            if (hasZoomNightVision()) scopeHandler.useNightVision(entityWrapper, this);
+            scopeHandler.useNightVision(entityWrapper, this, false);
 
             Mechanics zoomOffMechanics = getConfigurations().getObject(this.scopeWeaponTitle + ".Scope.Zoom_Off.Mechanics", Mechanics.class);
 
