@@ -22,6 +22,9 @@ public class OutAbilitiesListener extends PacketAdapter {
 
     @Override
     public void onPacketSending(PacketEvent event) {
+        if (event.isPlayerTemporary())
+            return;
+
         EntityWrapper entity = WeaponMechanics.getEntityWrapper(event.getPlayer());
 
         ZoomData mainZoomData = entity.getMainHandData().getZoomData();
