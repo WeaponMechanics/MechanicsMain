@@ -502,8 +502,19 @@ public class ShootHandler implements IValidator, TriggerListener {
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
         int projectileAmount = config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot");
+        Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
+        Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
 
-        PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(weaponTitle, weaponStack, entityWrapper.getEntity(), slot, shootMechanics, resetFallDistance, projectile, projectileSpeed, projectileAmount);
+        PrepareWeaponShootEvent prepareEvent = new PrepareWeaponShootEvent(
+                weaponTitle, weaponStack, entityWrapper.getEntity(), slot,
+                shootMechanics,
+                resetFallDistance,
+                projectile,
+                projectileSpeed,
+                projectileAmount,
+                spread,
+                recoil
+        );
         Bukkit.getPluginManager().callEvent(prepareEvent);
         if (prepareEvent.isCancelled())
             return;
@@ -542,26 +553,31 @@ public class ShootHandler implements IValidator, TriggerListener {
             return;
         }
 
-        Spread spread = config.getObject(weaponTitle + ".Shoot.Spread", Spread.class);
-        Recoil recoil = config.getObject(weaponTitle + ".Shoot.Recoil", Recoil.class);
-
+        // Only happens in weird scenarios, like API calls and WMP attachments.
         if (prepareEvent.getProjectileAmount() < 1) {
             debug.error(weaponTitle + ".Shoot.Projectiles_Per_Shot should be at least 1, got " + prepareEvent.getProjectileAmount());
+        }
+
+        // Only update recoil 1 time per shot
+        if (prepareEvent.getRecoil() != null && livingEntity instanceof Player) {
+            prepareEvent.getRecoil().start((Player) livingEntity, mainHand);
         }
 
         for (int i = 0; i < prepareEvent.getProjectileAmount(); i++) {
 
             Location perProjectileShootLocation = shootLocation.clone();
 
-            // i == prepareEvent.getProjectileAmount()
+            // i == prepareEvent.getProjectileAmount() - 1
             // Change the spread after all pellets are shot
-            Vector motion = spread != null
-                    ? spread.getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, i == prepareEvent.getProjectileAmount() - 1 && updateSpreadChange).multiply(prepareEvent.getProjectileSpeed())
-                    : perProjectileShootLocation.getDirection().multiply(prepareEvent.getProjectileSpeed());
-
-            if (recoil != null && i == 0 && livingEntity instanceof Player) {
-                recoil.start((Player) livingEntity, mainHand);
+            Vector motion;
+            if (prepareEvent.getSpread() != null) {
+                boolean updateSpread = i == prepareEvent.getProjectileAmount() - 1 && updateSpreadChange;
+                motion = prepareEvent.getSpread().getNormalizedSpreadDirection(entityWrapper, perProjectileShootLocation, mainHand, updateSpread, prepareEvent.getBaseSpread());
+            } else {
+                motion = perProjectileShootLocation.getDirection();
             }
+
+            motion.multiply(prepareEvent.getProjectileSpeed());
 
             // Only create bullet first if WeaponShootEvent changes
             WeaponProjectile bullet = prepareEvent.getProjectile().create(livingEntity, perProjectileShootLocation, motion, weaponStack, weaponTitle, slot);

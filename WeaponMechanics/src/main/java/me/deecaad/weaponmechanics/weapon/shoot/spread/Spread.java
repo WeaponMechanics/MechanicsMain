@@ -38,6 +38,22 @@ public class Spread implements Serializer<Spread> {
         this.changingSpread = changingSpread;
     }
 
+    public SpreadImage getSpreadImage() {
+        return spreadImage;
+    }
+
+    public double getBaseSpread() {
+        return baseSpread;
+    }
+
+    public ModifySpreadWhen getModifySpreadWhen() {
+        return modifySpreadWhen;
+    }
+
+    public ChangingSpread getChangingSpread() {
+        return changingSpread;
+    }
+
     /**
      * Returns normalized spread direction
      *
@@ -48,14 +64,26 @@ public class Spread implements Serializer<Spread> {
      * @return the normalized spread direction
      */
     public Vector getNormalizedSpreadDirection(EntityWrapper entityWrapper, Location shootLocation, boolean mainHand, boolean updateSpreadChange) {
+        return getNormalizedSpreadDirection(entityWrapper, shootLocation, mainHand, updateSpreadChange, baseSpread);
+    }
+
+    /**
+     * Returns normalized spread direction
+     *
+     * @param entityWrapper the entity involved
+     * @param shootLocation the shoot location
+     * @param mainHand whether or not main hand was used
+     * @param updateSpreadChange whether or not to allow updating current spread change
+     * @param spread the spread
+     * @return the normalized spread direction
+     */
+    public Vector getNormalizedSpreadDirection(EntityWrapper entityWrapper, Location shootLocation, boolean mainHand, boolean updateSpreadChange, double spread) {
         double yaw = Math.toRadians(shootLocation.getYaw()), pitch = Math.toRadians(shootLocation.getPitch());
         if (spreadImage != null) {
             Point point = spreadImage.getLocation();
             yaw += point.getYaw();
             pitch += point.getPitch();
         }
-
-        double spread = baseSpread;
 
         if (modifySpreadWhen != null) spread = modifySpreadWhen.applyChanges(entityWrapper, spread);
         if (changingSpread != null) spread = changingSpread.applyChanges(entityWrapper, spread, mainHand, updateSpreadChange);

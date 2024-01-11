@@ -2,12 +2,15 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
+import me.deecaad.weaponmechanics.weapon.shoot.recoil.Recoil;
+import me.deecaad.weaponmechanics.weapon.shoot.spread.Spread;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This event is called after {@link WeaponPreShootEvent} but right before
@@ -23,16 +26,38 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
     private Projectile projectile;
     private double projectileSpeed;
     private int projectileAmount;
+    private Spread spread;
+    private double baseSpread;
+    private Recoil recoil;
+    private double recoilYaw;
+    private double recoilPitch;
 
     private boolean isCancelled;
 
-    public PrepareWeaponShootEvent(String weaponTitle, ItemStack weaponStack, LivingEntity shooter, EquipmentSlot hand, Mechanics shootMechanics, boolean resetFallDistance, Projectile projectile, double projectileSpeed, int projectileAmount) {
+    public PrepareWeaponShootEvent(
+            @NotNull String weaponTitle,
+            @NotNull ItemStack weaponStack,
+            @NotNull LivingEntity shooter,
+            @NotNull EquipmentSlot hand,
+            @Nullable Mechanics shootMechanics,
+            boolean resetFallDistance,
+            @NotNull Projectile projectile,
+            double projectileSpeed,
+            int projectileAmount,
+            @Nullable Spread spread,
+            @Nullable Recoil recoil
+    ) {
         super(weaponTitle, weaponStack, shooter, hand);
         this.shootMechanics = shootMechanics;
         this.resetFallDistance = resetFallDistance;
         this.projectile = projectile;
         this.projectileSpeed = projectileSpeed;
         this.projectileAmount = projectileAmount;
+        this.spread = spread;
+        this.baseSpread = spread.getBaseSpread();
+        this.recoil = recoil;
+        this.recoilYaw = 0;
+        this.recoilPitch = 0;
     }
 
     public Mechanics getShootMechanics() {
@@ -75,6 +100,46 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
 
     public void setProjectileAmount(int projectileAmount) {
         this.projectileAmount = projectileAmount;
+    }
+
+    public Spread getSpread() {
+        return spread;
+    }
+
+    public void setSpread(Spread spread) {
+        this.spread = spread;
+    }
+
+    public double getBaseSpread() {
+        return baseSpread;
+    }
+
+    public void setBaseSpread(double baseSpread) {
+        this.baseSpread = baseSpread;
+    }
+
+    public Recoil getRecoil() {
+        return recoil;
+    }
+
+    public void setRecoil(Recoil recoil) {
+        this.recoil = recoil;
+    }
+
+    public double getRecoilYaw() {
+        return recoilYaw;
+    }
+
+    public void setRecoilYaw(double recoilYaw) {
+        this.recoilYaw = recoilYaw;
+    }
+
+    public double getRecoilPitch() {
+        return recoilPitch;
+    }
+
+    public void setRecoilPitch(double recoilPitch) {
+        this.recoilPitch = recoilPitch;
     }
 
     @Override
