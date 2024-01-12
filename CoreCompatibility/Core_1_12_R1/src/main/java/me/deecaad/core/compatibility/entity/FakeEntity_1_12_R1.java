@@ -80,6 +80,11 @@ public class FakeEntity_1_12_R1 extends FakeEntity {
             entity = world.createEntity(location, type.getEntityClass());
         }
 
+        if (type == EntityType.ARMOR_STAND) {
+            EntityArmorStand armorStand = (EntityArmorStand) entity;
+            armorStand.setMarker(true);
+        }
+
         this.setLocation(x, y, z, location.getYaw(), location.getPitch());
         this.cache = entity.getId();
         this.connections = new LinkedList<>(); // We only need to iterate/remove, so LinkedList is best

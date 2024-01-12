@@ -18,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -78,6 +77,11 @@ public class FakeEntity_1_15_R1 extends FakeEntity {
             };
         } else {
             entity = world.createEntity(location, type.getEntityClass());
+        }
+
+        if (type == EntityType.ARMOR_STAND) {
+            EntityArmorStand armorStand = (EntityArmorStand) entity;
+            armorStand.setMarker(true);
         }
 
         this.setLocation(x, y, z, location.getYaw(), location.getPitch());
