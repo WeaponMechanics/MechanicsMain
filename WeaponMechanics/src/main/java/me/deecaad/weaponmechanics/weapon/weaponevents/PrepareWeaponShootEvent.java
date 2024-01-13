@@ -54,7 +54,7 @@ public class PrepareWeaponShootEvent extends WeaponEvent implements Cancellable 
         this.projectileSpeed = projectileSpeed;
         this.projectileAmount = projectileAmount;
         this.spread = spread;
-        this.baseSpread = spread.getBaseSpread();
+        this.baseSpread = spread == null ? 0 : spread.getBaseSpread();
         this.recoil = recoil;
         this.recoilYaw = 0;
         this.recoilPitch = 0;
