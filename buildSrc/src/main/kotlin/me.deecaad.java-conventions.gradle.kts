@@ -4,42 +4,16 @@ plugins {
 
 repositories {
     mavenCentral()
-
-    maven {
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-    }
-
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
-
-    maven {
-        url = uri("https://libraries.minecraft.net/")
-    }
-
-    maven {
-        url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    }
-
-    maven {
-        url = uri("https://jitpack.io")
-    }
-
-    maven {
-        url = uri("https://maven.enginehub.org/repo/")
-    }
-
-    maven {
-        url = uri("https://mvn.lumine.io/repository/maven-public/")
-    }
-
-    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-        name = "sonatype-oss-snapshots"
-    }
-
-    maven {
-        url = uri("https://repo.opencollab.dev/main/")
-    }
+    maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven(url = "https://repo.maven.apache.org/maven2/")
+    maven(url = "https://libraries.minecraft.net/")
+    maven(url = "https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven(url = "https://jitpack.io")
+    maven(url = "https://maven.enginehub.org/repo/")
+    maven(url = "https://mvn.lumine.io/repository/maven-public/")
+    maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/")
+    maven(url = "https://repo.opencollab.dev/main/")
+    maven(url = "https://repo.jeff-media.com/public/") // SpigotUpdateChecker
 }
 
 dependencies {
@@ -47,9 +21,7 @@ dependencies {
 }
 
 java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks {
@@ -64,7 +36,3 @@ tasks {
         filteringCharset = Charsets.UTF_8.name() // We want UTF-8 for everything
     }
 }
-
-
-group = "me.deecaad"
-version = "1.0.0"
