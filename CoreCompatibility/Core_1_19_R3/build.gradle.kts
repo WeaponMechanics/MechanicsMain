@@ -4,9 +4,10 @@ plugins {
 }
 
 dependencies {
-    paperDevBundle("1.19.4-R0.1-SNAPSHOT")
-    implementation(project(":MechanicsCore"))
+    compileOnly(project(":MechanicsCore"))
     adventureChatAPI()
+
+    paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
 }
 
 tasks {

@@ -4,9 +4,10 @@ plugins {
 }
 
 dependencies {
-    paperDevBundle("1.19.4-R0.1-SNAPSHOT")
-    implementation(project(":MechanicsCore"))
-    implementation(project(":WeaponMechanics"))
+    compileOnly(project(":MechanicsCore"))
+    compileOnly(project(":WeaponMechanics"))
+
+    paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
 
     compileOnly(Dependencies.PROTOCOL_LIB)
 }
