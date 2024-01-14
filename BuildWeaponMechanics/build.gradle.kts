@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":WeaponMechanics"))
 
     // Add all compatibility modules
+    val devMode = findProperty("devMode") == "true"
     var addedOne = false
     file("../WeaponCompatibility").listFiles()?.forEach {
         if (it.isDirectory && it.name.matches(Regex("Weapon_\\d+_\\d+_R\\d+"))) {
@@ -19,7 +20,7 @@ dependencies {
 
             if (major >= 17) {
                 implementation(project(":${it.name}", "reobf"))
-            } else {
+            } else if (!devMode) {
                 implementation(project(":${it.name}"))
             }
             addedOne = true
@@ -66,9 +67,15 @@ tasks.shadowJar {
     dependencies {
         include(project(":WeaponMechanics"))
 
+        val devMode = findProperty("devMode") == "true"
         var addedOne = false
         file("../WeaponCompatibility").listFiles()?.forEach {
             if (it.isDirectory && it.name.matches(Regex("Weapon_\\d+_\\d+_R\\d+"))) {
+                // Filter out projects when in devMode
+                val major = it.name.split("_")[2].toInt()
+                if (devMode && major < 17)
+                    return@forEach
+
                 include(project(":${it.name}"))
                 addedOne = true
             }
