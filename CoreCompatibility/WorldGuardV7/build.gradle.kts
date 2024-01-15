@@ -3,7 +3,7 @@
  */
 
 plugins {
-    id("me.deecaad.java-conventions")
+    id("me.deecaad.mechanics-project")
 }
 
 dependencies {

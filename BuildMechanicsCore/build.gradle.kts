@@ -1,5 +1,5 @@
 plugins {
-    id("me.deecaad.java-conventions")
+    id("me.deecaad.mechanics-project")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
 }

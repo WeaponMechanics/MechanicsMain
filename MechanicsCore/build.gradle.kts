@@ -2,7 +2,7 @@ plugins {
     `maven-publish`
     signing
     id("io.codearte.nexus-staging") version "0.30.0"
-    id("me.deecaad.java-conventions")
+    id("me.deecaad.mechanics-project")
 }
 
 repositories {
@@ -34,11 +34,6 @@ dependencies {
     testImplementation(Dependencies.LATEST_SPIGOT_API)
     testImplementation(Dependencies.ANNOTATIONS)
 }
-
-tasks.test {
-    useJUnitPlatform()
-}
-
 
 // Create javadocJar and sourcesJar tasks
 val javadocJar by tasks.registering(Jar::class) {
