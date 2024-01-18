@@ -119,9 +119,9 @@ public class RayTrace {
         double startY = NumberUtil.lerp(start.getY(), end.getY(), -1.0E-7);
         double startZ = NumberUtil.lerp(start.getZ(), end.getZ(), -1.0E-7);
 
-        int currentX = NumberUtil.intFloor(startX);
-        int currentY = NumberUtil.intFloor(startY);
-        int currentZ = NumberUtil.intFloor(startZ);
+        int currentX = NumberUtil.floorToInt(startX);
+        int currentY = NumberUtil.floorToInt(startY);
+        int currentZ = NumberUtil.floorToInt(startZ);
 
         Block startBlock = world.getBlockAt(currentX, currentY, currentZ);
         RayTraceResult rayStartBlock = rayBlock(startBlock, start, direction);
@@ -141,15 +141,15 @@ public class RayTrace {
         double directionX = endX - startX;
         double directionY = endY - startY;
         double directionZ = endZ - startZ;
-        int blockX = NumberUtil.sign(directionX);
-        int blockY = NumberUtil.sign(directionY);
-        int blockZ = NumberUtil.sign(directionZ);
+        int blockX = NumberUtil.signum(directionX);
+        int blockY = NumberUtil.signum(directionY);
+        int blockZ = NumberUtil.signum(directionZ);
         double addX = blockX == 0 ? Double.MAX_VALUE : (double) blockX / directionX;
         double addY = blockY == 0 ? Double.MAX_VALUE : (double) blockY / directionY;
         double addZ = blockZ == 0 ? Double.MAX_VALUE : (double) blockZ / directionZ;
-        double maxX = addX * (blockX > 0 ? 1.0 - NumberUtil.frac(startX) : NumberUtil.frac(startX));
-        double maxY = addY * (blockY > 0 ? 1.0 - NumberUtil.frac(startY) : NumberUtil.frac(startY));
-        double maxZ = addZ * (blockZ > 0 ? 1.0 - NumberUtil.frac(startZ) : NumberUtil.frac(startZ));
+        double maxX = addX * (blockX > 0 ? 1.0 - NumberUtil.fraction(startX) : NumberUtil.fraction(startX));
+        double maxY = addY * (blockY > 0 ? 1.0 - NumberUtil.fraction(startY) : NumberUtil.fraction(startY));
+        double maxZ = addZ * (blockZ > 0 ? 1.0 - NumberUtil.fraction(startZ) : NumberUtil.fraction(startZ));
 
         while (maximumBlockThrough > -1) {
             if (maxX > 1.0 && maxY > 1.0 && maxZ > 1.0) {
@@ -199,10 +199,10 @@ public class RayTrace {
         if (this.disableEntityChecks) return;
         HitBox hitBox = new HitBox(start, end);
 
-        int minX = NumberUtil.intFloor((hitBox.getMinX() - 2.0) / 16.0);
-        int maxX = NumberUtil.intFloor((hitBox.getMaxX() + 2.0) / 16.0);
-        int minZ = NumberUtil.intFloor((hitBox.getMinZ() - 2.0) / 16.0);
-        int maxZ = NumberUtil.intFloor((hitBox.getMaxZ() + 2.0) / 16.0);
+        int minX = NumberUtil.floorToInt((hitBox.getMinX() - 2.0) / 16.0);
+        int maxX = NumberUtil.floorToInt((hitBox.getMaxX() + 2.0) / 16.0);
+        int minZ = NumberUtil.floorToInt((hitBox.getMinZ() - 2.0) / 16.0);
+        int maxZ = NumberUtil.floorToInt((hitBox.getMaxZ() + 2.0) / 16.0);
 
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {

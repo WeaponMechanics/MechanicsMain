@@ -46,7 +46,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;

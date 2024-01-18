@@ -19,6 +19,7 @@ object Versions {
     const val JSON_SIMPLE = "1.1.1"
     const val ANNOTATIONS = "24.0.1"
     const val GSON = "2.10.1"
+    const val KOTLIN = "1.9.21"
 }
 
 object Dependencies {

@@ -57,7 +57,7 @@ public class AmmoConfig implements Serializer<AmmoConfig> {
         int ammoIndex = CustomTag.AMMO_TYPE_INDEX.getInteger(weapon);
         // Clamping is really not needed, but it can happen when an existing
         // weapon uses an ammo that was removed from config.
-        return NumberUtil.minMax(0, ammoIndex, ammunitions.size() - 1);
+        return NumberUtil.clamp(ammoIndex, 0, ammunitions.size() - 1);
     }
 
     public void setCurrentAmmoIndex(ItemStack weapon, int index) {

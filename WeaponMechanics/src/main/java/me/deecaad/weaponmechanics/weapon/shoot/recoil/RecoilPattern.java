@@ -6,7 +6,6 @@ import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.utils.NumberUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 

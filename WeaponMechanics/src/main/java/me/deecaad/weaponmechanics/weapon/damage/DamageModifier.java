@@ -320,11 +320,11 @@ public class DamageModifier implements Serializer<DamageModifier> {
         }
 
         // Clamp the rate within bounds
-        return NumberUtil.minMax(min, rate, max);
+        return NumberUtil.clamp(rate, min, max);
     }
 
     public double clamp(double rate) {
-        return NumberUtil.minMax(min, rate, max);
+        return NumberUtil.clamp(rate, min, max);
     }
 
     public double applyRates(double damage, EntityWrapper wrapper, DamagePoint point, boolean isBackStab) {

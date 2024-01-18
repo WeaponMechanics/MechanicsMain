@@ -42,8 +42,8 @@ public class MaskCommand extends SubCommand {
 
         int minX = location.getX() - range;
         int maxX = location.getX() + range;
-        int minY = NumberUtil.minMax(0, location.getY() - range, 255);
-        int maxY = NumberUtil.minMax(0, location.getY() + range, 255);
+        int minY = NumberUtil.clamp(location.getY() - range, 0, 255);
+        int maxY = NumberUtil.clamp(location.getY() + range, 0, 255);
         int minZ = location.getZ() - range;
         int maxZ = location.getZ() + range;
 

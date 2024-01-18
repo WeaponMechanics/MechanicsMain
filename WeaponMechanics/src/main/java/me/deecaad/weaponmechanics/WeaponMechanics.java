@@ -188,8 +188,7 @@ public class WeaponMechanics {
         registerUpdateChecker();
 
         long tookMillis = System.currentTimeMillis() - millisCurrent;
-        double seconds = NumberUtil.getAsRounded(tookMillis * 0.001, 2);
-        debug.debug("Enabled WeaponMechanics in " + seconds + "s");
+        debug.debug("Enabled WeaponMechanics in " + NumberUtil.toTime((int) (tookMillis / 1000)) + "s");
 
         // Shameless self-promotion
         if (Bukkit.getPluginManager().getPlugin("WeaponMechanicsCosmetics") == null)

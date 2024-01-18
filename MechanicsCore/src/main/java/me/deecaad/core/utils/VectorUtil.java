@@ -243,9 +243,9 @@ public final class VectorUtil {
         double y = vector.getY();
         double z = vector.getZ();
 
-        if (!NumberUtil.equals(y, 0.0))
+        if (!NumberUtil.approximately(y, 0.0))
             return new Vector(z, 0, -x);
-        else if (!NumberUtil.equals(x, 0.0))
+        else if (!NumberUtil.approximately(x, 0.0))
             return new Vector(0, -z, y);
         else
             return new Vector(y, -x, 0);
@@ -263,10 +263,10 @@ public final class VectorUtil {
 
         // ALGEBRA: sqrt(a) * sqrt(b) = sqrt(a * b)
         double denominator = Math.sqrt(a.lengthSquared() * b.lengthSquared());
-        if (NumberUtil.equals(denominator, 0.0))
+        if (NumberUtil.approximately(denominator, 0.0))
             return 0f;
 
-        double dot = NumberUtil.minMax(-1.0, a.dot(b) / denominator, 1.0);
+        double dot = NumberUtil.clamp(a.dot(b) / denominator, -1.0, 1.0);
 
         // This Math.min is requires for parallel vectors, as floating point
         // issues often cause numbers like 1.002
@@ -282,8 +282,8 @@ public final class VectorUtil {
      * @return true if the vector has no magnitude
      */
     public static boolean isEmpty(Vector vector) {
-        return NumberUtil.equals(vector.getX(), 0.0) &&
-                NumberUtil.equals(vector.getY(), 0.0) &&
-                NumberUtil.equals(vector.getZ(), 0.0);
+        return NumberUtil.approximately(vector.getX(), 0.0) &&
+                NumberUtil.approximately(vector.getY(), 0.0) &&
+                NumberUtil.approximately(vector.getZ(), 0.0);
     }
 }

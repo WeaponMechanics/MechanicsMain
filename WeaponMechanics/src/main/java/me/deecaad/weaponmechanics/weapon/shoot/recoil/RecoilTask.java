@@ -128,11 +128,11 @@ public class RecoilTask extends TimerTask {
 
         List<Float> horizontal = tempRecoil.getRandomHorizontal();
         if (rotateYaw == 0 && horizontal != null) {
-            rotateYaw = horizontal.get(NumberUtil.random(horizontal.size()));
+            rotateYaw = NumberUtil.random(horizontal);
         }
         List<Float> vertical = tempRecoil.getRandomVertical();
         if (rotatePitch == 0 && vertical != null) {
-            rotatePitch = vertical.get(NumberUtil.random(vertical.size()));
+            rotatePitch = NumberUtil.random(vertical);
         }
 
         // If its non-repeating pattern which reached end these would be 0

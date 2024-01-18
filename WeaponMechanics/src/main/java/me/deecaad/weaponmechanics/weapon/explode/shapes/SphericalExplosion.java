@@ -10,7 +10,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.NumberConversions;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

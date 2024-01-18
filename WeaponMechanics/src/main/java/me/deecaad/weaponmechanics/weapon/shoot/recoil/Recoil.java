@@ -58,8 +58,8 @@ public class Recoil implements Serializer<Recoil> {
         PlayerWrapper playerWrapper = getPlayerWrapper(player);
         if (pushTime == 0 && recoverTime == 0) {
             // No need for task as rotation time and recover time are 0
-            float rotateYaw = randomHorizontal.get(NumberUtil.random(randomHorizontal.size()));
-            float rotatePitch = randomVertical.get(NumberUtil.random(randomVertical.size()));
+            float rotateYaw = NumberUtil.random(randomHorizontal);
+            float rotatePitch = NumberUtil.random(randomVertical);
             weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), rotateYaw, rotatePitch, false);
             return;
         }

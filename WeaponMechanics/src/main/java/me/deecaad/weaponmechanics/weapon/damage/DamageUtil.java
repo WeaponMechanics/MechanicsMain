@@ -156,7 +156,7 @@ public class DamageUtil {
         victim.setLastDamage(damage);
         victim.setLastDamageCause(entityDamageByEntityEvent);
 
-        double newHealth = NumberUtil.minMax(0, oldHealth - damage, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        double newHealth = NumberUtil.clamp(oldHealth - damage, 0, victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         boolean killed = newHealth <= 0.0;
         boolean resurrected = false;
 

@@ -172,7 +172,7 @@ public class DoubleMap<K> {
     public boolean containsValue(double value) {
         ValueIterator iterator = new ValueIterator();
         while (iterator.hasNext()) {
-            if (NumberUtil.equals(value, iterator.nextDouble())) {
+            if (NumberUtil.approximately(value, iterator.nextDouble())) {
                 return true;
             }
         }
@@ -310,7 +310,7 @@ public class DoubleMap<K> {
         public boolean remove(double num) {
             PrimitiveIterator.OfDouble iterator = iterator();
             while (iterator.hasNext()) {
-                if (NumberUtil.equals(num, iterator.nextDouble())) {
+                if (NumberUtil.approximately(num, iterator.nextDouble())) {
                     iterator.remove();
                     return true;
                 }

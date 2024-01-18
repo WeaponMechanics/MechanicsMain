@@ -3,6 +3,7 @@ plugins {
     signing
     id("io.codearte.nexus-staging") version "0.30.0"
     id("me.deecaad.mechanics-project")
+    kotlin("jvm") version Versions.KOTLIN
 }
 
 repositories {
@@ -44,6 +45,12 @@ val javadocJar by tasks.registering(Jar::class) {
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
+}
+
+tasks.compileKotlin {
+    kotlinOptions {
+        jvmTarget = "16"
+    }
 }
 
 nexusStaging {

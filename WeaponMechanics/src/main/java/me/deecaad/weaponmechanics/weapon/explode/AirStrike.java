@@ -16,7 +16,6 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 

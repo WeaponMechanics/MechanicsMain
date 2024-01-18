@@ -123,7 +123,7 @@ public class Quaternion implements Cloneable {
      * @return A non-null reference to this (builder pattern).
      */
     public Quaternion lerp(Quaternion other, double t) {
-        t = NumberUtil.minMax(0.0, t, 1.0);
+        t = NumberUtil.clamp01(t);
 
         // If the 2 quaternions are equal, then don't do any math.
         if (equals(other))

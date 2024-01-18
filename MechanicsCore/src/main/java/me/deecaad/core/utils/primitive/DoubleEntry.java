@@ -27,7 +27,7 @@ public abstract class DoubleEntry<K> {
             return false;
 
         DoubleEntry<?> entry = (DoubleEntry<?>) other;
-        return Objects.equals(getKey(), entry.getKey()) && NumberUtil.equals(getValue(), entry.getValue());
+        return Objects.equals(getKey(), entry.getKey()) && NumberUtil.approximately(getValue(), entry.getValue());
     }
 
     @Override

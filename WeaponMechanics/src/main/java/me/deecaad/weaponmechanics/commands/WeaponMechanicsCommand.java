@@ -889,7 +889,7 @@ public class WeaponMechanicsCommand {
                         continue;
                     }
                     double sumOf = head + body + legs + feet;
-                    if (NumberUtil.equals(sumOf, 0.0)) { // If the numbers are not super close together (floating point issues)
+                    if (!NumberUtil.approximately(sumOf, 1.0)) { // If the numbers are not super close together (floating point issues)
                         debug.log(LogLevel.ERROR, "Entity type " + type.name() + " hit box values sum doesn't match 1.0",
                                 "Located at file /WeaponMechanics/config.yml in Entity_Hitboxes." + type.name() + " in configurations",
                                 "Now the total sum was " + sumOf + ", please make it 1.0.");
