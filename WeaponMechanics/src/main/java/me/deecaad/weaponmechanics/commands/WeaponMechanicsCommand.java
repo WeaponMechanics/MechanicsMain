@@ -1033,7 +1033,7 @@ public class WeaponMechanicsCommand {
         List<FakeEntity> entities = new ArrayList<>(children * children / 2);
         for (int i = 0; i < children; i++) {
             Transform transform = new Transform(parent);
-            double angle = i * VectorUtil.PI_2 / children;
+            double angle = i * NumberUtil.TAU_DOUBLE / children;
             double x = Math.cos(angle) * radius;
             double z = Math.sin(angle) * radius;
 
@@ -1041,7 +1041,7 @@ public class WeaponMechanicsCommand {
             transform.setForward(transform.getLocalPosition().normalize().crossProduct(new Vector(0, 1, 0)).normalize());
 
             for (int j = 0; j < children / 2; j++) {
-                angle = j / ((double) children / 2) * VectorUtil.PI_2;
+                angle = j / ((double) children / 2) * NumberUtil.TAU_DOUBLE;
                 x = Math.cos(angle) * radius / 3.0;
                 z = Math.sin(angle) * radius / 3.0;
 

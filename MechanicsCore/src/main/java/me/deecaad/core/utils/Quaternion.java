@@ -56,11 +56,11 @@ public class Quaternion implements Cloneable {
         double test = x * y + z * w;
         if (test > 0.499 * unit) { // singularity at north pole
             temp.setY(2 * Math.atan2(x, w));
-            temp.setZ(VectorUtil.HALF_PI);
+            temp.setZ(NumberUtil.HALF_PI);
             temp.setX(0);
         } else if (test < -0.499 * unit) { // singularity at south pole
             temp.setY(-2 * Math.atan2(x, w));
-            temp.setZ(-VectorUtil.HALF_PI);
+            temp.setZ(-NumberUtil.HALF_PI);
             temp.setX(0);
         } else {
             temp.setY(Math.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw));
@@ -319,10 +319,10 @@ public class Quaternion implements Cloneable {
         // we cannot rotate about that axis. So we try to find an arbitrary
         // perpendicular vector. In the off chance that it's still zero, we try
         // again (The second time, it is impossible for it to still be zero)
-        if (VectorUtil.isEmpty(axis) || angle > 3.1401) {
+        if (VectorUtil.isZero(axis) || angle > 3.1401) {
             Vector arbitrary = from.crossProduct(RIGHT);
             axis = arbitrary.crossProduct(from);
-            if (VectorUtil.isEmpty(axis))
+            if (VectorUtil.isZero(axis))
                 axis = UP;
         }
 
@@ -348,7 +348,7 @@ public class Quaternion implements Cloneable {
      * @return A non-null reference to this (builder pattern).
      */
     public static Quaternion angleAxis(double angle, Vector axis) {
-        if (VectorUtil.isEmpty(axis))
+        if (VectorUtil.isZero(axis))
             throw new IllegalArgumentException("Divide by zero");
 
         double s = Math.sin(angle / 2.0);

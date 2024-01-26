@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.explode.exposures;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.HitBox;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.primitive.DoubleMap;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.Ray;
 import me.deecaad.weaponmechanics.weapon.explode.raytrace.TraceCollision;
@@ -105,13 +105,14 @@ public class OptimizedExposure implements ExplosionExposure {
         int totalTraces = 0;
 
         // For each corner of the bounding box
+        Vector reuse = new Vector();
         for (int x = 0; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
                 for (int z = 0; z <= 1; z++) {
-                    Vector lerp = VectorUtil.lerp(min, max, x, y, z);
+                    lerp(reuse, min, max, x, y, z);
 
                     // Determine if the ray can hit the entity without hitting a block
-                    Ray ray = new Ray(world, vec3d, lerp);
+                    Ray ray = new Ray(world, vec3d, reuse);
                     TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
                     if (trace.getBlocks().isEmpty()) {
                         successfulTraces++;
@@ -125,7 +126,8 @@ public class OptimizedExposure implements ExplosionExposure {
         // Add one more ray pointing to the center of the bound box. If this
         // ray hits the entity, it has the power of 4 rays. If this ray does
         // not hit the entity, it has the power of 0 rays
-        Ray ray = new Ray(world, vec3d, VectorUtil.lerp(min, max, 0.5));
+        lerp(reuse, min, max, 0.5, 0.5, 0.5);
+        Ray ray = new Ray(world, vec3d, reuse);
         TraceResult trace = ray.trace(TraceCollision.BLOCK, 0.3);
         if (trace.getBlocks().isEmpty()) {
             successfulTraces += 4;
@@ -134,5 +136,11 @@ public class OptimizedExposure implements ExplosionExposure {
 
         // The percentage of successful traces
         return ((double) successfulTraces) / totalTraces;
+    }
+
+    public static void lerp(Vector reuse, Vector min, Vector max, double x, double y, double z) {
+        reuse.setX(NumberUtil.lerp(min.getX(), max.getX(), x));
+        reuse.setY(NumberUtil.lerp(min.getY(), max.getY(), y));
+        reuse.setZ(NumberUtil.lerp(min.getZ(), max.getZ(), z));
     }
 }

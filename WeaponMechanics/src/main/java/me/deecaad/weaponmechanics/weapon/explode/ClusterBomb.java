@@ -13,8 +13,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-
 import static me.deecaad.weaponmechanics.WeaponMechanics.getConfigurations;
 
 public class ClusterBomb implements Serializer<ClusterBomb> {
@@ -76,7 +74,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         }
 
         for (int i = 0; i < bombs; i++) {
-            Vector vector = VectorUtil.random(speed);
+            Vector vector = VectorUtil.onUnitSphere().multiply(speed);
             vector.setY(Math.abs(vector.getY()));
 
             // Either use the projectile settings from the "parent" projectile,

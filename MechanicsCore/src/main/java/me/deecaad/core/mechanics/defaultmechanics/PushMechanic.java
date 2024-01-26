@@ -43,7 +43,7 @@ public class PushMechanic extends Mechanic {
 
         // When the target location is the same as the source location, we get
         // an empty vector.
-        if (VectorUtil.isEmpty(velocity))
+        if (VectorUtil.isZero(velocity))
             return;
 
         velocity.setY(velocity.getY() * verticalMultiplier);

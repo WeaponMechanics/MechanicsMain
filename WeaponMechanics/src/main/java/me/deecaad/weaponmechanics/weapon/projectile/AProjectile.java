@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.projectile;
 
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.compatibility.entity.FakeEntity;
-import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.NumberUtil;
 import me.deecaad.core.utils.ray.RayTraceResult;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -438,7 +438,7 @@ public abstract class AProjectile {
 
     private float calculateYaw(Vector normalizedMotion) {
         if (motionLength == 0) return 0;
-        double PI_2 = VectorUtil.PI_2;
+        double PI_2 = NumberUtil.TAU_DOUBLE;
         return (float) Math.toDegrees((Math.atan2(-normalizedMotion.getX(), normalizedMotion.getZ()) + PI_2) % PI_2);
     }
 

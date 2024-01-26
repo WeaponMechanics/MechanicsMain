@@ -33,6 +33,16 @@ object NumberUtil {
     const val PI_DOUBLE: Double = Math.PI
 
     /**
+     * The value of PI / 2.
+     */
+    const val HALF_PI: Float = PI / 2
+
+    /**
+     * The value of PI / 2.
+     */
+    const val HALF_PI_DOUBLE: Double = PI_DOUBLE / 2
+
+    /**
      * The value of 2 PIs.
      */
     const val TAU: Float = PI * 2
@@ -218,8 +228,9 @@ object NumberUtil {
      * @return True if the numbers are approximately equal
      */
     @JvmStatic
-    fun approximately(a: Float, b: Float): Boolean {
-        return abs(a - b) < EPSILON
+    @JvmOverloads
+    fun approximately(a: Float, b: Float, epsilon: Float = EPSILON): Boolean {
+        return abs(a - b) < epsilon
     }
 
     /**
@@ -230,8 +241,9 @@ object NumberUtil {
      * @return True if the numbers are approximately equal
      */
     @JvmStatic
-    fun approximately(a: Double, b: Double): Boolean {
-        return abs(a - b) < EPSILON_DOUBLE
+    @JvmOverloads
+    fun approximately(a: Double, b: Double, epsilon: Double = EPSILON_DOUBLE): Boolean {
+        return abs(a - b) < epsilon
     }
 
     /**
@@ -319,7 +331,7 @@ object NumberUtil {
      * the shortest path between the specified angles. This method wraps
      * around values that are outside the range [-180, 180]. For example,
      * ```kotlin
-     * lerpAngle(1.0, 190.0, 1.0) // returns -170.0
+     * lerpDegrees(1.0, 190.0, 1.0) // returns -170.0
      * ```
      */
     @JvmStatic

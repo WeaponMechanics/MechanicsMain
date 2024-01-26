@@ -38,7 +38,7 @@ public class LeapMechanic extends Mechanic {
 
         // When the target location is the same as the source location, we get
         // an empty vector.
-        if (VectorUtil.isEmpty(velocity))
+        if (VectorUtil.isZero(velocity))
             return;
         //if (!Double.isFinite(velocity.getX()) || !Double.isFinite(velocity.getY()) || !Double.isFinite(velocity.getZ()))
         //    return;

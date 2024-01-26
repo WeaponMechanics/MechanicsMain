@@ -20,6 +20,12 @@ import java.util.Map;
 
 public class Ray {
 
+    /**
+     * This buffer is used to make sure that we get entities with large hit-boxes
+     * in other chunks.
+     */
+    private static final Vector BUFFER = new Vector(2.0, 2.0, 2.0);
+
     private final World world;
     private final Vector origin;
     private final Vector end;
@@ -181,8 +187,8 @@ public class Ray {
         // The number 2.0 is taken from Mojang's code. It is probably big
         // enough to include entities whose hit-box is within the bounds, but
         // their actual location is not in the box.
-        Vector min = VectorUtil.add(VectorUtil.min(origin, end), -2.0, -2.0, -2.0);
-        Vector max = VectorUtil.add(VectorUtil.max(origin, end), 2.0, 2.0, 2.0);
+        Vector min = VectorUtil.min(origin, end).subtract(BUFFER);
+        Vector max = VectorUtil.max(origin, end).add(BUFFER);
 
         int minChunkX = (int) Math.floor(min.getX() / 16.0);
         int minChunkZ = (int) Math.floor(min.getZ() / 16.0);
