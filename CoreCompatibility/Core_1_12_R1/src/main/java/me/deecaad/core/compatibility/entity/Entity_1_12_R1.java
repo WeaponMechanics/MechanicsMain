@@ -40,7 +40,7 @@ public class Entity_1_12_R1 implements EntityCompatibility {
         if (entity.isInvulnerable() || !entity.getType().isAlive() || entity.isDead()) return null;
 
         HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
-                .grow(getWidth(entity), getHeight(entity));
+                .grow(entity.getWidth(), entity.getHeight());
         hitBox.setLivingEntity((LivingEntity) entity);
 
         if (entity instanceof ComplexLivingEntity) {

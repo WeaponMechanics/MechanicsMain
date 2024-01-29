@@ -695,7 +695,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         if (!dualWield) return livingEntity.getEyeLocation();
 
-        double dividedWidth = CompatibilityAPI.getEntityCompatibility().getWidth(livingEntity) / 2.0;
+        double dividedWidth = livingEntity.getWidth() / 2.0;
 
         double distance;
         if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getMainHand() == MainHand.LEFT) {

@@ -33,7 +33,7 @@ public interface EntityCompatibility {
         // This default should only be used after 1.13 R2
 
         HitBox hitBox = new HitBox(entity.getLocation().toVector(), getLastLocation(entity))
-                .grow(getWidth(entity), getHeight(entity));
+                .grow(entity.getWidth(), entity.getHeight());
         hitBox.setLivingEntity((LivingEntity) entity);
 
         if (entity instanceof ComplexLivingEntity) {
@@ -51,57 +51,6 @@ public interface EntityCompatibility {
      * @return the vector of entity's last location
      */
     Vector getLastLocation(Entity entity);
-
-    /**
-     * Used to get width of entity
-     *
-     * @param entity the entity whose width to get
-     * @return the width of entity
-     */
-    default double getWidth(Entity entity) {
-        // 1.12 ->
-        // -> entity.getWidth
-        // <- 1.11
-        // -> nmsEntity.width
-        return entity.getWidth();
-    }
-
-    /**
-     * Used to get height of entity
-     *
-     * @param entity the entity whose height to get
-     * @return the height of entity
-     */
-    default double getHeight(Entity entity) {
-        // 1.12 ->
-        // -> entity.getHeight
-        // <- 1.11
-        // -> nmsEntity.height
-        return entity.getHeight();
-    }
-
-    /**
-     * Returns <code>true</code> if the player has that material on ender
-     * pearl cool-down.
-     *
-     * @param player   The non-null player to check.
-     * @param material The non-null material to check.
-     * @return true if the material is on cool-down.
-     */
-    default boolean hasCooldown(Player player, Material material) {
-        return player.hasCooldown(material);
-    }
-
-    /**
-     * Sets the material's cooldown in ticks.
-     *
-     * @param player   The non-null player to have the cool-down.
-     * @param material The non-null material to be on cool-down.
-     * @param ticks    The time, in ticks, to show the effect.
-     */
-    default void setCooldown(Player player, Material material, int ticks) {
-        player.setCooldown(material, ticks);
-    }
 
     /**
      * Returns the amount of absorption hearts that the entity currently has.

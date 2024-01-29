@@ -5,7 +5,6 @@ import io.lumine.mythic.api.adapters.AbstractLocation;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.*;
 import io.lumine.mythic.bukkit.BukkitAdapter;
-import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
@@ -54,7 +53,7 @@ public class MythicMobsWeaponShootSkill implements ITargetedEntitySkill, ITarget
             target = ((LivingEntity) entity).getEyeLocation();
         } else {
             target = entity.getLocation();
-            target.setY(target.getY() + CompatibilityAPI.getEntityCompatibility().getHeight(entity) / 2.0);
+            target.setY(target.getY() + entity.getHeight() / 2.0);
         }
 
         return castAtLocation(skillMetadata, BukkitAdapter.adapt(target));

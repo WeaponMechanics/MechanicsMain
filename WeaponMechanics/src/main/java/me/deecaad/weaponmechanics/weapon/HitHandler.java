@@ -157,7 +157,7 @@ public class HitHandler {
         Configuration basicConfiguration = WeaponMechanics.getBasicConfigurations();
 
         EntityType type = livingEntity.getType();
-        double entityHeight = CompatibilityAPI.getEntityCompatibility().getHeight(livingEntity);
+        double entityHeight = livingEntity.getHeight();
 
         double hitY = result.getHitLocation().getY();
 
