@@ -8,7 +8,7 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.file.serializers.ItemSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.utils.CustomTag;
 import org.bukkit.configuration.ConfigurationSection;
@@ -240,7 +240,7 @@ public class CustomDurability implements Serializer<CustomDurability> {
 
         // Check chance and unbreaking.
         int unbreakingLevel = meta == null ? 0 : meta.getEnchantLevel(Enchantment.DURABILITY);
-        if (!NumberUtil.chance(chance) || !isLoseDurability(unbreakingLevel, false))
+        if (!RandomUtil.chance(chance) || !isLoseDurability(unbreakingLevel, false))
             return false;
 
         // Durability has never been applied to the weapon, so we need to
@@ -389,13 +389,13 @@ public class CustomDurability implements Serializer<CustomDurability> {
             return true;
 
         if (armor && level <= 10)
-            return NumberUtil.chance(ARMOR_LEVELS[level]);
+            return RandomUtil.chance(ARMOR_LEVELS[level]);
         if (armor)
-            return NumberUtil.chance(0.6 + 0.4 / (level + 1));
+            return RandomUtil.chance(0.6 + 0.4 / (level + 1));
 
         if (level <= 10)
-            return NumberUtil.chance(TOOL_LEVELS[level]);
+            return RandomUtil.chance(TOOL_LEVELS[level]);
 
-        return NumberUtil.chance(1.0 / (level + 1));
+        return RandomUtil.chance(1.0 / (level + 1));
     }
 }

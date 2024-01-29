@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -75,7 +75,7 @@ public class ParabolicExplosion implements ExplosionShape {
                     if (test(x, y, z)) {
 
                         // Checking chance first for resource usage
-                        if (NumberUtil.chance(noiseChance) && isNearEdge(x, y, z, noiseDistance)) {
+                        if (RandomUtil.chance(noiseChance) && isNearEdge(x, y, z, noiseDistance)) {
                             debug.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
                             continue; // outer noise checker
                         }

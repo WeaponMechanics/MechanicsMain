@@ -1,8 +1,8 @@
 package me.deecaad.core.utils
 
 import java.util.*
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
+import kotlin.math.floor
 
 /**
  * A collection of utility functions for math, especially for random number
@@ -475,47 +475,59 @@ object NumberUtil {
     }
 
     /**
-     * Normalizes an angle in degrees to the range [-180, 180].
+     * Normalizes an angle in degrees to the range (-180, 180].
      *
      * @param angle The angle to normalize
      * @return The normalized angle
      */
     @JvmStatic
     fun normalizeDegrees(angle: Float): Float {
-        return ((angle + 180f) % 360f + 360f) % 360f - 180f
+        val normalized = angle - 360f * floor((angle + 180f) / 360f)
+
+        // The equation above is very fast, but might output -180, when we want 180.
+        return if (normalized == -180f) 180f else normalized
     }
 
     /**
-     * Normalizes an angle in degrees to the range [-180, 180].
+     * Normalizes an angle in degrees to the range (-180, 180].
      *
      * @param angle The angle to normalize
      * @return The normalized angle
      */
     @JvmStatic
     fun normalizeDegrees(angle: Double): Double {
-        return ((angle + 180) % 360 + 360) % 360 - 180
+        val normalized = angle - 360.0 * floor((angle + 180.0) / 360.0)
+
+        // The equation above is very fast, but might output -180, when we want 180.
+        return if (normalized == -180.0) 180.0 else normalized
     }
 
     /**
-     * Normalizes an angle in radians to the range [-PI, PI].
+     * Normalizes an angle in radians to the range (-PI, PI].
      *
      * @param angle The angle to normalize
      * @return The normalized angle
      */
     @JvmStatic
     fun normalizeRadians(angle: Float): Float {
-        return ((angle + PI) % TAU + TAU) % TAU - PI
+        val normalized = angle - TAU * floor((angle + PI) / TAU)
+
+        // The equation above is very fast, but might output -PI, when we want PI.
+        return if (normalized == -PI) PI else normalized
     }
 
     /**
-     * Normalizes an angle in radians to the range [-PI, PI].
+     * Normalizes an angle in radians to the range (-PI, PI].
      *
      * @param angle The angle to normalize
      * @return The normalized angle
      */
     @JvmStatic
     fun normalizeRadians(angle: Double): Double {
-        return ((angle + PI_DOUBLE) % TAU_DOUBLE + TAU_DOUBLE) % TAU_DOUBLE - PI_DOUBLE
+        val normalized = angle - TAU_DOUBLE * floor((angle + PI_DOUBLE) / TAU_DOUBLE)
+
+        // The equation above is very fast, but might output -PI, when we want PI.
+        return if (normalized == -PI_DOUBLE) PI_DOUBLE else normalized
     }
 
     /**
@@ -1024,92 +1036,6 @@ object NumberUtil {
     @JvmStatic
     fun fraction(a: Double): Double {
         return a - floorToLong(a)
-    }
-
-    /**
-     * Helper function to test a random chance. The chance should be a floating point between
-     * [0.0f, 1.0f]. If the chance is 1.0f, this method will always return true. If the chance
-     * is 0.0f, this method will always return false.
-     *
-     * @param chance The chance to test
-     * @return True if the chance was successful
-     */
-    @JvmStatic
-    fun chance(chance: Float): Boolean {
-        return chance >= 1.0f || chance > 0.0f && ThreadLocalRandom.current().nextFloat() < chance
-    }
-
-    /**
-     * Helper function to test a random chance. The chance should be a floating point between
-     * [0.0, 1.0]. If the chance is 1.0, this method will always return true. If the chance
-     * is 0.0, this method will always return false.
-     *
-     * @param chance The chance to test
-     * @return True if the chance was successful
-     */
-    @JvmStatic
-    fun chance(chance: Double): Boolean {
-        return chance >= 1.0 || chance > 0.0 && ThreadLocalRandom.current().nextDouble() < chance
-    }
-
-    /**
-     * Returns a random number between 0 (inclusive) and 1 (inclusive).
-     *
-     * @param min The minimum value (inclusive)
-     * @param max The maximum value (inclusive)
-     * @return The random number
-     */
-    @JvmStatic
-    fun random(min: Int, max: Int): Int {
-        return ThreadLocalRandom.current().nextInt(min, max + 1)
-    }
-
-    /**
-     * Returns a random number between 0 (inclusive) and 1 (exclusive).
-     *
-     * @param min The minimum value (inclusive)
-     * @param max The maximum value (exclusive)
-     * @return The random number
-     */
-    @JvmStatic
-    fun random(min: Float, max: Float): Float {
-        return ThreadLocalRandom.current().nextFloat() * (max - min) + min
-    }
-
-    /**
-     * Returns a random number between 0 (inclusive) and 1 (exclusive).
-     *
-     * @param min The minimum value (inclusive)
-     * @param max The maximum value (exclusive)
-     * @return The random number
-     */
-    @JvmStatic
-    fun random(min: Double, max: Double): Double {
-        return ThreadLocalRandom.current().nextDouble(min, max)
-    }
-
-    /**
-     * Returns a random element from the given array, where the probabilities of
-     * each element being selected are equal.
-     *
-     * @return The random element
-     */
-    @JvmStatic
-    fun <T> random(array: Array<T>): T {
-        require(array.isNotEmpty()) { "array must have at least 1 element" }
-        return array[ThreadLocalRandom.current().nextInt(array.size)]
-    }
-
-    /**
-     * Returns a random element from the given list, where the probabilities of
-     * each element being selected are equal.
-     *
-     * @return The random element
-     */
-    @JvmStatic
-    fun <T> random(list: List<T>): T {
-        require(list.isNotEmpty()) { "list must have at least 1 element" }
-        return list[ThreadLocalRandom.current().nextInt(list.size)]
     }
 
     /**

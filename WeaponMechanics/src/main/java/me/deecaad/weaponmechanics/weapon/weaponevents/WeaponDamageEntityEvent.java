@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.weaponevents;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.DamageDropoff;
 import me.deecaad.weaponmechanics.weapon.damage.DamageModifier;
@@ -140,7 +140,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
                 damage += dropoff.getDamage(distanceTravelled);
             if (point != null)
                 damage += config.getDouble(weaponTitle + ".Damage." + point.getReadable() + ".Bonus_Damage");
-            if (NumberUtil.chance(critChance)) {
+            if (RandomUtil.chance(critChance)) {
                 damage += critDamage;
                 wasCritical = true;
             } if (isBackstab)
@@ -200,7 +200,7 @@ public class WeaponDamageEntityEvent extends WeaponEvent implements Cancellable 
      */
     @Deprecated(forRemoval = true)
     public boolean isCritical() {
-        return NumberUtil.chance(critChance);
+        return RandomUtil.chance(critChance);
     }
 
     /**

@@ -4,7 +4,7 @@ import me.deecaad.core.MechanicsCore;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
@@ -67,9 +67,9 @@ public class ScatterTargeter extends ShapeTargeter {
                 int attempts = 0;
                 double x, y, z;
                 do {
-                    x = NumberUtil.random(-horizontalRange, +horizontalRange);
-                    y = NumberUtil.random(-verticalRange, +verticalRange);
-                    z = NumberUtil.random(-horizontalRange, +horizontalRange);
+                    x = RandomUtil.range(-horizontalRange, +horizontalRange);
+                    y = RandomUtil.range(-verticalRange, +verticalRange);
+                    z = RandomUtil.range(-horizontalRange, +horizontalRange);
                 } while (isTraceDown && attempts++ < maxAttempts && !isEmpty(world, origin, x, y, z));
 
                 // Trace down to either the ground or the bottom of the vertical range.

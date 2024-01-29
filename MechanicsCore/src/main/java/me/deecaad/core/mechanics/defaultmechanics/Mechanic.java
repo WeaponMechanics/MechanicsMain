@@ -8,7 +8,7 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.conditions.Condition;
 import me.deecaad.core.mechanics.targeters.Targeter;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Iterator;
@@ -72,7 +72,7 @@ public abstract class Mechanic implements InlineSerializer<Mechanic> {
     public final void use(CastData cast) {
 
         // Chance to execute mechanic
-        if (!NumberUtil.chance(chance))
+        if (!RandomUtil.chance(chance))
             return;
 
         // If there is no need to schedule event, skip the event process.

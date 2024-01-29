@@ -50,32 +50,6 @@ object VectorUtil {
     val WEST = ImmutableVector(-1, 0, 0)
 
     /**
-     * Generates a random normalized vector.
-     *
-     * @return A random normalized vector.
-     */
-    @JvmStatic
-    fun onUnitSphere(): Vector {
-        var x: Double
-        var y: Double
-        var z: Double
-        var length: Double
-
-        // Using a loop here is overkill, but avoids the possibility of a divide
-        // by zero error, or a vector with a small length causing instability.
-        do {
-            // Multiply by 2 and subtract 1 to remap from [0, 1] to [-1, 1]
-            x = ThreadLocalRandom.current().nextGaussian()
-            y = ThreadLocalRandom.current().nextGaussian()
-            z = ThreadLocalRandom.current().nextGaussian()
-
-            length = sqrt(x * x + y * y + z * z)
-        } while (length < NumberUtil.EPSILON_DOUBLE)
-
-        return Vector(x / length, y / length, z / length)
-    }
-
-    /**
      * Sets the length of the given vector to the given length.
      *
      * If the given vector is zero-length, an [IllegalArgumentException] is
@@ -210,11 +184,15 @@ object VectorUtil {
      * @return The new vector
      */
     @JvmStatic
+    @JvmOverloads
     fun getPerpendicular(
         base: Vector,
         up: Vector = UP,
         back: Vector = SOUTH
     ): Vector {
+        if (isZero(base))
+            throw IllegalArgumentException("Cannot get a perpendicular vector of a zero-length vector")
+
         val cross = base.getCrossProduct(up)
 
         // If the cross product is zero, the vectors are parallel. Use the back

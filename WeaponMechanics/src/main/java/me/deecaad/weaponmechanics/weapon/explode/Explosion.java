@@ -11,7 +11,7 @@ import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.VectorUtil;
 import me.deecaad.core.utils.primitive.DoubleEntry;
 import me.deecaad.core.utils.primitive.DoubleMap;
@@ -45,8 +45,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -410,7 +410,7 @@ public class Explosion implements Serializer<Explosion> {
                 // For stat tracking
                 blocksBroken += 1;
 
-                if (NumberUtil.chance(blockChance)) {
+                if (RandomUtil.chance(blockChance)) {
                     Location loc = block.getLocation().add(0.5, 0.5, 0.5);
                     Vector velocity = loc.toVector().subtract(origin.toVector()).normalize(); // normalize to slow down
 

@@ -436,7 +436,7 @@ public class WeaponMechanicsCommand {
 
         // Handle random weapon key "*r"
         if ("*r".equalsIgnoreCase(weaponTitle))
-            weaponTitle = NumberUtil.random(info.getSortedWeaponList());
+            weaponTitle = RandomUtil.element(info.getSortedWeaponList());
 
         for (Entity loop : targets) {
             if (!loop.getType().isAlive())

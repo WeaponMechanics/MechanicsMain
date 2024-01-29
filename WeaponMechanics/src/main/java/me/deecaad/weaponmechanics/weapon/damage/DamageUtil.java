@@ -3,6 +3,7 @@ package me.deecaad.weaponmechanics.weapon.damage;
 import me.deecaad.core.compatibility.CompatibilityAPI;
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
@@ -23,8 +24,8 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Set;
 
 import static me.deecaad.weaponmechanics.WeaponMechanics.getBasicConfigurations;
@@ -266,7 +267,7 @@ public class DamageUtil {
 
         // Formula taken from Unbreaking enchant code
         int level = meta.getEnchantLevel(Enchantment.DURABILITY);
-        boolean skipDamage = !NumberUtil.chance(0.6 + 0.4 / (level + 1));
+        boolean skipDamage = !RandomUtil.chance(0.6 + 0.4 / (level + 1));
         if (skipDamage)
             return;
 

@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -78,7 +78,7 @@ public class CuboidExplosion implements ExplosionShape {
                 for (int z = (int) -width; z < width; z++) {
 
                     // Noise checker
-                    if (isNearEdge(x, y, z, noiseDistance) && NumberUtil.chance(noiseChance)) {
+                    if (isNearEdge(x, y, z, noiseDistance) && RandomUtil.chance(noiseChance)) {
                         debug.log(LogLevel.DEBUG, "Skipping block(" + x + ", " + y + ", " + z + ") due to noise.");
                         continue; // outer noise checker
                     }

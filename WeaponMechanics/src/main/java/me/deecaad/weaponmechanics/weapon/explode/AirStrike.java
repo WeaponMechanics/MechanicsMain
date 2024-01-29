@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
@@ -167,7 +167,7 @@ public class AirStrike implements Serializer<AirStrike> {
             @Override
             public void run() {
 
-                int bombs = NumberUtil.random(min, max);
+                int bombs = RandomUtil.range(min, max);
                 int checks = bombs * bombs;
 
                 // Used to make sure we don't spawn bombs too close to
@@ -177,8 +177,8 @@ public class AirStrike implements Serializer<AirStrike> {
                 locationFinder:
                 for (int i = 0; i < checks && spawnLocations.size() < bombs; i++) {
 
-                    double x = flareLocation.getX() + NumberUtil.random(-radius, radius);
-                    double z = flareLocation.getZ() + NumberUtil.random(-radius, radius);
+                    double x = flareLocation.getX() + RandomUtil.range(-radius, radius);
+                    double z = flareLocation.getZ() + RandomUtil.range(-radius, radius);
 
                     Vector2d vector = new Vector2d(x, z);
 
@@ -190,7 +190,7 @@ public class AirStrike implements Serializer<AirStrike> {
 
                     spawnLocations.add(vector);
 
-                    double y = flareLocation.getY() + height + NumberUtil.random(-yVariation, yVariation);
+                    double y = flareLocation.getY() + height + RandomUtil.range(-yVariation, yVariation);
                     Location location = new Location(flareLocation.getWorld(), x, y, z);
 
                     // Either use the projectile settings from the "parent" projectile,

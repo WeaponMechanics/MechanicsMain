@@ -58,7 +58,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
      */
     public Vector getVector(LivingEntity entity) {
         if (randomLength >= 0)
-            return VectorUtil.onUnitSphere().multiply(randomLength);
+            return RandomUtil.onUnitSphere().multiply(randomLength);
 
         if (direction != null)
             return direction.getRelative(entity == null ? null : entity.getLocation().getDirection());
@@ -82,7 +82,7 @@ public class VectorSerializer implements Serializer<VectorSerializer> {
      */
     public Vector getVector(Vector view) {
         if (randomLength >= 0)
-            return VectorUtil.onUnitSphere().multiply(randomLength);
+            return RandomUtil.onUnitSphere().multiply(randomLength);
 
         if (direction != null)
             return direction.getRelative(view);

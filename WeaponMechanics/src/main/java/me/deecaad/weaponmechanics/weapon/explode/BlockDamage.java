@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.file.serializers.ChanceSerializer;
 import me.deecaad.core.utils.EnumUtil;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.core.utils.ReflectionUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.weapon.damage.BlockDamageData;
@@ -19,8 +19,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 public class BlockDamage implements Serializer<BlockDamage> {
@@ -259,7 +259,7 @@ public class BlockDamage implements Serializer<BlockDamage> {
                 }
 
                 // Calculate dropped blocks BEFORE the block is broken.
-                drops = NumberUtil.chance(dropBlockChance) ? block.getDrops() : null;
+                drops = RandomUtil.chance(dropBlockChance) ? block.getDrops() : null;
                 if (block.getState() instanceof InventoryHolder inv && !isRegenerate) {
                     if (drops == null)
                         drops = new ArrayList<>();

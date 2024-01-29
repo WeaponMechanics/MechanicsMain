@@ -2,7 +2,7 @@ package me.deecaad.weaponmechanics.weapon.explode.shapes;
 
 import me.deecaad.core.file.Configuration;
 import me.deecaad.core.utils.LogLevel;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -54,7 +54,7 @@ public class SphericalExplosion implements ExplosionShape {
                     if (distance <= radiusSquared) {
 
                         boolean isNearEdge = radiusSquared - distance < noiseDistance;
-                        if (isNearEdge && NumberUtil.chance(noiseChance)) {
+                        if (isNearEdge && RandomUtil.chance(noiseChance)) {
                             debug.log(LogLevel.DEBUG, "Skipping block (" + x + ", " + y + ", " + z + ") due to noise.");
                             continue; // outer noise checker
                         }

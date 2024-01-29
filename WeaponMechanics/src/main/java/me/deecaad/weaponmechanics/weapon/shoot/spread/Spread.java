@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.spread;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.wrappers.EntityWrapper;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
@@ -102,9 +102,9 @@ public class Spread implements Serializer<Spread> {
     private Vector getNormalizedSpreadDirection(double yaw, double pitch, double spread) {
 
         // Create random numbers for horizontal and vertical spread
-        double randomX = NumberUtil.random(-spread, spread);
-        double randomY = NumberUtil.random(-spread, spread);
-        double randomZ = NumberUtil.random(-spread, spread);
+        double randomX = RandomUtil.range(-spread, spread);
+        double randomY = RandomUtil.range(-spread, spread);
+        double randomZ = RandomUtil.range(-spread, spread);
 
         double xz = Math.cos(pitch);
 

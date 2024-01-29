@@ -5,7 +5,7 @@ import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
 import me.deecaad.core.mechanics.CastData;
 import me.deecaad.core.mechanics.Mechanics;
-import me.deecaad.core.utils.VectorUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.Projectile;
 import me.deecaad.weaponmechanics.weapon.projectile.weaponprojectile.WeaponProjectile;
 import org.bukkit.Location;
@@ -74,7 +74,7 @@ public class ClusterBomb implements Serializer<ClusterBomb> {
         }
 
         for (int i = 0; i < bombs; i++) {
-            Vector vector = VectorUtil.onUnitSphere().multiply(speed);
+            Vector vector = RandomUtil.onUnitSphere().multiply(speed);
             vector.setY(Math.abs(vector.getY()));
 
             // Either use the projectile settings from the "parent" projectile,

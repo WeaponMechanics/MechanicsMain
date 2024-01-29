@@ -6,7 +6,7 @@ import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.*;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import me.deecaad.core.compatibility.CompatibilityAPI;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.WeaponMechanics;
 import me.deecaad.weaponmechanics.WeaponMechanicsAPI;
 import org.bukkit.Location;
@@ -79,9 +79,9 @@ public class MythicMobsWeaponShootSkill implements ITargetedEntitySkill, ITarget
         // Skip the calculations if we can
         if (spread != 0.0) {
             double delta = Math.tan(spread) * entity.getLocation().distance(target);
-            target.setX(target.getX() + NumberUtil.random(-delta, delta));
-            target.setY(target.getY() + NumberUtil.random(-delta, delta));
-            target.setZ(target.getZ() + NumberUtil.random(-delta, delta));
+            target.setX(target.getX() + RandomUtil.range(-delta, delta));
+            target.setY(target.getY() + RandomUtil.range(-delta, delta));
+            target.setZ(target.getZ() + RandomUtil.range(-delta, delta));
         }
 
         WeaponMechanicsAPI.shoot((LivingEntity) entity, weaponTitle, target);

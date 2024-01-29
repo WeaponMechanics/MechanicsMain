@@ -3,7 +3,7 @@ package me.deecaad.weaponmechanics.weapon.shoot.recoil;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class RecoilPattern implements Serializer<RecoilPattern> {
          * @return whether to skip this recoil pattern
          */
         public boolean shouldSkip() {
-            return NumberUtil.chance(this.chanceToSkip);
+            return RandomUtil.chance(this.chanceToSkip);
         }
     }
 }

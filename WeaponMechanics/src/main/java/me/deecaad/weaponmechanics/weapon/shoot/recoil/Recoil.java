@@ -4,7 +4,7 @@ import com.cjcrafter.vivecraft.VSE;
 import me.deecaad.core.file.SerializeData;
 import me.deecaad.core.file.Serializer;
 import me.deecaad.core.file.SerializerException;
-import me.deecaad.core.utils.NumberUtil;
+import me.deecaad.core.utils.RandomUtil;
 import me.deecaad.weaponmechanics.compatibility.IWeaponCompatibility;
 import me.deecaad.weaponmechanics.compatibility.WeaponCompatibilityAPI;
 import me.deecaad.weaponmechanics.wrappers.HandData;
@@ -58,8 +58,8 @@ public class Recoil implements Serializer<Recoil> {
         PlayerWrapper playerWrapper = getPlayerWrapper(player);
         if (pushTime == 0 && recoverTime == 0) {
             // No need for task as rotation time and recover time are 0
-            float rotateYaw = NumberUtil.random(randomHorizontal);
-            float rotatePitch = NumberUtil.random(randomVertical);
+            float rotateYaw = RandomUtil.element(randomHorizontal);
+            float rotatePitch = RandomUtil.element(randomVertical);
             weaponCompatibility.modifyCameraRotation(playerWrapper.getPlayer(), rotateYaw, rotatePitch, false);
             return;
         }
