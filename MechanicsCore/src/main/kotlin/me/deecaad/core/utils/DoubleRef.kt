@@ -9,4 +9,16 @@ package me.deecaad.core.utils
  * types, but we cannot use that since any plugin that wants to use MechanicsCore
  * as a dependency would have to use kotlin, and might have shading issues... So:
  */
-data class DoubleRef(var value: Double)
+data class DoubleRef(var value: Double) {
+
+    companion object {
+
+        /**
+         * Creates a new [DoubleRef] with the given value.
+         *
+         * @receiver The value
+         * @return The new [DoubleRef]
+         */
+        fun Double.toRef() = DoubleRef(this)
+    }
+}

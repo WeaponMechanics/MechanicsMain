@@ -9,4 +9,16 @@ package me.deecaad.core.utils
  * types, but we cannot use that since any plugin that wants to use MechanicsCore
  * as a dependency would have to use kotlin, and might have shading issues... So:
  */
-data class FloatRef(var value: Float)
+data class FloatRef(var value: Float) {
+
+    companion object {
+
+        /**
+         * Creates a new [FloatRef] with the given value.
+         *
+         * @receiver The value
+         * @return The new [FloatRef]
+         */
+        fun Float.toRef() = FloatRef(this)
+    }
+}
