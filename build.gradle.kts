@@ -1,5 +1,3 @@
-import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
-
 plugins {
     id("com.github.breadmoirai.github-release") version "2.4.1"
     id("com.cjcrafter.polymart-release") version "1.0.1"
@@ -16,7 +14,7 @@ polymart {
     file.set(file("build").resolve("WeaponMechanics.zip"))
 }
 
-tasks.register<GithubReleaseTask>("createGithubRelease").configure {
+githubRelease {
 
     // https://github.com/BreadMoirai/github-release-gradle-plugin
     val weaponMechanicsVersion = findProperty("weaponMechanicsVersion") as? String ?: throw IllegalArgumentException("weaponMechanicsVersion was null")
@@ -39,10 +37,6 @@ tasks.register<GithubReleaseTask>("createGithubRelease").configure {
 
     // If set to true, you can debug that this would do
     dryRun.set(false)
-
-    doFirst {
-        println("Creating GitHub release")
-    }
 }
 
 // This is a helper method to compile MechanicsCore, WeaponMechanics, and to
@@ -63,7 +57,7 @@ tasks.register<Copy>("resourcePackForSpigotRelease") {
     dependsOn("buildForSpigotRelease")
 
     // !!! Has to be updated when resource pack is updated !!!
-    val resourcePackVersion = "2.1.0"
+    val resourcePackVersion = findProperty("resourcePackVersion") as? String ?: throw IllegalArgumentException("resourcePackVersion was null")
 
     from("${layout.projectDirectory}\\resourcepack\\WeaponMechanicsResourcePack-${resourcePackVersion}.zip")
     into(layout.buildDirectory)
@@ -86,5 +80,31 @@ tasks.register<Zip>("zipForSpigotRelease") {
 
     doFirst {
         println("Generate zip file")
+    }
+}
+
+tasks.register<Zip>("zipNewResourcePack") {
+    // root > resourcepack > current
+    // is a directory with the current resource pack files. This task will
+    // take all of those files and put them in a zip file with the correct
+    // version number.
+    val resourcePackVersion = findProperty("resourcePackVersion") as? String ?: throw IllegalArgumentException("resourcePackVersion was null")
+
+    // if there is already file with the same name, throw an exception
+    val file = file("resourcepack").resolve("WeaponMechanicsResourcePack-${resourcePackVersion}.zip")
+    if (file.exists()) {
+        throw IllegalArgumentException("Resource pack v$resourcePackVersion already exists: ${file.absolutePath}")
+    }
+
+    archiveFileName.set("WeaponMechanicsResourcePack-${resourcePackVersion}.zip")
+    destinationDirectory.set(file("resourcepack"))
+
+    from(file("resourcepack").resolve("current"))
+
+    // add to git
+    doLast {
+        exec {
+            commandLine = listOf("git", "add", file.absolutePath)
+        }
     }
 }
