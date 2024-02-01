@@ -38,13 +38,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MainHand;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import com.cjcrafter.vivecraft.VSE;
-import com.cjcrafter.vivecraft.VivePlayer;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -240,7 +237,7 @@ public class ShootHandler implements IValidator, TriggerListener {
 
         // END RELOAD STUFF
 
-        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, true, isMelee);
+        shoot(entityWrapper, weaponTitle, weaponStack, getShootLocation(entityWrapper, weaponTitle, mainhand), mainhand, true, isMelee);
 
         boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
         if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
@@ -301,7 +298,7 @@ public class ShootHandler implements IValidator, TriggerListener {
                 // END RELOAD STUFF
 
                 // Only make the first projectile of burst modify spread change if its used
-                shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper.getEntity(), dualWield, mainhand), mainhand, shots == 0, false);
+                shoot(entityWrapper, weaponTitle, taskReference, getShootLocation(entityWrapper, weaponTitle, mainhand), mainhand, shots == 0, false);
 
                 boolean consumeEmpty = getConfigurations().getBool(weaponTitle + ".Shoot.Destroy_When_Empty") && CustomTag.AMMO_LEFT.getInteger(weaponStack) == 0;
                 if ((consumeEmpty || consumeItemOnShoot) && handleConsumeItemOnShoot(weaponStack, mainhand ? entityWrapper.getMainHandData() : entityWrapper.getOffHandData())) {
@@ -630,7 +627,8 @@ public class ShootHandler implements IValidator, TriggerListener {
         Projectile projectile = config.getObject(weaponTitle + ".Projectile", Projectile.class);
         if (projectile == null) return;
 
-        Location shootLocation = getShootLocation(livingEntity, false, true);
+        EntityWrapper entityWrapper = WeaponMechanics.getEntityWrapper(livingEntity);
+        Location shootLocation = getShootLocation(entityWrapper, weaponTitle, true);
         double projectileSpeed = config.getDouble(weaponTitle + ".Shoot.Projectile_Speed");
 
         for (int i = 0; i < config.getInt(weaponTitle + ".Shoot.Projectiles_Per_Shot"); ++i) {
@@ -672,44 +670,24 @@ public class ShootHandler implements IValidator, TriggerListener {
     }
 
     /**
-     * Get the shoot location based on dual wield and main hand
+     * Gets the location to shoot from.
+     *
+     * <p>The returned location will have its direction set to the desired shoot
+     * direction. For VR players, this will be the hand direction.
+     *
+     * @param shooter the entity that is shooting
+     * @param weaponTitle the weapon title
+     * @param mainhand whether the shooter is shooting from their mainhand
+     * @return the location to shoot from
      */
-    public Location getShootLocation(LivingEntity livingEntity, boolean dualWield, boolean mainhand) {
-
-        if (Bukkit.getPluginManager().getPlugin("VivecraftSpigot") != null
-                && livingEntity.getType() == EntityType.PLAYER) {
-            // Vivecraft support for VR players
-
-            VivePlayer vive = VSE.vivePlayers.get(livingEntity.getUniqueId());
-            if (vive != null && vive.isVR()) {
-                // Now we know it's actually VR player
-
-                // Get the position and direction from player metadata
-                Location location = vive.getControllerPos(mainhand ? 0 : 1);
-                location.setDirection(vive.getControllerDir(mainhand ? 0 : 1));
-                return location;
-            }
-
-            // Not VR player, let pass to these normal location finders
+    public Location getShootLocation(EntityWrapper shooter, String weaponTitle, boolean mainhand) {
+        ShootLocationChooser offsets = getConfigurations().getObject(weaponTitle + ".Shoot.Offsets", ShootLocationChooser.class);
+        if (offsets != null) {
+            return offsets.offset(shooter, mainhand);
         }
 
-        if (!dualWield) return livingEntity.getEyeLocation();
-
-        double dividedWidth = CompatibilityAPI.getEntityCompatibility().getWidth(livingEntity) / 2.0;
-
-        double distance;
-        if (livingEntity.getType() == EntityType.PLAYER && ((Player) livingEntity).getMainHand() == MainHand.LEFT) {
-            // This rarely happens, but some players use main hand LEFT
-            distance = mainhand ? 0.0 : 2.0;
-        } else {
-            distance = mainhand ? 2.0 : 0.0;
-        }
-
-        Location eyeLocation = livingEntity.getEyeLocation();
-        double yawToRad = Math.toRadians(eyeLocation.getYaw() + 90 * distance);
-        eyeLocation.setX(eyeLocation.getX() + (dividedWidth * Math.cos(yawToRad)));
-        eyeLocation.setZ(eyeLocation.getZ() + (dividedWidth * Math.sin(yawToRad)));
-        return eyeLocation;
+        Location location = ShootLocationChooser.getControllerPos(shooter.getEntity(), mainhand);
+        return (location == null) ? shooter.getEntity().getEyeLocation() : location;
     }
 
     @Override
