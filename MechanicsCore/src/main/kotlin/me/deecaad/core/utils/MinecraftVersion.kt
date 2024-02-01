@@ -17,17 +17,15 @@ object MinecraftVersions {
     @JvmStatic
     fun versions(): Map<String, Version> = allVersions
 
+    // by lazy so we can initialize this class for testing
     @JvmStatic
-    lateinit var CURRENT: Version
+    val CURRENT: Version by lazy { parseCurrentVersion() }
 
-    init {
-        try {
-            CURRENT = """\d+\.\d+\.\d+""".toRegex().find(Bukkit.getVersion())?.let {
-                allVersions[it.value]
-            } ?: throw IllegalStateException("Could not find any version associated with ${Bukkit.getVersion()}, map: $allVersions")
-        } catch (npe: NullPointerException) {
-            // occurs during testing
-        }
+    @JvmStatic
+    internal fun parseCurrentVersion(versionString: String = Bukkit.getVersion()): Version {
+        return """\d+\.\d+\.\d+""".toRegex().find(versionString)?.let {
+            allVersions[it.value]
+        } ?: throw IllegalStateException("Could not find any version associated with $versionString, map: $allVersions")
     }
 
     /**
