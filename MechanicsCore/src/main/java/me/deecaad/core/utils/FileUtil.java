@@ -2,13 +2,13 @@ package me.deecaad.core.utils;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -145,7 +145,7 @@ public final class FileUtil {
 
         YamlConfiguration from;
         try {
-            from = YamlConfiguration.loadConfiguration(new InputStreamReader(resource.openStream()));
+            from = YamlConfiguration.loadConfiguration(new InputStreamReader(resource.openStream(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new InternalError(e);
         }
