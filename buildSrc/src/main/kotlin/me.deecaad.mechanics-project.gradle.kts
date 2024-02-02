@@ -44,7 +44,6 @@ spotless {
         ktlint()
     }
     java {
-        googleJavaFormat()
-            .reorderImports(false)
+        eclipse().configFile(rootProject.file("java-style.xml").absolutePath)
     }
 }
